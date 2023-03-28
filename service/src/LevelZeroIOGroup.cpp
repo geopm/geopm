@@ -545,7 +545,7 @@ namespace geopm
                                                    domain_idx,
                                                    "NUM_REPORTS");
                                   },
-                                  .01
+                                  1
                                   }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
@@ -1107,15 +1107,6 @@ namespace geopm
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-            if ((signal_name.find(":METRIC:") != std::string::npos ) && //||
-                //m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
-                domain_type == GEOPM_DOMAIN_GPU_CHIP) {
-                for (int domain_idx = 0; domain_idx <
-                     m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
-                    m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_GPU_CHIP, domain_idx);
-                }
-            }
-
             result = (it->second.m_signals.at(domain_idx))->read();
         }
         else {

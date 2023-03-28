@@ -343,6 +343,11 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
                                           6, 12, 22, 15};
     std::vector<double> mock_energy_chip = {4000000, 5000000, 1100000, 2621000000,
                                             4200000, 5200000, 1120000, 2621200000,};
+
+    std::vector<double> mock_zet_num_reports = {23, 70, 50, 2, 5, 57, 88, 93};
+    std::vector<double> mock_zet_stall = {10, 9, 150, 510, 13, 14, 51, 45};
+    std::vector<double> mock_zet_active = {124, 12, 23, 42, 45, 54, 68, 97};
+
     std::vector<int> batch_idx;
 
     LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
@@ -362,6 +367,14 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         EXPECT_CALL(*m_device_pool, energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_time_chip.at(sub_idx)));
         batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
+
+    for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
+        // On live systems we do not support read_signal of ZET signals.
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS")).WillOnce(Return(mock_zet_num_reports.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_ACTIVE")).WillOnce(Return(mock_zet_active.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_STALL")).WillOnce(Return(mock_zet_stall.at(sub_idx)));
+    }
+
 
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
@@ -393,6 +406,14 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
         EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
+
+        //ZET
+        double num_reps = levelzero_io.read_signal("LEVELZERO::METRIC:NUM_REPORTS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        EXPECT_DOUBLE_EQ(num_reps, mock_zet_num_reports.at(sub_idx));
+        double zet_stall = levelzero_io.read_signal("LEVELZERO::METRIC:XVE_STALL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        EXPECT_DOUBLE_EQ(zet_stall, mock_zet_stall.at(sub_idx) / 100);
+        double zet_active = levelzero_io.read_signal("LEVELZERO::METRIC:XVE_ACTIVE", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        EXPECT_DOUBLE_EQ(zet_active, mock_zet_active.at(sub_idx) / 100);
     }
 
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
@@ -884,7 +905,7 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
         EXPECT_CALL(*m_device_pool, // GPU_POWER_LIMIT_MIN_AVAIL
                     power_limit_min(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL));
     }
-    // End copy/paste from SetUpDefualtExpectCalls
+    // End copy/paste from SetUpDefaultExpectCalls
 
     // The implementation of the pruning code only tests each control on a
     // single domain index if a problem is encountered.  If there is a problem
