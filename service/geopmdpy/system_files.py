@@ -117,7 +117,12 @@ def secure_make_dirs(path, perm_mode=0o700):
             os.mkdir(path, mode=perm_mode)
     # If the path doesn't exist
     else:
-        os.makedirs(path, mode=perm_mode)
+        umask = ~perm_mode & 0o777
+        old_mask = os.umask(umask)
+        try:
+            os.makedirs(path, mode=perm_mode)
+        finally:
+            os.umask(old_mask)
 
 
 def secure_make_file(path, contents):
