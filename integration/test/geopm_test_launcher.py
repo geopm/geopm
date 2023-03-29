@@ -68,7 +68,10 @@ class TestLauncher(object):
         self._trace_signals = trace_signals
         self._node_list = None
         self._exclude_list = None
-        self._pmpi_ctl = 'process'
+        if os.environ.get('GEOPMBENCH_NO_MPI') is not None:
+            self._pmpi_ctl = 'application'
+        else:
+            self._pmpi_ctl = 'process'
         self._job_name = 'geopm_int_test'
         self._timeout = 30
         self._disable_ompt = False
