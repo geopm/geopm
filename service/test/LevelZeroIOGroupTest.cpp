@@ -345,7 +345,6 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
                                             4200000, 5200000, 1120000, 2621200000,};
 
     std::vector<double> mock_zet_num_reports = {23, 70, 50, 2, 5, 57, 88, 93};
-    std::vector<double> mock_zet_stall = {10, 9, 150, 510, 13, 14, 51, 45};
     std::vector<double> mock_zet_active = {124, 12, 23, 42, 45, 54, 68, 97};
 
     std::vector<int> batch_idx;
@@ -371,8 +370,13 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         // On live systems we do not support read_signal of ZET signals.
         EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS")).WillOnce(Return(mock_zet_num_reports.at(sub_idx)));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::METRIC:NUM_REPORTS", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        EXPECT_CALL(*m_device_pool, metric_read(GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+    }
+
+    for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_ACTIVE")).WillOnce(Return(mock_zet_active.at(sub_idx)));
-        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_STALL")).WillOnce(Return(mock_zet_stall.at(sub_idx)));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::METRIC:XVE_ACTIVE", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
 
@@ -404,21 +408,19 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         double energy_chip = levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         double energy_chip_batch = levelzero_io.sample(batch_idx.at(sub_idx + 2 * m_num_gpu_subdevice));
 
-        EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx) / 1e6);
         EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
 
         //ZET
-        double num_reps = levelzero_io.read_signal("LEVELZERO::METRIC:NUM_REPORTS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double num_reps = levelzero_io.sample(batch_idx.at(sub_idx + 3 * m_num_gpu_subdevice));
         EXPECT_DOUBLE_EQ(num_reps, mock_zet_num_reports.at(sub_idx));
-        double zet_stall = levelzero_io.read_signal("LEVELZERO::METRIC:XVE_STALL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        EXPECT_DOUBLE_EQ(zet_stall, mock_zet_stall.at(sub_idx) / 100);
-        double zet_active = levelzero_io.read_signal("LEVELZERO::METRIC:XVE_ACTIVE", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double zet_active = levelzero_io.sample(batch_idx.at(sub_idx + 4 * m_num_gpu_subdevice));
         EXPECT_DOUBLE_EQ(zet_active, mock_zet_active.at(sub_idx) / 100);
     }
 
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(3 * m_num_gpu_subdevice + gpu_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(5 * m_num_gpu_subdevice + gpu_idx));
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
     }
@@ -443,6 +445,14 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
     }
 
+    for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
+        // On live systems we do not support read_signal of ZET signals.
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS")).WillOnce(Return(mock_zet_num_reports.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_ACTIVE")).WillOnce(Return(mock_zet_active.at(sub_idx)));
+        //EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_STALL")).WillOnce(Return(mock_zet_stall.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, metric_read(GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+    }
+
     levelzero_io.read_batch();
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
@@ -460,11 +470,17 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
         EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
+
+        //ZET
+        double num_reps = levelzero_io.sample(batch_idx.at(sub_idx + 3 * m_num_gpu_subdevice));
+        EXPECT_DOUBLE_EQ(num_reps, mock_zet_num_reports.at(sub_idx));
+        double zet_active = levelzero_io.sample(batch_idx.at(sub_idx + 4 * m_num_gpu_subdevice));
+        EXPECT_DOUBLE_EQ(zet_active, mock_zet_active.at(sub_idx) / 100);
     }
 
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(3 * m_num_gpu_subdevice + gpu_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(5 * m_num_gpu_subdevice + gpu_idx));
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx) / 1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
     }
@@ -819,6 +835,7 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::METRIC:NUM_REPORTS", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "only supports batch access.");
 }
 
 TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)

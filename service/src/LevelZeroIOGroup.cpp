@@ -1107,6 +1107,12 @@ namespace geopm
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
+            if (signal_name.find(":METRIC:") != std::string::npos) {
+                throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
+                                ":l " + signal_name + " only supports batch access.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+
             result = (it->second.m_signals.at(domain_idx))->read();
         }
         else {
