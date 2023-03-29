@@ -181,6 +181,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              MANIFEST \
              Makefile.am \
              README.md \
+             SECURITY.md \
              TODO \
              autogen.sh \
              configure.ac \

@@ -67,6 +67,7 @@ MANIFEST
 pull_request_template.md
 README
 README.md
+SECURITY.md
 scripts/MANIFEST.in
 scripts/requirements.txt
 scripts/test/test_io_experiment.report
