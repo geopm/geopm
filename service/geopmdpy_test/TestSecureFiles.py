@@ -23,12 +23,15 @@ class TestSecureFiles(unittest.TestCase):
         """
         self._test_name = 'TestSecureFiles'
         self._TEMP_DIR = tempfile.TemporaryDirectory(self._test_name)
+        self._old_umask = os.umask(0)
+        os.umask(self._old_umask)
 
     def tearDown(self):
         """Clean up temporary directory
 
         """
         self._TEMP_DIR.cleanup()
+        os.umask(self._old_umask)
 
     def check_dir_perms(self, path, perm_mode=0o700):
         """Assert that the path points to a file with mode 0o700
@@ -245,6 +248,26 @@ class TestSecureFiles(unittest.TestCase):
             mock_os_path_isdir.assert_called_once_with(sess_path)
         self.assertTrue(os.path.exists(renamed_path))
         self.check_dir_perms(sess_path)
+
+    def test_creation_nested_dirs(self):
+        """Creation of nested directories
+
+        Test secure_make_dirs() properly sets a umask to limit
+        permissions for intermediate directories that need to
+        be created as part of the path.
+        """
+        base_path = f"{self._TEMP_DIR.name}/level1"
+        sess_path = f"{base_path}/level2"
+        os.umask(0o000)
+        perm_mode = 0o711
+        secure_make_dirs(sess_path, perm_mode)
+        self.check_dir_perms(sess_path, perm_mode)
+        
+        st = os.stat(base_path)
+        base_perm_mode = stat.S_IMODE(st.st_mode)
+        umask = ~perm_mode & 0o777
+        self.assertEqual(base_perm_mode & umask, 0)
+
 
     def test_read_file_not_exists(self):
         """File to be securely read in does not exist!

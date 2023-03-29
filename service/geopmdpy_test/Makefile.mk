@@ -122,6 +122,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_perms \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_user_owner \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_group_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_nested_dirs \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_not_exists \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_directory \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_link \
