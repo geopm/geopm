@@ -728,7 +728,7 @@ class PlatformService(object):
         result = []
         pids = self._active_sessions.get_profile_pids(profile_name)
         if pids is not None:
-            result = list(pids)
+            result = [pid for pid in pids if psutil.pid_exists(pid)]
         return result
 
     def get_profile_region_names(self, profile_name):
