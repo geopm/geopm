@@ -499,7 +499,7 @@ namespace geopm
             close(tmp_fd);
 
             std::ostringstream cmd;
-            cmd << "lscpu -x >> " << tmp_path << ";";
+            cmd << "unset LD_PRELOAD; lscpu -x >> " << tmp_path << ";";
 
             FILE *pid;
             err = geopm_topo_popen(cmd.str().c_str(), &pid);
