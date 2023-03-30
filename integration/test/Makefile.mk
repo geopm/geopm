@@ -17,6 +17,7 @@ EXTRA_DIST += integration/test/check_trace.py \
               integration/test/test_tutorial_python_agents.py \
               integration/test/test_application_totals_pinning.py \
               integration/test/test_init_control.py
+              integration/test/test_time.py \
               # end
 
 include integration/test/test_enforce_policy.mk
@@ -45,3 +46,4 @@ include integration/test/test_progress.mk
 include integration/test/test_programmable_counters.mk
 include integration/test/test_cpu_activity_agent.mk
 include integration/test/test_cpu_characterization.mk
+include integration/test/test_multi_app.mk
