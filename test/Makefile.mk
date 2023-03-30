@@ -168,6 +168,10 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FilePolicyTest.parse_json_file \
               test/gtest_links/FilePolicyTest.negative_bad_files \
               test/gtest_links/FilePolicyTest.negative_parse_json_file \
+              test/gtest_links/FFNetAgentTest.test_validate_badsize_policy \
+              test/gtest_links/FFNetAgentTest.test_validate_badphi_policy\
+              test/gtest_links/FFNetAgentTest.test_validate_good_policy\
+              test/gtest_links/FFNetAgentTest.test_validate_empty_policy \
               test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
               test/gtest_links/FrequencyGovernorTest.adjust_platform \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
@@ -440,6 +444,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/EpochIOGroupTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
                           test/FilePolicyTest.cpp \
+                          test/FFNetAgentTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/InitControlTest.cpp \
@@ -451,6 +456,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockApplicationStatus.hpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
+                          test/MockDomainNetMap.hpp \
                           test/MockEndpoint.hpp \
                           test/MockEndpointPolicyTracer.hpp \
                           test/MockEndpointUser.hpp \
@@ -468,6 +474,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockProfileTable.hpp \
                           test/MockProfileTracer.hpp \
                           test/MockRecordFilter.hpp \
+                          test/MockRegionHintRecommender.hpp \
                           test/MockReporter.hpp \
                           test/MockSampleAggregator.hpp \
                           test/MockSharedMemory.hpp \
