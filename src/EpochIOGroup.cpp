@@ -121,11 +121,14 @@ namespace geopm
         /// update_records() will get called by controller
         auto records = m_app.get_records();
         for (const auto &record : records) {
-            GEOPM_DEBUG_ASSERT(m_process_cpu_map.find(record.process) != m_process_cpu_map.end(),
-                               "Process " + std::to_string(record.process) + " in record not found");
             if (record.event == EVENT_EPOCH_COUNT) {
-                const auto &cpu_set = m_process_cpu_map.at(record.process);
-                for (const auto &cpu_idx : cpu_set) {
+                auto cpu_set_it = m_process_cpu_map.find(record.process);
+                if (cpu_set_it == m_process_cpu_map.end()) {
+                    throw Exception("Process " + std::to_string(record.process) +
+                                    " in record not found",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                for (const auto &cpu_idx : cpu_set_it->second) {
                     m_per_cpu_count[cpu_idx] = (double)record.signal;
                 }
             }
