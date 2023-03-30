@@ -34,6 +34,12 @@ namespace geopm
             };
 
             FFNetAgent();
+            FFNetAgent(
+                    PlatformIO &plat_io,
+                    const PlatformTopo &topo,
+                    std::map<std::pair<geopm_domain_e, int>, std::unique_ptr<DomainNetMap> > &net_map,
+                    std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > &freq_recommender
+            );
             FFNetAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~FFNetAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -68,10 +74,15 @@ namespace geopm
                     return type < other.type || (type == other.type && index < other.index);
                 }
             };
+            struct m_control_s {
+                int max_idx;
+                int min_idx;
+                double last_value;
+            };
+
             static bool is_all_nan(const std::vector<double> &vec);
 
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
             bool m_do_write_batch;
@@ -83,17 +94,19 @@ namespace geopm
             std::map<m_domain_key_s, std::unique_ptr<DomainNetMap> > m_net_map;
             std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > m_freq_recommender;
 
-            // m_freq_control[domain type][domain index] = platform io control index
-            std::map<m_domain_key_s, int> m_freq_control;
+            std::map<m_domain_key_s, m_control_s> m_freq_control;
             std::vector<geopm_domain_e> m_domain_types;
             std::vector<m_domain_key_s> m_domains;
 
-            const static std::map<geopm_domain_e, const char *> nnet_envname;
-            const static std::map<geopm_domain_e, const char *> freqmap_envname;
-            const static std::map<geopm_domain_e, std::string> max_freq_signal_name;
-            const static std::map<geopm_domain_e, std::string> min_freq_signal_name;
-            const static std::map<geopm_domain_e, std::string> max_freq_control_name;
-            const static std::map<geopm_domain_e, std::string> trace_suffix;
+            static const std::map<geopm_domain_e, const char *> nnet_envname;
+            static const std::map<geopm_domain_e, const char *> freqmap_envname;
+            static const std::map<geopm_domain_e, std::string> max_freq_signal_name;
+            static const std::map<geopm_domain_e, std::string> min_freq_signal_name;
+            static const std::map<geopm_domain_e, std::string> max_freq_control_name;
+            static const std::map<geopm_domain_e, std::string> min_freq_control_name;
+            static const std::map<geopm_domain_e, std::string> trace_suffix;
+
+            void init_domain_indices(const geopm::PlatformTopo &topo);
     };
 }
 #endif  /* FFNETAGENT_HPP_INCLUDE */
