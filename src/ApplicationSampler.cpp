@@ -123,8 +123,9 @@ namespace geopm
         , m_is_first_update(true)
         , m_hint_last(m_num_cpu, uint64_t(GEOPM_REGION_HINT_UNSET))
         , m_do_profile(do_profile)
-        , m_per_cpu_process(m_num_cpu, -1)
         , m_profile_name(profile_name)
+        , m_slow_loop_count(1)
+        , m_next_slow_loop(1)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -141,6 +142,20 @@ namespace geopm
         if (!m_do_profile || !m_status) {
             return;
         }
+        if (m_slow_loop_count == m_next_slow_loop) {
+            auto tmp_client_cpu_map = update_client_cpu_map(client_pids());
+            if (tmp_client_cpu_map == m_client_cpu_map) {
+                if (m_next_slow_loop < 10000000) {
+                   m_next_slow_loop *= 10;
+                }
+            }
+            else {
+                m_slow_loop_count = 0;
+                m_next_slow_loop = m_slow_loop_count + 1;
+                m_client_cpu_map = tmp_client_cpu_map;
+            }
+        }
+        ++m_slow_loop_count;
         m_status->update_cache();
         if (m_is_first_update) {
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
@@ -272,11 +287,6 @@ namespace geopm
         return m_status->get_progress_cpu(cpu_idx);
     }
 
-    std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
-    {
-        return m_per_cpu_process;
-    }
-
     std::map<int, ApplicationSamplerImp::m_process_s> ApplicationSamplerImp::connect_record_log(const std::vector<int> &client_pids)
     {
         std::map<int, m_process_s> result;
@@ -314,9 +324,45 @@ namespace geopm
         m_status = ApplicationStatus::make_unique(m_num_cpu, status_shmem);
     }
 
-    std::vector<int> ApplicationSamplerImp::connect_affinity(const std::vector<int> &client_pids)
+
+
+    void ApplicationSamplerImp::update_cpu_active(void)
     {
-        std::vector<int> result(m_num_cpu, -1);
+        std::fill(m_is_cpu_active.begin(), m_is_cpu_active.end(), false);
+        for (const auto &client_it : m_client_cpu_map) {
+            const std::set<int> &cpu_set = client_it.second;
+            for (int cpu_idx : cpu_set) {
+                m_is_cpu_active[cpu_idx] = true;
+            }
+        }
+    }
+
+    std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map(const std::vector<int> &client_pids)
+    {
+        std::map<int, std::set<int> > result;
+        bool try_connect_affinity = true;
+        int max_try = 10000;
+        for (int connect_count = 1; try_connect_affinity; ++connect_count) {
+            try {
+                result = update_client_cpu_map_helper(client_pids);
+                try_connect_affinity = false;
+            }
+            catch (const Exception &ex) {
+                if (connect_count == max_try ||
+                    std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
+                        throw;
+                    }
+                timespec delay = {0, 1000000};
+                nanosleep(&delay, NULL);
+            }
+        }
+        return result;
+    }
+
+    std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map_helper(const std::vector<int> &client_pids)
+    {
+        std::map<int, std::set<int> > result;
+        std::vector<int> per_cpu_process(m_num_cpu, -1);
         auto cpuset = geopm::make_cpu_set(m_num_cpu, {});
         auto all_cpuset = geopm::make_cpu_set(m_num_cpu, {});
         size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
@@ -327,12 +373,11 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
             CPU_OR_S(set_size, all_cpuset.get(), all_cpuset.get(), cpuset.get());
-            m_process_s &process = m_process_map.at(pid);
             for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
                 if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
-                    process.cpus.push_back(cpu_idx);
-                    if (result.at(cpu_idx) == -1) {
-                        result.at(cpu_idx) = pid;
+                    if (per_cpu_process.at(cpu_idx) == -1) {
+                        per_cpu_process.at(cpu_idx) = pid;
+                        result[pid].insert(cpu_idx);
                     }
                     else {
                         throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
@@ -341,11 +386,7 @@ namespace geopm
                 }
             }
         }
-        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            if (CPU_ISSET_S(cpu_idx, set_size, all_cpuset.get())) {
-                m_is_cpu_active[cpu_idx] = true;
-            }
-        }
+        update_cpu_active();
         return result;
     }
 
@@ -356,22 +397,7 @@ namespace geopm
                                "m_process_map is not empty, but we are connecting");
             connect_status();
             m_process_map = connect_record_log(client_pids);
-            bool try_connect_affinity = true;
-            int max_try = 100;
-            for (int connect_count = 1; try_connect_affinity; ++connect_count) {
-                try {
-                    m_per_cpu_process = connect_affinity(client_pids);
-                    try_connect_affinity = false;
-                }
-                catch (const Exception &ex) {
-                    if (connect_count == max_try ||
-                        std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
-                        throw;
-                    }
-                    timespec delay = {0, 1000000};
-                    while (nanosleep(&delay, &delay) == EINTR);
-                }
-            }
+            m_client_cpu_map = update_client_cpu_map(client_pids);
         }
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
@@ -384,6 +410,26 @@ namespace geopm
                       << ", sched_setaffinity() failed: " << strerror(errno) << "\n";
 #endif
         }
+    }
+
+    std::set<int> ApplicationSamplerImp::client_cpu_set(int client_pid) const
+    {
+        auto client_it = m_client_cpu_map.find(client_pid);
+        if (client_it == m_client_cpu_map.end()) {
+            throw Exception("ApplicationSamplerImp::client_cpu_set(): Process " +
+                            std::to_string(client_pid) + " not managed by sampler",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return client_it->second;
+    }
+
+    std::vector<int> ApplicationSamplerImp::client_pids(void) const
+    {
+        std::vector<int> result;
+        for (const auto &client_it : m_client_cpu_map) {
+            result.push_back(client_it.first);
+        }
+        return result;
     }
 
     int ApplicationSamplerImp::sampler_cpu(void)

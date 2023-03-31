@@ -57,7 +57,6 @@ namespace geopm
             const ApplicationSampler &m_app;
             int m_num_cpu;
             std::vector<double> m_per_cpu_count;
-            std::map<int, std::set<int> > m_process_cpu_map;
             bool m_is_batch_read;
             std::map<int, int> m_cpu_signal_map;
             std::vector<int> m_active_signal;

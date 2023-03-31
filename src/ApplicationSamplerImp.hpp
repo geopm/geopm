@@ -28,7 +28,6 @@ namespace geopm
                 std::shared_ptr<ApplicationRecordLog> record_log;
                 std::vector<record_s> records;
                 std::vector<short_region_s> short_regions;
-                std::vector<int> cpus;
             };
             ApplicationSamplerImp();
             ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
@@ -48,13 +47,16 @@ namespace geopm
             uint64_t cpu_hint(int cpu_idx) const override;
             double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
             double cpu_progress(int cpu_idx) const override;
-            std::vector<int> per_cpu_process(void) const override;
             void connect(const std::vector<int> &client_pids) override;
+            std::vector<int> client_pids(void) const override;
+            std::set<int> client_cpu_set(int client_pid) const override;
             int sampler_cpu(void);
         private:
             std::map<int, m_process_s> connect_record_log(const std::vector<int> &client_pids);
             void connect_status(void);
-            std::vector<int> connect_affinity(const std::vector<int> &client_pids);
+            std::map<int, std::set<int> > update_client_cpu_map(const std::vector<int> &client_pids);
+            std::map<int, std::set<int> > update_client_cpu_map_helper(const std::vector<int> &client_pids);
+            void update_cpu_active(void);
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
@@ -70,8 +72,10 @@ namespace geopm
             bool m_is_first_update;
             std::vector<uint64_t> m_hint_last;
             bool m_do_profile;
-            std::vector<int> m_per_cpu_process;
             std::string m_profile_name;
+            std::map<int, std::set<int> > m_client_cpu_map;
+            int m_slow_loop_count;
+            int m_next_slow_loop;
     };
 }
 
