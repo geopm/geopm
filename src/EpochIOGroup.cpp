@@ -39,14 +39,7 @@ namespace geopm
         , m_per_cpu_count(m_num_cpu, NAN)
         , m_is_batch_read(false)
     {
-        int cpu_idx = 0;
-        for (const auto &proc : m_app.per_cpu_process()) {
-            if (proc != -1) {
-                m_process_cpu_map[proc].insert(cpu_idx);
-                m_per_cpu_count[cpu_idx] = 0;
-            }
-            ++cpu_idx;
-        }
+
     }
 
     std::set<std::string> EpochIOGroup::signal_names(void) const
@@ -122,13 +115,7 @@ namespace geopm
         auto records = m_app.get_records();
         for (const auto &record : records) {
             if (record.event == EVENT_EPOCH_COUNT) {
-                auto cpu_set_it = m_process_cpu_map.find(record.process);
-                if (cpu_set_it == m_process_cpu_map.end()) {
-                    throw Exception("Process " + std::to_string(record.process) +
-                                    " in record not found",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                }
-                for (const auto &cpu_idx : cpu_set_it->second) {
+                for (int cpu_idx : m_app.client_cpu_set(record.process)) {
                     m_per_cpu_count[cpu_idx] = (double)record.signal;
                 }
             }

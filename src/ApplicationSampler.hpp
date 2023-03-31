@@ -107,17 +107,6 @@ namespace geopm
             /// @return Value between 0.0 and 1.0 representing the
             ///         fraction of work completed, or NAN.
             virtual double cpu_progress(int cpu_idx) const = 0;
-            /// @brief Get the process ID for each linux logical CPU.
-            ///
-            /// A vector of length the number of CPUs on the system is
-            /// returned.  If a CPU has been claimed by a process, the
-            /// returned value in the vector corresponding to the CPU
-            /// will be the process identifier.  If a CPU is unclaimed
-            /// the value will be populated with -1.
-            ///
-            /// @return A vector of process identifiers indexed over
-            ///         the GEOPM_DOMAIN_CPU.
-            virtual std::vector<int> per_cpu_process(void) const = 0;
             /// @brief Connect with an application using a key
             ///
             /// Called by the Controller to set up all channels of
@@ -125,6 +114,8 @@ namespace geopm
             /// string as a key.
             ///
             virtual void connect(const std::vector<int> &client_pids) = 0;
+            virtual std::vector<int> client_pids(void) const = 0;
+            virtual std::set<int> client_cpu_set(int client_pid) const = 0;
         protected:
             ApplicationSampler() = default;
         private:

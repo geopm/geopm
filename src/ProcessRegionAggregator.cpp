@@ -26,13 +26,7 @@ namespace geopm
     ProcessRegionAggregatorImp::ProcessRegionAggregatorImp(ApplicationSampler &sampler)
         : m_app_sampler(sampler)
     {
-        std::set<int> procs;
-        for (const auto &pp : m_app_sampler.per_cpu_process()) {
-            if (pp != -1) {
-                procs.insert(pp);
-            }
-        }
-        m_num_process = procs.size();
+        m_num_process = m_app_sampler.client_pids().size();
         if (m_num_process == 0) {
             throw Exception("ProcessRegionAggregator: expected at least one process",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
