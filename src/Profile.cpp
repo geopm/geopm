@@ -94,7 +94,6 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        init_cpu_set(m_num_cpu);
         try {
             m_service_proxy->platform_start_profile(m_prof_name);
             init_app_status();
@@ -128,17 +127,18 @@ namespace geopm
 
     }
 
-    void ProfileImp::init_cpu_set(int num_cpu)
+    std::set<int> ProfileImp::reset_cpu_set(void)
     {
-        if (m_cpu_set.empty()) {
-            auto proc_cpuset = geopm::make_cpu_set(num_cpu, {});
-            geopm_sched_proc_cpuset(num_cpu, proc_cpuset.get());
-            for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-                if (CPU_ISSET(cpu_idx, proc_cpuset)) {
-                    m_cpu_set.insert(cpu_idx);
-                }
+        m_cpu_set.clear();
+        auto proc_cpuset = geopm::make_cpu_set(m_num_cpu, {});
+        geopm_sched_proc_cpuset(m_num_cpu, proc_cpuset.get());
+        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+            if (CPU_ISSET(cpu_idx, proc_cpuset)) {
+                m_cpu_set.insert(cpu_idx);
             }
         }
+        m_app_status->set_valid_cpu(m_cpu_set);
+        return m_cpu_set;
     }
 
     void ProfileImp::init_app_status(void)
@@ -150,6 +150,7 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_app_status != nullptr,
                            "Profile::init_app_status(): m_app_status not initialized");
+        reset_cpu_set();
     }
 
     void ProfileImp::init_app_record_log(void)
@@ -162,9 +163,6 @@ namespace geopm
 
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
                            "Profile::init_app_record_log(): m_app_record_log not initialized");
-
-        m_app_status->set_valid_cpu(m_cpu_set);
-
     }
 
     ProfileImp::~ProfileImp()

@@ -212,6 +212,9 @@ static int geopm_pmpi_init(const char *exec_name)
         if (!err) {
             err = geopm_env_do_profile(&do_profile);
         }
+        if (!err && do_profile) {
+            geopm::Profile::default_profile().reset_cpu_set();
+        }
 #ifdef GEOPM_DEBUG
         if (err) {
             char err_msg[PATH_MAX];
