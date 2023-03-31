@@ -66,6 +66,10 @@ namespace geopm
         timespec delay = {0, 1000000};
         do {
             m_profile_pids = get_profile_pids();
+            auto ctl_it = m_profile_pids.find(getpid());
+            if (ctl_it != m_profile_pids.end()) {
+                m_profile_pids.erase(ctl_it);
+            }
             if (m_profile_pids.size() >= (size_t)m_num_proc) {
                 m_is_connected = true;
                 break;
