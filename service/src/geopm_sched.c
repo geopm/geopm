@@ -169,6 +169,7 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
 {
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
+    (void)geopm_sched_proc_cpuset_pid(getpid(), num_cpu, g_proc_cpuset);
     int sched_num_cpu = geopm_sched_num_cpu();
     size_t cpuset_size = CPU_ALLOC_SIZE(num_cpu);
     if (!err && cpuset_size < g_proc_cpuset_size) {
@@ -196,6 +197,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
                the woomp mask will have all bits set. */
 
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
+    (void)geopm_sched_proc_cpuset_pid(getpid(), num_cpu, g_proc_cpuset);
     int sched_num_cpu = geopm_sched_num_cpu();
     size_t req_alloc_size = CPU_ALLOC_SIZE(num_cpu);
 

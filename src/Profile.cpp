@@ -132,11 +132,14 @@ namespace geopm
         m_cpu_set.clear();
         auto proc_cpuset = geopm::make_cpu_set(m_num_cpu, {});
         geopm_sched_proc_cpuset(m_num_cpu, proc_cpuset.get());
+        std::cerr << "DEBUG: PID: " << getpid();
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             if (CPU_ISSET(cpu_idx, proc_cpuset)) {
                 m_cpu_set.insert(cpu_idx);
+                std::cerr << cpu_idx << ", ";
             }
         }
+        std::cerr << "\n";
         m_app_status->set_valid_cpu(m_cpu_set);
         return m_cpu_set;
     }
