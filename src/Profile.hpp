@@ -195,6 +195,7 @@ namespace geopm
 
             virtual std::vector<std::string> region_names(void) = 0;
 
+            virtual std::set<int> reset_cpu_set(void) = 0;
             /// @brief Returns the Linux logical CPU index that the
             ///        calling thread is executing on, and caches the
             ///        result to be used in future calls.  This method
@@ -249,10 +250,10 @@ namespace geopm
             void thread_init(uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
             std::vector<std::string> region_names(void) override;
+            std::set<int> reset_cpu_set(void) override;
         protected:
             bool m_is_enabled;
         private:
-            void init_cpu_set(int num_cpu);
             void init_app_status(void);
             void init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
