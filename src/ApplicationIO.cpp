@@ -50,10 +50,11 @@ namespace geopm
 
     }
 
-    void ApplicationIOImp::connect(void)
+    std::vector<int> ApplicationIOImp::connect(void)
     {
+        std::vector<int> result(m_profile_pids.begin(), m_profile_pids.end());
         if (m_is_connected) {
-            return;
+            return result;
         }
         double timeout = m_timeout;
         if (timeout < 0.0) {
@@ -73,6 +74,8 @@ namespace geopm
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
         m_slow_loop_last = time(nullptr);
+        result.assign(m_profile_pids.begin(), m_profile_pids.end());
+        return result;
     }
 
     // Private helper function
