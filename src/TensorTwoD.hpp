@@ -120,6 +120,7 @@ namespace geopm
             /// @brief Set the contents as a vector of tensors.
             void set_data(const std::vector<TensorOneD>);
 
+	    virtual ~TensorTwoD() = default;
         private:
             std::vector<TensorOneD> m_mat;
             std::shared_ptr<TensorMath> m_math;

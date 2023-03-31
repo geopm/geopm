@@ -30,7 +30,6 @@ TEST_F(TensorOneDTest, test_sum)
     TensorOneD tensor_a(vec_a, fake_math);
     TensorOneD tensor_b(vec_b);
 
-    //Mock::AllowLeak(&*fake_math);
     ON_CALL(*fake_math, add(_, _)).WillByDefault(Return(tensor_b));
     EXPECT_CALL(*fake_math, add(tensor_a, tensor_a)).Times(1);
     TensorOneD tensor_c = tensor_a + tensor_a;
