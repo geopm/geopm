@@ -124,7 +124,7 @@ namespace geopm
             /// communication with the application using the provided
             /// string as a key.
             ///
-            virtual void connect(void) = 0;
+            virtual void connect(const std::vector<int> &client_pids) = 0;
         protected:
             ApplicationSampler() = default;
         private:

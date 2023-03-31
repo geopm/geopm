@@ -29,7 +29,7 @@ namespace geopm
             virtual ~ApplicationIO() = default;
             /// @brief Connect to the application via
             ///        shared memory.
-            virtual void connect(void) = 0;
+            virtual std::vector<int> connect(void) = 0;
             /// @brief Returns true if the application has indicated
             ///        it is shutting down.
             virtual bool do_shutdown(void) = 0;
@@ -53,7 +53,7 @@ namespace geopm
                              int timeout,
                              int num_proc);
             virtual ~ApplicationIOImp();
-            void connect(void) override;
+            std::vector<int> connect(void) override;
             bool do_shutdown(void) override;
             std::string report_name(void) const override;
             std::string profile_name(void) const override;

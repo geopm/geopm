@@ -49,13 +49,15 @@ namespace geopm
             double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
             double cpu_progress(int cpu_idx) const override;
             std::vector<int> per_cpu_process(void) const override;
-            void connect(void) override;
+            void connect(const std::vector<int> &client_pids) override;
             int sampler_cpu(void);
         private:
+            std::map<int, m_process_s> connect_record_log(const std::vector<int> &client_pids);
+            void connect_status(void);
+            std::vector<int> connect_affinity(const std::vector<int> &client_pids);
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
-            std::shared_ptr<SharedMemory> m_status_shmem;
             std::shared_ptr<ApplicationStatus> m_status;
             const PlatformTopo &m_topo;
             int m_num_cpu;

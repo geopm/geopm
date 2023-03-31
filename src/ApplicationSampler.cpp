@@ -277,64 +277,99 @@ namespace geopm
         return m_per_cpu_process;
     }
 
-    void ApplicationSamplerImp::connect(void)
+    std::map<int, ApplicationSamplerImp::m_process_s> ApplicationSamplerImp::connect_record_log(const std::vector<int> &client_pids)
     {
-        if (!m_status && m_do_profile) {
-            std::string shmem_path = shmem_path_prof("status", getpid(), geteuid());
-            m_status_shmem = SharedMemory::make_unique_user(shmem_path, 0);
-            if (m_status_shmem->size() < ApplicationStatus::buffer_size(m_num_cpu)) {
-                throw Exception("ApplicationSamplerImp::connect(): Status shared memory buffer is incorrectly sized",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        std::map<int, m_process_s> result;
+        for (const auto &pid : client_pids) {
+            std::string shmem_path = shmem_path_prof("record-log", pid, geteuid());
+            std::shared_ptr<SharedMemory> record_log_shmem =
+                SharedMemory::make_unique_user(shmem_path, 0);
+            if (record_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
+                throw Exception("ApplicationSamplerImp::connect(): "
+                                "Record log shared memory buffer is incorrectly sized",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            m_status = ApplicationStatus::make_unique(m_num_cpu, m_status_shmem);
-            GEOPM_DEBUG_ASSERT(m_process_map.empty(),
-                               "m_process_map is not empty, but we are connecting");
-            // Get list of PIDs that are connected
-            auto service_proxy = ServiceProxy::make_unique();
-            std::vector<int> client_pids = service_proxy->platform_get_profile_pids(m_profile_name);
-            auto cpuset = geopm::make_cpu_set(m_num_cpu, {});
-            auto all_cpuset = geopm::make_cpu_set(m_num_cpu, {});
-            size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
-            for (const auto &pid : client_pids) {
-                std::string shmem_path = shmem_path_prof("record-log", pid, geteuid());
-                std::shared_ptr<SharedMemory> record_log_shmem =
-                    SharedMemory::make_unique_user(shmem_path, 0);
-                if (record_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
-                    throw Exception("ApplicationSamplerImp::connect(): "
-                                    "Record log shared memory buffer is incorrectly sized",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                }
-                auto emplace_ret = m_process_map.emplace(pid, m_process_s {});
-                auto &process = emplace_ret.first->second;
-                if (m_is_filtered) {
-                    process.filter = RecordFilter::make_unique(m_filter_name);
-                }
-                process.record_log_shmem = record_log_shmem;
-                process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
-                process.records.reserve(ApplicationRecordLog::max_record());
-                process.short_regions.reserve(ApplicationRecordLog::max_region());
-                int err = geopm_sched_proc_cpuset_pid(pid, m_num_cpu, cpuset.get());
-                if (err) {
-                    throw Exception("Failed to get cpuset for pid: " + std::to_string(pid),
-                                    err, __FILE__, __LINE__);
-                }
-                CPU_OR_S(set_size, all_cpuset.get(), all_cpuset.get(), cpuset.get());
-                for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-                    if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
-                        process.cpus.push_back(cpu_idx);
-                        if (m_per_cpu_process.at(cpu_idx) == -1 ) {
-                            m_per_cpu_process.at(cpu_idx) = pid;
-                        }
-                        else {
-                            throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
-                                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                        }
+            auto emplace_ret = result.emplace(pid, m_process_s {});
+            auto &process = emplace_ret.first->second;
+            if (m_is_filtered) {
+                process.filter = RecordFilter::make_unique(m_filter_name);
+            }
+            process.record_log_shmem = record_log_shmem;
+            process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
+            process.records.reserve(ApplicationRecordLog::max_record());
+            process.short_regions.reserve(ApplicationRecordLog::max_region());
+        }
+        return result;
+    }
+
+    void ApplicationSamplerImp::connect_status(void)
+    {
+        std::string shmem_path = shmem_path_prof("status", getpid(), geteuid());
+        std::shared_ptr<SharedMemory> status_shmem =
+            SharedMemory::make_unique_user(shmem_path, 0);
+        if (status_shmem->size() < ApplicationStatus::buffer_size(m_num_cpu)) {
+            throw Exception("ApplicationSamplerImp::connect(): Status shared memory buffer is incorrectly sized",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_status = ApplicationStatus::make_unique(m_num_cpu, status_shmem);
+    }
+
+    std::vector<int> ApplicationSamplerImp::connect_affinity(const std::vector<int> &client_pids)
+    {
+        std::vector<int> result(m_num_cpu, -1);
+        auto cpuset = geopm::make_cpu_set(m_num_cpu, {});
+        auto all_cpuset = geopm::make_cpu_set(m_num_cpu, {});
+        size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
+        for (const auto &pid : client_pids) {
+            int err = geopm_sched_proc_cpuset_pid(pid, m_num_cpu, cpuset.get());
+            if (err) {
+                throw Exception("Failed to get cpuset for pid: " + std::to_string(pid),
+                                err, __FILE__, __LINE__);
+            }
+            CPU_OR_S(set_size, all_cpuset.get(), all_cpuset.get(), cpuset.get());
+            m_process_s &process = m_process_map.at(pid);
+            for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+                if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
+                    process.cpus.push_back(cpu_idx);
+                    if (result.at(cpu_idx) == -1) {
+                        result.at(cpu_idx) = pid;
+                    }
+                    else {
+                        throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
                 }
             }
-            for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-                if (CPU_ISSET_S(cpu_idx, set_size, all_cpuset.get())) {
-                    m_is_cpu_active[cpu_idx] = true;
+        }
+        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+            if (CPU_ISSET_S(cpu_idx, set_size, all_cpuset.get())) {
+                m_is_cpu_active[cpu_idx] = true;
+            }
+        }
+        return result;
+    }
+
+    void ApplicationSamplerImp::connect(const std::vector<int> &client_pids)
+    {
+        if (!m_status && m_do_profile) {
+            GEOPM_DEBUG_ASSERT(m_process_map.empty(),
+                               "m_process_map is not empty, but we are connecting");
+            connect_status();
+            m_process_map = connect_record_log(client_pids);
+            bool try_connect_affinity = true;
+            int max_try = 100;
+            for (int connect_count = 1; try_connect_affinity; ++connect_count) {
+                try {
+                    m_per_cpu_process = connect_affinity(client_pids);
+                    try_connect_affinity = false;
+                }
+                catch (const Exception &ex) {
+                    if (connect_count == max_try ||
+                        std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
+                        throw;
+                    }
+                    timespec delay = {0, 1000000};
+                    while (nanosleep(&delay, &delay) == EINTR);
                 }
             }
         }
