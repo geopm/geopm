@@ -15,6 +15,7 @@ for p in PYTHON_PATHS:
 
 import os
 import json
+import copy
 
 import pbs
 
@@ -127,7 +128,7 @@ def do_power_limit_prologue():
 
     power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, power_limit_str)
     pbs.logmsg(pbs.LOG_DEBUG, f"{e.hook_name}: Requested power limit: {power_limit}")
-    current_settings = _controls.copy()
+    current_settings = copy.deepcopy(_controls)
     read_controls(current_settings)
     system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
     save_controls_to_file(_SAVED_CONTROLS_FILE, current_settings)
