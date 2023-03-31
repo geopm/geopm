@@ -322,8 +322,13 @@ namespace geopm
                 for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
                     if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
                         process.cpus.push_back(cpu_idx);
-                        // TODO: Last PID wins if the affinity masks overlap
-                        m_per_cpu_process.at(cpu_idx) = pid;
+                        if (m_per_cpu_process.at(cpu_idx) == -1 ) {
+                            m_per_cpu_process.at(cpu_idx) = pid;
+                        }
+                        else {
+                            throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
+                                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                        }
                     }
                 }
             }
