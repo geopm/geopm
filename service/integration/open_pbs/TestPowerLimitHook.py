@@ -9,6 +9,7 @@ import unittest
 from unittest import mock
 import json
 import os
+import copy
 
 mock.patch.dict("sys.modules", pbs=mock.MagicMock()).start()
 mock.patch("cffi.FFI.dlopen").start()
@@ -99,6 +100,19 @@ class TestPowerLimitPrologue(unittest.TestCase):
         self._mock_server_job.Resource_List = {
                 hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT}
 
+        # Prepare expectations
+        new_settings = copy.deepcopy(hook._controls)
+        power_limit_setting = hook._power_limit_control.copy()
+        power_limit_setting["setting"] = REQUESTED_POWER_LIMIT
+        expected_calls = [
+            mock.call(d["name"], d["domain_type"], d["domain_idx"],
+                      d["setting"])
+            for d in new_settings if d["name"] != power_limit_setting["name"]]
+        expected_calls.append(mock.call(power_limit_setting["name"],
+                                        power_limit_setting["domain_type"],
+                                        power_limit_setting["domain_idx"],
+                                        power_limit_setting["setting"]))
+
         hook.do_power_limit_prologue()
 
         # Assert prologue gets the right server job
@@ -110,17 +124,6 @@ class TestPowerLimitPrologue(unittest.TestCase):
         self.assertEqual(saved_settings, CURRENT_SETTINGS)
         # Assert new settings (including requested power limit) are written
         # correctly
-        new_settings = hook._controls.copy()
-        power_limit_setting = hook._power_limit_control.copy()
-        power_limit_setting["setting"] = REQUESTED_POWER_LIMIT
-        expected_calls = [
-            mock.call(d["name"], d["domain_type"], d["domain_idx"],
-                      d["setting"])
-            for d in new_settings if d["name"] != power_limit_setting["name"]]
-        expected_calls.append(mock.call(power_limit_setting["name"],
-                                        power_limit_setting["domain_type"],
-                                        power_limit_setting["domain_idx"],
-                                        power_limit_setting["setting"]))
         mock_write_control.assert_has_calls(expected_calls, any_order=True)
         # Assert hook accepts event
         self._mock_event.accept.assert_called_once()
