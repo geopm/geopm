@@ -10,6 +10,7 @@
 #include <string.h>
 #include <mpi.h>
 #include <limits.h>
+#include <unistd.h>
 #include <algorithm>
 
 #include "geopm_prof.h"
@@ -156,6 +157,7 @@ int main(int argc, char **argv)
             err = geopm_prof_exit(init_rid);
         }
         if (!err) {
+            sleep(5);
             // Run application
             app.run();
         }
