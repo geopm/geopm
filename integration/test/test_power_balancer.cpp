@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unistd.h>
 
 #include "geopm_prof.h"
 #include "geopm/Exception.hpp"
@@ -23,6 +24,7 @@ int main(int argc, char **argv)
     int comm_rank;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
+    sleep(5);
     // Parse command line option for verbosity
     bool is_verbose = false;
     if (comm_rank == 0) {

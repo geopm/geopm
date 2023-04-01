@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <mpi.h>
+#include <unistd.h>
 
 #include <vector>
 
@@ -21,6 +22,7 @@ int main(int argc, char **argv)
     int comm_rank = -1;
     int comm_size = -1;
     err = MPI_Init(&argc, &argv);
+    sleep(5);
     if (!err) {
         err = MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     }

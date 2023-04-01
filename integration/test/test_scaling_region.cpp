@@ -6,6 +6,7 @@
 #include <string.h>
 #include <limits.h>
 #include <mpi.h>
+#include <unistd.h>
 #include <cmath>
 #include <string>
 #include <vector>
@@ -27,6 +28,7 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
+    sleep(5);
     bool is_verbose = false;
     if (comm_rank == 0) {
         for (int arg_idx = 1; arg_idx < argc; ++arg_idx) {
