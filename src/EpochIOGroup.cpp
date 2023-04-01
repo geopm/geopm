@@ -36,7 +36,7 @@ namespace geopm
         : m_topo(topo)
         , m_app(app)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
-        , m_per_cpu_count(m_num_cpu, NAN)
+        , m_per_cpu_count(m_num_cpu, 0)
         , m_is_batch_read(false)
     {
 
