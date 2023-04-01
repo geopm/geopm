@@ -36,7 +36,7 @@ namespace geopm
         : m_topo(topo)
         , m_app(app)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
-        , m_per_cpu_count(m_num_cpu, 0)
+        , m_per_cpu_count(m_num_cpu, 0.0)
         , m_is_batch_read(false)
     {
 
@@ -118,6 +118,17 @@ namespace geopm
                 for (int cpu_idx : m_app.client_cpu_set(record.process)) {
                     m_per_cpu_count[cpu_idx] = (double)record.signal;
                 }
+            }
+        }
+        std::vector<bool> is_valid(m_num_cpu, false);
+        for (int pid : m_app.client_pids()) {
+            for (int cpu_idx : m_app.client_cpu_set(pid)) {
+                is_valid[cpu_idx] = true;
+            }
+        }
+        for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+            if (!is_valid[cpu_idx]) {
+                m_per_cpu_count[cpu_idx] = NAN;
             }
         }
         m_is_batch_read = true;
