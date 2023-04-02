@@ -6,13 +6,12 @@
 #ifndef DOMAINNETMAP_HPP_INCLUDE
 #define DOMAINNETMAP_HPP_INCLUDE
 
-#include "geopm/PlatformTopo.hpp"
-
 #include <memory>
+
+#include "geopm/PlatformTopo.hpp"
 
 namespace geopm
 {
-    class PlatformIO;
 
     /// @brief Class to load neural net from file, sample signals specified in 
     ///        that file, feed those signals into the neural net, and manage 
@@ -32,11 +31,10 @@ namespace geopm
             /// @throws geopm::Exception if neural net file does not contain 
             ///         expected keys or arrays
             ///
-            /// @param [in] plat_io PlatformIO instance
             /// @param [in] nn_path Path to neural net
             /// @param [in] domain_type Domain type, defined by geopm_domain_e enum 
             /// @param [in] domain_index Index of the domain to be measured
-            static std::unique_ptr<DomainNetMap> make_unique(PlatformIO &plat_io, const std::string n_path, geopm_domain_e domain_type, int domain_index);
+            static std::unique_ptr<DomainNetMap> make_unique(const std::string n_path, geopm_domain_e domain_type, int domain_index);
 
             virtual ~DomainNetMap() = default;
             /// @brief Collects latest signals for a specific domain and applies the 

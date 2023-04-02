@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "geopm/json11.hpp"
+#include "geopm/PlatformIO.hpp"
 
 #include "DenseLayer.hpp"
 #include "LocalNeuralNet.hpp"
@@ -22,7 +23,7 @@ namespace geopm
     class DomainNetMapImp : public DomainNetMap
     {
         public:
-            DomainNetMapImp(PlatformIO &plat_io, const std::string nn_path, geopm_domain_e domain_type, int domain_index);
+            DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index);
 
             /// @brief Collects latest signals for a specific domain and applies the 
             ///        resulting TensorOneD state to the neural net.
