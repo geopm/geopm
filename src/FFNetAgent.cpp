@@ -116,7 +116,6 @@ namespace geopm
         //Loading neural nets
         for (const m_domain_key_s domain_key : m_domains) {
             m_net_map[domain_key] = DomainNetMap::make_unique(
-                            m_platform_io,
                             getenv(nnet_envname.at(domain_key.type)),
                             domain_key.type,
                             domain_key.index);

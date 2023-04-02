@@ -11,7 +11,6 @@
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm/PlatformIO.hpp"
 #include "DenseLayerImp.hpp"
 #include "LocalNeuralNetImp.hpp"
 #include "TensorOneD.hpp"
@@ -19,13 +18,13 @@
 
 namespace geopm
 {
-    std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(PlatformIO &plat_io, const std::string nn_path, geopm_domain_e domain_type, int domain_index)
+    std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(const std::string nn_path, geopm_domain_e domain_type, int domain_index)
     {
-        return geopm::make_unique<DomainNetMapImp>(plat_io, nn_path, domain_type, domain_index);
+        return geopm::make_unique<DomainNetMapImp>(nn_path, domain_type, domain_index);
     }
 
-    DomainNetMapImp::DomainNetMapImp(PlatformIO &plat_io, const std::string nn_path, geopm_domain_e domain_type, int domain_index)
-        : m_platform_io(plat_io)
+    DomainNetMapImp::DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index)
+        : m_platform_io(platform_io())
     {
         std::ifstream file(nn_path);
 
