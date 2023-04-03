@@ -615,7 +615,7 @@ namespace geopm
                        m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)[metric_name] = {};
                        m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)["NUM_REPORTS"] = {};
                    }
-                   // Break out of loop once we've found the group of interest
+                   // Break out of the metric group for loop once we've found the group of interest (ComputeBasic, time based sampling).  
                    break;
                 }
             }
