@@ -350,8 +350,8 @@ namespace geopm
             catch (const Exception &ex) {
                 if (connect_count == max_try ||
                     std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
-                        throw;
-                    }
+                    throw;
+                }
                 timespec delay = {0, 1000000};
                 nanosleep(&delay, NULL);
             }

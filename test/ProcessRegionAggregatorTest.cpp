@@ -34,9 +34,8 @@ class ProcessRegionAggregatorTest : public ::testing::Test
 
 void ProcessRegionAggregatorTest::SetUp()
 {
-    EXPECT_CALL(m_app_sampler, per_cpu_process())
+    EXPECT_CALL(m_app_sampler, client_pids())
         .WillOnce(Return(std::vector<int>({11, 12, 13, 14})));
-
 
     m_account = std::make_shared<ProcessRegionAggregatorImp>(m_app_sampler);
 }

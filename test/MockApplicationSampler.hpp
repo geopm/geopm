@@ -21,10 +21,11 @@ class MockApplicationSampler : public geopm::ApplicationSampler
         MOCK_METHOD(double, cpu_hint_time, (int cpu_idx, uint64_t hint),
                     (const, override));
         MOCK_METHOD(double, cpu_progress, (int cpu_idx), (const, override));
-        MOCK_METHOD(std::vector<int>, per_cpu_process, (), (const, override));
-        MOCK_METHOD(void, connect, (), (override));
+        MOCK_METHOD(void, connect, (const std::vector<int> &client_pids), (override));
         MOCK_METHOD(geopm::short_region_s, get_short_region,
                     (uint64_t event_signal), (const, override));
+        MOCK_METHOD(std::vector<int>, client_pids, (), (const, override));
+        MOCK_METHOD(std::set<int>, client_cpu_set, (int client_pid), (const, override));
         std::vector<geopm::record_s> get_records(void) const override;
         /// Inject records to be used by next call to get_records()
         /// @todo: figure out input type for this
