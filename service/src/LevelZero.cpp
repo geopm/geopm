@@ -177,7 +177,7 @@ namespace geopm
     }
 
     LevelZeroImp::~LevelZeroImp() {
-        for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; gpu_idx++) {
+        for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
             for (int subdevice_idx = 0;
              subdevice_idx < m_devices.at(gpu_idx).num_subdevice;
              ++subdevice_idx) {
@@ -545,7 +545,7 @@ namespace geopm
                             __LINE__);
 
             // set metric_notifcation_event sampling period in nanoseconds
-            m_devices.at(device_idx).metric_sampling_period_ns =   1000000;
+            m_devices.at(device_idx).metric_sampling_period_ns = 1000000; // 1 ms
 
             m_devices.at(device_idx).subdevice.metric_data.push_back({});
 
@@ -582,7 +582,7 @@ namespace geopm
                    m_devices.at(device_idx).subdevice.num_metric.push_back(num_metric);
 
                    //Build metric map
-                   for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
+                   for (unsigned int metric_idx = 0; metric_idx < num_metric; ++metric_idx)
                    {
 
                        std::vector<zet_metric_handle_t> metric_handle(num_metric);
