@@ -489,19 +489,6 @@ TEST_F(ApplicationSamplerTest, hint_time)
     EXPECT_EQ(2.0, memory_time);
 }
 
-TEST_F(ApplicationSamplerTest, cpu_process)
-{
-    // TODO: re-enable with fix to per_cpu_process implementation
-    /*
-    EXPECT_CALL(*m_mock_status, get_process(_))
-        .WillOnce(Return(42))
-        .WillOnce(Return(24));
-    std::vector<int> cpu_process = m_app_sampler->per_cpu_process();
-    std::vector<int> expected {42, 24};
-    EXPECT_EQ(expected, cpu_process);
-    */
-}
-
 TEST_F(ApplicationSamplerTest, cpu_progress)
 {
     double expected = 0.75;
@@ -550,12 +537,4 @@ TEST_F(ApplicationSamplerTest, sampler_cpu)
     EXPECT_EQ(0, CPU_ISSET(1, cpu_set.get()));
     EXPECT_EQ(1, CPU_ISSET(2, cpu_set.get()));
     EXPECT_EQ(0, CPU_ISSET(3, cpu_set.get()));
-}
-
-TEST_F(ApplicationSamplerTest, per_cpu_process_no_sampler)
-{
-    auto process_actual = m_app_sampler->per_cpu_process();
-    EXPECT_EQ((size_t)m_num_cpu, process_actual.size());
-    std::vector<int> process_expect(m_num_cpu, -1);
-    EXPECT_EQ(process_expect, process_actual);
 }
