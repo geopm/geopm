@@ -996,4 +996,4 @@ class GEOPMService(object):
                 if line.startswith('CapEff:'):
                     cap = int(line.split(':')[1], 16)
         if cap & cap_sys_admin == 0:
-            raise RuntimeError('Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)')
+            raise RuntimeError(f'Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)')
