@@ -13,7 +13,7 @@
 #include "MockRecordFilter.hpp"
 #include "MockApplicationStatus.hpp"
 #include "MockPlatformTopo.hpp"
-#include "Scheduler.hpp"
+#include "MockScheduler.hpp"
 #include "record.hpp"
 #include "geopm_prof.h"
 #include "geopm_hint.h"
@@ -46,6 +46,7 @@ class ApplicationSamplerTest : public ::testing::Test
         std::shared_ptr<MockApplicationStatus> m_mock_status;
         int m_num_cpu;
         std::unique_ptr<MockPlatformTopo> m_mock_topo;
+        std::shared_ptr<MockScheduler> m_scheduler;
 };
 
 void ApplicationSamplerTest::SetUp()
@@ -66,6 +67,8 @@ void ApplicationSamplerTest::SetUp()
     EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu));
 
+    m_scheduler = std::make_shared<MockScheduler>();
+
     m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status,
                                                             *m_mock_topo,
                                                             m_process_map,
@@ -73,7 +76,8 @@ void ApplicationSamplerTest::SetUp()
                                                             "",
                                                             is_active,
                                                             true,
-                                                            "profile_name");
+                                                            "profile_name",
+                                                            m_scheduler);
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
 }
 

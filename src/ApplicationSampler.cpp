@@ -29,7 +29,7 @@
 #include "geopm_hash.h"
 #include "geopm_hint.h"
 #include "geopm_shmem.h"
-#include "geopm_sched.h"
+#include "Scheduler.hpp"
 
 namespace geopm
 {
@@ -97,7 +97,8 @@ namespace geopm
                                 environment().record_filter(),
                                 {},
                                 environment().timeout() != -1,
-                                environment().profile())
+                                environment().profile(),
+                                Scheduler::make_unique())
     {
 
     }
@@ -109,7 +110,8 @@ namespace geopm
                                                  const std::string &filter_name,
                                                  const std::vector<bool> &is_cpu_active,
                                                  bool do_profile,
-                                                 const std::string &profile_name)
+                                                 const std::string &profile_name,
+                                                 std::shared_ptr<Scheduler> scheduler)
         : m_time_zero(geopm::time_zero())
         , m_status(status)
         , m_topo(platform_topo)
@@ -126,6 +128,7 @@ namespace geopm
         , m_profile_name(profile_name)
         , m_slow_loop_count(1)
         , m_next_slow_loop(1)
+        , m_scheduler(scheduler)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -363,15 +366,10 @@ namespace geopm
     {
         std::map<int, std::set<int> > result;
         std::vector<int> per_cpu_process(m_num_cpu, -1);
-        auto cpuset = geopm::make_cpu_set(m_num_cpu, {});
         auto all_cpuset = geopm::make_cpu_set(m_num_cpu, {});
         size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
         for (const auto &pid : client_pids) {
-            int err = geopm_sched_proc_cpuset_pid(pid, m_num_cpu, cpuset.get());
-            if (err) {
-                throw Exception("Failed to get cpuset for pid: " + std::to_string(pid),
-                                err, __FILE__, __LINE__);
-            }
+            auto cpuset = m_scheduler->proc_cpuset(pid);
             CPU_OR_S(set_size, all_cpuset.get(), all_cpuset.get(), cpuset.get());
             for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
                 if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {

@@ -22,7 +22,7 @@
 #include "geopm_hint.h"
 #include "geopm_hash.h"
 #include "geopm_time.h"
-#include "geopm_sched.h"
+#include "Scheduler.hpp"
 #include "Environment.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/SharedMemory.hpp"
@@ -35,6 +35,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 #include "geopm_shmem.h"
+#include "geopm_sched.h"
 
 
 namespace geopm
@@ -46,7 +47,7 @@ namespace geopm
         if (result == -1) {
             result = geopm_sched_get_cpu();
 #ifdef GEOPM_DEBUG
-            if (result >= geopm_sched_num_cpu()) {
+            if (result >= m_scheduler->num_cpu()) {
                 throw geopm::Exception("Profile::get_cpu(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
@@ -62,7 +63,8 @@ namespace geopm
                            std::shared_ptr<ApplicationStatus> app_status,
                            std::shared_ptr<ApplicationRecordLog> app_record_log,
                            bool do_profile,
-                           std::shared_ptr<ServiceProxy> service_proxy)
+                           std::shared_ptr<ServiceProxy> service_proxy,
+                           std::shared_ptr<Scheduler> scheduler)
         : m_is_enabled(false)
         , m_prof_name(prof_name)
         , m_report(report)
@@ -78,6 +80,7 @@ namespace geopm
         , m_overhead_time_shutdown(0.0)
         , m_do_profile(do_profile)
         , m_service_proxy(service_proxy)
+        , m_scheduler(scheduler)
     {
         if (!m_do_profile) {
             return;
@@ -122,7 +125,8 @@ namespace geopm
                      nullptr,  // app_status
                      nullptr,  // app_record_log
                      environment().timeout() != -1,
-                     ServiceProxy::make_unique())
+                     ServiceProxy::make_unique(),
+                     Scheduler::make_unique())
     {
 
     }
@@ -130,8 +134,7 @@ namespace geopm
     std::set<int> ProfileImp::reset_cpu_set(void)
     {
         m_cpu_set.clear();
-        auto proc_cpuset = geopm::make_cpu_set(m_num_cpu, {});
-        geopm_sched_proc_cpuset(m_num_cpu, proc_cpuset.get());
+        auto proc_cpuset = m_scheduler->proc_cpuset();
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             if (CPU_ISSET(cpu_idx, proc_cpuset)) {
                 m_cpu_set.insert(cpu_idx);
