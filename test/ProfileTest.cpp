@@ -2,6 +2,7 @@
  * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "config.h"
 
 #include <sched.h>
 #include <unistd.h>
@@ -17,13 +18,13 @@
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "Profile.hpp"
-#include "config.h"
 
 #include "geopm_test.hpp"
 #include "MockComm.hpp"
 #include "MockApplicationRecordLog.hpp"
 #include "MockApplicationStatus.hpp"
 #include "MockServiceProxy.hpp"
+#include "MockScheduler.hpp"
 
 
 using geopm::Profile;
@@ -44,6 +45,7 @@ class ProfileTest : public ::testing::Test
         std::shared_ptr<MockApplicationStatus> m_status;
         std::shared_ptr<MockServiceProxy> m_service_proxy;
         std::unique_ptr<Profile> m_profile;
+        std::shared_ptr<MockScheduler> m_scheduler;
 };
 
 void ProfileTest::SetUp()
@@ -55,6 +57,9 @@ void ProfileTest::SetUp()
     EXPECT_CALL(*m_service_proxy, platform_stop_profile(_));
 
     EXPECT_CALL(*m_status, set_valid_cpu(m_cpu_list));
+
+    m_scheduler = std::make_shared<MockScheduler>();
+
     m_profile = geopm::make_unique<ProfileImp>("profile",
                                                "report",
                                                M_NUM_CPU,
@@ -62,7 +67,8 @@ void ProfileTest::SetUp()
                                                m_status,
                                                m_record_log,
                                                true,
-                                               m_service_proxy);
+                                               m_service_proxy,
+                                               m_scheduler);
 }
 
 TEST_F(ProfileTest, enter_exit)

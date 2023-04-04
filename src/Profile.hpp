@@ -208,6 +208,7 @@ namespace geopm
     class ApplicationRecordLog;
     class ApplicationStatus;
     class ServiceProxy;
+    class Scheduler;
 
     class ProfileImp : public Profile
     {
@@ -239,7 +240,8 @@ namespace geopm
                        std::shared_ptr<ApplicationStatus> app_status,
                        std::shared_ptr<ApplicationRecordLog> app_record_log,
                        bool do_profile,
-                       std::shared_ptr<ServiceProxy> service_proxy);
+                       std::shared_ptr<ServiceProxy> service_proxy,
+                       std::shared_ptr<Scheduler> scheduler);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             uint64_t region(const std::string &region_name, long hint) override;
@@ -295,6 +297,7 @@ namespace geopm
             std::set<uint64_t> m_region_ids;
 #endif
             std::shared_ptr<ServiceProxy> m_service_proxy;
+            std::shared_ptr<Scheduler> m_scheduler;
     };
 }
 

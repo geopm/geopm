@@ -37,8 +37,8 @@ namespace geopm
         public:
             SchedulerImp();
             virtual ~SchedulerImp() = default;
-            int num_cpu(void) const override;
-            int get_cpu(void) const override;
+            virtual int num_cpu(void) const override;
+            virtual int get_cpu(void) const override;
             virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
                 proc_cpuset(void) const override;
             virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
