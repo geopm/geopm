@@ -16,9 +16,38 @@ namespace geopm
     std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
         make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled);
 
-    // TODO: Add a "Scheduler" class that provides a mockable
-    // abstraction to the Linux sched_* interfaces in place of
-    // geopm_sched_*().
+    class Scheduler
+    {
+        public:
+            Scheduler() = default;
+            virtual ~Scheduler() = default;
+            static std::unique_ptr<Scheduler> make_unique(void);
+            virtual int num_cpu(void) const = 0;
+            virtual int get_cpu(void) const = 0;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                proc_cpuset(void) const = 0;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                proc_cpuset(int pid) const = 0;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                woomp(int pid) const = 0;
+    };
+
+    class SchedulerImp : public Scheduler
+    {
+        public:
+            SchedulerImp();
+            virtual ~SchedulerImp() = default;
+            int num_cpu(void) const override;
+            int get_cpu(void) const override;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                proc_cpuset(void) const override;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                proc_cpuset(int pid) const override;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                woomp(int pid) const override;
+        private:
+            const int m_num_cpu;
+    };
 }
 
 #endif
