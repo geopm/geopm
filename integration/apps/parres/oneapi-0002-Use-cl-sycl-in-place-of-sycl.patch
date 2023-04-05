@@ -1,0 +1,146 @@
+From 38afebf734afb83c347d55bc8b832f493747c1df Mon Sep 17 00:00:00 2001
+From: Alejandro Vilches <alejandro.vilches@intel.com>
+Date: Wed, 5 Apr 2023 14:23:52 -0700
+Subject: [PATCH] Use cl::sycl (in place of sycl)
+#
+#  Copyright (c) 2015 - 2023, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+Signed-off-by: Alejandro Vilches <alejandro.vilches@intel.com>
+---
+ Cxx11/nstream-onemkl.cc | 26 +++++++++++++-------------
+ Cxx11/prk_sycl.h        | 20 +++++++++-----------
+ 2 files changed, 22 insertions(+), 24 deletions(-)
+
+diff --git a/Cxx11/nstream-onemkl.cc b/Cxx11/nstream-onemkl.cc
+index 843dee93..121971ca 100644
+--- a/Cxx11/nstream-onemkl.cc
++++ b/Cxx11/nstream-onemkl.cc
+@@ -107,7 +107,7 @@ int main(int argc, char * argv[])
+   std::cout << "Number of iterations = " << iterations << std::endl;
+   std::cout << "Vector length        = " << length << std::endl;
+ 
+-  sycl::queue q(sycl::default_selector{}, sycl::property::queue::in_order{});
++  cl::sycl::queue q(cl::sycl::default_selector{}, cl::sycl::property::queue::in_order{});
+ 
+   prk::MPI::state mpi(&argc, &argv);
+ 
+@@ -119,9 +119,9 @@ int main(int argc, char * argv[])
+ 
+   const size_t bytes = length * sizeof(double);
+ 
+-  double * h_A = sycl::malloc_host<double>(length, q);
+-  double * h_B = sycl::malloc_host<double>(length, q);
+-  double * h_C = sycl::malloc_host<double>(length, q);
++  double * h_A = cl::sycl::malloc_host<double>(length, q);
++  double * h_B = cl::sycl::malloc_host<double>(length, q);
++  double * h_C = cl::sycl::malloc_host<double>(length, q);
+ 
+   for (size_t i=0; i<length; ++i) {
+     h_A[i] = 0;
+@@ -129,9 +129,9 @@ int main(int argc, char * argv[])
+     h_C[i] = 2;
+   }
+ 
+-  double * d_A = sycl::malloc_device<double>(length, q);
+-  double * d_B = sycl::malloc_device<double>(length, q);
+-  double * d_C = sycl::malloc_device<double>(length, q);
++  double * d_A = cl::sycl::malloc_device<double>(length, q);
++  double * d_B = cl::sycl::malloc_device<double>(length, q);
++  double * d_C = cl::sycl::malloc_device<double>(length, q);
+   q.memcpy(d_A, &(h_A[0]), bytes).wait();
+   q.memcpy(d_B, &(h_B[0]), bytes).wait();
+   q.memcpy(d_C, &(h_C[0]), bytes).wait();
+@@ -160,12 +160,12 @@ int main(int argc, char * argv[])
+ 
+   q.memcpy(&(h_A[0]), d_A, bytes).wait();
+ 
+-  sycl::free(d_C, q);
+-  sycl::free(d_B, q);
+-  sycl::free(d_A, q);
++  cl::sycl::free(d_C, q);
++  cl::sycl::free(d_B, q);
++  cl::sycl::free(d_A, q);
+ 
+-  sycl::free(h_B, q);
+-  sycl::free(h_C, q);
++  cl::sycl::free(h_B, q);
++  cl::sycl::free(h_C, q);
+ 
+   //////////////////////////////////////////////////////////////////////
+   /// Analyze and output results
+@@ -185,7 +185,7 @@ int main(int argc, char * argv[])
+     asum += prk::abs(h_A[i]);
+   }
+ 
+-  sycl::free(h_A, q);
++  cl::sycl::free(h_A, q);
+ 
+   double epsilon=1.e-8;
+   if (prk::abs(ar - asum) / asum > epsilon) {
+diff --git a/Cxx11/prk_sycl.h b/Cxx11/prk_sycl.h
+index 8d37e489..de58f039 100644
+--- a/Cxx11/prk_sycl.h
++++ b/Cxx11/prk_sycl.h
+@@ -6,8 +6,6 @@
+ 
+ #include "CL/sycl.hpp"
+ 
+-namespace sycl = cl::sycl;
+-
+ #if defined(__LIBSYCL_MAJOR_VERSION) && defined(__LIBSYCL_MINOR_VERSION) && defined(__LIBSYCL_PATCH_VERSION)
+ #    define __LIBSYCL_VERSION                                                                                          \
+         (__LIBSYCL_MAJOR_VERSION * 10000 + __LIBSYCL_MINOR_VERSION * 100 + __LIBSYCL_PATCH_VERSION)
+@@ -59,29 +57,29 @@ namespace prk {
+ 
+     namespace SYCL {
+ 
+-        void print_device_platform(const sycl::queue & q) {
++        void print_device_platform(const cl::sycl::queue & q) {
+ #if ! defined(TRISYCL)
+             auto d = q.get_device();
+             auto p = d.get_platform();
+-            std::cout << "SYCL Device:   " << d.get_info<sycl::info::device::name>() << std::endl;
+-            std::cout << "SYCL Platform: " << p.get_info<sycl::info::platform::name>() << std::endl;
++            std::cout << "SYCL Device:   " << d.get_info<cl::sycl::info::device::name>() << std::endl;
++            std::cout << "SYCL Platform: " << p.get_info<cl::sycl::info::platform::name>() << std::endl;
+ #endif
+         }
+ 
+-        bool has_fp64(const sycl::queue & q) {
++        bool has_fp64(const cl::sycl::queue & q) {
+ #if defined(TRISYCL) || defined(__HIPSYCL__) || defined(DPCPP_CUDA)
+             return true;
+ #else
+             auto device = q.get_device();
+ #if _PRK_SYCL2020_FEATURES
+-            return device.has(sycl::aspect::fp64);
++            return device.has(cl::sycl::aspect::fp64);
+ #else
+-            return device.has_extension(sycl::string_class("cl_khr_fp64"));
++            return device.has_extension(cl::sycl::string_class("cl_khr_fp64"));
+ #endif
+ #endif
+         }
+ 
+-        void print_exception_details(sycl::exception & e) {
++        void print_exception_details(cl::sycl::exception & e) {
+             std::cout << e.what() << std::endl;
+ #ifdef __COMPUTECPP__
+             std::cout << e.get_file_name() << std::endl;
+@@ -93,9 +91,9 @@ namespace prk {
+         }
+ 
+         // returns true if FP64 will not work
+-        bool print_gen12lp_helper(const sycl::queue & q) {
++        bool print_gen12lp_helper(const cl::sycl::queue & q) {
+             auto d = q.get_device();
+-            auto s = d.get_info<sycl::info::device::name>();
++            auto s = d.get_info<cl::sycl::info::device::name>();
+             if ( s.find("Gen12LP") != std::string::npos) {
+                 bool e1=false;
+                 bool e2=false;
+-- 
+2.34.1
+
