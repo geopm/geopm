@@ -1109,7 +1109,7 @@ namespace geopm
         if (it != m_signal_available.end()) {
             if (signal_name.find(":METRIC:") != std::string::npos) {
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
-                                ":l " + signal_name + " only supports batch access.",
+                                ": " + signal_name + " only supports batch access.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
