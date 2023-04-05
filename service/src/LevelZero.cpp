@@ -725,6 +725,19 @@ namespace geopm
 
         // TODO: nothing guarantees CHIP 0 was called first
         m_devices.at(l0_device_idx).subdevice.metric_streamer.push_back(metric_streamer);
+
+        // Allocate memory for future reads
+        size_t data_size = 0;
+        ze_result = zetMetricStreamerReadData(m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx),
+                                              UINT32_MAX, &data_size, nullptr);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": LevelZero Read Data get size failed",
+                        __LINE__);
+
+        std::vector<uint8_t> data(data_size);
+        m_devices.at(l0_device_idx).subdevice.zet_data_size.push_back(data_size);
+        m_devices.at(l0_device_idx).subdevice.zet_data.push_back(data);
     }
 
     // TODO don't pass metric_streamer
@@ -859,21 +872,15 @@ namespace geopm
 
             if (ze_host_result != ZE_RESULT_NOT_READY) {
                 ze_result_t ze_result;
+                uint32_t report_count_req = UINT32_MAX;
                 zet_metric_streamer_handle_t metric_streamer = m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx);
 
                 ///////////////////
                 // Read Raw Data //
                 ///////////////////
-                size_t data_size = 0;
-                uint32_t report_count_req = UINT32_MAX; //10; using UINT32_MAX is a temporary workaround
-                ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req, &data_size, nullptr);
-                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Read Data get size failed",
-                                __LINE__);
-
-                std::vector<uint8_t> data(data_size);
-                ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req, &data_size, data.data());
+                ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req,
+                                                      &m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
+                                                      m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                                 "LevelZero::" + std::string(__func__) +
                                 ": LevelZero Read Data failed",
@@ -887,7 +894,9 @@ namespace geopm
                     ze_result = zetMetricStreamerReadData(metric_streamer, UINT32_MAX, &temp_data_size, temp_data.data());
                 }
 
-                metric_calc(l0_device_idx, l0_domain_idx, data_size, data);
+                metric_calc(l0_device_idx, l0_domain_idx,
+                            m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
+                            m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx));
             }
         }
     }

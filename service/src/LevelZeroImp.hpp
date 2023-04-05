@@ -131,9 +131,11 @@ namespace geopm
                 std::vector<uint32_t> num_reports;
                 std::vector<bool> metric_domain_cached;
                 std::vector<ze_event_pool_handle_t> event_pool;
-                std::vector<ze_event_handle_t> metric_notifcation_event; //TODO: rename metric_notification_event?
+                std::vector<ze_event_handle_t> metric_notifcation_event;
                 std::vector<zet_metric_streamer_handle_t> metric_streamer;
-                std::vector<zet_metric_group_handle_t> metric_group_handle; //compute basic only
+                std::vector<zet_metric_group_handle_t> metric_group_handle; //ComputeBasic only
+                std::vector<size_t> zet_data_size;
+                std::vector<std::vector<uint8_t>> zet_data;
 
                 // required for L0 metric result tracking.  Chip indexed
                 std::vector<std::map<std::string, std::vector<double>>> metric_data;
