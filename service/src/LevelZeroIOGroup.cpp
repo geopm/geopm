@@ -1106,13 +1106,11 @@ namespace geopm
 
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
-        if (it != m_signal_available.end()) {
-            if (signal_name.find(":METRIC:") != std::string::npos) {
-                throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
-                                ": " + signal_name + " only supports batch access.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-
+        if (it != m_signal_available.end()
+            && signal_name.find(":METRIC:") == std::string::npos) {
+            // PlatformIO will try and read a METRIC signal in some instances before
+            // allowing a push_signal & read batch to occur, so we can't just error
+            // on METRIC signals.  We can skip them though.
             result = (it->second.m_signals.at(domain_idx))->read();
         }
         else {

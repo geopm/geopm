@@ -164,6 +164,8 @@ namespace geopm
                 uint32_t metric_sampling_period_ns;
             };
 
+            //size_t zet_temp_data_size;
+            //std::vector<uint8_t> zet_temp_data;
 
             void frequency_domain_cache(unsigned int l0_device_idx);
             void power_domain_cache(unsigned int l0_device_idx);

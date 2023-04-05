@@ -615,7 +615,7 @@ namespace geopm
                        m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)[metric_name] = {};
                        m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)["NUM_REPORTS"] = {};
                    }
-                   // Break out of the metric group for loop once we've found the group of interest (ComputeBasic, time based sampling).  
+                   // Break out of the metric group for loop once we've found the group of interest (ComputeBasic, time based sampling).
                    break;
                 }
             }
@@ -729,7 +729,7 @@ namespace geopm
         // Allocate memory for future reads
         size_t data_size = 0;
         ze_result = zetMetricStreamerReadData(m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx),
-                                              UINT32_MAX, &data_size, nullptr);
+                                              UINT32_MAX, &data_size, nullptr); //TODO: this value should match the report_count_req in metric_read
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Read Data get size failed",
@@ -885,14 +885,6 @@ namespace geopm
                                 "LevelZero::" + std::string(__func__) +
                                 ": LevelZero Read Data failed",
                                 __LINE__);
-
-                if (report_count_req != UINT32_MAX) {
-                    // Dump all other reports if we're not gathering them
-                    size_t temp_data_size = 0;
-                    ze_result = zetMetricStreamerReadData(metric_streamer, UINT32_MAX, &temp_data_size, nullptr );
-                    std::vector<uint8_t>temp_data(temp_data_size);
-                    ze_result = zetMetricStreamerReadData(metric_streamer, UINT32_MAX, &temp_data_size, temp_data.data());
-                }
 
                 metric_calc(l0_device_idx, l0_domain_idx,
                             m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
