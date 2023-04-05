@@ -8,7 +8,7 @@ set -e
 
 declare -r -A TARGETS=(
     ["cuda"]="build_cuda,89b067b9"
-    ["oneapi"]="build_oneapi,029c003c")
+    ["oneapi"]="build_oneapi,53c10ce")
 
 if [ $# != 1 ]; then
     echo "Error: Missing target parameter"
