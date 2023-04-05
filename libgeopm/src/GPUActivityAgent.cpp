@@ -107,6 +107,10 @@ namespace geopm
         std::vector<int> signal_domains;
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_CORE_FREQUENCY_STATUS"));
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_CORE_ACTIVITY"));
+        const auto ALL_NAMES = m_platform_io.signal_names();
+        if (ALL_NAMES.count("LEVELZERO::METRIC::XVE_STALL") != 0) {
+            signal_domains.push_back(m_platform_io.signal_domain_type("LEVELZERO::METRIC:XVE_STALL"));
+        }
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_UTILIZATION"));
 
         // We'll use the coarsest granularity supported by any of the controls or signals except Energy
@@ -141,6 +145,13 @@ namespace geopm
             m_gpu_core_activity.push_back({m_platform_io.push_signal("GPU_CORE_ACTIVITY",
                                            m_agent_domain,
                                            domain_idx), NAN});
+            if (ALL_NAMES.count("LEVELZERO::METRIC:XVE_STALL") != 0) {
+                M_WAIT_SEC = 0.015; // Currently accessing the ZET signals is slower than expecter than expecteded.
+                                    // Reducing the spin-wait time helps.
+                m_gpu_stall_activity.push_back({m_platform_io.push_signal("LEVELZERO::METRIC:XVE_STALL",
+                                               m_agent_domain,
+                                               domain_idx), NAN});
+            }
             m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
                                          m_agent_domain,
                                          domain_idx), NAN});
@@ -175,7 +186,6 @@ namespace geopm
 
         //m_platform_io.write_control("GPU_CORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0, m_freq_gpu_min);
 
-        const auto ALL_NAMES = m_platform_io.signal_names();
         // F efficient values
         const std::string FE_CONSTCONFIG = "CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY";
         const std::string FE_SIG_NAME = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
@@ -290,6 +300,15 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
             // gpu Compute Activity - Primary signal used for frequency recommendation
             double gpu_core_activity = m_gpu_core_activity.at(domain_idx).value;
+
+            // gpu Stall Activity - Secondary signal used for frequency recommendation
+            //                      when the signal is available.  Used to reduce
+            //                      gpu Compute Activity signal.
+            double gpu_stall_activity = 0;
+            if(m_gpu_stall_activity.size() > 0) {
+                gpu_stall_activity = m_gpu_stall_activity.at(domain_idx).value;
+            }
+
             // gpu Utilization - Used to scale activity for short GPU phases
             double gpu_utilization = m_gpu_utilization.at(domain_idx).value;
 
@@ -299,6 +318,14 @@ namespace geopm
             if (!std::isnan(gpu_core_activity)) {
                 // Boundary Checking
                 gpu_core_activity = std::min(gpu_core_activity, 1.0);
+                gpu_core_activity = std::max(gpu_core_activity, 0.0);
+
+                // Stall based activity reduction
+                if (!std::isnan(gpu_stall_activity)) {
+                    gpu_stall_activity = std::max(gpu_stall_activity, 0.0);
+                    gpu_stall_activity = std::min(gpu_stall_activity, 1.0);
+                    gpu_core_activity = gpu_core_activity * (1 - gpu_stall_activity);
+                }
 
                 // Frequency selection is based upon the gpu compute activity.
                 // For active regions this means that we scale with the amount of work
@@ -351,7 +378,8 @@ namespace geopm
 
             if (phi >= 0.5) {
                 if (!std::isnan(gpu_utilization) &&
-                    gpu_utilization == 0) {
+                    (gpu_utilization == 0 ||
+                    (gpu_utilization < 0.02 && m_gpu_stall_activity.size() > 0))) { // ZET results in low level utilization
                     if (m_gpu_idle_timer.at(domain_idx) > 0) {
                         m_gpu_idle_timer.at(domain_idx) = m_gpu_idle_timer.at(domain_idx) - 1;
                     }
@@ -384,8 +412,15 @@ namespace geopm
                     }
 
                     // GPU on time tracking
-                    m_gpu_on_time.at(domain_idx) += m_time.value - m_prev_time;
-                    m_gpu_on_energy.at(domain_idx) += m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
+                    double sample_energy_diff = m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
+                    if(!std::isnan(sample_energy_diff)) {
+                        m_gpu_on_energy.at(domain_idx) += sample_energy_diff;
+                    }
+
+                    double sample_time_diff = m_time.value - m_prev_time;
+                    if(!std::isnan(sample_time_diff)) {
+                        m_gpu_on_time.at(domain_idx) += sample_time_diff;
+                    }
                 }
                 else {
                     // ROI proxy tracking
@@ -441,6 +476,10 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
             m_gpu_core_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_core_activity.at(
                                                                                domain_idx).batch_idx);
+            if(m_gpu_stall_activity.size() > 0) {
+                m_gpu_stall_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_stall_activity.at(
+                                                                                   domain_idx).batch_idx);
+            }
             m_gpu_utilization.at(domain_idx).value = m_platform_io.sample(m_gpu_utilization.at(
                                                                           domain_idx).batch_idx);
         }
@@ -473,6 +512,12 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
 
         result.push_back({"Agent Domain", m_platform_topo.domain_type_to_name(m_agent_domain)});
+        if(m_gpu_stall_activity.size() > 0) {
+            result.push_back({"Use LeveZero Stall Tracking", std::to_string(true)});
+        }
+        else {
+            result.push_back({"Use LeveZero Stall Tracking", std::to_string(false)});
+        }
         result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
         result.push_back({"GPU Clipped Frequency Requests", std::to_string(m_gpu_frequency_clipped)});
         result.push_back({"Resolved Max Frequency", std::to_string(m_resolved_f_gpu_max)});
