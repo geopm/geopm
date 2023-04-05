@@ -220,6 +220,9 @@ namespace geopm
             };
 
             void ras_domain_cache(unsigned int l0_device_idx);
+            //size_t zet_temp_data_size;
+            //std::vector<uint8_t> zet_temp_data;
+
             void frequency_domain_cache(unsigned int l0_device_idx);
             void power_domain_cache(unsigned int l0_device_idx);
             void perf_domain_cache(unsigned int l0_device_idx);
