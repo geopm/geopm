@@ -106,6 +106,7 @@ namespace geopm
             std::vector<int> m_gpu_idle_samples;
 
             std::vector<m_signal> m_gpu_core_activity;
+            std::vector<m_signal> m_gpu_stall_activity;
             std::vector<m_signal> m_gpu_utilization;
             std::vector<m_signal> m_gpu_energy;
             std::vector<int> m_gpu_idle_timer;
