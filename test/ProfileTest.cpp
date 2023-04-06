@@ -59,6 +59,10 @@ void ProfileTest::SetUp()
     EXPECT_CALL(*m_status, set_valid_cpu(m_cpu_list));
 
     m_scheduler = std::make_shared<MockScheduler>();
+    EXPECT_CALL(*m_scheduler, num_cpu())
+       .WillRepeatedly(Return(4));
+    EXPECT_CALL(*m_scheduler, proc_cpuset())
+       .WillRepeatedly([](){return geopm::make_cpu_set(4, {2,3});});
 
     m_profile = geopm::make_unique<ProfileImp>("profile",
                                                "report",
