@@ -47,6 +47,7 @@ class ApplicationSamplerTest : public ::testing::Test
         int m_num_cpu;
         std::unique_ptr<MockPlatformTopo> m_mock_topo;
         std::shared_ptr<MockScheduler> m_scheduler;
+        std::map<int, std::set<int> > m_client_cpu_map;
 };
 
 void ApplicationSamplerTest::SetUp()
@@ -57,6 +58,15 @@ void ApplicationSamplerTest::SetUp()
     m_record_log_1 = std::make_shared<MockApplicationRecordLog>();
     m_mock_status = std::make_shared<MockApplicationStatus>();
     m_num_cpu = 4;
+    m_scheduler = std::make_shared<MockScheduler>();
+    m_client_cpu_map[0] = {0};
+    m_client_cpu_map[234] = {1};
+    EXPECT_CALL(*m_scheduler, num_cpu())
+       .WillRepeatedly(Return(m_num_cpu));
+    EXPECT_CALL(*m_scheduler, proc_cpuset(0))
+       .WillRepeatedly([](){return geopm::make_cpu_set(4, {0});});
+    EXPECT_CALL(*m_scheduler, proc_cpuset(234))
+       .WillRepeatedly([](){return geopm::make_cpu_set(4, {1});});
 
     m_process_map[0].filter = m_filter_0;
     m_process_map[0].record_log = m_record_log_0;
@@ -67,8 +77,6 @@ void ApplicationSamplerTest::SetUp()
     EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu));
 
-    m_scheduler = std::make_shared<MockScheduler>();
-
     m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status,
                                                             *m_mock_topo,
                                                             m_process_map,
@@ -77,6 +85,7 @@ void ApplicationSamplerTest::SetUp()
                                                             is_active,
                                                             true,
                                                             "profile_name",
+                                                            m_client_cpu_map,
                                                             m_scheduler);
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
 }
