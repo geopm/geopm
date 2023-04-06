@@ -98,6 +98,7 @@ namespace geopm
                                 {},
                                 environment().timeout() != -1,
                                 environment().profile(),
+                                {},
                                 Scheduler::make_unique())
     {
 
@@ -111,6 +112,7 @@ namespace geopm
                                                  const std::vector<bool> &is_cpu_active,
                                                  bool do_profile,
                                                  const std::string &profile_name,
+                                                 const std::map<int, std::set<int> > &client_cpu_map,
                                                  std::shared_ptr<Scheduler> scheduler)
         : m_time_zero(geopm::time_zero())
         , m_status(status)
@@ -128,6 +130,7 @@ namespace geopm
         , m_profile_name(profile_name)
         , m_slow_loop_count(1)
         , m_next_slow_loop(1)
+        , m_client_cpu_map(client_cpu_map)
         , m_scheduler(scheduler)
     {
         if (m_is_cpu_active.empty()) {

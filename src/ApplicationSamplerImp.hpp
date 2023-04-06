@@ -39,6 +39,7 @@ namespace geopm
                                   const std::vector<bool> &is_cpu_active,
                                   bool do_profile,
                                   const std::string &profile_name,
+                                  const std::map<int, std::set<int> > &client_cpu_map,
                                   std::shared_ptr<Scheduler> scheduler);
             virtual ~ApplicationSamplerImp() = default;
             void time_zero(const geopm_time_s &start_time) override;
