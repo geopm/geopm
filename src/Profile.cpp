@@ -47,7 +47,7 @@ namespace geopm
         if (result == -1) {
             result = geopm_sched_get_cpu();
 #ifdef GEOPM_DEBUG
-            if (result >= m_scheduler->num_cpu()) {
+            if (result >= geopm_sched_num_cpu()) {
                 throw geopm::Exception("Profile::get_cpu(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
