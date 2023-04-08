@@ -340,6 +340,10 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/SharedMemoryTest.chown_file \
               test/gtest_links/SharedMemoryTest.chown_shm \
               test/gtest_links/ServiceProxyTest.topo_get_cache \
+              test/gtest_links/ServiceProxyTest.platform_start_profile \
+              test/gtest_links/ServiceProxyTest.platform_stop_profile \
+              test/gtest_links/ServiceProxyTest.platform_get_profile_pids \
+              test/gtest_links/ServiceProxyTest.platform_get_profile_region_names \
               test/gtest_links/SharedMemoryTest.fd_check_shm \
               test/gtest_links/SharedMemoryTest.fd_check_file \
               test/gtest_links/SharedMemoryTest.invalid_construction \
