@@ -267,3 +267,71 @@ TEST_F(ServiceProxyTest, topo_get_cache)
     std::string actual_topo = m_proxy->topo_get_cache();
     EXPECT_EQ(expect_topo, actual_topo);
 }
+
+TEST_F(ServiceProxyTest, platform_start_profile)
+{
+    std::string profile_name = "service_proxy_test";
+    EXPECT_CALL(*m_bus, call_method("PlatformStartProfile", "service_proxy_test"));
+    m_proxy->platform_start_profile(profile_name);
+}
+
+TEST_F(ServiceProxyTest, platform_stop_profile)
+{
+    std::vector<std::string> region_names = {"hello", "hi", "goodbye", "farewell"};
+    EXPECT_CALL(*m_bus, make_call_message("PlatformStopProfile"))
+        .WillOnce(Return(m_bus_reply));
+    EXPECT_CALL(*m_bus_reply, append_strings(region_names));
+    m_proxy->platform_stop_profile(region_names);
+}
+
+TEST_F(ServiceProxyTest, platform_get_profile_pids)
+{
+    std::string profile_name = "service_proxy_test";
+    std::vector<int> expected_pids = {5, 6, 9, 10};
+
+    EXPECT_CALL(*m_bus, call_method("PlatformGetProfilePids", profile_name))
+        .WillOnce(Return(m_bus_reply));
+
+    EXPECT_CALL(*m_bus_reply, enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "i"));
+    EXPECT_CALL(*m_bus_reply, read_integer())
+        .WillOnce(Return(5))
+        .WillOnce(Return(6))
+        .WillOnce(Return(9))
+        .WillOnce(Return(10))
+        .WillOnce(Return(-1));
+    EXPECT_CALL(*m_bus_reply, was_success())
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*m_bus_reply, exit_container());
+    std::vector<int> actual_pids = m_proxy->platform_get_profile_pids(profile_name);
+    EXPECT_EQ(expected_pids, actual_pids);
+}
+
+TEST_F(ServiceProxyTest, platform_get_profile_region_names)
+{
+    std::string profile_name = "service_proxy_test";
+    std::vector<std::string> expected_region_names = {"hello", "hi", "goodbye", "farewell"};
+
+    EXPECT_CALL(*m_bus, call_method("PlatformGetProfileRegionNames", profile_name))
+        .WillOnce(Return(m_bus_reply));
+
+    EXPECT_CALL(*m_bus_reply, enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "s"));
+    EXPECT_CALL(*m_bus_reply, read_string())
+        .WillOnce(Return("hello"))
+        .WillOnce(Return("hi"))
+        .WillOnce(Return("goodbye"))
+        .WillOnce(Return("farewell"))
+        .WillOnce(Return(""));
+    EXPECT_CALL(*m_bus_reply, was_success())
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*m_bus_reply, exit_container());
+    std::vector<std::string> actual_region_names = m_proxy->platform_get_profile_region_names(profile_name);
+    EXPECT_EQ(expected_region_names, actual_region_names);
+}
