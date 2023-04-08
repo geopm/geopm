@@ -170,7 +170,9 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FilePolicyTest.parse_json_file \
               test/gtest_links/FilePolicyTest.negative_bad_files \
               test/gtest_links/FilePolicyTest.negative_parse_json_file \
+              test/gtest_links/FFNetAgentTest.test_adjust_platform_all \
               test/gtest_links/FFNetAgentTest.test_adjust_platform_nans \
+              test/gtest_links/FFNetAgentTest.test_adjust_platform_no_gpu \
               test/gtest_links/FFNetAgentTest.test_validate_badsize_policy \
               test/gtest_links/FFNetAgentTest.test_validate_badphi_policy\
               test/gtest_links/FFNetAgentTest.test_validate_good_policy\
