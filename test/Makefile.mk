@@ -507,8 +507,12 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/TensorMathTest.cpp \
                           test/TensorOneDTest.cpp \
                           test/TensorOneDIntegrationTest.cpp \
+                          test/TensorOneDMatcher.cpp \
+                          test/TensorOneDMatcher.hpp \
                           test/TensorTwoDTest.cpp \
                           test/TensorTwoDIntegrationTest.cpp \
+                          test/TensorTwoDMatcher.cpp \
+                          test/TensorTwoDMatcher.hpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \

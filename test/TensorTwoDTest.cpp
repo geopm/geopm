@@ -11,6 +11,8 @@
 #include "TensorTwoD.hpp"
 
 #include "MockTensorMath.hpp"
+#include "TensorOneDMatcher.hpp"
+#include "TensorTwoDMatcher.hpp"
 
 using geopm::TensorOneD;
 using geopm::TensorTwoD;
@@ -50,7 +52,7 @@ TEST_F(TensorTwoDTest, test_vector_product)
     TensorOneD tensor_b(vec_b, fake_math);
     TensorOneD tensor_c(vec_c, fake_math);
 
-    EXPECT_CALL(*fake_math, multiply(tensor_a, tensor_b)).WillOnce(Return(tensor_c));
+    EXPECT_CALL(*fake_math, multiply(TensorTwoDEqualTo(tensor_a), TensorOneDEqualTo(tensor_b))).WillOnce(Return(tensor_c));
     TensorOneD tensor_d = tensor_a * tensor_b;
 
     EXPECT_EQ(tensor_c.get_data(), tensor_d.get_data());

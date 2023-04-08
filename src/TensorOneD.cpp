@@ -30,7 +30,8 @@ namespace geopm
 
     TensorOneD::TensorOneD(TensorOneD &&other)
     {
-        *this = std::move(other);
+        m_vec = std::move(other.m_vec);
+        m_math = std::move(other.m_math);
     }
 
     TensorOneD::TensorOneD(std::vector<float> input)

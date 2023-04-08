@@ -10,6 +10,7 @@
 #include "TensorOneD.hpp"
 
 #include "MockTensorMath.hpp"
+#include "TensorOneDMatcher.hpp"
 
 using geopm::TensorOneD;
 using ::testing::Mock;
@@ -31,7 +32,7 @@ TEST_F(TensorOneDTest, test_sum)
     TensorOneD tensor_b(vec_b);
 
     ON_CALL(*fake_math, add(_, _)).WillByDefault(Return(tensor_b));
-    EXPECT_CALL(*fake_math, add(tensor_a, tensor_a)).Times(1);
+    EXPECT_CALL(*fake_math, add(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(tensor_a))).Times(1);
     TensorOneD tensor_c = tensor_a + tensor_a;
 
     EXPECT_EQ(tensor_b.get_data(), tensor_c.get_data());
