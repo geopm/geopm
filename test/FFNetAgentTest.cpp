@@ -53,7 +53,8 @@ class FFNetAgentTest: public :: testing :: Test
 {
     protected:
         enum mock_pio_idx_e {
-            CPU_FREQ_CTL_IDX,
+            CPU_FREQ_MIN_CTL_IDX,
+            CPU_FREQ_MAX_CTL_IDX,
             GPU_FREQ_MIN_CTL_IDX,
             GPU_FREQ_MAX_CTL_IDX
         };
@@ -116,6 +117,19 @@ int FFNetAgentTest::init(bool do_gpu)
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(num_gpu));
 
+    //Platform IO Calls
+    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
+        .WillByDefault(Return(CPU_FREQ_MIN_CTL_IDX));
+    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
+        .WillByDefault(Return(CPU_FREQ_MAX_CTL_IDX));
+
+    if(do_gpu) {
+        ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_GPU, _))
+            .WillByDefault(Return(GPU_FREQ_MIN_CTL_IDX));
+        ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_GPU, _))
+            .WillByDefault(Return(GPU_FREQ_MAX_CTL_IDX));
+    }
+    
     //Test init: ask for number of domains
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .Times(1);
@@ -152,8 +166,6 @@ void FFNetAgentTest::construct()
     for (auto iter : m_freq_recommender) {
         freq_recommender_arg[iter.first] = iter.second;
     }
-
-    int num_gpu = m_do_gpu ? M_NUM_GPU : 0;
 
     m_agent = geopm::make_unique<FFNetAgent>(
             *m_platform_io,
@@ -221,7 +233,7 @@ TEST_F(FFNetAgentTest, test_validate_good_policy)
 TEST_F(FFNetAgentTest, test_adjust_platform_nans)
 {
     int num_gpu = construct_and_init(m_do_gpu);
-    int ncalls;
+    int ncalls = 0;
 
     //Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
@@ -248,12 +260,98 @@ TEST_F(FFNetAgentTest, test_adjust_platform_nans)
     m_agent->adjust_platform(m_default_policy);
     EXPECT_FALSE(m_agent->do_write_batch());
 }
+//Test adjust_platform: New cpu freq recommendation means cpu freq is set
+TEST_F(FFNetAgentTest, test_adjust_platform_all)
+{
+    m_do_gpu = true;
+    int num_gpu = construct_and_init(m_do_gpu);
+    int cpu_req = 1.2e9;
+    int gpu_req = 1.0e9;
+    int ncalls = 0;
+
+    //Call to DomainNetMap to get regions
+    for (const auto &net_map_pair : m_net_map) {
+        ON_CALL(*net_map_pair.second, last_output())
+            .WillByDefault(Return(m_region_class));
+        EXPECT_CALL(*net_map_pair.second, last_output())
+            .Times(1);
+    }
+    //Call to RegionHintRecommender to get recommended freq
+    for (const auto &freq_rec_pair : m_freq_recommender) {
+        if(freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE){
+            ncalls = M_NUM_PKG;
+            ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+                .WillByDefault(Return(cpu_req));
+        }
+        else if(freq_rec_pair.first == GEOPM_DOMAIN_GPU){
+            ncalls = num_gpu;
+            ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+                .WillByDefault(Return(gpu_req));
+        }
+
+        EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+            .Times(ncalls);
+    }
+
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MIN_CTL_IDX, cpu_req))
+        .Times(M_NUM_PKG);
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MAX_CTL_IDX, cpu_req))
+        .Times(M_NUM_PKG);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MIN_CTL_IDX, gpu_req))
+        .Times(num_gpu);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MAX_CTL_IDX, gpu_req))
+        .Times(num_gpu);
+
+    m_agent->adjust_platform(m_default_policy);
+
+    EXPECT_TRUE(m_agent->do_write_batch());
+
+}
+
+//Test adjust_platform: Do not get gpu freq recommendation when do_gpu=False
+TEST_F(FFNetAgentTest, test_adjust_platform_no_gpu)
+{
+    m_do_gpu = false;
+    int num_gpu = construct_and_init(m_do_gpu);
+    int cpu_req = 1.2e9;
+    int gpu_req = 1.0e9;
+
+    //Call to DomainNetMap to get regions
+    for (const auto &net_map_pair : m_net_map) {
+        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE){
+            ON_CALL(*net_map_pair.second, last_output())
+                .WillByDefault(Return(m_region_class));
+            EXPECT_CALL(*net_map_pair.second, last_output());
+        }
+    }
+    //Call to RegionHintRecommender to get recommended freq
+    for (const auto &freq_rec_pair : m_freq_recommender) {
+        if(freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE){
+            ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+                .WillByDefault(Return(cpu_req));
+            EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+                .Times(M_NUM_PKG);
+        }
+    }
+
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MIN_CTL_IDX, cpu_req))
+        .Times(M_NUM_PKG);
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MAX_CTL_IDX, cpu_req))
+        .Times(M_NUM_PKG);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MIN_CTL_IDX, gpu_req))
+        .Times(num_gpu);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MAX_CTL_IDX, gpu_req))
+        .Times(num_gpu);
+
+    m_agent->adjust_platform(m_default_policy);
+
+    EXPECT_TRUE(m_agent->do_write_batch());
+
+}
+
 
 //TODO Tests
 
-//Test adjust_platform: New cpu freq recommendation means cpu freq is set
-//Test adjust_platform: New gpu freq recommendation means gpu freq is set when do_gpu=True
-//Test adjust_platform: Do not get gpu freq recommendation when do_gpu=False
 
 //Test sample_platform: All CPU signals are queried
 //Test sample_platform: All GPU signals are queried when do_gpu=True
