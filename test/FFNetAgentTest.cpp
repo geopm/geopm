@@ -62,9 +62,9 @@ class FFNetAgentTest: public :: testing :: Test
             NUM_POLICY
         };
 
-        void init(bool m_do_gpu);
+        int init(bool m_do_gpu);
         void construct();
-        void construct_and_init(bool m_do_gpu);
+        int construct_and_init(bool m_do_gpu);
         static const int M_NUM_PKG = 2;
         static const int M_NUM_GPU = 6;
         bool m_do_gpu = true;
@@ -81,11 +81,11 @@ class FFNetAgentTest: public :: testing :: Test
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
 
-        std::map<std::pair<geopm_domain_e, int>, std::unique_ptr<MockDomainNetMap> > m_net_map;
-        std::map<geopm_domain_e, std::unique_ptr<MockRegionHintRecommender> > m_freq_recommender;
+        std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<MockDomainNetMap> > m_net_map;
+        std::map<geopm_domain_e, std::shared_ptr<MockRegionHintRecommender> > m_freq_recommender;
 };
 
-void FFNetAgentTest::init(bool do_gpu)
+int FFNetAgentTest::init(bool do_gpu)
 {
     int num_gpu = do_gpu ? M_NUM_GPU : 0;
     m_do_gpu = do_gpu;
@@ -96,18 +96,18 @@ void FFNetAgentTest::init(bool do_gpu)
 
     for (int idx = 0; idx < M_NUM_PKG; ++idx) {
         m_net_map[std::make_pair(GEOPM_DOMAIN_PACKAGE, idx)]
-            = geopm::make_unique<MockDomainNetMap>();
+            = std::make_shared<MockDomainNetMap>();
     }
     for (int idx = 0; idx < num_gpu; ++idx) {
         m_net_map[std::make_pair(GEOPM_DOMAIN_GPU, idx)]
-            = geopm::make_unique<MockDomainNetMap>();
+            = std::make_shared<MockDomainNetMap>();
     }
 
     m_freq_recommender[GEOPM_DOMAIN_PACKAGE]
-        = geopm::make_unique<MockRegionHintRecommender>();
+        = std::make_shared<MockRegionHintRecommender>();
     if (do_gpu) {
         m_freq_recommender[GEOPM_DOMAIN_GPU]
-            = geopm::make_unique<MockRegionHintRecommender>();
+            = std::make_shared<MockRegionHintRecommender>();
     }
 
     //Platform Topo Calls
@@ -120,7 +120,7 @@ void FFNetAgentTest::init(bool do_gpu)
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .Times(1);
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
-        .Times(2);
+        .Times(m_do_gpu ? 2 : 1);
 
     //Test init: push controls 
     EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
@@ -136,43 +136,39 @@ void FFNetAgentTest::init(bool do_gpu)
     EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, 0));
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, 0));
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, 2));
+
+    return num_gpu;
 }
 
 void FFNetAgentTest::construct()
 {
+    std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> > net_map_arg;
+    std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > freq_recommender_arg;
+
+    // This is needed because the map types cannot contain Mock to instantiate ffnetagent
+    for (auto iter : m_net_map) {
+        net_map_arg[iter.first] = iter.second;
+    }
+    for (auto iter : m_freq_recommender) {
+        freq_recommender_arg[iter.first] = iter.second;
+    }
+
     int num_gpu = m_do_gpu ? M_NUM_GPU : 0;
-    std::map<std::pair<geopm_domain_e, int>, std::unique_ptr<DomainNetMap> > net_map_arg;
-    std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > freq_rec_arg;
-
-    for (int idx = 0; idx < M_NUM_PKG; ++idx) {
-        net_map_arg[std::make_pair(GEOPM_DOMAIN_PACKAGE, idx)]
-            = std::move(m_net_map[std::make_pair(GEOPM_DOMAIN_PACKAGE, idx)]);
-    }
-    for (int idx = 0; idx < num_gpu; ++idx) {
-        net_map_arg[std::make_pair(GEOPM_DOMAIN_GPU, idx)]
-            = std::move(m_net_map[std::make_pair(GEOPM_DOMAIN_GPU, idx)]);
-    }
-
-    freq_rec_arg[GEOPM_DOMAIN_PACKAGE]
-        = std::move(m_freq_recommender[GEOPM_DOMAIN_PACKAGE]);
-    if (m_do_gpu) {
-        freq_rec_arg[GEOPM_DOMAIN_GPU]
-            = std::move(m_freq_recommender[GEOPM_DOMAIN_GPU]);
-    }
 
     m_agent = geopm::make_unique<FFNetAgent>(
             *m_platform_io,
             *m_platform_topo,
             net_map_arg,
-            freq_rec_arg
+            freq_recommender_arg
             );
     m_agent->init(0, {}, false); 
 }
 
-void FFNetAgentTest::construct_and_init(bool do_gpu)
+int FFNetAgentTest::construct_and_init(bool do_gpu)
 {
-    init(do_gpu);
+    int num_gpu = init(do_gpu);
     construct();
+    return num_gpu;
 }
 
 //Test validate_policy: Accept all-nan policy
@@ -224,7 +220,8 @@ TEST_F(FFNetAgentTest, test_validate_good_policy)
 //Test adjust_platform: NAN cpu and gpu freq recommendation = m_write_batch=false
 TEST_F(FFNetAgentTest, test_adjust_platform_nans)
 {
-    init(m_do_gpu);
+    int num_gpu = construct_and_init(m_do_gpu);
+    int ncalls;
 
     //Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
@@ -236,10 +233,17 @@ TEST_F(FFNetAgentTest, test_adjust_platform_nans)
     for (const auto &freq_rec_pair : m_freq_recommender) {
         ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
             .WillByDefault(Return(NAN));
-        EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]));
-    }
+        //Get number of expected calls based on domain type
+        if(freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE){
+            ncalls = M_NUM_PKG;
+        }
+        else if(freq_rec_pair.first == GEOPM_DOMAIN_GPU){
+            ncalls = num_gpu;
+        }
 
-    construct();
+        EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+            .Times(ncalls);
+    }
 
     m_agent->adjust_platform(m_default_policy);
     EXPECT_FALSE(m_agent->do_write_batch());

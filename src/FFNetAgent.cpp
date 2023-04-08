@@ -78,8 +78,8 @@ namespace geopm
     FFNetAgent::FFNetAgent(
             geopm::PlatformIO &plat_io,
             const geopm::PlatformTopo &topo,
-            std::map<std::pair<geopm_domain_e, int>, std::unique_ptr<DomainNetMap> > &net_map,
-            std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > &freq_recommender
+            std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> > &net_map,
+            std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > &freq_recommender
             )
         : m_platform_io(plat_io)
           , m_last_wait{{0, 0}}
@@ -90,17 +90,17 @@ namespace geopm
         init_domain_indices(topo);
 
         for (const geopm_domain_e domain_type : m_domain_types) {
-            m_freq_recommender[domain_type] = std::move(freq_recommender.at(
+            m_freq_recommender[domain_type] = freq_recommender.at(
                         domain_type
-                    ));
+                    );
         }
 
         for (const m_domain_key_s domain_key : m_domains) {
-            m_net_map[domain_key] = std::move(net_map.at(
+            m_net_map[domain_key] = net_map.at(
                     std::make_pair(
                         domain_key.type,
                         domain_key.index)
-                    ));
+                    );
         }
     }
 
@@ -115,14 +115,14 @@ namespace geopm
 
         //Loading neural nets
         for (const m_domain_key_s domain_key : m_domains) {
-            m_net_map[domain_key] = DomainNetMap::make_unique(
+            m_net_map[domain_key] = std::make_shared<DomainNetMapImp>(
                             getenv(nnet_envname.at(domain_key.type)),
                             domain_key.type,
                             domain_key.index);
         }
 
         for (geopm_domain_e domain_type : m_domain_types) {
-            m_freq_recommender[domain_type] = RegionHintRecommender::make_unique(
+            m_freq_recommender[domain_type] = std::make_shared<RegionHintRecommenderImp>(
                     getenv(freqmap_envname.at(domain_type)),
                     m_platform_io.read_signal(
                         min_freq_signal_name.at(domain_type),
