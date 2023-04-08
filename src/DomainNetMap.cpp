@@ -79,7 +79,7 @@ namespace geopm
             layers.push_back(json_to_DenseLayer(nnet_json["layers"][layer_idx]));
         }
 
-        m_neural_net = std::move(m_nn_factory->createLocalNeuralNet(layers));
+        m_neural_net = m_nn_factory->createLocalNeuralNet(layers);
 
         for (std::size_t i=0; i<nnet_json["signal_inputs"].array_items().size(); i++) {
             m_signal_inputs.push_back({
