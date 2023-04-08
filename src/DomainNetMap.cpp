@@ -11,10 +11,7 @@
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "DenseLayerImp.hpp"
-#include "LocalNeuralNetImp.hpp"
-#include "TensorOneD.hpp"
-#include "TensorTwoD.hpp"
+#include "NNFactoryImp.hpp"
 
 namespace geopm
 {
@@ -23,8 +20,20 @@ namespace geopm
         return geopm::make_unique<DomainNetMapImp>(nn_path, domain_type, domain_index);
     }
 
-    DomainNetMapImp::DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index)
+    DomainNetMapImp::DomainNetMapImp(
+            const std::string nn_path,
+            geopm_domain_e domain_type,
+            int domain_index)
+        : DomainNetMapImp(nn_path, domain_type, domain_index, std::make_shared<NNFactoryImp>()) {
+    }
+
+    DomainNetMapImp::DomainNetMapImp(
+            const std::string nn_path,
+            geopm_domain_e domain_type,
+            int domain_index,
+            std::shared_ptr<NNFactory> nn_factory)
         : m_platform_io(platform_io())
+          , m_nn_factory(nn_factory)
     {
         std::ifstream file(nn_path);
 
@@ -64,14 +73,13 @@ namespace geopm
                     "value is a non-empty array.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
         
-        std::vector<std::shared_ptr<DenseLayer> > layers;
+        std::vector<std::shared_ptr<DenseLayer>> layers;
         for (std::size_t layer_idx = 0; layer_idx < nnet_json["layers"].array_items().size(); ++layer_idx) {
             layers.push_back(json_to_DenseLayer(nnet_json["layers"][layer_idx]));
         }
 
-        m_neural_net = geopm::make_unique<LocalNeuralNetImp>(layers);
+        m_neural_net = std::move(m_nn_factory->createLocalNeuralNet(layers));
 
         for (std::size_t i=0; i<nnet_json["signal_inputs"].array_items().size(); i++) {
             m_signal_inputs.push_back({
@@ -116,7 +124,7 @@ namespace geopm
 
         TensorTwoD weights = json_to_TensorTwoD(obj[0]);
         TensorOneD biases = json_to_TensorOneD(obj[1]);
-        return std::make_shared<DenseLayerImp>(weights, biases);
+        return m_nn_factory->createDenseLayer(weights, biases);
     }
 
     TensorOneD DomainNetMapImp::json_to_TensorOneD(const json11::Json &obj) const {
@@ -141,7 +149,7 @@ namespace geopm
             vals[idx] = obj[idx].number_value();
         }
 
-        return TensorOneD(vals);
+        return m_nn_factory->createTensorOneD(vals);
     }
 
     TensorTwoD DomainNetMapImp::json_to_TensorTwoD(const json11::Json &obj) const {
@@ -174,7 +182,7 @@ namespace geopm
             vals.push_back(row);
         }
 
-        return TensorTwoD(vals);
+        return m_nn_factory->createTensorTwoD(vals);
     }
 
     void DomainNetMapImp::sample()
