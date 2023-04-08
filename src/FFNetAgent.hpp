@@ -12,6 +12,8 @@
 #include "geopm_time.h"
 #include "DomainNetMap.hpp"
 #include "RegionHintRecommender.hpp"
+#include "DomainNetMapImp.hpp"
+#include "RegionHintRecommenderImp.hpp"
 #include "geopm/PlatformTopo.hpp"
 
 namespace geopm
@@ -37,8 +39,8 @@ namespace geopm
             FFNetAgent(
                     PlatformIO &plat_io,
                     const PlatformTopo &topo,
-                    std::map<std::pair<geopm_domain_e, int>, std::unique_ptr<DomainNetMap> > &net_map,
-                    std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > &freq_recommender
+                    std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> > &net_map,
+                    std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > &freq_recommender
             );
             FFNetAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~FFNetAgent() = default;
@@ -91,8 +93,8 @@ namespace geopm
 
             double m_phi;
             int m_sample;
-            std::map<m_domain_key_s, std::unique_ptr<DomainNetMap> > m_net_map;
-            std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > m_freq_recommender;
+            std::map<m_domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
+            std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > m_freq_recommender;
 
             std::map<m_domain_key_s, m_control_s> m_freq_control;
             std::vector<geopm_domain_e> m_domain_types;
