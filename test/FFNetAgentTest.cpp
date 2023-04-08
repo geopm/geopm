@@ -225,7 +225,6 @@ TEST_F(FFNetAgentTest, test_validate_good_policy)
 TEST_F(FFNetAgentTest, test_adjust_platform_nans)
 {
     init(m_do_gpu);
-    double new_freq = NAN;
 
     //Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
