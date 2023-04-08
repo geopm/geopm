@@ -34,7 +34,7 @@ namespace geopm
         }
 
         if (weights.get_rows() != biases.get_dim()) {
-            throw geopm::Exception("Incompatible dimensions for weights and biases.",
+            throw geopm::Exception("Incompatible dimensions for weights and biases.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
@@ -46,9 +46,7 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        TensorOneD output = (const TensorTwoD)m_weights * input + m_biases;
-
-        return output;
+        return m_biases + m_weights * input;
     }
 
     size_t DenseLayerImp::get_input_dim() const
