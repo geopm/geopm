@@ -83,7 +83,7 @@ namespace geopm
             )
         : m_platform_io(plat_io)
           , m_last_wait{{0, 0}}
-          , M_WAIT_SEC(0.050) // 50ms Wait
+          , M_WAIT_SEC(0.020) // 20ms Wait
           , m_phi(0)
     {
         geopm_time(&m_last_wait);
@@ -299,7 +299,7 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> FFNetAgent::policy_names(void)
     {
-        return {"CPU_PHI"};
+        return {"PERF_ENERGY_BIAS"};
     }
     // Describes samples to be provided to the resource manager or user
     std::vector<std::string> FFNetAgent::sample_names(void)

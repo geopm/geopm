@@ -1,0 +1,72 @@
+
+geopm_agent_ffnet(7) -- agent for adjusting frequencies based on application behavior
+=====================================================================================
+
+
+
+
+
+
+Description
+-----------
+
+The FFNet agent adjusts frequencies per domain for the goal of improved energy
+efficiency with minimal performance loss. The agent instantiates a neural net
+per domain that ingests hardware telemetry and outputs a probability distribution
+of region classes. This probability distribution is used to determine an optimal
+per-domain frequency. The agent policy can specify an energy-performance bias which
+determines the degree to which the frequency recommender is adverse to potentially
+reducing performance by reducing frequency to save energy.
+
+.. note::
+    This agent can be used at the package scope to control CPU frequency
+    and/or at the per-GPU scope to control GPU frequency.
+
+Agent Name
+----------
+
+The agent described in this manual is selected in many geopm
+interfaces with the ``"ffnet"`` agent name.  This name can be
+passed to :doc:`geopmlaunch(1) <geopmlaunch.1>` as the argument to the ``--geopm-agent``
+option, or the ``GEOPM_AGENT`` environment variable can be set to this
+name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
+:doc:`geopmagent(1) <geopmagent.1>` as the argument to the ``'-a'`` option.
+
+Policy Parameters
+-----------------
+
+  ``PERF_ENERGY_BIAS`` \:
+      A value between [0-1] that determines how aggressively
+      the agent will reduce frequency in order to save energy.
+      A value of 0 indicates that no performance loss can be
+      tolerated, while a value of 1 indicates that energy
+      efficiency is paramount. Note that there are no absolute
+      guarantees about performance; rather, the general trend
+      of performance impact and energy efficiency will be
+      monotonic relative to this bias.
+
+
+Policy Requirements
+-------------------
+
+The ``PERF_ENERGY_BIAS`` must be between 0 and 1.
+
+Report Extensions
+-----------------
+
+N/A
+
+Control Loop Rate
+-----------------
+
+The agent gates the control loop to sample hardware telemetry and 
+control frequency at 20 milisecond intervals.
+
+See Also
+--------
+
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
+:doc:`geopmagent(1) <geopmagent.1>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`
