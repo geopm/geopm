@@ -27,12 +27,12 @@ namespace geopm {
         return std::make_shared<DenseLayerImp>(weights, biases);
     }
 
-    TensorTwoD NNFactoryImp::createTensorTwoD(const std::vector<std::vector<float>> &vals) const
+    TensorTwoD NNFactoryImp::createTensorTwoD(const std::vector<std::vector<double>> &vals) const
     {
         return TensorTwoD(vals);
     }
 
-    TensorOneD NNFactoryImp::createTensorOneD(const std::vector<float> &vals) const
+    TensorOneD NNFactoryImp::createTensorOneD(const std::vector<double> &vals) const
     {
         return TensorOneD(vals);
     }

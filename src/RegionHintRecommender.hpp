@@ -34,7 +34,7 @@ namespace geopm
             /// @param [in] region_class List of region classification names and
             ///             probabilities output from region class neural net
             /// @param [in] phi User-input energy-perf bias
-            virtual double recommend_frequency(std::map<std::string, float> region_class, double phi) const = 0;
+            virtual double recommend_frequency(std::map<std::string, double> region_class, double phi) const = 0;
     };
 }
 

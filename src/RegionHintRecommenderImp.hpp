@@ -14,7 +14,7 @@ namespace geopm
     {
         public:
             RegionHintRecommenderImp(const std::string fmap_path, int min_freq, int max_freq);
-            double recommend_frequency(std::map<std::string, float> region_class, double phi) const override;
+            double recommend_frequency(std::map<std::string, double> region_class, double phi) const override;
 
         private:
             int m_min_freq;

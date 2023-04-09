@@ -51,8 +51,8 @@ namespace geopm
             ///
             /// @param [in] domain_index
             ///
-            /// @return A map of string, float containing region class and probabilities
-            virtual std::map<std::string, float> last_output() const = 0;
+            /// @return A map of string, double containing region class and probabilities
+            virtual std::map<std::string, double> last_output() const = 0;
     };
 }
 

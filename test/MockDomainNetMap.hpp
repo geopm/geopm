@@ -16,7 +16,7 @@ class MockDomainNetMap : public DomainNetMap {
   MOCK_METHOD(void, sample, (), (override));
   MOCK_METHOD(std::vector<std::string>, trace_names, (), (const, override));
   MOCK_METHOD(std::vector<double>, trace_values, (), (const, override));
-  MOCK_METHOD((std::map<std::string, float>), last_output, (), (const, override));
+  MOCK_METHOD((std::map<std::string, double>), last_output, (), (const, override));
 };
 
 }  // namespace geopm

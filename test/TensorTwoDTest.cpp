@@ -44,9 +44,9 @@ TEST_F(TensorTwoDTest, test_vector_product)
 {
     auto fake_math = std::make_shared<MockTensorMath>();
 
-    std::vector<std::vector<float> > mat_a = {{1, 2}, {3, 4}, {5, 6}};
-    std::vector<float> vec_b = {7, 8};
-    std::vector<float> vec_c = {9, 10, 11};
+    std::vector<std::vector<double> > mat_a = {{1, 2}, {3, 4}, {5, 6}};
+    std::vector<double> vec_b = {7, 8};
+    std::vector<double> vec_c = {9, 10, 11};
 
     TensorTwoD tensor_a(mat_a, fake_math);
     TensorOneD tensor_b(vec_b, fake_math);
@@ -87,7 +87,7 @@ TEST_F(TensorTwoDTest, test_array_overload) {
 }
 
 TEST_F(TensorTwoDTest, test_input) {
-    std::vector<std::vector<float> > vals = {{1}, {2}};
+    std::vector<std::vector<double> > vals = {{1}, {2}};
     TensorTwoD x;
     x = TensorTwoD(vals);
     EXPECT_EQ(2u, x.get_rows());
@@ -122,12 +122,12 @@ TEST_F(TensorTwoDTest, test_copy) {
 
 TEST_F(TensorTwoDTest, test_bad_dimensions)
 {
-    std::vector<std::vector<float> > vals = {{1}, {2, 3}};
+    std::vector<std::vector<double> > vals = {{1}, {2, 3}};
     EXPECT_THROW(new TensorTwoD(vals), geopm::Exception);  // TODO - new?
 }
 
 TEST_F(TensorTwoDTest, test_empty_weights)
 {
-    std::vector<std::vector<float> > vals = {};
+    std::vector<std::vector<double> > vals = {};
     EXPECT_THROW(new TensorTwoD(vals), geopm::Exception);  // TODO - new?
 }

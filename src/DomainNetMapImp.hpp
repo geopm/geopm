@@ -28,25 +28,10 @@ namespace geopm
 
             DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index, PlatformIO &plat_io, std::shared_ptr<NNFactory> nn_factory);
 
-            /// @brief Collects latest signals for a specific domain and applies the 
-            ///        resulting TensorOneD state to the neural net.
             void sample() override;
-
-            /// @brief generates the names for trace columns from the appropriate field in the neural net
             std::vector<std::string> trace_names() const override;
-
-            /// @brief Populates trace values from last_output for each index within each domain type
-            ///
-            /// @return A vector of doubles containing trace values
             std::vector<double> trace_values() const override;
-
-            /// @brief Populates a map of region class name to probability for a given domain, 
-            ///        index from the latest evaluation of the neural net.
-            ///
-            /// @param [in] domain_index
-            ///
-            /// @return A map of string, float containing region class and probabilities
-            std::map<std::string, float> last_output() const override;
+            std::map<std::string, double> last_output() const override;
 
         private:
             std::shared_ptr<DenseLayer> json_to_DenseLayer(const json11::Json &obj) const;

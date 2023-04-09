@@ -22,7 +22,7 @@ class TensorTwoDMatcher {
       : m_expected_values(expected.get_rows())
     {
       for (size_t i = 0; i < expected.get_rows(); ++i) {
-	m_expected_values[i] = std::vector<float>(expected[i].get_data());
+	m_expected_values[i] = std::vector<double>(expected[i].get_data());
       }
     }
 
@@ -39,8 +39,8 @@ class TensorTwoDMatcher {
 
     void DescribeTo(std::ostream* os) const {
       *os << "TensorTwoD contents equal [";
-      for (std::vector<float> row : m_expected_values) {
-	for (float val : row) {
+      for (std::vector<double> row : m_expected_values) {
+	for (double val : row) {
 	  *os << val << " ";
 	}
 	*os << "; ";
@@ -50,8 +50,8 @@ class TensorTwoDMatcher {
 
     void DescribeNegationTo(std::ostream* os) const {
       *os << "TensorTwoD contents do not equal [";
-      for (std::vector<float> row : m_expected_values) {
-	for (float val : row) {
+      for (std::vector<double> row : m_expected_values) {
+	for (double val : row) {
 	  *os << val << " ";
 	}
 	*os << "; ";
@@ -60,7 +60,7 @@ class TensorTwoDMatcher {
     }
 
   private:
-    std::vector<std::vector<float>> m_expected_values;
+    std::vector<std::vector<double>> m_expected_values;
 };
 
 ::testing::Matcher<const TensorTwoD&> TensorTwoDEqualTo(const TensorTwoD& expected);

@@ -36,7 +36,7 @@ namespace geopm
             /// @param [in] input  The values to store in the 1D tensor.
             ///
             /// @throws geopm::Exception if input is empty.
-            TensorOneD(std::vector<float> input);
+            TensorOneD(std::vector<double> input);
 
             /// @brief Test constructor
             ///
@@ -44,7 +44,7 @@ namespace geopm
             /// @param [in] math  TensorMath instance
             ///
             /// @throws geopm::Exception if input is empty.
-            TensorOneD(const std::vector<float> &input, std::shared_ptr<TensorMath> math);
+            TensorOneD(const std::vector<double> &input, std::shared_ptr<TensorMath> math);
 
             /// @brief Set length of 1D tensor
             ///
@@ -61,7 +61,7 @@ namespace geopm
 
             TensorOneD operator+(const TensorOneD &other) const;
             TensorOneD operator-(const TensorOneD &other) const;
-            float operator*(const TensorOneD &other) const;
+            double operator*(const TensorOneD &other) const;
             /// @brief Overload = operator with an in-place deep copy
             ///
             /// @param [in] other The assignee (tensor to be copied)
@@ -80,24 +80,24 @@ namespace geopm
             /// @param [in] idx The index at which to look for the value
             ///
             /// @return Returns a reference to the 1D tensor at idx
-            float &operator[](size_t idx);
+            double &operator[](size_t idx);
             /// @brief Value access of 1D Tensor value at idx.
             ///
             /// @param [in] idx The index at which to look for the value
             ///
             /// @return Returns the value of the 1D tensor at idx
-            float operator[](size_t idx) const;
+            double operator[](size_t idx) const;
 
             TensorOneD sigmoid() const;
 
-            /// @brief Return the tensor as a vector of floats.
+            /// @brief Return the tensor as a vector of doubles.
             ///
             /// @return Returns the contents of the tensor.
-            const std::vector<float> &get_data() const;
+            const std::vector<double> &get_data() const;
 
 	    virtual ~TensorOneD() = default;
         private:
-            std::vector<float> m_vec;
+            std::vector<double> m_vec;
             std::shared_ptr<TensorMath> m_math;
     };
 }

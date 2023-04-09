@@ -19,7 +19,7 @@ namespace geopm
     }
 
     TensorOneD::TensorOneD(size_t dim)
-        : TensorOneD(std::vector<float>(dim))
+        : TensorOneD(std::vector<double>(dim))
     {
     }
 
@@ -34,12 +34,12 @@ namespace geopm
         m_math = std::move(other.m_math);
     }
 
-    TensorOneD::TensorOneD(std::vector<float> input)
+    TensorOneD::TensorOneD(std::vector<double> input)
         : TensorOneD(input, std::make_shared<TensorMathImp>())
     {
     }
 
-    TensorOneD::TensorOneD(const std::vector<float> &input, std::shared_ptr<TensorMath> math)
+    TensorOneD::TensorOneD(const std::vector<double> &input, std::shared_ptr<TensorMath> math)
     {
         m_vec = input;
         m_math = math;
@@ -78,17 +78,17 @@ namespace geopm
         return m_vec == other.m_vec;
     }
 
-    float& TensorOneD::operator[] (size_t idx)
+    double& TensorOneD::operator[] (size_t idx)
     {
         return m_vec.at(idx);
     }
 
-    float TensorOneD::operator[] (size_t idx) const
+    double TensorOneD::operator[] (size_t idx) const
     {
         return m_vec.at(idx);
     }
 
-    const std::vector<float> &TensorOneD::get_data() const
+    const std::vector<double> &TensorOneD::get_data() const
     {
         return m_vec;
     }
@@ -103,7 +103,7 @@ namespace geopm
         return m_math->subtract(*this, other);
     }
 
-    float TensorOneD::operator*(const TensorOneD &other) const
+    double TensorOneD::operator*(const TensorOneD &other) const
     {
         return m_math->inner_product(*this, other);
     }

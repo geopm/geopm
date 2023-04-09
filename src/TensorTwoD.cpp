@@ -54,12 +54,12 @@ namespace geopm
         set_data(input);
     }
 
-    TensorTwoD::TensorTwoD(std::vector<std::vector<float> > input)
+    TensorTwoD::TensorTwoD(std::vector<std::vector<double>> input)
         : TensorTwoD(input, std::make_shared<TensorMathImp>())
     {
     }
 
-    TensorTwoD::TensorTwoD(std::vector<std::vector<float> > input,
+    TensorTwoD::TensorTwoD(std::vector<std::vector<double>> input,
                            std::shared_ptr<TensorMath> math)
         : m_math(math)
     {

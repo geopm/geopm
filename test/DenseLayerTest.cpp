@@ -39,14 +39,14 @@ TEST_F(DenseLayerTest, test_inference) {
     auto fake_math = std::make_shared<MockTensorMath>();
 
     TensorTwoD weights(
-            std::vector<std::vector<float> >(
+            std::vector<std::vector<double> >(
                 {{1, 2, 3}, {4, 5, 6}}
                 ),
             fake_math
             );
 
     TensorOneD biases(
-            std::vector<float>(
+            std::vector<double>(
                 {7, 8}
                 ),
             fake_math
@@ -55,21 +55,21 @@ TEST_F(DenseLayerTest, test_inference) {
     DenseLayerImp layer(weights, biases);
 
     TensorOneD inp(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2, 3}
                 ),
             fake_math
             );
 
     TensorOneD tmp1(
-            std::vector<float>(
+            std::vector<double>(
                 {3, 8, 9, 30}
                 ),
 	    fake_math
             );
 
     TensorOneD tmp2(
-            std::vector<float>(
+            std::vector<double>(
                 {10, 8, -1}
                 ),
 	    fake_math
@@ -94,14 +94,14 @@ TEST_F(DenseLayerTest, test_bad_dimensions) {
     auto fake_math = std::make_shared<MockTensorMath>();
 
     TensorTwoD weights(
-            std::vector<std::vector<float> >(
+            std::vector<std::vector<double> >(
                 {{1, 2, 3}, {4, 5, 6}}
                 ),
             fake_math
             );
 
     TensorOneD biases(
-            std::vector<float>(
+            std::vector<double>(
                 {7, 8}
                 ),
             fake_math
@@ -110,7 +110,7 @@ TEST_F(DenseLayerTest, test_bad_dimensions) {
     DenseLayerImp layer(weights, biases);
 
     TensorOneD inp(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2, 3, 4}
                 ),
             fake_math

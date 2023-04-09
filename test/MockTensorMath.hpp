@@ -21,7 +21,7 @@ class MockTensorMath : public geopm::TensorMath {
     public:
         MOCK_METHOD(TensorOneD, add, (const TensorOneD& tensor_a, const TensorOneD& tensor_b), (const, override));
         MOCK_METHOD(TensorOneD, subtract, (const TensorOneD& tensor_a, const TensorOneD& tensor_b), (const, override));
-        MOCK_METHOD(float, inner_product, (const TensorOneD& tensor_a, const TensorOneD& tensor_b), (const, override));
+        MOCK_METHOD(double, inner_product, (const TensorOneD& tensor_a, const TensorOneD& tensor_b), (const, override));
         MOCK_METHOD(TensorOneD, sigmoid, (const TensorOneD& tensor), (const, override));
         MOCK_METHOD(TensorOneD, multiply, (const TensorTwoD& tensor_a, const TensorOneD& tensor_b), (const, override));
 };

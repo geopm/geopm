@@ -23,8 +23,8 @@ namespace geopm
 
             virtual std::shared_ptr<LocalNeuralNet> createLocalNeuralNet(const std::vector<std::shared_ptr<DenseLayer>> &layers) const = 0;
             virtual std::shared_ptr<DenseLayer> createDenseLayer(const TensorTwoD &weights, const TensorOneD &biases) const = 0;
-            virtual TensorTwoD createTensorTwoD(const std::vector<std::vector<float>> &vals) const = 0;
-            virtual TensorOneD createTensorOneD(const std::vector<float> &vals) const = 0;
+            virtual TensorTwoD createTensorTwoD(const std::vector<std::vector<double>> &vals) const = 0;
+            virtual TensorOneD createTensorOneD(const std::vector<double> &vals) const = 0;
     };
 }
 
