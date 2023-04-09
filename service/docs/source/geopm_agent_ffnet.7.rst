@@ -60,7 +60,7 @@ Control Loop Rate
 -----------------
 
 The agent gates the control loop to sample hardware telemetry and 
-control frequency at 20 milisecond intervals.
+control frequency at 20 millisecond intervals.
 
 See Also
 --------

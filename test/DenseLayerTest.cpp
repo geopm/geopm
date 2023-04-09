@@ -42,14 +42,14 @@ TEST_F(DenseLayerTest, test_inference) {
             std::vector<std::vector<float> >(
                 {{1, 2, 3}, {4, 5, 6}}
                 ),
-	    fake_math
+            fake_math
             );
 
     TensorOneD biases(
             std::vector<float>(
                 {7, 8}
                 ),
-	    fake_math
+            fake_math
             );
 
     DenseLayerImp layer(weights, biases);
@@ -58,8 +58,8 @@ TEST_F(DenseLayerTest, test_inference) {
             std::vector<float>(
                 {1, 2, 3}
                 ),
-	    fake_math
-	    );
+            fake_math
+            );
 
     // We can't use fake_math here because ON_CALL will leak
     // the mock instance.
@@ -67,23 +67,23 @@ TEST_F(DenseLayerTest, test_inference) {
             std::vector<float>(
                 {3, 8, 9, 30}
                 )
-	    );
+            );
 
     TensorOneD tmp2(
             std::vector<float>(
                 {10, 8, -1}
                 )
-	    );
+            );
 
     ON_CALL(*fake_math, multiply(_, _)).WillByDefault(Return(tmp1));
     ON_CALL(*fake_math, add(_, _)).WillByDefault(Return(tmp2));
 
     EXPECT_CALL(*fake_math,
-		multiply(TensorTwoDEqualTo(weights),
-			 TensorOneDEqualTo(inp))).Times(1);
+                multiply(TensorTwoDEqualTo(weights),
+                         TensorOneDEqualTo(inp))).Times(1);
     EXPECT_CALL(*fake_math,
-		add(TensorOneDEqualTo(biases),
-		    TensorOneDEqualTo(tmp1))).Times(1);
+                add(TensorOneDEqualTo(biases),
+                    TensorOneDEqualTo(tmp1))).Times(1);
 
     EXPECT_EQ(3u, layer.get_input_dim());
     EXPECT_EQ(2u, layer.get_output_dim());
@@ -100,14 +100,14 @@ TEST_F(DenseLayerTest, test_bad_dimensions) {
             std::vector<std::vector<float> >(
                 {{1, 2, 3}, {4, 5, 6}}
                 ),
-	    fake_math
+            fake_math
             );
 
     TensorOneD biases(
             std::vector<float>(
                 {7, 8}
                 ),
-	    fake_math
+            fake_math
             );
 
     DenseLayerImp layer(weights, biases);
@@ -116,18 +116,18 @@ TEST_F(DenseLayerTest, test_bad_dimensions) {
             std::vector<float>(
                 {1, 2, 3, 4}
                 ),
-	    fake_math
-	    );
+            fake_math
+            );
 
     GEOPM_EXPECT_THROW_MESSAGE(DenseLayerImp(TensorTwoD(), inp),
-			       GEOPM_ERROR_INVALID,
-			       "Empty array is invalid for neural network weights.");
+                               GEOPM_ERROR_INVALID,
+                               "Empty array is invalid for neural network weights.");
 
     GEOPM_EXPECT_THROW_MESSAGE(DenseLayerImp(weights, inp),
-			       GEOPM_ERROR_INVALID,
-			       "Incompatible dimensions for weights and biases.");
+                               GEOPM_ERROR_INVALID,
+                               "Incompatible dimensions for weights and biases.");
 
     GEOPM_EXPECT_THROW_MESSAGE(layer.forward(inp),
-			       GEOPM_ERROR_INVALID,
-			       "Input vector dimension is incompatible with network");
+                               GEOPM_ERROR_INVALID,
+                               "Input vector dimension is incompatible with network");
 }
