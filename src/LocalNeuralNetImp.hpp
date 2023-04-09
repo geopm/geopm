@@ -29,6 +29,14 @@ namespace geopm
             ///
             /// @return Returns a TensorOneD vector of output values.
             TensorOneD forward(const TensorOneD &inp) const override;
+            /// @brief Get the dimension required for the input TensorOneD
+            /// 
+            /// @return Returns a size_t equal to the number of columns of weights
+            size_t get_input_dim() const override;
+            /// @brief Get the dimension of the resulting TensorOneD
+            /// 
+            /// @return Returns a size_t equal to the number of rows of weights 
+            size_t get_output_dim() const override;
 
         private:
             std::vector<std::shared_ptr<DenseLayer> > m_layers;

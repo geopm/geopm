@@ -49,7 +49,7 @@ namespace geopm
         }
 
         for (const auto &row : fmap_json.object_items()) {
-            if (! row.second.is_array()) {
+            if (! row.second.is_array() || row.second.array_items().size() == 0) {
                 throw geopm::Exception("Frequency map file format is incorrect.\n",
                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
