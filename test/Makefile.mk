@@ -170,13 +170,19 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FilePolicyTest.parse_json_file \
               test/gtest_links/FilePolicyTest.negative_bad_files \
               test/gtest_links/FilePolicyTest.negative_parse_json_file \
-              test/gtest_links/FFNetAgentTest.test_adjust_platform_all \
-              test/gtest_links/FFNetAgentTest.test_adjust_platform_nans \
-              test/gtest_links/FFNetAgentTest.test_adjust_platform_no_gpu \
-              test/gtest_links/FFNetAgentTest.test_validate_badsize_policy \
-              test/gtest_links/FFNetAgentTest.test_validate_badphi_policy\
-              test/gtest_links/FFNetAgentTest.test_validate_good_policy\
-              test/gtest_links/FFNetAgentTest.test_validate_empty_policy \
+              test/gtest_links/FFNetAgentTest.adjust_platform_all \
+              test/gtest_links/FFNetAgentTest.adjust_platform_nans \
+              test/gtest_links/FFNetAgentTest.adjust_platform_no_gpu \
+              test/gtest_links/FFNetAgentTest.sample_platform \
+              test/gtest_links/FFNetAgentTest.sample_platform_no_gpu \
+              test/gtest_links/FFNetAgentTest.trace_names \
+              test/gtest_links/FFNetAgentTest.trace_names_no_gpu \
+              test/gtest_links/FFNetAgentTest.trace_values \
+              test/gtest_links/FFNetAgentTest.trace_values_no_gpu \
+              test/gtest_links/FFNetAgentTest.validate_badsize_policy \
+              test/gtest_links/FFNetAgentTest.validate_badphi_policy\
+              test/gtest_links/FFNetAgentTest.validate_good_policy\
+              test/gtest_links/FFNetAgentTest.validate_empty_policy \
               test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
               test/gtest_links/FrequencyGovernorTest.adjust_platform \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
@@ -462,14 +468,17 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockApplicationStatus.hpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
+                          test/MockDenseLayer.hpp \
                           test/MockDomainNetMap.hpp \
                           test/MockEndpoint.hpp \
                           test/MockEndpointPolicyTracer.hpp \
                           test/MockEndpointUser.hpp \
                           test/MockFrequencyLimitDetector.hpp \
                           test/MockFrequencyGovernor.hpp \
+                          test/MockLocalNeuralNet.hpp \
                           test/MockIOGroup.hpp \
                           test/MockInitControl.hpp \
+                          test/MockNNFactory.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPlatformIO.hpp \
