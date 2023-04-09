@@ -21,17 +21,17 @@ namespace geopm
     class PlatformTopo;
     class PlatformIO;
 
-    /// @brief Agent
+    /// @brief Feed Forward Net Agent
     class FFNetAgent : public Agent
     {
         public:
             enum m_policy_e {
-                /// @brief Phi represents the user's desire to trade off
-                ///        performance for energy efficiency. A value of
-                ///        0 indicates an extreme preference for
-                ///        performance and a value of 10 indicates an
+                /// @brief Perf-energy-bias represents the user's desire 
+                ///        to trade off performance for energy efficiency. 
+                ///        A value of 0 indicates an extreme preference for
+                ///        performance and a value of 1 indicates an
                 ///        extreme preference for energy efficiency.
-                M_POLICY_PHI,
+                M_POLICY_PERF_ENERGY_BIAS,
                 M_NUM_POLICY,
             };
 
@@ -91,7 +91,7 @@ namespace geopm
 
             std::map<std::string, double> m_policy_available;
 
-            double m_phi;
+            double m_perf_energy_bias;
             int m_sample;
             std::map<m_domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
             std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > m_freq_recommender;

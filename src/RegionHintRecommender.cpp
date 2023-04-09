@@ -12,6 +12,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 
+//TODO: Change from logits to probabilities
 namespace geopm
 {
     std::unique_ptr<RegionHintRecommender> RegionHintRecommender::make_unique(const std::string fmap_path, int min_freq, int max_freq)
@@ -59,8 +60,8 @@ namespace geopm
         }
     }
 
-    double RegionHintRecommenderImp::recommend_frequency(std::map<std::string, double> region_class, double phi) const {
-        for (const auto & [region_name, probability] : region_class) {
+    double RegionHintRecommenderImp::recommend_frequency(std::map<std::string, double> nn_output, double phi) const {
+        for (const auto & [region_name, probability] : nn_output ) {
             if (std::isnan(probability)) {
                 return NAN;
             }
@@ -68,7 +69,7 @@ namespace geopm
 
         double ZZ = 0;
         double freq = 0;
-        for (const auto & [region_name, probability] : region_class) {
+        for (const auto & [region_name, probability] : nn_output) {
             int phi_idx = (int)(phi * (m_freq_map.at(region_name).size() - 1));
             freq += exp(probability) * m_freq_map.at(region_name).at(phi_idx);
             ZZ += exp(probability);

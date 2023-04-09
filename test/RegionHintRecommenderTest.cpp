@@ -19,6 +19,7 @@ using geopm::RegionHintRecommender;
 using geopm::RegionHintRecommenderImp;
 using ::testing::_;
 
+//TODO: Change from logits to probabilities
 class RegionHintRecommenderTest : public ::testing::Test
 {
     protected:

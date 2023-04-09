@@ -30,10 +30,10 @@ namespace geopm
             /// 
             /// @param [in] TensorOneD vector of input signals.
             ///
-            /// @return Returns a TensorOneD vector of output values.
-            ///
             /// @throws geopm::Exception if input dimension is incompatible
             /// with network.
+            ///
+            /// @return Returns a TensorOneD vector of output values.
             virtual TensorOneD forward(const TensorOneD &inp) const = 0;
 
             TensorOneD operator()(const TensorOneD &input) const {

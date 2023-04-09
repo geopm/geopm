@@ -209,11 +209,11 @@ TEST_F(FFNetAgentTest, validate_badphi_policy)
 
     policy[POLICY_PHI] = 1.5;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "CPU_PHI is out of range (should be 0-1).");
+                               "PERF_ENERGY_BIAS is out of range (should be 0-1).");
 
     policy[POLICY_PHI] = -2.0;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "CPU_PHI is out of range (should be 0-1).");
+                               "PERF_ENERGY_BIAS is out of range (should be 0-1).");
                                
 }
 //Test validate_policy: All good if phi [0,1]

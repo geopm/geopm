@@ -29,8 +29,17 @@ namespace geopm
             DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index, PlatformIO &plat_io, std::shared_ptr<NNFactory> nn_factory);
 
             void sample() override;
+            /// @brief Generates the names for trace columns from the appropriate field in the neural net.
+            //         In this case, region classification names annotated with domain type and index. 
             std::vector<std::string> trace_names() const override;
+            /// @brief Populates trace values from last_output for each index within each domain type.
+            ///        In this case, region classification probabilities. 
+            /// @return Returns a vector of doubles containing trace values
             std::vector<double> trace_values() const override;
+            /// @brief Populates a map of trace names to the latest output from the neural net.
+            ///        In this case, region classification names to their respective probabilities.
+            ///
+            /// @return A map of string, double containing region class and probabilities.
             std::map<std::string, double> last_output() const override;
 
         private:

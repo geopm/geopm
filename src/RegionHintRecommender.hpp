@@ -11,9 +11,9 @@
 
 namespace geopm
 {
-    /// @brief Class ingesting region classification probabilities and
+    /// @brief Class ingesting the output from a DomainNetMap and
     ///        a frequency map json file and determining a recommended 
-    ///        frequency decisions.
+    ///        frequency decision.
     class RegionHintRecommender
     {
         public:
@@ -29,12 +29,12 @@ namespace geopm
             static std::unique_ptr<RegionHintRecommender> make_unique(const std::string fmap_path, int min_freq, int max_freq);
 
             virtual ~RegionHintRecommender() = default;
-            /// @brief Recommends frequency based on region classification probabilities
+            /// @brief Recommends frequency based on the output from a DomainNetMap neural net evaluation
             ///
-            /// @param [in] region_class List of region classification names and
-            ///             probabilities output from region class neural net
-            /// @param [in] phi User-input energy-perf bias
-            virtual double recommend_frequency(std::map<std::string, double> region_class, double phi) const = 0;
+            /// @param [in] nn_output Output from the DomainNetMap neural net evaluation, as a map from
+            ///             trace names to doubles.
+            /// @param [in] phi User-input perf-energy bias
+            virtual double recommend_frequency(std::map<std::string, double> nn_output, double phi) const = 0;
     };
 }
 
