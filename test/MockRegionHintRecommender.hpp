@@ -13,7 +13,7 @@ namespace geopm {
 
 class MockRegionHintRecommender : public RegionHintRecommender {
  public:
-  MOCK_METHOD(double, recommend_frequency, ((std::map<std::string, float> region_class), double phi), (const, override));
+  MOCK_METHOD(double, recommend_frequency, ((std::map<std::string, double> region_class), double phi), (const, override));
 };
 
 }  // namespace geopm

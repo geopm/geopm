@@ -45,28 +45,28 @@ TEST_F(LocalNeuralNetTest, test_inference) {
     fake_layer2 = std::make_shared<MockDenseLayer>();
 
     TensorOneD inp2(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2}
                 ),
             fake_math
             );
 
     TensorOneD inp3(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2, 3}
                 ),
             fake_math
             );
 
     TensorOneD inp4(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2, 3, 4}
                 ),
             fake_math
             );
 
     TensorOneD inp4s(
-            std::vector<float>(
+            std::vector<double>(
                 {4, 0, 3, 1}
                 ),
             fake_math
@@ -101,21 +101,21 @@ TEST_F(LocalNeuralNetTest, test_bad_dimensions) {
     fake_layer2 = std::make_shared<MockDenseLayer>();
 
     TensorOneD inp2(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2}
                 ),
             fake_math
             );
 
     TensorOneD inp3(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2, 3}
                 ),
             fake_math
             );
 
     TensorOneD inp4(
-            std::vector<float>(
+            std::vector<double>(
                 {1, 2, 3, 4}
                 ),
             fake_math

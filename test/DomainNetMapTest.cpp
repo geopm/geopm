@@ -100,26 +100,26 @@ TEST_F(DomainNetMapTest, test_plumbing)
     MockPlatformIO fake_plat_io;
     auto fake_nn_factory = std::make_shared<MockNNFactory>();
     std::shared_ptr<MockLocalNeuralNet> fake_nn = std::make_shared<MockLocalNeuralNet>();
-    std::vector<std::vector<float> > weight_vals(
+    std::vector<std::vector<double> > weight_vals(
                 {{1, 2, 3}, {4, 5, 6}});
     TensorTwoD weights(weight_vals, fake_math);
 
     TensorOneD biases(
-            std::vector<float>(
+            std::vector<double>(
                 {7, 8}
                 ),
             fake_math
             );
 
     TensorOneD tmp1(
-            std::vector<float>(
+            std::vector<double>(
                 {4, 3, -1, 0, 2}
                 ),
             fake_math
             );
 
     TensorOneD tmp2(
-            std::vector<float>(
+            std::vector<double>(
                 {0, 2, -4}
                 ),
             fake_math
@@ -183,6 +183,6 @@ TEST_F(DomainNetMapTest, test_plumbing)
     EXPECT_EQ(std::vector<std::string>({"GEO", "PM", "@", "INTEL", "2023"}),
               net_map.trace_names());
     EXPECT_EQ(std::vector<double>({4, 3, -1, 0, 2}), net_map.trace_values());
-    std::map<std::string, float> expected_output({{"GEO", 4}, {"PM", 3}, {"@", -1}, {"INTEL", 0}, {"2023", 2}});
+    std::map<std::string, double> expected_output({{"GEO", 4}, {"PM", 3}, {"@", -1}, {"INTEL", 0}, {"2023", 2}});
     EXPECT_EQ(expected_output, net_map.last_output());
 }

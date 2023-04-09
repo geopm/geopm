@@ -74,7 +74,7 @@ class FFNetAgentTest: public :: testing :: Test
         double m_gpu_freq_max = 1600000000.0;
 
         std::vector<double> m_default_policy = {0.5};
-        std::map<std::string, float> m_region_class 
+        std::map<std::string, double> m_region_class 
             = {{"dgemm", 0.75},{"stream",0.25}};
     
         std::unique_ptr<FFNetAgent> m_agent;

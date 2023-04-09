@@ -27,14 +27,14 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::vector<float> rval(tensor_a.get_dim());
+        std::vector<double> rval(tensor_a.get_dim());
         const auto &vec_a = tensor_a.get_data();
         const auto &vec_b = tensor_b.get_data();
         std::transform(vec_a.begin(),
                        vec_a.end(),
                        vec_b.begin(),
                        rval.begin(),
-                       std::plus<float>());
+                       std::plus<double>());
 
         return TensorOneD(rval);
     }
@@ -46,26 +46,26 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::vector<float> rval(tensor_a.get_dim());
+        std::vector<double> rval(tensor_a.get_dim());
         const auto &vec_a = tensor_a.get_data();
         const auto &vec_b = tensor_b.get_data();
         std::transform(vec_a.begin(),
                        vec_a.end(),
                        vec_b.begin(),
                        rval.begin(),
-                       std::minus<float>());
+                       std::minus<double>());
 
         return TensorOneD(rval);
     }
 
-    float TensorMathImp::inner_product(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const
+    double TensorMathImp::inner_product(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const
     {
         if (tensor_a.get_dim() != tensor_b.get_dim()) {
             throw geopm::Exception("Inner product of vectors of mismatched dimensions.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::vector<float> rval(tensor_a.get_dim());
+        std::vector<double> rval(tensor_a.get_dim());
         const auto &vec_a = tensor_a.get_data();
         const auto &vec_b = tensor_b.get_data();
 

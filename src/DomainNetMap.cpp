@@ -140,7 +140,7 @@ namespace geopm
         }
 
         std::size_t vec_size = obj.array_items().size();
-        std::vector<float> vals(vec_size);
+        std::vector<double> vals(vec_size);
 
         for (std::size_t idx = 0; idx < vec_size; ++idx) {
             if (!obj[idx].is_number()) {
@@ -163,14 +163,14 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::vector<std::vector<float> > vals;
+        std::vector<std::vector<double> > vals;
         for (std::size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
             if(!obj[ridx].is_array()) {
                 throw geopm::Exception("Neural network weights is non-array-type.\n",
                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             std::size_t vec_size = obj[ridx].array_items().size();
-            std::vector<float> row(vec_size);
+            std::vector<double> row(vec_size);
 
             for (std::size_t cidx = 0; cidx < vec_size; ++cidx) {
                 if (!obj[ridx][cidx].is_number()) {
@@ -188,7 +188,7 @@ namespace geopm
 
     void DomainNetMapImp::sample()
     {
-        std::vector<float> xs;
+        std::vector<double> xs;
 
         // Collect latest signal values
         for (std::size_t i=0; i<m_signal_inputs.size(); i++) {
@@ -222,9 +222,9 @@ namespace geopm
         return rval;
     }
 
-    std::map<std::string, float> DomainNetMapImp::last_output() const
+    std::map<std::string, double> DomainNetMapImp::last_output() const
     {
-        std::map<std::string, float> rval;
+        std::map<std::string, double> rval;
 
         for (std::size_t idx=0; idx<m_last_output.get_dim(); ++idx) {
             rval[m_trace_outputs.at(idx)] = m_last_output[idx];

@@ -46,7 +46,7 @@ namespace geopm
             /// @param [in] other The multiplicand
             ///
             /// @return Returns a 1D tensor, the product of two 1D tensors
-            virtual float inner_product(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const = 0;
+            virtual double inner_product(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const = 0;
             /// @brief Compute logistic sigmoid function of 1D Tensor
 
             virtual TensorOneD sigmoid(const TensorOneD& tensor) const = 0;
@@ -68,7 +68,7 @@ namespace geopm
             virtual ~TensorMathImp() = default;
             TensorOneD add(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const override;
             TensorOneD subtract(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const override;
-            float inner_product(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const override;
+            double inner_product(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const override;
             TensorOneD sigmoid(const TensorOneD& tensor) const override;
             TensorOneD multiply(const TensorTwoD&, const TensorOneD&) const override;
     };

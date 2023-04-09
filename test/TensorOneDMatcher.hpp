@@ -42,7 +42,7 @@ class TensorOneDMatcher {
     }
 
   private:
-    const std::vector<float> m_expected_values;
+    const std::vector<double> m_expected_values;
 };
 
 ::testing::Matcher<const TensorOneD&> TensorOneDEqualTo(const TensorOneD& expected);

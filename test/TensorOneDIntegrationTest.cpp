@@ -105,7 +105,7 @@ TEST_F(TensorOneDIntegrationTest, test_input)
 {
     TensorOneD x(3);
     x.set_dim(4);
-    std::vector<float> vals = {8, 16};
+    std::vector<double> vals = {8, 16};
     x = TensorOneD(vals);
     EXPECT_EQ(2u, x.get_dim());
     EXPECT_EQ(8, x[0]);

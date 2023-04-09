@@ -59,7 +59,7 @@ namespace geopm
         }
     }
 
-    double RegionHintRecommenderImp::recommend_frequency(std::map<std::string, float> region_class, double phi) const {
+    double RegionHintRecommenderImp::recommend_frequency(std::map<std::string, double> region_class, double phi) const {
         for (const auto & [region_name, probability] : region_class) {
             if (std::isnan(probability)) {
                 return NAN;

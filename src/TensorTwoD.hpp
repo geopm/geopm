@@ -34,19 +34,19 @@ namespace geopm
             TensorTwoD(TensorTwoD &&other);
             /// @brief Constructor input from a vector of vectors of values.
             ///
-            /// @param [in] input std::vector<std::vector<float> > instance
+            /// @param [in] input std::vector<std::vector<double>> instance
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(std::vector<std::vector<float> > input);
+            TensorTwoD(std::vector<std::vector<double>> input);
             /// @brief Constructor input from a vector of vectors of values.
             ///
-            /// @param [in] input std::vector<std::vector<float> > instance
+            /// @param [in] input std::vector<std::vector<double>> instance
             /// @param [in] math  TensorMath instance
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(std::vector<std::vector<float> > input, std::shared_ptr<TensorMath> math);
+            TensorTwoD(std::vector<std::vector<double>> input, std::shared_ptr<TensorMath> math);
             /// @brief Constructor input from a vector of 1D tensors.
             ///
             /// @param [in] input std::vector<TensorOneD> instance
