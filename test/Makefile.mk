@@ -214,6 +214,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/InitControlTest.parse_empty_file_name \
               test/gtest_links/InitControlTest.throw_bad_input \
               test/gtest_links/InitControlTest.throw_invalid_write \
+              test/gtest_links/LocalNeuralNetTest.test_bad_dimensions \
+              test/gtest_links/LocalNeuralNetTest.test_inference \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -465,6 +467,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/InitControlTest.cpp \
+                          test/LocalNeuralNetTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
