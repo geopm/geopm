@@ -206,6 +206,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              geopm-tutorial.tar.gz \
              indicators/index.html \
              indicators/indicators.py \
+	     json_schemas/domainnetmap_neural_net.schema.json \
              json_schemas/geopmagent_policy.schema.json \
              json_schemas/geopmbench_config.schema.json \
              man/geopmadmin.1 \

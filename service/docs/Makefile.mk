@@ -41,6 +41,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmagent.1.rst \
               docs/source/geopm_agent.3.rst \
               docs/source/geopm_agent_cpu_activity.7.rst \
+	      docs/source/geopm_agent_ffnet.7.rst \
               docs/source/geopm_agent_frequency_map.7.rst \
               docs/source/geopm_agent_gpu_activity.7.rst \
               docs/source/geopm_agent_monitor.7.rst \
