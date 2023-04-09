@@ -209,6 +209,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
 	     json_schemas/domainnetmap_neural_net.schema.json \
              json_schemas/geopmagent_policy.schema.json \
              json_schemas/geopmbench_config.schema.json \
+	     json_schemas/regionhintrecommender_fmap.schema.json \
              man/geopmadmin.1 \
              man/geopmagent.1 \
              man/geopm_agent.3 \
