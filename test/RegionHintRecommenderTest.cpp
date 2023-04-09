@@ -24,11 +24,13 @@ class RegionHintRecommenderTest : public ::testing::Test
 {
     protected:
         std::string m_filename = "freq_map_test.json";
-        void TearDown() override
-        {
-            std::remove(m_filename.c_str());
-        }
+        void TearDown() override;
 };
+
+void RegionHintRecommenderTest::TearDown()
+{
+    std::remove(m_filename.c_str());
+}
 
 TEST_F(RegionHintRecommenderTest, test_json_parsing)
 {

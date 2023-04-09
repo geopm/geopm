@@ -2,11 +2,6 @@
 geopm_agent_ffnet(7) -- agent for adjusting frequencies based on application behavior
 =====================================================================================
 
-
-
-
-
-
 Description
 -----------
 

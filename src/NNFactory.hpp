@@ -20,7 +20,7 @@ namespace geopm
     ///        i.e. TensorOneD, TensorTwoD, DenseLayer, and LocalNeuralNet objects.
     class NNFactory {
         public:
-            /// @brief Returns a unique pointer to a conrete object constructed
+            /// @brief Returns a unique pointer to a concrete object constructed
             ///        using the underlying implementation.
             static std::unique_ptr<NNFactory> make_unique();
             virtual ~NNFactory() = default;

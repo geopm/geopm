@@ -38,12 +38,40 @@ using ::testing::_;
 class DomainNetMapTest : public ::testing::Test
 {
     protected:
+        void SetUp() override;
+        void TearDown() override;
+
         std::string m_filename = "domain_net_map_test.json";
-        void TearDown() override
-        {
-            std::remove(m_filename.c_str());
-        }
+	std::shared_ptr<MockNNFactory> fake_nn_factory;
+        MockPlatformIO fake_plat_io;
+	std::shared_ptr<MockTensorMath> fake_math;
+	std::shared_ptr<MockLocalNeuralNet> fake_nn;
+	std::shared_ptr<MockDenseLayer> fake_layer;
+	std::vector<std::vector<double>> weight_vals;
+	TensorTwoD weights;
+	TensorOneD biases;
+	TensorOneD tmp1, tmp2;
 };
+
+void DomainNetMapTest::SetUp()
+{
+    fake_nn_factory = std::make_shared<MockNNFactory>();
+    fake_math = std::make_shared<MockTensorMath>();
+    fake_nn = std::make_shared<MockLocalNeuralNet>();
+
+    weight_vals = {{1, 2, 3}, {4, 5, 6}};
+    weights = TensorTwoD(weight_vals, fake_math);
+    biases = TensorOneD({7, 8}, fake_math);
+    tmp1 = TensorOneD({4, 3, -1, 0, 2}, fake_math);
+    tmp2 = TensorOneD({0, 2, -4}, fake_math);
+
+    fake_layer = std::make_shared<MockDenseLayer>();
+}
+
+void DomainNetMapTest::TearDown()
+{
+    remove(m_filename.c_str());
+}
 
 TEST_F(DomainNetMapTest, test_json_parsing)
 {
@@ -52,8 +80,6 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json << "{[\"test\"]" << std::endl;
         bad_json.close();
 
-        MockPlatformIO fake_plat_io;
-        auto fake_nn_factory = std::make_shared<MockNNFactory>();
         GEOPM_EXPECT_THROW_MESSAGE(
                         DomainNetMapImp(m_filename,
                                         GEOPM_DOMAIN_PACKAGE,
@@ -69,8 +95,6 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json << "{\"layers\": 15}" << std::endl;
         bad_json.close();
 
-        MockPlatformIO fake_plat_io;
-        auto fake_nn_factory = std::make_shared<MockNNFactory>();
         GEOPM_EXPECT_THROW_MESSAGE(
                         DomainNetMapImp(m_filename,
                                         GEOPM_DOMAIN_PACKAGE,
@@ -84,8 +108,6 @@ TEST_F(DomainNetMapTest, test_json_parsing)
 
 TEST_F(DomainNetMapTest, test_plumbing)
 {
-    auto fake_math = std::make_shared<MockTensorMath>();
-
     std::ofstream good_json(m_filename);
     good_json << 
         "{\"layers\": ["
@@ -99,72 +121,26 @@ TEST_F(DomainNetMapTest, test_plumbing)
         "\"trace_outputs\": [\"GEO\", \"PM\", \"@\", \"INTEL\", \"2023\"]}" << std::endl;
     good_json.close();
 
-    MockPlatformIO fake_plat_io;
-    auto fake_nn_factory = std::make_shared<MockNNFactory>();
-    std::shared_ptr<MockLocalNeuralNet> fake_nn = std::make_shared<MockLocalNeuralNet>();
-    std::vector<std::vector<double> > weight_vals(
-                {{1, 2, 3}, {4, 5, 6}});
-    TensorTwoD weights(weight_vals, fake_math);
-
-    TensorOneD biases(
-            std::vector<double>(
-                {7, 8}
-                ),
-            fake_math
-            );
-
-    TensorOneD tmp1(
-            std::vector<double>(
-                {4, 3, -1, 0, 2}
-                ),
-            fake_math
-            );
-
-    TensorOneD tmp2(
-            std::vector<double>(
-                {0, 2, -4}
-                ),
-            fake_math
-            );
-
-
-    std::shared_ptr<MockDenseLayer> fake_layer = std::make_shared<MockDenseLayer>();
-
-    ON_CALL(*fake_nn_factory, createTensorOneD(_))
-        .WillByDefault(Return(biases));
-    ON_CALL(*fake_nn_factory, createTensorTwoD(_))
-        .WillByDefault(Return(weights));
-    ON_CALL(*fake_nn_factory, createDenseLayer(_, _))
-        .WillByDefault(Return(fake_layer));
-    ON_CALL(*fake_nn_factory, createLocalNeuralNet(_))
-        .WillByDefault(Return(fake_nn));
-    ON_CALL(fake_plat_io, push_signal("A", _, _))
-        .WillByDefault(Return(0));
-    ON_CALL(fake_plat_io, push_signal("B", _, _))
-        .WillByDefault(Return(1));
-    ON_CALL(fake_plat_io, push_signal("C", _, _))
-        .WillByDefault(Return(2));
-    ON_CALL(fake_plat_io, push_signal("D", _, _))
-        .WillByDefault(Return(3));
-    ON_CALL(fake_plat_io, push_signal("E", _, _))
-        .WillByDefault(Return(4));
-
     EXPECT_CALL(*fake_nn_factory, createTensorOneD(_))
-        .Times(2);
+        .WillOnce(Return(biases))
+	.WillOnce(Return(tmp1));
     EXPECT_CALL(*fake_nn_factory, createTensorOneD(ElementsAre(0, 2, -4)))
-        .Times(1);
+	.WillOnce(Return(biases));
     EXPECT_CALL(*fake_nn_factory, createTensorTwoD(weight_vals))
-        .Times(1);
-    EXPECT_CALL(*fake_nn_factory, createDenseLayer(TensorTwoDEqualTo(weights), TensorOneDEqualTo(biases)))
-        .Times(1);
+        .WillOnce(Return(weights));
+    EXPECT_CALL(*fake_nn_factory,
+		    createDenseLayer(TensorTwoDEqualTo(weights),
+			             TensorOneDEqualTo(biases)))
+        .WillOnce(Return(fake_layer));
     EXPECT_CALL(*fake_nn_factory, createLocalNeuralNet(ElementsAre(fake_layer)))
-        .Times(1);
+        .WillOnce(Return(fake_nn));
 
-    EXPECT_CALL(fake_plat_io, push_signal("A", _, _)).Times(1);
-    EXPECT_CALL(fake_plat_io, push_signal("B", _, _)).Times(1);
-    EXPECT_CALL(fake_plat_io, push_signal("C", _, _)).Times(1);
-    EXPECT_CALL(fake_plat_io, push_signal("D", _, _)).Times(1);
-    EXPECT_CALL(fake_plat_io, push_signal("E", _, _)).Times(1);
+    EXPECT_CALL(fake_plat_io, push_signal("A", _, _)).WillOnce(Return(0));
+    EXPECT_CALL(fake_plat_io, push_signal("B", _, _)).WillOnce(Return(1));
+    EXPECT_CALL(fake_plat_io, push_signal("C", _, _)).WillOnce(Return(2));
+    EXPECT_CALL(fake_plat_io, push_signal("D", _, _)).WillOnce(Return(3));
+    EXPECT_CALL(fake_plat_io, push_signal("E", _, _)).WillOnce(Return(4));
+
     EXPECT_CALL(fake_plat_io, sample(0)).WillOnce(Return(1)).WillOnce(Return(0));
     EXPECT_CALL(fake_plat_io, sample(1)).WillOnce(Return(2)).WillOnce(Return(4));
     EXPECT_CALL(fake_plat_io, sample(2)).WillOnce(Return(3)).WillOnce(Return(4));
@@ -177,8 +153,7 @@ TEST_F(DomainNetMapTest, test_plumbing)
                             fake_plat_io,
                             fake_nn_factory);
 
-    ON_CALL(*fake_nn, forward(_)).WillByDefault(Return(tmp1));
-    EXPECT_CALL(*fake_nn, forward(_)).Times(2);
+    EXPECT_CALL(*fake_nn, forward(_)).WillRepeatedly(Return(tmp1));
 
     net_map.sample();
     net_map.sample();
