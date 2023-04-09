@@ -61,36 +61,33 @@ TEST_F(DenseLayerTest, test_inference) {
             fake_math
             );
 
-    // We can't use fake_math here because ON_CALL will leak
-    // the mock instance.
     TensorOneD tmp1(
             std::vector<float>(
                 {3, 8, 9, 30}
-                )
+                ),
+	    fake_math
             );
 
     TensorOneD tmp2(
             std::vector<float>(
                 {10, 8, -1}
-                )
+                ),
+	    fake_math
             );
-
-    ON_CALL(*fake_math, multiply(_, _)).WillByDefault(Return(tmp1));
-    ON_CALL(*fake_math, add(_, _)).WillByDefault(Return(tmp2));
 
     EXPECT_CALL(*fake_math,
                 multiply(TensorTwoDEqualTo(weights),
-                         TensorOneDEqualTo(inp))).Times(1);
+                         TensorOneDEqualTo(inp)))
+	    .WillOnce(Return(tmp1));
     EXPECT_CALL(*fake_math,
                 add(TensorOneDEqualTo(biases),
-                    TensorOneDEqualTo(tmp1))).Times(1);
+                    TensorOneDEqualTo(tmp1)))
+	    .WillOnce(Return(tmp2));
 
     EXPECT_EQ(3u, layer.get_input_dim());
     EXPECT_EQ(2u, layer.get_output_dim());
 
     TensorOneD out = layer.forward(inp);
-
-    Mock::VerifyAndClearExpectations(fake_math.get());
 }
 
 TEST_F(DenseLayerTest, test_bad_dimensions) {
