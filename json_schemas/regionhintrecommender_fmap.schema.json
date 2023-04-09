@@ -1,0 +1,12 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/regionhintrecommender_fmap.schema.json",
+    "title": "Region Frequency Map",
+    "type": "object",
+    "additionalProperties": {
+        "type": "array",
+        "items": {
+            "type": "number"
+        }
+    }
+}

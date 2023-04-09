@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "https://geopm.github.io/nnet.schema.json",
+    "id": "https://geopm.github.io/domainnetmap_neural_net.schema.json",
     "title": "NeuralNet",
     "definitions" : {
         "msr": {

@@ -70,6 +70,7 @@ integration/test/README.md
 json_schemas/domainnetmap_neural_net.schema.json
 json_schemas/geopmbench_config.schema.json
 json_schemas/geopmagent_policy.schema.json
+json_schemas/regionhintrecommender_fmap.schema.json
 MANIFEST
 .pre-commit-config.yaml
 pull_request_template.md
