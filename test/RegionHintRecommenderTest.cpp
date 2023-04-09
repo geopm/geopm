@@ -15,16 +15,8 @@
 #include "RegionHintRecommender.hpp"
 #include "RegionHintRecommenderImp.hpp"
 
-// TODO delete what isn't used
 using geopm::RegionHintRecommender;
 using geopm::RegionHintRecommenderImp;
-//using geopm::MockDenseLayer;
-//using geopm::MockLocalNeuralNet;
-//using geopm::MockNNFactory;
-//using ::testing::ByMove;
-//using ::testing::ElementsAre;
-//using ::testing::Mock;
-//using ::testing::Return;
 using ::testing::_;
 
 class RegionHintRecommenderTest : public ::testing::Test
