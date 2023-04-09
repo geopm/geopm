@@ -26,6 +26,8 @@ using geopm::Agent;
 using geopm::PlatformIO;
 using geopm::PlatformTopo;
 
+//TODO: Change from logits to probabilities
+//
 namespace geopm
 {
     const std::map<geopm_domain_e, const char *> FFNetAgent::nnet_envname = 
@@ -84,7 +86,7 @@ namespace geopm
         : m_platform_io(plat_io)
           , m_last_wait{{0, 0}}
           , M_WAIT_SEC(0.020) // 20ms Wait
-          , m_phi(0)
+          , m_perf_energy_bias(0)
     {
         geopm_time(&m_last_wait);
         init_domain_indices(topo);
@@ -108,7 +110,7 @@ namespace geopm
         : m_platform_io(plat_io)
           , m_last_wait{{0, 0}}
           , M_WAIT_SEC(0.050) // 50ms Wait
-          , m_phi(0)
+          , m_perf_energy_bias(0)
     {
         geopm_time(&m_last_wait);
         init_domain_indices(topo);
@@ -195,13 +197,13 @@ namespace geopm
         if (is_all_nan(in_policy)) {
             // All-NAN policy may be received before the first policy
             /// @todo: in the future, this should not be accepted by this agent.
-            in_policy[M_POLICY_PHI] = 0;
+            in_policy[M_POLICY_PERF_ENERGY_BIAS] = 0;
             return;
         }
-        if (!std::isnan(in_policy[M_POLICY_PHI])) {
-            if (in_policy[M_POLICY_PHI] > 1.0 || in_policy[M_POLICY_PHI] < 0) {
+        if (!std::isnan(in_policy[M_POLICY_PERF_ENERGY_BIAS])) {
+            if (in_policy[M_POLICY_PERF_ENERGY_BIAS] > 1.0 || in_policy[M_POLICY_PERF_ENERGY_BIAS] < 0) {
                 throw Exception("FFNetAgent::" + std::string(__func__) +
-                                "(): CPU_PHI is out of range (should be 0-1). (",
+                                "(): PERF_ENERGY_BIAS is out of range (should be 0-1). (",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
             }
@@ -243,15 +245,15 @@ namespace geopm
 
     void FFNetAgent::adjust_platform(const std::vector<double>& in_policy)
     {
-        if (!std::isnan(in_policy[M_POLICY_PHI])) {
-            m_phi = in_policy[M_POLICY_PHI];
+        if (!std::isnan(in_policy[M_POLICY_PERF_ENERGY_BIAS])) {
+            m_perf_energy_bias = in_policy[M_POLICY_PERF_ENERGY_BIAS];
         }
         m_do_write_batch = false;
 
         for (const m_domain_key_s domain_key : m_domains) {
             double new_freq = m_freq_recommender[domain_key.type]->recommend_frequency(
                     m_net_map[domain_key]->last_output(),
-                    m_phi
+                    m_perf_energy_bias
                     );
             if (!std::isnan(new_freq)
                 && m_freq_control[domain_key].last_value != new_freq) {

@@ -13,6 +13,7 @@
 #include "geopm/Helper.hpp"
 #include "NNFactoryImp.hpp"
 
+// TODO: Change from logits to probabilities
 namespace geopm
 {
     std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(const std::string nn_path, geopm_domain_e domain_type, int domain_index)

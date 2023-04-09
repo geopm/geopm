@@ -21,9 +21,7 @@ namespace geopm
         public:
             virtual ~TensorMath() = default;
 
-            /// @brief Add two 1D tensors, element-wise
-            ///
-            /// The tensors need to be the same length. 
+            /// @brief Add two 1D tensors of the same length, element-wise
             ///
             /// @throws geopm::Exception if the lengths do not match.
             ///
@@ -31,7 +29,7 @@ namespace geopm
             ///
             /// @return Returns a 1D tensor, the sum of two 1D tensors
             virtual TensorOneD add(const TensorOneD& tensor_a, const TensorOneD& tensor_b) const = 0;
-            /// @brief Subtract two 1D tensors, element-wise
+            /// @brief Subtract two 1D tensors of the same length, element-wise
             ///
             /// @throws geopm::Exception if the lengths do not match.
             ///
@@ -54,10 +52,11 @@ namespace geopm
             /// @brief Multiply a 2D tensor by a 1D tensor
             /// 
             /// @param [in] TensorTwoD& Reference to the 2D multiplicand
+            ///
             /// @param [in] TensorOneD& Reference to the 1D multiplicand
             /// 
             /// @throws geopm::Exception if the sizes are incompatible, i.e. if 2D
-            /// tensor number of columns is unequal to 1D tensor number of rows
+            ///         tensor number of columns is unequal to 1D tensor number of rows
             virtual TensorOneD multiply(const TensorTwoD&, const TensorOneD&) const = 0;
     };
 

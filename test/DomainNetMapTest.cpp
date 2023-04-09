@@ -33,6 +33,8 @@ using ::testing::Mock;
 using ::testing::Return;
 using ::testing::_;
 
+//TODO: Change from logits to probabilities
+
 class DomainNetMapTest : public ::testing::Test
 {
     protected:
