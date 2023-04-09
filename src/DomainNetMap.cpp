@@ -60,6 +60,16 @@ namespace geopm
 
         const json11::Json nnet_json = json11::Json::parse(buf, err);
 
+        // make sure that there no unexpected keys in the json
+        std::vector<std::string> expected_keys = {"layers", "signal_inputs", "delta_inputs", "trace_outputs", "description"};
+        for (auto &key : nnet_json.object_items()) {
+            if (std::find(expected_keys.begin(), expected_keys.end(), key.first) == expected_keys.end()) {
+                throw geopm::Exception(
+                        "Unexpected key in neural net json: " + key.first + "\n",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+
         if (! nnet_json["layers"].is_array()) {
             throw geopm::Exception(
                     "Neural net must contain valid json and must have "
@@ -81,12 +91,35 @@ namespace geopm
             layers.push_back(json_to_DenseLayer(nnet_json["layers"][layer_idx]));
         }
 
+	if (layers.size() == 0) {
+            throw geopm::Exception(
+                    "Layers must be non-empty.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         m_neural_net = m_nn_factory->createLocalNeuralNet(layers);
+
+	if (nnet_json["signal_inputs"].array_items().size()
+                + nnet_json["delta_inputs"].array_items().size()
+                != m_neural_net->get_input_dim()) {
+            throw geopm::Exception(
+                    "Neural net input dimension must match the number of "
+                    "signal and delta inputs.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+	}
+
+        if (nnet_json["trace_outputs"].array_items().size()
+                != m_neural_net->get_output_dim()) {
+            throw geopm::Exception(
+                    "Neural net output dimension must match the number of "
+                    "trace outputs.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
 
         for (std::size_t i=0; i<nnet_json["signal_inputs"].array_items().size(); i++) {
             m_signal_inputs.push_back({
                     m_platform_io.push_signal(
-                            nnet_json["signal_inputs"][i][0].string_value(),
+                            nnet_json["signal_inputs"][i].string_value(),
                             domain_type,
                             domain_index),
                     NAN});
@@ -95,11 +128,11 @@ namespace geopm
         for (std::size_t i=0; i<nnet_json["delta_inputs"].array_items().size(); i++) {
             m_delta_inputs.push_back({
                     m_platform_io.push_signal(
-                            nnet_json["delta_inputs"][i][0][0].string_value(),
+                            nnet_json["delta_inputs"][i][0].string_value(),
                             domain_type,
                             domain_index),
                     m_platform_io.push_signal(
-                            nnet_json["delta_inputs"][i][1][0].string_value(),
+                            nnet_json["delta_inputs"][i][1].string_value(),
                             domain_type,
                             domain_index),
                     NAN, NAN, NAN, NAN});
@@ -108,9 +141,6 @@ namespace geopm
         for (std::size_t i=0; i<nnet_json["trace_outputs"].array_items().size(); i++) {
             m_trace_outputs.push_back(nnet_json["trace_outputs"][i].string_value());
         }
-        // TODO validate that trace_outputs == size of final layer in the net
-        //      validate that signal_inputs + delta_inputs == size of initial layer
-        //      if net is empty, ensure that these are equal to each other instead
     }
 
     std::shared_ptr<DenseLayer> DomainNetMapImp::json_to_DenseLayer(const json11::Json &obj) const {

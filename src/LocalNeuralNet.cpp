@@ -55,4 +55,12 @@ namespace geopm
 
         return tmp;
     }
+
+    size_t LocalNeuralNetImp::get_input_dim() const {
+        return m_layers[0]->get_input_dim();
+    }
+
+    size_t LocalNeuralNetImp::get_output_dim() const {
+        return m_layers[m_layers.size() - 1]->get_output_dim();
+    }
 }

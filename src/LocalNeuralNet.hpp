@@ -35,6 +35,14 @@ namespace geopm
             ///
             /// @return Returns a TensorOneD vector of output values.
             virtual TensorOneD forward(const TensorOneD &inp) const = 0;
+            /// @brief Get the dimension required for the input TensorOneD
+            /// 
+            /// @return Returns a size_t equal to the number of columns of weights
+            virtual size_t get_input_dim() const = 0;
+            /// @brief Get the dimension of the resulting TensorOneD
+            /// 
+            /// @return Returns a size_t equal to the number of rows of weights 
+            virtual size_t get_output_dim() const = 0;
 
             TensorOneD operator()(const TensorOneD &input) const {
                 return forward(input);
