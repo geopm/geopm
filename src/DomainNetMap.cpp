@@ -24,15 +24,16 @@ namespace geopm
             const std::string nn_path,
             geopm_domain_e domain_type,
             int domain_index)
-        : DomainNetMapImp(nn_path, domain_type, domain_index, std::make_shared<NNFactoryImp>()) {
+        : DomainNetMapImp(nn_path, domain_type, domain_index, platform_io(), std::make_shared<NNFactoryImp>()) {
     }
 
     DomainNetMapImp::DomainNetMapImp(
             const std::string nn_path,
             geopm_domain_e domain_type,
             int domain_index,
+            PlatformIO &plat_io,
             std::shared_ptr<NNFactory> nn_factory)
-        : m_platform_io(platform_io())
+        : m_platform_io(plat_io)
           , m_nn_factory(nn_factory)
     {
         std::ifstream file(nn_path);
@@ -60,8 +61,8 @@ namespace geopm
 
         if (! nnet_json["layers"].is_array()) {
             throw geopm::Exception(
-                    "Neural net json must have a key \"layers\" whose value "
-                    "is an array.\n",
+                    "Neural net must contain valid json and must have "
+                    "a key \"layers\" whose value is an array.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -187,24 +188,25 @@ namespace geopm
 
     void DomainNetMapImp::sample()
     {
-        TensorOneD xs(m_signal_inputs.size() + m_delta_inputs.size());
+        std::vector<float> xs;
 
         // Collect latest signal values
         for (std::size_t i=0; i<m_signal_inputs.size(); i++) {
             m_signal_inputs[i].signal = m_platform_io.sample(m_signal_inputs[i].batch_idx);
-            xs[i] = m_platform_io.sample(m_signal_inputs[i].batch_idx);
+            xs.push_back(m_signal_inputs[i].signal);
         }
         for (std::size_t i=0; i<m_delta_inputs.size(); i++) {
             m_delta_inputs[i].signal_num_last = m_delta_inputs[i].signal_num;
             m_delta_inputs[i].signal_den_last = m_delta_inputs[i].signal_den;
             m_delta_inputs[i].signal_num = m_platform_io.sample(m_delta_inputs[i].batch_idx_num);
             m_delta_inputs[i].signal_den = m_platform_io.sample(m_delta_inputs[i].batch_idx_den);
-            xs[m_signal_inputs.size() + i] =
+            xs.push_back(
                 (m_delta_inputs[i].signal_num - m_delta_inputs[i].signal_num_last) /
-                (m_delta_inputs[i].signal_den - m_delta_inputs[i].signal_den_last);
+                (m_delta_inputs[i].signal_den - m_delta_inputs[i].signal_den_last)
+            );
         }
 
-        m_last_output = m_neural_net->forward(xs);
+        m_last_output = m_neural_net->forward(m_nn_factory->createTensorOneD(xs));
     }
 
     std::vector<std::string> DomainNetMapImp::trace_names() const

@@ -26,7 +26,7 @@ namespace geopm
         public:
             DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index);
 
-            DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index, std::shared_ptr<NNFactory> nn_factory);
+            DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index, PlatformIO &plat_io, std::shared_ptr<NNFactory> nn_factory);
 
             /// @brief Collects latest signals for a specific domain and applies the 
             ///        resulting TensorOneD state to the neural net.
@@ -53,7 +53,7 @@ namespace geopm
             TensorOneD json_to_TensorOneD(const json11::Json &obj) const;
             TensorTwoD json_to_TensorTwoD(const json11::Json &obj) const;
 
-            geopm::PlatformIO &m_platform_io;
+            PlatformIO &m_platform_io;
             std::shared_ptr<NNFactory> m_nn_factory;
 
             struct signal
@@ -79,7 +79,7 @@ namespace geopm
             };
 
             static constexpr int m_max_nnet_size = 1024;
-            std::unique_ptr<LocalNeuralNet> m_neural_net;
+            std::shared_ptr<LocalNeuralNet> m_neural_net;
 
             TensorOneD m_last_output;
             std::vector<signal> m_signal_inputs;

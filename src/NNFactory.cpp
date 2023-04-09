@@ -7,6 +7,7 @@
 #include "geopm/Helper.hpp"
 
 #include "DenseLayerImp.hpp"
+#include "LocalNeuralNetImp.hpp"
 #include "NNFactory.hpp"
 #include "NNFactoryImp.hpp"
 
@@ -16,9 +17,9 @@ namespace geopm {
         return geopm::make_unique<NNFactoryImp>();
     }
 
-    std::unique_ptr<LocalNeuralNet> NNFactoryImp::createLocalNeuralNet(const std::vector<std::shared_ptr<DenseLayer>> &layers) const
+    std::shared_ptr<LocalNeuralNet> NNFactoryImp::createLocalNeuralNet(const std::vector<std::shared_ptr<DenseLayer>> &layers) const
     {
-        return LocalNeuralNet::make_unique(layers);
+        return std::make_shared<LocalNeuralNetImp>(layers);
     }
 
     std::shared_ptr<DenseLayer> NNFactoryImp::createDenseLayer(const TensorTwoD &weights, const TensorOneD &biases) const

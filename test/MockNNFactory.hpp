@@ -13,7 +13,7 @@ namespace geopm {
 
 class MockNNFactory : public NNFactory {
  public:
-  MOCK_METHOD(std::unique_ptr<LocalNeuralNet>, createLocalNeuralNet, (const std::vector<std::shared_ptr<DenseLayer>> &layers), (const, override));
+  MOCK_METHOD(std::shared_ptr<LocalNeuralNet>, createLocalNeuralNet, (const std::vector<std::shared_ptr<DenseLayer>> &layers), (const, override));
   MOCK_METHOD(std::shared_ptr<DenseLayer>, createDenseLayer, (const TensorTwoD &weights, const TensorOneD &biases), (const, override));
   MOCK_METHOD(TensorTwoD, createTensorTwoD, (const std::vector<std::vector<float>> &vals), (const, override));
   MOCK_METHOD(TensorOneD, createTensorOneD, (const std::vector<float> &vals), (const, override));
