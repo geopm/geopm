@@ -102,6 +102,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/DebugIOGroupTest.sample \
               test/gtest_links/DenseLayerTest.test_bad_dimensions \
               test/gtest_links/DenseLayerTest.test_inference \
+              test/gtest_links/DomainNetMapTest.test_json_parsing \
+              test/gtest_links/DomainNetMapTest.test_plumbing \
               test/gtest_links/EditDistEpochRecordFilterTest.one_region_repeated \
               test/gtest_links/EditDistEpochRecordFilterTest.filter_in \
               test/gtest_links/EditDistEpochRecordFilterTest.filter_out \
@@ -286,6 +288,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/RecordFilterTest.invalid_filter_name \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
               test/gtest_links/RecordFilterTest.make_edit_distance \
+              test/gtest_links/RegionHintRecommenderTest.test_json_parsing \
+              test/gtest_links/RegionHintRecommenderTest.test_plumbing \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/ReporterTest.generate_conditional \
               test/gtest_links/SampleAggregatorTest.epoch_application_total \
@@ -447,6 +451,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/DenseLayerTest.cpp \
+                          test/DomainNetMapTest.cpp \
                           test/EditDistEpochRecordFilterTest.cpp \
                           test/EditDistPeriodicityDetectorTest.cpp \
                           test/EndpointTest.cpp \
@@ -514,6 +519,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
                           test/ProcessRegionAggregatorTest.cpp \
                           test/RecordFilterTest.cpp \
+                          test/RegionHintRecommenderTest.cpp \
                           test/ReporterTest.cpp \
                           test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \

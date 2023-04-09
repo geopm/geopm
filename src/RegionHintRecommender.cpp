@@ -42,6 +42,10 @@ namespace geopm
 
         json11::Json fmap_json = json11::Json::parse(fbuf, err);
         
+        if (fmap_json.is_null() || !fmap_json.is_object()) {
+            throw geopm::Exception("Frequency map file format is incorrect.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
 
         for (const auto &row : fmap_json.object_items()) {
             if (! row.second.is_array()) {
