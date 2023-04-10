@@ -23,6 +23,9 @@ namespace geopm
             /// @brief Returns a unique pointer to a concrete object constructed
             ///        using the underlying implementation.
             static std::unique_ptr<NNFactory> make_unique();
+            /// @brief Returns a shared pointer to a concrete object constructed
+            ///        using the underlying implementation.
+            static std::shared_ptr<NNFactory> make_shared();
             virtual ~NNFactory() = default;
             /// @brief Create a LocalNeuralNet
             ///

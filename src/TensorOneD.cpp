@@ -34,8 +34,8 @@ namespace geopm
         m_math = std::move(other.m_math);
     }
 
-    TensorOneD::TensorOneD(std::vector<double> input)
-        : TensorOneD(input, std::make_shared<TensorMathImp>())
+    TensorOneD::TensorOneD(const std::vector<double> &input)
+        : TensorOneD(input, TensorMath::make_shared())
     {
     }
 
@@ -78,12 +78,12 @@ namespace geopm
         return m_vec == other.m_vec;
     }
 
-    double& TensorOneD::operator[] (size_t idx)
+    double& TensorOneD::operator[](size_t idx)
     {
         return m_vec.at(idx);
     }
 
-    double TensorOneD::operator[] (size_t idx) const
+    double TensorOneD::operator[](size_t idx) const
     {
         return m_vec.at(idx);
     }

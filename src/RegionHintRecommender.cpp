@@ -12,15 +12,26 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 
-//TODO: Change from logits to probabilities
 namespace geopm
 {
-    std::unique_ptr<RegionHintRecommender> RegionHintRecommender::make_unique(const std::string fmap_path, int min_freq, int max_freq)
+    std::unique_ptr<RegionHintRecommender> RegionHintRecommender::make_unique(
+            const std::string &fmap_path,
+            int min_freq,
+            int max_freq)
     {
         return geopm::make_unique<RegionHintRecommenderImp>(fmap_path, min_freq, max_freq);
     }
 
-    RegionHintRecommenderImp::RegionHintRecommenderImp(const std::string fmap_path, int min_freq, int max_freq)
+    std::shared_ptr<RegionHintRecommender> RegionHintRecommender::make_shared(
+            const std::string &fmap_path,
+            int min_freq,
+            int max_freq)
+    {
+        return std::make_shared<RegionHintRecommenderImp>(fmap_path, min_freq, max_freq);
+    }
+
+    RegionHintRecommenderImp::RegionHintRecommenderImp(const std::string &fmap_path, int min_freq,
+                                                       int max_freq)
         : m_min_freq(min_freq)
           , m_max_freq(max_freq)
     {
@@ -28,8 +39,8 @@ namespace geopm
 
         std::ifstream ffile(fmap_path);
         if (!ffile) {
-            throw geopm::Exception("Unable to open frequency map file.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Unable to open frequency map file.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         ffile.seekg(0, std::ios::end);
@@ -43,38 +54,52 @@ namespace geopm
 
         json11::Json fmap_json = json11::Json::parse(fbuf, err);
         
+        if (!err.empty()) {
+            throw Exception("Frequency map file format is incorrect: " + err + ".\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         if (fmap_json.is_null() || !fmap_json.is_object()) {
-            throw geopm::Exception("Frequency map file format is incorrect.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Frequency map file format is incorrect: object expected.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         for (const auto &row : fmap_json.object_items()) {
-            if (! row.second.is_array() || row.second.array_items().size() == 0) {
-                throw geopm::Exception("Frequency map file format is incorrect.\n",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (!row.second.is_array() || row.second.array_items().size() == 0) {
+                throw Exception("Frequency map file format is incorrect: region keys "
+                                "must contain an array of numbers.\n",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_freq_map[row.first].resize(row.second.array_items().size());
-            for (int idx=0; idx < (int)m_freq_map[row.first].size(); idx++) {
+            for (size_t idx = 0; idx < m_freq_map[row.first].size(); ++idx) {
+                if (!row.second[idx].is_number()) {
+                    throw Exception("Non-numeric value found in frequencies for "
+                                    "region: \"" + row.first + "\".\n",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
                 m_freq_map[row.first][idx] = row.second[idx].number_value();
             }
         }
     }
 
-    double RegionHintRecommenderImp::recommend_frequency(std::map<std::string, double> nn_output, double phi) const {
-        for (const auto & [region_name, probability] : nn_output ) {
-            if (std::isnan(probability)) {
+    double RegionHintRecommenderImp::recommend_frequency(
+            const std::map<std::string, double> &nn_output,
+            double phi) const {
+        for (const auto &kv : nn_output ) {
+            if (std::isnan(kv.second)) {
                 return NAN;
             }
         }
 
-        double ZZ = 0;
+        double zz = 0;
         double freq = 0;
-        for (const auto & [region_name, probability] : nn_output) {
-            int phi_idx = (int)(phi * (m_freq_map.at(region_name).size() - 1));
+        for (const auto &[region_name, probability] : nn_output) {
+            size_t phi_idx = static_cast<size_t>(
+                                std::floor(phi * (m_freq_map.at(region_name).size() - 1)));
             freq += exp(probability) * m_freq_map.at(region_name).at(phi_idx);
-            ZZ += exp(probability);
+            zz += exp(probability);
         }
-        freq = freq / ZZ;
+        freq = freq / zz;
 
         if (std::isnan(freq)) {
             freq = m_max_freq;
@@ -87,6 +112,6 @@ namespace geopm
             freq = m_min_freq;
         }
 
-        return freq*1e8;
+        return freq * 1e8;
     }
 }

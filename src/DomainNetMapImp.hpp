@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "geopm/json11.hpp"
-#include "geopm/PlatformIO.hpp"
 
 #include "DenseLayer.hpp"
 #include "LocalNeuralNet.hpp"
@@ -21,25 +20,30 @@
 
 namespace geopm
 {
+    class PlatformIO;
+
     class DomainNetMapImp : public DomainNetMap
     {
         public:
-            DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index);
+            DomainNetMapImp(const std::string &nn_path, geopm_domain_e domain_type,
+                            int domain_index);
 
-            DomainNetMapImp(const std::string nn_path, geopm_domain_e domain_type, int domain_index, PlatformIO &plat_io, std::shared_ptr<NNFactory> nn_factory);
+            DomainNetMapImp(const std::string &nn_path, geopm_domain_e domain_type,
+                            int domain_index, PlatformIO &plat_io,
+                            std::shared_ptr<NNFactory> nn_factory);
 
             void sample() override;
             /// @brief Generates the names for trace columns from the appropriate field in the neural net.
             //         In this case, region classification names annotated with domain type and index. 
             std::vector<std::string> trace_names() const override;
             /// @brief Populates trace values from last_output for each index within each domain type.
-            ///        In this case, region classification probabilities. 
+            ///        In this case, region classification logits. 
             /// @return Returns a vector of doubles containing trace values
             std::vector<double> trace_values() const override;
             /// @brief Populates a map of trace names to the latest output from the neural net.
-            ///        In this case, region classification names to their respective probabilities.
+            ///        In this case, region classification names to their respective logits.
             ///
-            /// @return A map of string, double containing region class and probabilities.
+            /// @return A map of string, double containing region class and logits.
             std::map<std::string, double> last_output() const override;
 
         private:
@@ -72,7 +76,8 @@ namespace geopm
                 double value;
             };
 
-            static constexpr int m_max_nnet_size = 1024;
+            static const std::vector<std::string> M_EXPECTED_KEYS;
+            static constexpr int M_MAX_NNET_SIZE = 1024;
             std::shared_ptr<LocalNeuralNet> m_neural_net;
 
             TensorOneD m_last_output;
