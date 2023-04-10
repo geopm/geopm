@@ -12,9 +12,6 @@
 #include "geopm_time.h"
 #include "DomainNetMap.hpp"
 #include "RegionHintRecommender.hpp"
-#include "DomainNetMapImp.hpp"
-#include "RegionHintRecommenderImp.hpp"
-#include "geopm/PlatformTopo.hpp"
 
 namespace geopm
 {
@@ -39,18 +36,19 @@ namespace geopm
             FFNetAgent(
                     PlatformIO &plat_io,
                     const PlatformTopo &topo,
-                    std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> > &net_map,
-                    std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > &freq_recommender
+                    const std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> >
+                        &net_map,
+                    const std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> >
+                        &freq_recommender
             );
-            FFNetAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~FFNetAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
             void split_policy(const std::vector<double> &in_policy,
-                    std::vector<std::vector<double> > &out_policy) override;
+                              std::vector<std::vector<double> > &out_policy) override;
             bool do_send_policy(void) const override;
             void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-                    std::vector<double> &out_sample) override;
+                                  std::vector<double> &out_sample) override;
             bool do_send_sample(void) const override;
             void adjust_platform(const std::vector<double> &in_policy) override;
             bool do_write_batch(void) const override;
@@ -68,6 +66,7 @@ namespace geopm
             static std::unique_ptr<Agent> make_plugin(void);
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
+
         private:
             struct m_domain_key_s {
                 geopm_domain_e type;
@@ -83,10 +82,11 @@ namespace geopm
             };
 
             static bool is_all_nan(const std::vector<double> &vec);
+            void init_domain_indices(const PlatformTopo &topo);
 
             PlatformIO &m_platform_io;
             geopm_time_s m_last_wait;
-            const double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.020;
             bool m_do_write_batch;
 
             std::map<std::string, double> m_policy_available;
@@ -100,15 +100,13 @@ namespace geopm
             std::vector<geopm_domain_e> m_domain_types;
             std::vector<m_domain_key_s> m_domains;
 
-            static const std::map<geopm_domain_e, const char *> nnet_envname;
-            static const std::map<geopm_domain_e, const char *> freqmap_envname;
-            static const std::map<geopm_domain_e, std::string> max_freq_signal_name;
-            static const std::map<geopm_domain_e, std::string> min_freq_signal_name;
-            static const std::map<geopm_domain_e, std::string> max_freq_control_name;
-            static const std::map<geopm_domain_e, std::string> min_freq_control_name;
-            static const std::map<geopm_domain_e, std::string> trace_suffix;
-
-            void init_domain_indices(const geopm::PlatformTopo &topo);
+            static const std::map<geopm_domain_e, const char *> M_NNET_ENVNAME;
+            static const std::map<geopm_domain_e, const char *> M_FREQMAP_ENVNAME;
+            static const std::map<geopm_domain_e, std::string> M_MAX_FREQ_SIGNAL_NAME;
+            static const std::map<geopm_domain_e, std::string> M_MIN_FREQ_SIGNAL_NAME;
+            static const std::map<geopm_domain_e, std::string> M_MAX_FREQ_CONTROL_NAME;
+            static const std::map<geopm_domain_e, std::string> M_MIN_FREQ_CONTROL_NAME;
+            static const std::map<geopm_domain_e, std::string> M_TRACE_SUFFIX;
     };
 }
 #endif  /* FFNETAGENT_HPP_INCLUDE */

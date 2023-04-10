@@ -7,16 +7,17 @@
 #define DOMAINNETMAP_HPP_INCLUDE
 
 #include <memory>
+#include <vector>
+#include <map>
 
-#include "geopm/PlatformTopo.hpp"
+#include "geopm_topo.h"
 
 namespace geopm
 {
 
     /// @brief Class to load neural net from file, sample signals specified in 
-    ///        that file, feed those signals into the neural net, and manage 
-    ///        the output from the neural nets, i.e. the probabilities of each 
-    ///        region class for each domain.
+    ///        that file, feed those signals into the neural net and manage 
+    ///        the output from the neural nets.
     class DomainNetMap
     {
         public:
@@ -39,10 +40,34 @@ namespace geopm
             ///
             /// @throws geopm::Exception if neural net file does not contain either a non-empty 
             ///         array "signal_inputs" or a non-empty array "delta_inputs"
-            static std::unique_ptr<DomainNetMap> make_unique(const std::string n_path, geopm_domain_e domain_type, int domain_index);
+            static std::unique_ptr<DomainNetMap> make_unique(const std::string &nn_path,
+                                                             geopm_domain_e domain_type,
+                                                             int domain_index);
+            /// @brief Returns a shared_ptr to a concrete object constructed
+            ///        using the underlying implementation which loads neural
+            ///        net for a specified domain from a json file.
+            ///
+            /// @param [in] nn_path Path to neural net json
+            ///
+            /// @param [in] domain_type Domain type, defined by geopm_domain_e enum 
+            ///
+            /// @param [in] domain_index Index of the domain to be measured
+            ///
+            /// @throws geopm::Exception if unable to open neural net file
+            ///
+            /// @throws geopm::Exception if neural net file exceeds max size  (currently 1024)
+            ///
+            /// @throws geopm::Exception if neural net file does not contain a key "layers"
+            ///         or if "layers" does not contain an array
+            ///
+            /// @throws geopm::Exception if neural net file does not contain either a non-empty 
+            ///         array "signal_inputs" or a non-empty array "delta_inputs"
+            static std::shared_ptr<DomainNetMap> make_shared(const std::string &nn_path,
+                                                             geopm_domain_e domain_type,
+                                                             int domain_index);
 
             virtual ~DomainNetMap() = default;
-            /// @brief Collects latest signals for a specific domain and applies the 
+            /// @brief Samples latest signals for a specific domain and applies the 
             ///        resulting TensorOneD state to the neural net.
             virtual void sample() = 0;
             /// @brief generates the names for trace columns from the appropriate field in the neural net

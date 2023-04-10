@@ -28,7 +28,7 @@ namespace geopm
             /// @brief Constructs a deep copy of the argument
             ///
             /// @param [in] TensorOneD Tensor to copy
-            TensorOneD(const TensorOneD&);
+            TensorOneD(const TensorOneD &);
 
             TensorOneD(TensorOneD &&other);
             /// @brief Constructor from vector of values
@@ -36,7 +36,7 @@ namespace geopm
             /// @param [in] input  The values to store in the 1D tensor.
             ///
             /// @throws geopm::Exception if input is empty.
-            TensorOneD(std::vector<double> input);
+            TensorOneD(const std::vector<double> &input);
 
             /// @brief Test constructor
             ///
@@ -65,7 +65,7 @@ namespace geopm
             /// @brief Overload = operator with an in-place deep copy
             ///
             /// @param [in] other The assignee (tensor to be copied)
-            TensorOneD& operator=(const TensorOneD& other);
+            TensorOneD& operator=(const TensorOneD &other);
 
             TensorOneD& operator=(TensorOneD &&other);
 

@@ -29,7 +29,7 @@ namespace geopm
             /// @brief Copy constructor using a deep copy
             ///
             /// @param [in] TensorTwoD& 2D Tensor to copy
-            TensorTwoD(const TensorTwoD&);
+            TensorTwoD(const TensorTwoD &);
 
             TensorTwoD(TensorTwoD &&other);
             /// @brief Constructor input from a vector of vectors of values.
@@ -38,7 +38,7 @@ namespace geopm
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(std::vector<std::vector<double>> input);
+            TensorTwoD(const std::vector<std::vector<double>> &input);
             /// @brief Constructor input from a vector of vectors of values.
             ///
             /// @param [in] input std::vector<std::vector<double>> instance
@@ -46,14 +46,15 @@ namespace geopm
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(std::vector<std::vector<double>> input, std::shared_ptr<TensorMath> math);
+            TensorTwoD(const std::vector<std::vector<double>> &input,
+                       std::shared_ptr<TensorMath> math);
             /// @brief Constructor input from a vector of 1D tensors.
             ///
             /// @param [in] input std::vector<TensorOneD> instance
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(std::vector<TensorOneD> input);
+            TensorTwoD(const std::vector<TensorOneD> &input);
             /// @brief Test constructor
             ///
             /// @param [in] input std::vector<TensorOneD> instance
@@ -61,7 +62,7 @@ namespace geopm
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(std::vector<TensorOneD> input, std::shared_ptr<TensorMath> math);
+            TensorTwoD(const std::vector<TensorOneD> &input, std::shared_ptr<TensorMath> math);
             /// @brief Get number of rows in the 2D tensor
             ///
             /// @return Number of rows of the 2D tensor
@@ -89,7 +90,7 @@ namespace geopm
             ///
             /// @throws geopm::Exception if the sizes are incompatible, i.e. if 2D tensor
             /// number of columns is unequal to 1D tensor number of rows
-            TensorOneD operator*(const TensorOneD&) const;
+            TensorOneD operator*(const TensorOneD &) const;
             /// @brief Reference indexing of 1D Tensor at idx of the 2D Tensor
             ///
             /// @param [in] idx The index at which to look for the value
@@ -105,7 +106,7 @@ namespace geopm
             /// @brief Oerload = operator with an in-place deep copy
             ///
             /// @param [in] TensorTwoD& Reference to the 2D Tensor to copy
-            TensorTwoD& operator=(const TensorTwoD&);
+            TensorTwoD& operator=(const TensorTwoD &);
             /// @brief Overload == operator to do comparison of the underlying
             //         data
             ///
@@ -118,7 +119,7 @@ namespace geopm
             const std::vector<TensorOneD> &get_data() const;
 
             /// @brief Set the contents as a vector of tensors.
-            void set_data(const std::vector<TensorOneD>);
+            void set_data(const std::vector<TensorOneD> &);
 
 	    virtual ~TensorTwoD() = default;
         private:

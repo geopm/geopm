@@ -6,11 +6,9 @@
 
 #include "config.h"
 
-#include "TensorMath.hpp"
 #include "TensorOneD.hpp"
 #include "TensorTwoD.hpp"
 #include "DenseLayer.hpp"
-#include "LocalNeuralNet.hpp"
 #include "LocalNeuralNetImp.hpp"
 
 #include "geopm/Exception.hpp"
@@ -18,17 +16,23 @@
 
 namespace geopm
 {
-    std::unique_ptr<LocalNeuralNet> LocalNeuralNet::make_unique(std::vector<std::shared_ptr<DenseLayer> > layers)
+    std::unique_ptr<LocalNeuralNet> LocalNeuralNet::make_unique(
+            std::vector<std::shared_ptr<DenseLayer> > layers)
     {
         return geopm::make_unique<LocalNeuralNetImp>(layers);
     }
 
     LocalNeuralNetImp::LocalNeuralNetImp(std::vector<std::shared_ptr<DenseLayer> > layers)
     {
-        for (std::size_t idx=1; idx < layers.size(); ++idx) {
-            if (layers[idx]->get_input_dim() != layers[idx-1]->get_output_dim()) {
-                throw geopm::Exception("Incompatible dimensions for consecutive layers.",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (layers.empty()) {
+            throw Exception("Empty layers found.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        for (std::size_t idx = 1; idx < layers.size(); ++idx) {
+            if (layers[idx]->get_input_dim() != layers[idx - 1]->get_output_dim()) {
+                throw Exception("Incompatible dimensions for consecutive layers.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
 
@@ -38,8 +42,8 @@ namespace geopm
     TensorOneD LocalNeuralNetImp::forward(const TensorOneD &inp) const
     {
         if (inp.get_dim() != m_layers[0]->get_input_dim()) {
-            throw geopm::Exception("Input vector dimension is incompatible with network.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Input vector dimension is incompatible with network.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         TensorOneD tmp = inp;

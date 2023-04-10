@@ -3,33 +3,49 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "DomainNetMap.hpp"
 #include "DomainNetMapImp.hpp"
 
 #include <cmath>
 #include <fstream>
 
+#include "geopm/PlatformIO.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "NNFactoryImp.hpp"
 
-// TODO: Change from logits to probabilities
 namespace geopm
 {
-    std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(const std::string nn_path, geopm_domain_e domain_type, int domain_index)
+    const std::vector<std::string> DomainNetMapImp::M_EXPECTED_KEYS = {
+            "layers",
+            "signal_inputs",
+            "delta_inputs",
+            "trace_outputs",
+            "description"};
+
+    std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(const std::string &nn_path,
+                                                            geopm_domain_e domain_type,
+                                                            int domain_index)
     {
         return geopm::make_unique<DomainNetMapImp>(nn_path, domain_type, domain_index);
     }
 
-    DomainNetMapImp::DomainNetMapImp(
-            const std::string nn_path,
-            geopm_domain_e domain_type,
-            int domain_index)
-        : DomainNetMapImp(nn_path, domain_type, domain_index, platform_io(), std::make_shared<NNFactoryImp>()) {
+    std::shared_ptr<DomainNetMap> DomainNetMap::make_shared(const std::string &nn_path,
+                                                            geopm_domain_e domain_type,
+                                                            int domain_index)
+    {
+        return std::make_shared<DomainNetMapImp>(nn_path, domain_type, domain_index);
     }
 
     DomainNetMapImp::DomainNetMapImp(
-            const std::string nn_path,
+            const std::string &nn_path,
+            geopm_domain_e domain_type,
+            int domain_index)
+        : DomainNetMapImp(nn_path, domain_type, domain_index, platform_io(),
+                          NNFactory::make_shared()) {
+    }
+
+    DomainNetMapImp::DomainNetMapImp(
+            const std::string &nn_path,
             geopm_domain_e domain_type,
             int domain_index,
             PlatformIO &plat_io,
@@ -40,17 +56,17 @@ namespace geopm
         std::ifstream file(nn_path);
 
         if (!file) {
-            throw geopm::Exception("Unable to open neural net file.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Unable to open neural net file.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         file.seekg(0, std::ios::end);
         std::streampos length = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        if (length >= m_max_nnet_size) {
-            throw geopm::Exception("Neural net file exceeds maximum size.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (length >= M_MAX_NNET_SIZE) {
+            throw Exception("Neural net file exceeds maximum size.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         std::string buf, err;
@@ -60,26 +76,58 @@ namespace geopm
 
         const json11::Json nnet_json = json11::Json::parse(buf, err);
 
+        if (!err.empty()) {
+            throw Exception("Neural net file format is incorrect: " + err + "\n.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (nnet_json.is_null() || !nnet_json.is_object()) {
+            throw Exception("Neural net file format is incorrect: object expected\n.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         // make sure that there no unexpected keys in the json
-        std::vector<std::string> expected_keys = {"layers", "signal_inputs", "delta_inputs", "trace_outputs", "description"};
-        for (auto &key : nnet_json.object_items()) {
-            if (std::find(expected_keys.begin(), expected_keys.end(), key.first) == expected_keys.end()) {
-                throw geopm::Exception(
+        for (const auto &key : nnet_json.object_items()) {
+            if (std::find(M_EXPECTED_KEYS.begin(), M_EXPECTED_KEYS.end(), key.first)
+                == M_EXPECTED_KEYS.end()) {
+                throw Exception(
                         "Unexpected key in neural net json: " + key.first + "\n",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
 
-        if (! nnet_json["layers"].is_array()) {
-            throw geopm::Exception(
+        // will check key exists, it's an array, and is not empty
+        if (nnet_json["layers"].array_items().size() == 0) {
+            throw Exception(
                     "Neural net must contain valid json and must have "
-                    "a key \"layers\" whose value is an array.\n",
+                    "a key \"layers\" whose value is a non-empty array.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (nnet_json["signal_inputs"].array_items().size() == 0 
-            && nnet_json["delta_inputs"].array_items().size() == 0) {
-            throw geopm::Exception(
+        const auto nnet_properties = nnet_json.object_items();
+        const auto signal_it = nnet_properties.find("signal_inputs");
+        const auto delta_it = nnet_properties.find("delta_inputs");
+        size_t signal_inputs_size = 0;
+        size_t delta_inputs_size = 0;
+
+        if (signal_it != nnet_properties.end()) {
+            if (!signal_it->second.is_array()) {
+                throw Exception("Neural net \"signal_inputs\" must be an array.\n",
+                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            signal_inputs_size = signal_it->second.array_items().size();
+        }
+
+        if (delta_it != nnet_properties.end()) {
+            if (!delta_it->second.is_array()) {
+                throw Exception("Neural net \"delta_inputs\" must be an array.\n",
+                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            delta_inputs_size = delta_it->second.array_items().size();
+        }
+
+        if (signal_inputs_size == 0 && delta_inputs_size == 0) {
+            throw Exception(
                     "Neural net json must contain at least one of "
                     "\"signal_inputs\" and \"delta_inputs\" whose "
                     "value is a non-empty array.\n",
@@ -87,71 +135,85 @@ namespace geopm
         }
         
         std::vector<std::shared_ptr<DenseLayer>> layers;
-        for (std::size_t layer_idx = 0; layer_idx < nnet_json["layers"].array_items().size(); ++layer_idx) {
-            layers.push_back(json_to_DenseLayer(nnet_json["layers"][layer_idx]));
-        }
-
-	if (layers.size() == 0) {
-            throw geopm::Exception(
-                    "Layers must be non-empty.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        for (const auto &layer : nnet_json["layers"].array_items()) {
+            layers.push_back(json_to_DenseLayer(layer));
         }
 
         m_neural_net = m_nn_factory->createLocalNeuralNet(layers);
 
-	if (nnet_json["signal_inputs"].array_items().size()
-                + nnet_json["delta_inputs"].array_items().size()
-                != m_neural_net->get_input_dim()) {
-            throw geopm::Exception(
+        if (signal_inputs_size + delta_inputs_size != m_neural_net->get_input_dim()) {
+            throw Exception(
                     "Neural net input dimension must match the number of "
                     "signal and delta inputs.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-	}
+        }
+
+        if (!nnet_json["trace_outputs"].is_array()) {
+            throw Exception(
+                    "Neural net json must contain a key \"trace_outputs\" "
+                    "whose value is an array.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
 
         if (nnet_json["trace_outputs"].array_items().size()
-                != m_neural_net->get_output_dim()) {
-            throw geopm::Exception(
+            != m_neural_net->get_output_dim()) {
+            throw Exception(
                     "Neural net output dimension must match the number of "
                     "trace outputs.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        for (std::size_t i=0; i<nnet_json["signal_inputs"].array_items().size(); i++) {
+        for (const auto &input : signal_it->second.array_items()) {
+            if (!input.is_string()) {
+                throw Exception(
+                    "Neural net signal inputs must be strings.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             m_signal_inputs.push_back({
                     m_platform_io.push_signal(
-                            nnet_json["signal_inputs"][i].string_value(),
+                            input.string_value(),
                             domain_type,
                             domain_index),
                     NAN});
         }
 
-        for (std::size_t i=0; i<nnet_json["delta_inputs"].array_items().size(); i++) {
+        for (const auto &input : delta_it->second.array_items()) {
+            if (!input.is_string()) {
+                throw Exception(
+                    "Neural net delta inputs must be strings.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             m_delta_inputs.push_back({
                     m_platform_io.push_signal(
-                            nnet_json["delta_inputs"][i][0].string_value(),
+                            input[0].string_value(),
                             domain_type,
                             domain_index),
                     m_platform_io.push_signal(
-                            nnet_json["delta_inputs"][i][1].string_value(),
+                            input[1].string_value(),
                             domain_type,
                             domain_index),
                     NAN, NAN, NAN, NAN});
         }
 
-        for (std::size_t i=0; i<nnet_json["trace_outputs"].array_items().size(); i++) {
-            m_trace_outputs.push_back(nnet_json["trace_outputs"][i].string_value());
+        for (const auto &output : nnet_json["trace_outputs"].array_items()) {
+            if (!output.is_string()) {
+                throw Exception(
+                    "Neural net trace outputs must be strings.\n",
+                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            m_trace_outputs.push_back(output.string_value());
         }
     }
 
     std::shared_ptr<DenseLayer> DomainNetMapImp::json_to_DenseLayer(const json11::Json &obj) const {
         if (!obj.is_array()) {
-            throw geopm::Exception("Neural network weights contains non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Neural network weights contains non-array-type.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (obj.array_items().size() != 2) {
-            throw geopm::Exception("Dense Layer weights must be an array of length exactly two.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Dense Layer weights must be an array of length exactly two.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         TensorTwoD weights = json_to_TensorTwoD(obj[0]);
@@ -161,13 +223,13 @@ namespace geopm
 
     TensorOneD DomainNetMapImp::json_to_TensorOneD(const json11::Json &obj) const {
         if (!obj.is_array()) {
-            throw geopm::Exception("Neural network weights contains non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Neural network weights contains non-array-type.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (obj.array_items().empty()) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Empty array is invalid for neural network weights.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         std::size_t vec_size = obj.array_items().size();
@@ -175,8 +237,8 @@ namespace geopm
 
         for (std::size_t idx = 0; idx < vec_size; ++idx) {
             if (!obj[idx].is_number()) {
-                throw geopm::Exception("Non-numeric type found in neural network weights.\n",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("Non-numeric type found in neural network weights.\n",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             vals[idx] = obj[idx].number_value();
         }
@@ -186,27 +248,27 @@ namespace geopm
 
     TensorTwoD DomainNetMapImp::json_to_TensorTwoD(const json11::Json &obj) const {
         if (!obj.is_array()){
-            throw geopm::Exception("Neural network weights is non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Neural network weights is non-array-type.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (obj.array_items().size() == 0) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Empty array is invalid for neural network weights.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         std::vector<std::vector<double> > vals;
         for (std::size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
-            if(!obj[ridx].is_array()) {
-                throw geopm::Exception("Neural network weights is non-array-type.\n",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (!obj[ridx].is_array()) {
+                throw Exception("Neural network weights is non-array-type.\n",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             std::size_t vec_size = obj[ridx].array_items().size();
             std::vector<double> row(vec_size);
 
             for (std::size_t cidx = 0; cidx < vec_size; ++cidx) {
                 if (!obj[ridx][cidx].is_number()) {
-                    throw geopm::Exception("Non-numeric type found in neural network weights.\n",
-                                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    throw Exception("Non-numeric type found in neural network weights.\n",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 row[cidx] = obj[ridx][cidx].number_value();
             }
@@ -221,19 +283,19 @@ namespace geopm
     {
         std::vector<double> xs;
 
-        // Collect latest signal values
-        for (std::size_t i=0; i<m_signal_inputs.size(); i++) {
-            m_signal_inputs[i].signal = m_platform_io.sample(m_signal_inputs[i].batch_idx);
-            xs.push_back(m_signal_inputs[i].signal);
+        // Sample latest signal values
+        for (auto &input : m_signal_inputs) {
+            input.signal = m_platform_io.sample(input.batch_idx);
+            xs.push_back(input.signal);
         }
-        for (std::size_t i=0; i<m_delta_inputs.size(); i++) {
-            m_delta_inputs[i].signal_num_last = m_delta_inputs[i].signal_num;
-            m_delta_inputs[i].signal_den_last = m_delta_inputs[i].signal_den;
-            m_delta_inputs[i].signal_num = m_platform_io.sample(m_delta_inputs[i].batch_idx_num);
-            m_delta_inputs[i].signal_den = m_platform_io.sample(m_delta_inputs[i].batch_idx_den);
+        for (auto &input : m_delta_inputs) {
+            input.signal_num_last = input.signal_num;
+            input.signal_den_last = input.signal_den;
+            input.signal_num = m_platform_io.sample(input.batch_idx_num);
+            input.signal_den = m_platform_io.sample(input.batch_idx_den);
             xs.push_back(
-                (m_delta_inputs[i].signal_num - m_delta_inputs[i].signal_num_last) /
-                (m_delta_inputs[i].signal_den - m_delta_inputs[i].signal_den_last)
+                (input.signal_num - input.signal_num_last) /
+                (input.signal_den - input.signal_den_last)
             );
         }
 

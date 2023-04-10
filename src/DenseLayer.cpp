@@ -29,21 +29,21 @@ namespace geopm
 	      , m_biases(biases)
     {
         if (weights.get_rows() == 0 && weights.get_cols() == 0) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Empty array is invalid for neural network weights.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (weights.get_rows() != biases.get_dim()) {
-            throw geopm::Exception("Incompatible dimensions for weights and biases.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Incompatible dimensions for weights and biases.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
     TensorOneD DenseLayerImp::forward(const TensorOneD &input) const
     {
         if (input.get_dim() != m_weights.get_cols()) {
-            throw geopm::Exception("Input vector dimension is incompatible with network.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("Input vector dimension is incompatible with network.\n",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         return m_biases + m_weights * input;

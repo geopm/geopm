@@ -20,7 +20,7 @@ namespace geopm
     }
 
     TensorTwoD::TensorTwoD(size_t rows, size_t cols)
-        : TensorTwoD(rows, cols, std::make_shared<TensorMathImp>())
+        : TensorTwoD(rows, cols, TensorMath::make_shared())
     {
     }
 
@@ -42,29 +42,29 @@ namespace geopm
     {
     }
 
-    TensorTwoD::TensorTwoD(std::vector<TensorOneD> input)
-        : TensorTwoD(input, std::make_shared<TensorMathImp>())
+    TensorTwoD::TensorTwoD(const std::vector<TensorOneD> &input)
+        : TensorTwoD(input, TensorMath::make_shared())
     {
     }
 
-    TensorTwoD::TensorTwoD(std::vector<TensorOneD> input,
+    TensorTwoD::TensorTwoD(const std::vector<TensorOneD> &input,
                            std::shared_ptr<TensorMath> math)
         : m_math(math)
     {
         set_data(input);
     }
 
-    TensorTwoD::TensorTwoD(std::vector<std::vector<double>> input)
-        : TensorTwoD(input, std::make_shared<TensorMathImp>())
+    TensorTwoD::TensorTwoD(const std::vector<std::vector<double>> &input)
+        : TensorTwoD(input, TensorMath::make_shared())
     {
     }
 
-    TensorTwoD::TensorTwoD(std::vector<std::vector<double>> input,
+    TensorTwoD::TensorTwoD(const std::vector<std::vector<double>> &input,
                            std::shared_ptr<TensorMath> math)
         : m_math(math)
     {
         if (input.size() == 0) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
+            throw Exception("Empty array is invalid for neural network weights.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -93,7 +93,7 @@ namespace geopm
     void TensorTwoD::set_dim(size_t rows, size_t cols)
     {
         if ((rows == 0 && cols > 0) || (rows > 0 && cols == 0)) {
-            throw geopm::Exception("Tried to allocate degenerate matrix.",
+            throw Exception("Tried to allocate degenerate matrix.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -103,7 +103,7 @@ namespace geopm
         }
     }
 
-    TensorOneD TensorTwoD::operator*(const TensorOneD& other) const
+    TensorOneD TensorTwoD::operator*(const TensorOneD &other) const
     {
         return m_math->multiply(*this, other);
     }
@@ -136,7 +136,7 @@ namespace geopm
         return m_mat;
     }
 
-    void TensorTwoD::set_data(const std::vector<TensorOneD> data)
+    void TensorTwoD::set_data(const std::vector<TensorOneD> &data)
     {
         m_mat = data;
         size_t rows = data.size();
@@ -144,7 +144,7 @@ namespace geopm
             size_t cols = data[0].get_dim();
             for (size_t idx = 1; idx < rows; ++idx) {
                 if (data[idx].get_dim() != cols) {
-                    throw geopm::Exception("Attempt to load non-rectangular matrix.",
+                    throw Exception("Attempt to load non-rectangular matrix.",
                                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }

@@ -26,15 +26,29 @@ namespace geopm
             /// @param [in] fmap_path string containing path to freq map json
             /// @param [in] min_freq integer containing minimum frequency
             /// @param [in] max_freq integer containing maximum frequency
-            static std::unique_ptr<RegionHintRecommender> make_unique(const std::string fmap_path, int min_freq, int max_freq);
+            static std::unique_ptr<RegionHintRecommender> make_unique(const std::string &fmap_path,
+                                                                      int min_freq, int max_freq);
+            /// @brief Returns a shared_ptr to a concrete object constructed
+            ///        using the underlying implementation, which loads a
+            ///        frequency map file into a std::map of region class
+            ///        string to double, and sets both min and max frequency
+            ///        recommendations.
+            ///
+            /// @param [in] fmap_path string containing path to freq map json
+            /// @param [in] min_freq integer containing minimum frequency
+            /// @param [in] max_freq integer containing maximum frequency
+            static std::shared_ptr<RegionHintRecommender> make_shared(const std::string &fmap_path,
+                                                                      int min_freq, int max_freq);
 
             virtual ~RegionHintRecommender() = default;
-            /// @brief Recommends frequency based on the output from a DomainNetMap neural net evaluation
+            /// @brief Recommends frequency based on the output from a DomainNetMap neural net
+            ///        evaluation
             ///
-            /// @param [in] nn_output Output from the DomainNetMap neural net evaluation, as a map from
-            ///             trace names to doubles.
+            /// @param [in] nn_output Output from the DomainNetMap neural net evaluation, as a
+            ///             map from trace names to doubles.
             /// @param [in] phi User-input perf-energy bias
-            virtual double recommend_frequency(std::map<std::string, double> nn_output, double phi) const = 0;
+            virtual double recommend_frequency(const std::map<std::string, double> &nn_output,
+                                               double phi) const = 0;
     };
 }
 
