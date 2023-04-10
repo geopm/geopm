@@ -44,6 +44,7 @@ namespace geopm
             /// @brief Send policies down to children within a level.
             virtual void send_down(int level, const std::vector<std::vector<double> > &policy) = 0;
             /// @brief Receive samples from children within a level.
+            /// @return True if all of the children have only non-NaN data
             virtual bool receive_up(int level, std::vector<std::vector<double> > &sample) = 0;
             /// @brief Receive policies from the parent within a level.
             virtual bool receive_down(int level, std::vector<double> &policy) = 0;
