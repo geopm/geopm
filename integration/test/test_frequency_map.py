@@ -77,7 +77,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
         cls._options = cls.create_frequency_map_policy(cls._machine.frequency_sticker(),
                                                        cls._freq_map)
         cls._agent = 'frequency_map'
-        trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core'
+        trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core,MSR::PERF_STATUS:FREQ@core'
         agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config',
                                           cls._agent, cls._options)
 
