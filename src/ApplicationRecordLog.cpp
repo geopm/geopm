@@ -182,13 +182,13 @@ namespace geopm
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
 
-        record_s epoch_record = {
+        record_s affinity_record = {
            .time = geopm_time_diff(&m_time_zero, &time),
            .process = m_process,
            .event = EVENT_AFFINITY,
            .signal = (uint64_t)m_process, // Could be TID (not PID) in the future
         };
-        append_record(layout, epoch_record);
+        append_record(layout, affinity_record);
     }
 
     void ApplicationRecordLogImp::dump(std::vector<record_s> &records,

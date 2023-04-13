@@ -101,6 +101,7 @@ namespace geopm
             m_service_proxy->platform_start_profile(m_prof_name);
             init_app_status();
             init_app_record_log();
+            reset_cpu_set();
         }
         catch (const Exception &ex) {
             std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm. "
@@ -136,7 +137,7 @@ namespace geopm
         m_cpu_set.clear();
         auto proc_cpuset = m_scheduler->proc_cpuset();
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            if (CPU_ISSET(cpu_idx, proc_cpuset)) {
+            if (CPU_ISSET(cpu_idx, proc_cpuset.get())) {
                 m_cpu_set.insert(cpu_idx);
             }
         }
@@ -156,7 +157,6 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_app_status != nullptr,
                            "Profile::init_app_status(): m_app_status not initialized");
-        reset_cpu_set();
     }
 
     void ProfileImp::init_app_record_log(void)

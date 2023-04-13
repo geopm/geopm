@@ -376,6 +376,17 @@ namespace geopm
             }
         }
         update_cpu_active();
+        // Try to pin the sampling thread to a free core
+        std::set<int> sampler_cpu_set = {sampler_cpu()};
+        auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
+        int err = sched_setaffinity(0, CPU_ALLOC_SIZE(m_num_cpu), sampler_cpu_mask.get());
+        if (err) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> Unable to affinitize sampling thread to CPU "
+                      << *(sampler_cpu_set.begin())
+                      << ", sched_setaffinity() failed: " << strerror(errno) << "\n";
+#endif
+        }
         return result;
     }
 
@@ -387,17 +398,6 @@ namespace geopm
             connect_status();
             m_process_map = connect_record_log(client_pids);
             m_client_cpu_map = update_client_cpu_map(client_pids);
-        }
-        // Try to pin the sampling thread to a free core
-        std::set<int> sampler_cpu_set = {sampler_cpu()};
-        auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
-        int err = sched_setaffinity(0, CPU_ALLOC_SIZE(m_num_cpu), sampler_cpu_mask.get());
-        if (err) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> Unable to affinitize sampling thread to CPU "
-                      << *(sampler_cpu_set.begin())
-                      << ", sched_setaffinity() failed: " << strerror(errno) << "\n";
-#endif
         }
     }
 
