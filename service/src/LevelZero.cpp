@@ -712,7 +712,8 @@ namespace geopm
         zet_metric_streamer_desc_t metric_streamer_desc = {
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
-            4, // number of reports to notify on.
+            4, // number of reports to notify on.  Targeting 4 reports, 1 per millisecond as that will, generally, 
+                // fall within the 5ms control loop and is a good tradeoff in terms of overhead vs visibility within the sampling period.
             m_devices.at(l0_device_idx).metric_sampling_period_ns};
         zet_metric_streamer_handle_t metric_streamer = nullptr;
 
