@@ -161,7 +161,7 @@ namespace geopm
             static size_t max_region(void);
         protected:
             ApplicationRecordLog() = default;
-            static constexpr size_t M_LAYOUT_SIZE = 49192;
+            static constexpr size_t M_LAYOUT_SIZE = 57384;
             static constexpr int M_MAX_RECORD = 1024;
             static constexpr int M_MAX_REGION = M_MAX_RECORD + 1;
     };
@@ -169,8 +169,6 @@ namespace geopm
     {
         public:
             ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem);
-            ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
-                                    int process, geopm_time_s time_zero);
             ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
                                     int process);
             virtual ~ApplicationRecordLogImp() = default;
@@ -188,7 +186,7 @@ namespace geopm
                 short_region_s region_table[M_MAX_REGION];
             };
             static_assert(sizeof(m_layout_s) == M_LAYOUT_SIZE,
-                          "Defined layout size does not match the actual layout size");
+                          "Defined layout size does not match the actual layout size ");
 
             struct m_region_enter_s {
                 int record_idx;
@@ -201,7 +199,6 @@ namespace geopm
             int m_process;
             std::shared_ptr<SharedMemory> m_shmem;
             std::map<uint64_t, m_region_enter_s> m_hash_region_enter_map;
-            geopm_time_s m_time_zero;
             uint64_t m_epoch_count;
             uint64_t m_entered_region_hash;
     };

@@ -9,6 +9,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
 #include "record.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -35,12 +36,13 @@ namespace geopm
 
     void ProcessRegionAggregatorImp::update(void)
     {
+        geopm_time_s time_zero = geopm::time_zero();
         auto records = m_app_sampler.get_records();
         for (const auto &rec: records) {
             if (rec.event == EVENT_REGION_ENTRY) {
                 int process = rec.process;
                 uint64_t region_hash = rec.signal;
-                double entry_time = rec.time;
+                double entry_time = geopm_time_diff(&time_zero, &(rec.time));
                 auto proc = m_region_info.emplace(std::piecewise_construct,
                                                   std::forward_as_tuple(process),
                                                   std::forward_as_tuple());
@@ -52,7 +54,7 @@ namespace geopm
             else if (rec.event == EVENT_REGION_EXIT) {
                 int process = rec.process;
                 uint64_t region_hash = rec.signal;
-                double exit_time = rec.time;
+                double exit_time = geopm_time_diff(&time_zero, &(rec.time));
                 auto proc = m_region_info.find(process);
                 if (proc == m_region_info.end()) {
                     throw Exception("ProcessRegionAggregator: region exit without entry",

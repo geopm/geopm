@@ -31,7 +31,7 @@ TEST_F(RecordFilterTest, make_proxy_epoch)
     std::shared_ptr<RecordFilter> filter = RecordFilter::make_unique("proxy_epoch,0xabcd1234");
     // Assert that the pointer is non-null
     ASSERT_TRUE(filter);
-    record_s record {0.0, 0, geopm::EVENT_REGION_ENTRY, 0xabcd1234};
+    record_s record {{{0, 0}}, 0, geopm::EVENT_REGION_ENTRY, 0xabcd1234};
     std::vector<record_s> result = filter->filter(record);
     ASSERT_EQ(2ULL, result.size());
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
@@ -43,7 +43,7 @@ TEST_F(RecordFilterTest, make_edit_distance)
     std::shared_ptr<RecordFilter> filter = RecordFilter::make_unique("edit_distance,10");
     // Assert that the pointer is non-null
     ASSERT_TRUE(filter);
-    record_s record {0.0, 0, geopm::EVENT_REGION_ENTRY, 0xabcd1234};
+    record_s record {{{0, 0}}, 0, geopm::EVENT_REGION_ENTRY, 0xabcd1234};
     std::vector<record_s> result = filter->filter(record);
     ASSERT_EQ(1ULL, result.size());
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);

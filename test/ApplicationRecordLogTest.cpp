@@ -28,14 +28,13 @@ class ApplicationRecordLogTest : public ::testing::Test
         std::unique_ptr<ApplicationRecordLog> m_record_log;
         const int M_PROC_ID = 123;
         // Note time_zero is one second after 1970
-        const geopm_time_s M_TIME_ZERO = {{1, 0}};
 };
 
 void ApplicationRecordLogTest::SetUp()
 {
     size_t buffer_size = ApplicationRecordLog::buffer_size();
     m_mock_shared_memory = std::make_shared<MockSharedMemory>(buffer_size);
-    m_record_log.reset(new ApplicationRecordLogImp(m_mock_shared_memory, M_PROC_ID, M_TIME_ZERO));
+    m_record_log.reset(new ApplicationRecordLogImp(m_mock_shared_memory, M_PROC_ID));
     //m_record_log = ApplicationRecordLog::make_unique(m_mock_shared_memory);
 
     EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock()).Times(AtLeast(0));
@@ -115,7 +114,8 @@ TEST_F(ApplicationRecordLogTest, one_entry)
     m_record_log->dump(records, short_regions);
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
-    EXPECT_EQ(1.0, records[0].time);
+    EXPECT_EQ(time.t.tv_sec, records[0].time.t.tv_sec);
+    EXPECT_EQ(time.t.tv_nsec, records[0].time.t.tv_nsec);
     EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, records[0].event);
     EXPECT_EQ(hash, records[0].signal);
@@ -137,7 +137,8 @@ TEST_F(ApplicationRecordLogTest, one_exit)
     m_record_log->dump(records, short_regions);
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
-    EXPECT_EQ(2.0, records[0].time);
+    EXPECT_EQ(time_2.t.tv_sec, records[0].time.t.tv_sec);
+    EXPECT_EQ(time_2.t.tv_nsec, records[0].time.t.tv_nsec);
     EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, records[0].event);
     EXPECT_EQ(hash, records[0].signal);
@@ -154,7 +155,8 @@ TEST_F(ApplicationRecordLogTest, one_epoch)
     m_record_log->dump(records, short_regions);
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
-    EXPECT_EQ(1.0, records[0].time);
+    EXPECT_EQ(time.t.tv_sec, records[0].time.t.tv_sec);
+    EXPECT_EQ(time.t.tv_nsec, records[0].time.t.tv_nsec);
     EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, records[0].event);
     EXPECT_EQ(1ULL, records[0].signal);
@@ -178,7 +180,8 @@ TEST_F(ApplicationRecordLogTest, short_region_entry_exit)
     m_record_log->dump(records, short_regions);
 
     ASSERT_EQ(1ULL, records.size());
-    EXPECT_EQ(1.0, records[0].time);
+    EXPECT_EQ(time_entry1.t.tv_sec, records[0].time.t.tv_sec);
+    EXPECT_EQ(time_entry1.t.tv_nsec, records[0].time.t.tv_nsec);
     EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_SHORT_REGION, records[0].event);
     EXPECT_EQ(0ULL, records[0].signal);

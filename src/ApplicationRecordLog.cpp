@@ -43,13 +43,6 @@ namespace geopm
     }
 
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
-                                                     int process, geopm_time_s time_zero)
-        : ApplicationRecordLogImp(shmem, process)
-    {
-        m_time_zero = time_zero;
-    }
-    
-    ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
                                                      int process)
         : m_process(process)
         , m_shmem(shmem)
@@ -60,7 +53,6 @@ namespace geopm
             throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        geopm_time(&m_time_zero);
     }
 
     void ApplicationRecordLogImp::enter(uint64_t hash, const geopm_time_s &time)
@@ -80,7 +72,7 @@ namespace geopm
             region_enter.region_idx = -1; // Not a short region yet
             region_enter.is_short = false;
             record_s enter_record = {
-               .time = geopm_time_diff(&m_time_zero, &time),
+               .time = time,
                .process = m_process,
                .event = EVENT_REGION_ENTRY,
                .signal = hash,
@@ -100,7 +92,7 @@ namespace geopm
         if (region_it == m_hash_region_enter_map.end()) {
             // No short region info; send a normal exit event
             record_s exit_record = {
-               .time = geopm_time_diff(&m_time_zero, &time),
+               .time = time,
                .process = m_process,
                .event = EVENT_REGION_EXIT,
                .signal = hash,
@@ -119,7 +111,7 @@ namespace geopm
                 // is not in records array yet.  This will be converted
                 // to a short region record by the next block.
                 record_s enter_record = {
-                    .time = geopm_time_diff(&m_time_zero, &time),
+                    .time = time,
                     .process = m_process,
                     .event = EVENT_REGION_ENTRY,
                     .signal = hash,
@@ -168,7 +160,7 @@ namespace geopm
 
         ++m_epoch_count;
         record_s epoch_record = {
-           .time = geopm_time_diff(&m_time_zero, &time),
+           .time = time,
            .process = m_process,
            .event = EVENT_EPOCH_COUNT,
            .signal = m_epoch_count,
@@ -183,7 +175,7 @@ namespace geopm
         check_reset(layout);
 
         record_s affinity_record = {
-           .time = geopm_time_diff(&m_time_zero, &time),
+           .time = time,
            .process = m_process,
            .event = EVENT_AFFINITY,
            .signal = (uint64_t)m_process, // Could be TID (not PID) in the future

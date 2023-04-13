@@ -26,7 +26,7 @@ class ValidateRecordTest : public ::testing::Test
 
 void ValidateRecordTest::SetUp()
 {
-    m_record.time = 2020.0;
+    m_record.time = {{2020, 0}};
     m_record.process = 42;
     m_record.event = -1;
     m_record.signal = GEOPM_REGION_HINT_UNKNOWN;
@@ -36,27 +36,27 @@ TEST_F(ValidateRecordTest, valid_stream)
 {
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_REGION_EXIT;
     m_record.signal = 0xabcd1234;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_EPOCH_COUNT;
     m_record.signal = 1;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_SHORT_REGION;
     m_record.signal = 2;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.signal += 1;
     m_filter.check(m_record);
 }
@@ -76,7 +76,7 @@ TEST_F(ValidateRecordTest, entry_exit_paired)
     m_record.signal = 0xabcd1234ULL;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_REGION_EXIT;
     m_filter.check(m_record);
 }
@@ -87,7 +87,7 @@ TEST_F(ValidateRecordTest, entry_exit_unpaired)
     m_record.signal = 0xabcd1234ULL;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_REGION_EXIT;
     m_record.signal = 0xabcd1235ULL;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
@@ -101,7 +101,7 @@ TEST_F(ValidateRecordTest, double_entry)
     m_record.signal = 0xabcd1234ULL;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1235ULL;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
@@ -133,7 +133,7 @@ TEST_F(ValidateRecordTest, epoch_count_monotone)
     m_record.signal = 1;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
                                "Epoch count not monotone and contiguous");
@@ -145,7 +145,7 @@ TEST_F(ValidateRecordTest, epoch_count_gap)
     m_record.signal = 1;
     m_filter.check(m_record);
 
-    m_record.time += 1.0;
+    m_record.time.t.tv_sec += 1;
     m_record.signal += 2;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
@@ -157,7 +157,7 @@ TEST_F(ValidateRecordTest, time_monotone)
 {
     m_filter.check(m_record);
 
-    m_record.time -= 1.0;
+    m_record.time.t.tv_sec -= 1;
     m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),

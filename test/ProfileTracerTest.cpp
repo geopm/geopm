@@ -40,22 +40,22 @@ class ProfileTracerTest : public ::testing::Test
 void ProfileTracerTest::SetUp(void)
 {
     uint64_t region_hash = 0x00000000fa5920d6ULL;
-    double time = 10.0;
+    geopm_time_s time = {{10, 0}};
     int event = geopm::EVENT_REGION_ENTRY;
     for (int rank = 0; rank != 4; ++rank) {
         m_data.push_back({time, rank, event, region_hash});
-        time += 1.0;
+        time.t.tv_sec += 1;
     }
 
-    time += 20;
+    time.t.tv_sec += 20;
     event = geopm::EVENT_REGION_EXIT;
     for (int rank = 3; rank != -1; --rank) {
         m_data.push_back({time, rank, event, region_hash});
-        time += 1.0;
+        time.t.tv_sec += 1;
     }
 
-     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, 88});
-     m_data.push_back({41, 1, geopm::EVENT_EPOCH_COUNT, 1});
+     m_data.push_back({{{40, 0}}, 0, geopm::EVENT_SHORT_REGION, 88});
+     m_data.push_back({{{41, 0}}, 1, geopm::EVENT_EPOCH_COUNT, 1});
 }
 
 TEST_F(ProfileTracerTest, construct_update_destruct)
@@ -68,7 +68,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
     {
         // Test that the constructor and update methods do not throw
         std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(
-            m_start_time, 2, true, m_path, "", m_application_sampler);
+            m_start_time, geopm_time_s {{0, 0}}, 2, true, m_path, "", m_application_sampler);
         tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
@@ -85,7 +85,7 @@ TEST_F(ProfileTracerTest, format)
 
     {
         std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(
-            m_start_time, 2, true, m_path, m_host_name, m_application_sampler);
+            m_start_time, geopm_time_s {{0, 0}}, 2, true, m_path, m_host_name, m_application_sampler);
         tracer->update(m_data);
     }
 

@@ -74,9 +74,9 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
     EXPECT_NE(idx0, idx1);
 
     std::vector<record_s> records = {
-        {0.2, m_pid_0, EPOCH_COUNT, 0x1},
-        {1.2, m_pid_0, EPOCH_COUNT, 0x2},
-        {1.2, m_pid_1, EPOCH_COUNT, 0x1},
+        {{{0, 200000000}}, m_pid_0, EPOCH_COUNT, 0x1},
+        {{{1, 200000000}}, m_pid_0, EPOCH_COUNT, 0x2},
+        {{{1, 200000000}}, m_pid_1, EPOCH_COUNT, 0x1},
     };
     m_app.inject_records(records);
     m_group->read_batch();
