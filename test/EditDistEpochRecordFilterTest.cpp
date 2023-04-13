@@ -43,12 +43,8 @@ void EditDistEpochRecordFilterTest::SetUp()
     m_in_events = {
         geopm::EVENT_REGION_ENTRY,
         geopm::EVENT_REGION_EXIT,
-        geopm::EVENT_PROFILE,
-        geopm::EVENT_REPORT,
-        geopm::EVENT_CLAIM_CPU,
-        geopm::EVENT_RELEASE_CPU,
-        geopm::EVENT_NAME_MAP,
         geopm::EVENT_SHORT_REGION,
+        geopm::EVENT_AFFINITY,
     };
     m_out_events = {
         geopm::EVENT_EPOCH_COUNT,
