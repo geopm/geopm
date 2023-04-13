@@ -176,6 +176,21 @@ namespace geopm
         append_record(layout, epoch_record);
     }
 
+    void ApplicationRecordLogImp::cpuset_changed(const geopm_time_s &time)
+    {
+        std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
+        m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
+        check_reset(layout);
+
+        record_s epoch_record = {
+           .time = geopm_time_diff(&m_time_zero, &time),
+           .process = m_process,
+           .event = EVENT_AFFINITY,
+           .signal = (uint64_t)m_process, // Could be TID (not PID) in the future
+        };
+        append_record(layout, epoch_record);
+    }
+
     void ApplicationRecordLogImp::dump(std::vector<record_s> &records,
                                        std::vector<short_region_s> &short_regions)
     {

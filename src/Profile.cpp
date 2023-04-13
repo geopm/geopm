@@ -141,6 +141,9 @@ namespace geopm
             }
         }
         m_app_status->set_valid_cpu(m_cpu_set);
+        geopm_time_s now;
+        geopm_time(&now);
+        m_app_record_log->cpuset_changed(now);
         return m_cpu_set;
     }
 
