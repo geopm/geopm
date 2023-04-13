@@ -44,7 +44,7 @@ void ProxyEpochRecordFilterTest::SetUp()
 TEST_F(ProxyEpochRecordFilterTest, simple_conversion)
 {
     uint64_t hash = 0xAULL;
-    record_s record {0.0,
+    record_s record {{{0, 0}},
                      0,
                      geopm::EVENT_REGION_ENTRY,
                      hash};
@@ -52,11 +52,13 @@ TEST_F(ProxyEpochRecordFilterTest, simple_conversion)
     for (uint64_t count = 1; count <= 10; ++count) {
         std::vector<record_s> result = perf.filter(record);
         ASSERT_EQ(2ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
-        EXPECT_EQ(0.0, result[1].time);
+        EXPECT_EQ(0, result[1].time.t.tv_sec);
+        EXPECT_EQ(0, result[1].time.t.tv_nsec);
         EXPECT_EQ(0, result[1].process);
         EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[1].event);
         EXPECT_EQ(count, result[1].signal);
@@ -66,7 +68,7 @@ TEST_F(ProxyEpochRecordFilterTest, simple_conversion)
 TEST_F(ProxyEpochRecordFilterTest, skip_one)
 {
     uint64_t hash = 0xAULL;
-    record_s record {0.0,
+    record_s record {{{0, 0}},
                      0,
                      geopm::EVENT_REGION_ENTRY,
                      hash};
@@ -74,17 +76,20 @@ TEST_F(ProxyEpochRecordFilterTest, skip_one)
     for (uint64_t count = 1; count <= 10; ++count) {
         std::vector<record_s> result = perf.filter(record);
         ASSERT_EQ(2ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
-        EXPECT_EQ(0.0, result[1].time);
+        EXPECT_EQ(0, result[1].time.t.tv_sec);
+        EXPECT_EQ(0, result[1].time.t.tv_nsec);
         EXPECT_EQ(0, result[1].process);
         EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[1].event);
         EXPECT_EQ(count, result[1].signal);
         result = perf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
@@ -95,37 +100,42 @@ TEST_F(ProxyEpochRecordFilterTest, skip_one)
 TEST_F(ProxyEpochRecordFilterTest, skip_two_off_one)
 {
     uint64_t hash = 0xAULL;
-    record_s record {0.0,
+    record_s record {{{0, 0}},
                      0,
                      geopm::EVENT_REGION_ENTRY,
                      hash};
     geopm::ProxyEpochRecordFilter perf(hash, 3, 1);
     std::vector<record_s> result = perf.filter(record);
     ASSERT_EQ(1ULL, result.size());
-    EXPECT_EQ(0.0, result[0].time);
+    EXPECT_EQ(0, result[0].time.t.tv_sec);
+    EXPECT_EQ(0, result[0].time.t.tv_nsec);
     EXPECT_EQ(0, result[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
     EXPECT_EQ(hash, result[0].signal);
     for (uint64_t count = 1; count <= 10; ++count) {
         result = perf.filter(record);
         ASSERT_EQ(2ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
-        EXPECT_EQ(0.0, result[1].time);
+        EXPECT_EQ(0, result[1].time.t.tv_sec);
+        EXPECT_EQ(0, result[1].time.t.tv_nsec);
         EXPECT_EQ(0, result[1].process);
         EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[1].event);
         EXPECT_EQ(count, result[1].signal);
         result = perf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
         result = perf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
@@ -154,7 +164,8 @@ TEST_F(ProxyEpochRecordFilterTest, filter_in)
         record.event = event;
         std::vector<record_s> result = perf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(event, result[0].event);
         EXPECT_EQ(0ULL, result[0].signal);
@@ -235,11 +246,13 @@ TEST_F(ProxyEpochRecordFilterTest, parse_tutorial_2)
             }
             else if (is_epoch) {
                 ASSERT_EQ(2ULL, filtered_rec.size());
-                EXPECT_EQ(rec_it.time, filtered_rec[0].time);
+                EXPECT_EQ(rec_it.time.t.tv_sec, filtered_rec[0].time.t.tv_sec);
+                EXPECT_EQ(rec_it.time.t.tv_nsec, filtered_rec[0].time.t.tv_nsec);
                 EXPECT_EQ(rec_it.process, filtered_rec[0].process);
                 EXPECT_EQ(rec_it.event, filtered_rec[0].event);
                 EXPECT_EQ(rec_it.signal, filtered_rec[0].signal);
-                EXPECT_EQ(rec_it.time, filtered_rec[1].time);
+                EXPECT_EQ(rec_it.time.t.tv_sec, filtered_rec[1].time.t.tv_sec);
+                EXPECT_EQ(rec_it.time.t.tv_nsec, filtered_rec[1].time.t.tv_nsec);
                 EXPECT_EQ(rec_it.process, filtered_rec[1].process);
                 EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, filtered_rec[1].event);
                 EXPECT_EQ(epoch_count, filtered_rec[1].signal);
@@ -247,7 +260,8 @@ TEST_F(ProxyEpochRecordFilterTest, parse_tutorial_2)
             }
             else {
                 ASSERT_EQ(1ULL, filtered_rec.size());
-                EXPECT_EQ(rec_it.time, filtered_rec[0].time);
+                EXPECT_EQ(rec_it.time.t.tv_sec, filtered_rec[0].time.t.tv_sec);
+                EXPECT_EQ(rec_it.time.t.tv_nsec, filtered_rec[0].time.t.tv_nsec);
                 EXPECT_EQ(rec_it.process, filtered_rec[0].process);
                 EXPECT_EQ(rec_it.event, filtered_rec[0].event);
                 EXPECT_EQ(rec_it.signal, filtered_rec[0].signal);

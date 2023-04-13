@@ -7,6 +7,7 @@
 #define VALIDATERECORD_HPP_INCLUDE
 
 #include "ApplicationSampler.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -27,7 +28,7 @@ namespace geopm
             void check(const record_s &record);
         private:
             bool m_is_empty;
-            double m_time;
+            geopm_time_s m_time;
             int m_process;
             uint64_t m_epoch_count;
             uint64_t m_region_hash;

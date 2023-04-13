@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <string>
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -52,9 +53,8 @@ namespace geopm
 
     /// @brief Record of an application event.
     struct record_s {
-        /// @brief Elapsed time since time zero when event was
-        ///        recorded.
-        double time;
+        /// @brief System time when event was recorded.
+        geopm_time_s time;
         /// @brief The process identifier where event occurred.
         int process;
         /// @brief One of the m_event_e event types.

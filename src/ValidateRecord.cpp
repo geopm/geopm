@@ -19,7 +19,7 @@ namespace geopm
 {
     ValidateRecord::ValidateRecord()
         : m_is_empty(true)
-        , m_time(NAN)
+        , m_time({{0,0}})
         , m_process(-1)
         , m_epoch_count(0)
         , m_region_hash(GEOPM_REGION_HASH_INVALID)
@@ -49,8 +49,9 @@ namespace geopm
             throw Exception("ValidateRecord::filter(): Process has changed",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (record.time < m_time) {
-            throw Exception("ValidateRecord::filter(): Time value decreased. Time=" + std::to_string(m_time),
+        double delta = geopm_time_diff(&m_time, &(record.time));
+        if (delta < 0) {
+            throw Exception("ValidateRecord::filter(): Time value decreased. Delta=" + std::to_string(delta),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_time = record.time;

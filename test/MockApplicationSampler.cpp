@@ -33,8 +33,8 @@ std::vector<geopm::record_s> MockApplicationSampler::get_records(void) const
     }
     else {
         for (const auto &it : m_records) {
-            if (it.time >= m_time_0 &&
-                it.time < m_time_1) {
+            if (it.time.t.tv_sec >= m_time_0 &&
+                it.time.t.tv_sec < m_time_1) {
                 result.push_back(it);
             }
         }
@@ -73,7 +73,7 @@ void MockApplicationSampler::inject_records(const std::string &record_trace)
 
         }
         // columns match fields from m_record_s
-        double time = std::stod(cols[0]);
+        geopm_time_s time = {{std::stoi(cols[0]), 0}};
         int process = std::stoi(cols[1]);
         int event = geopm::event_type(cols[2]);
         uint64_t signal = 0;

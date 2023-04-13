@@ -10,6 +10,7 @@
 
 #include "ProfileTracer.hpp"
 #include "ApplicationSampler.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -20,6 +21,7 @@ namespace geopm
         public:
             ProfileTracerImp(const std::string &start_time);
             ProfileTracerImp(const std::string &start_time,
+                             const geopm_time_s &time_zero,
                              size_t buffer_size,
                              bool is_trace_enabled,
                              const std::string &file_name,
@@ -37,6 +39,7 @@ namespace geopm
             };
             bool m_is_trace_enabled;
             std::unique_ptr<CSV> m_csv;
+            geopm_time_s m_time_zero;
             static ApplicationSampler* m_application_sampler;
             static std::string event_format(double value);
     };

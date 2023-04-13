@@ -65,13 +65,13 @@ TEST_F(EditDistEpochRecordFilterTest, one_region_repeated)
 {
     uint64_t hash = 0xAULL;
     record_s record {
-        0.0,
+        {{0, 0}},
         0,
         geopm::EVENT_REGION_ENTRY,
         hash
     };
 
-    double time = 0.0;
+    time_t time = 0;
     int buffer_size = 16;
     geopm::EditDistEpochRecordFilter ederf(buffer_size,
                                            m_min_hysteresis_base_period,
@@ -82,55 +82,61 @@ TEST_F(EditDistEpochRecordFilterTest, one_region_repeated)
 
         std::vector<record_s> result;
 
-        record.time = time;
+        record.time.t.tv_sec = time;
+        record.time.t.tv_nsec = 0;
         record.event = geopm::EVENT_REGION_ENTRY;
         result = ederf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(time, result[0].time);
+        EXPECT_EQ(time, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
 
-        time += 1.0;
+        time += 1;
 
-        record.time = time;
+        record.time.t.tv_sec = time;
         record.event = geopm::EVENT_REGION_EXIT;
         result = ederf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(time, result[0].time);
+        EXPECT_EQ(time, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
 
-        time += 1.0;
+        time += 1;
     }
 
     for (uint64_t count = 1; count <= 10; ++count) {
-        record.time = time;
+        record.time.t.tv_sec = time;
         record.event = geopm::EVENT_REGION_ENTRY;
         std::vector<record_s> result = ederf.filter(record);
 
         EXPECT_EQ(2ULL, result.size());
 
-        EXPECT_EQ(time, result[0].time);
+        EXPECT_EQ(time, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
 
-        EXPECT_EQ(time, result[1].time);
+        EXPECT_EQ(time, result[1].time.t.tv_sec);
+        EXPECT_EQ(0, result[1].time.t.tv_nsec);
         EXPECT_EQ(0, result[1].process);
         EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[1].event);
         EXPECT_EQ(count, result[1].signal);
 
-        time += 1.0;
+        time += 1;
 
-        record.time = time;
+        record.time.t.tv_sec = time;
         record.event = geopm::EVENT_REGION_EXIT;
         result = ederf.filter(record);
 
         ASSERT_EQ(1ULL, result.size());
 
-        EXPECT_EQ(time, result[0].time);
+        EXPECT_EQ(time, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[0].event);
         EXPECT_EQ(hash, result[0].signal);
@@ -150,7 +156,8 @@ TEST_F(EditDistEpochRecordFilterTest, filter_in)
         record.event = event;
         std::vector<record_s> result = ederf.filter(record);
         ASSERT_EQ(1ULL, result.size());
-        EXPECT_EQ(0.0, result[0].time);
+        EXPECT_EQ(0, result[0].time.t.tv_sec);
+        EXPECT_EQ(0, result[0].time.t.tv_nsec);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(event, result[0].event);
         EXPECT_EQ(0ULL, result[0].signal);
@@ -441,7 +448,7 @@ std::vector<int> extract_epoch_times(std::vector<record_s> recs)
     std::vector<int> results;
     for(const auto &rec : recs) {
         if(rec.event == geopm::EVENT_EPOCH_COUNT) {
-            results.push_back(rec.time);
+            results.push_back(rec.time.t.tv_sec);
         }
     }
     return results;
