@@ -76,8 +76,6 @@ namespace geopm
             std::vector<uint64_t> m_hint_last;
             bool m_do_profile;
             std::string m_profile_name;
-            int m_slow_loop_count;
-            int m_next_slow_loop;
             std::map<int, std::set<int> > m_client_cpu_map;
             std::shared_ptr<Scheduler> m_scheduler;
     };

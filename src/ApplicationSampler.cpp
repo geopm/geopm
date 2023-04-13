@@ -128,8 +128,6 @@ namespace geopm
         , m_hint_last(m_num_cpu, uint64_t(GEOPM_REGION_HINT_UNSET))
         , m_do_profile(do_profile)
         , m_profile_name(profile_name)
-        , m_slow_loop_count(1)
-        , m_next_slow_loop(1)
         , m_client_cpu_map(client_cpu_map)
         , m_scheduler(scheduler)
     {
@@ -148,20 +146,6 @@ namespace geopm
         if (!m_do_profile || !m_status) {
             return;
         }
-        if (m_slow_loop_count == m_next_slow_loop) {
-            auto tmp_client_cpu_map = update_client_cpu_map(client_pids());
-            if (tmp_client_cpu_map == m_client_cpu_map) {
-                if (m_next_slow_loop < 10000000) {
-                   m_next_slow_loop *= 10;
-                }
-            }
-            else {
-                m_slow_loop_count = 0;
-                m_next_slow_loop = m_slow_loop_count + 1;
-                m_client_cpu_map = tmp_client_cpu_map;
-            }
-        }
-        ++m_slow_loop_count;
         m_status->update_cache();
         if (m_is_first_update) {
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
@@ -229,6 +213,10 @@ namespace geopm
             m_short_region_buffer.insert(m_short_region_buffer.end(),
                                          proc_it.short_regions.begin(),
                                          proc_it.short_regions.end());
+        }
+        if (std::any_of(m_record_buffer.begin(), m_record_buffer.end(),
+                        [](const record_s &rec) {return rec.event == EVENT_AFFINITY;})) {
+            m_client_cpu_map = update_client_cpu_map(client_pids());
         }
     }
 
