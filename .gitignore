@@ -75,7 +75,9 @@ compile_commands.json
 /integration/test/test_ee_short_region_slop
 /integration/test/test_ee_timed_scaling_mix
 /integration/test/test_enforce_policy
-/integration/test/test_epoch_inference
+# some tests may be in test/ or in test_skipped/
+/integration/test*/test_epoch_inference
+/integration/test*/test_fmap_short_region_slop
 /integration/test/test_frequency_hint_usage
 /integration/test/test_hint_time
 /integration/test/test_omp_outer_loop
@@ -105,6 +107,7 @@ compile_commands.json
 /MANIFEST
 /missing
 *.o
+*.mod
 /openmp/*
 /openmp-*.src/*
 /openmp-*.src.tar.xz
@@ -129,6 +132,7 @@ compile_commands.json
 /scripts/geopm/version.py
 /scripts/README
 /scripts/test/pytest_links/*
+/scripts/test/geopmpy_test.sh
 /specs/geopm*.spec
 /src/*.lo
 /src/*.o
@@ -154,6 +158,7 @@ compile_commands.json
 /test/geopm_mpi_test_api
 /test/geopm_print_error
 /test/geopm_test
+/test/geopm_test.sh
 /test/gtest_links
 /test/gtest_links/*
 /test/*.log
