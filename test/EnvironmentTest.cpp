@@ -586,6 +586,35 @@ TEST_F(EnvironmentTest, record_filter_off)
     EXPECT_EQ("", m_env->record_filter());
 }
 
+TEST_F(EnvironmentTest, init_control_set)
+{
+    std::map<std::string, std::string> default_vars;
+    setenv("GEOPM_INIT_CONTROL", "/tmp/test_input", 1);
+    std::map<std::string, std::string> override_vars;
+
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
+
+    EXPECT_TRUE(m_env->do_init_control());
+    EXPECT_EQ("/tmp/test_input", m_env->init_control());
+}
+
+TEST_F(EnvironmentTest, init_control_unset)
+{
+    std::map<std::string, std::string> default_vars;
+    std::map<std::string, std::string> override_vars;
+
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
+
+    EXPECT_FALSE(m_env->do_init_control());
+    EXPECT_EQ("", m_env->init_control());
+}
+
 TEST_F(EnvironmentTest, signal_parser)
 {
     std::vector<std::pair<std::string, int> >& expected_signals = m_trace_signals;

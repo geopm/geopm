@@ -30,6 +30,7 @@
 #include "ApplicationSampler.hpp"
 #include "record.hpp"
 #include "PlatformIOProf.hpp"
+#include "InitControl.hpp"
 
 #include "ProfileIOGroup.hpp"
 
@@ -176,7 +177,9 @@ namespace geopm
                      nullptr,
                      environment().endpoint(),
                      environment().do_endpoint(),
-                     ApplicationSampler::default_shmkey())
+                     ApplicationSampler::default_shmkey(),
+                     InitControl::make_unique(),
+                     environment().do_init_control())
     {
 
     }
@@ -199,7 +202,9 @@ namespace geopm
                            std::unique_ptr<EndpointUser> endpoint,
                            const std::string &endpoint_path,
                            bool do_endpoint,
-                           const std::string &shm_key)
+                           const std::string &shm_key,
+                           std::shared_ptr<InitControl> init_control,
+                           bool do_init_control)
         : m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
@@ -226,6 +231,8 @@ namespace geopm
         , m_do_endpoint(do_endpoint)
         , m_do_policy(do_policy)
         , m_shm_key(shm_key)
+        , m_init_control(init_control)
+        , m_do_init_control(do_init_control)
     {
         if (m_num_send_down > 0 && !(m_do_policy || m_do_endpoint)) {
             throw Exception("Controller(): at least one of policy or endpoint path"
@@ -251,6 +258,9 @@ namespace geopm
         }
         if (m_do_endpoint && m_policy_tracer == nullptr) {
             m_policy_tracer = EndpointPolicyTracer::make_unique();
+        }
+        if (m_do_init_control) {
+            m_init_control->parse_input(environment().init_control());
         }
     }
 
@@ -327,6 +337,7 @@ namespace geopm
 
         create_agents();
         m_platform_io.save_control();
+        m_init_control->write_controls();
         init_agents();
         m_reporter->init();
         setup_trace();

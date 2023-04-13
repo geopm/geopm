@@ -28,6 +28,7 @@ namespace geopm
     class Agent;
     class ProfileTracer;
     class ApplicationSampler;
+    class InitControl;
 
     class Controller
     {
@@ -59,7 +60,9 @@ namespace geopm
                        std::unique_ptr<EndpointUser> endpoint,
                        const std::string &endpoint_path,
                        bool do_endpoint,
-                       const std::string &shm_key);
+                       const std::string &shm_key,
+                       std::shared_ptr<InitControl> init_control,
+                       bool do_init_control);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
@@ -163,6 +166,9 @@ namespace geopm
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;
             std::string m_shm_key;
+
+            std::shared_ptr<InitControl> m_init_control;
+            bool m_do_init_control;
     };
 }
 #endif

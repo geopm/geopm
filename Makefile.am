@@ -409,6 +409,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/FrequencyGovernorImp.hpp \
                             src/FrequencyLimitDetector.cpp \
                             src/FrequencyLimitDetector.hpp \
+                            src/InitControl.cpp \
+                            src/InitControl.hpp \
                             src/SSTFrequencyLimitDetector.cpp \
                             src/SSTFrequencyLimitDetector.hpp \
                             src/TRLFrequencyLimitDetector.cpp \

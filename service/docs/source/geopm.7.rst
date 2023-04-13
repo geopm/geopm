@@ -336,6 +336,10 @@ GEOPM Environment Variables
   :ref:`geopm.7:integration with ompt`.  See the ``--geopm-ompt-disable``
   :ref:`option description <geopm-ompt-disable option>` in :doc:`geopmlaunch(1)
   <geopmlaunch.1>` for more details.
+``GEOPM_INIT_CONTROL``
+  The path to the control initialization file.  See the ``--geopm-init-control``
+  :ref:`option description <geopm-init-control option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
 
 Other Environment Variables
 ---------------------------
