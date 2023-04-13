@@ -127,7 +127,8 @@ namespace geopm
                 "GEOPM_FREQUENCY_MAP",
                 "GEOPM_MAX_FAN_OUT",
                 "GEOPM_OMPT_DISABLE",
-                "GEOPM_RECORD_FILTER"};
+                "GEOPM_RECORD_FILTER",
+                "GEOPM_INIT_CONTROL"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -437,5 +438,15 @@ namespace geopm
     bool EnvironmentImp::do_record_filter(void) const
     {
         return is_set("GEOPM_RECORD_FILTER");
+    }
+
+    std::string EnvironmentImp::init_control(void) const
+    {
+        return lookup("GEOPM_INIT_CONTROL");
+    }
+
+    bool EnvironmentImp::do_init_control(void) const
+    {
+        return is_set("GEOPM_INIT_CONTROL");
     }
 }

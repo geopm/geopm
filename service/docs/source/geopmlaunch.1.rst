@@ -338,6 +338,36 @@ GEOPM Options
                         option will override any value currently set in the
                         environment.  See the :ref:`ENVIRONMENT section of
                         geopm(7)<geopm.7:Environment>`.
+
+--geopm-init-control path  .. _geopm-init-control option:
+
+                           Initialize any available controls with the values in
+                           the file specified by *path*.  The file format is the
+                           same as that for ``geopmwrite`` with one control
+                           specified per line.  The comment character is '#'.
+                           It may be placed anywhere on a line to stop parsing
+                           of that line.  If the comment character results in
+                           invalid syntax an error will be raised.
+
+                           Files that contain only comments are valid.  They will
+                           be parsed but no controls will be written.  A file that
+                           is truly empty (i.e. contains only '\0') will raise
+                           an error.
+
+                           Example file contents:
+
+                           .. code-block::
+
+                              CPU_POWER_LIMIT_CONTROL board 0 200 # Set a 200W power limit
+                              # Also set the time limit
+                              CPU_POWER_TIME_WINDOW board 0 0.015
+
+                           This option is used by the launcher to set the
+                           ``GEOPM_INIT_CONTROL`` environment variable.  The
+                           command line option will override any value currently
+                           set in the environment.  See the :ref:`ENVIRONMENT
+                           section of geopm(7)<geopm.7:Environment>`.
+
 --geopm-affinity-disable  .. _geopm-affinity-disable option:
 
                           Enable direct user control of all application CPU

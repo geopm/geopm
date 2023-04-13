@@ -84,7 +84,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ControlMessageTest.loop_begin_1 \
               test/gtest_links/ControlMessageTest.step \
               test/gtest_links/ControlMessageTest.wait \
-              test/gtest_links/ControllerTest.construct_with_file_policy \
+              test/gtest_links/ControllerTest.construct_with_file_policy_and_init_control \
               test/gtest_links/ControllerTest.get_hostnames \
               test/gtest_links/ControllerTest.run_with_no_policy \
               test/gtest_links/ControllerTest.single_node \
@@ -158,6 +158,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/EnvironmentTest.user_disable_ompt \
               test/gtest_links/EnvironmentTest.record_filter_on \
               test/gtest_links/EnvironmentTest.record_filter_off \
+              test/gtest_links/EnvironmentTest.init_control_set \
+              test/gtest_links/EnvironmentTest.init_control_unset \
               test/gtest_links/EpochIOGroupIntegrationTest.read_batch_count \
               test/gtest_links/EpochIOGroupTest.no_controls \
               test/gtest_links/EpochIOGroupTest.read_batch \
@@ -190,6 +192,11 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy_nogpu \
+              test/gtest_links/InitControlTest.parse_valid_file \
+              test/gtest_links/InitControlTest.parse_empty_file \
+              test/gtest_links/InitControlTest.parse_empty_file_name \
+              test/gtest_links/InitControlTest.throw_bad_input \
+              test/gtest_links/InitControlTest.throw_invalid_write \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -406,6 +413,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
+                          test/InitControlTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
@@ -420,6 +428,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockFrequencyLimitDetector.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockInitControl.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPlatformIO.hpp \

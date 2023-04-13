@@ -54,7 +54,8 @@ class TestLauncher(object):
     def __init__(self, app_conf, agent_conf, report_path=None,
                  trace_path=None, host_file=None, time_limit=600,
                  performance=False, fatal_test=False,
-                 trace_profile_path=None, report_signals=None, trace_signals=None):
+                 trace_profile_path=None, report_signals=None, trace_signals=None,
+                 init_control_path=None):
         self._app_conf = app_conf
         self._agent_conf = agent_conf
         self._report_path = report_path
@@ -77,6 +78,7 @@ class TestLauncher(object):
         self._msr_save_path = None
         if fatal_test:
             self.msr_save()
+        self._init_control_path = init_control_path
 
     def set_node_list(self, node_list):
         self._node_list = node_list
@@ -139,6 +141,8 @@ class TestLauncher(object):
                 argv.extend(['--geopm-report-signals', self._report_signals])
             if self._trace_signals:
                 argv.extend(['--geopm-trace-signals', self._trace_signals])
+            if self._init_control_path:
+                argv.extend(['--geopm-init-control', self._init_control_path])
             argv.extend(add_geopm_args)
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
