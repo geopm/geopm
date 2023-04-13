@@ -134,6 +134,7 @@ namespace geopm
             ///        output vector.
             virtual void dump(std::vector<record_s> &records,
                               std::vector<short_region_s> &short_regions) = 0;
+            virtual void cpuset_changed(const geopm_time_s &time) = 0;
             /// @brief Gets the shared memory size requirement.
             ///
             /// This method returns the value to use when sizing the
@@ -178,6 +179,7 @@ namespace geopm
             void epoch(const geopm_time_s &time) override;
             void dump(std::vector<record_s> &records,
                       std::vector<short_region_s> &short_regions) override;
+            void cpuset_changed(const geopm_time_s &time) override;
         private:
             struct m_layout_s {
                 int num_record;

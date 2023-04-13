@@ -20,6 +20,8 @@ class MockApplicationRecordLog : public geopm::ApplicationRecordLog
                     (std::vector<geopm::record_s> & records,
                      std::vector<geopm::short_region_s> &short_regions),
                     (override));
+        MOCK_METHOD(void, cpuset_changed, (const geopm_time_s &time), (override));
+
 };
 
 #endif
