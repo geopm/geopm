@@ -748,7 +748,7 @@ class ActiveSessions(object):
         else:
             self._profiles[profile_name] = {client_pid}
         self._sessions[client_pid]['profile_name'] = profile_name
-        size = 49192
+        size = 57384
         shmem.create_prof('record-log', size, client_pid, uid, gid)
         self._update_session_file(client_pid)
 
