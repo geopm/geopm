@@ -118,7 +118,7 @@ namespace geopm
     void ReporterImp::update()
     {
         m_sample_agg->update();
-        if (m_do_profile) {
+        if (m_proc_region_agg != nullptr && m_do_profile) {
             m_proc_region_agg->update();
         }
     }
