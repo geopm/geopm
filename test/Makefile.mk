@@ -172,19 +172,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FilePolicyTest.parse_json_file \
               test/gtest_links/FilePolicyTest.negative_bad_files \
               test/gtest_links/FilePolicyTest.negative_parse_json_file \
-              test/gtest_links/FFNetAgentTest.adjust_platform_all \
-              test/gtest_links/FFNetAgentTest.adjust_platform_nans \
-              test/gtest_links/FFNetAgentTest.adjust_platform_no_gpu \
-              test/gtest_links/FFNetAgentTest.sample_platform \
-              test/gtest_links/FFNetAgentTest.sample_platform_no_gpu \
-              test/gtest_links/FFNetAgentTest.trace_names \
-              test/gtest_links/FFNetAgentTest.trace_names_no_gpu \
-              test/gtest_links/FFNetAgentTest.trace_values \
-              test/gtest_links/FFNetAgentTest.trace_values_no_gpu \
-              test/gtest_links/FFNetAgentTest.validate_badsize_policy \
-              test/gtest_links/FFNetAgentTest.validate_badphi_policy\
-              test/gtest_links/FFNetAgentTest.validate_good_policy\
-              test/gtest_links/FFNetAgentTest.validate_empty_policy \
               test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
               test/gtest_links/FrequencyGovernorTest.adjust_platform \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
@@ -389,6 +376,19 @@ if ENABLE_BETA
                    test/gtest_links/CPUActivityAgentTest.invalid_fe_uncore_high \
                    test/gtest_links/DaemonTest.get_default_policy \
                    test/gtest_links/DaemonTest.get_profile_policy \
+                   test/gtest_links/FFNetAgentTest.adjust_platform_all \
+                   test/gtest_links/FFNetAgentTest.adjust_platform_nans \
+                   test/gtest_links/FFNetAgentTest.adjust_platform_no_gpu \
+                   test/gtest_links/FFNetAgentTest.sample_platform \
+                   test/gtest_links/FFNetAgentTest.sample_platform_no_gpu \
+                   test/gtest_links/FFNetAgentTest.trace_names \
+                   test/gtest_links/FFNetAgentTest.trace_names_no_gpu \
+                   test/gtest_links/FFNetAgentTest.trace_values \
+                   test/gtest_links/FFNetAgentTest.trace_values_no_gpu \
+                   test/gtest_links/FFNetAgentTest.validate_badsize_policy \
+                   test/gtest_links/FFNetAgentTest.validate_badphi_policy\
+                   test/gtest_links/FFNetAgentTest.validate_good_policy\
+                   test/gtest_links/FFNetAgentTest.validate_empty_policy \
                    test/gtest_links/GPUActivityAgentTest.name \
                    test/gtest_links/GPUActivityAgentTest.validate_policy \
                    test/gtest_links/GPUActivityAgentTest.adjust_platform_high \
@@ -463,7 +463,6 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/EpochIOGroupTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
                           test/FilePolicyTest.cpp \
-                          test/FFNetAgentTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/InitControlTest.cpp \
@@ -549,6 +548,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
 
 beta_test_sources = test/CPUActivityAgentTest.cpp \
                     test/DaemonTest.cpp \
+                    test/FFNetAgentTest.cpp \
                     test/GPUActivityAgentTest.cpp \
                     test/MockPolicyStore.hpp \
                     test/PolicyStoreImpTest.cpp \
