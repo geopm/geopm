@@ -156,7 +156,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             util.assertNear(self, expect, actual, msg=msg)
             msg = "Application totals should have nine seconds of total time"
             expect = 9.0
-            actual = raw_totals['sync-runtime (s)']
+            actual = raw_totals['runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
 
             raw_epoch = self._report.raw_epoch(host_name=host)

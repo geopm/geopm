@@ -33,10 +33,6 @@ namespace geopm
             ///        application network functions.
             /// @return Set of network function region hashes.
             static std::set<uint64_t> region_hash_network(void);
-            /// @brief Set the reference time that will be used for
-            ///        all future record time reporting.
-            /// @param [in] start_time The reference zero time.
-            virtual void time_zero(const geopm_time_s &start_time) = 0;
             /// @brief Update the record buffer by clearing out old
             ///        records and providing a new cache for
             ///        subsequent calls to the get_records()

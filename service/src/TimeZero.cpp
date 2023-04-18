@@ -15,9 +15,10 @@ namespace geopm
         public:
             TimeZero();
             virtual ~TimeZero() = default;
-            static const TimeZero &time_zero(void);
+            static TimeZero &time_zero(void);
             struct geopm_time_s time(void) const;
             int error(void) const;
+            void reset(const geopm_time_s &zero);
         private:
             struct geopm_time_s m_time_zero;
             int m_err;
@@ -28,7 +29,7 @@ namespace geopm
         m_err = geopm_time(&m_time_zero);
     }
 
-    const TimeZero &TimeZero::time_zero(void)
+    TimeZero &TimeZero::time_zero(void)
     {
         static geopm::TimeZero instance;
         return instance;
@@ -44,6 +45,12 @@ namespace geopm
         return m_err;
     }
 
+    void TimeZero::reset(const geopm_time_s &zero)
+    {
+        m_time_zero = zero;
+        m_err = 0;
+    }
+
     struct geopm_time_s time_zero(void)
     {
         if (TimeZero::time_zero().error()) {
@@ -51,6 +58,11 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return TimeZero::time_zero().time();
+    }
+
+    void time_zero_reset(const geopm_time_s &zero)
+    {
+        TimeZero::time_zero().reset(zero);
     }
 }
 
