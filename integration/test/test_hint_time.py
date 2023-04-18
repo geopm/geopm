@@ -99,6 +99,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         agent_conf,
                                                         cls._report_path,
+                                                        cls._test_name + '.trace',
                                                         time_limit=time_limit)
             launcher.set_num_node(cls._num_node)
             launcher.set_num_rank(num_rank)
@@ -153,8 +154,8 @@ class TestIntegration_hint_time(unittest.TestCase):
             expect = 1.0
             actual = raw_totals['time-hint-memory (s)']
             util.assertNear(self, expect, actual, msg=msg)
-            msg = "Application totals should have four seconds of total time"
-            expect = 4.0
+            msg = "Application totals should have nine seconds of total time"
+            expect = 9.0
             actual = raw_totals['sync-runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
 
@@ -167,7 +168,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             expect = 1.0
             actual = raw_epoch['time-hint-memory (s)']
             util.assertNear(self, expect, actual, msg=msg)
-            msg = "Epoch should have three seconds of total time".format(region_name)
+            msg = "Epoch should have two seconds of total time".format(region_name)
             expect = 2.0
             actual = raw_epoch['sync-runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
