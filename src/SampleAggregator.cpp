@@ -280,7 +280,7 @@ namespace geopm
             int epoch_count = m_platform_io.sample(signal.epoch_count_idx);
             if (!m_is_updated) {
                 // On first call just initialize the signal values
-                signal.time_last = time;
+                signal.time_last = 0.0;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);

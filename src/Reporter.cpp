@@ -215,6 +215,11 @@ namespace geopm
                                            const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                            const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)
     {
+        geopm_time_s zero = geopm::time_zero();
+        geopm_time_s now;
+        geopm_time(&now);
+        double total_runtime = geopm_time_diff(&zero, &now);
+
         // per-host report
         std::ostringstream report;
         yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
@@ -280,7 +285,7 @@ namespace geopm
         // Do not add epoch or unmarked section if no application attached
         if (!std::isnan(epoch_count)) {
             yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
-            double unmarked_time = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]) -
+            double unmarked_time = total_runtime -
                                    total_marked_runtime;
             yaml_write(report, M_INDENT_UNMARKED_FIELD,
                        {{"runtime (s)", unmarked_time},
@@ -303,7 +308,6 @@ namespace geopm
         }
 
         yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
-        double total_runtime = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]);
         yaml_write(report, M_INDENT_TOTALS_FIELD,
                    {{"runtime (s)", total_runtime},
                     {"count", 0}});

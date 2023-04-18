@@ -108,6 +108,7 @@ namespace geopm
     {
         if (m_is_trace_enabled) {
             std::vector<double> sample(M_NUM_COLUMN);
+            m_time_zero = geopm::time_zero();
             for (const auto &it : records) {
                 geopm_time_s tt = {it.time};
                 sample[M_COLUMN_TIME] = geopm_time_diff(&m_time_zero, &tt);

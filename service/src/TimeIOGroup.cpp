@@ -89,6 +89,7 @@ namespace geopm
     void TimeIOGroup::read_batch(void)
     {
         if (m_is_signal_pushed) {
+            m_time_zero = geopm::time_zero();
             m_time_curr = geopm_time_since(&m_time_zero);
         }
         m_is_batch_read = true;
@@ -134,6 +135,7 @@ namespace geopm
                             " not defined for domain " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        m_time_zero = geopm::time_zero();
         return geopm_time_since(&m_time_zero);
     }
 

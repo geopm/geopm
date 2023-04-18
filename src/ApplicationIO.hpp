@@ -16,6 +16,7 @@
 #include <ctime>
 
 #include "geopm_hint.h"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -70,7 +71,7 @@ namespace geopm
             std::set<int> m_profile_pids;
             int m_num_proc;
             static constexpr double M_SLOW_LOOP_PERIOD = 0.1; // 100 msec
-            std::time_t m_slow_loop_last;
+            geopm_time_s m_slow_loop_last;
     };
 }
 

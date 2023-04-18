@@ -8,10 +8,12 @@
 #include <map>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <cstring>
 #include <cerrno>
 #include <stdexcept>
 #include <unistd.h>
+#include <time.h>
 
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
@@ -114,8 +116,7 @@ namespace geopm
                                                  const std::string &profile_name,
                                                  const std::map<int, std::set<int> > &client_cpu_map,
                                                  std::shared_ptr<Scheduler> scheduler)
-        : m_time_zero(geopm::time_zero())
-        , m_status(status)
+        : m_status(status)
         , m_topo(platform_topo)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_process_map(process_map)
@@ -134,11 +135,6 @@ namespace geopm
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
         }
-    }
-
-    void ApplicationSamplerImp::time_zero(const geopm_time_s &start_time)
-    {
-        m_time_zero = start_time;
     }
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
@@ -390,6 +386,51 @@ namespace geopm
         return result;
     }
 
+    struct geopm_time_s ApplicationSamplerImp::update_time_zero(const std::vector<int> &client_pids) const
+    {
+        if (client_pids.size() == 0) {
+            throw Exception("ApplicationSamplerImp::update_time_zero: client_pid vector is empty",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        uint64_t min_clock_tick = std::numeric_limits<uint64_t>::max();
+        for (auto &pid : client_pids) {
+            std::ostringstream path;
+            path << "/proc/" << pid << "/stat";
+            std::string stat_str;
+            try {
+                stat_str = geopm::read_file(path.str());
+            }
+            catch (const Exception &ex) {
+                throw Exception("ApplicationSamplerImp::update_time_zero(): Failed to read stat file for process "
+                                + std::to_string(pid), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            std::vector<std::string> stat_vec = geopm::string_split(stat_str, " ");
+            if (stat_vec.size() < 22) {
+                throw Exception("ApplicationSamplerImp::update_time_zero(): Failed to parser stat file for process "
+                                + std::to_string(pid), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            uint64_t clock_tick = stoull(stat_vec.at(21));
+            if (clock_tick < min_clock_tick) {
+                min_clock_tick = clock_tick;
+            }
+        }
+        double tick_per_sec = (double)sysconf(_SC_CLK_TCK);
+        double min_time_since_boot = min_clock_tick / tick_per_sec;
+
+        geopm_time_s mono_now;
+        geopm_time_s raw_now;
+
+        clock_gettime(CLOCK_MONOTONIC, &(mono_now.t));
+        clock_gettime(CLOCK_MONOTONIC_RAW, &(raw_now.t));
+
+        double raw_delta = geopm_time_diff(&mono_now, &raw_now);
+
+        geopm_time_s result = {{0, 0}};
+        geopm_time_add(&result, min_time_since_boot, &result);
+        geopm_time_add(&result, raw_delta, &result);
+        return result;
+    }
+
     void ApplicationSamplerImp::connect(const std::vector<int> &client_pids)
     {
         if (!m_status && m_do_profile) {
@@ -398,6 +439,8 @@ namespace geopm
             connect_status();
             m_process_map = connect_record_log(client_pids);
             m_client_cpu_map = update_client_cpu_map(client_pids);
+            geopm_time_s zero = update_time_zero(client_pids);
+            geopm::time_zero_reset(zero);
         }
     }
 

@@ -14,7 +14,6 @@
 class MockApplicationSampler : public geopm::ApplicationSampler
 {
     public:
-        MOCK_METHOD(void, time_zero, (const geopm_time_s &start_time), (override));
         MOCK_METHOD(void, update, (const geopm_time_s &curr_time), (override));
         MOCK_METHOD(uint64_t, cpu_region_hash, (int cpu_idx), (const, override));
         MOCK_METHOD(uint64_t, cpu_hint, (int cpu_idx), (const, override));

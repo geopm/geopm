@@ -42,7 +42,6 @@ namespace geopm
                                   const std::map<int, std::set<int> > &client_cpu_map,
                                   std::shared_ptr<Scheduler> scheduler);
             virtual ~ApplicationSamplerImp() = default;
-            void time_zero(const geopm_time_s &start_time) override;
             void update(const geopm_time_s &curr_time) override;
             std::vector<record_s> get_records(void) const override;
             short_region_s get_short_region(uint64_t event_signal) const override;
@@ -60,7 +59,7 @@ namespace geopm
             std::map<int, std::set<int> > update_client_cpu_map(const std::vector<int> &client_pids);
             std::map<int, std::set<int> > update_client_cpu_map_helper(const std::vector<int> &client_pids);
             void update_cpu_active(void);
-            struct geopm_time_s m_time_zero;
+            struct geopm_time_s update_time_zero(const std::vector<int> &client_pids) const;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
             std::shared_ptr<ApplicationStatus> m_status;
