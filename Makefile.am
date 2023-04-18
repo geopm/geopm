@@ -410,8 +410,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/Environment.hpp \
                             src/EpochIOGroup.cpp \
                             src/EpochIOGroup.hpp \
-                            src/FFNetAgent.cpp \
-                            src/FFNetAgent.hpp \
                             src/FilePolicy.cpp \
                             src/FilePolicy.hpp \
                             src/FrequencyGovernor.cpp \
@@ -509,6 +507,8 @@ beta_source_files = src/CPUActivityAgent.cpp \
                     src/Daemon.cpp \
                     src/Daemon.hpp \
                     src/DaemonImp.hpp \
+                    src/FFNetAgent.cpp \
+                    src/FFNetAgent.hpp \
                     src/GPUActivityAgent.cpp \
                     src/GPUActivityAgent.hpp \
                     src/PolicyStore.cpp \

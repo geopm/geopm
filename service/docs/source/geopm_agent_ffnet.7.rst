@@ -5,6 +5,16 @@ geopm_agent_ffnet(7) -- agent for adjusting frequencies based on application beh
 Description
 -----------
 
+.. note::
+    This is currently an experimental agent and is only available when
+    building GEOPM with the ``--enable-beta`` flag. The agent is subject
+    to change, including being combined with other agents. Also, this agent 
+    requires a neural net json file, the format of which is described by 
+    the schema domainnetmap_neural_net.schema.json and a region hint 
+    recommendor json file described by the schema 
+    regionhintrecommender_fmap.schema.json. Without these inputs, the agent 
+    will throw an error. The autogeneration of these files is future work.
+
 The FFNet agent adjusts frequencies per domain for the goal of improved energy
 efficiency with minimal performance loss. The agent instantiates a neural net
 per domain that ingests hardware telemetry and outputs a probability distribution
@@ -13,9 +23,8 @@ per-domain frequency. The agent policy can specify an energy-performance bias wh
 determines the degree to which the frequency recommender is adverse to potentially
 reducing performance by reducing frequency to save energy.
 
-.. note::
-    This agent can be used at the package scope to control CPU frequency
-    and/or at the per-GPU scope to control GPU frequency.
+This agent can be used at the package scope to control CPU frequency
+and/or at the per-GPU scope to control GPU frequency.
 
 Agent Name
 ----------
