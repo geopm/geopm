@@ -64,7 +64,8 @@ namespace geopm
         : m_math(math)
     {
         if (input.size() == 0) {
-            throw Exception("Empty array is invalid for neural network weights.\n",
+            throw Exception("TensorTwoD::" + std::string(__func__) +
+                            ": Empty array is invalid for neural network weights.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -93,8 +94,9 @@ namespace geopm
     void TensorTwoD::set_dim(size_t rows, size_t cols)
     {
         if ((rows == 0 && cols > 0) || (rows > 0 && cols == 0)) {
-            throw Exception("Tried to allocate degenerate matrix.",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("TensorTwoD::" + std::string(__func__) +
+                            ": Tried to allocate degenerate matrix.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         m_mat.resize(rows);
@@ -144,8 +146,9 @@ namespace geopm
             size_t cols = data[0].get_dim();
             for (size_t idx = 1; idx < rows; ++idx) {
                 if (data[idx].get_dim() != cols) {
-                    throw Exception("Attempt to load non-rectangular matrix.",
-                                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    throw Exception("TensorTwoD::" + std::string(__func__) +
+                                    ": Attempt to load non-rectangular matrix.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
         }

@@ -112,7 +112,7 @@ namespace geopm
         }
 
         if (net_map.empty()) {
-            for (const m_domain_key_s domain_key : m_domains) {
+            for (const domain_key_s domain_key : m_domains) {
                 m_net_map[domain_key] = DomainNetMap::make_shared(
                                 getenv(M_NNET_ENVNAME.at(domain_key.type)),
                                 domain_key.type,
@@ -120,7 +120,7 @@ namespace geopm
             }
         }
         else {
-            for (const m_domain_key_s domain_key : m_domains) {
+            for (const domain_key_s domain_key : m_domains) {
                 m_net_map[domain_key] = net_map.at(
                         std::make_pair(
                             domain_key.type,
@@ -158,7 +158,7 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void FFNetAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        for (const m_domain_key_s domain_key : m_domains) {
+        for (const domain_key_s domain_key : m_domains) {
             m_freq_control[domain_key].min_idx = 
                     m_platform_io.push_control(
                         M_MIN_FREQ_CONTROL_NAME.at(domain_key.type),
@@ -237,7 +237,7 @@ namespace geopm
         }
         m_do_write_batch = false;
 
-        for (const m_domain_key_s domain_key : m_domains) {
+        for (const domain_key_s domain_key : m_domains) {
             double new_freq = m_freq_recommender[domain_key.type]->recommend_frequency(
                     m_net_map[domain_key]->last_output(),
                     m_perf_energy_bias
@@ -309,7 +309,8 @@ namespace geopm
     }
 
     // This Agent does not add any per-region details
-    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > FFNetAgent::report_region(void) const
+    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >
+            FFNetAgent::report_region(void) const
     {
         return {};
     }
@@ -318,7 +319,7 @@ namespace geopm
     std::vector<std::string> FFNetAgent::trace_names(void) const
     {
         std::vector<std::string> tracelist;
-        for (const m_domain_key_s domain_key : m_domains) {
+        for (const domain_key_s domain_key : m_domains) {
             for (const std::string& trace_name : m_net_map.at(domain_key)->trace_names()) {
                 tracelist.push_back(
                         trace_name
@@ -339,7 +340,6 @@ namespace geopm
     {
         int vidx = 0;
         for (const auto &kv : m_net_map) {
-        //for (const m_domain_key_s domain_key : m_domains) {
             std::vector<double> domain_row = kv.second->trace_values();
             for (std::size_t idx=0; idx < domain_row.size(); ++vidx, ++idx) {
                 values[vidx] = domain_row[idx];

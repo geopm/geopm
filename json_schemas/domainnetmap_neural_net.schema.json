@@ -4,51 +4,58 @@
     "title": "NeuralNet",
     "type": "object",
     "properties": {
-      "layers": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "prefixItems": [
-            { "type": "array",
-              "items": {
+        "layers": {
+            "type": "array",
+            "items": {
                 "type": "array",
-                "items": "number"
-              }
-            },
-            { "type": "array",
-              "items": "number"
+                "prefixItems": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": "number"
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": "number"
+                    }
+                ],
+                "additionalItems": false,
+                "minItems": 2,
+                "maxItems": 2
             }
-          ],
-          "additionalItems": false,
-          "minItems": 2,
-          "maxItems": 2
+        },
+        "signal_inputs": {
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "delta_inputs": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "prefixItems": [
+                    { "type": "string" },
+                    { "type": "string" }
+                ],
+                "additionalItems": false,
+                "minItems": 2,
+                "maxItems": 2
+            }
+        },
+        "trace_outputs": {
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "description": {
+            "type": "string"
         }
-      },
-      "signal_inputs": {
-        "type": "array",
-        "items": { "type": "string" }
-      },
-      "delta_inputs": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "prefixItems": [
-            { "type": "string" },
-            { "type": "string" }
-          ],
-          "additionalItems": false,
-          "minItems": 2,
-          "maxItems": 2
-        }
-      },
-      "trace_outputs": {
-        "type": "array",
-        "items": { "type": "string" }
-      },
-      "description": {
-        "type": "string"
-      }
     },
+    "required": ["layers", "trace_outputs"],
+    "oneOf": [
+        {"required": ["signal_inputs"]},
+        {"required": ["delta_inputs"]}
+    ],
     "additionalProperties": false
 }
 

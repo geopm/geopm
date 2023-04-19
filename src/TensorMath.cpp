@@ -28,7 +28,8 @@ namespace geopm
     TensorOneD TensorMathImp::add(const TensorOneD &tensor_a, const TensorOneD &tensor_b) const
     {
         if (tensor_a.get_dim() != tensor_b.get_dim()) {
-            throw Exception("Adding vectors of mismatched dimensions.",
+            throw Exception("TensorMathImp::" + std::string(__func__) +
+                            ": Adding vectors of mismatched dimensions.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -47,7 +48,8 @@ namespace geopm
     TensorOneD TensorMathImp::subtract(const TensorOneD &tensor_a, const TensorOneD &tensor_b) const
     {
         if (tensor_a.get_dim() != tensor_b.get_dim()) {
-            throw Exception("Subtracting vectors of mismatched dimensions.",
+            throw Exception("TensorMathImp::" + std::string(__func__) +
+                            ": Subtracting vectors of mismatched dimensions.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -66,7 +68,8 @@ namespace geopm
     double TensorMathImp::inner_product(const TensorOneD &tensor_a, const TensorOneD &tensor_b) const
     {
         if (tensor_a.get_dim() != tensor_b.get_dim()) {
-            throw Exception("Inner product of vectors of mismatched dimensions.",
+            throw Exception("TensorMathImp::" + std::string(__func__) +
+                            ": Inner product of vectors of mismatched dimensions.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -89,7 +92,8 @@ namespace geopm
     TensorOneD TensorMathImp::multiply(const TensorTwoD &tensor_a, const TensorOneD &tensor_b) const
     {
         if (tensor_a.get_cols() != tensor_b.get_dim()) {
-            throw Exception("Attempted to multiply matrix and vector with incompatible dimensions.",
+            throw Exception("TensorMathImp::" + std::string(__func__) +
+                            ": Attempted to multiply matrix and vector with incompatible dimensions.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 

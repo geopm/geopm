@@ -56,7 +56,8 @@ namespace geopm
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) const override;
             std::vector<std::pair<std::string, std::string> > report_host(void) const override;
-            std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
+            std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >
+                    report_region(void) const override;
             std::vector<std::string> trace_names(void) const override;
             std::vector<std::function<std::string(double)> > trace_formats(void) const override;
             void trace_values(std::vector<double> &values) override;
@@ -68,14 +69,14 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
 
         private:
-            struct m_domain_key_s {
+            struct domain_key_s {
                 geopm_domain_e type;
                 int index;
-                bool operator<(const m_domain_key_s &other) const {
+                bool operator<(const domain_key_s &other) const {
                     return type < other.type || (type == other.type && index < other.index);
                 }
             };
-            struct m_control_s {
+            struct control_s {
                 int max_idx;
                 int min_idx;
                 double last_value;
@@ -93,12 +94,12 @@ namespace geopm
 
             double m_perf_energy_bias;
             int m_sample;
-            std::map<m_domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
+            std::map<domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
             std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > m_freq_recommender;
 
-            std::map<m_domain_key_s, m_control_s> m_freq_control;
+            std::map<domain_key_s, control_s> m_freq_control;
             std::vector<geopm_domain_e> m_domain_types;
-            std::vector<m_domain_key_s> m_domains;
+            std::vector<domain_key_s> m_domains;
 
             static const std::map<geopm_domain_e, const char *> M_NNET_ENVNAME;
             static const std::map<geopm_domain_e, const char *> M_FREQMAP_ENVNAME;
