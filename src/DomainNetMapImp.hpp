@@ -54,13 +54,13 @@ namespace geopm
             PlatformIO &m_platform_io;
             std::shared_ptr<NNFactory> m_nn_factory;
 
-            struct signal
+            struct signal_s
             {
                 int batch_idx;
                 double signal;
             };
 
-            struct delta_signal
+            struct delta_signal_s
             {
                 int batch_idx_num;
                 int batch_idx_den;
@@ -70,19 +70,13 @@ namespace geopm
                 double signal_den_last;
             };
 
-            struct trace_output
-            {
-                std::string trace_name;
-                double value;
-            };
-
             static const std::vector<std::string> M_EXPECTED_KEYS;
             static constexpr int M_MAX_NNET_SIZE = 1024;
             std::shared_ptr<LocalNeuralNet> m_neural_net;
 
             TensorOneD m_last_output;
-            std::vector<signal> m_signal_inputs;
-            std::vector<delta_signal> m_delta_inputs;
+            std::vector<signal_s> m_signal_inputs;
+            std::vector<delta_signal_s> m_delta_inputs;
             std::vector<std::string> m_trace_outputs;
     };
 }

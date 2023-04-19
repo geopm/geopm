@@ -17,13 +17,14 @@
 #include "TensorOneDMatcher.hpp"
 #include "TensorTwoDMatcher.hpp"
 
+using ::testing::Mock;
+using ::testing::Return;
+using ::testing::_;
+
 using geopm::TensorOneD;
 using geopm::TensorTwoD;
 using geopm::DenseLayer;
 using geopm::DenseLayerImp;
-using ::testing::Mock;
-using ::testing::Return;
-using ::testing::_;
 
 class DenseLayerTest : public ::testing::Test
 {

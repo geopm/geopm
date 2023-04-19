@@ -39,7 +39,8 @@ namespace geopm
 
         std::ifstream ffile(fmap_path);
         if (!ffile) {
-            throw Exception("Unable to open frequency map file.\n",
+            throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
+                            ": Unable to open frequency map file.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -55,26 +56,30 @@ namespace geopm
         json11::Json fmap_json = json11::Json::parse(fbuf, err);
         
         if (!err.empty()) {
-            throw Exception("Frequency map file format is incorrect: " + err + ".\n",
+            throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
+                            ": Frequency map file format is incorrect: " + err + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (fmap_json.is_null() || !fmap_json.is_object()) {
-            throw Exception("Frequency map file format is incorrect: object expected.\n",
+            throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
+                            ": Frequency map file format is incorrect: object expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         for (const auto &row : fmap_json.object_items()) {
             if (!row.second.is_array() || row.second.array_items().size() == 0) {
-                throw Exception("Frequency map file format is incorrect: region keys "
-                                "must contain an array of numbers.\n",
+                throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
+                                ": Frequency map file format is incorrect: region keys "
+                                "must contain an array of numbers.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_freq_map[row.first].resize(row.second.array_items().size());
             for (size_t idx = 0; idx < m_freq_map[row.first].size(); ++idx) {
                 if (!row.second[idx].is_number()) {
-                    throw Exception("Non-numeric value found in frequencies for "
-                                    "region: \"" + row.first + "\".\n",
+                    throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
+                                    ": Non-numeric value found in frequencies for "
+                                    "region: \"" + row.first + "\".",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 m_freq_map[row.first][idx] = row.second[idx].number_value();
@@ -82,7 +87,8 @@ namespace geopm
         }
 
         if (m_freq_map.empty()) {
-            throw Exception("Frequency map file must contain a frequency map",
+            throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
+                            ": Frequency map file must contain a frequency map.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }

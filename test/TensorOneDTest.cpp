@@ -17,11 +17,8 @@ using ::testing::Mock;
 using ::testing::Return;
 using ::testing::_;
 
-class TensorOneDTest : public ::testing::Test
-{
-};
 
-TEST_F(TensorOneDTest, test_sum)
+TEST(TensorOneDTest, test_sum)
 {
     auto fake_math = std::make_shared<MockTensorMath>();
 
@@ -38,7 +35,7 @@ TEST_F(TensorOneDTest, test_sum)
     EXPECT_EQ(tensor_b.get_data(), tensor_c.get_data());
 }
 
-TEST_F(TensorOneDTest, test_copy)
+TEST(TensorOneDTest, test_copy)
 {
     TensorOneD one(std::vector<double>({1, 2})), two;
 
@@ -54,7 +51,7 @@ TEST_F(TensorOneDTest, test_copy)
     EXPECT_EQ(9, two[0]);
 }
 
-TEST_F(TensorOneDTest, test_input)
+TEST(TensorOneDTest, test_input)
 {
     TensorOneD x(3);
     x.set_dim(4);

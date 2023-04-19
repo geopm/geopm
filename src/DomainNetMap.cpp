@@ -56,7 +56,8 @@ namespace geopm
         std::ifstream file(nn_path);
 
         if (!file) {
-            throw Exception("Unable to open neural net file.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Unable to open neural net file.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -65,7 +66,8 @@ namespace geopm
         file.seekg(0, std::ios::beg);
 
         if (length >= M_MAX_NNET_SIZE) {
-            throw Exception("Neural net file exceeds maximum size.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Neural net file exceeds maximum size.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -77,12 +79,14 @@ namespace geopm
         const json11::Json nnet_json = json11::Json::parse(buf, err);
 
         if (!err.empty()) {
-            throw Exception("Neural net file format is incorrect: " + err + "\n.",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Neural net file format is incorrect: " + err + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (nnet_json.is_null() || !nnet_json.is_object()) {
-            throw Exception("Neural net file format is incorrect: object expected\n.",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Neural net file format is incorrect: object expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -90,18 +94,18 @@ namespace geopm
         for (const auto &key : nnet_json.object_items()) {
             if (std::find(M_EXPECTED_KEYS.begin(), M_EXPECTED_KEYS.end(), key.first)
                 == M_EXPECTED_KEYS.end()) {
-                throw Exception(
-                        "Unexpected key in neural net json: " + key.first + "\n",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                                ": Unexpected key in neural net json: " + key.first,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
 
         // will check key exists, it's an array, and is not empty
         if (nnet_json["layers"].array_items().size() == 0) {
-            throw Exception(
-                    "Neural net must contain valid json and must have "
-                    "a key \"layers\" whose value is a non-empty array.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                            ": Neural net must contain valid json and must have "
+                            "a key \"layers\" whose value is a non-empty array.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         const auto nnet_properties = nnet_json.object_items();
@@ -112,7 +116,8 @@ namespace geopm
 
         if (signal_it != nnet_properties.end()) {
             if (!signal_it->second.is_array()) {
-                throw Exception("Neural net \"signal_inputs\" must be an array.\n",
+                throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                                 ": Neural net \"signal_inputs\" must be an array.",
                                  GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             signal_inputs_size = signal_it->second.array_items().size();
@@ -120,18 +125,19 @@ namespace geopm
 
         if (delta_it != nnet_properties.end()) {
             if (!delta_it->second.is_array()) {
-                throw Exception("Neural net \"delta_inputs\" must be an array.\n",
+                throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                                ": Neural net \"delta_inputs\" must be an array.",
                                  GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             delta_inputs_size = delta_it->second.array_items().size();
         }
 
         if (signal_inputs_size == 0 && delta_inputs_size == 0) {
-            throw Exception(
-                    "Neural net json must contain at least one of "
-                    "\"signal_inputs\" and \"delta_inputs\" whose "
-                    "value is a non-empty array.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                            ": Neural net json must contain at least one of "
+                            "\"signal_inputs\" and \"delta_inputs\" whose "
+                            "value is a non-empty array.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         
         std::vector<std::shared_ptr<DenseLayer>> layers;
@@ -142,32 +148,32 @@ namespace geopm
         m_neural_net = m_nn_factory->createLocalNeuralNet(layers);
 
         if (signal_inputs_size + delta_inputs_size != m_neural_net->get_input_dim()) {
-            throw Exception(
-                    "Neural net input dimension must match the number of "
-                    "signal and delta inputs.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                            ": Neural net input dimension must match the number of "
+                            "signal and delta inputs.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (!nnet_json["trace_outputs"].is_array()) {
-            throw Exception(
-                    "Neural net json must have a key \"trace_outputs\" "
-                    "whose value is an array.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                            ": Neural net json must have a key \"trace_outputs\" "
+                            "whose value is an array.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (nnet_json["trace_outputs"].array_items().size()
             != m_neural_net->get_output_dim()) {
-            throw Exception(
-                    "Neural net output dimension must match the number of "
-                    "trace outputs.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                            ": Neural net output dimension must match the number of "
+                            "trace outputs.",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         for (const auto &input : signal_it->second.array_items()) {
             if (!input.is_string()) {
-                throw Exception(
-                    "Neural net signal inputs must be strings.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                                ": Neural net signal inputs must be strings.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_signal_inputs.push_back({
                     m_platform_io.push_signal(
@@ -180,9 +186,9 @@ namespace geopm
         for (const auto &input : delta_it->second.array_items()) {
             if (!input.is_array() || input.array_items().size() != 2
                 || !input[0].is_string() || !input[1].is_string()) {
-                throw Exception(
-                    "Neural net delta inputs must be tuples of strings.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                                ": Neural net delta inputs must be tuples of strings.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_delta_inputs.push_back({
                     m_platform_io.push_signal(
@@ -198,9 +204,9 @@ namespace geopm
 
         for (const auto &output : nnet_json["trace_outputs"].array_items()) {
             if (!output.is_string()) {
-                throw Exception(
-                    "Neural net trace outputs must be strings.\n",
-                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                                ": Neural net trace outputs must be strings.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_trace_outputs.push_back(output.string_value());
         }
@@ -208,12 +214,14 @@ namespace geopm
 
     std::shared_ptr<DenseLayer> DomainNetMapImp::json_to_DenseLayer(const json11::Json &obj) const {
         if (!obj.is_array()) {
-            throw Exception("Neural network weights contains non-array-type.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Neural network weights contains non-array-type.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (obj.array_items().size() != 2) {
-            throw Exception("Dense Layer weights must be an array of length exactly two.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Dense Layer weights must be an array of length exactly two.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -224,12 +232,14 @@ namespace geopm
 
     TensorOneD DomainNetMapImp::json_to_TensorOneD(const json11::Json &obj) const {
         if (!obj.is_array()) {
-            throw Exception("Neural network weights contains non-array-type.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Neural network weights contains non-array-type.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (obj.array_items().empty()) {
-            throw Exception("Empty array is invalid for neural network weights.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Empty array is invalid for neural network weights.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -238,7 +248,8 @@ namespace geopm
 
         for (std::size_t idx = 0; idx < vec_size; ++idx) {
             if (!obj[idx].is_number()) {
-                throw Exception("Non-numeric type found in neural network weights.\n",
+                throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                                ": Non-numeric type found in neural network weights.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             vals[idx] = obj[idx].number_value();
@@ -249,18 +260,21 @@ namespace geopm
 
     TensorTwoD DomainNetMapImp::json_to_TensorTwoD(const json11::Json &obj) const {
         if (!obj.is_array()){
-            throw Exception("Neural network weights is non-array-type.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Neural network weights is non-array-type.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (obj.array_items().size() == 0) {
-            throw Exception("Empty array is invalid for neural network weights.\n",
+            throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                            ": Empty array is invalid for neural network weights.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         std::vector<std::vector<double> > vals;
         for (std::size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
             if (!obj[ridx].is_array()) {
-                throw Exception("Neural network weights is non-array-type.\n",
+                throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                                ": Neural network weights is non-array-type.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             std::size_t vec_size = obj[ridx].array_items().size();
@@ -268,7 +282,8 @@ namespace geopm
 
             for (std::size_t cidx = 0; cidx < vec_size; ++cidx) {
                 if (!obj[ridx][cidx].is_number()) {
-                    throw Exception("Non-numeric type found in neural network weights.\n",
+                    throw Exception("DomainNetMapImp::" + std::string(__func__) +
+                                    ": Non-numeric type found in neural network weights.",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 row[cidx] = obj[ridx][cidx].number_value();

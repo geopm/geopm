@@ -22,101 +22,101 @@ using ::testing::_;
 class RegionHintRecommenderTest : public ::testing::Test
 {
     protected:
-        std::string m_filename = "freq_map_test.json";
+        const std::string M_FILENAME = "freq_map_test.json";
         void TearDown() override;
 };
 
 void RegionHintRecommenderTest::TearDown()
 {
-    std::remove(m_filename.c_str());
+    std::remove(M_FILENAME.c_str());
 }
 
 TEST_F(RegionHintRecommenderTest, test_json_parsing)
 {
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "{[\"test\"]" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "{ }" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "must contain a frequency map");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "{\"A\": \"not this!\"}" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "{\"A\": 5.0}" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "{\"A\": []}" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "[1, 2, 4]" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
     }
 
     {
-        std::ofstream bad_json(m_filename);
+        std::ofstream bad_json(M_FILENAME);
         bad_json << "{\"A\": [\"a\", \"b\", \"c\"]}" << std::endl;
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        RegionHintRecommenderImp(M_FILENAME, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Non-numeric value found");
     }
@@ -124,13 +124,13 @@ TEST_F(RegionHintRecommenderTest, test_json_parsing)
 
 TEST_F(RegionHintRecommenderTest, test_plumbing)
 {
-    std::ofstream good_json(m_filename);
+    std::ofstream good_json(M_FILENAME);
     good_json << "{\"A\": [0, 0.8, 0],"
                  "\"B\": [0, 1, 0, 1, -3],"
                  "\"C\": [0.3]}" << std::endl;
     good_json.close();
 
-    RegionHintRecommenderImp hint_map(m_filename, 0, 1);
+    RegionHintRecommenderImp hint_map(M_FILENAME, 0, 1);
 
     EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0), 0);
     EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0.25), 0);

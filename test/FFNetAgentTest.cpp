@@ -66,16 +66,12 @@ class FFNetAgentTest: public :: testing :: Test
         int init(bool m_do_gpu);
         void construct();
         int construct_and_init(bool m_do_gpu);
-        static const int M_NUM_PKG = 2;
-        static const int M_NUM_GPU = 6;
-        double m_cpu_freq_min = 1800000000.0;
-        double m_cpu_freq_max = 2200000000.0;
-        double m_gpu_freq_min = 800000000.0;
-        double m_gpu_freq_max = 1600000000.0;
+        static constexpr int M_NUM_PKG = 2;
+        static constexpr int M_NUM_GPU = 6;
 
         std::vector<double> m_default_policy = {0.5};
-        std::map<std::string, double> m_region_class 
-            = {{"dgemm", 0.75},{"stream",0.25}};
+        const std::map<std::string, double> M_REGION_CLASS = {{"dgemm", 0.75},
+                                                              {"stream",0.25}};
     
         std::unique_ptr<FFNetAgent> m_agent;
         std::unique_ptr<MockPlatformIO> m_platform_io;
@@ -89,7 +85,7 @@ int FFNetAgentTest::init(bool do_gpu)
 {
     int num_gpu = do_gpu ? M_NUM_GPU : 0;
 
-    //Set up mocks
+    // Set up mocks
     m_platform_io = geopm::make_unique<MockPlatformIO>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
 
@@ -109,32 +105,32 @@ int FFNetAgentTest::init(bool do_gpu)
             = std::make_shared<MockRegionHintRecommender>();
     }
 
-    //Platform Topo Calls
+    // Platform Topo Calls
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(M_NUM_PKG));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(num_gpu));
 
-    //Platform IO Calls
+    // Platform IO Calls
     ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
         .WillByDefault(Return(CPU_FREQ_MIN_CTL_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
         .WillByDefault(Return(CPU_FREQ_MAX_CTL_IDX));
 
-    if(do_gpu) {
+    if (do_gpu) {
         ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_GPU, _))
             .WillByDefault(Return(GPU_FREQ_MIN_CTL_IDX));
         ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_GPU, _))
             .WillByDefault(Return(GPU_FREQ_MAX_CTL_IDX));
     }
     
-    //Test init: ask for number of domains
+    // Test init: ask for number of domains
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .Times(1);
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .Times(do_gpu ? 2 : 1);
 
-    //Test init: push controls 
+    // Test init: push controls 
     EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
         .Times(M_NUM_PKG);
     EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
@@ -144,7 +140,7 @@ int FFNetAgentTest::init(bool do_gpu)
     EXPECT_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MIN_CONTROL", _, _))
         .Times(num_gpu);
 
-    //Test init: Initializing MSRs that require it
+    // Test init: Initializing MSRs that require it
     EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, 0));
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, 0));
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, 2));
@@ -181,7 +177,7 @@ int FFNetAgentTest::construct_and_init(bool do_gpu)
     return num_gpu;
 }
 
-//Test validate_policy: Accept all-nan policy
+// Test validate_policy: Accept all-nan policy
 TEST_F(FFNetAgentTest, validate_empty_policy)
 {
     construct_and_init(true);
@@ -191,7 +187,7 @@ TEST_F(FFNetAgentTest, validate_empty_policy)
     EXPECT_EQ(0, empty_policy[POLICY_PHI]);
 }
 
-//Test validate_policy: Error if size != NUM_POLICY
+// Test validate_policy: Error if size != NUM_POLICY
 TEST_F(FFNetAgentTest, validate_badsize_policy)
 {
     construct_and_init(true);
@@ -201,7 +197,7 @@ TEST_F(FFNetAgentTest, validate_badsize_policy)
                                "policy vector not correctly sized.");
 }
 
-//Test validate_policy: Error if phi < 0 or phi > 1
+// Test validate_policy: Error if phi < 0 or phi > 1
 TEST_F(FFNetAgentTest, validate_badphi_policy)
 {
     construct_and_init(true);
@@ -216,7 +212,8 @@ TEST_F(FFNetAgentTest, validate_badphi_policy)
                                "PERF_ENERGY_BIAS is out of range (should be 0-1).");
                                
 }
-//Test validate_policy: All good if phi [0,1]
+
+// Test validate_policy: All good if phi [0,1]
 TEST_F(FFNetAgentTest, validate_good_policy)
 {
     construct_and_init(true);
@@ -225,38 +222,41 @@ TEST_F(FFNetAgentTest, validate_good_policy)
     ASSERT_EQ(NUM_POLICY, m_default_policy.size());
 }
 
-//Test adjust_platform: NAN cpu and gpu freq recommendation = m_write_batch=false
+// Test adjust_platform: NAN cpu and gpu freq recommendation = m_write_batch=false
 TEST_F(FFNetAgentTest, adjust_platform_nans)
 {
     int num_gpu = construct_and_init(true);
     int ncalls = 0;
 
-    //Call to DomainNetMap to get regions
+    // Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
         ON_CALL(*net_map_pair.second, last_output())
-            .WillByDefault(Return(m_region_class));
+            .WillByDefault(Return(M_REGION_CLASS));
         EXPECT_CALL(*net_map_pair.second, last_output());
     }
-    //Call to RegionHintRecommender to get NAN recommended freq
+    // Call to RegionHintRecommender to get NAN recommended freq
     for (const auto &freq_rec_pair : m_freq_recommender) {
-        ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+        ON_CALL(*freq_rec_pair.second,
+                recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
             .WillByDefault(Return(NAN));
         //Get number of expected calls based on domain type
-        if(freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE){
+        if (freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE) {
             ncalls = M_NUM_PKG;
         }
-        else if(freq_rec_pair.first == GEOPM_DOMAIN_GPU){
+        else if (freq_rec_pair.first == GEOPM_DOMAIN_GPU) {
             ncalls = num_gpu;
         }
 
-        EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+        EXPECT_CALL(*freq_rec_pair.second,
+                    recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
             .Times(ncalls);
     }
 
     m_agent->adjust_platform(m_default_policy);
     EXPECT_FALSE(m_agent->do_write_batch());
 }
-//Test adjust_platform: New cpu freq recommendation means cpu freq is set
+
+// Test adjust_platform: New cpu freq recommendation means cpu freq is set
 TEST_F(FFNetAgentTest, adjust_platform_all)
 {
     int num_gpu = construct_and_init(true);
@@ -264,27 +264,30 @@ TEST_F(FFNetAgentTest, adjust_platform_all)
     int gpu_req = 1.0e9;
     int ncalls = 0;
 
-    //Call to DomainNetMap to get regions
+    // Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
         ON_CALL(*net_map_pair.second, last_output())
-            .WillByDefault(Return(m_region_class));
+            .WillByDefault(Return(M_REGION_CLASS));
         EXPECT_CALL(*net_map_pair.second, last_output())
             .Times(1);
     }
-    //Call to RegionHintRecommender to get recommended freq
+    // Call to RegionHintRecommender to get recommended freq
     for (const auto &freq_rec_pair : m_freq_recommender) {
-        if(freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE){
+        if (freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE) {
             ncalls = M_NUM_PKG;
-            ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+            ON_CALL(*freq_rec_pair.second,
+                    recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
                 .WillByDefault(Return(cpu_req));
         }
-        else if(freq_rec_pair.first == GEOPM_DOMAIN_GPU){
+        else if (freq_rec_pair.first == GEOPM_DOMAIN_GPU) {
             ncalls = num_gpu;
-            ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+            ON_CALL(*freq_rec_pair.second,
+                    recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
                 .WillByDefault(Return(gpu_req));
         }
 
-        EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+        EXPECT_CALL(*freq_rec_pair.second,
+                    recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
             .Times(ncalls);
     }
 
@@ -303,27 +306,29 @@ TEST_F(FFNetAgentTest, adjust_platform_all)
 
 }
 
-//Test adjust_platform: Do not get gpu freq recommendation when do_gpu=False
+// Test adjust_platform: Do not get gpu freq recommendation when do_gpu=False
 TEST_F(FFNetAgentTest, adjust_platform_no_gpu)
 {
     int num_gpu = construct_and_init(false);
     int cpu_req = 1.2e9;
     int gpu_req = 1.0e9;
 
-    //Call to DomainNetMap to get regions
+    // Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
-        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE){
+        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
             ON_CALL(*net_map_pair.second, last_output())
-                .WillByDefault(Return(m_region_class));
+                .WillByDefault(Return(M_REGION_CLASS));
             EXPECT_CALL(*net_map_pair.second, last_output());
         }
     }
-    //Call to RegionHintRecommender to get recommended freq
+    // Call to RegionHintRecommender to get recommended freq
     for (const auto &freq_rec_pair : m_freq_recommender) {
-        if(freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE){
-            ON_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+        if (freq_rec_pair.first == GEOPM_DOMAIN_PACKAGE) {
+            ON_CALL(*freq_rec_pair.second,
+                    recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
                 .WillByDefault(Return(cpu_req));
-            EXPECT_CALL(*freq_rec_pair.second, recommend_frequency(m_region_class, m_default_policy[POLICY_PHI]))
+            EXPECT_CALL(*freq_rec_pair.second,
+                        recommend_frequency(M_REGION_CLASS, m_default_policy[POLICY_PHI]))
                 .Times(M_NUM_PKG);
         }
     }
@@ -343,7 +348,7 @@ TEST_F(FFNetAgentTest, adjust_platform_no_gpu)
 
 }
 
-//Test sample_platform: All signals are queried when do_gpu=True
+// Test sample_platform: All signals are queried when do_gpu=True
 TEST_F(FFNetAgentTest, sample_platform)
 {
     construct_and_init(true);
@@ -356,17 +361,17 @@ TEST_F(FFNetAgentTest, sample_platform)
     m_agent->sample_platform(tmp);
 }
 
-//Test sample_platform: No GPU signals are queried when do_gpu=False
+// Test sample_platform: No GPU signals are queried when do_gpu=False
 TEST_F(FFNetAgentTest, sample_platform_no_gpu)
 {
     construct_and_init(false);
 
     for (const auto &net_map_pair : m_net_map) {
-        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE){
+        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
             EXPECT_CALL(*net_map_pair.second, sample())
                 .Times(1);
         }
-        else if(net_map_pair.first.first == GEOPM_DOMAIN_GPU){
+        else if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
             EXPECT_CALL(*net_map_pair.second, sample())
                 .Times(0);
         }
@@ -376,7 +381,7 @@ TEST_F(FFNetAgentTest, sample_platform_no_gpu)
     m_agent->sample_platform(tmp);
 }
 
-//Test trace_names 
+// Test trace_names 
 TEST_F(FFNetAgentTest, trace_names)
 {
     construct_and_init(true);
@@ -389,11 +394,11 @@ TEST_F(FFNetAgentTest, trace_names)
                                            "parres_gpu_3", "parres_gpu_4", "parres_gpu_5"};
 
     for (const auto &net_map_pair : m_net_map) {
-        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE){
+        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
             ON_CALL(*net_map_pair.second, trace_names())
                 .WillByDefault(Return(cpu_region_names));
         }
-        else if(net_map_pair.first.first == GEOPM_DOMAIN_GPU){
+        else if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
             ON_CALL(*net_map_pair.second, trace_names())
                 .WillByDefault(Return(gpu_region_names));
         }
@@ -405,12 +410,12 @@ TEST_F(FFNetAgentTest, trace_names)
 
     EXPECT_EQ(expect_val.size(), retval.size());
 
-    for(std::size_t idx = 0; idx < expect_val.size() ; idx++) {
+    for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
         EXPECT_EQ(retval.at(idx), expect_val.at(idx));
     }
 }
 
-//Test trace_names no GPU
+// Test trace_names no GPU
 TEST_F(FFNetAgentTest, trace_names_no_gpu)
 {
     construct_and_init(false);
@@ -421,12 +426,12 @@ TEST_F(FFNetAgentTest, trace_names_no_gpu)
     std::vector<std::string> expect_val = {"aib_cpu_0", "stream_cpu_0", "aib_cpu_1", "stream_cpu_1"};
 
     for (const auto &net_map_pair : m_net_map) {
-        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
+        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
             ON_CALL(*net_map_pair.second, trace_names())
                 .WillByDefault(Return(cpu_region_names));
             EXPECT_CALL(*net_map_pair.second, trace_names());
         }
-        else if(net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
+        else if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
             ON_CALL(*net_map_pair.second, trace_names())
                 .WillByDefault(Return(gpu_region_names));
             EXPECT_CALL(*net_map_pair.second, trace_names())
@@ -439,11 +444,12 @@ TEST_F(FFNetAgentTest, trace_names_no_gpu)
 
     EXPECT_EQ(expect_val.size(), retval.size());
 
-    for(std::size_t idx = 0; idx < expect_val.size() ; idx++) {
+    for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
         EXPECT_EQ(retval.at(idx), expect_val.at(idx));
     }
 }
-//Test trace_values
+
+// Test trace_values
 TEST_F(FFNetAgentTest, trace_values)
 {
     size_t num_gpu = construct_and_init(true);
@@ -451,24 +457,24 @@ TEST_F(FFNetAgentTest, trace_values)
     std::vector<std::vector<double>> gpu_probs;
     std::vector<double> expect_val;
 
-    for(size_t idx=0; idx<M_NUM_PKG; ++idx) {
+    for (size_t idx = 0; idx < M_NUM_PKG; ++idx) {
         cpu_probs.push_back(std::vector<double>({1+(double)idx, 2}));
         expect_val.push_back(1+(double)idx);
         expect_val.push_back(2);
 
         
     }
-    for(size_t idx=0; idx<num_gpu; ++idx) {
+    for (size_t idx = 0; idx < num_gpu; ++idx) {
         gpu_probs.push_back(std::vector<double>({(double)idx}));
         expect_val.push_back((double)idx);
     }
 
     for (const auto &net_map_pair : m_net_map) {
-        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
+        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
             ON_CALL(*net_map_pair.second, trace_values())
                 .WillByDefault(Return(cpu_probs.at(net_map_pair.first.second)));
         }
-        if(net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
+        if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
             ON_CALL(*net_map_pair.second, trace_values())
                 .WillByDefault(Return(gpu_probs.at(net_map_pair.first.second)));
         }
@@ -479,30 +485,31 @@ TEST_F(FFNetAgentTest, trace_values)
     std::vector<double> retval(expect_val.size());
     m_agent->trace_values(retval);
 
-    for(std::size_t idx = 0; idx < expect_val.size() ; idx++) {
+    for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
         EXPECT_EQ(retval.at(idx), expect_val.at(idx));
     }
 }
-//Test trace_values no gpu
+
+// Test trace_values no gpu
 TEST_F(FFNetAgentTest, trace_values_no_gpu)
 {
     construct_and_init(false);
     std::vector<std::vector<double>> cpu_probs;
     std::vector<double> expect_val;
 
-    for(size_t idx=0; idx<M_NUM_PKG; ++idx) {
+    for (size_t idx = 0; idx < M_NUM_PKG; ++idx) {
         cpu_probs.push_back(std::vector<double>({1+(double)idx, 2}));
         expect_val.push_back(1+(double)idx);
         expect_val.push_back(2);
     }
 
     for (const auto &net_map_pair : m_net_map) {
-        if(net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
+        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
             ON_CALL(*net_map_pair.second, trace_values())
                 .WillByDefault(Return(cpu_probs.at(net_map_pair.first.second)));
             EXPECT_CALL(*net_map_pair.second, trace_values());
         }
-        if(net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
+        if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
             ON_CALL(*net_map_pair.second, trace_values())
                 .WillByDefault(Return(std::vector<double>({0})));
             EXPECT_CALL(*net_map_pair.second, trace_values())
@@ -513,7 +520,7 @@ TEST_F(FFNetAgentTest, trace_values_no_gpu)
     std::vector<double> retval(expect_val.size());
     m_agent->trace_values(retval);
 
-    for(std::size_t idx = 0; idx < expect_val.size() ; idx++) {
+    for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
         EXPECT_EQ(retval.at(idx), expect_val.at(idx));
     }
 }

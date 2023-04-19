@@ -14,30 +14,31 @@
 #include "TensorOneDMatcher.hpp"
 #include "TensorTwoDMatcher.hpp"
 
-using geopm::TensorOneD;
-using geopm::TensorTwoD;
 using ::testing::Mock;
 using ::testing::Return;
 using ::testing::_;
+
+using geopm::TensorOneD;
+using geopm::TensorTwoD;
 
 class TensorTwoDTest : public ::testing::Test
 {
     protected:
         void SetUp();
 
-        TensorTwoD mat;
+        TensorTwoD m_mat;
 };
 
 void TensorTwoDTest::SetUp()
 {
-    mat.set_dim(2, 3);
+    m_mat.set_dim(2, 3);
 
-    mat[0][0] = 1;
-    mat[0][1] = 2;
-    mat[0][2] = 3;
-    mat[1][0] = 4;
-    mat[1][1] = 5;
-    mat[1][2] = 6;
+    m_mat[0][0] = 1;
+    m_mat[0][1] = 2;
+    m_mat[0][2] = 3;
+    m_mat[1][0] = 4;
+    m_mat[1][1] = 5;
+    m_mat[1][2] = 6;
 }
 
 TEST_F(TensorTwoDTest, test_vector_product)
@@ -52,14 +53,15 @@ TEST_F(TensorTwoDTest, test_vector_product)
     TensorOneD tensor_b(vec_b, fake_math);
     TensorOneD tensor_c(vec_c, fake_math);
 
-    EXPECT_CALL(*fake_math, multiply(TensorTwoDEqualTo(tensor_a), TensorOneDEqualTo(tensor_b))).WillOnce(Return(tensor_c));
+    EXPECT_CALL(*fake_math, multiply(TensorTwoDEqualTo(tensor_a),
+                TensorOneDEqualTo(tensor_b))).WillOnce(Return(tensor_c));
     TensorOneD tensor_d = tensor_a * tensor_b;
 
     EXPECT_EQ(tensor_c.get_data(), tensor_d.get_data());
 }
 
 TEST_F(TensorTwoDTest, test_copy_constructor) {
-    TensorTwoD copy(mat);
+    TensorTwoD copy(m_mat);
     EXPECT_EQ(1, copy[0][0]);
     EXPECT_EQ(2, copy[0][1]);
     EXPECT_EQ(3, copy[0][2]);
@@ -69,20 +71,20 @@ TEST_F(TensorTwoDTest, test_copy_constructor) {
 
     // check that the copy is deep
     copy[1][0] = -1;
-    EXPECT_EQ(4, mat[1][0]);
+    EXPECT_EQ(4, m_mat[1][0]);
     EXPECT_EQ(-1, copy[1][0]);
 }
 
 TEST_F(TensorTwoDTest, test_array_overload) {
-    const TensorTwoD mat_copy(mat);
-    mat[0] = mat_copy[1];
-    EXPECT_EQ(4, mat[0][0]);
-    EXPECT_EQ(5, mat[0][1]);
-    EXPECT_EQ(6, mat[0][2]);
+    const TensorTwoD mat_copy(m_mat);
+    m_mat[0] = mat_copy[1];
+    EXPECT_EQ(4, m_mat[0][0]);
+    EXPECT_EQ(5, m_mat[0][1]);
+    EXPECT_EQ(6, m_mat[0][2]);
 
     // check that the copy is deep
-    mat[0][0] = 7;
-    EXPECT_EQ(7, mat[0][0]);
+    m_mat[0][0] = 7;
+    EXPECT_EQ(7, m_mat[0][0]);
     EXPECT_EQ(4, mat_copy[1][0]);
 }
 
@@ -99,12 +101,13 @@ TEST_F(TensorTwoDTest, test_input) {
 TEST_F(TensorTwoDTest, test_degenerate_size) {
     TensorTwoD x;
     EXPECT_EQ(0u, x.get_cols());
+    EXPECT_EQ(0u, x.get_rows());
 }
 
 TEST_F(TensorTwoDTest, test_copy) {
     TensorTwoD copy(3, 4);
     copy.set_dim(1, 1);
-    copy = mat;
+    copy = m_mat;
 
     // copy is successful
     EXPECT_EQ(1, copy[0][0]);
@@ -116,7 +119,7 @@ TEST_F(TensorTwoDTest, test_copy) {
 
     // check that the copy is deep
     copy[1][0] = -1;
-    EXPECT_EQ(4, mat[1][0]);
+    EXPECT_EQ(4, m_mat[1][0]);
     EXPECT_EQ(-1, copy[1][0]);
 }
 

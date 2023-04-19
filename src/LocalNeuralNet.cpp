@@ -25,13 +25,15 @@ namespace geopm
     LocalNeuralNetImp::LocalNeuralNetImp(std::vector<std::shared_ptr<DenseLayer> > layers)
     {
         if (layers.empty()) {
-            throw Exception("Empty layers found.",
+            throw Exception("LocalNeuralNetImp::" + std::string(__func__) +
+                            ": Empty layers found.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         for (std::size_t idx = 1; idx < layers.size(); ++idx) {
             if (layers[idx]->get_input_dim() != layers[idx - 1]->get_output_dim()) {
-                throw Exception("Incompatible dimensions for consecutive layers.",
+                throw Exception("LocalNeuralNetImp::" + std::string(__func__) +
+                                ": Incompatible dimensions for consecutive layers.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
@@ -42,7 +44,8 @@ namespace geopm
     TensorOneD LocalNeuralNetImp::forward(const TensorOneD &inp) const
     {
         if (inp.get_dim() != m_layers[0]->get_input_dim()) {
-            throw Exception("Input vector dimension is incompatible with network.\n",
+            throw Exception("LocalNeuralNetImp::" + std::string(__func__) +
+                            ": Input vector dimension is incompatible with network.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 

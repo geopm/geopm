@@ -10,5 +10,5 @@
 using geopm::TensorOneD;
 
 ::testing::Matcher<const TensorOneD&> TensorOneDEqualTo(const TensorOneD& expected) {
-  return TensorOneDMatcher(expected);
+    return TensorOneDMatcher(expected);
 }

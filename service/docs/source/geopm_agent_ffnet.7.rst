@@ -11,7 +11,7 @@ Description
     to change, including being combined with other agents. Also, this agent 
     requires a neural net json file, the format of which is described by 
     the schema domainnetmap_neural_net.schema.json and a region hint 
-    recommendor json file described by the schema 
+    recommender json file described by the schema
     regionhintrecommender_fmap.schema.json. Without these inputs, the agent 
     will throw an error. The autogeneration of these files is future work.
 
@@ -22,6 +22,18 @@ of region classes. This probability distribution is used to determine an optimal
 per-domain frequency. The agent policy can specify an energy-performance bias which
 determines the degree to which the frequency recommender is adverse to potentially
 reducing performance by reducing frequency to save energy.
+
+The neural net for region classification must be provided in a json configuration
+file, which must comply with the following schema:
+
+.. literalinclude:: ../../../json_schemas/domainnetmap_neural_net.schema.json
+    :language: json
+
+The per-region frequency recommendations must be provided in a json configuration
+file, which must comply with the following schema:
+
+.. literalinclude:: ../../../json_schemas/regionhintrecommender_fmap.schema.json
+    :language: json
 
 This agent can be used at the package scope to control CPU frequency
 and/or at the per-GPU scope to control GPU frequency.
