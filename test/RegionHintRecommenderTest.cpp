@@ -46,6 +46,28 @@ TEST_F(RegionHintRecommenderTest, test_json_parsing)
 
     {
         std::ofstream bad_json(m_filename);
+        bad_json << "" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        GEOPM_ERROR_INVALID,
+                        "Frequency map file format is incorrect");
+    }
+
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << "{ }" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        GEOPM_ERROR_INVALID,
+                        "must contain a frequency map");
+    }
+
+    {
+        std::ofstream bad_json(m_filename);
         bad_json << "{\"A\": \"not this!\"}" << std::endl;
         bad_json.close();
 
@@ -86,6 +108,17 @@ TEST_F(RegionHintRecommenderTest, test_json_parsing)
                         RegionHintRecommenderImp(m_filename, 0, 1),
                         GEOPM_ERROR_INVALID,
                         "Frequency map file format is incorrect");
+    }
+
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << "{\"A\": [\"a\", \"b\", \"c\"]}" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                        RegionHintRecommenderImp(m_filename, 0, 1),
+                        GEOPM_ERROR_INVALID,
+                        "Non-numeric value found");
     }
 }
 

@@ -66,6 +66,12 @@ TEST_F(LocalNeuralNetTest, test_inference) {
 
 TEST_F(LocalNeuralNetTest, test_bad_dimensions) {
     {
+        GEOPM_EXPECT_THROW_MESSAGE(LocalNeuralNetImp({}),
+                                   GEOPM_ERROR_INVALID,
+                                   "Empty layers");
+    }
+
+    {
         GEOPM_EXPECT_THROW_MESSAGE(LocalNeuralNetImp({fake_layer2, fake_layer1}),
                                    GEOPM_ERROR_INVALID,
                                    "Incompatible dimensions for consecutive layers.");

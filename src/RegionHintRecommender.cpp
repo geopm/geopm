@@ -80,6 +80,11 @@ namespace geopm
                 m_freq_map[row.first][idx] = row.second[idx].number_value();
             }
         }
+
+        if (m_freq_map.empty()) {
+            throw Exception("Frequency map file must contain a frequency map",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
     double RegionHintRecommenderImp::recommend_frequency(

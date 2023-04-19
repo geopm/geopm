@@ -93,7 +93,39 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "Neural net must contain valid json");
+                "Neural net file format is incorrect");
+    }
+
+    // empty file
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << "" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "Neural net file format is incorrect");
+    }
+    
+    // empty json
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << "{ }" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "must have a key \"layers\" whose value is a non-empty array");
     }
 
     // layers missing
@@ -111,7 +143,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "must have a key \"layers\" whose value is an array");
+                "must have a key \"layers\" whose value is a non-empty array");
     }
 
     // layers are not actual layers
@@ -130,7 +162,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "must have a key \"layers\" whose value is an array");
+                "must have a key \"layers\" whose value is a non-empty array");
     }
 
     // extraneous keys
@@ -168,7 +200,54 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "signal_inputs");
+                "must contain at least one of \"signal_inputs\" and \"delta_inputs\"");
+    }
+
+    // valid signal_inputs, invalid delta_inputs 
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << 
+            "{\"layers\": ["
+            "[[[1, 2, 3], [4, 5, 6]], [7, 8]]"
+            "],"
+            "\"signal_inputs\": [\"A\"],"
+            "\"delta_inputs\": \"B\","
+            "\"trace_outputs\": [\"GEO\", \"PM\", \"@\", \"INTEL\", \"2023\"]}" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "\"delta_inputs\" must be an array");
+    }
+
+    // valid delta_inputs, invalid signal_inputs 
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << 
+            "{\"layers\": ["
+            "[[[1, 2, 3], [4, 5, 6]], [7, 8]]"
+            "],"
+            "\"signal_inputs\": \"A\","
+            "\"delta_inputs\": ["
+            "[\"B\", \"C\"],"
+            "[\"D\", \"E\"]"
+            "],"
+            "\"trace_outputs\": [\"GEO\", \"PM\", \"@\", \"INTEL\", \"2023\"]}" << std::endl;
+        bad_json.close();
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "\"signal_inputs\" must be an array");
     }
 
     // missing trace_outputs
@@ -179,8 +258,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             "\"signal_inputs\": [\"A\"]}" << std::endl;
         bad_json.close();
 
-	EXPECT_CALL(*fake_nn, get_input_dim()).Times(1);
-	EXPECT_CALL(*fake_nn, get_output_dim()).Times(1);
+        EXPECT_CALL(*fake_nn, get_input_dim()).Times(1);
+        EXPECT_CALL(*fake_nn, get_output_dim()).Times(0);
 
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(m_filename,
@@ -189,7 +268,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "trace outputs");
+                "must have a key \"trace_outputs\" whose value is an array");
     }
 
     // mismatched input dimensions
@@ -211,7 +290,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "input dimension");
+                "input dimension must match the number of signal and delta inputs");
     }
 
     // mismatched output dimensions
@@ -224,8 +303,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             "\"trace_outputs\": [\"F\", \"G\", \"H\"]}" << std::endl;
         bad_json.close();
 
-	EXPECT_CALL(*fake_nn, get_input_dim()).WillOnce(Return(3));
-	EXPECT_CALL(*fake_nn, get_output_dim()).WillOnce(Return(2));
+        EXPECT_CALL(*fake_nn, get_input_dim()).WillOnce(Return(3));
+        EXPECT_CALL(*fake_nn, get_output_dim()).WillOnce(Return(2));
 
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(m_filename,
@@ -234,7 +313,126 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     fake_plat_io,
                     fake_nn_factory),
                 GEOPM_ERROR_INVALID,
-                "output dimension");
+                "output dimension must match the number of trace outputs");
+    }
+
+    // invalid signal_inputs values
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << 
+            "{\"layers\": ["
+            "[[[1, 2, 3], [4, 5, 6]], [7, 8]]"
+            "],"
+            "\"signal_inputs\": [1],"
+            "\"delta_inputs\": ["
+            "[\"B\", \"C\"],"
+            "[\"D\", \"E\"]"
+            "],"
+            "\"trace_outputs\": [\"GEO\", \"PM\", \"@\", \"INTEL\", \"2023\"]}" << std::endl;
+        bad_json.close();
+        
+        EXPECT_CALL(*fake_nn, get_input_dim()).WillOnce(Return(3));
+        EXPECT_CALL(*fake_nn, get_output_dim()).WillOnce(Return(5));
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "signal inputs must be strings");
+    }
+
+    // invalid delta_inputs values
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << 
+            "{\"layers\": ["
+            "[[[1, 2, 3], [4, 5, 6]], [7, 8]]"
+            "],"
+            "\"signal_inputs\": [\"A\"],"
+            "\"delta_inputs\": ["
+            "[1, 2],"
+            "[\"D\", \"E\"]"
+            "],"
+            "\"trace_outputs\": [\"GEO\", \"PM\", \"@\", \"INTEL\", \"2023\"]}" << std::endl;
+        bad_json.close();
+
+        EXPECT_CALL(*fake_nn, get_input_dim()).WillOnce(Return(3));
+        EXPECT_CALL(*fake_nn, get_output_dim()).WillOnce(Return(5));
+        EXPECT_CALL(fake_plat_io, push_signal("A", _, _)).WillOnce(Return(0));
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "delta inputs must be tuples of strings");
+    }
+    
+    // invalid delta_inputs values
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << 
+            "{\"layers\": ["
+            "[[[1, 2, 3], [4, 5, 6]], [7, 8]]"
+            "],"
+            "\"signal_inputs\": [\"A\"],"
+            "\"delta_inputs\": ["
+            "\"A\","
+            "[\"D\", \"E\"]"
+            "],"
+            "\"trace_outputs\": [\"GEO\", \"PM\", \"@\", \"INTEL\", \"2023\"]}" << std::endl;
+        bad_json.close();
+
+        EXPECT_CALL(*fake_nn, get_input_dim()).WillOnce(Return(3));
+        EXPECT_CALL(*fake_nn, get_output_dim()).WillOnce(Return(5));
+        EXPECT_CALL(fake_plat_io, push_signal("A", _, _)).WillOnce(Return(0));
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "delta inputs must be tuples of strings");
+    }
+
+    // invalid trace_outputs values
+    {
+        std::ofstream bad_json(m_filename);
+        bad_json << 
+            "{\"layers\": ["
+            "[[[1, 2, 3], [4, 5, 6]], [7, 8]]"
+            "],"
+            "\"signal_inputs\": [\"A\"],"
+            "\"delta_inputs\": ["
+            "[\"B\", \"C\"],"
+            "[\"D\", \"E\"]"
+            "],"
+            "\"trace_outputs\": [1, 2, 3, 4, 2023]}" << std::endl;
+        bad_json.close();
+
+        EXPECT_CALL(*fake_nn, get_input_dim()).WillOnce(Return(3));
+        EXPECT_CALL(*fake_nn, get_output_dim()).WillOnce(Return(5));
+        EXPECT_CALL(fake_plat_io, push_signal("A", _, _)).WillOnce(Return(0));
+        EXPECT_CALL(fake_plat_io, push_signal("B", _, _)).WillOnce(Return(1));
+        EXPECT_CALL(fake_plat_io, push_signal("C", _, _)).WillOnce(Return(2));
+        EXPECT_CALL(fake_plat_io, push_signal("D", _, _)).WillOnce(Return(3));
+        EXPECT_CALL(fake_plat_io, push_signal("E", _, _)).WillOnce(Return(4));
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(m_filename,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    fake_plat_io,
+                    fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "trace outputs must be strings");
     }
 }
 
