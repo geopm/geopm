@@ -150,7 +150,7 @@ namespace geopm
 
         if (!nnet_json["trace_outputs"].is_array()) {
             throw Exception(
-                    "Neural net json must contain a key \"trace_outputs\" "
+                    "Neural net json must have a key \"trace_outputs\" "
                     "whose value is an array.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -178,9 +178,10 @@ namespace geopm
         }
 
         for (const auto &input : delta_it->second.array_items()) {
-            if (!input.is_string()) {
+            if (!input.is_array() || input.array_items().size() != 2
+                || !input[0].is_string() || !input[1].is_string()) {
                 throw Exception(
-                    "Neural net delta inputs must be strings.\n",
+                    "Neural net delta inputs must be tuples of strings.\n",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_delta_inputs.push_back({
