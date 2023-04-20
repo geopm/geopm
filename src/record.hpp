@@ -32,6 +32,8 @@ namespace geopm
                                  /// SIGNAL: Handle to pass to AppliationSampler::get_short_region()
         EVENT_AFFINITY = 9,      /// EVENT: The application process affinity has changed
                                  /// SIGNAL: PID or TID of thread with the modified cpuset
+        EVENT_START_PROFILE = 10,/// EVENT: An application PID requested profiling
+                                 /// SIGNAL: Hash of the profile name
     };
 
     /// @brief Format an event_e type as a string.

@@ -165,6 +165,7 @@ namespace geopm
             std::string shmem_path = shmem_path_prof("record-log", getpid(), geteuid());
             std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
             m_app_record_log = ApplicationRecordLog::make_unique(shmem);
+            m_app_record_log->start_profile(geopm::time_zero(), m_prof_name);
         }
 
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
