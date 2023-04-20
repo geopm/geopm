@@ -183,6 +183,21 @@ namespace geopm
         append_record(layout, affinity_record);
     }
 
+    void ApplicationRecordLogImp::start_profile(const geopm_time_s &time, std::string profile_name)
+    {
+        std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
+        m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
+        check_reset(layout);
+        uint64_t profile_hash = geopm_crc32_str(profile_name.c_str());
+        record_s profile_start_record = {
+           .time = time,
+           .process = m_process,
+           .event = EVENT_START_PROFILE,
+           .signal = profile_hash,
+        };
+        append_record(layout, profile_start_record);
+    }
+
     void ApplicationRecordLogImp::dump(std::vector<record_s> &records,
                                        std::vector<short_region_s> &short_regions)
     {
