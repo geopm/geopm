@@ -102,10 +102,6 @@ namespace geopm
          "    description: The current operating frequency of the CPU.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::PERF_STATUS:FREQ"},
-        {"CPU_INSTRUCTIONS_RETIRED",
-         "    description: The count of the number of instructions executed.\n"
-         "    iogroup: MSR\n"
-         "    alias_for: MSR::FIXED_CTR0:INST_RETIRED_ANY"},
         {"CPU_POWER_LIMIT_CONTROL",
          "    description: The average power usage limit over the time window specified in "
          "PL1_TIME_WINDOW.\n"

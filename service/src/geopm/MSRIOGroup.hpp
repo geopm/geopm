@@ -145,8 +145,6 @@ namespace geopm
             /// @brief Add support for frequency control aliases if underlying
             ///        controls are available.
             void register_frequency_controls(void);
-            /// @brief Write to enable bits for all fixed counters.
-            void enable_fixed_counters(void);
             /// @brief Check system configuration and warn if it ma
             ///        interfere with the given control.
             void check_control(const std::string &control_name);
@@ -199,7 +197,6 @@ namespace geopm
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
-            bool m_is_fixed_enabled;
             std::vector<bool> m_is_adjusted;
 
             // time for derivative signals
