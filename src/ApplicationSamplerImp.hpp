@@ -52,6 +52,8 @@ namespace geopm
             void connect(const std::vector<int> &client_pids) override;
             std::vector<int> client_pids(void) const override;
             std::set<int> client_cpu_set(int client_pid) const override;
+            bool do_shutdown(void) const override;
+            double total_time(void) const override;
             int sampler_cpu(void);
         private:
             std::map<int, m_process_s> connect_record_log(const std::vector<int> &client_pids);
@@ -59,7 +61,7 @@ namespace geopm
             std::map<int, std::set<int> > update_client_cpu_map(const std::vector<int> &client_pids);
             std::map<int, std::set<int> > update_client_cpu_map_helper(const std::vector<int> &client_pids);
             void update_cpu_active(void);
-            struct geopm_time_s update_time_zero(const std::vector<int> &client_pids) const;
+            void update_start_stop(void);
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
             std::shared_ptr<ApplicationStatus> m_status;
@@ -77,6 +79,10 @@ namespace geopm
             std::string m_profile_name;
             std::map<int, std::set<int> > m_client_cpu_map;
             std::shared_ptr<Scheduler> m_scheduler;
+            int m_num_registered;
+            bool m_do_shutdown;
+            geopm_time_s m_last_stop;
+            double m_total_time;
     };
 }
 

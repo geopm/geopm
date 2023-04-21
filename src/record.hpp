@@ -34,6 +34,8 @@ namespace geopm
                                  /// SIGNAL: PID or TID of thread with the modified cpuset
         EVENT_START_PROFILE = 10,/// EVENT: An application PID requested profiling
                                  /// SIGNAL: Hash of the profile name
+        EVENT_STOP_PROFILE = 11, /// EVENT: An application PID requested profiling
+                                 /// SIGNAL: Hash of the profile name
     };
 
     /// @brief Format an event_e type as a string.

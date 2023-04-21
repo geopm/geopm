@@ -131,6 +131,10 @@ namespace geopm
         , m_profile_name(profile_name)
         , m_client_cpu_map(client_cpu_map)
         , m_scheduler(scheduler)
+        , m_num_registered(0)
+        , m_do_shutdown(false)
+        , m_last_stop({})
+        , m_total_time(0.0)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -213,6 +217,42 @@ namespace geopm
         if (std::any_of(m_record_buffer.begin(), m_record_buffer.end(),
                         [](const record_s &rec) {return rec.event == EVENT_AFFINITY;})) {
             m_client_cpu_map = update_client_cpu_map(client_pids());
+        }
+        update_start_stop();
+    }
+
+    void ApplicationSamplerImp::update_start_stop(void)
+    {
+        bool do_update = false;
+        bool is_active = (m_num_registered != 0);
+        geopm_time_s zero = geopm::time_zero();
+        for (const auto &record : m_record_buffer) {
+            if (record.event == EVENT_START_PROFILE) {
+                if (m_num_registered == 0 ||
+                    geopm_time_diff(&(zero), &(record.time)) < 0) {
+                    do_update = true;
+                    zero = record.time;
+                }
+                is_active = true;
+                ++m_num_registered;
+            }
+            else if (record.event == EVENT_STOP_PROFILE) {
+                if (geopm_time_diff(&m_last_stop, &(record.time)) > 0) {
+                    m_last_stop = record.time;
+                }
+                --m_num_registered;
+            }
+        }
+        if (m_num_registered < 0) {
+            throw Exception("ApplicationSamplerImp::update_start_stop(): More requests to stop profiling than were made to start profiling",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if (do_update) {
+            geopm::time_zero_reset(zero);
+        }
+        if (is_active && m_num_registered == 0) {
+            m_total_time = geopm_time_diff(&zero, &m_last_stop);
+            m_do_shutdown = true;
         }
     }
 
@@ -386,51 +426,6 @@ namespace geopm
         return result;
     }
 
-    struct geopm_time_s ApplicationSamplerImp::update_time_zero(const std::vector<int> &client_pids) const
-    {
-        if (client_pids.size() == 0) {
-            throw Exception("ApplicationSamplerImp::update_time_zero: client_pid vector is empty",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        uint64_t min_clock_tick = std::numeric_limits<uint64_t>::max();
-        for (auto &pid : client_pids) {
-            std::ostringstream path;
-            path << "/proc/" << pid << "/stat";
-            std::string stat_str;
-            try {
-                stat_str = geopm::read_file(path.str());
-            }
-            catch (const Exception &ex) {
-                throw Exception("ApplicationSamplerImp::update_time_zero(): Failed to read stat file for process "
-                                + std::to_string(pid), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            std::vector<std::string> stat_vec = geopm::string_split(stat_str, " ");
-            if (stat_vec.size() < 22) {
-                throw Exception("ApplicationSamplerImp::update_time_zero(): Failed to parser stat file for process "
-                                + std::to_string(pid), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            uint64_t clock_tick = stoull(stat_vec.at(21));
-            if (clock_tick < min_clock_tick) {
-                min_clock_tick = clock_tick;
-            }
-        }
-        double tick_per_sec = (double)sysconf(_SC_CLK_TCK);
-        double min_time_since_boot = min_clock_tick / tick_per_sec;
-
-        geopm_time_s mono_now;
-        geopm_time_s raw_now;
-
-        clock_gettime(CLOCK_MONOTONIC, &(mono_now.t));
-        clock_gettime(CLOCK_MONOTONIC_RAW, &(raw_now.t));
-
-        double raw_delta = geopm_time_diff(&mono_now, &raw_now);
-
-        geopm_time_s result = {{0, 0}};
-        geopm_time_add(&result, min_time_since_boot, &result);
-        geopm_time_add(&result, raw_delta, &result);
-        return result;
-    }
-
     void ApplicationSamplerImp::connect(const std::vector<int> &client_pids)
     {
         if (!m_status && m_do_profile) {
@@ -439,8 +434,6 @@ namespace geopm
             connect_status();
             m_process_map = connect_record_log(client_pids);
             m_client_cpu_map = update_client_cpu_map(client_pids);
-            geopm_time_s zero = update_time_zero(client_pids);
-            geopm::time_zero_reset(zero);
         }
     }
 
@@ -462,6 +455,16 @@ namespace geopm
             result.push_back(client_it.first);
         }
         return result;
+    }
+
+    bool ApplicationSamplerImp::do_shutdown(void) const
+    {
+        return m_do_shutdown;
+    }
+
+    double ApplicationSamplerImp::total_time(void) const
+    {
+        return m_total_time;
     }
 
     int ApplicationSamplerImp::sampler_cpu(void)
