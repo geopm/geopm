@@ -136,6 +136,7 @@ namespace geopm
                               std::vector<short_region_s> &short_regions) = 0;
             virtual void cpuset_changed(const geopm_time_s &time) = 0;
             virtual void start_profile(const geopm_time_s &time, std::string profile_name) = 0;
+            virtual void stop_profile(const geopm_time_s &time, std::string profile_name) = 0;
             /// @brief Gets the shared memory size requirement.
             ///
             /// This method returns the value to use when sizing the
@@ -180,6 +181,7 @@ namespace geopm
                       std::vector<short_region_s> &short_regions) override;
             void cpuset_changed(const geopm_time_s &time) override;
             void start_profile(const geopm_time_s &time, std::string profile_name) override;
+            void stop_profile(const geopm_time_s &time, std::string profile_name) override;
         private:
             struct m_layout_s {
                 int num_record;

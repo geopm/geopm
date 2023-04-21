@@ -74,6 +74,7 @@ namespace geopm
                                          const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                                          const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                          const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report) = 0;
+            virtual void total_time(double total) = 0;
     };
 
     class PlatformIO;
@@ -115,6 +116,7 @@ namespace geopm
                                  const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                                  const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                  const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report) override;
+            void total_time(double total) override;
 
         private:
             /// @brief number of spaces for each indentation
@@ -191,6 +193,7 @@ namespace geopm
             std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
             bool m_do_profile;
             bool m_do_init;
+            double m_total_time;
     };
 }
 

@@ -84,6 +84,7 @@ namespace geopm
         , m_epoch_count_idx(-1)
         , m_do_profile(do_profile)
         , m_do_init(true)
+        , m_total_time(0.0)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
         if (!m_rank) {
@@ -121,6 +122,11 @@ namespace geopm
         if (m_proc_region_agg != nullptr && m_do_profile) {
             m_proc_region_agg->update();
         }
+    }
+
+    void ReporterImp::total_time(double total)
+    {
+        m_total_time = total;
     }
 
     void ReporterImp::generate(const std::string &agent_name,
@@ -215,11 +221,6 @@ namespace geopm
                                            const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                            const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)
     {
-        geopm_time_s zero = geopm::time_zero();
-        geopm_time_s now;
-        geopm_time(&now);
-        double total_runtime = geopm_time_diff(&zero, &now);
-
         // per-host report
         std::ostringstream report;
         yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
@@ -285,7 +286,7 @@ namespace geopm
         // Do not add epoch or unmarked section if no application attached
         if (!std::isnan(epoch_count)) {
             yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
-            double unmarked_time = total_runtime -
+            double unmarked_time = m_total_time -
                                    total_marked_runtime;
             yaml_write(report, M_INDENT_UNMARKED_FIELD,
                        {{"runtime (s)", unmarked_time},
@@ -309,14 +310,14 @@ namespace geopm
 
         yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
         yaml_write(report, M_INDENT_TOTALS_FIELD,
-                   {{"runtime (s)", total_runtime},
+                   {{"runtime (s)", m_total_time},
                     {"count", 0}});
         auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
         // Controller overhead
         std::vector<std::pair<std::string, double> > overhead {
             {"geopmctl memory HWM (B)", max_memory},
-            {"geopmctl network BW (B/s)", comm_overhead / total_runtime}
+            {"geopmctl network BW (B/s)", comm_overhead / m_total_time}
         };
         yaml_write(report, M_INDENT_TOTALS_FIELD, overhead);
         return report.str();

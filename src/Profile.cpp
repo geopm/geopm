@@ -182,6 +182,9 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+        geopm_time_s end_time;
+        geopm_time(&end_time);
+        m_app_record_log->stop_profile(end_time, m_prof_name);
         m_service_proxy->platform_stop_profile(region_names());
 #ifdef GEOPM_OVERHEAD
         std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
