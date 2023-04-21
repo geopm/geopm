@@ -88,40 +88,41 @@ namespace geopm
         // service enabling save/restore by geopmd.  If the geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
-        register_plugin(MSRIOGroup::plugin_name(),
-                        MSRIOGroup::make_plugin);
-#ifdef GEOPM_ENABLE_SYSTEMD
         if (getuid() != 0) {
+#ifdef GEOPM_ENABLE_SYSTEMD
             register_plugin(ServiceIOGroup::plugin_name(),
                             ServiceIOGroup::make_plugin);
-        }
 #endif
+        }
+        else {
+            register_plugin(MSRIOGroup::plugin_name(),
+                            MSRIOGroup::make_plugin);
+            register_plugin(SSTIOGroup::plugin_name(),
+                            SSTIOGroup::make_plugin);
+#ifdef GEOPM_ENABLE_LEVELZERO
+            register_plugin(LevelZeroIOGroup::plugin_name(),
+                            LevelZeroIOGroup::make_plugin);
+#endif
+#ifdef GEOPM_ENABLE_DCGM
+            register_plugin(DCGMIOGroup::plugin_name(),
+                            DCGMIOGroup::make_plugin);
+#endif
+#ifdef GEOPM_ENABLE_NVML
+            register_plugin(NVMLIOGroup::plugin_name(),
+                            NVMLIOGroup::make_plugin);
+#endif
+        }
         register_plugin(TimeIOGroup::plugin_name(),
                         TimeIOGroup::make_plugin);
         register_plugin(CpuinfoIOGroup::plugin_name(),
                         CpuinfoIOGroup::make_plugin);
-        register_plugin(SSTIOGroup::plugin_name(),
-                        SSTIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
         register_plugin(CNLIOGroup::plugin_name(),
                         CNLIOGroup::make_plugin);
 #endif
-#ifdef GEOPM_ENABLE_DCGM
-        register_plugin(DCGMIOGroup::plugin_name(),
-                        DCGMIOGroup::make_plugin);
-#endif
-#ifdef GEOPM_ENABLE_NVML
-        register_plugin(NVMLIOGroup::plugin_name(),
-                        NVMLIOGroup::make_plugin);
-#endif
-#ifdef GEOPM_ENABLE_LEVELZERO
-        register_plugin(LevelZeroIOGroup::plugin_name(),
-                        LevelZeroIOGroup::make_plugin);
-#endif
         register_plugin(ConstConfigIOGroup::plugin_name(),
                         ConstConfigIOGroup::make_plugin);
     }
-
 
     IOGroupFactory &iogroup_factory(void)
     {
