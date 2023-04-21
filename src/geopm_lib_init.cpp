@@ -15,9 +15,11 @@ static void __attribute__((constructor)) geopm_lib_init(void)
 {
     if (geopm::environment().do_profile()) {
         try {
-            geopm::time_zero();
             std::string profile_name = geopm::environment().profile();
             geopm::PlatformIOProf::platform_io();
+            geopm_time_s zero;
+            geopm_time(&zero);
+            geopm::time_zero_reset(zero);
             geopm::Profile::default_profile();
         }
         catch (...) {
