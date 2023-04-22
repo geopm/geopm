@@ -93,6 +93,15 @@ namespace geopm
                         "The ProfileTracerImp::ProfileTracerImp() must be called prior to calling ProfileTracerImp::event_format()");
                     result = string_format_hex(m_application_sampler->get_short_region(value).hash);
                     break;
+                case EVENT_AFFINITY:
+                    result = string_format_integer(value);
+                    break;
+                case EVENT_START_PROFILE:
+                    result = string_format_hex(value);
+                    break;
+                case EVENT_STOP_PROFILE:
+                    result = string_format_hex(value);
+                    break;
                 default:
                     result = "INVALID";
                     GEOPM_DEBUG_ASSERT(false, "ProfileTracer::event_format(): event out of range");
