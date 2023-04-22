@@ -23,6 +23,8 @@ namespace geopm
             {EVENT_EPOCH_COUNT, "EPOCH_COUNT"},
             {EVENT_SHORT_REGION, "EVENT_SHORT_REGION"},
             {EVENT_AFFINITY, "EVENT_AFFINITY"},
+            {EVENT_START_PROFILE, "EVENT_START_PROFILE"},
+            {EVENT_STOP_PROFILE, "EVENT_STOP_PROFILE"},
         };
         auto it = event_names.find(event_type);
         if (it == event_names.end()) {
@@ -40,6 +42,8 @@ namespace geopm
             {"EPOCH_COUNT", EVENT_EPOCH_COUNT},
             {"EVENT_SHORT_REGION", EVENT_SHORT_REGION},
             {"EVENT_AFFINITY", EVENT_AFFINITY},
+            {"EVENT_START_PROFILE", EVENT_START_PROFILE},
+            {"EVENT_STOP_PROFILE", EVENT_STOP_PROFILE},
         };
         auto it = event_types.find(event_name);
         if (it == event_types.end()) {
