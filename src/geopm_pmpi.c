@@ -27,13 +27,19 @@
 #ifndef GEOPM_TEST
 int MPI_Init(int *argc, char **argv[])
 {
+    GEOPM_PMPI_ENTER_MACRO(__func__)
     int provided = 0;
-    return geopm_pmpi_init_thread(argc, argv, MPI_THREAD_SINGLE, &provided);
+    int result = geopm_pmpi_init_thread(argc, argv, MPI_THREAD_SINGLE, &provided);
+    GEOPM_PMPI_EXIT_MACRO
+    return result;
 }
 
 int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
-    return geopm_pmpi_init_thread(argc, argv, required, provided);
+    GEOPM_PMPI_ENTER_MACRO(__func__)
+    int result = geopm_pmpi_init_thread(argc, argv, required, provided);
+    GEOPM_PMPI_EXIT_MACRO
+    return result;
 }
 
 int MPI_Finalize(void)
