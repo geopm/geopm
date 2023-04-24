@@ -177,6 +177,25 @@ int FFNetAgentTest::construct_and_init(bool do_gpu)
     return num_gpu;
 }
 
+TEST_F(FFNetAgentTest, agent_name)
+{
+    construct_and_init(true);
+    EXPECT_EQ("ffnet", m_agent->plugin_name());
+    EXPECT_NE("bad_string", m_agent->plugin_name());
+}
+
+TEST_F(FFNetAgentTest, policy_names)
+{
+    std::vector<std::string> policy_names;
+
+    construct_and_init(true);
+    policy_names = m_agent->policy_names();
+    EXPECT_EQ((std::size_t)1, policy_names.size());
+    EXPECT_EQ("PERF_ENERGY_BIAS", policy_names.at(0));
+
+}
+
+
 // Test validate_policy: Accept all-nan policy
 TEST_F(FFNetAgentTest, validate_empty_policy)
 {

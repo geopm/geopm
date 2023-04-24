@@ -328,6 +328,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorTwoDTest.test_array_overload \
               test/gtest_links/TensorTwoDTest.test_input \
               test/gtest_links/TensorTwoDTest.test_degenerate_size \
+              test/gtest_links/TensorTwoDTest.test_set_data \
+              test/gtest_links/TensorTwoDTest.test_equality \
               test/gtest_links/TensorTwoDIntegrationTest.test_mat_prod \
               test/gtest_links/TensorTwoDIntegrationTest.test_bad_dimensions \
               test/gtest_links/TracerTest.columns \
@@ -379,6 +381,8 @@ if ENABLE_BETA
                    test/gtest_links/FFNetAgentTest.adjust_platform_all \
                    test/gtest_links/FFNetAgentTest.adjust_platform_nans \
                    test/gtest_links/FFNetAgentTest.adjust_platform_no_gpu \
+                   test/gtest_links/FFNetAgentTest.agent_name \
+                   test/gtest_links/FFNetAgentTest.policy_names \
                    test/gtest_links/FFNetAgentTest.sample_platform \
                    test/gtest_links/FFNetAgentTest.sample_platform_no_gpu \
                    test/gtest_links/FFNetAgentTest.trace_names \

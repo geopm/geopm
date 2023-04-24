@@ -8,11 +8,13 @@
 #include "geopm/Exception.hpp"
 
 #include "TensorTwoD.hpp"
+#include "geopm_test.hpp"
 
 #include <iostream>
 
 using geopm::TensorOneD;
 using geopm::TensorTwoD;
+using testing::Throw;
 
 class TensorTwoDIntegrationTest : public ::testing::Test
 {
@@ -49,6 +51,8 @@ TEST_F(TensorTwoDIntegrationTest, test_mat_prod) {
 
 TEST_F(TensorTwoDIntegrationTest, test_bad_dimensions) {
     row.set_dim(1, 2);
-    EXPECT_THROW(mat * row[0], geopm::Exception);
-    EXPECT_THROW(row.set_dim(0, 1), geopm::Exception);
+    GEOPM_EXPECT_THROW_MESSAGE(mat * row[0], GEOPM_ERROR_INVALID,
+                               "Attempted to multiply matrix and vector with incompatible dimensions.");
+    GEOPM_EXPECT_THROW_MESSAGE(row.set_dim(0, 1), GEOPM_ERROR_INVALID,
+                               "Tried to allocate degenerate matrix.");
 }

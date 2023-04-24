@@ -30,7 +30,6 @@ using geopm::MockNNFactory;
 using ::testing::ByMove;
 using ::testing::ElementsAre;
 using ::testing::Mock;
-using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::_;
 
@@ -41,7 +40,7 @@ class DomainNetMapTest : public ::testing::Test
         void TearDown() override;
 
         const std::string M_FILENAME = "domain_net_map_test.json";
-        std::shared_ptr<NiceMock<MockNNFactory>> m_fake_nn_factory;
+        std::shared_ptr<MockNNFactory> m_fake_nn_factory;
         MockPlatformIO m_fake_plat_io;
         std::shared_ptr<MockTensorMath> m_fake_math;
         std::shared_ptr<MockLocalNeuralNet> m_fake_nn;
@@ -54,7 +53,7 @@ class DomainNetMapTest : public ::testing::Test
 
 void DomainNetMapTest::SetUp()
 {
-    m_fake_nn_factory = std::make_shared<NiceMock<MockNNFactory>>();
+    m_fake_nn_factory = std::make_shared<MockNNFactory>();
     m_fake_math = std::make_shared<MockTensorMath>();
     m_fake_nn = std::make_shared<MockLocalNeuralNet>();
 
@@ -261,6 +260,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         EXPECT_CALL(*m_fake_nn, get_input_dim()).Times(1);
         EXPECT_CALL(*m_fake_nn, get_output_dim()).Times(0);
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -269,6 +279,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "must have a key \"trace_outputs\" whose value is an array");
+
+        // reset the mock
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 
     // mismatched input dimensions
@@ -283,6 +296,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
 
 	EXPECT_CALL(*m_fake_nn, get_input_dim()).Times(1);
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -291,6 +315,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "input dimension must match the number of signal and delta inputs");
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 
     // mismatched output dimensions
@@ -306,6 +331,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         EXPECT_CALL(*m_fake_nn, get_input_dim()).WillOnce(Return(3));
         EXPECT_CALL(*m_fake_nn, get_output_dim()).WillOnce(Return(2));
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -314,6 +350,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "output dimension must match the number of trace outputs");
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 
     // invalid signal_inputs values
@@ -334,6 +371,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         EXPECT_CALL(*m_fake_nn, get_input_dim()).WillOnce(Return(3));
         EXPECT_CALL(*m_fake_nn, get_output_dim()).WillOnce(Return(5));
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -342,6 +390,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "signal inputs must be strings");
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 
     // invalid delta_inputs values
@@ -363,6 +412,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         EXPECT_CALL(*m_fake_nn, get_output_dim()).WillOnce(Return(5));
         EXPECT_CALL(m_fake_plat_io, push_signal("A", _, _)).WillOnce(Return(0));
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -371,6 +431,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "delta inputs must be tuples of strings");
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
     
     // invalid delta_inputs values
@@ -392,6 +453,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         EXPECT_CALL(*m_fake_nn, get_output_dim()).WillOnce(Return(5));
         EXPECT_CALL(m_fake_plat_io, push_signal("A", _, _)).WillOnce(Return(0));
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -400,6 +472,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "delta inputs must be tuples of strings");
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 
     // invalid trace_outputs values
@@ -425,6 +498,17 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         EXPECT_CALL(m_fake_plat_io, push_signal("D", _, _)).WillOnce(Return(3));
         EXPECT_CALL(m_fake_plat_io, push_signal("E", _, _)).WillOnce(Return(4));
 
+        EXPECT_CALL(*m_fake_nn_factory, createTensorTwoD(m_weight_vals))
+            .WillOnce(Return(m_weights));
+        EXPECT_CALL(*m_fake_nn_factory, createTensorOneD(_))
+            .WillOnce(Return(m_biases));
+        EXPECT_CALL(*m_fake_nn_factory,
+                createDenseLayer(TensorTwoDEqualTo(m_weights),
+                    TensorOneDEqualTo(m_biases)))
+            .WillOnce(Return(m_fake_layer));
+        EXPECT_CALL(*m_fake_nn_factory, createLocalNeuralNet(ElementsAre(m_fake_layer)))
+            .WillOnce(Return(m_fake_nn));
+
         GEOPM_EXPECT_THROW_MESSAGE(
                 DomainNetMapImp(M_FILENAME,
                     GEOPM_DOMAIN_PACKAGE,
@@ -433,6 +517,7 @@ TEST_F(DomainNetMapTest, test_json_parsing)
                     m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "trace outputs must be strings");
+        Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 }
 
