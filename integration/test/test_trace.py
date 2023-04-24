@@ -67,7 +67,7 @@ class TestIntegration_trace(unittest.TestCase):
             # Check that app total runtime matches the timestamps from trace
             app_totals = report_output.raw_totals(host_name=nn)
             util.assertNear(self, trace.iloc[-1]['TIME'] - trace.iloc[0]['TIME'],
-                            app_totals['runtime (s)'],
+                            app_totals['sync-runtime (s)'],
                             msg='Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
