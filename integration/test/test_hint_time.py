@@ -88,8 +88,8 @@ class TestIntegration_hint_time(unittest.TestCase):
 
         if not cls._skip_launch:
             # Set the job size parameters
-            cls._num_node = 1
-            num_rank = 1
+            cls._num_node = 4
+            num_rank = 4
             time_limit = 60
             # Configure the test application
             app_conf = AppConf()
@@ -103,6 +103,7 @@ class TestIntegration_hint_time(unittest.TestCase):
                                                         time_limit=time_limit)
             launcher.set_num_node(cls._num_node)
             launcher.set_num_rank(num_rank)
+            launcher.set_pmpi_ctl('application')
             # Run the test application
             launcher.run('test_' + cls._test_name)
         cls._report = geopmpy.io.RawReport(cls._report_path)
@@ -145,6 +146,7 @@ class TestIntegration_hint_time(unittest.TestCase):
                     util.assertNear(self, expect, actual, msg=msg)
             self.assertTrue(found_nw)
             self.assertTrue(found_nw_mem)
+            init_time = self._report.raw_region(host_name=host, region_name="MPI_Init")['runtime (s)']
             raw_totals = self._report.raw_totals(host_name=host)
             msg = "Application totals should have three seconds of network time"
             expect = 3.0
@@ -155,7 +157,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             actual = raw_totals['time-hint-memory (s)']
             util.assertNear(self, expect, actual, msg=msg)
             msg = "Application totals should have nine seconds of total time"
-            expect = 9.0
+            expect = 9.0 + init_time
             actual = raw_totals['runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
 
