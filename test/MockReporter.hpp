@@ -34,6 +34,7 @@ class MockReporter : public geopm::Reporter
                      (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
                      (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
                     (override));
+        MOCK_METHOD(void, total_time, (double total), (override));
 };
 
 #endif
