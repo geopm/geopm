@@ -39,6 +39,7 @@ class ProfileTracerTest : public ::testing::Test
 
 void ProfileTracerTest::SetUp(void)
 {
+    geopm::time_zero_reset({{0, 0}});
     uint64_t region_hash = 0x00000000fa5920d6ULL;
     geopm_time_s time = {{10, 0}};
     int event = geopm::EVENT_REGION_ENTRY;

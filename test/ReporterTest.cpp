@@ -489,6 +489,7 @@ TEST_F(ReporterTest, generate)
     std::istringstream exp_stream(expected);
 
     m_reporter->update();
+    m_reporter->total_time(56.0);
     m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
                          m_application_io,
                          m_comm, m_tree_comm);
@@ -530,6 +531,7 @@ TEST_F(ReporterTest, generate_conditional)
                                                  true,
                                                  true);
     m_reporter->init();
+    m_reporter->total_time(56.0);
 
     for (auto rid : m_region_energy) {
         EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_GPU_IDX, rid.first))
