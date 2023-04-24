@@ -24,16 +24,21 @@ determines the degree to which the frequency recommender is adverse to potential
 reducing performance by reducing frequency to save energy.
 
 The neural net for region classification must be provided in a json configuration
-file, which must comply with the following schema:
+file pointed to by environment variables GEOPM_CPU_NN_PATH and/or GEOPM_GPU_NN_PATH, 
+which must comply with the following schema:
 
 .. literalinclude:: ../../../json_schemas/domainnetmap_neural_net.schema.json
     :language: json
 
 The per-region frequency recommendations must be provided in a json configuration
-file, which must comply with the following schema:
+file pointed to by environment variables GEOPM_CPU_FMAP_PATH and/or GEOPM_GPU_FMAP_PATH, 
+which must comply with the following schema:
 
 .. literalinclude:: ../../../json_schemas/regionhintrecommender_fmap.schema.json
     :language: json
+
+If you specify a neural net for a domain (CPU/GPU), you must specify a frequency 
+recommendation as well.
 
 This agent can be used at the package scope to control CPU frequency
 and/or at the per-GPU scope to control GPU frequency.
