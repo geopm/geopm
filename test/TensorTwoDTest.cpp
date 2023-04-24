@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm/Exception.hpp"
@@ -13,6 +15,7 @@
 #include "MockTensorMath.hpp"
 #include "TensorOneDMatcher.hpp"
 #include "TensorTwoDMatcher.hpp"
+#include "geopm_test.hpp"
 
 using ::testing::Mock;
 using ::testing::Return;
@@ -20,6 +23,7 @@ using ::testing::_;
 
 using geopm::TensorOneD;
 using geopm::TensorTwoD;
+using testing::Throw;
 
 class TensorTwoDTest : public ::testing::Test
 {
@@ -126,11 +130,34 @@ TEST_F(TensorTwoDTest, test_copy) {
 TEST_F(TensorTwoDTest, test_bad_dimensions)
 {
     std::vector<std::vector<double> > vals = {{1}, {2, 3}};
-    EXPECT_THROW(new TensorTwoD(vals), geopm::Exception);  // TODO - new?
+    GEOPM_EXPECT_THROW_MESSAGE(new TensorTwoD(vals), GEOPM_ERROR_INVALID,
+                               "Attempt to load non-rectangular matrix.");
 }
 
 TEST_F(TensorTwoDTest, test_empty_weights)
 {
     std::vector<std::vector<double> > vals = {};
-    EXPECT_THROW(new TensorTwoD(vals), geopm::Exception);  // TODO - new?
+    GEOPM_EXPECT_THROW_MESSAGE(new TensorTwoD(vals), GEOPM_ERROR_INVALID,
+                               "Empty array is invalid for neural network weights.");
+}
+
+TEST_F(TensorTwoDTest, test_set_data)
+{
+    TensorTwoD xx(2, 3);
+    std::vector<TensorOneD> vals_bad = {TensorOneD({1}), TensorOneD({2, 3})};
+    std::vector<TensorOneD> vals_good = {TensorOneD({1, 4}), TensorOneD({2, 3})};
+    GEOPM_EXPECT_THROW_MESSAGE(xx.set_data(vals_bad), GEOPM_ERROR_INVALID,
+                               "Attempt to load non-rectangular matrix.");
+
+    xx.set_data(vals_good);
+    EXPECT_THAT(xx, TensorTwoDMatcher(vals_good));
+}
+
+TEST_F(TensorTwoDTest, test_equality)
+{
+    TensorTwoD xx({{1, 2}, {3, 4}});
+    TensorTwoD yy({{1, 2}, {3, 4}});
+    TensorTwoD zz({{1, 2}, {3, 4}, {5, 6}});
+    EXPECT_EQ(true, xx == yy);
+    EXPECT_EQ(false, xx == zz);
 }
