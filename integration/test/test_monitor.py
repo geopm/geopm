@@ -90,13 +90,15 @@ class TestIntegration_monitor(unittest.TestCase):
 
         '''
         for node in self._node_names:
+            init_data = self._report.raw_region(node, 'MPI_Init')
             spin_data = self._report.raw_region(node, 'spin')
             sleep_data = self._report.raw_region(node, 'sleep')
             unmarked_data = self._report.raw_unmarked(node)
             app_total = self._report.raw_totals(node)
             util.assertNear(self, self._loop_count * self._spin_bigo, spin_data['runtime (s)'])
             util.assertNear(self, self._loop_count * self._sleep_bigo, sleep_data['runtime (s)'])
-            total_runtime = (spin_data['runtime (s)'] +
+            total_runtime = (init_data['runtime (s)'] +
+                             spin_data['runtime (s)'] +
                              sleep_data['runtime (s)'] +
                              unmarked_data['runtime (s)'])
             util.assertNear(self, total_runtime, app_total['runtime (s)'])
