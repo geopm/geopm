@@ -105,6 +105,7 @@ class TestIntegration_monitor(unittest.TestCase):
 
     def test_runtime_epoch(self):
         '''Test that region and epoch total runtimes match.'''
+        initial_sleep_time = 5.0
         for node in self._node_names:
             spin_data = self._report.raw_region(node, 'spin')
             sleep_data = self._report.raw_region(node, 'sleep')
@@ -112,7 +113,8 @@ class TestIntegration_monitor(unittest.TestCase):
             epoch_data = self._report.raw_epoch(node)
             total_runtime = (spin_data['runtime (s)'] +
                              sleep_data['runtime (s)'] +
-                             unmarked_data['runtime (s)'])
+                             unmarked_data['runtime (s)'] -
+                             initial_sleep_time)
             util.assertNear(self, total_runtime, epoch_data['runtime (s)'])
 
     def test_epoch_data_valid(self):
@@ -131,8 +133,12 @@ class TestIntegration_monitor(unittest.TestCase):
             self.assertGreater(epoch['frequency (Hz)'], 0)
             self.assertEqual(epoch['count'], self._loop_count)
 
-            for signal in ['runtime (s)', 'package-energy (J)', 'dram-energy (J)']:
-                util.assertNear(self, totals[signal], epoch[signal], msg='signal={}'.format(signal))
+            init_time = self._report.raw_region(node, 'MPI_Init')['runtime (s)']
+            initial_sleep_time = 5.0
+            total_sync_time = epoch['sync-runtime (s)'] + init_time + initial_sleep_time
+            util.assertNear(self, total_sync_time, totals['sync-runtime (s)'])
+            for signal in ['sync-runtime (s)', 'package-energy (J)', 'dram-energy (J)']:
+                self.assertGreater(totals[signal], epoch[signal], msg='signal={}'.format(signal))
 
             util.assertNear(self, epoch['runtime (s)'], epoch['sync-runtime (s)'])
 
