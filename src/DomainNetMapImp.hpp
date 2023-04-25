@@ -71,7 +71,7 @@ namespace geopm
             };
 
             static const std::vector<std::string> M_EXPECTED_KEYS;
-            static constexpr int M_MAX_NNET_SIZE = 1024;
+            static constexpr int M_MAX_NNET_SIZE_B = 1024 * 1024;
             std::shared_ptr<LocalNeuralNet> m_neural_net;
 
             TensorOneD m_last_output;
