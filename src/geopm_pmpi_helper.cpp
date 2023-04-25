@@ -111,10 +111,14 @@ extern "C" {
 #ifndef GEOPM_TEST
 static int geopm_pmpi_init(const char *exec_name)
 {
+    geopm::Profile::default_profile().reset_cpu_set();
+    uint64_t init_rid = geopm_mpi_func_rid("MPI_Init");
+    geopm_mpi_region_enter(init_rid);
+
+    int do_profile = 0;
     int rank;
     int err = 0;
     int pmpi_ctl = 0;
-    int do_profile = 0;
     g_geopm_comm_world_swap_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
     g_geopm_comm_world_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
     PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -212,9 +216,6 @@ static int geopm_pmpi_init(const char *exec_name)
         if (!err) {
             err = geopm_env_do_profile(&do_profile);
         }
-        if (!err && do_profile) {
-            geopm::Profile::default_profile().reset_cpu_set();
-        }
 #ifdef GEOPM_DEBUG
         if (err) {
             char err_msg[PATH_MAX];
@@ -223,6 +224,7 @@ static int geopm_pmpi_init(const char *exec_name)
         }
 #endif
     }
+    geopm_mpi_region_exit(init_rid);
     return err;
 }
 
