@@ -7,6 +7,7 @@
 #define FFNETAGENT_HPP_INCLUDE
 
 #include <vector>
+#include <string>
 
 #include "Agent.hpp"
 #include "geopm_time.h"
@@ -83,6 +84,7 @@ namespace geopm
             };
 
             static bool is_all_nan(const std::vector<double> &vec);
+            static std::string get_env_value(const std::string &env_var);
             void init_domain_indices(const PlatformTopo &topo);
 
             PlatformIO &m_platform_io;
@@ -101,8 +103,8 @@ namespace geopm
             std::vector<geopm_domain_e> m_domain_types;
             std::vector<domain_key_s> m_domains;
 
-            static const std::map<geopm_domain_e, const char *> M_NNET_ENVNAME;
-            static const std::map<geopm_domain_e, const char *> M_FREQMAP_ENVNAME;
+            static const std::map<geopm_domain_e, std::string> M_NNET_ENVNAME;
+            static const std::map<geopm_domain_e, std::string> M_FREQMAP_ENVNAME;
             static const std::map<geopm_domain_e, std::string> M_MAX_FREQ_SIGNAL_NAME;
             static const std::map<geopm_domain_e, std::string> M_MIN_FREQ_SIGNAL_NAME;
             static const std::map<geopm_domain_e, std::string> M_MAX_FREQ_CONTROL_NAME;

@@ -20,21 +20,15 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 
-// TODO: remove
-#include "DomainNetMapImp.hpp"
-#include "RegionHintRecommenderImp.hpp"
-
-#include <string>
-
 namespace geopm
 {
-    const std::map<geopm_domain_e, const char *> FFNetAgent::M_NNET_ENVNAME = 
+    const std::map<geopm_domain_e, std::string> FFNetAgent::M_NNET_ENVNAME =
             {
                 {GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_NN_PATH"},
                 {GEOPM_DOMAIN_GPU, "GEOPM_GPU_NN_PATH"}
             };
 
-    const std::map<geopm_domain_e, const char *> FFNetAgent::M_FREQMAP_ENVNAME = 
+    const std::map<geopm_domain_e, std::string> FFNetAgent::M_FREQMAP_ENVNAME =
             {
                 {GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_FMAP_PATH"},
                 {GEOPM_DOMAIN_GPU, "GEOPM_GPU_FMAP_PATH"}
@@ -69,6 +63,7 @@ namespace geopm
                 {GEOPM_DOMAIN_GPU, "_gpu_"}
             };
 
+
     FFNetAgent::FFNetAgent()
         : FFNetAgent(platform_io(), platform_topo(), {}, {})
     {
@@ -85,7 +80,6 @@ namespace geopm
             )
         : m_platform_io(plat_io)
           , m_last_wait{{0, 0}}
-          //, M_WAIT_SEC(0.020) // 20ms Wait
           , m_do_write_batch(false)
           , m_perf_energy_bias(0)
     {
@@ -95,7 +89,7 @@ namespace geopm
         if (freq_recommender.empty()) {
             for (geopm_domain_e domain_type : m_domain_types) {
                 m_freq_recommender[domain_type] = RegionHintRecommender::make_shared(
-                        getenv(M_FREQMAP_ENVNAME.at(domain_type)),
+                        get_env_value(M_FREQMAP_ENVNAME.at(domain_type)),
                         m_platform_io.read_signal(
                             M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
                             GEOPM_DOMAIN_BOARD,
@@ -114,7 +108,7 @@ namespace geopm
         if (net_map.empty()) {
             for (const domain_key_s domain_key : m_domains) {
                 m_net_map[domain_key] = DomainNetMap::make_shared(
-                                getenv(M_NNET_ENVNAME.at(domain_key.type)),
+                                get_env_value(M_NNET_ENVNAME.at(domain_key.type)),
                                 domain_key.type,
                                 domain_key.index);
             }
@@ -355,5 +349,17 @@ namespace geopm
     {
         return std::all_of(vec.begin(), vec.end(),
                            [](double x) -> bool { return std::isnan(x); });
+    }
+
+    std::string FFNetAgent::get_env_value(const std::string &env_var)
+    {
+        char *value = getenv(env_var.c_str());
+        if (!value) {
+            throw Exception("FFNetAgent::" + std::string(__func__) +
+                            "(): environment variable not set: " + env_var  + ".",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        return std::string(value);
     }
 }

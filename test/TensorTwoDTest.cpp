@@ -5,6 +5,8 @@
 
 #include "config.h"
 
+#include <initializer_list>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm/Exception.hpp"
@@ -144,7 +146,8 @@ TEST_F(TensorTwoDTest, test_empty_weights)
 TEST_F(TensorTwoDTest, test_set_data)
 {
     TensorTwoD xx(2, 3);
-    std::vector<TensorOneD> vals_bad = {TensorOneD({1}), TensorOneD({2, 3})};
+    std::vector<TensorOneD> vals_bad = {TensorOneD(std::initializer_list<double>{1}),
+                                        TensorOneD({2, 3})};
     std::vector<TensorOneD> vals_good = {TensorOneD({1, 4}), TensorOneD({2, 3})};
     GEOPM_EXPECT_THROW_MESSAGE(xx.set_data(vals_bad), GEOPM_ERROR_INVALID,
                                "Attempt to load non-rectangular matrix.");

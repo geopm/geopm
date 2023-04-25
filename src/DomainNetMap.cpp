@@ -57,7 +57,7 @@ namespace geopm
 
         if (!file) {
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
-                            ": Unable to open neural net file.",
+                            ": Unable to open neural net file: " + nn_path + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -65,7 +65,7 @@ namespace geopm
         std::streampos length = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        if (length >= M_MAX_NNET_SIZE) {
+        if (length >= M_MAX_NNET_SIZE_B) {
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
                             ": Neural net file exceeds maximum size.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
