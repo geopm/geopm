@@ -14,9 +14,14 @@
 
 namespace geopm
 {
-    std::unique_ptr<DenseLayer> DenseLayer::make_unique(const TensorTwoD &weights, const TensorOneD &biases)
+    std::unique_ptr<DenseLayer> DenseLayer::make_unique(const TensorTwoD &weights,
+                                                        const TensorOneD &biases)
     {
         return geopm::make_unique<DenseLayerImp>(weights, biases);
+    }
+
+    TensorOneD DenseLayer::operator()(const TensorOneD &input) const {
+        return forward(input);
     }
 
     DenseLayerImp::DenseLayerImp(const DenseLayerImp &other)
@@ -26,7 +31,7 @@ namespace geopm
 
     DenseLayerImp::DenseLayerImp(const TensorTwoD &weights, const TensorOneD &biases) 
 	    : m_weights(weights)
-	      , m_biases(biases)
+	    , m_biases(biases)
     {
         if (weights.get_rows() == 0 && weights.get_cols() == 0) {
             throw Exception("DenseLayerImp::" + std::string(__func__) +

@@ -23,9 +23,9 @@ namespace geopm
         public:
             TensorTwoD();
             /// @brief Constructor setting dimensions
-            TensorTwoD(std::size_t rows, std::size_t cols);
+            TensorTwoD(size_t rows, size_t cols);
             /// @brief Test constructor
-            TensorTwoD(std::size_t rows, std::size_t cols, std::shared_ptr<TensorMath> math);
+            TensorTwoD(size_t rows, size_t cols, std::shared_ptr<TensorMath> math);
             /// @brief Copy constructor using a deep copy
             ///
             /// @param [in] TensorTwoD& 2D Tensor to copy
@@ -34,19 +34,19 @@ namespace geopm
             TensorTwoD(TensorTwoD &&other);
             /// @brief Constructor input from a vector of vectors of values.
             ///
-            /// @param [in] input std::vector<std::vector<double>> instance
+            /// @param [in] input std::vector<std::vector<double> > instance
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(const std::vector<std::vector<double>> &input);
+            TensorTwoD(const std::vector<std::vector<double> > &input);
             /// @brief Constructor input from a vector of vectors of values.
             ///
-            /// @param [in] input std::vector<std::vector<double>> instance
+            /// @param [in] input std::vector<std::vector<double> > instance
             /// @param [in] math  TensorMath instance
             ///
             /// @throws geopm::Exception if input is not rectangular or
             /// if input is empty.
-            TensorTwoD(const std::vector<std::vector<double>> &input,
+            TensorTwoD(const std::vector<std::vector<double> > &input,
                        std::shared_ptr<TensorMath> math);
             /// @brief Constructor input from a vector of 1D tensors.
             ///
@@ -66,11 +66,11 @@ namespace geopm
             /// @brief Get number of rows in the 2D tensor
             ///
             /// @return Number of rows of the 2D tensor
-            std::size_t get_rows() const;
+            size_t get_rows() const;
             /// @brief get number of columns in 2D tensor
             ///
             /// @return Number of columns in the 2D tensor
-            std::size_t get_cols() const;
+            size_t get_cols() const;
             /// @brief Set dimensions of 2D tensor
             ///
             /// @param [in] rows The number of "rows" or 1D tensors
@@ -83,7 +83,7 @@ namespace geopm
             /// will be managed similarly.
             ///
             /// @throws geopm::Exception if \p rows = 0 and \p cols > 0
-            void set_dim(std::size_t rows, std::size_t cols);
+            void set_dim(size_t rows, size_t cols);
             /// @brief Multiply a 2D tensor by a 1D tensor
             ///
             /// @param [in] TensorOneD& Reference to the multiplicand

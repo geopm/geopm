@@ -309,9 +309,11 @@ GEOPM Options
                       :doc:`geopm_agent_power_balancer(7)
                       <geopm_agent_power_balancer.7>`,
                       :doc:`geopm_agent_power_governor(7)
-                      <geopm_agent_power_governor.7>`, and
+                      <geopm_agent_power_governor.7>`,
                       :doc:`geopm_agent_frequency_map(7)
-                      <geopm_agent_frequency_map.7>` for descriptions of each
+                      <geopm_agent_frequency_map.7>` and
+                      :doc:`geopm_agent_ffnet(7)
+                      <geopm_agent_ffnet.7>` for descriptions of each
                       agent.
 
                       For more details on the responsibilities of an agent,

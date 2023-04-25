@@ -83,7 +83,7 @@ namespace geopm
     TensorOneD TensorMathImp::sigmoid(const TensorOneD &tensor) const
     {
         TensorOneD rval(tensor.get_dim());
-        for (std::size_t idx = 0; idx < tensor.get_dim(); ++idx) {
+        for (size_t idx = 0; idx < tensor.get_dim(); ++idx) {
             rval[idx] = 1/(1 + expf(-tensor[idx]));
         }
         return rval;

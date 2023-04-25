@@ -36,26 +36,25 @@ namespace geopm
         return std::make_shared<DomainNetMapImp>(nn_path, domain_type, domain_index);
     }
 
-    DomainNetMapImp::DomainNetMapImp(
-            const std::string &nn_path,
-            geopm_domain_e domain_type,
-            int domain_index)
+    DomainNetMapImp::DomainNetMapImp(const std::string &nn_path,
+                                     geopm_domain_e domain_type,
+                                     int domain_index)
         : DomainNetMapImp(nn_path, domain_type, domain_index, platform_io(),
-                          NNFactory::make_shared()) {
+                          NNFactory::make_shared())
+    {
     }
 
-    DomainNetMapImp::DomainNetMapImp(
-            const std::string &nn_path,
-            geopm_domain_e domain_type,
-            int domain_index,
-            PlatformIO &plat_io,
-            std::shared_ptr<NNFactory> nn_factory)
+    DomainNetMapImp::DomainNetMapImp(const std::string &nn_path,
+                                     geopm_domain_e domain_type,
+                                     int domain_index,
+                                     PlatformIO &plat_io,
+                                     std::shared_ptr<NNFactory> nn_factory)
         : m_platform_io(plat_io)
-          , m_nn_factory(nn_factory)
+        , m_nn_factory(nn_factory)
     {
         std::ifstream file(nn_path);
 
-        if (!file) {
+        if (!file.is_open()) {
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
                             ": Unable to open neural net file: " + nn_path + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -65,7 +64,7 @@ namespace geopm
         std::streampos length = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        if (length >= M_MAX_NNET_SIZE_B) {
+        if (length >= M_MAX_NNET_SIZE) {
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
                             ": Neural net file exceeds maximum size.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -140,7 +139,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         
-        std::vector<std::shared_ptr<DenseLayer>> layers;
+        std::vector<std::shared_ptr<DenseLayer> > layers;
         for (const auto &layer : nnet_json["layers"].array_items()) {
             layers.push_back(json_to_DenseLayer(layer));
         }
@@ -175,31 +174,26 @@ namespace geopm
                                 ": Neural net signal inputs must be strings.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            m_signal_inputs.push_back({
-                    m_platform_io.push_signal(
-                            input.string_value(),
-                            domain_type,
-                            domain_index),
-                    NAN});
+            m_signal_inputs.push_back({m_platform_io.push_signal(input.string_value(),
+                                                                 domain_type,
+                                                                 domain_index),
+                                       NAN});
         }
 
         for (const auto &input : delta_it->second.array_items()) {
-            if (!input.is_array() || input.array_items().size() != 2
-                || !input[0].is_string() || !input[1].is_string()) {
+            if (!input.is_array() || input.array_items().size() != 2 ||
+                !input[0].is_string() || !input[1].is_string()) {
                 throw Exception("DomainNetMapImp::" + std::string(__func__) + 
                                 ": Neural net delta inputs must be tuples of strings.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            m_delta_inputs.push_back({
-                    m_platform_io.push_signal(
-                            input[0].string_value(),
-                            domain_type,
-                            domain_index),
-                    m_platform_io.push_signal(
-                            input[1].string_value(),
-                            domain_type,
-                            domain_index),
-                    NAN, NAN, NAN, NAN});
+            m_delta_inputs.push_back({m_platform_io.push_signal(input[0].string_value(),
+                                                                domain_type,
+                                                                domain_index),
+                                      m_platform_io.push_signal(input[1].string_value(),
+                                                                domain_type,
+                                                                domain_index),
+                                      NAN, NAN, NAN, NAN});
         }
 
         for (const auto &output : nnet_json["trace_outputs"].array_items()) {
@@ -212,7 +206,8 @@ namespace geopm
         }
     }
 
-    std::shared_ptr<DenseLayer> DomainNetMapImp::json_to_DenseLayer(const json11::Json &obj) const {
+    std::shared_ptr<DenseLayer> DomainNetMapImp::json_to_DenseLayer(const json11::Json &obj) const
+    {
         if (!obj.is_array()) {
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
                             ": Neural network weights contains non-array-type.",
@@ -230,7 +225,8 @@ namespace geopm
         return m_nn_factory->createDenseLayer(weights, biases);
     }
 
-    TensorOneD DomainNetMapImp::json_to_TensorOneD(const json11::Json &obj) const {
+    TensorOneD DomainNetMapImp::json_to_TensorOneD(const json11::Json &obj) const
+    {
         if (!obj.is_array()) {
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
                             ": Neural network weights contains non-array-type.",
@@ -243,10 +239,10 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::size_t vec_size = obj.array_items().size();
+        size_t vec_size = obj.array_items().size();
         std::vector<double> vals(vec_size);
 
-        for (std::size_t idx = 0; idx < vec_size; ++idx) {
+        for (size_t idx = 0; idx < vec_size; ++idx) {
             if (!obj[idx].is_number()) {
                 throw Exception("DomainNetMapImp::" + std::string(__func__) +
                                 ": Non-numeric type found in neural network weights.",
@@ -258,7 +254,8 @@ namespace geopm
         return m_nn_factory->createTensorOneD(vals);
     }
 
-    TensorTwoD DomainNetMapImp::json_to_TensorTwoD(const json11::Json &obj) const {
+    TensorTwoD DomainNetMapImp::json_to_TensorTwoD(const json11::Json &obj) const
+    {
         if (!obj.is_array()){
             throw Exception("DomainNetMapImp::" + std::string(__func__) +
                             ": Neural network weights is non-array-type.",
@@ -271,16 +268,16 @@ namespace geopm
         }
 
         std::vector<std::vector<double> > vals;
-        for (std::size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
+        for (size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
             if (!obj[ridx].is_array()) {
                 throw Exception("DomainNetMapImp::" + std::string(__func__) +
                                 ": Neural network weights is non-array-type.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            std::size_t vec_size = obj[ridx].array_items().size();
+            size_t vec_size = obj[ridx].array_items().size();
             std::vector<double> row(vec_size);
 
-            for (std::size_t cidx = 0; cidx < vec_size; ++cidx) {
+            for (size_t cidx = 0; cidx < vec_size; ++cidx) {
                 if (!obj[ridx][cidx].is_number()) {
                     throw Exception("DomainNetMapImp::" + std::string(__func__) +
                                     ": Non-numeric type found in neural network weights.",
@@ -309,10 +306,8 @@ namespace geopm
             input.signal_den_last = input.signal_den;
             input.signal_num = m_platform_io.sample(input.batch_idx_num);
             input.signal_den = m_platform_io.sample(input.batch_idx_den);
-            xs.push_back(
-                (input.signal_num - input.signal_num_last) /
-                (input.signal_den - input.signal_den_last)
-            );
+            xs.push_back((input.signal_num - input.signal_num_last) /
+                         (input.signal_den - input.signal_den_last));
         }
 
         m_last_output = m_neural_net->forward(m_nn_factory->createTensorOneD(xs));
@@ -325,9 +320,8 @@ namespace geopm
 
     std::vector<double> DomainNetMapImp::trace_values() const
     {
-        std::vector<double> rval(
-                m_last_output.get_data().begin(),
-                m_last_output.get_data().end());
+        std::vector<double> rval(m_last_output.get_data().begin(),
+                                 m_last_output.get_data().end());
         return rval;
     }
 
@@ -335,7 +329,7 @@ namespace geopm
     {
         std::map<std::string, double> rval;
 
-        for (std::size_t idx=0; idx<m_last_output.get_dim(); ++idx) {
+        for (size_t idx=0; idx<m_last_output.get_dim(); ++idx) {
             rval[m_trace_outputs.at(idx)] = m_last_output[idx];
         }
 

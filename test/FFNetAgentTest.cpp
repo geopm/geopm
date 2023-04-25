@@ -44,12 +44,10 @@ using geopm::FFNetAgent;
 using geopm::PlatformTopo;
 using geopm::DomainNetMap;
 using geopm::RegionHintRecommender;
-using geopm::MockDomainNetMap;
-using geopm::MockRegionHintRecommender;
 using testing::Throw;
 using json11::Json;
 
-class FFNetAgentTest: public :: testing :: Test
+class FFNetAgentTest : public ::testing::Test
 {
     protected:
         enum mock_pio_idx_e {
@@ -71,7 +69,7 @@ class FFNetAgentTest: public :: testing :: Test
 
         std::vector<double> m_default_policy = {0.5};
         const std::map<std::string, double> M_REGION_CLASS = {{"dgemm", 0.75},
-                                                              {"stream",0.25}};
+                                                              {"stream", 0.25}};
     
         std::unique_ptr<FFNetAgent> m_agent;
         std::unique_ptr<MockPlatformIO> m_platform_io;

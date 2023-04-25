@@ -6,8 +6,10 @@
 #ifndef FFNETAGENT_HPP_INCLUDE
 #define FFNETAGENT_HPP_INCLUDE
 
+#include <cstdint>
 #include <vector>
 #include <string>
+#include <utility>
 
 #include "Agent.hpp"
 #include "geopm_time.h"
@@ -34,13 +36,10 @@ namespace geopm
             };
 
             FFNetAgent();
-            FFNetAgent(
-                    PlatformIO &plat_io,
-                    const PlatformTopo &topo,
-                    const std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> >
-                        &net_map,
-                    const std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> >
-                        &freq_recommender
+            FFNetAgent(PlatformIO &plat_io,
+                       const PlatformTopo &topo,
+                       const std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> > &net_map,
+                       const std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > &freq_recommender
             );
             virtual ~FFNetAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -70,14 +69,14 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
 
         private:
-            struct domain_key_s {
+            struct m_domain_key_s {
                 geopm_domain_e type;
                 int index;
-                bool operator<(const domain_key_s &other) const {
+                bool operator<(const m_domain_key_s &other) const; /*{
                     return type < other.type || (type == other.type && index < other.index);
-                }
+                }*/
             };
-            struct control_s {
+            struct m_control_s {
                 int max_idx;
                 int min_idx;
                 double last_value;
@@ -96,12 +95,12 @@ namespace geopm
 
             double m_perf_energy_bias;
             int m_sample;
-            std::map<domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
+            std::map<m_domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
             std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > m_freq_recommender;
 
-            std::map<domain_key_s, control_s> m_freq_control;
+            std::map<m_domain_key_s, m_control_s> m_freq_control;
             std::vector<geopm_domain_e> m_domain_types;
-            std::vector<domain_key_s> m_domains;
+            std::vector<m_domain_key_s> m_domains;
 
             static const std::map<geopm_domain_e, std::string> M_NNET_ENVNAME;
             static const std::map<geopm_domain_e, std::string> M_FREQMAP_ENVNAME;

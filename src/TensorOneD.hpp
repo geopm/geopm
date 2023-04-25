@@ -6,7 +6,7 @@
 #ifndef TENSORONED_HPP_INCLUDE
 #define TENSORONED_HPP_INCLUDE
 
-#include <cstdint>
+#include <cstdio>
 #include <memory>
 #include <vector>
 

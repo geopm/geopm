@@ -9,15 +9,13 @@
 #include "gmock/gmock.h"
 #include "LocalNeuralNet.hpp"
 
-namespace geopm {
-
-class MockLocalNeuralNet : public LocalNeuralNet {
- public:
-  MOCK_METHOD(TensorOneD, forward, (const TensorOneD &input), (const override));
-  MOCK_METHOD(size_t, get_input_dim, (), (const override));
-  MOCK_METHOD(size_t, get_output_dim, (), (const override));
+class MockLocalNeuralNet : public geopm::LocalNeuralNet
+{
+    public:
+        MOCK_METHOD(geopm::TensorOneD, forward, (const geopm::TensorOneD &input),
+                    (const override));
+        MOCK_METHOD(size_t, get_input_dim, (), (const override));
+        MOCK_METHOD(size_t, get_output_dim, (), (const override));
 };
-
-}  // namespace geopm
 
 #endif //MOCKLOCALNEURALNET_HPP_INCLUDE

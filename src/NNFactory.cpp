@@ -21,17 +21,19 @@ namespace geopm {
         return std::make_shared<NNFactoryImp>();
     }
 
-    std::shared_ptr<LocalNeuralNet> NNFactoryImp::createLocalNeuralNet(const std::vector<std::shared_ptr<DenseLayer>> &layers) const
+    std::shared_ptr<LocalNeuralNet> NNFactoryImp::createLocalNeuralNet(
+            const std::vector<std::shared_ptr<DenseLayer> > &layers) const
     {
         return std::make_shared<LocalNeuralNetImp>(layers);
     }
 
-    std::shared_ptr<DenseLayer> NNFactoryImp::createDenseLayer(const TensorTwoD &weights, const TensorOneD &biases) const
+    std::shared_ptr<DenseLayer> NNFactoryImp::createDenseLayer(const TensorTwoD &weights,
+                                                               const TensorOneD &biases) const
     {
         return std::make_shared<DenseLayerImp>(weights, biases);
     }
 
-    TensorTwoD NNFactoryImp::createTensorTwoD(const std::vector<std::vector<double>> &vals) const
+    TensorTwoD NNFactoryImp::createTensorTwoD(const std::vector<std::vector<double> > &vals) const
     {
         return TensorTwoD(vals);
     }

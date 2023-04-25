@@ -309,9 +309,13 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorMathTest.test_sigmoid \
               test/gtest_links/TensorMathTest.test_bad_dimensions \
               test/gtest_links/TensorMathTest.test_mat_prod \
-              test/gtest_links/TensorOneDTest.test_sum \
               test/gtest_links/TensorOneDTest.test_copy \
+              test/gtest_links/TensorOneDTest.test_diff \
               test/gtest_links/TensorOneDTest.test_input \
+              test/gtest_links/TensorOneDTest.test_equivalent \
+              test/gtest_links/TensorOneDTest.test_prod \
+              test/gtest_links/TensorOneDTest.test_sigmoid \
+              test/gtest_links/TensorOneDTest.test_sum \
               test/gtest_links/TensorOneDIntegrationTest.test_bad_dimensions \
               test/gtest_links/TensorOneDIntegrationTest.test_copy \
               test/gtest_links/TensorOneDIntegrationTest.test_diff \

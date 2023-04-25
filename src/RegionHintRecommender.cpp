@@ -3,29 +3,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "RegionHintRecommender.hpp"
 #include "RegionHintRecommenderImp.hpp"
 
 #include <cmath>
 #include <fstream>
 
+#include "geopm/json11.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 
 namespace geopm
 {
-    std::unique_ptr<RegionHintRecommender> RegionHintRecommender::make_unique(
-            const std::string &fmap_path,
-            int min_freq,
-            int max_freq)
+    std::unique_ptr<RegionHintRecommender> RegionHintRecommender::make_unique(const std::string &fmap_path,
+                                                                              int min_freq,
+                                                                              int max_freq)
     {
         return geopm::make_unique<RegionHintRecommenderImp>(fmap_path, min_freq, max_freq);
     }
 
-    std::shared_ptr<RegionHintRecommender> RegionHintRecommender::make_shared(
-            const std::string &fmap_path,
-            int min_freq,
-            int max_freq)
+    std::shared_ptr<RegionHintRecommender> RegionHintRecommender::make_shared(const std::string &fmap_path,
+                                                                              int min_freq,
+                                                                              int max_freq)
     {
         return std::make_shared<RegionHintRecommenderImp>(fmap_path, min_freq, max_freq);
     }
@@ -33,12 +31,12 @@ namespace geopm
     RegionHintRecommenderImp::RegionHintRecommenderImp(const std::string &fmap_path, int min_freq,
                                                        int max_freq)
         : m_min_freq(min_freq)
-          , m_max_freq(max_freq)
+        , m_max_freq(max_freq)
     {
         std::string buf, err;
 
         std::ifstream ffile(fmap_path);
-        if (!ffile) {
+        if (!ffile.is_open()) {
             throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
                             ": Unable to open frequency map file: " + fmap_path + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -93,9 +91,8 @@ namespace geopm
         }
     }
 
-    double RegionHintRecommenderImp::recommend_frequency(
-            const std::map<std::string, double> &nn_output,
-            double phi) const {
+    double RegionHintRecommenderImp::recommend_frequency(const std::map<std::string, double> &nn_output,
+                                                         double phi) const {
         for (const auto &kv : nn_output ) {
             if (std::isnan(kv.second)) {
                 return NAN;
@@ -105,8 +102,8 @@ namespace geopm
         double zz = 0;
         double freq = 0;
         for (const auto &[region_name, probability] : nn_output) {
-            size_t phi_idx = static_cast<size_t>(
-                                std::floor(phi * (m_freq_map.at(region_name).size() - 1)));
+            size_t phi_idx =
+                static_cast<size_t>(std::floor(phi * (m_freq_map.at(region_name).size() - 1)));
             freq += exp(probability) * m_freq_map.at(region_name).at(phi_idx);
             zz += exp(probability);
         }

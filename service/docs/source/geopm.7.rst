@@ -380,6 +380,7 @@ See Also
 :doc:`geopmpy(7) <geopmpy.7>`,
 :doc:`geopmdpy(7) <geopmdpy.7>`,
 :doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`,
+:doc:`geopm_agent_ffnet(7) <geopm_agent_ffnet.7>`,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
 :doc:`geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity.7>`,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,

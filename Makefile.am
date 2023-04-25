@@ -433,9 +433,9 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ModelParse.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
+                            src/NNFactory.cpp \
                             src/NNFactory.hpp \
                             src/NNFactoryImp.hpp \
-                            src/NNFactory.cpp \
                             src/OptionParser.cpp \
                             src/OptionParser.hpp \
                             src/PowerBalancer.cpp \
