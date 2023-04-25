@@ -23,45 +23,31 @@
 namespace geopm
 {
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_NNET_ENVNAME =
-            {
-                {GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_NN_PATH"},
-                {GEOPM_DOMAIN_GPU, "GEOPM_GPU_NN_PATH"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_NN_PATH"},
+         {GEOPM_DOMAIN_GPU, "GEOPM_GPU_NN_PATH"}};
 
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_FREQMAP_ENVNAME =
-            {
-                {GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_FMAP_PATH"},
-                {GEOPM_DOMAIN_GPU, "GEOPM_GPU_FMAP_PATH"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_FMAP_PATH"},
+         {GEOPM_DOMAIN_GPU, "GEOPM_GPU_FMAP_PATH"}};
 
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_MAX_FREQ_SIGNAL_NAME = 
-            {
-                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MAX_AVAIL"},
-                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MAX_AVAIL"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MAX_AVAIL"},
+         {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MAX_AVAIL"}};
 
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_MIN_FREQ_SIGNAL_NAME = 
-            {
-                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MIN_AVAIL"},
-                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_AVAIL"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MIN_AVAIL"},
+         {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_AVAIL"}};
 
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_MAX_FREQ_CONTROL_NAME = 
-            {
-                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MAX_CONTROL"},
-                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MAX_CONTROL"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MAX_CONTROL"},
+         {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MAX_CONTROL"}};
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_MIN_FREQ_CONTROL_NAME = 
-            {
-                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MIN_CONTROL"},
-                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_CONTROL"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MIN_CONTROL"},
+         {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_CONTROL"}};
 
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_TRACE_SUFFIX = 
-            {
-                {GEOPM_DOMAIN_PACKAGE, "_cpu_"},
-                {GEOPM_DOMAIN_GPU, "_gpu_"}
-            };
+        {{GEOPM_DOMAIN_PACKAGE, "_cpu_"},
+         {GEOPM_DOMAIN_GPU, "_gpu_"}};
 
 
     FFNetAgent::FFNetAgent()
@@ -70,14 +56,12 @@ namespace geopm
 
     }
 
-    FFNetAgent::FFNetAgent(
-            PlatformIO &plat_io,
-            const PlatformTopo &topo,
-            const std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> >
-                &net_map,
-            const std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> >
-                &freq_recommender
-            )
+    FFNetAgent::FFNetAgent(PlatformIO &plat_io,
+                           const PlatformTopo &topo,
+                           const std::map<std::pair<geopm_domain_e, int>,
+                                          std::shared_ptr<DomainNetMap> > &net_map,
+                           const std::map<geopm_domain_e,
+                                          std::shared_ptr<RegionHintRecommender> > &freq_recommender)
         : m_platform_io(plat_io)
           , m_last_wait{{0, 0}}
           , m_do_write_batch(false)
@@ -88,17 +72,14 @@ namespace geopm
 
         if (freq_recommender.empty()) {
             for (geopm_domain_e domain_type : m_domain_types) {
-                m_freq_recommender[domain_type] = RegionHintRecommender::make_shared(
-                        get_env_value(M_FREQMAP_ENVNAME.at(domain_type)),
-                        m_platform_io.read_signal(
-                            M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
-                            GEOPM_DOMAIN_BOARD,
-                            0),
-                        m_platform_io.read_signal(
-                            M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
-                            GEOPM_DOMAIN_BOARD,
-                            0)
-                        );
+                std::string fpath = get_env_value(M_FREQMAP_ENVNAME.at(domain_type));
+                int min_freq = m_platform_io.read_signal(M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
+                                                         GEOPM_DOMAIN_BOARD, 0);
+                int max_freq = m_platform_io.read_signal(M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
+                                                         GEOPM_DOMAIN_BOARD, 0);
+
+                m_freq_recommender[domain_type] =
+                    RegionHintRecommender::make_shared(fpath, min_freq, max_freq);
             }
         }
         else {
@@ -106,20 +87,17 @@ namespace geopm
         }
 
         if (net_map.empty()) {
-            for (const domain_key_s domain_key : m_domains) {
-                m_net_map[domain_key] = DomainNetMap::make_shared(
-                                get_env_value(M_NNET_ENVNAME.at(domain_key.type)),
-                                domain_key.type,
-                                domain_key.index);
+            for (const m_domain_key_s domain_key : m_domains) {
+                m_net_map[domain_key] =
+                    DomainNetMap::make_shared(get_env_value(M_NNET_ENVNAME.at(domain_key.type)),
+                                              domain_key.type,
+                                              domain_key.index);
             }
         }
         else {
-            for (const domain_key_s domain_key : m_domains) {
-                m_net_map[domain_key] = net_map.at(
-                        std::make_pair(
-                            domain_key.type,
-                            domain_key.index)
-                        );
+            for (const m_domain_key_s domain_key : m_domains) {
+                m_net_map[domain_key] = net_map.at(std::make_pair(domain_key.type,
+                                                                  domain_key.index));
             }
         }
     }
@@ -152,17 +130,15 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void FFNetAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        for (const domain_key_s domain_key : m_domains) {
+        for (const m_domain_key_s domain_key : m_domains) {
             m_freq_control[domain_key].min_idx = 
-                    m_platform_io.push_control(
-                        M_MIN_FREQ_CONTROL_NAME.at(domain_key.type),
-                        domain_key.type,
-                        domain_key.index);
+                m_platform_io.push_control(M_MIN_FREQ_CONTROL_NAME.at(domain_key.type),
+                                           domain_key.type,
+                                           domain_key.index);
             m_freq_control[domain_key].max_idx = 
-                    m_platform_io.push_control(
-                        M_MAX_FREQ_CONTROL_NAME.at(domain_key.type),
-                        domain_key.type,
-                        domain_key.index);
+                m_platform_io.push_control(M_MAX_FREQ_CONTROL_NAME.at(domain_key.type),
+                                           domain_key.type,
+                                           domain_key.index);
             m_freq_control[domain_key].last_value = NAN;
         }
 
@@ -187,8 +163,8 @@ namespace geopm
             return;
         }
         if (!std::isnan(in_policy[M_POLICY_PERF_ENERGY_BIAS])) {
-            if (in_policy[M_POLICY_PERF_ENERGY_BIAS] > 1.0
-                || in_policy[M_POLICY_PERF_ENERGY_BIAS] < 0) {
+            if (in_policy[M_POLICY_PERF_ENERGY_BIAS] > 1.0||
+                in_policy[M_POLICY_PERF_ENERGY_BIAS] < 0) {
                 throw Exception("FFNetAgent::" + std::string(__func__) +
                                 "(): PERF_ENERGY_BIAS is out of range (should be 0-1). (",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -231,21 +207,16 @@ namespace geopm
         }
         m_do_write_batch = false;
 
-        for (const domain_key_s domain_key : m_domains) {
-            double new_freq = m_freq_recommender[domain_key.type]->recommend_frequency(
-                    m_net_map[domain_key]->last_output(),
-                    m_perf_energy_bias
-                    );
-            if (!std::isnan(new_freq)
-                && m_freq_control[domain_key].last_value != new_freq) {
-                m_platform_io.adjust(
-                        m_freq_control[domain_key].min_idx,
-                        new_freq
-                        );
-                m_platform_io.adjust(
-                        m_freq_control[domain_key].max_idx,
-                        new_freq
-                        );
+        for (const m_domain_key_s domain_key : m_domains) {
+            double new_freq =
+                m_freq_recommender[domain_key.type]->recommend_frequency(m_net_map[domain_key]->last_output(),
+                                                                         m_perf_energy_bias);
+            if (!std::isnan(new_freq) &&
+                m_freq_control[domain_key].last_value != new_freq) {
+                m_platform_io.adjust(m_freq_control[domain_key].min_idx,
+                                     new_freq);
+                m_platform_io.adjust(m_freq_control[domain_key].max_idx,
+                                     new_freq);
                 m_freq_control[domain_key].last_value = new_freq;
                 m_do_write_batch = true;
             }
@@ -298,8 +269,7 @@ namespace geopm
 
     std::vector<std::pair<std::string, std::string> > FFNetAgent::report_host(void) const
     {
-        std::vector<std::pair<std::string, std::string> > result;
-        return result;
+        return {};
     }
 
     // This Agent does not add any per-region details
@@ -313,12 +283,11 @@ namespace geopm
     std::vector<std::string> FFNetAgent::trace_names(void) const
     {
         std::vector<std::string> tracelist;
-        for (const domain_key_s domain_key : m_domains) {
+        for (const m_domain_key_s domain_key : m_domains) {
             for (const std::string& trace_name : m_net_map.at(domain_key)->trace_names()) {
-                tracelist.push_back(
-                        trace_name
-                        + M_TRACE_SUFFIX.at(domain_key.type)
-                        + std::to_string(domain_key.index));
+                tracelist.push_back(trace_name +
+                                    M_TRACE_SUFFIX.at(domain_key.type) +
+                                    std::to_string(domain_key.index));
             }
         }
         return tracelist;
@@ -335,7 +304,7 @@ namespace geopm
         int vidx = 0;
         for (const auto &kv : m_net_map) {
             std::vector<double> domain_row = kv.second->trace_values();
-            for (std::size_t idx=0; idx < domain_row.size(); ++vidx, ++idx) {
+            for (size_t idx=0; idx < domain_row.size(); ++vidx, ++idx) {
                 values[vidx] = domain_row[idx];
             }
         }
@@ -343,6 +312,11 @@ namespace geopm
 
     void FFNetAgent::enforce_policy(const std::vector<double> &policy) const
     {
+    }
+
+    bool FFNetAgent::m_domain_key_s::operator<(const m_domain_key_s &other) const
+    {
+        return type < other.type || (type == other.type && index < other.index);
     }
 
     bool FFNetAgent::is_all_nan(const std::vector<double> &vec)
@@ -353,13 +327,13 @@ namespace geopm
 
     std::string FFNetAgent::get_env_value(const std::string &env_var)
     {
-        char *value = getenv(env_var.c_str());
-        if (!value) {
+        std::string value = geopm::get_env(env_var);
+        if (value.empty()) {
             throw Exception("FFNetAgent::" + std::string(__func__) +
                             "(): environment variable not set: " + env_var  + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        return std::string(value);
+        return value;
     }
 }

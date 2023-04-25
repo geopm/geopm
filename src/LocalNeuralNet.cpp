@@ -30,7 +30,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        for (std::size_t idx = 1; idx < layers.size(); ++idx) {
+        for (size_t idx = 1; idx < layers.size(); ++idx) {
             if (layers[idx]->get_input_dim() != layers[idx - 1]->get_output_dim()) {
                 throw Exception("LocalNeuralNetImp::" + std::string(__func__) +
                                 ": Incompatible dimensions for consecutive layers.",
@@ -51,7 +51,7 @@ namespace geopm
 
         TensorOneD tmp = inp;
 
-        for (std::size_t idx = 0; idx < m_layers.size(); ++idx) {
+        for (size_t idx = 0; idx < m_layers.size(); ++idx) {
             tmp = m_layers[idx]->forward(tmp);
 
             // Apply a sigmoid on all but the last layer
@@ -69,5 +69,10 @@ namespace geopm
 
     size_t LocalNeuralNetImp::get_output_dim() const {
         return m_layers[m_layers.size() - 1]->get_output_dim();
+    }
+
+    TensorOneD LocalNeuralNet::operator()(const TensorOneD &input) const
+    {
+        return forward(input);
     }
 }

@@ -9,14 +9,12 @@
 #include "gmock/gmock.h"
 #include "RegionHintRecommender.hpp"
 
-namespace geopm {
-
-class MockRegionHintRecommender : public RegionHintRecommender {
- public:
-  MOCK_METHOD(double, recommend_frequency,
-              ((const std::map<std::string, double> &region_class), double phi),
-              (const, override));
+class MockRegionHintRecommender : public geopm::RegionHintRecommender
+{
+    public:
+        MOCK_METHOD(double, recommend_frequency,
+                    ((const std::map<std::string, double> &region_class), double phi),
+                    (const, override));
 };
 
-}  // namespace geopm
 #endif //MOCKREGIONHINTRECOMMENDER_HPP_INCLUDE

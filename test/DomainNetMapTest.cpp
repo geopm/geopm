@@ -24,9 +24,6 @@
 
 using geopm::DomainNetMap;
 using geopm::DomainNetMapImp;
-using geopm::MockDenseLayer;
-using geopm::MockLocalNeuralNet;
-using geopm::MockNNFactory;
 using ::testing::ByMove;
 using ::testing::ElementsAre;
 using ::testing::Mock;

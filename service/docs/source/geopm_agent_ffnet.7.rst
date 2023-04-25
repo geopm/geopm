@@ -9,9 +9,9 @@ Description
     This is currently an experimental agent and is only available when
     building GEOPM with the ``--enable-beta`` flag. The agent is subject
     to change, including being combined with other agents. Also, this agent 
-    requires a neural net json file, the format of which is described by 
+    requires a neural net JSON file, the format of which is described by 
     the schema domainnetmap_neural_net.schema.json and a region hint 
-    recommender json file described by the schema
+    recommender JSON file described by the schema
     regionhintrecommender_fmap.schema.json. Without these inputs, the agent 
     will throw an error. The autogeneration of these files is future work.
 
@@ -23,14 +23,14 @@ per-domain frequency. The agent policy can specify an energy-performance bias wh
 determines the degree to which the frequency recommender is adverse to potentially
 reducing performance by reducing frequency to save energy.
 
-The neural net for region classification must be provided in a json configuration
+The neural net for region classification must be provided in a JSON configuration
 file pointed to by environment variables GEOPM_CPU_NN_PATH and/or GEOPM_GPU_NN_PATH, 
 which must comply with the following schema:
 
 .. literalinclude:: ../../../json_schemas/domainnetmap_neural_net.schema.json
     :language: json
 
-The per-region frequency recommendations must be provided in a json configuration
+The per-region frequency recommendations must be provided in a JSON configuration
 file pointed to by environment variables GEOPM_CPU_FMAP_PATH and/or GEOPM_GPU_FMAP_PATH, 
 which must comply with the following schema:
 

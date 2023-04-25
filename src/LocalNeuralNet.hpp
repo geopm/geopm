@@ -25,8 +25,7 @@ namespace geopm
             ///        from a vector of DenseLayers
             /// 
             /// @param [in] Vector of DenseLayers
-            static std::unique_ptr<LocalNeuralNet> make_unique(
-                    std::vector<std::shared_ptr<DenseLayer> > layers);
+            static std::unique_ptr<LocalNeuralNet> make_unique(std::vector<std::shared_ptr<DenseLayer> > layers);
             /// @brief Perform inference using the instance weights and biases.
             /// 
             /// @param [in] TensorOneD vector of input signals.
@@ -45,9 +44,7 @@ namespace geopm
             /// @return Returns a size_t equal to the number of rows of weights 
             virtual size_t get_output_dim() const = 0;
 
-            TensorOneD operator()(const TensorOneD &input) const {
-                return forward(input);
-            }
+            TensorOneD operator()(const TensorOneD &input) const;
     };
 }
 

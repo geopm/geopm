@@ -32,7 +32,7 @@ namespace geopm
             /// @param [in] layers A shared pointer to a vector of DenseLayers
             ///
             /// @return Returns a shared pointer to a LocalNeuralNet instance
-            virtual std::shared_ptr<LocalNeuralNet> createLocalNeuralNet(const std::vector<std::shared_ptr<DenseLayer>> &layers) const = 0;
+            virtual std::shared_ptr<LocalNeuralNet> createLocalNeuralNet(const std::vector<std::shared_ptr<DenseLayer> > &layers) const = 0;
             /// @brief Create a Dense Layer
             ///
             /// @param [in] weights TensorTwoD instance (matrix)
@@ -46,7 +46,7 @@ namespace geopm
             /// @param [in] vals Matrix doubles to fill TensorTwoD object
             ///
             /// @return Returns a TensorTwoD instance
-            virtual TensorTwoD createTensorTwoD(const std::vector<std::vector<double>> &vals) const = 0;
+            virtual TensorTwoD createTensorTwoD(const std::vector<std::vector<double> > &vals) const = 0;
             /// @brief Create a TensorOneD object.
             ///
             /// @param [in] vals Vector of doubles to fill TensorOneD object

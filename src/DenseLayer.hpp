@@ -30,7 +30,8 @@ namespace geopm
             ///
             /// @throws geopm::Exception if weights and biases dimensions are incompatible.
             ///         i.e. if weights rows is inequal to bias dimension.
-            static std::unique_ptr<DenseLayer> make_unique(const TensorTwoD &weights, const TensorOneD &biases);
+            static std::unique_ptr<DenseLayer> make_unique(const TensorTwoD &weights,
+                                                           const TensorOneD &biases);
             virtual ~DenseLayer() = default;
             /// @brief Perform inference using the instance weights and biases.
             /// 
@@ -50,9 +51,7 @@ namespace geopm
             /// @return Returns a size_t equal to the number of rows of weights 
             virtual size_t get_output_dim() const = 0;
 
-            TensorOneD operator()(const TensorOneD &input) const {
-                return forward(input);
-            }
+            TensorOneD operator()(const TensorOneD &input) const;
     };
 }
 

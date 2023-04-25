@@ -21,7 +21,6 @@ using geopm::TensorOneD;
 using geopm::DenseLayer;
 using geopm::LocalNeuralNet;
 using geopm::LocalNeuralNetImp;
-using geopm::MockDenseLayer;
 using ::testing::Mock;
 using ::testing::Return;
 using ::testing::_;

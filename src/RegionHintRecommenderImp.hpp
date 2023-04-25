@@ -6,7 +6,7 @@
 #ifndef REGIONHINTRECOMMENDERIMP_HPP_INCLUDE
 #define REGIONHINTRECOMMENDERIMP_HPP_INCLUDE
 
-#include "geopm/json11.hpp"
+#include "RegionHintRecommender.hpp"
 
 namespace geopm
 {
