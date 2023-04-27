@@ -10,7 +10,6 @@
 #include <cmath>
 #include <algorithm>
 #include <limits>
-#include <iostream>
 
 #include "PowerBalancer.hpp"
 #include "geopm/PlatformIO.hpp"
@@ -532,7 +531,6 @@ namespace geopm
                 double network = role.m_sample_agg->sample_epoch_last(role.m_network_agg_idx[pkg_idx]);
                 double ignore = role.m_sample_agg->sample_epoch_last(role.m_ignore_agg_idx[pkg_idx]);
                 double balanced_epoch_runtime =  total - network - ignore;
-std::cerr << "DEBUG: " << geopm::hostname() << "pkg_idx=" << pkg_idx << " total=" << total << " network=" << network << " ignore=" << ignore << "\n";
                 auto &balancer = role.m_power_balancer[pkg_idx];
                 package.is_step_complete = balancer->is_runtime_stable(balanced_epoch_runtime);
                 if (!package.is_step_complete) {
