@@ -16,8 +16,6 @@
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm_error.h"
-#include "geopm_sched.h"
-#include "geopm/PlatformTopo.hpp"
 #include "GEOPMBenchConfig.hpp"
 #include "ModelApplication.hpp"
 #include "ModelParse.hpp"
@@ -125,9 +123,6 @@ int main(int argc, char **argv)
     uint64_t loop_count = 0;
     std::vector<std::string> region_sequence;
     std::vector<double> big_o_sequence;
-
-    int cpu_idx = geopm_sched_get_cpu();
-    int package_idx = geopm::platform_topo().domain_idx(GEOPM_DOMAIN_PACKAGE, cpu_idx);
 
     if (!err) {
         if (config_path) {

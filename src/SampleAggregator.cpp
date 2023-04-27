@@ -5,8 +5,6 @@
 
 #include "config.h"
 
-#include <iostream>
-
 #include "SampleAggregatorImp.hpp"
 
 #include "geopm_hash.h"
@@ -243,7 +241,6 @@ namespace geopm
             }
             else {
                 if (std::isnan(sample)) {
-std::cerr << "DEBUG: Found NAN\n";
                     continue;
                 }
                 // Measure the change since the last update
