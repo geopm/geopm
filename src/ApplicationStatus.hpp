@@ -61,7 +61,6 @@ namespace geopm
             /// @return Fraction of the total work completed by this
             ///         CPU.
             virtual double get_progress_cpu(int cpu_idx) const = 0;
-            virtual void set_valid_cpu(const std::set<int> &cpu_idx) = 0;
             /// @brief Updates the local memory with the latest values from
             ///        the shared memory.  Any calls to get methods will use
             ///        these values until the cache is updated again.
@@ -102,7 +101,6 @@ namespace geopm
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
             double get_progress_cpu(int cpu_idx) const override;
-            void set_valid_cpu(const std::set<int> &cpu_idx) override;
             void update_cache(void) override;
         private:
             // These fields must all be 32-bit int
