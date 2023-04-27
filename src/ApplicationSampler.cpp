@@ -218,6 +218,7 @@ namespace geopm
         if (std::any_of(m_record_buffer.begin(), m_record_buffer.end(),
                         [](const record_s &rec) {return rec.event == EVENT_AFFINITY;})) {
             m_client_cpu_map = update_client_cpu_map(client_pids());
+            update_cpu_active();
         }
         update_start_stop();
     }
@@ -412,7 +413,6 @@ namespace geopm
                 }
             }
         }
-        update_cpu_active();
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
         auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
@@ -435,6 +435,7 @@ namespace geopm
             connect_status();
             m_process_map = connect_record_log(client_pids);
             m_client_cpu_map = update_client_cpu_map(client_pids);
+            update_cpu_active();
         }
     }
 
