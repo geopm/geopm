@@ -148,12 +148,7 @@ namespace geopm
             return;
         }
         m_status->update_cache();
-        if (m_is_first_update) {
-            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-                m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
-            }
-        }
-        else {
+        if (!m_is_first_update) {
             GEOPM_DEBUG_ASSERT((int) m_hint_time.size() == m_num_cpu &&
                                (int) m_hint_last.size() == m_num_cpu,
                                "Mismatch in CPU/hint vectors");
@@ -366,6 +361,9 @@ namespace geopm
             for (int cpu_idx : cpu_set) {
                 m_is_cpu_active[cpu_idx] = true;
             }
+        }
+        for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+            m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
         }
     }
 
