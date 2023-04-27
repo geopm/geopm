@@ -291,7 +291,9 @@ extern "C" {
                 err = geopm_pmpi_init("Fortran");
             }
         }
-        geopm_mpi_region_exit(init_rid);
+        if (!err) {
+            geopm_mpi_region_exit(init_rid);
+        }
         return err;
     }
 

@@ -141,7 +141,11 @@ namespace geopm
                 m_cpu_set.insert(cpu_idx);
             }
         }
-        m_app_status->set_valid_cpu(m_cpu_set);
+        for (auto cpu_idx : m_cpu_set) {
+            uint64_t hint = m_hint_stack.size() == 0 ? GEOPM_REGION_HINT_UNSET :
+                            m_hint_stack.top();
+            m_app_status->set_hash(cpu_idx, m_current_hash, hint);
+        }
         geopm_time_s now;
         geopm_time(&now);
         m_app_record_log->cpuset_changed(now);

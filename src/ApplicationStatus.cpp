@@ -157,18 +157,6 @@ namespace geopm
         return result;
     }
 
-    void ApplicationStatusImp::set_valid_cpu(const std::set<int> &cpu_idx)
-    {
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        for (auto cpu : cpu_idx) {
-            if (cpu < 0 || cpu >= m_num_cpu) {
-                throw Exception("ApplicationStatusImp::set_valid_cpu(): invalid CPU index: " + std::to_string(cpu),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            set_hash(cpu, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET);
-        }
-    }
-
     void ApplicationStatusImp::update_cache(void)
     {
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
