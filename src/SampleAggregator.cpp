@@ -5,6 +5,8 @@
 
 #include "config.h"
 
+#include <iostream>
+
 #include "SampleAggregatorImp.hpp"
 
 #include "geopm_hash.h"
@@ -240,8 +242,15 @@ namespace geopm
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
             else {
+                if (std::isnan(sample)) {
+std::cerr << "DEBUG: Found NAN\n";
+                    continue;
+                }
                 // Measure the change since the last update
-                double delta = sample - signal.sample_last;
+                double delta = 0;
+                if (!std::isnan(signal.sample_last)) {
+                    delta = sample - signal.sample_last;
+                }
                 // Update that application totals
                 signal.app_accum->update(delta);
                 // If we have observed our first epoch, update epoch totals
