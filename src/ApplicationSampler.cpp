@@ -212,7 +212,7 @@ namespace geopm
         }
         if (std::any_of(m_record_buffer.begin(), m_record_buffer.end(),
                         [](const record_s &rec) {return rec.event == EVENT_AFFINITY;})) {
-            m_client_cpu_map = update_client_cpu_map(client_pids());
+            update_client_cpu_map(client_pids());
             update_cpu_active();
         }
         update_start_stop();
@@ -351,30 +351,30 @@ namespace geopm
         m_status = ApplicationStatus::make_unique(m_num_cpu, status_shmem);
     }
 
-
-
     void ApplicationSamplerImp::update_cpu_active(void)
     {
+std::cerr << "DEBUG: ApplicationSampler pid=" << getpid() << " cpu_list=";
         std::fill(m_is_cpu_active.begin(), m_is_cpu_active.end(), false);
         for (const auto &client_it : m_client_cpu_map) {
             const std::set<int> &cpu_set = client_it.second;
             for (int cpu_idx : cpu_set) {
+std::cerr << cpu_idx << ", ";
                 m_is_cpu_active[cpu_idx] = true;
             }
         }
+std::cerr << "\n";
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
             m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
         }
     }
 
-    std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map(const std::vector<int> &client_pids)
+    void ApplicationSamplerImp::update_client_cpu_map(const std::vector<int> &client_pids)
     {
-        std::map<int, std::set<int> > result;
         bool try_connect_affinity = true;
         int max_try = 10000;
         for (int connect_count = 1; try_connect_affinity; ++connect_count) {
             try {
-                result = update_client_cpu_map_helper(client_pids);
+                m_client_cpu_map = update_client_cpu_map_helper(client_pids);
                 try_connect_affinity = false;
             }
             catch (const Exception &ex) {
@@ -382,35 +382,36 @@ namespace geopm
                     std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
                     throw;
                 }
-                timespec delay = {0, 1000000};
+                timespec delay = {0, 100000000};
                 nanosleep(&delay, NULL);
             }
         }
-        return result;
     }
 
     std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map_helper(const std::vector<int> &client_pids)
     {
         std::map<int, std::set<int> > result;
         std::vector<int> per_cpu_process(m_num_cpu, -1);
-        auto all_cpuset = geopm::make_cpu_set(m_num_cpu, {});
         size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
+std::cerr << "DEBUG: update_client_cpu_map() pid=" << getpid() << " cpu_list=";
         for (const auto &pid : client_pids) {
             auto cpuset = m_scheduler->proc_cpuset(pid);
-            CPU_OR_S(set_size, all_cpuset.get(), all_cpuset.get(), cpuset.get());
             for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
                 if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
                     if (per_cpu_process.at(cpu_idx) == -1) {
+std::cerr << "(" << cpu_idx << "," << pid << "), ";
                         per_cpu_process.at(cpu_idx) = pid;
                         result[pid].insert(cpu_idx);
                     }
                     else {
+std::cerr << "THROW: (" << cpu_idx << "," << pid << ")\n";
                         throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
                 }
             }
         }
+std::cerr << "\n";
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
         auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
@@ -432,7 +433,7 @@ namespace geopm
                                "m_process_map is not empty, but we are connecting");
             connect_status();
             m_process_map = connect_record_log(client_pids);
-            m_client_cpu_map = update_client_cpu_map(client_pids);
+            update_client_cpu_map(client_pids);
             update_cpu_active();
         }
     }

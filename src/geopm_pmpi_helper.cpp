@@ -261,12 +261,8 @@ extern "C" {
     int geopm_pmpi_init_thread(int *argc, char **argv[], int required, int *provided)
     {
         int err = 0;
-
-        geopm::Profile::default_profile().reset_cpu_set();
-        uint64_t init_rid = geopm_mpi_func_rid("MPI_Init");
-        geopm_mpi_region_enter(init_rid);
-
         int pmpi_ctl = 0;
+        uint64_t init_rid = 0;
 
         err = geopm_env_pmpi_ctl(&pmpi_ctl);
         if (!err &&
@@ -282,6 +278,9 @@ extern "C" {
         }
         if (!err) {
             err = PMPI_Barrier(MPI_COMM_WORLD);
+            init_rid = geopm_mpi_func_rid("MPI_Init");
+            geopm::Profile::default_profile().reset_cpu_set();
+            geopm_mpi_region_enter(init_rid);
         }
         if (!err) {
             if (argv && *argv && **argv && strlen(**argv)) {

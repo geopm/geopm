@@ -132,24 +132,26 @@ namespace geopm
 
     }
 
-    std::set<int> ProfileImp::reset_cpu_set(void)
+    void ProfileImp::reset_cpu_set(void)
     {
+std::cerr << "DEBUG: Profile pid=" << getpid() << " cpu_list=";
         m_cpu_set.clear();
         auto proc_cpuset = m_scheduler->proc_cpuset();
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             if (CPU_ISSET(cpu_idx, proc_cpuset.get())) {
                 m_cpu_set.insert(cpu_idx);
+std::cerr << cpu_idx << ", ";
             }
         }
+std::cerr << "\n";
+        uint64_t hint = m_hint_stack.size() == 0 ? GEOPM_REGION_HINT_UNSET :
+                        m_hint_stack.top();
         for (auto cpu_idx : m_cpu_set) {
-            uint64_t hint = m_hint_stack.size() == 0 ? GEOPM_REGION_HINT_UNSET :
-                            m_hint_stack.top();
             m_app_status->set_hash(cpu_idx, m_current_hash, hint);
         }
         geopm_time_s now;
         geopm_time(&now);
         m_app_record_log->cpuset_changed(now);
-        return m_cpu_set;
     }
 
     void ProfileImp::init_app_status(void)
