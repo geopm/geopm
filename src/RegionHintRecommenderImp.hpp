@@ -22,6 +22,8 @@ namespace geopm
             /// @param [in] nn_output List of region classification names and
             ///             logits output from region class neural net
             /// @param [in] phi User-input perf-energy bias
+            ///
+            /// @return Returns a frequency, double in Hertz
             double recommend_frequency(const std::map<std::string, double> &nn_output, double phi)
                     const override;
 

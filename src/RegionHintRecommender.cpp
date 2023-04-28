@@ -3,10 +3,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "RegionHintRecommenderImp.hpp"
 
 #include <cmath>
 #include <fstream>
+
+#ifdef GEOPM_DEBUG
+#include <iostream>
+#endif
 
 #include "geopm/json11.hpp"
 #include "geopm/Exception.hpp"
@@ -107,7 +113,16 @@ namespace geopm
             freq += exp(probability) * m_freq_map.at(region_name).at(phi_idx);
             zz += exp(probability);
         }
-        freq = freq / zz;
+        //If something goes terribly wrong with probabilities, set frequency to max
+        if (zz == 0) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> Unexpected neural net normalization factor of 0.\n";
+#endif
+            freq = m_max_freq;
+        }
+        else {
+            freq = freq / zz;
+        }
 
         if (std::isnan(freq)) {
             freq = m_max_freq;
@@ -120,6 +135,6 @@ namespace geopm
             freq = m_min_freq;
         }
 
-        return freq * 1e8;
+        return freq;
     }
 }

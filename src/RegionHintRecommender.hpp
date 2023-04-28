@@ -49,6 +49,8 @@ namespace geopm
             /// @param [in] nn_output Output from the DomainNetMap neural net evaluation, as a
             ///             map from trace names to doubles.
             /// @param [in] phi User-input perf-energy bias
+            ///
+            /// @return Returns frequency, double in Hertz
             virtual double recommend_frequency(const std::map<std::string, double> &nn_output,
                                                double phi) const = 0;
     };

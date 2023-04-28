@@ -15,6 +15,7 @@
 #include <functional>
 #include <numeric>
 #include <utility>
+#include <cerrno>
 
 #include "geopm/Exception.hpp"
 
@@ -84,7 +85,16 @@ namespace geopm
     {
         TensorOneD rval(tensor.get_dim());
         for (size_t idx = 0; idx < tensor.get_dim(); ++idx) {
-            rval[idx] = 1/(1 + expf(-tensor[idx]));
+            // Note that a divide by zero error is impossible because denominator is 1+e^-x
+            double retval = exp(-tensor[idx]);
+
+            if (retval == HUGE_VAL) {
+                errno = 0;
+                rval[idx] = 0;
+            }
+            else {
+                rval[idx] = 1/(1 + retval);
+            }
         }
         return rval;
     }
