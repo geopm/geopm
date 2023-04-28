@@ -353,16 +353,13 @@ namespace geopm
 
     void ApplicationSamplerImp::update_cpu_active(void)
     {
-std::cerr << "DEBUG: ApplicationSampler pid=" << getpid() << " cpu_list=";
         std::fill(m_is_cpu_active.begin(), m_is_cpu_active.end(), false);
         for (const auto &client_it : m_client_cpu_map) {
             const std::set<int> &cpu_set = client_it.second;
             for (int cpu_idx : cpu_set) {
-std::cerr << cpu_idx << ", ";
                 m_is_cpu_active[cpu_idx] = true;
             }
         }
-std::cerr << "\n";
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
             m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
         }
@@ -393,25 +390,21 @@ std::cerr << "\n";
         std::map<int, std::set<int> > result;
         std::vector<int> per_cpu_process(m_num_cpu, -1);
         size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
-std::cerr << "DEBUG: update_client_cpu_map() pid=" << getpid() << " cpu_list=";
         for (const auto &pid : client_pids) {
             auto cpuset = m_scheduler->proc_cpuset(pid);
             for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
                 if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
                     if (per_cpu_process.at(cpu_idx) == -1) {
-std::cerr << "(" << cpu_idx << "," << pid << "), ";
                         per_cpu_process.at(cpu_idx) = pid;
                         result[pid].insert(cpu_idx);
                     }
                     else {
-std::cerr << "THROW: (" << cpu_idx << "," << pid << ")\n";
                         throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
                 }
             }
         }
-std::cerr << "\n";
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
         auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);

@@ -68,7 +68,7 @@ namespace geopm
             throw Exception("geopm_sched_proc_cpuset() failed",
                             err, __FILE__, __LINE__);
         }
-        return std::move(result);
+        return result;
     }
 
     std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
@@ -80,7 +80,7 @@ namespace geopm
             throw Exception("geopm_sched_proc_cpuset() failed",
                             err, __FILE__, __LINE__);
         }
-        return std::move(result);
+        return result;
     }
 
     std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
@@ -92,6 +92,6 @@ namespace geopm
             throw Exception("geopm_sched_proc_cpuset() failed",
                             err, __FILE__, __LINE__);
         }
-        return std::move(result);
+        return result;
     }
 }
