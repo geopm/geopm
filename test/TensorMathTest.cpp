@@ -3,6 +3,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
+#include <cmath>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm/Exception.hpp"
@@ -90,7 +94,7 @@ TEST_F(TensorMathTest, test_dot)
 
 TEST_F(TensorMathTest, test_sigmoid)
 {
-    TensorOneD activations(5);
+    TensorOneD activations(5), boundary_act(2);
 
     activations[0] = -log(1/0.1 - 1);
     activations[1] = -log(1/0.25 - 1);
@@ -98,13 +102,22 @@ TEST_F(TensorMathTest, test_sigmoid)
     activations[3] = -log(1/0.75 - 1);
     activations[4] = -log(1/0.9 - 1);
 
+
     TensorOneD output = m_math.sigmoid(activations);
 
-    EXPECT_FLOAT_EQ(0.1, output[0]);
-    EXPECT_FLOAT_EQ(0.25, output[1]);
-    EXPECT_FLOAT_EQ(0.5, output[2]);
-    EXPECT_FLOAT_EQ(0.75, output[3]);
-    EXPECT_FLOAT_EQ(0.9, output[4]);
+    EXPECT_DOUBLE_EQ(0.1, output[0]);
+    EXPECT_DOUBLE_EQ(0.25, output[1]);
+    EXPECT_DOUBLE_EQ(0.5, output[2]);
+    EXPECT_DOUBLE_EQ(0.75, output[3]);
+    EXPECT_DOUBLE_EQ(0.9, output[4]);
+
+    boundary_act[0] = -HUGE_VAL;
+    boundary_act[1] = HUGE_VAL;
+
+    TensorOneD boundary_out = m_math.sigmoid(boundary_act);
+
+    EXPECT_DOUBLE_EQ(0.0, boundary_out[0]);
+    EXPECT_DOUBLE_EQ(1.0, boundary_out[1]);
 }
 
 TEST_F(TensorMathTest, test_mat_prod)

@@ -17,7 +17,29 @@ using ::testing::Mock;
 using ::testing::Return;
 using ::testing::_;
 
-TEST(TensorOneDTest, test_copy)
+class TensorOneDTest : public ::testing::Test
+{
+    protected:
+        void SetUp();
+        std::vector<double> m_vec_a;
+        TensorOneD m_tensor_b;
+        std::shared_ptr<MockTensorMath> m_fake_math;
+};
+
+void TensorOneDTest::SetUp()
+{
+    m_vec_a.push_back(1);
+    m_vec_a.push_back(2);
+    m_vec_a.push_back(3);
+
+    m_tensor_b.set_dim(2);
+    m_tensor_b[0] = 6;
+    m_tensor_b[1] = 7;
+
+    m_fake_math = std::make_shared<MockTensorMath>();
+}
+
+TEST_F(TensorOneDTest, test_copy)
 {
     TensorOneD one(std::vector<double>({1, 2})), two;
 
@@ -31,29 +53,37 @@ TEST(TensorOneDTest, test_copy)
     two[0] = 9;
     EXPECT_EQ(1, one[0]);
     EXPECT_EQ(9, two[0]);
+
+    TensorOneD three(two);
+
+    // copy is successful
+    EXPECT_EQ(9, three[0]);
+    EXPECT_EQ(2, three[1]);
+
+    // copy is deep
+    three[0] = 4;
+    EXPECT_EQ(1, one[0]);
+    EXPECT_EQ(9, two[0]);
+    EXPECT_EQ(4, three[0]);
 }
 
-TEST(TensorOneDTest, test_diff)
+TEST_F(TensorOneDTest, test_diff)
 {
-    auto fake_math = std::make_shared<MockTensorMath>();
+    TensorOneD tensor_a(m_vec_a, m_fake_math);
 
-    std::vector<double> vec_a = {1, 2, 3};
-    std::vector<double> vec_b = {6, 7};
-
-    TensorOneD tensor_a(vec_a, fake_math);
-    TensorOneD tensor_b(vec_b);
-
-    ON_CALL(*fake_math, subtract(_, _)).WillByDefault(Return(tensor_b));
-    EXPECT_CALL(*fake_math, subtract(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(tensor_a))).Times(1);
+    ON_CALL(*m_fake_math, subtract(_, _)).WillByDefault(Return(m_tensor_b));
+    EXPECT_CALL(*m_fake_math, subtract(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(tensor_a))).Times(1);
     TensorOneD tensor_c = tensor_a - tensor_a;
 
-    EXPECT_EQ(tensor_b.get_data(), tensor_c.get_data());
+    EXPECT_EQ(m_tensor_b.get_data(), tensor_c.get_data());
 }
 
-TEST(TensorOneDTest, test_input)
+TEST_F(TensorOneDTest, test_input)
 {
     TensorOneD x(3);
+    EXPECT_EQ(3u, x.get_dim());
     x.set_dim(4);
+    EXPECT_EQ(4u, x.get_dim());
     std::vector<double> vals = {8, 16};
     x = TensorOneD(vals);
     EXPECT_EQ(2u, x.get_dim());
@@ -61,67 +91,45 @@ TEST(TensorOneDTest, test_input)
     EXPECT_EQ(16, x[1]);
 }
 
-TEST(TensorOneDTest, test_equivalent)
+TEST_F(TensorOneDTest, test_equivalent)
 {
-    std::vector<double> vec_a = {1, 2, 3};
-    std::vector<double> vec_b = {6, 7};
-
-    TensorOneD tensor_a(vec_a);
-    TensorOneD tensor_b(vec_b);
+    TensorOneD tensor_a(m_vec_a);
 
     EXPECT_TRUE(tensor_a == tensor_a);
-    EXPECT_FALSE(tensor_a == tensor_b);
+    EXPECT_FALSE(tensor_a == m_tensor_b);
 }
 
-TEST(TensorOneDTest, test_prod)
+TEST_F(TensorOneDTest, test_prod)
 {
-    auto fake_math = std::make_shared<MockTensorMath>();
-
-    std::vector<double> vec_a = {1, 2, 3};
-    std::vector<double> vec_b = {6, 7};
     double retval = 5.0;
+    TensorOneD tensor_a(m_vec_a, m_fake_math);
 
-    TensorOneD tensor_a(vec_a, fake_math);
-    TensorOneD tensor_b(vec_b);
-
-    ON_CALL(*fake_math, inner_product(_, _)).WillByDefault(Return(retval));
-    EXPECT_CALL(*fake_math, inner_product(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(tensor_b)))
+    ON_CALL(*m_fake_math, inner_product(_, _)).WillByDefault(Return(retval));
+    EXPECT_CALL(*m_fake_math, inner_product(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(m_tensor_b)))
         .Times(1);
-    double prod = tensor_a * tensor_b;
+    double prod = tensor_a * m_tensor_b;
 
     EXPECT_EQ(retval, prod);
 }
 
-TEST(TensorOneDTest, test_sum)
+TEST_F(TensorOneDTest, test_sum)
 {
-    auto fake_math = std::make_shared<MockTensorMath>();
+    TensorOneD tensor_a(m_vec_a, m_fake_math);
 
-    std::vector<double> vec_a = {1, 2, 3};
-    std::vector<double> vec_b = {6, 7};
-
-    TensorOneD tensor_a(vec_a, fake_math);
-    TensorOneD tensor_b(vec_b);
-
-    ON_CALL(*fake_math, add(_, _)).WillByDefault(Return(tensor_b));
-    EXPECT_CALL(*fake_math, add(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(tensor_a))).Times(1);
+    ON_CALL(*m_fake_math, add(_, _)).WillByDefault(Return(m_tensor_b));
+    EXPECT_CALL(*m_fake_math, add(TensorOneDEqualTo(tensor_a), TensorOneDEqualTo(tensor_a))).Times(1);
     TensorOneD tensor_c = tensor_a + tensor_a;
 
-    EXPECT_EQ(tensor_b.get_data(), tensor_c.get_data());
+    EXPECT_EQ(m_tensor_b.get_data(), tensor_c.get_data());
 }
 
-TEST(TensorOneDTest, test_sigmoid)
+TEST_F(TensorOneDTest, test_sigmoid)
 {
-    auto fake_math = std::make_shared<MockTensorMath>();
+    TensorOneD tensor_a(m_vec_a, m_fake_math);
 
-    std::vector<double> vec_a = {1, 2, 3};
-    std::vector<double> vec_b = {6, 7};
-
-    TensorOneD tensor_a(vec_a, fake_math);
-    TensorOneD tensor_b(vec_b);
-
-    ON_CALL(*fake_math, sigmoid(_)).WillByDefault(Return(tensor_b));
-    EXPECT_CALL(*fake_math, sigmoid(TensorOneDEqualTo(tensor_a))).Times(1);
+    ON_CALL(*m_fake_math, sigmoid(_)).WillByDefault(Return(m_tensor_b));
+    EXPECT_CALL(*m_fake_math, sigmoid(TensorOneDEqualTo(tensor_a))).Times(1);
     TensorOneD tensor_c = tensor_a.sigmoid();
 
-    EXPECT_EQ(tensor_b.get_data(), tensor_c.get_data());
+    EXPECT_EQ(m_tensor_b.get_data(), tensor_c.get_data());
 }

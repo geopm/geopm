@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm/Exception.hpp"

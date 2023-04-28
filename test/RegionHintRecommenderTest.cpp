@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include <cmath>
 #include <fstream>
 #include <string>
@@ -134,21 +136,24 @@ TEST_F(RegionHintRecommenderTest, test_plumbing)
 
     EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0), 0);
     EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0.25), 0);
-    EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0.5), 8e7);
-    EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0.75), 8e7);
+    EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0.5), 0.8);
+    EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 0.75), 0.8);
     EXPECT_EQ(hint_map.recommend_frequency({{"A", 1}}, 1), 0);
 
     EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 0), 0);
-    EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 0.25), 1e8);
+    EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 0.25), 1);
     EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 0.5), 0);
-    EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 0.75), 1e8);
+    EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 0.75), 1);
     EXPECT_EQ(hint_map.recommend_frequency({{"B", 1}}, 1), 0);
 
-    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0), 3e7);
-    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0.25), 3e7);
-    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0.5), 3e7);
-    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0.75), 3e7);
-    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 1), 3e7);
+    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0), 0.3);
+    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0.25), 0.3);
+    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0.5), 0.3);
+    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 0.75), 0.3);
+    EXPECT_EQ(hint_map.recommend_frequency({{"C", 1}}, 1), 0.3);
 
-    EXPECT_NEAR(hint_map.recommend_frequency({{"A", log(2)}, {"B", 0}, {"C", log(0.5)}}, 0.5), 5e7, 1);
+    EXPECT_NEAR(hint_map.recommend_frequency({{"A", log(2)}, {"B", 0}, {"C", log(0.5)}}, 0.5), 0.5, 1);
+
+    //If probabilities are hugely negative, recommend max frequency
+    EXPECT_EQ(hint_map.recommend_frequency({{"A", -HUGE_VAL}, {"B", -HUGE_VAL}}, 0.5), 1);
 }
