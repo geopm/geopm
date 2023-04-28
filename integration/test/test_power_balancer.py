@@ -58,7 +58,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
 
         if not cls._skip_launch:
             report_signals='TIME@package,TIME_HINT_NETWORK@package'
-            trace_signals='MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package,REGION_HINT@cpu'
+            trace_signals='MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package'
             loop_count = 500
             fam, mod = geopm_test_launcher.get_platform()
             alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
@@ -79,13 +79,12 @@ class TestIntegration_power_balancer(unittest.TestCase):
             cls._tmp_files.append(bal_agent_conf_path)
             path_dict = {'power_governor': gov_agent_conf_path, 'power_balancer': bal_agent_conf_path}
 
-            for app_name in ['socket_imbalance', 'geopmbench']:
+            for app_name in ['geopmbench', 'socket_imbalance']:
                 app_conf = None
                 if app_name == 'geopmbench':
                     app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
                     cls._tmp_files.append(app_conf.get_path())
                     app_conf.append_region('dgemm-imbalance', 8.0)
-                    app_conf.append_region('barrier', 1.0)
                     app_conf.set_loop_count(loop_count)
                     # Update app config with imbalance
                     for nn in range(len(alloc_nodes) // 2):
