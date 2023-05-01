@@ -56,7 +56,7 @@ void ProfileTest::SetUp()
     EXPECT_CALL(*m_service_proxy, platform_start_profile("profile"));
     EXPECT_CALL(*m_service_proxy, platform_stop_profile(_));
 
-    EXPECT_CALL(*m_status, set_valid_cpu(m_cpu_list));
+    EXPECT_CALL(*m_status, set_hash(_, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
 
     m_scheduler = std::make_shared<MockScheduler>();
     EXPECT_CALL(*m_scheduler, num_cpu())

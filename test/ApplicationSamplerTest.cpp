@@ -76,7 +76,7 @@ void ApplicationSamplerTest::SetUp()
     m_mock_topo = geopm::make_unique<MockPlatformTopo>();
     EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu));
-
+    geopm::time_zero_reset({{0, 0}});
     m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status,
                                                             *m_mock_topo,
                                                             m_process_map,
@@ -417,14 +417,17 @@ TEST_F(ApplicationSamplerTest, hint_time)
     EXPECT_EQ(0.0, network_time);
     memory_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_MEMORY);
     EXPECT_EQ(0.0, memory_time);
+    geopm_time_s zero = {{1, 0}};
+    std::vector<record_s> start_message_buffer_0 = {{zero, 0, geopm::EVENT_START_PROFILE, 0}};
+    std::vector<record_s> start_message_buffer_1 = {{zero, 234, geopm::EVENT_START_PROFILE, 0}};
     std::vector<record_s> empty_message_buffer;
     std::vector<short_region_s> empty_short_region_buffer;
     {
         EXPECT_CALL(*m_record_log_0, dump(_, _))
-            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+            .WillOnce(DoAll(SetArgReferee<0>(start_message_buffer_0),
                             SetArgReferee<1>(empty_short_region_buffer)));
         EXPECT_CALL(*m_record_log_1, dump(_, _))
-            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+            .WillOnce(DoAll(SetArgReferee<0>(start_message_buffer_1),
                             SetArgReferee<1>(empty_short_region_buffer)));
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
