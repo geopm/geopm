@@ -61,7 +61,8 @@ namespace geopm
             void update_client_cpu_map(const std::vector<int> &client_pids);
             std::map<int, std::set<int> > update_client_cpu_map_helper(const std::vector<int> &client_pids);
             void update_cpu_active(void);
-            void update_start_stop(void);
+            void update_start(void);
+            void update_stop(void);
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
             std::shared_ptr<ApplicationStatus> m_status;

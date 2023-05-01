@@ -147,19 +147,9 @@ namespace geopm
         if (!m_do_profile || !m_status) {
             return;
         }
-        m_status->update_cache();
-        if (!m_is_first_update) {
-            GEOPM_DEBUG_ASSERT((int) m_hint_time.size() == m_num_cpu &&
-                               (int) m_hint_last.size() == m_num_cpu,
-                               "Mismatch in CPU/hint vectors");
-            double time_delta = geopm_time_diff(&m_update_time, &curr_time);
-            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-                m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
-                m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
-            }
-        }
-        m_is_first_update = false;
-        m_update_time = curr_time;
+        GEOPM_DEBUG_ASSERT((int) m_hint_time.size() == m_num_cpu &&
+                           (int) m_hint_last.size() == m_num_cpu,
+                           "Mismatch in CPU/hint vectors");
         // Dump the record log from each process, filter the results,
         // and reindex the short region event signals.
 
@@ -215,13 +205,32 @@ namespace geopm
             update_client_cpu_map(client_pids());
             update_cpu_active();
         }
-        update_start_stop();
+        update_start();
+        m_status->update_cache();
+        double time_delta;
+        if (m_is_first_update) {
+            geopm_time_s zero = geopm::time_zero();
+            time_delta = geopm_time_diff(&zero, &curr_time);
+            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+                m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
+                m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
+            }
+        }
+        else {
+            time_delta = geopm_time_diff(&m_update_time, &curr_time);
+            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+                m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
+                m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
+            }
+        }
+        m_is_first_update = false;
+        m_update_time = curr_time;
+        update_stop();
     }
 
-    void ApplicationSamplerImp::update_start_stop(void)
+    void ApplicationSamplerImp::update_start(void)
     {
         bool do_update = false;
-        bool is_active = (m_num_registered != 0);
         geopm_time_s zero = geopm::time_zero();
         for (const auto &record : m_record_buffer) {
             if (record.event == EVENT_START_PROFILE) {
@@ -230,10 +239,20 @@ namespace geopm
                     do_update = true;
                     zero = record.time;
                 }
-                is_active = true;
                 ++m_num_registered;
             }
-            else if (record.event == EVENT_STOP_PROFILE) {
+        }
+        if (do_update) {
+            geopm::time_zero_reset(zero);
+        }
+    }
+
+    void ApplicationSamplerImp::update_stop(void)
+    {
+        bool is_active = (m_num_registered != 0);
+        geopm_time_s zero = geopm::time_zero();
+        for (const auto &record : m_record_buffer) {
+            if (record.event == EVENT_STOP_PROFILE) {
                 if (geopm_time_diff(&m_last_stop, &(record.time)) > 0) {
                     m_last_stop = record.time;
                 }
@@ -241,11 +260,8 @@ namespace geopm
             }
         }
         if (m_num_registered < 0) {
-            throw Exception("ApplicationSamplerImp::update_start_stop(): More requests to stop profiling than were made to start profiling",
+            throw Exception("ApplicationSamplerImp::update_stop(): More requests to stop profiling than were made to start profiling",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        if (do_update) {
-            geopm::time_zero_reset(zero);
         }
         if (is_active && m_num_registered == 0) {
             m_total_time = geopm_time_diff(&zero, &m_last_stop);
