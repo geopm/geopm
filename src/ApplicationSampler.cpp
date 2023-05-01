@@ -392,7 +392,7 @@ namespace geopm
                     std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
                     throw;
                 }
-                timespec delay = {0, 100000000};
+                timespec delay = {0, 1000000};
                 nanosleep(&delay, NULL);
             }
         }
