@@ -209,11 +209,8 @@ namespace geopm
         m_status->update_cache();
         double time_delta;
         if (m_is_first_update) {
-            geopm_time_s zero = geopm::time_zero();
-            time_delta = geopm_time_diff(&zero, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
                 m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
-                m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
             }
         }
         else {
