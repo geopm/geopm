@@ -277,10 +277,9 @@ extern "C" {
             err = GEOPM_ERROR_RUNTIME;
         }
         if (!err) {
-            err = PMPI_Barrier(MPI_COMM_WORLD);
             init_rid = geopm_mpi_func_rid("MPI_Init");
-            geopm::Profile::default_profile().reset_cpu_set();
             geopm_mpi_region_enter(init_rid);
+            err = PMPI_Barrier(MPI_COMM_WORLD);
         }
         if (!err) {
             if (argv && *argv && **argv && strlen(**argv)) {

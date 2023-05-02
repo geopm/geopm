@@ -8,7 +8,6 @@
 #include <map>
 #include <functional>
 #include <iostream>
-#include <sstream>
 #include <algorithm>
 #include <cstring>
 #include <cerrno>
@@ -132,10 +131,11 @@ namespace geopm
         , m_profile_name(profile_name)
         , m_client_cpu_map(client_cpu_map)
         , m_scheduler(scheduler)
-        , m_num_registered(0)
         , m_do_shutdown(false)
         , m_last_stop({})
         , m_total_time(0.0)
+        , m_num_registered(0)
+        , m_num_affinitized(0)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -200,11 +200,6 @@ namespace geopm
                                          proc_it.short_regions.begin(),
                                          proc_it.short_regions.end());
         }
-        if (std::any_of(m_record_buffer.begin(), m_record_buffer.end(),
-                        [](const record_s &rec) {return rec.event == EVENT_AFFINITY;})) {
-            update_client_cpu_map(client_pids());
-            update_cpu_active();
-        }
         update_start();
         m_status->update_cache();
         double time_delta;
@@ -227,26 +222,44 @@ namespace geopm
 
     void ApplicationSamplerImp::update_start(void)
     {
-        bool do_update = false;
+        bool do_update_zero = false;
+        bool do_update_cpu = false;
         geopm_time_s zero = geopm::time_zero();
+
         for (const auto &record : m_record_buffer) {
             if (record.event == EVENT_START_PROFILE) {
                 if (m_num_registered == 0 ||
                     geopm_time_diff(&(zero), &(record.time)) < 0) {
-                    do_update = true;
+                    do_update_zero = true;
                     zero = record.time;
                 }
                 ++m_num_registered;
             }
+            if (record.event == EVENT_AFFINITY) {
+                ++m_num_affinitized;
+                if (m_num_affinitized == (int)m_client_pids.size()) {
+                    do_update_cpu = true;
+                }
+            }
         }
-        if (do_update) {
+        if (do_update_zero) {
             geopm::time_zero_reset(zero);
+        }
+        if (do_update_cpu) {
+            long jiffy_per_sec = sysconf(_SC_CLK_TCK);
+            GEOPM_DEBUG_ASSERT(jiffy_per_sec >= 5,
+                               "System config reports less than 5 for HZ");
+            long nsec_per_jiffy = 1000000000 / jiffy_per_sec;
+            timespec delay {0, 5 * nsec_per_jiffy};
+            nanosleep(&delay, nullptr);
+            update_client_cpu_map();
+            update_cpu_active();
         }
     }
 
     void ApplicationSamplerImp::update_stop(void)
     {
-        bool is_active = (m_num_registered != 0);
+        bool is_active = m_num_registered != 0;
         geopm_time_s zero = geopm::time_zero();
         for (const auto &record : m_record_buffer) {
             if (record.event == EVENT_STOP_PROFILE) {
@@ -254,12 +267,19 @@ namespace geopm
                     m_last_stop = record.time;
                 }
                 --m_num_registered;
+                if (m_client_pids.erase(record.process) == 0) {
+                    throw Exception("ApplicationSamplerImp::update_stop(): PID request to stop profiling before call to start profiling: " + std::to_string(record.process),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+
+                }
             }
         }
         if (m_num_registered < 0) {
-            throw Exception("ApplicationSamplerImp::update_stop(): More requests to stop profiling than were made to start profiling",
+            throw Exception("ApplicationSamplerImp::update_stop(): PID request to stop profiling multiple times",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+
         }
+
         if (is_active && m_num_registered == 0) {
             m_total_time = geopm_time_diff(&zero, &m_last_stop);
             m_do_shutdown = true;
@@ -366,11 +386,13 @@ namespace geopm
 
     void ApplicationSamplerImp::update_cpu_active(void)
     {
+        int num_active_cpu = 0;
         std::fill(m_is_cpu_active.begin(), m_is_cpu_active.end(), false);
         for (const auto &client_it : m_client_cpu_map) {
             const std::set<int> &cpu_set = client_it.second;
             for (int cpu_idx : cpu_set) {
                 m_is_cpu_active[cpu_idx] = true;
+                ++num_active_cpu;
             }
         }
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
@@ -378,13 +400,13 @@ namespace geopm
         }
     }
 
-    void ApplicationSamplerImp::update_client_cpu_map(const std::vector<int> &client_pids)
+    void ApplicationSamplerImp::update_client_cpu_map(void)
     {
         bool try_connect_affinity = true;
         int max_try = 10000;
         for (int connect_count = 1; try_connect_affinity; ++connect_count) {
             try {
-                m_client_cpu_map = update_client_cpu_map_helper(client_pids);
+                m_client_cpu_map = update_client_cpu_map_helper();
                 try_connect_affinity = false;
             }
             catch (const Exception &ex) {
@@ -393,17 +415,17 @@ namespace geopm
                     throw;
                 }
                 timespec delay = {0, 1000000};
-                nanosleep(&delay, NULL);
+                nanosleep(&delay, nullptr);
             }
         }
     }
 
-    std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map_helper(const std::vector<int> &client_pids)
+    std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map_helper(void)
     {
         std::map<int, std::set<int> > result;
         std::vector<int> per_cpu_process(m_num_cpu, -1);
         size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
-        for (const auto &pid : client_pids) {
+        for (const auto &pid : m_client_pids) {
             auto cpuset = m_scheduler->proc_cpuset(pid);
             for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
                 if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
@@ -437,10 +459,9 @@ namespace geopm
         if (!m_status && m_do_profile) {
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");
+            m_client_pids.insert(client_pids.begin(), client_pids.end());
             connect_status();
             m_process_map = connect_record_log(client_pids);
-            update_client_cpu_map(client_pids);
-            update_cpu_active();
         }
     }
 
@@ -455,13 +476,9 @@ namespace geopm
         return client_it->second;
     }
 
-    std::vector<int> ApplicationSamplerImp::client_pids(void) const
+    std::set<int> ApplicationSamplerImp::client_pids(void) const
     {
-        std::vector<int> result;
-        for (const auto &client_it : m_client_cpu_map) {
-            result.push_back(client_it.first);
-        }
-        return result;
+        return m_client_pids;
     }
 
     bool ApplicationSamplerImp::do_shutdown(void) const
