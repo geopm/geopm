@@ -13,51 +13,45 @@ from itertools import chain
 
 def process_report_files(input_dir, app_index):
     reports = []
+    print(f"Processing {input_dir}")
     for report_path in chain(
             glob.iglob(os.path.join(input_dir, "*", '*.report')),
             glob.iglob(os.path.join(input_dir, '*.report'))):
         with open(report_path) as f:
             report = yaml.safe_load(f)
+
+        #Name of application being profiled
+        app_name = report["Profile"][:report["Profile"].find('_frequency_map')]
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
-        directory_name = os.path.basename(os.path.dirname(report_path))
+        #directory_name = os.path.basename(os.path.dirname(report_path))
 
-        gpu_freq = None
-        cpu_freq = None
-        uncore_freq = None
+        freqs = {"gpu":None, "cpu":None, "uncore":None}
+        lookup_str = {"gpu":"FREQ_GPU_DEFAULT", "cpu":"FREQ_CPU_DEFAULT", "uncore":"FREQ_CPU_UNCORE"}
 
-        if 'GPU_FREQUENCY' in report["Policy"]:
-            gpu_freq = float(report["Policy"]["GPU_FREQUENCY"])
-        if "UNCORE_MIN_FREQUENCY" in report["Policy"] and "UNCORE_MAX_FREQUENCY" in report["Policy"]:
-            if float(report["Policy"]["UNCORE_MIN_FREQUENCY"]) == float(report["Policy"]["UNCORE_MAX_FREQUENCY"]):
-                uncore_freq = float(report["Policy"]["UNCORE_MIN_FREQUENCY"])
-        if "CORE_FREQUENCY" in report["Policy"]:
-            cpu_freq = report["Policy"]["CORE_FREQUENCY"]
+        for device in freqs:
+            if lookup_str[device] in report["Policy"] and report["Policy"][lookup_str[device]] != "NAN":
+                freqs[device] =  float(report["Policy"][lookup_str[device]])
 
-        name_parts = experiment_name.split('_')
-        app_name = name_parts[0]
-        #Differentiate between parres dgemm and nstream
-        if app_name == "parres":
-            app_name = name_parts[1]
-
+        #TODO [stretch]: Test if it's useful to feed freq requested *and* freq accomplished to NN
         for nodename in report["Hosts"]:
             conf = {}
-            if cpu_freq is not None:
-                conf['cpu-frequency'] = cpu_freq
-            if gpu_freq is not None:
-                conf['gpu-frequency'] = gpu_freq
-            if uncore_freq is not None:
-                conf['uncore-frequency'] = uncore_freq
             conf['node'] = nodename
+            for device in freqs:
+                if freqs[device] is not None:
+                    conf[f"{device}-frequency"] = freqs[device]
 
             if "Regions" in report["Hosts"][nodename]:
                 for region_dict in report["Hosts"][nodename]["Regions"]:
-                    region_dict['app-config'] = app_name + '-' + directory_name + '-' + hex(region_dict['hash'])
+                    #TODO: Why was directory name added here? Don't see a need to differentiate runs
+                    #region_dict['app-config'] = app_name + '-' + directory_name + '-' + hex(region_dict['hash'])
+                    region_dict['app-config'] = app_name + '-' + hex(region_dict['hash'])
                     region_dict.update(conf)
                     reports.append(region_dict)
             else:
                 # Handle sweeps done with python infrastructure that does not have regions or a region hash
                 region_dict = report["Hosts"][nodename]["Application Totals"]
-                region_dict['app-config'] = app_name + '-' + directory_name + '-' + "0xDEADBEEF"
+                #region_dict['app-config'] = app_name + '-' + directory_name + '-' + "0xDEADBEEF"
+                region_dict['app-config'] = app_name + '-' + "0xDEADBEEF"
 
                 region_dict.update(conf)
                 reports.append(region_dict)
@@ -66,7 +60,8 @@ def process_report_files(input_dir, app_index):
                 region_dict = report["Hosts"][nodename]["Unmarked Totals"]
                 region_dict['region'] = "Unmarked"
                 region_dict['hash'] = f"{app_name}_unmarked"
-                region_dict['app-config'] = app_name + '-' + directory_name + '-' + region_dict['hash']
+                #region_dict['app-config'] = app_name + '-' + directory_name + '-' + region_dict['hash']
+                region_dict['app-config'] = app_name + '-' + region_dict['hash']
                 region_dict.update(conf)
                 reports.append(region_dict)
 
@@ -79,28 +74,39 @@ def process_trace_files(sweep_dir, app_index):
             glob.iglob(os.path.join(sweep_dir, "*", f'*.trace-*')),
             glob.iglob(os.path.join(sweep_dir, f'*.trace-*'))):
 
-        #TODO: Get node name from comments at top of trace file
-        nodename = trace_file[trace_file.rfind('.trace-')+7:]
-
         trace_df = pd.read_csv(trace_file, sep='|', comment='#')
+
+        #Capture header information from trace file without ingesting whole file
+        trace_header = {}
+        for line in open(trace_file, "r"):
+            if line[0] != '#':
+                break
+            #TODO: Clean up
+            key = line[2:line[1:].strip().find(':')]
+            value = line[2+line[1:].strip().find(':'):]
+            trace_header[key.strip()] = value.strip()
+
+        nodename = trace_header["node_name"]
+        app_name = trace_header["profile_name"][:trace_header["profile_name"].find('_frequency_map')]
 
         #Filter out nan and "NAN" regions
         trace_df = trace_df[trace_df['REGION_HASH'].notna()]
         trace_df = trace_df(trace_df['REGION_HASH'] != "NAN")
 
         trace_df['node'] = nodename
-        #TODO: There's got to be a better way to get the application name
-        experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
-        directory_name = os.path.basename(os.path.dirname(trace_file))
+        #experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
+        #directory_name = os.path.basename(os.path.dirname(trace_file))
+
+        #TODO: What is the point of this?
         trace_df['app-index'] = app_index
-        name_parts = experiment_name.split('_')
-        app_name = name_parts[0]
 
+        #TODO: Revisit this after non-MPI geopm work
         # Handle sweeps done with python infrastructure that does not have a region hash
-        if "REGION_HASH" not in trace_df.columns:
+        #if "REGION_HASH" not in trace_df.columns:
             #trace_df['REGION_HASH'] = "0xDEADBEEF"
-            continue
+        #   continue
 
+        #TODO: Will this also catch unmarked regions of apps with reasonable region markup?
         trace_df.loc[trace_df['REGION_HASH'] == '0x725e8066', 'REGION_HASH'] = f"{app_name}_unmarked"
 
         # Handle old signal names present in traces from geopm1
@@ -131,6 +137,7 @@ def process_trace_files(sweep_dir, app_index):
 
 def main(output_prefix, frequency_sweep_dirs):
     reports_dfs = []
+
     #Determine which columns to keep for stats file, which is used to generate frequency
     #recommendations
     keep_columns = [
@@ -149,9 +156,10 @@ def main(output_prefix, frequency_sweep_dirs):
             ]
     first = True
     #TODO: Catch situation where some report is empty
-    #      Desired behavior: Skip if others are valid put output warning message
+    #      Desired behavior: Skip if others are valid, output warning message w/ report path name
     #                        If all reports are invalid, output error message and quit
 
+    #TODO: Why is this app_index needed? Why enumerate the directories?
     for app_index, full_sweep_dir in enumerate(frequency_sweep_dirs):
         reports_df = process_report_files(full_sweep_dir, app_index)
         if first:
