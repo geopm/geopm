@@ -11,7 +11,7 @@ import argparse
 import code
 from itertools import chain
 
-def process_report_files(input_dir, app_index):
+def process_report_files(input_dir):
     reports = []
     print(f"Processing {input_dir}")
     for report_path in chain(
@@ -68,7 +68,7 @@ def process_report_files(input_dir, app_index):
     return pd.DataFrame(reports)
 
 # Process trace file to be ingested into HDF
-def process_trace_files(sweep_dir, app_index):
+def process_trace_files(sweep_dir):
     all_dfs = []
     for trace_file in chain(
             glob.iglob(os.path.join(sweep_dir, "*", f'*.trace-*')),
@@ -81,9 +81,9 @@ def process_trace_files(sweep_dir, app_index):
         for line in open(trace_file, "r"):
             if line[0] != '#':
                 break
-            #TODO: Clean up
-            key = line[2:line[1:].strip().find(':')]
-            value = line[2+line[1:].strip().find(':'):]
+            #TODO: Clean up--changed b/c there can be multiple ":"
+            key = line[2:line.strip().find(':')]
+            value = line[2+line.strip().find(':'):]
             trace_header[key.strip()] = value.strip()
 
         nodename = trace_header["node_name"]
@@ -91,45 +91,21 @@ def process_trace_files(sweep_dir, app_index):
 
         #Filter out nan and "NAN" regions
         trace_df = trace_df[trace_df['REGION_HASH'].notna()]
-        trace_df = trace_df(trace_df['REGION_HASH'] != "NAN")
+        trace_df = trace_df[trace_df['REGION_HASH'] != "NAN"]
 
         trace_df['node'] = nodename
         #experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
         #directory_name = os.path.basename(os.path.dirname(trace_file))
 
-        #TODO: What is the point of this?
-        trace_df['app-index'] = app_index
-
-        #TODO: Revisit this after non-MPI geopm work
-        # Handle sweeps done with python infrastructure that does not have a region hash
-        #if "REGION_HASH" not in trace_df.columns:
-            #trace_df['REGION_HASH'] = "0xDEADBEEF"
-        #   continue
-
-        #TODO: Will this also catch unmarked regions of apps with reasonable region markup?
-        trace_df.loc[trace_df['REGION_HASH'] == '0x725e8066', 'REGION_HASH'] = f"{app_name}_unmarked"
-
-        # Handle old signal names present in traces from geopm1
-        key_change = [('POWER_PACKAGE', 'CPU_POWER'),
-                      ('ENERGY_PACKAGE', 'CPU_ENERGY'),
-                      ('INSTRUCTIONS_RETIRED', 'CPU_INSTRUCTIONS_RETIRED'),
-                      ('CYCLES_THREAD', 'CPU_CYCLES_THREAD'),
-                      ('QM_CTR_SCALED_RATE', 'MSR::QM_CTR_SCALED_RATE'),
-                      ('ENERGY_DRAM', 'DRAM_ENERGY'),
-                      ('POWER_DRAM', 'DRAM_POWER'),
-                      ]
-
-        for column in trace_df.columns:
-            for old_key, new_key in key_change:
-                if column.startswith(old_key):
-                    ncolumn = new_key + column[len(old_key):]
-                    trace_df[ncolumn] = trace_df[column]
-
-        # TODO: Find out if there's a cleaner way
         # Help uniquely identify different configurations of a single app
-        config_name = app_name + "-" + directory_name + '-' + trace_df['REGION_HASH']
+        #config_name = app_name + "-" + directory_name + '-' + trace_df['REGION_HASH']
+        config_name = app_name + '-' + trace_df['REGION_HASH']
 
         trace_df['app-config'] = config_name
+
+        #TODO: Maybe train on app-config instead of REGION_HASH, then won't have
+        #      to do this
+        trace_df.loc[trace_df['REGION_HASH'] == '0x725e8066', 'REGION_HASH'] = f"{app_name}_unmarked"
 
         all_dfs.append(trace_df)
     return pd.concat(all_dfs, ignore_index=True)
@@ -159,9 +135,8 @@ def main(output_prefix, frequency_sweep_dirs):
     #      Desired behavior: Skip if others are valid, output warning message w/ report path name
     #                        If all reports are invalid, output error message and quit
 
-    #TODO: Why is this app_index needed? Why enumerate the directories?
-    for app_index, full_sweep_dir in enumerate(frequency_sweep_dirs):
-        reports_df = process_report_files(full_sweep_dir, app_index)
+    for full_sweep_dir in frequency_sweep_dirs:
+        reports_df = process_report_files(full_sweep_dir)
         if first:
             for want_column in want_columns:
                 if want_column in reports_df.columns:
@@ -176,8 +151,8 @@ def main(output_prefix, frequency_sweep_dirs):
     #Creating trace hdf for training neural net, annotated with region hashes or
     #generated region names when hashes are not available
     trace_dfs = []
-    for app_index, full_sweep_dir in enumerate(frequency_sweep_dirs):
-        trace_dfs.append(process_trace_files(full_sweep_dir, app_index))
+    for full_sweep_dir in frequency_sweep_dirs:
+        trace_dfs.append(process_trace_files(full_sweep_dir))
 
     pd \
     .concat(trace_dfs, ignore_index=True) \
