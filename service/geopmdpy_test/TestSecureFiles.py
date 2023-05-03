@@ -81,6 +81,8 @@ class TestSecureFiles(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         secure_make_dirs(sess_path)
         self.check_dir_perms(sess_path)
+        current_umask = os.umask(self._old_umask)
+        self.assertEqual(current_umask, self._old_umask)
 
     def test_creation_with_perm(self):
         """Creation of geopm-service directory with permissions
@@ -94,6 +96,8 @@ class TestSecureFiles(unittest.TestCase):
         perm_mode = 0o711
         secure_make_dirs(sess_path, perm_mode)
         self.check_dir_perms(sess_path, perm_mode)
+        current_umask = os.umask(self._old_umask)
+        self.assertEqual(current_umask, self._old_umask)
 
     def test_creation_link_not_dir(self):
         """The path specified is a link not a directory.
@@ -262,12 +266,21 @@ class TestSecureFiles(unittest.TestCase):
         perm_mode = 0o711
         secure_make_dirs(sess_path, perm_mode)
         self.check_dir_perms(sess_path, perm_mode)
-        
-        st = os.stat(base_path)
-        base_perm_mode = stat.S_IMODE(st.st_mode)
-        umask = ~perm_mode & 0o777
-        self.assertEqual(base_perm_mode & umask, 0)
+        self.check_dir_perms(base_path, perm_mode)
 
+    def test_umask_restored_on_error(self):
+        """Creation of nested directories
+
+        Test secure_make_dirs() properly restores the umask
+        when there are any errors creating the directories.
+        """
+        perm_mode = self._old_umask
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        with mock.patch('os.makedirs', side_effect=Exception('Unable to create directories!')), \
+             self.assertRaises(Exception):
+            secure_make_dirs(sess_path, perm_mode)
+        current_mask = os.umask(self._old_umask)
+        self.assertEqual(current_mask, self._old_umask)
 
     def test_read_file_not_exists(self):
         """File to be securely read in does not exist!
