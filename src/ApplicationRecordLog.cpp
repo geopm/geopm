@@ -7,6 +7,7 @@
 
 #include "ApplicationRecordLog.hpp"
 #include <unistd.h>
+#include "Scheduler.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
@@ -38,16 +39,18 @@ namespace geopm
     }
 
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem)
-        : ApplicationRecordLogImp(shmem, getpid())
+        : ApplicationRecordLogImp(shmem, getpid(), Scheduler::make_unique())
     {
     }
 
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
-                                                     int process)
+                                                     int process,
+                                                     std::shared_ptr<Scheduler> scheduler)
         : m_process(process)
         , m_shmem(shmem)
         , m_epoch_count(0)
         , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
+        , m_scheduler(scheduler)
     {
         if (m_shmem->size() < buffer_size()) {
             throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",
@@ -170,15 +173,25 @@ namespace geopm
 
     void ApplicationRecordLogImp::cpuset_changed(const geopm_time_s &time)
     {
+        auto cpu_set = m_scheduler->proc_cpuset(m_process);
+        int num_cpu = m_scheduler->num_cpu();
+        for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+            if (CPU_ISSET(cpu_idx, cpu_set.get())) {
+                affinity(time, cpu_idx);
+            }
+        }
+    }
+
+    void ApplicationRecordLogImp::affinity(const geopm_time_s &time, int cpu_idx)
+    {
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
-
         record_s affinity_record = {
            .time = time,
            .process = m_process,
            .event = EVENT_AFFINITY,
-           .signal = (uint64_t)m_process, // Could be TID (not PID) in the future
+           .signal = (uint64_t)cpu_idx,
         };
         append_record(layout, affinity_record);
     }

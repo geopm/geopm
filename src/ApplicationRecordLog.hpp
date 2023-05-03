@@ -19,6 +19,7 @@ namespace geopm
 {
     class SharedMemory;
     class SharedMemoryScopedLock;
+    class Scheduler;
 
     /// @brief Provides an abstraction for a shared memory buffer that
     ///        can be used to pass entry, exit, epoch and short region
@@ -134,6 +135,7 @@ namespace geopm
             ///        output vector.
             virtual void dump(std::vector<record_s> &records,
                               std::vector<short_region_s> &short_regions) = 0;
+            virtual void affinity(const geopm_time_s &time, int cpu_idx) = 0;
             virtual void cpuset_changed(const geopm_time_s &time) = 0;
             virtual void start_profile(const geopm_time_s &time, std::string profile_name) = 0;
             virtual void stop_profile(const geopm_time_s &time, std::string profile_name) = 0;
@@ -172,13 +174,15 @@ namespace geopm
         public:
             ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem);
             ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
-                                    int process);
+                                    int process,
+                                    std::shared_ptr<Scheduler> scheduler);
             virtual ~ApplicationRecordLogImp() = default;
             void enter(uint64_t hash, const geopm_time_s &time) override;
             void exit(uint64_t hash, const geopm_time_s &time) override;
             void epoch(const geopm_time_s &time) override;
             void dump(std::vector<record_s> &records,
                       std::vector<short_region_s> &short_regions) override;
+            void affinity(const geopm_time_s &time, int cpu_idx) override;
             void cpuset_changed(const geopm_time_s &time) override;
             void start_profile(const geopm_time_s &time, std::string profile_name) override;
             void stop_profile(const geopm_time_s &time, std::string profile_name) override;
@@ -205,6 +209,7 @@ namespace geopm
             std::map<uint64_t, m_region_enter_s> m_hash_region_enter_map;
             uint64_t m_epoch_count;
             uint64_t m_entered_region_hash;
+            std::shared_ptr<Scheduler> m_scheduler;
     };
 }
 
