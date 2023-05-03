@@ -301,18 +301,18 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/SSTFrequencyLimitDetectorTest.detects_nearest_license_level_limit_bucket_0 \
               test/gtest_links/SSTFrequencyLimitDetectorTest.detects_nearest_license_level_limit_bucket_1 \
               test/gtest_links/SSTFrequencyLimitDetectorTest.limits_license_level_search_if_frequency_capped \
-              test/gtest_links/TensorMathTest.test_sum \
-              test/gtest_links/TensorMathTest.test_self_sum \
-              test/gtest_links/TensorMathTest.test_diff \
-              test/gtest_links/TensorMathTest.test_self_diff \
-              test/gtest_links/TensorMathTest.test_dot \
-              test/gtest_links/TensorMathTest.test_sigmoid \
               test/gtest_links/TensorMathTest.test_bad_dimensions \
+              test/gtest_links/TensorMathTest.test_diff \
+              test/gtest_links/TensorMathTest.test_dot \
               test/gtest_links/TensorMathTest.test_mat_prod \
+              test/gtest_links/TensorMathTest.test_self_sum \
+              test/gtest_links/TensorMathTest.test_self_diff \
+              test/gtest_links/TensorMathTest.test_sigmoid \
+              test/gtest_links/TensorMathTest.test_sum \
               test/gtest_links/TensorOneDTest.test_copy \
               test/gtest_links/TensorOneDTest.test_diff \
-              test/gtest_links/TensorOneDTest.test_input \
               test/gtest_links/TensorOneDTest.test_equivalent \
+              test/gtest_links/TensorOneDTest.test_input \
               test/gtest_links/TensorOneDTest.test_prod \
               test/gtest_links/TensorOneDTest.test_sigmoid \
               test/gtest_links/TensorOneDTest.test_sum \
@@ -321,21 +321,22 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorOneDIntegrationTest.test_diff \
               test/gtest_links/TensorOneDIntegrationTest.test_dot \
               test/gtest_links/TensorOneDIntegrationTest.test_input \
-              test/gtest_links/TensorOneDIntegrationTest.test_sigmoid \
               test/gtest_links/TensorOneDIntegrationTest.test_self_diff \
               test/gtest_links/TensorOneDIntegrationTest.test_self_sum \
+              test/gtest_links/TensorOneDIntegrationTest.test_sigmoid \
               test/gtest_links/TensorOneDIntegrationTest.test_sum \
-              test/gtest_links/TensorTwoDTest.test_vector_product \
-              test/gtest_links/TensorTwoDTest.test_bad_dimensions \
-              test/gtest_links/TensorTwoDTest.test_empty_weights \
-              test/gtest_links/TensorTwoDTest.test_copy_constructor \
               test/gtest_links/TensorTwoDTest.test_array_overload \
-              test/gtest_links/TensorTwoDTest.test_input \
+              test/gtest_links/TensorTwoDTest.test_bad_dimensions \
+              test/gtest_links/TensorTwoDTest.test_copy_constructor \
+              test/gtest_links/TensorTwoDTest.test_copy \
               test/gtest_links/TensorTwoDTest.test_degenerate_size \
-              test/gtest_links/TensorTwoDTest.test_set_data \
+              test/gtest_links/TensorTwoDTest.test_empty_weights \
               test/gtest_links/TensorTwoDTest.test_equality \
-              test/gtest_links/TensorTwoDIntegrationTest.test_mat_prod \
+              test/gtest_links/TensorTwoDTest.test_input \
+              test/gtest_links/TensorTwoDTest.test_set_data \
+              test/gtest_links/TensorTwoDTest.test_vector_product \
               test/gtest_links/TensorTwoDIntegrationTest.test_bad_dimensions \
+              test/gtest_links/TensorTwoDIntegrationTest.test_mat_prod \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/TracerTest.update_samples \
@@ -393,10 +394,10 @@ if ENABLE_BETA
                    test/gtest_links/FFNetAgentTest.trace_names_no_gpu \
                    test/gtest_links/FFNetAgentTest.trace_values \
                    test/gtest_links/FFNetAgentTest.trace_values_no_gpu \
-                   test/gtest_links/FFNetAgentTest.validate_badsize_policy \
                    test/gtest_links/FFNetAgentTest.validate_badphi_policy\
-                   test/gtest_links/FFNetAgentTest.validate_good_policy\
+                   test/gtest_links/FFNetAgentTest.validate_badsize_policy \
                    test/gtest_links/FFNetAgentTest.validate_empty_policy \
+                   test/gtest_links/FFNetAgentTest.validate_good_policy\
                    test/gtest_links/GPUActivityAgentTest.name \
                    test/gtest_links/GPUActivityAgentTest.validate_policy \
                    test/gtest_links/GPUActivityAgentTest.adjust_platform_high \
