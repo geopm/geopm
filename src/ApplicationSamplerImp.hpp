@@ -58,8 +58,6 @@ namespace geopm
         private:
             std::map<int, m_process_s> connect_record_log(const std::vector<int> &client_pids);
             void connect_status(void);
-            void update_client_cpu_map(void);
-            std::map<int, std::set<int> > update_client_cpu_map_helper(void);
             void update_cpu_active(void);
             void update_start(void);
             void update_stop(void);
@@ -85,7 +83,6 @@ namespace geopm
             geopm_time_s m_last_stop;
             double m_total_time;
             int m_num_registered;
-            int m_num_affinitized;
     };
 }
 

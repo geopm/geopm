@@ -135,7 +135,6 @@ namespace geopm
         , m_last_stop({})
         , m_total_time(0.0)
         , m_num_registered(0)
-        , m_num_affinitized(0)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -236,23 +235,14 @@ namespace geopm
                 ++m_num_registered;
             }
             if (record.event == EVENT_AFFINITY) {
-                ++m_num_affinitized;
-                if (m_num_affinitized == (int)m_client_pids.size()) {
-                    do_update_cpu = true;
-                }
+                m_client_cpu_map[record.process].insert((int)record.signal);
+                do_update_cpu = true;
             }
         }
         if (do_update_zero) {
             geopm::time_zero_reset(zero);
         }
         if (do_update_cpu) {
-            long jiffy_per_sec = sysconf(_SC_CLK_TCK);
-            GEOPM_DEBUG_ASSERT(jiffy_per_sec >= 5,
-                               "System config reports less than 5 for HZ");
-            long nsec_per_jiffy = 1000000000 / jiffy_per_sec;
-            timespec delay {0, 5 * nsec_per_jiffy};
-            nanosleep(&delay, nullptr);
-            update_client_cpu_map();
             update_cpu_active();
         }
     }
@@ -398,48 +388,7 @@ namespace geopm
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
             m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
         }
-    }
 
-    void ApplicationSamplerImp::update_client_cpu_map(void)
-    {
-        bool try_connect_affinity = true;
-        int max_try = 10000;
-        for (int connect_count = 1; try_connect_affinity; ++connect_count) {
-            try {
-                m_client_cpu_map = update_client_cpu_map_helper();
-                try_connect_affinity = false;
-            }
-            catch (const Exception &ex) {
-                if (connect_count == max_try ||
-                    std::string(ex.what()).find("distinct CPUs") == std::string::npos) {
-                    throw;
-                }
-                timespec delay = {0, 1000000};
-                nanosleep(&delay, nullptr);
-            }
-        }
-    }
-
-    std::map<int, std::set<int> > ApplicationSamplerImp::update_client_cpu_map_helper(void)
-    {
-        std::map<int, std::set<int> > result;
-        std::vector<int> per_cpu_process(m_num_cpu, -1);
-        size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
-        for (const auto &pid : m_client_pids) {
-            auto cpuset = m_scheduler->proc_cpuset(pid);
-            for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-                if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
-                    if (per_cpu_process.at(cpu_idx) == -1) {
-                        per_cpu_process.at(cpu_idx) = pid;
-                        result[pid].insert(cpu_idx);
-                    }
-                    else {
-                        throw Exception("ApplicationSampler::connect(): Application processes are not affinitized to distinct CPUs",
-                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                    }
-                }
-            }
-        }
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
         auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
@@ -451,7 +400,6 @@ namespace geopm
                       << ", sched_setaffinity() failed: " << strerror(errno) << "\n";
 #endif
         }
-        return result;
     }
 
     void ApplicationSamplerImp::connect(const std::vector<int> &client_pids)
