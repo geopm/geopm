@@ -476,9 +476,10 @@ namespace geopm
         return client_it->second;
     }
 
-    std::set<int> ApplicationSamplerImp::client_pids(void) const
+    std::vector<int> ApplicationSamplerImp::client_pids(void) const
     {
-        return m_client_pids;
+        std::vector<int> result(m_client_pids.begin(), m_client_pids.end());
+        return result;
     }
 
     bool ApplicationSamplerImp::do_shutdown(void) const

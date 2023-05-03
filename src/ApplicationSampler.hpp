@@ -110,7 +110,7 @@ namespace geopm
             /// string as a key.
             ///
             virtual void connect(const std::vector<int> &client_pids) = 0;
-            virtual std::set<int> client_pids(void) const = 0;
+            virtual std::vector<int> client_pids(void) const = 0;
             virtual std::set<int> client_cpu_set(int client_pid) const = 0;
             virtual bool do_shutdown(void) const = 0;
             virtual double total_time(void) const = 0;
