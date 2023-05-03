@@ -102,6 +102,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         self.assertEqual(csv_data['CPU_POWER_LIMIT'][0], self.default_power_cap)
 
     @util.skip_unless_config_enable('beta')
+    @unittest.expectedFailure # Suite needs to be updated to be run out-of-tree
     def test_policy_custom(self):
         profile = 'power_custom'
         report_path = profile + '.report'
