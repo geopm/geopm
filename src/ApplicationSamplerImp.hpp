@@ -50,7 +50,7 @@ namespace geopm
             double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
             double cpu_progress(int cpu_idx) const override;
             void connect(const std::vector<int> &client_pids) override;
-            std::set<int> client_pids(void) const override;
+            std::vector<int> client_pids(void) const override;
             std::set<int> client_cpu_set(int client_pid) const override;
             bool do_shutdown(void) const override;
             double total_time(void) const override;
