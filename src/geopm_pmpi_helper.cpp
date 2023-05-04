@@ -263,7 +263,6 @@ extern "C" {
     {
         int err = 0;
         int pmpi_ctl = 0;
-        uint64_t init_rid = 0;
 
         err = geopm_env_pmpi_ctl(&pmpi_ctl);
         if (!err &&

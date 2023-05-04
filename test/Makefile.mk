@@ -86,7 +86,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/CommNullImpTest.gatherv \
               test/gtest_links/CommNullImpTest.window_put \
               test/gtest_links/CommNullImpTest.tear_down \
-              test/gtest_links/ControllerTest.construct_with_file_policy \
               test/gtest_links/ControllerTest.get_hostnames \
               test/gtest_links/ControllerTest.run_with_no_policy \
               test/gtest_links/ControllerTest.single_node \
