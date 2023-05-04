@@ -114,6 +114,7 @@ namespace geopm
             virtual std::set<int> client_cpu_set(int client_pid) const = 0;
             virtual bool do_shutdown(void) const = 0;
             virtual double total_time(void) const = 0;
+            virtual double overhead_time(void) const = 0;
         protected:
             ApplicationSampler() = default;
         private:

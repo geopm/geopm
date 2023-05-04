@@ -16,6 +16,7 @@
 
 #include "geopm_hash.h"
 #include "geopm_hint.h"
+#include "geopm_time.h"
 #include "config.h"
 
 
@@ -113,7 +114,6 @@ namespace geopm
     {
         public:
             Profile() = default;
-            Profile(const Profile &other) = default;
             Profile &operator=(const Profile &other) = default;
             virtual ~Profile() = default;
             static Profile &default_profile(void);
@@ -196,6 +196,7 @@ namespace geopm
             virtual std::vector<std::string> region_names(void) = 0;
 
             virtual void reset_cpu_set(void) = 0;
+            virtual void overhead(double overhead_sec) = 0;
             /// @brief Returns the Linux logical CPU index that the
             ///        calling thread is executing on, and caches the
             ///        result to be used in future calls.  This method
@@ -253,6 +254,7 @@ namespace geopm
             void thread_post(int cpu) override;
             std::vector<std::string> region_names(void) override;
             void reset_cpu_set(void) override;
+            void overhead(double overhead_sec) override;
         protected:
             bool m_is_enabled;
         private:

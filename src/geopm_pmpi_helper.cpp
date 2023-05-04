@@ -33,6 +33,7 @@ extern "C"
 #include "geopm_hint.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
+#include "geopm_time.h"
 #include "geopm_mpi_comm_split.h"
 }
 
@@ -271,15 +272,12 @@ extern "C" {
             required = MPI_THREAD_MULTIPLE;
         }
         err = PMPI_Init_thread(argc, argv, required, provided);
+        geopm_time_s begin_time;
+        geopm_time(&begin_time);
         if (!err &&
             pmpi_ctl == geopm::Environment::M_CTL_PTHREAD &&
             *provided < MPI_THREAD_MULTIPLE) {
             err = GEOPM_ERROR_RUNTIME;
-        }
-        if (!err) {
-            init_rid = geopm_mpi_func_rid("MPI_Init");
-            geopm_mpi_region_enter(init_rid);
-            err = PMPI_Barrier(MPI_COMM_WORLD);
         }
         if (!err) {
             if (argv && *argv && **argv && strlen(**argv)) {
@@ -289,9 +287,7 @@ extern "C" {
                 err = geopm_pmpi_init("Fortran");
             }
         }
-        if (!err) {
-            geopm_mpi_region_exit(init_rid);
-        }
+        geopm_prof_overhead(geopm_time_since(&begin_time));
         return err;
     }
 
@@ -301,7 +297,7 @@ extern "C" {
         int tmp_err = 0;
         int pmpi_ctl = 0;
         int do_profile = 0;
-
+        geopm_time_s overhead_entry = geopm::time_curr();
         err = geopm_env_pmpi_ctl(&pmpi_ctl);
         if (!err) {
             err = geopm_env_do_profile(&do_profile);
@@ -310,6 +306,7 @@ extern "C" {
             (!g_ctl || pmpi_ctl == geopm::Environment::M_CTL_PTHREAD))
         {
             PMPI_Barrier(g_geopm_comm_world_swap);
+            geopm_prof_overhead(geopm_time_since(&overhead_entry));
             err = geopm_prof_shutdown();
         }
 

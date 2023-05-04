@@ -20,10 +20,11 @@ class MockApplicationRecordLog : public geopm::ApplicationRecordLog
                     (std::vector<geopm::record_s> & records,
                      std::vector<geopm::short_region_s> &short_regions),
                     (override));
+        MOCK_METHOD(void, affinity, (const geopm_time_s &time, int cpu_idx), (override));
         MOCK_METHOD(void, cpuset_changed, (const geopm_time_s &time), (override));
-        MOCK_METHOD(void, start_profile, (const geopm_time_s &time, std::string profile_name), (override));
-        MOCK_METHOD(void, stop_profile, (const geopm_time_s &time, std::string profile_name), (override));
-
+        MOCK_METHOD(void, start_profile, (const geopm_time_s &time, const std::string &profile_name), (override));
+        MOCK_METHOD(void, stop_profile, (const geopm_time_s &time, const std::string &profile_name), (override));
+        MOCK_METHOD(void, overhead, (const geopm_time_s &time, double overhead_sec), (override));
 };
 
 #endif

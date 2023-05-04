@@ -85,6 +85,8 @@ namespace geopm
         , m_do_profile(do_profile)
         , m_do_init(true)
         , m_total_time(0.0)
+        , m_overhead_time(0.0)
+        , m_sample_delay(0.0)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
         if (!m_rank) {
@@ -127,6 +129,12 @@ namespace geopm
     void ReporterImp::total_time(double total)
     {
         m_total_time = total;
+    }
+
+    void ReporterImp::overhead(double overhead_time, double sample_delay)
+    {
+        m_overhead_time = overhead_time;
+        m_sample_delay = sample_delay;
     }
 
     void ReporterImp::generate(const std::string &agent_name,
@@ -307,7 +315,6 @@ namespace geopm
             auto epoch_data = get_region_data(GEOPM_REGION_HASH_EPOCH);
             yaml_write(report, M_INDENT_EPOCH_FIELD, epoch_data);
         }
-
         yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
         yaml_write(report, M_INDENT_TOTALS_FIELD,
                    {{"runtime (s)", m_total_time},
@@ -316,6 +323,8 @@ namespace geopm
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
         // Controller overhead
         std::vector<std::pair<std::string, double> > overhead {
+            {"GEOPM overhead (s)", m_overhead_time},
+            {"GEOPM startup (s)", m_sample_delay},
             {"geopmctl memory HWM (B)", max_memory},
             {"geopmctl network BW (B/s)", comm_overhead / m_total_time}
         };

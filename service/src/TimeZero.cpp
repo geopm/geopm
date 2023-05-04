@@ -64,6 +64,13 @@ namespace geopm
     {
         TimeZero::time_zero().reset(zero);
     }
+
+    struct geopm_time_s time_curr(void)
+    {
+        struct geopm_time_s result;
+        geopm_time(&result);
+        return result;
+    }
 }
 
 extern "C"
