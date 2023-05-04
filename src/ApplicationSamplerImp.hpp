@@ -54,6 +54,7 @@ namespace geopm
             std::set<int> client_cpu_set(int client_pid) const override;
             bool do_shutdown(void) const override;
             double total_time(void) const override;
+            double overhead_time(void) const override;
             int sampler_cpu(void);
         private:
             std::map<int, m_process_s> connect_record_log(const std::vector<int> &client_pids);
@@ -82,7 +83,9 @@ namespace geopm
             bool m_do_shutdown;
             geopm_time_s m_last_stop;
             double m_total_time;
+            double m_overhead_time;
             int m_num_registered;
+            int m_num_client;
     };
 }
 

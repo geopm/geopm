@@ -154,4 +154,22 @@ extern "C"
         }
         return err;
     }
+
+    int geopm_prof_overhead(double overhead_sec)
+    {
+        int err = 0;
+        if (g_prof_enabled) {
+            try {
+                geopm::Profile::default_profile().overhead(overhead_sec);
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception(), true);
+            }
+        }
+        else {
+            err = GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
 }

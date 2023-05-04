@@ -75,6 +75,7 @@ namespace geopm
                                          const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                          const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report) = 0;
             virtual void total_time(double total) = 0;
+            virtual void overhead(double overhead_sec, double sample_delay) = 0;
     };
 
     class PlatformIO;
@@ -117,6 +118,7 @@ namespace geopm
                                  const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                  const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report) override;
             void total_time(double total) override;
+            void overhead(double overhead_sec, double sample_delay) override;
 
         private:
             /// @brief number of spaces for each indentation
@@ -194,6 +196,8 @@ namespace geopm
             bool m_do_profile;
             bool m_do_init;
             double m_total_time;
+            double m_overhead_time;
+            double m_sample_delay;
     };
 }
 

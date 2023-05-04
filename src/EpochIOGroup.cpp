@@ -127,7 +127,7 @@ namespace geopm
             }
         }
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-            if (!is_valid[cpu_idx]) {
+            if (!is_valid[cpu_idx] && m_per_cpu_count[cpu_idx] == 0.0) {
                 m_per_cpu_count[cpu_idx] = NAN;
             }
         }

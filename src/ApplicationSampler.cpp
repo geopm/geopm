@@ -31,6 +31,7 @@
 #include "geopm_hash.h"
 #include "geopm_hint.h"
 #include "geopm_shmem.h"
+#include "geopm_field.h"
 #include "Scheduler.hpp"
 
 namespace geopm
@@ -134,7 +135,9 @@ namespace geopm
         , m_do_shutdown(false)
         , m_last_stop({})
         , m_total_time(0.0)
+        , m_overhead_time(0.0)
         , m_num_registered(0)
+        , m_num_client(0)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -234,9 +237,12 @@ namespace geopm
                 }
                 ++m_num_registered;
             }
-            if (record.event == EVENT_AFFINITY) {
+            else if (record.event == EVENT_AFFINITY) {
                 m_client_cpu_map[record.process].insert((int)record.signal);
                 do_update_cpu = true;
+            }
+            else if (record.event == EVENT_OVERHEAD) {
+                m_overhead_time += geopm_field_to_signal(record.signal);
             }
         }
         if (do_update_zero) {
@@ -269,7 +275,6 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
 
         }
-
         if (is_active && m_num_registered == 0) {
             m_total_time = geopm_time_diff(&zero, &m_last_stop);
             m_do_shutdown = true;
@@ -405,6 +410,7 @@ namespace geopm
     void ApplicationSamplerImp::connect(const std::vector<int> &client_pids)
     {
         if (!m_status && m_do_profile) {
+            m_num_client = (int)client_pids.size();
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");
             m_client_pids.insert(client_pids.begin(), client_pids.end());
@@ -437,7 +443,21 @@ namespace geopm
 
     double ApplicationSamplerImp::total_time(void) const
     {
-        return m_total_time;
+        double result = m_total_time;
+        if (result == 0.0) {
+            geopm_time_s zero = geopm::time_zero();
+            result = geopm_time_since(&zero);
+        }
+        return result;
+    }
+
+    double ApplicationSamplerImp::overhead_time(void) const
+    {
+        double result = 0.0;
+        if (m_num_client != 0) {
+            result = m_overhead_time / m_num_client;
+        }
+        return result;
     }
 
     int ApplicationSamplerImp::sampler_cpu(void)

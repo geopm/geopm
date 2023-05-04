@@ -483,6 +483,8 @@ TEST_F(ReporterTest, generate)
         "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 1111\n"
         "      CPU_ENERGY@package-1: 1111\n"
+        "      GEOPM overhead (s): 0.123\n"
+        "      GEOPM startup (s): 0.321\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
         "      geopmctl network BW (B/s): 678\n\n";
 
@@ -490,6 +492,7 @@ TEST_F(ReporterTest, generate)
 
     m_reporter->update();
     m_reporter->total_time(56.0);
+    m_reporter->overhead(0.123, 0.321);
     m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
                          m_application_io,
                          m_comm, m_tree_comm);
@@ -705,12 +708,15 @@ TEST_F(ReporterTest, generate_conditional)
         "      uncore-frequency (Hz): 121213\n"
         "      CPU_ENERGY@package-0: 1111\n"
         "      CPU_ENERGY@package-1: 1111\n"
+        "      GEOPM overhead (s): 0.123\n"
+        "      GEOPM startup (s): 0.321\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
         "      geopmctl network BW (B/s): 678\n\n";
 
     std::istringstream exp_stream(expected);
 
     m_reporter->update();
+    m_reporter->overhead(0.123, 0.321);
     m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
                          m_application_io,
                          m_comm, m_tree_comm);

@@ -90,14 +90,13 @@ class TestIntegration_monitor(unittest.TestCase):
 
         '''
         for node in self._node_names:
-            init_data = self._report.raw_region(node, 'MPI_Init')
             spin_data = self._report.raw_region(node, 'spin')
             sleep_data = self._report.raw_region(node, 'sleep')
             unmarked_data = self._report.raw_unmarked(node)
             app_total = self._report.raw_totals(node)
             util.assertNear(self, self._loop_count * self._spin_bigo, spin_data['runtime (s)'])
             util.assertNear(self, self._loop_count * self._sleep_bigo, sleep_data['runtime (s)'])
-            total_runtime = (init_data['runtime (s)'] +
+            total_runtime = (app_total['GEOPM overhead (s)'] +
                              spin_data['runtime (s)'] +
                              sleep_data['runtime (s)'] +
                              unmarked_data['runtime (s)'])
@@ -133,7 +132,7 @@ class TestIntegration_monitor(unittest.TestCase):
             self.assertGreater(epoch['frequency (Hz)'], 0)
             self.assertEqual(epoch['count'], self._loop_count)
 
-            init_time = self._report.raw_region(node, 'MPI_Init')['runtime (s)']
+            init_time = self._report.raw_region(node, 'GEOPM Overhead')['runtime (s)']
             initial_sleep_time = 5.0
             total_sync_time = epoch['sync-runtime (s)'] + init_time + initial_sleep_time
             util.assertNear(self, total_sync_time, totals['sync-runtime (s)'])

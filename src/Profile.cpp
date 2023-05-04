@@ -85,23 +85,13 @@ namespace geopm
         if (!m_do_profile) {
             return;
         }
-#ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_entry;
-        geopm_time(&overhead_entry);
-#else
-        /// read and write to satisfy clang ifndef GEOPM_OVERHEAD
-        ++m_overhead_time;
-        --m_overhead_time;
-        ++m_overhead_time_startup;
-        --m_overhead_time_startup;
-        ++m_overhead_time_shutdown;
-        --m_overhead_time_shutdown;
-#endif
         try {
             m_service_proxy->platform_start_profile(m_prof_name);
             init_app_status();
             init_app_record_log();
             reset_cpu_set();
+            geopm_time_s zero = geopm::time_zero();
+            m_overhead_time_startup = geopm_time_since(&zero);
         }
         catch (const Exception &ex) {
             std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm. "
@@ -113,12 +103,9 @@ namespace geopm
             std::cerr << tmp_msg << std::endl;
         }
         m_is_enabled = true;
-#ifdef GEOPM_OVERHEAD
-        m_overhead_time_startup = geopm_time_since(&overhead_entry);
-#endif
     }
 
-    ProfileImp::ProfileImp()
+    ProfileImp::ProfileImp(void)
         : ProfileImp(environment().profile(),
                      environment().report(),
                      platform_topo().num_domain(GEOPM_DOMAIN_CPU),
@@ -182,16 +169,20 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
-        geopm_time_s end_time;
-        geopm_time(&end_time);
-        m_app_record_log->stop_profile(end_time, m_prof_name);
+        geopm_time_s overhead_begin;
+        geopm_time(&overhead_begin);
         m_service_proxy->platform_stop_profile(region_names());
+        m_overhead_time_shutdown = geopm_time_since(&overhead_begin);
+        overhead(m_overhead_time_shutdown + m_overhead_time);
 #ifdef GEOPM_OVERHEAD
         std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
                   << " startup:  " << m_overhead_time_startup <<
                   << " runtime:  " << m_overhead_time <<
                   << " shutdown: " << m_overhead_time_shutdown << std::endl;
 #endif
+        geopm_time_s end_time;
+        geopm_time(&end_time);
+        m_app_record_log->stop_profile(end_time, m_prof_name);
         m_is_enabled = false;
     }
 
@@ -391,5 +382,12 @@ namespace geopm
         for (auto cpu : m_cpu_set) {
             m_app_status->set_hint(cpu, hint);
         }
+    }
+
+    void ProfileImp::overhead(double overhead_sec)
+    {
+        geopm_time_s now;
+        geopm_time(&now);
+        m_app_record_log->overhead(now, overhead_sec);
     }
 }

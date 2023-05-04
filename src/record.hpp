@@ -36,6 +36,8 @@ namespace geopm
                                  /// SIGNAL: Hash of the profile name
         EVENT_STOP_PROFILE = 11, /// EVENT: An application PID requested profiling
                                  /// SIGNAL: Hash of the profile name
+        EVENT_OVERHEAD = 12,     /// EVENT: Report overhead time due to GEOPM startup
+                                 /// SIGNAL: Time in seconds stored in double precision format
     };
 
     /// @brief Format an event_e type as a string.

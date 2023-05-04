@@ -32,6 +32,8 @@ int geopm_tprof_init(uint32_t num_work_unit);
 
 int geopm_tprof_post(void);
 
+int geopm_prof_overhead(double overhead_sec);
+
 #ifdef __cplusplus
 }
 #endif

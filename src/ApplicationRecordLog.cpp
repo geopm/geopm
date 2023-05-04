@@ -14,6 +14,7 @@
 #include "geopm_debug.hpp"
 #include "geopm_hint.h"
 #include "geopm_hash.h"
+#include "geopm_field.h"
 
 
 namespace geopm
@@ -196,7 +197,7 @@ namespace geopm
         append_record(layout, affinity_record);
     }
 
-    void ApplicationRecordLogImp::start_profile(const geopm_time_s &time, std::string profile_name)
+    void ApplicationRecordLogImp::start_profile(const geopm_time_s &time, const std::string &profile_name)
     {
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
@@ -211,7 +212,7 @@ namespace geopm
         append_record(layout, profile_start_record);
     }
 
-    void ApplicationRecordLogImp::stop_profile(const geopm_time_s &time, std::string profile_name)
+    void ApplicationRecordLogImp::stop_profile(const geopm_time_s &time, const std::string &profile_name)
     {
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
@@ -224,6 +225,21 @@ namespace geopm
            .signal = profile_hash,
         };
         append_record(layout, profile_stop_record);
+    }
+
+    void ApplicationRecordLogImp::overhead(const geopm_time_s &time, double overhead_sec)
+    {
+        std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
+        m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
+        check_reset(layout);
+        uint64_t field = geopm_signal_to_field(overhead_sec);
+        record_s overhead_record = {
+           .time = time,
+           .process = m_process,
+           .event = EVENT_OVERHEAD,
+           .signal = field,
+        };
+        append_record(layout, overhead_record);
     }
 
     void ApplicationRecordLogImp::dump(std::vector<record_s> &records,
@@ -263,7 +279,6 @@ namespace geopm
             }
         }
     }
-
 
     void ApplicationRecordLogImp::append_record(m_layout_s &layout, const record_s &record)
     {
