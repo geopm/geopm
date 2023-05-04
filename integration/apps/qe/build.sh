@@ -36,7 +36,7 @@ get_archive ${XCONFIGURE_ARCHIVE} "https://github.com/hfp/xconfigure/archive"
 unpack_archive ${XCONFIGURE_ARCHIVE}
 
 # Acquire the ELPA dependency
-get_archive ${ELPA_ARCHIVE} "https://elpa.mpcdf.mpg.de/html/Releases/2020.05.001"
+get_archive ${ELPA_ARCHIVE} "https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/2020.05.001/"
 unpack_archive ${ELPA_ARCHIVE}
 setup_source_git ${ELPA_DIR}
 cp -r ${XCONFIGURE_DIR}/config/elpa/* ${ELPA_DIR}
