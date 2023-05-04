@@ -11,7 +11,8 @@ source ../build_func.sh
 
 get_nekbone_source() {
     local DIRNAME=${1}
-    svn checkout https://repocafe.cels.anl.gov/repos/nekbone/trunk/nekbone ${DIRNAME}
+    # Upstream = https://repocafe.cels.anl.gov/repos/nekbone/trunk/nekbone
+    svn checkout file://${GEOPM_APPS_SOURCES}/nekbone-mirror/trunk/nekbone ${DIRNAME}
     cd ${DIRNAME}
     svn log > svn.log
     rm -fr .svn
