@@ -77,7 +77,6 @@ namespace geopm
             clock_nanosleep(CLOCK_REALTIME, 0, &delay, NULL);
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
-        geopm_time(&m_slow_loop_last);
         result.assign(m_profile_pids.begin(), m_profile_pids.end());
         return result;
     }
@@ -113,15 +112,6 @@ namespace geopm
         geopm_time(&time_now);
         if (m_profile_pids.size() == 0) {
             result = true;
-        }
-        // If the slow loop interval has expired, check to see if all
-        // PIDs have requested an end to profiling.
-        else if (geopm_time_diff(&m_slow_loop_last, &time_now) > M_SLOW_LOOP_PERIOD) {
-            m_slow_loop_last = time_now;
-            m_profile_pids = get_profile_pids();
-            if (m_profile_pids.size() == 0) {
-                result = true;
-            }
         }
         return result;
     }
