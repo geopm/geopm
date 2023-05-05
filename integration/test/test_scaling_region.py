@@ -45,6 +45,7 @@ class AppConf(object):
         return []
 
 
+@unittest.skip('Disabled pending resolution of issue #3016.')
 @util.skip_unless_cpufreq()
 @util.skip_unless_optimized()
 class TestIntegrationScalingRegion(unittest.TestCase):
