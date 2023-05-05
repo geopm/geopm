@@ -102,6 +102,9 @@ namespace geopm
                 case EVENT_STOP_PROFILE:
                     result = string_format_hex(value);
                     break;
+                case EVENT_OVERHEAD:
+                    result = string_format_double(value);
+                    break;
                 default:
                     result = "INVALID";
                     GEOPM_DEBUG_ASSERT(false, "ProfileTracer::event_format(): event out of range");
