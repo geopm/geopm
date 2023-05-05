@@ -19,7 +19,6 @@
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 #include "geopm/Exception.hpp"
-#include "geopm/ServiceProxy.hpp"
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
 #include "ValidateRecord.hpp"

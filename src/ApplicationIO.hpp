@@ -70,8 +70,6 @@ namespace geopm
             const int m_timeout;
             std::set<int> m_profile_pids;
             int m_num_proc;
-            static constexpr double M_SLOW_LOOP_PERIOD = 0.1; // 100 msec
-            geopm_time_s m_slow_loop_last;
     };
 }
 
