@@ -421,13 +421,12 @@ namespace geopm
 
     std::set<int> ApplicationSamplerImp::client_cpu_set(int client_pid) const
     {
+        std::set<int> result;
         auto client_it = m_client_cpu_map.find(client_pid);
-        if (client_it == m_client_cpu_map.end()) {
-            throw Exception("ApplicationSamplerImp::client_cpu_set(): Process " +
-                            std::to_string(client_pid) + " not managed by sampler",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        if (client_it != m_client_cpu_map.end()) {
+            result = client_it->second;
         }
-        return client_it->second;
+        return result;
     }
 
     std::vector<int> ApplicationSamplerImp::client_pids(void) const
