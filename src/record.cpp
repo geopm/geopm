@@ -25,6 +25,7 @@ namespace geopm
             {EVENT_AFFINITY, "EVENT_AFFINITY"},
             {EVENT_START_PROFILE, "EVENT_START_PROFILE"},
             {EVENT_STOP_PROFILE, "EVENT_STOP_PROFILE"},
+            {EVENT_OVERHEAD, "EVENT_OVERHEAD"},
         };
         auto it = event_names.find(event_type);
         if (it == event_names.end()) {
@@ -44,6 +45,7 @@ namespace geopm
             {"EVENT_AFFINITY", EVENT_AFFINITY},
             {"EVENT_START_PROFILE", EVENT_START_PROFILE},
             {"EVENT_STOP_PROFILE", EVENT_STOP_PROFILE},
+            {"EVENT_OVERHEAD", EVENT_OVERHEAD},
         };
         auto it = event_types.find(event_name);
         if (it == event_types.end()) {
