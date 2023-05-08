@@ -16,6 +16,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm_hint.h"
 #include "geopm_time.h"
+#include "geopm_field.h"
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "CSV.hpp"
@@ -103,7 +104,7 @@ namespace geopm
                     result = string_format_hex(value);
                     break;
                 case EVENT_OVERHEAD:
-                    result = string_format_double(value);
+                    result = string_format_double(geopm_field_to_signal(value));
                     break;
                 default:
                     result = "INVALID";
