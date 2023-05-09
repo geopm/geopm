@@ -23,25 +23,31 @@ import experiment.gpu_sweep
 
 
 def report_signals():
-    return ["CPU_CYCLES_THREAD@package", "CPU_CYCLES_REFERENCE@package",
-            "TIME@package", "CPU_ENERGY@package", "GPU_CORE_FREQUENCY_STATUS@board",
+    cpu_signals = ["CPU_CYCLES_THREAD@package", "CPU_CYCLES_REFERENCE@package",
+            "TIME@package", "CPU_ENERGY@package"]
+    gpu_signals = ["GPU_CORE_FREQUENCY_STATUS@board",
             "GPU_CORE_FREQUENCY_MIN_CONTROL@board", "GPU_CORE_FREQUENCY_MAX_CONTROL@board"]
+
+    if machine.num_gpu() > 0:
+        return cpu_signals + gpu_signals
+    else:
+        return cpu_signals
 
 
 def trace_signals():
-    #TODO: Figure out how to handle no-gpu situation
     cpu_signals = ["CPU_POWER@package", "DRAM_POWER@package", "CPU_FREQUENCY_STATUS@package",
                    "CPU_PACKAGE_TEMPERATURE@package", "MSR::UNCORE_PERF_STATUS:FREQ@package",
                    "MSR::QM_CTR_SCALED_RATE@package", "CPU_INSTRUCTIONS_RETIRED@package",
                    "CPU_CYCLES_THREAD@package", "CPU_ENERGY@package",
                    "MSR::APERF:ACNT@package",
                    "MSR::MPERF:MCNT@package", "MSR::PPERF:PCNT@package"]
-
-    #TODO: Figure out which signals are available at tile level
     gpu_signals = ["GPU_CORE_FREQUENCY_STATUS@gpu", "GPU_POWER@gpu", "GPU_UTILIZATION@gpu",
                    "GPU_CORE_ACTIVITY@gpu", "GPU_UNCORE_ACTIVITY@gpu"]
 
-    return cpu_signals + gpu_signals
+    if machine.num_gpu() > 0:
+        return cpu_signals + gpu_signals
+    else:
+        return cpu_signals
 
 def main(app_conf, **defaults):
     parser = argparse.ArgumentParser()

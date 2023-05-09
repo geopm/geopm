@@ -45,6 +45,14 @@ frequency recommendation maps, optionally with a specified perf energy bias.
                      is specified but gpu-fmap-path is not (or its path is invalid),
                      an error will be thrown.
 
+## Other Experiment Script(s)
+
+#### `neural_net_sweep.py`
+
+  Runs a frequency sweep and gathers the report and trace signals required to generate
+  the region characterization neural net. The signals gathered will include GPU signals
+  if GPUs are detected on the system. Otherwise, only CPU signals will be gathered at
+  the package scope. See the `gpu_frequency_sweep` experiment for extra details.
 
 ## Scripts to Produce Neural Nets and Frequency Recommendation Maps
 
