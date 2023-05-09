@@ -46,6 +46,39 @@ frequency recommendation maps, optionally with a specified perf energy bias.
                      an error will be thrown.
 
 
+## Scripts to Produce Neural Nets and Frequency Recommendation Maps
+
+#### `gen_hdf_from_fsweep.py`:
+
+  Generates HDF files used to generate the neural net and frequency recommendation json files.
+  This takes report and trace files from frequency sweep experiments as inputs, checks for
+  required signals on CPU and GPU domains, annotates data with microbenchmark and node names,
+  and outputs the hdfs. Two files are generated: The stats file contains per-region report
+  information used to determine frequency recommendation for each region class. The trace file
+  contains trace data that is used to create a neural net that determines region class 
+  probabilities during a workload execution.
+
+  This script requires the following positional inputs:
+
+  - `output`: Prefix for output files [output]_stats.h5 and [output]_traces.h5
+  - `frequency_sweep_dirs`: Directories containing reports and traces from frequency sweeps
+
+#### `gen_neural_net.py`:
+
+   Generates neural net json file(s) for CPU and/or GPU. This takes in the trace h5 file generated 
+   from gen_hdf_from_fsweep.py which is annotated with region classes. Required signals are 
+   specified within this script, per-domain. The script checks for the complete list of signals
+   and generates the corresponding neural nets.
+
+   This script can take in the following inputs:
+
+   - `output`: Prefix of the output json file(s).
+   - `description`: Description of the neural net
+   - `ignore` : A comma-separated list of region hashes to ignore
+   - `data` : Data files to train on. This can take in multiple trace HDF files.
+
+   Note that this script depends upon pytorch. Pytorch can be installed using: `pip install pytorch`
+
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
 #### `gen_phi_sweep_graph.py`:

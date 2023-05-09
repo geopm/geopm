@@ -32,7 +32,6 @@ def process_report_files(input_dir):
             if lookup_str[device] in report["Policy"] and report["Policy"][lookup_str[device]] != "NAN":
                 freqs[device] =  float(report["Policy"][lookup_str[device]])
 
-        #TODO [stretch]: Test if it's useful to feed freq requested *and* freq accomplished to NN
         for nodename in report["Hosts"]:
             conf = {}
             conf['node'] = nodename
@@ -81,6 +80,7 @@ def process_trace_files(sweep_dir):
         for line in open(trace_file, "r"):
             if line[0] != '#':
                 break
+
             #TODO: Clean up--changed b/c there can be multiple ":"
             key = line[2:line.strip().find(':')]
             value = line[2+line.strip().find(':'):]
@@ -94,18 +94,10 @@ def process_trace_files(sweep_dir):
         trace_df = trace_df[trace_df['REGION_HASH'] != "NAN"]
 
         trace_df['node'] = nodename
-        #experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
-        #directory_name = os.path.basename(os.path.dirname(trace_file))
 
-        # Help uniquely identify different configurations of a single app
-        #config_name = app_name + "-" + directory_name + '-' + trace_df['REGION_HASH']
-        config_name = app_name + '-' + trace_df['REGION_HASH']
-
-        trace_df['app-config'] = config_name
-
-        #TODO: Maybe train on app-config instead of REGION_HASH, then won't have
-        #      to do this
-        trace_df.loc[trace_df['REGION_HASH'] == '0x725e8066', 'REGION_HASH'] = f"{app_name}_unmarked"
+        # Help uniquely identify different configurations of a single app, used to train on
+        # instead of REGION_HASH
+        trace_df['app-config'] = app_name + '-' + trace_df['REGION_HASH']
 
         all_dfs.append(trace_df)
     return pd.concat(all_dfs, ignore_index=True)
