@@ -153,10 +153,13 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
         sys.exit(1)
 
     print("Training to identify these regions:")
-    region_ids = sorted(list(df_traces["region_id"].unique()))
+    region_ids = sorted(list(df_traces["app_config"].unique()))
     print(", ".join(region_ids))
     mapping = {region_id: region_ids.index(region_id) for region_id in region_ids}
-    df_traces["region_id"] = df_traces['region_id'].map(mapping)
+    df_traces["app_config"] = df_traces['app_config'].map(mapping)
+    #region_ids = sorted(list(df_traces["region_id"].unique()))
+    #mapping = {region_id: region_ids.index(region_id) for region_id in region_ids}
+    #df_traces["region_id"] = df_traces['region_id'].map(mapping)
 
     for domain in domains_to_train:
         for num,den in ratios_domain[domain]:
