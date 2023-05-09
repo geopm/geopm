@@ -79,6 +79,20 @@ frequency recommendation maps, optionally with a specified perf energy bias.
 
    Note that this script depends upon pytorch. Pytorch can be installed using: `pip install pytorch`
 
+### `gen_region_parameters.py`:
+
+   Generates region-class frequency recommendation map. This takes in the stats h5 file
+   generated from gen_hdf_from_fsweep.py, which is annotated with region classes and
+   contains runtime and per-domain energy information. This is used to generate a
+   runtime-frequency relationship and determine minimum energy point within an allowable
+   perf degradation. For each region class, a list is generated which contains the 
+   desired frequency for a region class for various perf-energy-bias values, from
+   most perf-sensitive to most energy-sensitive.
+
+   This script takes in the following input:
+
+   - `data-file`: The stats HDF generated from gen_hdf_from_fsweep.py.
+
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
 #### `gen_phi_sweep_graph.py`:
