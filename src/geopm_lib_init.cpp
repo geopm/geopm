@@ -17,9 +17,8 @@ static void __attribute__((constructor)) geopm_lib_init(void)
         try {
             geopm_time_s zero = geopm::time_curr();
             geopm::time_zero_reset(zero);
-            std::string profile_name = geopm::environment().profile();
-            geopm::PlatformIOProf::platform_io();
-            geopm::Profile::default_profile().overhead(geopm_time_since(&zero));
+            auto &prof = geopm::Profile::default_profile();
+            prof.overhead(geopm_time_since(&zero));
         }
         catch (...) {
             geopm::exception_handler(std::current_exception(), true);
