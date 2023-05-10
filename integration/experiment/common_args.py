@@ -18,6 +18,7 @@ def setup_run_args(parser):
     add_cool_off_time(parser)
     add_enable_traces(parser)
     add_enable_profile_traces(parser)
+    add_init_control(parser)
 
 
 def add_output_dir(parser):
@@ -160,3 +161,9 @@ def add_analysis_dir(parser):
     parser.add_argument('--analysis-dir', dest='analysis_dir',
                         action='store', default='analysis',
                         help='directory for output analysis files')
+
+
+def add_init_control(parser):
+    parser.add_argument('--init-control', dest='init_control',
+                        action='store', default=None,
+                        help='path to file to set initial control values')

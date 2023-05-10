@@ -92,7 +92,8 @@ def launch(app_conf_ref, app_conf, args, experiment_cli_args):
                                 output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
-                                enable_profile_traces=args.enable_profile_traces)
+                                enable_profile_traces=args.enable_profile_traces,
+                                init_control_path=args.init_control)
 
 
 def main(app_conf_ref, app_conf, **defaults):
