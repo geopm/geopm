@@ -45,16 +45,51 @@ frequency recommendation maps, optionally with a specified perf energy bias.
                      is specified but gpu-fmap-path is not (or its path is invalid),
                      an error will be thrown.
 
-## Other Experiment Script(s)
-
-#### `neural_net_sweep.py`
-
-  Runs a frequency sweep and gathers the report and trace signals required to generate
-  the region characterization neural net. The signals gathered will include GPU signals
-  if GPUs are detected on the system. Otherwise, only CPU signals will be gathered at
-  the package scope. See the `gpu_frequency_sweep` experiment for extra details.
 
 ## Scripts to Produce Neural Nets and Frequency Recommendation Maps
+
+The end-to-end process for utilizing this agent to improve energy efficiency can be conducted
+using the following steps.
+
+1. Conduct a frequency sweep on a set of microbenchmarks, gathering the required signals.
+   This can be done using `neural_net_sweep.py`. Microbenchmarks that have been shown to
+   generate useful results include Arithmetic Intensity Benchmark and geopmbench on CPU,
+   and the PARRES suite (DGEMM and STREAM) on GPU.
+
+2. Generate HDF files from the sweeps using `gen_hdf_from_fsweep.py` for easy portability
+   and quick usage in following scripts. E.g.:
+
+    ```
+    ./gen_hdf_from_fsweep.py example_output frequency_sweep_output_dir
+    ```
+    will generate `example_output_stats.h5` and `example_output_traces.h5`
+
+3. Generate the neural net by feeding the traces HDF into `gen_neural_net.py`. E.g.:
+
+    ```
+    ./gen_neural_net.py --output nnet --description "A neural net" --data example_output_traces.h5
+    ```
+    will generate `nnet_cpu.json` and possibly `nnet_gpu.json`
+
+4. Generate the region frequency recommendation map by feeding the stats HDF into
+   `gen_region_parameters.py`. E.g.:
+
+   ```
+    ./gen_region_parameters.py --output fmap --data-file example_output_stats.h5
+   ```
+    will generate `fmap_cpu.json` and/or `fmap_gpu.json`
+
+5. Set environment variables to point to the generated json files. E.g.:
+
+```
+    export GEOPM_CPU_NN_PATH=${GEOPM_SOURCE}/integration/experiment/ffnet/nnet_cpu.json
+    export GEOPM_GPU_NN_PATH=${GEOPM_SOURCE}/integration/experiment/ffnet/nnet_gpu.json
+
+    export GEOPM_CPU_FMAP_PATH=${GEOPM_SOURCE}/integration/experiment/ffnet/fmap_cpu.json
+    export GEOPM_GPU_FMAP_PATH=${GEOPM_SOURCE}/integration/experiment/ffnet/fmap_gpu.json
+``` 
+
+6. Run your workload with the ffnet agent.
 
 #### `gen_hdf_from_fsweep.py`:
 
@@ -99,6 +134,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
 
    This script takes in the following input:
 
+   - `output`: Prefix of the output json file(s).
    - `data-file`: The stats HDF generated from gen_hdf_from_fsweep.py.
 
 ## Analysis Scripts to Produce Summary Tables and Visualizations

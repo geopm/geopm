@@ -22,6 +22,7 @@ from experiment.uncore_frequency_sweep import uncore_frequency_sweep
 import experiment.gpu_sweep
 
 
+#TODO: The cpu/gpu signals should only be gathered if there's a cpu/gpu sweep,
 def report_signals():
     cpu_signals = ["CPU_CYCLES_THREAD@package", "CPU_CYCLES_REFERENCE@package",
             "TIME@package", "CPU_ENERGY@package"]
@@ -34,6 +35,7 @@ def report_signals():
         return cpu_signals
 
 
+#TODO: The cpu/gpu signals should only be gathered if there's a cpu/gpu sweep,
 def trace_signals():
     cpu_signals = ["CPU_POWER@package", "DRAM_POWER@package", "CPU_FREQUENCY_STATUS@package",
                    "CPU_PACKAGE_TEMPERATURE@package", "MSR::UNCORE_PERF_STATUS:FREQ@package",

@@ -84,7 +84,7 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
 
     return (float)(freq_subset[f'{domain}-frequency'].iloc[row_idx])
 
-def main(data_file):
+def main(data_file, output_name):
 
     freq_range={}
     region_regression={}
@@ -101,6 +101,7 @@ def main(data_file):
     region_parameters = {}
 
     for domain in domains:
+        params_out = open(f"{output_name}_{domain}.json", "w")
         region_parameters[domain] = {}
         for region_name in region_regression[domain]:
             freqs = []
@@ -112,17 +113,21 @@ def main(data_file):
                 e_m = get_energy_at_freq(table_stats, region_name, domain, freq)
                 freqs.append(int(freq+1e8))
             region_parameters[domain][region_name] = freqs
-    print(json.dumps(region_parameters))
+        json.dumps(region_parameters)
+        params_out.close()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     #common_args.add_output_dir(parser)
+    parser.add_argument('--output',
+                        action='store',
+                        help='Prefix of the output json file(s)')
     parser.add_argument('--data-file',
                         action='store',
                         help='HDF containing stats data.')
     args = parser.parse_args()
 
-    main(args.data_file)
+    main(args.data_file, output_name)
     #TODO: Determine if we want to gather this info from mach and
     #      use to modulate frequency range if we can switch to
     #      generating a freq - energy fit.

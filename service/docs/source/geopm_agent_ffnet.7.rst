@@ -33,8 +33,8 @@ file pointed to by environment variables ``GEOPM_CPU_NN_PATH`` and/or
     :language: json
 
 The per-region frequency recommendations must be provided in a JSON configuration
-file pointed to by environment variables GEOPM_CPU_FMAP_PATH and/or GEOPM_GPU_FMAP_PATH, 
-which must comply with the following schema:
+file pointed to by environment variables ``GEOPM_CPU_FMAP_PATH`` and/or 
+``GEOPM_GPU_FMAP_PATH``, which must comply with the following schema:
 
 .. literalinclude:: ../json_schemas/regionhintrecommender_fmap.schema.json
     :language: json
