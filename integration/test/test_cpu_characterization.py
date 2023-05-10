@@ -6,7 +6,7 @@
 
 """
 This integration test verifies that the cpu characterization approach
-and related scripts function to create a CPU-CA characterization file with legal values. 
+and related scripts function to create a CPU-CA characterization file with legal values.
 """
 
 import json
@@ -36,18 +36,18 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         """
         Setup applications, execute, and set up class variables.
         """
+        cls._skip_launch = not util.do_launch()
 
-        # Enable QM to measure total memory bandwidth
-
-        # Assign all cores to resource monitoring association ID 0. This
-        # allows for monitoring the resource usage of all cores.
-        geopm_test_launcher.geopmwrite("MSR::PQR_ASSOC:RMID board 0 {}".format(0))
-        # Assign the resource monitoring ID for QM Events to match the per
-        # core resource association ID above (0)
-        geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:RMID board 0 {}".format(0))
-        # Select monitoring event ID 0x2 - Total Memory Bandwidth Monitoring.
-        # This is used to determine the Xeon Uncore utilization.
-        geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:EVENT_ID board 0 {}".format(2))
+        # Define global init control config
+        #   Enable QM to measure total memory bandwidth for uncore utilization
+        mem_bw_cfg = """
+        # Assign all cores to resource monitoring association ID 0
+        MSR::PQR_ASSOC:RMID board 0 0
+        # Assign the resource monitoring ID for QM Events to match ID 0
+        MSR::QM_EVTSEL:RMID board 0 0
+        # Select monitoring event ID 0x2 - Total Memory Bandwidth Monitoring
+        MSR::QM_EVTSEL:EVENT_ID board 0 2
+        """
 
         # Grabbing system frequency parameters for experiment frequency bounds
         cls._cpu_base_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_STICKER board 0")
@@ -66,20 +66,30 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
 
         mach = machine.init_output_dir('.')
 
-        def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
-            output_dir = experiment_args.output_dir
-            if output_dir.exists() and output_dir.is_dir():
-                shutil.rmtree(output_dir)
+        cls._run_count = 0
+        def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args, init_control_cfg):
+            if not cls._skip_launch:
+                init_control_path = 'init_control_{}'.format(cls._run_count)
+                cls._run_count += 1
+                with open(init_control_path, 'w') as outfile:
+                    outfile.write(init_control_cfg)
+                experiment_args.init_control = os.path.realpath(init_control_path)
 
-            experiment_type.launch(app_conf=app_conf, args=experiment_args,
-                                   experiment_cli_args=experiment_cli_args)
+                output_dir = experiment_args.output_dir
+                if output_dir.exists() and output_dir.is_dir():
+                    shutil.rmtree(output_dir)
+
+                experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                       experiment_cli_args=experiment_cli_args)
 
         #####################
         # Setup Common Args #
         #####################
-        geopm_test_launcher.geopmwrite("CPU_FREQUENCY_MAX_CONTROL board 0 {}".format(cls._cpu_max_freq))
-        geopm_test_launcher.geopmwrite("CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {}".format(cls._uncore_min_freq))
-        geopm_test_launcher.geopmwrite("CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 {}".format(cls._uncore_max_freq))
+        freq_cfg = """
+        CPU_FREQUENCY_MAX_CONTROL board 0 {}
+        CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 {}
+        CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {}
+        """.format(cls._cpu_max_freq, cls._uncore_max_freq, cls._uncore_min_freq)
 
         experiment_args = SimpleNamespace(
             node_count=node_count,
@@ -127,7 +137,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
 
         # We're using the AIB app conf from above here
-        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args)
+        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg + freq_cfg)
 
         ##############
         # Parse data #
@@ -150,7 +160,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         experiment_args.min_uncore_frequency = uncore_efficient_freq
         experiment_args.max_uncore_frequency = uncore_efficient_freq
 
-        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args)
+        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg + freq_cfg)
 
         ##############
         # Parse data #
