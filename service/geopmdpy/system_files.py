@@ -892,7 +892,9 @@ class AccessLists(object):
         self._CONFIG_PATH = config_path
         secure_make_dirs(self._CONFIG_PATH)
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
-        self._pio = pio
+        self._signal_names = pio.signal_names()
+        self._control_names = pio.control_names()
+
 
     def _validate_group(self, group):
         if group is None or group == '':
@@ -922,13 +924,11 @@ class AccessLists(object):
 
     def _filter_valid_signals(self, signals):
         signals = set(signals)
-        all_signals = self._pio.signal_names()
-        return list(signals.intersection(all_signals))
+        return list(signals.intersection(self._signal_names))
 
     def _filter_valid_controls(self, controls):
         controls = set(controls)
-        all_controls = self._pio.control_names()
-        return list(controls.intersection(all_controls))
+        return list(controls.intersection(self._control_names))
 
     def _get_user_groups(self, user):
         user_gid = pwd.getpwnam(user).pw_gid
@@ -1127,7 +1127,7 @@ class AccessLists(object):
             list(str), list(str): All supported signals and controls, in sorted order.
 
         """
-        return self._pio.signal_names(), self._pio.control_names()
+        return self._signal_names, self._control_names
 
 
 class WriteLock(object):

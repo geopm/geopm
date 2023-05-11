@@ -24,11 +24,13 @@ class TestAccessLists(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestAccessLists'
         self._CONFIG_PATH = tempfile.TemporaryDirectory('{}_config'.format(self._test_name))
-        self._access_lists = AccessLists(self._CONFIG_PATH.name)
-        self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
-        self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
         self._signals_expect = ['controls', 'default', 'energy', 'geopm', 'power', 'signals']
         self._controls_expect = ['controls', 'default', 'geopm', 'power']
+        with mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
+             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect):
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
+        self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
+        self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
 
 
     def tearDown(self):
@@ -79,8 +81,9 @@ default
              mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_group_access('')
-            mock_isdir.assert_called_once_with(default_dir)
+            mock_isdir.assert_called_with(default_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
         self.assertEqual(set(self._signals_expect), set(signals))
@@ -96,7 +99,7 @@ default
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
              mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
-
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             self._access_lists.set_group_access(group, ['power'], ['frequency'])
 
             # Were the files written in the proper order?
@@ -106,7 +109,7 @@ default
             signal_file = os.path.join(test_dir, 'allowed_signals')
             control_file = os.path.join(test_dir, 'allowed_controls')
 
-            mock_smd.assert_called_once_with(test_dir, perm_mode=0o700)
+            mock_smd.assert_called_with(test_dir, perm_mode=0o700)
             calls = [mock.call(signal_file, 'power\n'),
                      mock.call(control_file, 'frequency\n')]
             mock_smf.assert_has_calls(calls)
@@ -174,8 +177,9 @@ default
              mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_group_access('')
-            mock_isdir.assert_called_once_with(default_dir)
+            mock_isdir.assert_called_with(default_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
         self.assertEqual(set(self._signals_expect), set(signals))
@@ -193,8 +197,9 @@ default
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_group_access('named')
-            mock_isdir.assert_called_once_with(named_dir)
+            mock_isdir.assert_called_with(named_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
             mock_getgrnam.assert_called_once_with('named')
@@ -251,8 +256,9 @@ default
              mock.patch('geopmdpy.pio.control_names', return_value=controls_default), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_user_access('')
-            mock_isdir.assert_called_once_with(default_dir)
+            mock_isdir.assert_called_with(default_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
 
@@ -299,13 +305,14 @@ default
              mock.patch('geopmdpy.system_files.secure_read_file',
                         side_effect=[named_control_lines, named_signal_lines,
                                      default_control_lines, default_signal_lines]) as mock_srf:
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_user_access(valid_user)
             calls = [mock.call(named_dir), mock.call(default_dir)]
             mock_isdir.assert_has_calls(calls)
             calls = [mock.call(named_control_file), mock.call(named_signal_file),
                      mock.call(default_control_file), mock.call(default_signal_file)]
             mock_srf.assert_has_calls(calls)
-            mock_getgrnam.assert_called_once_with('named')
+            mock_getgrnam.assert_called_with('named')
 
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
@@ -324,6 +331,7 @@ default
 
         with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals), \
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls):
+            self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_user_access('root')
 
         self.assertEqual(set(all_signals), set(signals))
@@ -339,7 +347,9 @@ default
         renamed_path = f'{CONFIG_PATH.name}-uuid4-INVALID'
 
         with mock.patch('sys.stderr.write', return_value=None) as mock_err, \
-             mock.patch('uuid.uuid4', return_value='uuid4'):
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
+             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect):
             self._access_lists = AccessLists(CONFIG_PATH.name)
 
             calls = [
@@ -359,7 +369,9 @@ default
         renamed_path = f'{CONFIG_PATH.name}-uuid4-INVALID'
 
         with mock.patch('sys.stderr.write', return_value=None) as mock_err, \
-             mock.patch('uuid.uuid4', return_value='uuid4'):
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
+             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect):
             self._access_lists = AccessLists(CONFIG_PATH.name)
             mock_err.assert_not_called()
         CONFIG_PATH.cleanup()
