@@ -131,8 +131,8 @@ class TestIntegration_monitor(unittest.TestCase):
             self.assertGreater(epoch['frequency (%)'], 0)
             self.assertGreater(epoch['frequency (Hz)'], 0)
             self.assertEqual(epoch['count'], self._loop_count)
-
-            init_time = self._report.raw_region(node, 'GEOPM Overhead')['runtime (s)']
+            app_total = self._report.raw_totals(node)
+            init_time = app_total['GEOPM overhead (s)']
             initial_sleep_time = 5.0
             total_sync_time = epoch['sync-runtime (s)'] + init_time + initial_sleep_time
             util.assertNear(self, total_sync_time, totals['sync-runtime (s)'])
