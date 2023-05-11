@@ -56,7 +56,7 @@ namespace geopm
         std::regex sci_notation_regex("([+-]?[0-9]*[.]?[0-9]+(?:[eE]?[+-]?[0-9]+)?)");
 
         // ^\\s*  String begins with zero or more whitespace characters
-        // (\\w+) Capture group #1 for one or more alphanumeric characters (CONTROL NAME)
+        // (\\S+) Capture group #1 for one or more non-whitespace characters (CONTROL NAME)
         // \\s+   One or more whitespace characters
         // (\\w+) Capture group #2 for one or more alphanumeric characters (DOMAIN NAME)
         // \\s+   One or more whitespace characters
@@ -64,7 +64,7 @@ namespace geopm
         // \\s+   One or more whitespace characters
         // (\\S+) Capture group #4 for one or more non-whitespace characters (SETTING)
         // \\s*   Zero or more whitespace characters
-        std::regex request_regex("^\\s*(\\w+)\\s+(\\w+)\\s+(\\d+)\\s+(\\S+)\\s*");
+        std::regex request_regex("^\\s*(\\S+)\\s+(\\w+)\\s+(\\d+)\\s+(\\S+)\\s*");
         std::smatch match_line;
 
         for (const auto &line : lines) {
@@ -85,6 +85,9 @@ namespace geopm
                 }
             }
             else { // Match; Continue to try parsing the setting
+                if (string_begins_with(match_line[1].str(), "#")) {
+                    continue;
+                }
                 if (match_line.suffix().str().size() > 0 && !string_begins_with(match_line.suffix(), "#")) {
                     throw Exception("Syntax error: " + line,
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);

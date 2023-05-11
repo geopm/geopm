@@ -205,6 +205,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy_nogpu \
               test/gtest_links/InitControlTest.parse_valid_file \
+              test/gtest_links/InitControlTest.parse_valid_file_2 \
               test/gtest_links/InitControlTest.parse_empty_file \
               test/gtest_links/InitControlTest.parse_empty_file_name \
               test/gtest_links/InitControlTest.throw_bad_input \
