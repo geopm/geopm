@@ -86,6 +86,36 @@ TEST_F(InitControlTest, parse_valid_file)
     m_init_control->write_controls();
 }
 
+TEST_F(InitControlTest, parse_valid_file_2)
+{
+    std::string contents = "# Assign all cores to resource monitoring association ID 0\n"
+                           "MSR::PQR_ASSOC:RMID board 0 0\n"
+                           "# Assign the resource monitoring ID for QM Events to match ID 0\n"
+                           "MSR::QM_EVTSEL:RMID board 0 0\n"
+                           "# Select monitoring event ID 0x2 - Total Memory Bandwidth Monitoring\n"
+                           "MSR::QM_EVTSEL:EVENT_ID board 0 2\n"
+                           "# Set the uncore bounds to the min/max\n"
+                           "CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 2400000000.0\n"
+                           "CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1200000000.0\n";
+    WriteFile(contents);
+
+    InSequence s;
+    EXPECT_CALL(m_platform_io,
+                write_control("MSR::PQR_ASSOC:RMID", PlatformTopo::domain_name_to_type("board"), 0, 0));
+    EXPECT_CALL(m_platform_io,
+                write_control("MSR::QM_EVTSEL:RMID", PlatformTopo::domain_name_to_type("board"), 0, 0));
+    EXPECT_CALL(m_platform_io,
+                write_control("MSR::QM_EVTSEL:EVENT_ID", PlatformTopo::domain_name_to_type("board"), 0, 2));
+    EXPECT_CALL(m_platform_io,
+                write_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", PlatformTopo::domain_name_to_type("board"), 0, 2400000000.0));
+    EXPECT_CALL(m_platform_io,
+                write_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", PlatformTopo::domain_name_to_type("board"), 0, 1200000000.0));
+
+    m_init_control = std::make_shared<InitControlImp>(m_platform_io);
+    m_init_control->parse_input(m_file_name);
+    m_init_control->write_controls();
+}
+
 TEST_F(InitControlTest, parse_empty_file)
 {
     // Helper::read_file() will throw an exception if the file has no contents
