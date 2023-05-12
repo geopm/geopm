@@ -430,12 +430,11 @@ class ActiveSessions(object):
         """
         if self.is_client_active(client_pid):
             return
-        session_data = {'client_pid': client_pid,
+        session_data = {'client_pid': int(client_pid),
                         'reference_count': 1,
-                        'signals': list(signals),
-                        'controls': list(controls),
-                        'watch_id': watch_id}
-        jsonschema.validate(session_data, schema=self._session_schema)
+                        'signals': [str(ss) for ss in signals],
+                        'controls': [str(cc) for cc in controls],
+                        'watch_id': int(watch_id)}
         self._sessions[client_pid] = session_data
         self._update_session_file(client_pid)
 
@@ -453,14 +452,9 @@ class ActiveSessions(object):
 
         """
         session_path = self._get_session_path(client_pid)
-        renamed_path = f'{session_path}-{uuid.uuid4()}-REMOVE'
         sess = None
         try:
-            os.rename(session_path, renamed_path)
-            content = secure_read_file(renamed_path)
-            sess = json.loads(content)
-            jsonschema.validate(sess, schema=self._session_schema)
-            os.remove(renamed_path)
+            os.remove(session_path)
         except FileNotFoundError:
             pass
         try:
@@ -563,7 +557,7 @@ class ActiveSessions(object):
 
         """
         self.check_client_active(client_pid, 'get_watch_id')
-        self._sessions[client_pid]['watch_id'] = watch_id
+        self._sessions[client_pid]['watch_id'] = int(watch_id)
         self._update_session_file(client_pid)
 
     def get_reference_count(self, client_pid):
@@ -610,7 +604,7 @@ class ActiveSessions(object):
 
         """
         self.check_client_active(client_pid, 'set_reference_count')
-        self._sessions[client_pid]['reference_count'] = reference_count
+        self._sessions[client_pid]['reference_count'] = int(reference_count)
         self._update_session_file(client_pid)
 
     def increment_reference_count(self, client_pid):
@@ -690,7 +684,7 @@ class ActiveSessions(object):
         if 'batch_server' in self._sessions[client_pid]:
             current_server = self._sessions[client_pid]['batch_server']
             raise RuntimeError(f'Client {client_pid} has already started a batch server: {current_server}')
-        self._sessions[client_pid]['batch_server'] = batch_pid
+        self._sessions[client_pid]['batch_server'] = int(batch_pid)
         self._update_session_file(client_pid)
 
     def remove_batch_server(self, client_pid):
@@ -738,6 +732,7 @@ class ActiveSessions(object):
             os.unlink(write_fifo_path)
 
     def start_profile(self, client_pid, profile_name):
+        profile_name = str(profile_name)
         self.check_client_active(client_pid, 'start_profile')
         uid, gid = self._pid_info(client_pid)
         if len(self._profiles) == 0:
@@ -802,7 +797,6 @@ class ActiveSessions(object):
 
         """
         sess = self._sessions[client_pid]
-        jsonschema.validate(sess, schema=self._session_schema)
         session_path = self._get_session_path(client_pid)
         secure_make_file(session_path, json.dumps(sess))
 
