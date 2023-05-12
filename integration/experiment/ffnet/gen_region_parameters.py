@@ -127,7 +127,7 @@ if __name__ == '__main__':
                         help='HDF containing stats data.')
     args = parser.parse_args()
 
-    main(args.data_file, output_name)
+    main(args.data_file, args.output)
     #TODO: Determine if we want to gather this info from mach and
     #      use to modulate frequency range if we can switch to
     #      generating a freq - energy fit.
