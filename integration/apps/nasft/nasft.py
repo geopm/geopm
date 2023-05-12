@@ -13,6 +13,12 @@ import os
 from .. import apps
 
 
+def setup_run_args(parser):
+    pass
+
+def create_appconf(mach, args):
+    return NasftAppConf(mach)
+
 class NasftAppConf(apps.AppConf):
 
     @staticmethod

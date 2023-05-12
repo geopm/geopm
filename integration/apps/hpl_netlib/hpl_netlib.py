@@ -26,6 +26,8 @@ def setup_run_args(parser):
                         action='store', type=float, default=0.7,
                         help=help_text)
 
+def create_appconf(mach, args):
+    return HplNetlibAppConf(args.node_count, mach, args.frac_dram_per_node)
 
 class HplNetlibAppConf(apps.AppConf):
     @staticmethod

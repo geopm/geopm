@@ -36,6 +36,9 @@ def setup_run_args(parser):
                         help='Specify which input to give to Quantum Espresso.',
                         choices=list(POOL_COUNTS_BY_NAME))
 
+def create_appconf(mach, args):
+    return QuantumEspressoAppConf(args.node_count)
+
 class QuantumEspressoAppConf(apps.AppConf):
 
     @staticmethod

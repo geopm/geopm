@@ -16,6 +16,12 @@ import textwrap
 from .. import apps
 
 
+def setup_run_args(parser):
+    pass
+
+def create_appconf(mach, args):
+    return NekboneAppConf()
+
 class NekboneAppConf(apps.AppConf):
 
     @staticmethod

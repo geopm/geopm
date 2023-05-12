@@ -9,6 +9,14 @@ import glob
 from apps import apps
 
 
+def setup_run_args(parser):
+    pass
+
+def create_appconf(mach, args):
+    ''' Create a MinifeAppConf object from an ArgParse and experiment.machine object.
+    '''
+    return MinifeAppConf(args.node_count)
+
 class MinifeAppConf(apps.AppConf):
     @staticmethod
     def name():

@@ -10,6 +10,12 @@ import os
 from .. import apps
 
 
+def setup_run_args(parser):
+    pass
+
+def create_appconf(mach, args):
+    return AmgAppConf(args.node_count)
+
 class AmgAppConf(apps.AppConf):
     @staticmethod
     def name():

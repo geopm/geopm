@@ -12,6 +12,12 @@ import textwrap
 from apps.hpl_netlib import hpl_netlib
 
 
+def setup_run_args(parser):
+    hpl_netlib.setup_run_args(parser)
+
+def create_appconf(mach, args):
+    return HplMklAppConf(args.node_count, mach, args.frac_dram_per_node)
+
 class HplMklAppConf(hpl_netlib.HplNetlibAppConf):
     @staticmethod
     def name():
