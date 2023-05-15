@@ -350,6 +350,11 @@ class ActiveSessions(object):
         secure_make_dirs(self._RUN_PATH,
                          perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
 
+        # Remove any profile keys that were not cleaned up
+        dead_glob = f'{self._RUN_PATH}/profile-*'
+        for file_path in glob.glob(dead_glob):
+            os.unlink(file_path)
+
         # Load all session files in the directory
         for sess_path in glob.glob(self._get_session_path('*')):
             self._load_session_file(sess_path)
@@ -760,12 +765,18 @@ class ActiveSessions(object):
             self._region_names[profile_name] = set(region_names)
         self._profiles[profile_name].remove(client_pid)
         uid, gid = self._pid_info(client_pid)
-        os.unlink(shmem.path_prof('record-log', client_pid, uid, gid))
+        try:
+            os.unlink(shmem.path_prof('record-log', client_pid, uid, gid))
+        except FileNotFoundError:
+            pass
         if len(self._profiles[profile_name]) == 0:
             self._profiles.pop(profile_name)
         if len(self._profiles) == 0:
             uid, gid = self._pid_info(client_pid)
-            os.unlink(shmem.path_prof('status', client_pid, uid, gid))
+            try:
+                os.unlink(shmem.path_prof('status', client_pid, uid, gid))
+            except FileNotFoundError:
+                pass
         self._update_session_file(client_pid)
 
     def get_profile_pids(self, profile_name):
