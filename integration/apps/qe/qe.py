@@ -94,7 +94,7 @@ class QuantumEspressoAppConf(apps.AppConf):
             raise ValueError('Expected exactly 1 *.in file present in {}. '
                              'Discovered {} files'.format(self._input_dir,
                                                           len(input_files)));
-        for input_file in input_files: 
+        for input_file in input_files:
             os.rename(input_file, os.path.join(output_dir, self._input_name))
 
     def get_bash_exec_path(self):
