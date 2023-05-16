@@ -161,7 +161,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('os.stat', return_value=session_mock) as mock_os_stat, \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid, \
              mock.patch('geopmdpy.system_files.ActiveSessions._get_session_path', return_value=full_file_path) as mock_get_session_path, \
-             mock.patch('glob.glob', return_value=[full_file_path]), \
+             mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
@@ -256,7 +256,7 @@ class TestActiveSessions(unittest.TestCase):
                         side_effect=[json.dumps(self.json_good_example),
                                      json.dumps(self.json_good_example_2)]) as mock_srf, \
              mock.patch('os.stat') as mock_stat, \
-             mock.patch('glob.glob', return_value=[full_file_path_1, full_file_path_2]), \
+             mock.patch('glob.glob', side_effect=[[],[full_file_path_1, full_file_path_2]]), \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path,
@@ -374,7 +374,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
              mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
              mock.patch('os.stat', return_value=session_mock) as mock_stat, \
-             mock.patch('glob.glob', return_value=[full_file_path]), \
+             mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path,
@@ -418,7 +418,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
              mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
              mock.patch('os.stat', return_value=session_mock) as mock_stat, \
-             mock.patch('glob.glob', return_value=[full_file_path]), \
+             mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path,
