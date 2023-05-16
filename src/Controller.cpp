@@ -354,6 +354,11 @@ namespace geopm
                !m_application_sampler.do_shutdown()) {
             step();
         }
+        geopm_time(&curr_time);
+        m_application_sampler.update(curr_time);
+        m_platform_io.read_batch();
+        m_reporter->update();
+        m_profile_tracer->update(m_application_sampler.get_records());
         m_reporter->total_time(m_application_sampler.total_time());
         m_reporter->overhead(m_application_sampler.overhead_time(),
                              sample_delay);
