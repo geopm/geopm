@@ -30,9 +30,16 @@ Additionally, create a user-local build and install the GEOPM Runtime
 while disabling the MPI features.
 
 ```
-cd ${GEOPM_SOURCE}
-GEOPM_BASE_CONFIG_OPTIONS='--disable-mpi' \
-    ./integration/config/build.sh
+cd ${GEOPM_SOURCE}/service
+./autogen.sh
+./configure --prefix=${GEOPM_INSTALL}
+make
+make install
+cd ..
+./autogen.sh
+./configure --prefix=${GEOPM_INSTALL} --disable-mpi
+make
+make install
 
 ```
 
