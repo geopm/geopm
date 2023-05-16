@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <set>
 
 #include "geopm/PlatformIO.hpp"
 #include "geopm/Exception.hpp"
@@ -16,7 +17,7 @@
 
 namespace geopm
 {
-    const std::vector<std::string> DomainNetMapImp::M_EXPECTED_KEYS = {
+    const std::set<std::string> DomainNetMapImp::M_EXPECTED_KEYS = {
             "layers",
             "signal_inputs",
             "delta_inputs",
@@ -92,8 +93,7 @@ namespace geopm
 
         // make sure that there no unexpected keys in the json
         for (const auto &key : nnet_json.object_items()) {
-            if (std::find(M_EXPECTED_KEYS.begin(), M_EXPECTED_KEYS.end(), key.first)
-                == M_EXPECTED_KEYS.end()) {
+            if (M_EXPECTED_KEYS.find(key.first) == M_EXPECTED_KEYS.end()) {
                 throw Exception("DomainNetMapImp::" + std::string(__func__) + 
                                 ": Unexpected key in neural net json: " + key.first,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
