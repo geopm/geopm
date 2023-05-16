@@ -1,23 +1,76 @@
 
-Guide for HPC Runtime Users
-===========================
-The GEOPM HPC Runtime enables interactions between GEOPM's :doc:`application
+Guide for Runtime Users
+=======================
+
+The GEOPM Runtime is software designed to enhance energy efficiency of
+applications though active hardware configuration.  The architecture is
+designed to provide an secure infrastructure to support a wide range
+of tuning algorithms while solving three related challenges.
+
+
+1. Measuring Performance
+------------------------
+
+The first challenge is to enable hardware tuning algorithms to derive
+a robust estimate of application performance.  This is crucial because
+measurements of energy efficiency are expressed as ratios of
+performance to power, e.g. "perf per watt."  Any dynamic tuning of
+hardware power control parameters with a goal of energy efficiency
+must derive some estimate of application performance.  Without
+application feedback about the critical path, these performance
+estimates may be very inaccurate.  In this way, hardware tuning
+algorithms may interfere with application performance leading to
+longer run times which incur even higher energy costs per unit of work
+than if an adaptive algorithm were not applied.
+
+
+2. Hardware Configuration
+-------------------------
+
+This leads to the second challenge: enabling a hardware control
+algorithm to be driven by unprivileged user input (i.e. application
+feedback) is a security risk.  Without proper guards in place, this
+can lead to escalation of privilege, denial of service, and impacts to
+quality of service for other users of the system.  The GEOPM Service
+is specifically designed to address these problems.
+
+
+3. Advanced Data Analysis
+-------------------------
+
+The third challenge is providing a software development platform for
+control algorithms that can be safely deployed and use high level
+languages for data analysis.  To effectively gain energy efficiency
+with some applications, significant software dependencies may be
+required.  Control algorithms may rely on optimization software like
+machine learning packages, or other numerical packages.  The
+application being optimized may be composed of millions of lines of
+code, and there may be significant coupling between the application
+and control algorithm.  For these reasons, restricting the privileges
+of the processes running the control algorithm reduces software
+security audit requirements significantly.
+
+
+Introduction
+------------
+
+The GEOPM Runtime enables interactions between GEOPM's :doc:`application
 instrumentation interfaces <geopm_prof.3>` and
 :doc:`platform monitoring/control interfaces <geopm_pio.7>`.
 
-By default, the GEOPM HPC runtime simply summarizes relationships between
+By default, the GEOPM Runtime simply summarizes relationships between
 application instrumentation and platform-monitoring interfaces in a report.
 More complex interactions, such as dynamic control of platform settings, can
 be enabled by using different GEOPM *agents*. See the :doc:`geopmlaunch(1)
-<geopmlaunch.1>` documentation for more information about user-facing GEOPM HPC
-runtime launch options.
+<geopmlaunch.1>` documentation for more information about user-facing GEOPM
+Runtime launch options.
 
 .. figure:: https://geopm.github.io/images/geopm-runtime-usage.svg
    :alt: An illustration of geopmlaunch running on 2 servers, generating a
          trace file per host, and one report across all hosts.
    :align: center
 
-   The geopmlaunch tool is the main user interface to the GEOPM HPC runtime. It
+   The geopmlaunch tool is the main user interface to the GEOPM Runtime. It
    wraps a launcher application (srun in this example), generates a summarizing
    report file, and optionally generates a time-series trace per host.
 
@@ -42,11 +95,11 @@ runtime launch options.
     $ # show all options and available launchers
     $ geopmlaunch --help
 
-  The `GEOPM HPC Runtime tutorial
+  The `GEOPM Runtime tutorial
   <https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
   to profile unmodified applications, select and evaluate different GEOPM Agent
   algorithms, and how to add markup to an application.  The tutorial provides a
-  starting point for someone trying to get familiar with the GEOPM HPC Runtime.
+  starting point for someone trying to get familiar with the GEOPM Runtime.
 
 
 The runtime enables complex coordination between hardware settings across all
@@ -66,7 +119,7 @@ individual MPI application and enable the management of system power
 resources for multiple MPI jobs and multiple users by the system
 resource manager.
 
-The GEOPM HPC Runtime package provides two libraries: libgeopm for use
+The GEOPM Runtime package provides two libraries: libgeopm for use
 with MPI applications, and libgeopm for use with applications
 that do not link to MPI.  There are several command line tools
 included in GEOPM which have dedicated manual pages.  The
@@ -78,7 +131,7 @@ Agent algorithm to control the compute application.  The
 package that is included in the GEOPM installation.  See the :doc:`GEOPM
 overview man page <geopm.7>` for further documentation and links.
 
-The GEOPM HPC Runtime provides some built-in algorithms, each as an
+The GEOPM Runtime provides some built-in algorithms, each as an
 "Agent" that implements the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class interface.
 A developer may extend these algorithm features by writing an Agent
 plugin.  A new implementation of this class can be dynamically loaded
@@ -108,14 +161,14 @@ Build Requirements
 ------------------
 
 When using the build system in the base of the GEOPM source repository
-to build the GEOPM HPC Runtime some additional requirements must be
-met.  If the user is not interested in building the GEOPM HPC Runtime,
+to build the GEOPM Runtime some additional requirements must be
+met.  If the user is not interested in building the GEOPM Runtime,
 these extra build requirements may be ignored.  The user may also opt
-out of the specific GEOPM HPC Runtime features enabled by any of these
+out of the specific GEOPM Runtime features enabled by any of these
 requirements by providing the appropriate disable flag to the base
 build configure command line.
 
-The GEOPM HPC runtime requires support for MPI, the Message Passing
+The GEOPM Runtime requires support for MPI, the Message Passing
 Interface, standard 2.2 or higher.  In many cases meeting this
 requirement will depend on the specific HPC resource being targeted
 based on documentation that is site specific.  The Intel MPI
@@ -174,9 +227,9 @@ which describes some options of the form ``--with-<feature>`` that can
 be used for this purpose, e.g. ``--with-mpi-bin``.
 
 
-Building the GEOPM HPC Runtime
+Building the GEOPM Runtime
 ------------------------------
-The best recommendation for building the GEOPM HPC Runtime is to follow
+The best recommendation for building the GEOPM Runtime is to follow
 the :ref:`developer build process <devel:developer build process>` posted in
 the :doc:`developer guide <devel>`.  This will enable the use of the GEOPM
 Service and will also provide the latest development in the GEOPM repository.
@@ -184,10 +237,10 @@ Service and will also provide the latest development in the GEOPM repository.
 
 Run Requirements
 ----------------
-The GEOPM HPC Runtime has several requirements at time-of-use beyond
+The GEOPM Runtime has several requirements at time-of-use beyond
 what is required for the GEOPM Service.  These requirements are
 outlined in the following subsections.  A user that is not interested in
-running the GEOPM HPC Runtime may ignore these requirements.
+running the GEOPM Runtime may ignore these requirements.
 
 .. contents:: Categories of run requirements:
    :local:
@@ -195,7 +248,7 @@ running the GEOPM HPC Runtime may ignore these requirements.
 
 MPI Requirements
 ^^^^^^^^^^^^^^^^
-The GEOPM HPC Runtime requires that the package was built
+The GEOPM Runtime requires that the package was built
 against the same MPI implementation that is used at runtime to launch
 the user's application.
 
@@ -271,7 +324,7 @@ information.
 
 GEOPM Application Launch Wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The GEOPM HPC Runtime package installs the ``geopmlaunch`` command.
+The GEOPM Runtime package installs the ``geopmlaunch`` command.
 The ``geopmlaunch`` command is a wrapper for the MPI launch commands like ``srun``, ``aprun``,
 and ``mpiexec``, where the wrapper script enables the GEOPM runtime.  The
 "geopmlaunch" command supports exactly the same command line interface
@@ -328,7 +381,7 @@ community).
 Resource Manager Integration
 ----------------------------
 
-The GEOPM HPC Runtime package can be integrated with a compute cluster
+The GEOPM Runtime package can be integrated with a compute cluster
 resource manager by modifying the resource manager daemon running on
 the cluster compute nodes.  An example of integration with the SLURM
 resource manager via a SPANK plugin can be found in the `geopm-slurm git
