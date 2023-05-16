@@ -19,8 +19,14 @@ https://geopm.slack.com
 Summary
 -------
 
-The Global Extensible Open Power Manager (GEOPM) is a framework for
-exploring power and energy optimizations on heterogeneous platforms.
+The Global Extensible Open Power Manager (GEOPM) is a collaborative
+framework for exploring power and energy optimizations on
+heterogeneous platforms. GEOPM is open-source (BSD licensed) and
+developed to enable efficient power management and performance
+optimizations. With this powerful tool, users are able to monitor
+their system's energy and power consumption, and safely optimize
+system hardware settings to achieve energy efficiency and/or
+performance objectives.
 
 With GEOPM you can:
 
