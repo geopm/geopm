@@ -5,7 +5,6 @@
 EXTRA_DIST += integration/test/check_trace.py \
               integration/test/configure_test_template.sh \
               integration/test/geopm_test_launcher.py \
-              integration/test/geopm_test_loop.sh \
               integration/test/__init__.py \
               integration/test/README.md \
               integration/test/short_region/plot_margin_sweep.py \
