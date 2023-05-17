@@ -58,5 +58,7 @@ cleanup_resources() {
     rm "${TEST_ERROR}"
     if [ ! -z "${SESSION_PID}" ]; then
         sudo check_session_clean.sh ${SESSION_PID}
+        test $? == 0 ||
+            test_error "Session did not end cleanly, files persist in the run dir."
     fi
 }

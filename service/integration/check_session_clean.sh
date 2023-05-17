@@ -54,12 +54,16 @@ BATCH_STATUS_OUT="/run/geopm-service/batch-status-${SESSION_PID}-out"
 # shared memory keys
 SHMEM_KEY_SIGNAL="/run/geopm-service/batch-buffer-${SESSION_PID}-signal"
 SHMEM_KEY_CONTROL="/run/geopm-service/batch-buffer-${SESSION_PID}-control"
+SHMEM_KEY_STATUS="/run/geopm-service/profile-$(id -u)-status"
+SHMEM_KEY_RECORD_LOG="/run/geopm-service/profile-${SESSION_PID}-record-log"
 
 check_file ${SESSION_FILE}
 check_file ${BATCH_STATUS_IN}
 check_file ${BATCH_STATUS_OUT}
 check_file ${SHMEM_KEY_SIGNAL}
 check_file ${SHMEM_KEY_CONTROL}
+check_file ${SHMEM_KEY_STATUS}
+check_file ${SHMEM_KEY_RECORD_LOG}
 
 if [ ! -z "${fail}" ]; then
     exit -1
