@@ -196,10 +196,49 @@ All functions described on this man page return an error code.  See
 :doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how
 to convert them to strings.
 
+Example
+-------
+The endpoint interface needs to be opened and attached to an agent. The
+following pseudocode illustrates the order of function calls that would enable
+an endpoint user to interact with an agent after a job has already started
+executing, instead of writing a static policy to a file and waiting for job
+completion to receive feedback.
+
+Error-checking is omitted from this example for brevity. See
+:doc:`geopm_error(3) <geopm_error.3>` for interpretation of the return values
+from these functions.
+
+.. code-block:: c
+
+    char agent_name[128];
+    char profile_name[128];
+    char node_name[128];
+    int num_node;
+    struct geopm_endpoint_c* endpoint;
+    geopm_endpoint_create("my_endpoint", &endpoint);
+    geopm_endpoint_open(endpoint);
+    geopm_endpoint_wait_for_agent_attach(endpoint, 1.0);
+    geopm_endpoint_agent(endpoint, sizeof agent_name, agent_name);
+    // Now you can look up agent properties by agent_name, such as the names of
+    // policy and sample vector elements. See geopm_agent(3).
+    geopm_endpoint_profile_name(endpoint, sizeof profile_name, profile_name);
+    // Now you have the user-provided profile name for the job
+    geopm_endpoint_num_node(endpoint, &num_node);
+    geopm_endpoint_node_name(endpoint, num_node-1 /* The last node's name */,
+                             sizeof node_name, node_name);
+    double *policy = /* populate the array based on the agent policy */;
+    geopm_endpoint_write_policy(endpoint, policy, num_policy);
+    double *sample = /* Allocate large enough to hold agent's samples */;
+    double sample_age_sec; // How old the sample is by the time you request it
+    geopm_endpoint_read_sample(endpoint, num_sample, sample, &sample_age_sec);
+    geopm_endpoint_close(endpoint);
+    geopm_endpoint_destroy(endpoint);
+
 See Also
 --------
 
-:doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_error(3) <geopm_error.3>`\ ,
-:doc:`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3>`\ ,
-:doc:`geopmendpoint(1) <geopmendpoint.1>`
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_error(3) <geopm_error.3>`,
+:doc:`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3>`,
+:doc:`geopmendpoint(1) <geopmendpoint.1>`,
+:doc:`geopm_agent(3) <geopm_agent.3>`
