@@ -242,7 +242,7 @@ namespace geopm
             std::string name;
             uint64_t hash;
             double per_rank_avg_runtime;
-            int count;
+            double count;
         };
 
         std::vector<region_info> region_ordered;
@@ -251,7 +251,7 @@ namespace geopm
                            "ReporterImp::create_report(): region set is not empty, but region aggregator pointer is null");
         for (const auto &region : region_name_set) {
             uint64_t region_hash = geopm_crc32_str(region.c_str());
-            int count = m_proc_region_agg->get_count_average(region_hash);
+            double count = m_proc_region_agg->get_count_average(region_hash);
             if (count > 0) {
                 region_ordered.push_back({region,
                                           region_hash,

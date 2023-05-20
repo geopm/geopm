@@ -20,6 +20,7 @@ export GEOPM_TRACE_PROFILE=${TEST_NAME}_trace_profile.csv
 export GEOPM_PROFILE=${TEST_NAME}
 #export GEOPM_REPORT_SIGNALS=CPU_TIMESTAMP_COUNTER@package
 export GEOPM_REPORT_SIGNALS=TIME@package
+export GEOPM_NUM_PROC=2
 
 geopmctl &
 sleep 2

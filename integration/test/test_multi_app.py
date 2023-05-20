@@ -29,7 +29,9 @@ class TestIntegration_multi_app(unittest.TestCase):
     def setUpClass(cls):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        subprocess.run(['/bin/bash', 'test_multi_app.sh'],
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        script_path = os.path.join(script_dir,'test_multi_app.sh')
+        subprocess.run(['/bin/bash', script_path],
                        timeout=cls.TIME_LIMIT, check=True)
 
         cls._report_path = f'{cls.TEST_NAME}_report.yaml'
@@ -49,9 +51,9 @@ class TestIntegration_multi_app(unittest.TestCase):
             for region in self._report.region_names(node):
                 region_data = self._report.raw_region(node, region)
                 if region == 'model-init':
-                    self.assertEqual(region_data['count'], 1)
+                    self.assertEqual(region_data['count'], 0.5)
                 else:
-                    self.assertEqual(region_data['count'], 2)
+                    self.assertEqual(region_data['count'], 1)
                 self.assertGreater(region_data['TIME@package-0'], 0)
                 self.assertEqual(region_data['TIME@package-1'], 0)
 
