@@ -79,7 +79,6 @@ class TestIntegration_hint_time(unittest.TestCase):
         cls._image_path = 'test_{}.png'.format(cls._test_name)
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'
-        machine_file_name = 'test_{}.machine'.format(cls._test_name)
         cls._machine = machine.Machine()
         try:
             cls._machine.load()
