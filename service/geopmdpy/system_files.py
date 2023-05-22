@@ -463,13 +463,14 @@ class ActiveSessions(object):
         except FileNotFoundError:
             pass
         try:
-            sess = self._sessions.pop(client_pid)
+            sess = self._sessions[client_pid]
             profile_name = sess.get('profile_name')
             if profile_name is not None:
                 self.stop_profile(client_pid, [])
                 self._profiles[profile_name].remove(client_pid)
                 if len(self._profiles[profile_name]) == 0:
                     self._profiles.pop(profile_name)
+            self._sessions.pop(client_pid)
         except KeyError:
             pass
         return sess
@@ -740,6 +741,8 @@ class ActiveSessions(object):
         profile_name = str(profile_name)
         self.check_client_active(client_pid, 'start_profile')
         uid, gid = self._pid_info(client_pid)
+        self._sessions[client_pid]['client_uid'] = int(uid)
+        self._sessions[client_pid]['client_gid'] = int(gid)
         if len(self._profiles) == 0:
             size = 64 * os.cpu_count()
             shmem.create_prof('status', size, client_pid, uid, gid)
@@ -764,7 +767,8 @@ class ActiveSessions(object):
         else:
             self._region_names[profile_name] = set(region_names)
         self._profiles[profile_name].remove(client_pid)
-        uid, gid = self._pid_info(client_pid)
+        uid = self._sessions[client_pid]['client_uid']
+        gid = self._sessions[client_pid]['client_gid']
         try:
             os.unlink(shmem.path_prof('record-log', client_pid, uid, gid))
         except FileNotFoundError:
@@ -772,7 +776,6 @@ class ActiveSessions(object):
         if len(self._profiles[profile_name]) == 0:
             self._profiles.pop(profile_name)
         if len(self._profiles) == 0:
-            uid, gid = self._pid_info(client_pid)
             try:
                 os.unlink(shmem.path_prof('status', client_pid, uid, gid))
             except FileNotFoundError:

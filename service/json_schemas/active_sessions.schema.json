@@ -7,6 +7,14 @@
           "client_pid": {
             "type": "integer"
           },
+          "client_uid": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "client_gid": {
+            "type": "integer",
+            "minimum": 0
+          },
           "reference_count": {
             "type": "integer",
             "minimum": 0
