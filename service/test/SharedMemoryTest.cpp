@@ -277,7 +277,7 @@ void SharedMemoryTest::chown_test(const std::string &shm_key)
 
     // Try to set root gid/uid
     GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(0, 0),
-                               EPERM, "Could not chown shmem key");
+                               EPERM, "Could not chown shmem with key");
 
     m_shmem->unlink(); // Manually unlink unless config_shmem_u() is called
 

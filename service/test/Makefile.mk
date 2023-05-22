@@ -231,6 +231,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/NVMLIOGroupTest.push_control_adjust_write_batch \
               test/gtest_links/NVMLIOGroupTest.error_path \
               test/gtest_links/NVMLIOGroupTest.valid_signals \
+              test/gtest_links/NVMLIOGroupTest.save_restore_control \
               test/gtest_links/NVMLIOGroupTest.single_supported_frequency \
               test/gtest_links/NVMLIOGroupTest.signal_and_control_trimming \
               test/gtest_links/PlatformIOTest.adjust \
@@ -333,6 +334,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ServiceProxyTest.platform_stop_batch \
               test/gtest_links/ServiceProxyTest.platform_read_signal \
               test/gtest_links/ServiceProxyTest.platform_write_control \
+              test/gtest_links/SharedMemoryTest.chown_file \
+              test/gtest_links/SharedMemoryTest.chown_shm \
               test/gtest_links/SharedMemoryTest.fd_check_shm \
               test/gtest_links/SharedMemoryTest.fd_check_file \
               test/gtest_links/SharedMemoryTest.invalid_construction \
@@ -354,6 +357,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/SSTControlTest.save_restore_mbox \
               test/gtest_links/SSTIOGroupTest.adjust_mbox_control \
               test/gtest_links/SSTIOGroupTest.adjust_mmio_control \
+              test/gtest_links/SSTIOGroupTest.constructor_throws_if_priority_not_readable \
               test/gtest_links/SSTIOGroupTest.error_in_save_removes_control \
               test/gtest_links/SSTIOGroupTest.sample_mbox_control \
               test/gtest_links/SSTIOGroupTest.sample_mbox_signal \

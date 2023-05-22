@@ -128,14 +128,19 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_add2 \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_subtract1 \
               test/gtest_links/EditDistPeriodicityDetectorTest.fft_small \
+              test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
+              test/gtest_links/EndpointTest.detach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.get_hostnames \
               test/gtest_links/EndpointTest.get_profile_name \
               test/gtest_links/EndpointTest.write_shm_policy \
               test/gtest_links/EndpointTest.parse_shm_sample \
               test/gtest_links/EndpointTest.get_agent \
+              test/gtest_links/EndpointTest.stop_wait_loop \
               test/gtest_links/EndpointTest.wait_attach_timeout_0 \
               test/gtest_links/EndpointTest.wait_detach_timeout_0 \
               test/gtest_links/EndpointTestIntegration.read_sample_before_data_exists \
+              test/gtest_links/EndpointTest.wait_stops_when_agent_attaches \
+              test/gtest_links/EndpointTest.wait_stops_when_agent_detaches \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \
@@ -165,6 +170,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/EnvironmentTest.record_filter_off \
               test/gtest_links/EnvironmentTest.init_control_set \
               test/gtest_links/EnvironmentTest.init_control_unset \
+              test/gtest_links/EnvironmentTest.signal_parser \
               test/gtest_links/EpochIOGroupIntegrationTest.read_batch_count \
               test/gtest_links/EpochIOGroupTest.no_controls \
               test/gtest_links/EpochIOGroupTest.read_batch \
@@ -284,6 +290,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ReporterTest.generate_conditional \
               test/gtest_links/SampleAggregatorTest.epoch_application_total \
               test/gtest_links/SampleAggregatorTest.sample_application \
+              test/gtest_links/SampleAggregatorTest.test_sample_before_update \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
