@@ -48,21 +48,21 @@ def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_
     if cpu_nn_path is not None:
         if os.path.exists(cpu_nn_path):
             os.environ['GEOPM_CPU_NN_PATH'] = cpu_nn_path
-        else
+        else:
             raise KeyError(f'File cpu-nn-path={cpu_nn_path} does not exist.')
         if cpu_fmap_path is not None:
             os.environ['GEOPM_CPU_FMAP_PATH'] = cpu_fmap_path
-        else
+        else:
             raise RuntimeError('Must specify cpu-fmap-path when cpu-nn-path is specified for ffnet experiment')
 
     if args.gpu_nn_path is not None:
         if os.path.exists(gpu_nn_path):
             os.environ['GEOPM_GPU_NN_PATH'] = gpu_nn_path
-        else
+        else:
             raise KeyError(f'File gpu-nn-path={gpu_nn_path} does not exist.')
         if gpu_fmap_path is not None:
             os.environ['GEOPM_GPU_FMAP_PATH'] = gpu_fmap_path
-        else
+        else:
             raise RuntimeError('Must specify gpu-fmap-path when gpu-nn-path is specified for ffnet experiment')
 
     return
