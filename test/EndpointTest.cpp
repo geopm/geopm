@@ -46,6 +46,7 @@ class EndpointTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        void set_up_expectations();
         const std::string m_shm_path = "/EndpointTest_data_" + std::to_string(geteuid());
         std::shared_ptr<MockSharedMemory> m_policy_shmem;
         std::shared_ptr<MockSharedMemory> m_sample_shmem;
@@ -67,7 +68,10 @@ void EndpointTest::SetUp()
     m_sample_shmem = geopm::make_unique<MockSharedMemory>(sample_shmem_size);
 
     m_timeout = 2;
+}
 
+void EndpointTest::set_up_expectations()
+{
     EXPECT_CALL(*m_policy_shmem, get_scoped_lock()).Times(AtLeast(0));
     EXPECT_CALL(*m_policy_shmem, unlink());
     EXPECT_CALL(*m_sample_shmem, get_scoped_lock()).Times(AtLeast(0));
@@ -82,6 +86,7 @@ void EndpointTestIntegration::TearDown()
 
 TEST_F(EndpointTest, write_shm_policy)
 {
+    set_up_expectations();
     std::vector<double> values = {777, 12.3456, 2.3e9};
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer();
     EndpointImp jio(m_shm_path, m_policy_shmem, m_sample_shmem, values.size(), 0);
@@ -95,6 +100,7 @@ TEST_F(EndpointTest, write_shm_policy)
 
 TEST_F(EndpointTest, parse_shm_sample)
 {
+    set_up_expectations();
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     int num_sample = sizeof(tmp) / sizeof(tmp[0]);
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
@@ -216,6 +222,7 @@ TEST_F(EndpointTestIntegration, read_sample_before_data_exists)
 
 TEST_F(EndpointTest, get_agent)
 {
+    set_up_expectations();
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio->open();
@@ -226,6 +233,7 @@ TEST_F(EndpointTest, get_agent)
 
 TEST_F(EndpointTest, get_profile_name)
 {
+    set_up_expectations();
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio->open();
@@ -236,6 +244,7 @@ TEST_F(EndpointTest, get_profile_name)
 
 TEST_F(EndpointTest, get_hostnames)
 {
+    set_up_expectations();
     std::set<std::string> hosts = {"node0", "node1", "node2", "node3", "node4"};
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
@@ -256,6 +265,7 @@ TEST_F(EndpointTest, get_hostnames)
 TEST_F(EndpointTest, stop_wait_loop)
 {
     GEOPM_TEST_EXTENDED("Requires multiple threads");
+    set_up_expectations();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio->open();
     mio->reset_wait_loop();
@@ -274,6 +284,7 @@ TEST_F(EndpointTest, stop_wait_loop)
 TEST_F(EndpointTest, attach_wait_loop_timeout_throws)
 {
     GEOPM_TEST_EXTENDED("Requires multiple threads");
+    set_up_expectations();
 
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio->open();
@@ -301,6 +312,7 @@ TEST_F(EndpointTest, attach_wait_loop_timeout_throws)
 TEST_F(EndpointTest, detach_wait_loop_timeout_throws)
 {
     GEOPM_TEST_EXTENDED("Requires multiple threads");
+    set_up_expectations();
 
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
@@ -331,6 +343,7 @@ TEST_F(EndpointTest, detach_wait_loop_timeout_throws)
 TEST_F(EndpointTest, wait_stops_when_agent_attaches)
 {
     GEOPM_TEST_EXTENDED("Requires multiple threads");
+    set_up_expectations();
 
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
@@ -351,6 +364,7 @@ TEST_F(EndpointTest, wait_stops_when_agent_attaches)
 
 TEST_F(EndpointTest, wait_attach_timeout_0)
 {
+    set_up_expectations();
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio->open();
@@ -372,6 +386,7 @@ TEST_F(EndpointTest, wait_attach_timeout_0)
 TEST_F(EndpointTest, wait_stops_when_agent_detaches)
 {
     GEOPM_TEST_EXTENDED("Requires multiple threads");
+    set_up_expectations();
 
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
@@ -397,6 +412,7 @@ TEST_F(EndpointTest, wait_stops_when_agent_detaches)
 
 TEST_F(EndpointTest, wait_detach_timeout_0)
 {
+    set_up_expectations();
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
     std::shared_ptr<Endpoint> mio = std::make_shared<EndpointImp>(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio->open();
