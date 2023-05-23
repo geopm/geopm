@@ -9,7 +9,70 @@ import torch
 from torch import nn
 import torch.utils.data as data
 
-from pt_to_json import model_to_json
+def model_to_json(model, X_columns, y_columns, describe_net):
+    def parse_signal(signal_name):
+        if signal_name in ['TIME', 'DRAM_POWER', 'DRAM_ENERGY']:
+            return [signal_name, 0, 0]
+        component_list=["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
+        signal_list = signal_name.split('-')
+        return [signal_list[0], component_list.index(signal_list[1].lower()), int(signal_list[2])]
+
+    layers = [[]]
+
+    for module in model.modules():
+        name = str(type(module)).split('.')[-1][:-2]
+        if hasattr(module, 'original_name'):
+            name = module.original_name
+        if name == 'BatchNorm1d':
+            net_weight = module.weight/(module.running_var+module.eps)**0.5
+            net_bias = -module.weight*module.running_mean/(module.running_var+module.eps)**0.5 + module.bias
+            layers[-1].append((torch.diag(net_weight), net_bias))
+        elif name == 'Linear':
+            weight, bias = list(module.parameters())
+            layers[-1].append((weight, bias))
+        elif name == 'Sigmoid':
+            layers.append([])
+
+    rval = {
+        'description': describe_net,
+        'delta_inputs': [],
+        'policy_inputs': [],
+        'signal_inputs': [],
+        'trace_outputs': [],
+        'control_outputs': [],
+        'layers': [],
+    }
+
+    for input_col in X_columns:
+        if input_col.startswith("delta_"):
+            num, den = input_col.split("/")
+            num = num[len("delta_"):]
+            den = den[len("delta_"):]
+            rval['delta_inputs'].append([parse_signal(num), parse_signal(den)])
+        elif input_col.startswith("policy_"):
+            rval['policy_inputs'].append(input_col[len("policy_"):])
+        else:
+            rval['signal_inputs'].append(parse_signal(input_col))
+
+    for output_col in y_columns:
+        if output_col.startswith("trace_"):
+            rval['trace_outputs'].append(output_col[len("trace_"):])
+        else:
+            rval['control_outputs'].append(parse_signal(output_col))
+
+    for sublayers in layers:
+        if len(sublayers) == 0:
+            continue
+        acc_weight, acc_bias = sublayers[0]
+        for weight, bias in sublayers[1:]:
+            acc_weight = np.matmul(weight, acc_weight)
+            acc_bias = np.matmul(weight, acc_bias) + bias
+        rval['layers'].append([acc_weight.tolist(), \
+                               acc_bias.tolist()])
+
+    return rval
+
+
 
 # TODO: Remove trace lines transitioning between two different regions
 #       i.e. if REGION_HASH != prev line REGION_HASH, delete.
@@ -88,7 +151,7 @@ def train_model(df_traces, X_columns, y_columns, log=print):
 
 def main(input_list, output_name="nnet", describe_net="A neural net.", region_ignore=None):
     #Regions to ignore for training
-    if region_ignore = None:
+    if region_ignore == None:
         region_ignore = []
     else:
         region_ignore.split(",")
@@ -99,7 +162,7 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
     region_ids = []
 
     #TODO: Test using config_name instead
-    y_columns = ['region_id']
+    y_columns = ['region-id']
     X_columns_domain = {
             'cpu':['CPU_POWER-package-0',
                 'CPU_FREQUENCY_STATUS-package-0',
@@ -120,16 +183,24 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
             ],
             'gpu':[]}
 
+    if type(input_list) == str:
+        input_list = [input_list]
+
+    for inp in input_list:
         #TODO: Check if hdf, if not, convert
         df = pd.read_hdf(inp)
         if 'app-config' not in  df:
             sys.stderr.write('<geopm> Error: No app-config in input data. Have you used gen_hdf_from_fsweep.py to create this HDF?\n')
             sys.exit(1)
 
+        df["region-id"] = df["app-config"]
+
+        #TODO: Confirm we can delete the following
         # for parres, the region hash can't be determined by GEOPM
-        df = df[~df['REGION_HASH'].isna()]
-        df = df[~df['REGION_HASH'].isin(region_ignore)]
-        df["region_id"] = df["REGION_HASH"] + suffix
+        #df = df[~df['REGION_HASH'].isna()]
+        #df = df[~df['REGION_HASH'].isin(region_ignore)]
+        #df["region_id"] = df["REGION_HASH"] + suffix
+
         dfs.append(df)
 
     df_traces = pd.concat(dfs)
@@ -153,13 +224,10 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
         sys.exit(1)
 
     print("Training to identify these regions:")
-    region_ids = sorted(list(df_traces["app_config"].unique()))
+    region_ids = sorted(list(df_traces["region-id"].unique()))
     print(", ".join(region_ids))
     mapping = {region_id: region_ids.index(region_id) for region_id in region_ids}
-    df_traces["app_config"] = df_traces['app_config'].map(mapping)
-    #region_ids = sorted(list(df_traces["region_id"].unique()))
-    #mapping = {region_id: region_ids.index(region_id) for region_id in region_ids}
-    #df_traces["region_id"] = df_traces['region_id'].map(mapping)
+    df_traces["region-id"] = df_traces['region-id'].map(mapping)
 
     for domain in domains_to_train:
         for num,den in ratios_domain[domain]:

@@ -4,17 +4,19 @@ import json
 import pandas as pd
 from sklearn import datasets, linear_model
 
-#To get machine parameters
 import argparse
-import os
-from experiment import machine
-from experiment import common_args
+#TODO: Figure out how to get info from machine
+#To get machine parameters
+#import os
+#from experiment import machine
+#from experiment import common_args
 
 def get_domains(table_stats):
     domains = []
     for domain in ['cpu', 'gpu', 'uncore']:
         if f'{domain}-frequency' in table_stats.columns:
             domains.append(domain)
+    return domains
 
 def get_domain_freq_range(domain, table_stats):
     if f'{domain}-frequency' in table_stats:
@@ -40,7 +42,7 @@ def per_region_regression(table_stats, domain='cpu'):
 
     return region_regression
 
-def get_best_runtime_freq(region_regression, domain, region_name, perf_deg_percent, freq_range):
+def get_best_runtime_freq(region_regression, domain, region_name, perf_deg_factor, freq_range):
 
     freq_max = freq_range['max_freq']
     freq_min = freq_range['min_freq']
@@ -48,10 +50,10 @@ def get_best_runtime_freq(region_regression, domain, region_name, perf_deg_perce
 
     best_runtime = region_regression[region_name]["slope"] / freq_max + region_regression[region_name]["intercept"]
 
-    runtime_freq = region_regression[region_name]["slope"] / (best_runtime*perf_deg_percent - region_regression[region_name]["intercept"])
+    runtime_freq = region_regression[region_name]["slope"] / (best_runtime*perf_deg_factor - region_regression[region_name]["intercept"])
 
     runtime_freq = min(max(runtime_freq, freq_min), freq_max)
-    return (float)(runtime_freq), (float)(best_runtime*perf_deg_percent)
+    return (float)(runtime_freq), (float)(best_runtime*perf_deg_factor)
 
 def get_energy_at_freq(table_stats, region, domain, freq):
     if domain == 'gpu':
@@ -59,9 +61,12 @@ def get_energy_at_freq(table_stats, region, domain, freq):
     else:
         energy_col = 'package-energy (J)'
 
-    freq = int(freq/1e8 + 0.5)
-    freq_subset = table_stats[table_stats['hash'] == region]
-    freq_subset = table_stats[table_stats[f'{domain}-frequency'] == freq]
+    freq_subset = table_stats[table_stats['app-config'] == region]
+
+    # Approximate by the nearest frequency
+    freq = freq_subset.iloc[(freq_subset[f'{domain}-frequency']-freq).abs().argsort()[:1]][f'{domain}-frequency'].tolist()[0]
+
+    freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] == freq]
     if len(freq_subset[energy_col]) == 0:
         return None
     return min(freq_subset[energy_col])
@@ -76,7 +81,7 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
     else:
         energy_col = 'package-energy (J)'
 
-    freq_subset = table_stats[table_stats['hash'] == region]
+    freq_subset = table_stats[table_stats['app-config'] == region]
     freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] >= freq_r]
     freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] <= freq_range['max_freq']]
 
@@ -84,13 +89,12 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
 
     return (float)(freq_subset[f'{domain}-frequency'].iloc[row_idx])
 
-def main(data_file, output_name):
+def main(output_name, data_file):
 
     freq_range={}
     region_regression={}
-    table_stats = pd.read_hdf(args.data_file)
-    #TODO: Check that this is the desired column to use
-    table_stats = table_stats[~table_stats['hash'].isna()]
+    table_stats = pd.read_hdf(data_file)
+    table_stats = table_stats[~table_stats['app-config'].isna()]
 
     domains = get_domains(table_stats)
 
@@ -106,15 +110,17 @@ def main(data_file, output_name):
         for region_name in region_regression[domain]:
             freqs = []
             for phi in [i/10 for i in range(11)]:
+                #Allowing perf degradation up to 25% (runtime increase by 1.25x)
                 allowable_perf_deg = 1 + phi/4
-                freq_r, runtime = get_best_runtime_freq(region_regression[domain], domain, region_name, allowable_perf_deg, freq_range[domain]);
+                freq_r, _ = get_best_runtime_freq(region_regression[domain], domain, region_name, allowable_perf_deg, freq_range[domain]);
                 freq  = get_lowest_energy_freq(table_stats, domain, region_name, freq_r, freq_range[domain])
-                e_r = get_energy_at_freq(table_stats, region_name, domain, freq_r)
-                e_m = get_energy_at_freq(table_stats, region_name, domain, freq)
-                freqs.append(int(freq+1e8))
+
+                freqs.append(freq)
+
             region_parameters[domain][region_name] = freqs
-        json.dumps(region_parameters)
+        json.dump(region_parameters, params_out)
         params_out.close()
+        print(region_parameters)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -127,7 +133,7 @@ if __name__ == '__main__':
                         help='HDF containing stats data.')
     args = parser.parse_args()
 
-    main(args.data_file, args.output)
+    main(args.output, args.data_file)
     #TODO: Determine if we want to gather this info from mach and
     #      use to modulate frequency range if we can switch to
     #      generating a freq - energy fit.
