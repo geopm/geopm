@@ -268,6 +268,15 @@ specified regardless of the values set in the calling environment.
 
 GEOPM Environment Variables
 ---------------------------
+``GEOPM_NUM_PROC``
+  The number of processes to be tracked and profiled by the controller
+  on each compute node. The controller will wait until this number of
+  processes request profiling before starting the control loop and
+  subsequent requests for profiling will be ignored by the controller.
+  This environment variable is useful when executing a non-MPI
+  application without :doc:`geopmlaunch(1) <geopmlaunch.1>` and in the
+  case where there is more than one process to be profiled.  The
+  default value for GEOPM_NUM_PROC is one.
 ``GEOPM_REPORT``
   The path to which a GEOPM report file is saved. See the
   ``--geopm-report`` :ref:`option description <geopm-report option>` in
