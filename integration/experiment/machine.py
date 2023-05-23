@@ -135,16 +135,6 @@ class Machine:
         self.meminfo = util.get_node_memory_info()
 
 
-def init_output_dir(output_dir):
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    elif not os.path.isdir(output_dir):
-        raise RuntimeError('Requested output directory is a file: {}'.format(output_dir))
-    mm = Machine(output_dir)
-    mm.save()
-    return mm
-
-
 def get_machine(output_dir):
     mm = Machine(output_dir)
     mm.load()
@@ -163,3 +153,10 @@ def try_machine(output_dir, msg_tag=None):
     except RuntimeError:
         mm.save()
     return mm
+
+def init_output_dir(output_dir):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    elif not os.path.isdir(output_dir):
+        raise RuntimeError('Requested output directory is a file: {}'.format(output_dir))
+    return try_machine(output_dir)
