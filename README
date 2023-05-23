@@ -36,7 +36,7 @@ With GEOPM you can:
   terminates
 - Profile applications to study their power and energy behavior
 - Automatically detect MPI and OpenMP phases in an application
-- Optimize MPI applications to improve energy efficiency or reduce the
+- Optimize applications to improve energy efficiency or reduce the
   effects of work imbalance, system jitter, and manufacturing variation
   through built-in control algorithms
 - Develop your own runtime control algorithms through the extensible
