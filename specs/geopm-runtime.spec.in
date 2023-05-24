@@ -148,9 +148,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_libdir}/libgeopm.so.1.0.0
 %{_libdir}/libgeopm.so.1
 %{_libdir}/libgeopm.so
-%{_libdir}/libgeopmload.so.1.0.0
-%{_libdir}/libgeopmload.so.1
-%{_libdir}/libgeopmload.so
 %{_bindir}/geopmadmin
 %{_bindir}/geopmagent
 %{_bindir}/geopmctl

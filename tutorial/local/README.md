@@ -62,7 +62,7 @@ geopmctl &
 
 # Preload GEOPM into the sleep(1) command
 GEOPM_PROFILE=sleep-example \
-LD_PRELOAD=libgeopmload.so.1.0.0 \
+LD_PRELOAD=libgeopm.so.1.0.0 \
     sleep 10
 
 ```
