@@ -245,13 +245,6 @@ running the GEOPM Runtime may ignore these requirements.
    :local:
 
 
-MPI Requirements
-^^^^^^^^^^^^^^^^
-The GEOPM Runtime requires that the package was built
-against the same MPI implementation that is used at runtime to launch
-the user's application.
-
-
 BIOS Configuration
 ^^^^^^^^^^^^^^^^^^
 If power governing or power balancing is the intended use case
