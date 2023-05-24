@@ -26,9 +26,9 @@ geopmctl &
 sleep 2
 
 # geopmbench
-srun -N 1 -n 1 --cpu-bind=map_ldom:0 -s sh -c "LD_PRELOAD=libgeopmload.so.1.0.0 geopmbench temp_config.json" &
+srun -N 1 -n 1 --cpu-bind=map_ldom:0 -s sh -c "LD_PRELOAD=libgeopm.so.1.0.0 geopmbench temp_config.json" &
 
 # stress-ng
-srun -N 1 -n 1 --cpu-bind=map_ldom:1 -s sh -c "LD_PRELOAD=libgeopmload.so.1.0.0 stress-ng --cpu 1 --timeout 10" &
+srun -N 1 -n 1 --cpu-bind=map_ldom:1 -s sh -c "LD_PRELOAD=libgeopm.so.1.0.0 stress-ng --cpu 1 --timeout 10" &
 
 wait $(jobs -p)

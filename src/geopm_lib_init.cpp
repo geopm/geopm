@@ -15,8 +15,7 @@ static void __attribute__((constructor)) geopm_lib_init(void)
 {
     if (geopm::environment().do_profile()) {
         try {
-            geopm_time_s zero = geopm::time_curr();
-            geopm::time_zero_reset(zero);
+            geopm_time_s zero = geopm::time_zero();
             auto &prof = geopm::Profile::default_profile();
             prof.overhead(geopm_time_since(&zero));
         }
@@ -26,14 +25,3 @@ static void __attribute__((constructor)) geopm_lib_init(void)
     }
 }
 
-static void __attribute__((destructor)) geopm_lib_fini(void)
-{
-    if (geopm::environment().do_profile()) {
-        try {
-            geopm::Profile::default_profile().shutdown();
-        }
-        catch (...) {
-            geopm::exception_handler(std::current_exception(), true);
-        }
-    }
-}

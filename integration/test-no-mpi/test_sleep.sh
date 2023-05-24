@@ -11,5 +11,5 @@ export GEOPM_TRACE_PROFILE=${TEST_NAME}_trace_profile.csv
 export GEOPM_PROFILE=${TEST_NAME}
 geopmctl &
 sleep 2
-LD_PRELOAD=libgeopmload.so sleep 10
+LD_PRELOAD=libgeopm.so.1.0.0 sleep 10
 

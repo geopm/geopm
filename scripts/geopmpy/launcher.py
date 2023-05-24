@@ -168,7 +168,7 @@ class Config(object):
         self.plugin = opts.plugin
         self.debug_attach = opts.debug_attach
         if opts.preload:
-            sys.stderr.write("Warning: <geopmpy.launcher> The --geopm-preload option is deprecated, libgeopmload is always preloaded.\n")
+            sys.stderr.write("Warning: <geopmpy.launcher> The --geopm-preload option is deprecated, libgeopm is always preloaded.\n")
         self.preload = True
         self.omp_num_threads = None
         self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
@@ -833,7 +833,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
     def preload_option(self):
         if self.config and self.config.get_preload():
             self.environ_ext['LD_PRELOAD'] = ':'.join((ll for ll in
-                                                       ('libgeopmload.so.1.0.0', os.getenv('LD_PRELOAD'))
+                                                       ('libgeopm.so.1.0.0', os.getenv('LD_PRELOAD'))
                                                        if ll is not None))
         return []
 
@@ -1150,7 +1150,7 @@ class SrunLauncher(Launcher):
         result = []
         if self.config and self.config.get_preload():
             value = ':'.join((ll for ll in
-                              ('libgeopmload.so.1.0.0', os.getenv('LD_PRELOAD'))
+                              ('libgeopm.so.1.0.0', os.getenv('LD_PRELOAD'))
                               if ll is not None))
             result = ["--export=LD_PRELOAD={},ALL".format(value)]
         return result
@@ -1699,7 +1699,7 @@ class AprunLauncher(Launcher):
         result = []
         if self.config and self.config.get_preload():
             value = ':'.join((ll for ll in
-                              ('libgeopmload.so.1.0.0', os.getenv('LD_PRELOAD'))
+                              ('libgeopm.so.1.0.0', os.getenv('LD_PRELOAD'))
                               if ll is not None))
             result = ['-e',  'LD_PRELOAD={}'.format(value)]
         return result

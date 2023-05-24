@@ -12,7 +12,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopm.la \
-                  libgeopmload.la \
                   # end
 
 bin_PROGRAMS = geopmadmin \
@@ -329,10 +328,6 @@ if ENABLE_MPI
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
-    libgeopmload_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
-    libgeopmload_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopmload_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
-
     geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
@@ -347,7 +342,6 @@ if ENABLE_FORTRAN
 endif
 else
     libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
-    libgeopmload_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 endif # ENABLE_MPI
 
 
@@ -358,14 +352,12 @@ if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
     libgeopm_la_LIBADD = $(MPI_CLIBS)
-    libgeopmload_la_LIBADD = libgeopm.la $(MPI_CLIBS)
 if ENABLE_FORTRAN
-    libgeopmfort_la_LIBADD = libgeopm.la libgeopmload.la $(MPI_FLIBS)
+    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
 
 else
     geopmctl_LDADD = libgeopm.la
-    libgeopmload_la_LIBADD = libgeopm.la
 endif # ENABLE_MPI
 
 libgeopm_la_SOURCES = src/Accumulator.cpp \
@@ -500,6 +492,7 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/geopm_daemon.h \
                       src/geopm_endpoint.h \
                       src/geopm_imbalancer.h \
+                      src/geopm_lib_init.cpp \
                       src/geopm_policystore.h \
                       src/geopm_prof.h \
                       src/geopm_reporter.h \
@@ -559,15 +552,15 @@ else
 endif # ENABLE_MPI
 
 
-libgeopmload_la_SOURCES = src/geopm_lib_init.cpp
+
 if ENABLE_MPI
-libgeopmload_la_SOURCES += $(pmpi_source_files)
+libgeopm_la_SOURCES += $(pmpi_source_files)
 else
 EXTRA_DIST += $(pmpi_source_files)
 endif # ENABLE_MPI
 
 if ENABLE_OMPT
-    libgeopmload_la_SOURCES += $(ompt_source_files)
+    libgeopm_la_SOURCES += $(ompt_source_files)
 else
     EXTRA_DIST += $(ompt_source_files)
 endif
