@@ -119,17 +119,17 @@ individual MPI application and enable the management of system power
 resources for multiple MPI jobs and multiple users by the system
 resource manager.
 
-The GEOPM Runtime package provides two libraries: libgeopm for use
-with MPI applications, and libgeopm for use with applications
-that do not link to MPI.  There are several command line tools
-included in GEOPM which have dedicated manual pages.  The
-:doc:`geopmlaunch(1) <geopmlaunch.1>` command line tool is used to launch an
-MPI application while enabling the GEOPM runtime to create a GEOPM Controller
-thread on each compute node.  The Controller loads plugins and executes the
-Agent algorithm to control the compute application.  The
-:doc:`geopmlaunch(1) <geopmlaunch.1>` command is part of the geopmpy python
-package that is included in the GEOPM installation.  See the :doc:`GEOPM
-overview man page <geopm.7>` for further documentation and links.
+The GEOPM Runtime package provides two libraries: libgeopm and
+libgeopmload.  There are several command line tools included in GEOPM
+which have dedicated manual pages.  The :doc:`geopmlaunch(1)
+<geopmlaunch.1>` command line tool is used to launch an MPI
+application while enabling the GEOPM runtime to create a GEOPM
+Controller thread on each compute node.  The Controller loads plugins
+and executes the Agent algorithm to control the compute application.
+The :doc:`geopmlaunch(1) <geopmlaunch.1>` command is part of the
+geopmpy python package that is included in the GEOPM installation.
+See the :doc:`GEOPM overview man page <geopm.7>` for further
+documentation and links.
 
 The GEOPM Runtime provides some built-in algorithms, each as an
 "Agent" that implements the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class interface.
