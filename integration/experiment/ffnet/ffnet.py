@@ -42,6 +42,7 @@ def trace_signals():
     return []
 
 def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_fmap_path=None):
+    #TODO: Determine if the env variables are set and point to a valid file
     if cpu_nn_path is None and gpu_nn_path is None:
         raise RuntimeError('Must specify cpu-nn-path and/or gpu-nn-path when running ffnet experiment')
 
@@ -55,7 +56,7 @@ def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_
         else:
             raise RuntimeError('Must specify cpu-fmap-path when cpu-nn-path is specified for ffnet experiment')
 
-    if args.gpu_nn_path is not None:
+    if gpu_nn_path is not None:
         if os.path.exists(gpu_nn_path):
             os.environ['GEOPM_GPU_NN_PATH'] = gpu_nn_path
         else:
@@ -73,16 +74,17 @@ def launch_configs(output_dir, app_conf, phi=0):
     if phi > 1 or phi < 0:
         raise KeyError('perf-energy-bias must be between 0 and 1 for ffnet experiment.')
 
-    targets = []
     agent = 'ffnet'
-    name = f'phi{phi}'
+    targets = []
     options = {"PERF_ENERGY_BIAS": phi}
+    name = f'{phi}phi'
 
     file_name = os.path.join(output_dir, f'{agent}_agent_{name}.config'.format(agent))
     agent_conf = geopmpy.agent.AgentConf(file_name, agent, options)
     targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                             agent_conf=agent_conf,
                                             name=name))
+    return targets
 
 def launch(app_conf, args, experiment_cli_args):
     output_dir = os.path.abspath(args.output_dir)
