@@ -36,6 +36,7 @@ class TestAgent(unittest.TestCase):
         if geopmpy.version.__beta__:
             expected_agent_names.add('cpu_activity')
             expected_agent_names.add('gpu_activity')
+            expected_agent_names.add('ffnet')
         self.assertEqual(expected_agent_names, agent_names)
 
     def test_json(self):
