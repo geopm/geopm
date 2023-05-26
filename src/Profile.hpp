@@ -197,6 +197,7 @@ namespace geopm
 
             virtual void reset_cpu_set(void) = 0;
             virtual void overhead(double overhead_sec) = 0;
+            virtual void connect(void) = 0;
             /// @brief Returns the Linux logical CPU index that the
             ///        calling thread is executing on, and caches the
             ///        result to be used in future calls.  This method
@@ -242,7 +243,8 @@ namespace geopm
                        std::shared_ptr<ApplicationRecordLog> app_record_log,
                        bool do_profile,
                        std::shared_ptr<ServiceProxy> service_proxy,
-                       std::shared_ptr<Scheduler> scheduler);
+                       std::shared_ptr<Scheduler> scheduler,
+                       int registered_pid);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             uint64_t region(const std::string &region_name, long hint) override;
@@ -255,6 +257,7 @@ namespace geopm
             std::vector<std::string> region_names(void) override;
             void reset_cpu_set(void) override;
             void overhead(double overhead_sec) override;
+            void connect(void) override;
         protected:
             bool m_is_enabled;
         private:
@@ -262,10 +265,6 @@ namespace geopm
             void init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
             void set_hint(uint64_t hint);
-
-            enum m_profile_const_e {
-                M_PROF_SAMPLE_PERIOD = 1,
-            };
 
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
@@ -300,6 +299,14 @@ namespace geopm
 #endif
             std::shared_ptr<ServiceProxy> m_service_proxy;
             std::shared_ptr<Scheduler> m_scheduler;
+            int m_pid_registered;
+
+            enum m_profile_const_e {
+                M_PID_INIT = -1,
+                M_PID_TEST = -2,
+            };
+
+
     };
 }
 
