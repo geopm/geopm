@@ -54,20 +54,20 @@ void ProfileTest::SetUp()
     m_record_log = std::make_shared<MockApplicationRecordLog>();
     m_status = std::make_shared<MockApplicationStatus>();
     m_service_proxy = std::make_shared<MockServiceProxy>();
-    EXPECT_CALL(*m_service_proxy, platform_start_profile("profile"));
-    EXPECT_CALL(*m_service_proxy, platform_stop_profile(_));
-
-    EXPECT_CALL(*m_record_log, cpuset_changed(_));
-    EXPECT_CALL(*m_record_log, start_profile(_, "profile"));
-    EXPECT_CALL(*m_record_log, stop_profile(_, "profile"));
-    EXPECT_CALL(*m_status, set_hash(2, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
-    EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
-
     m_scheduler = std::make_shared<MockScheduler>();
     EXPECT_CALL(*m_scheduler, num_cpu())
        .WillRepeatedly(Return(4));
     EXPECT_CALL(*m_scheduler, proc_cpuset())
        .WillRepeatedly([](){return geopm::make_cpu_set(4, {2,3});});
+
+    EXPECT_CALL(*m_service_proxy, platform_start_profile("profile"));
+    EXPECT_CALL(*m_service_proxy, platform_stop_profile(_));
+    EXPECT_CALL(*m_record_log, cpuset_changed(_));
+    EXPECT_CALL(*m_record_log, start_profile(_, "profile"));
+    EXPECT_CALL(*m_status, set_hash(2, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
+    EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
+    EXPECT_CALL(*m_record_log, overhead(_, _));
+    EXPECT_CALL(*m_record_log, stop_profile(_, "profile"));
 
     m_profile = geopm::make_unique<ProfileImp>("profile",
                                                "report",
@@ -77,7 +77,8 @@ void ProfileTest::SetUp()
                                                m_record_log,
                                                true,
                                                m_service_proxy,
-                                               m_scheduler);
+                                               m_scheduler,
+                                               -2);
 }
 
 TEST_F(ProfileTest, enter_exit)

@@ -64,7 +64,8 @@ namespace geopm
                            std::shared_ptr<ApplicationRecordLog> app_record_log,
                            bool do_profile,
                            std::shared_ptr<ServiceProxy> service_proxy,
-                           std::shared_ptr<Scheduler> scheduler)
+                           std::shared_ptr<Scheduler> scheduler,
+                           int pid_registered)
         : m_is_enabled(false)
         , m_prof_name(prof_name)
         , m_report(report)
@@ -81,8 +82,17 @@ namespace geopm
         , m_do_profile(do_profile)
         , m_service_proxy(service_proxy)
         , m_scheduler(scheduler)
+        , m_pid_registered(pid_registered)
     {
         if (!m_do_profile) {
+            return;
+        }
+        connect();
+    }
+
+    void ProfileImp::connect(void)
+    {
+        if (m_pid_registered == (int)getpid()) {
             return;
         }
         try {
@@ -92,6 +102,8 @@ namespace geopm
             reset_cpu_set();
             geopm_time_s zero = geopm::time_zero();
             m_overhead_time_startup = geopm_time_since(&zero);
+            m_pid_registered = getpid();
+            m_is_enabled = true;
         }
         catch (const Exception &ex) {
             std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm. "
@@ -99,10 +111,9 @@ namespace geopm
             int err = ex.err_value();
             char tmp_msg[PATH_MAX];
             geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
-            tmp_msg[PATH_MAX-1] = '\0';
+            tmp_msg[PATH_MAX - 1] = '\0';
             std::cerr << tmp_msg << std::endl;
         }
-        m_is_enabled = true;
     }
 
     ProfileImp::ProfileImp(void)
@@ -114,7 +125,8 @@ namespace geopm
                      nullptr,  // app_record_log
                      environment().timeout() != -1,
                      ServiceProxy::make_unique(),
-                     Scheduler::make_unique())
+                     Scheduler::make_unique(),
+                     M_PID_INIT)
     {
 
     }
@@ -140,7 +152,8 @@ namespace geopm
 
     void ProfileImp::init_app_status(void)
     {
-        if (m_app_status == nullptr) {
+        // Do not overwrite mock objects in unit test case
+        if (m_pid_registered != M_PID_TEST) {
             std::string shmem_path = shmem_path_prof("status", getpid(), geteuid());
             std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
             m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
@@ -151,7 +164,8 @@ namespace geopm
 
     void ProfileImp::init_app_record_log(void)
     {
-        if (m_app_record_log == nullptr) {
+        // Do not overwrite mock objects in unit test case
+        if (m_pid_registered != M_PID_TEST) {
             std::string shmem_path = shmem_path_prof("record-log", getpid(), geteuid());
             std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
             m_app_record_log = ApplicationRecordLog::make_unique(shmem);
