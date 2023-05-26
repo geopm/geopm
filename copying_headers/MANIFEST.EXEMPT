@@ -213,6 +213,7 @@ service/README.rst
 service/requirements.txt
 service/integration/README.md
 service/integration/open_pbs/README.rst
+service/integration/open_pbs/geopm_pbs_hook_config.schema.json
 service/json_schemas/active_sessions.schema.json
 service/json_schemas/const_config_io.schema.json
 service/json_schemas/msrs.schema.json

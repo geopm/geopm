@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://geopm.github.io/geopm_pbs_hook_config.schema.json",
+  "title": "geopm openpbs hook config",
+  "type": "object",
+  "properties": {
+    "node_profile_name": {
+      "description": "Which profile name to use for node performance models",
+      "type": "string"
+    },
+    "max_power": {
+      "description": "Maximum power, in watts, represented by the configured power-performance models",
+      "type": "number"
+    },
+    "profiles": {
+      "description": "Map of profile names to performance models",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "description": "An individual profile containing a node performance model",
+            "type": "object",
+            "properties": {
+              "model": { "$ref": "#/definitions/model_coefficients" }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "An individual profile containing host performance models",
+            "type": "object",
+            "properties": {
+              "hosts": {
+                "description": "A map of host names to performance models",
+                "type": "object",
+                "additionalProperties": {
+                  "description": "An individual host containing a host performance model",
+                  "type": "object",
+                  "properties": {
+                    "model": { "$ref": "#/definitions/model_coefficients" }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "model_coefficients": {
+      "type": "object",
+      "required": [ "x0", "A", "B", "C" ],
+      "properties": {
+        "x0": { "description": "Independent variable offset in the performance model", "type": "number" },
+        "A": { "description": "2nd-degree coefficient in the performance model", "type": "number" },
+        "B": { "description": "1st-degree coefficient in the performance model", "type": "number" },
+        "C": { "description": "Dependent variable offset in the performance model", "type": "number" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
