@@ -54,6 +54,7 @@ SLURM srun job launcher:
 
     geopmlaunch srun \
                 -N 2 -n 8 \
+                --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
@@ -64,6 +65,7 @@ aprun job launcher:
 
     geopmlaunch aprun \
                 -N 4 -n 8 \
+                --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
