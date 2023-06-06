@@ -357,12 +357,6 @@ GEOPM Environment Variables
 Other Environment Variables
 ---------------------------
 ``LD_DYNAMIC_WEAK``
-  The :doc:`geopmlaunch(1) <geopmlaunch.1>` tool will preload ``libgeopm.so`` for all
-  applications, so the use of ``LD_DYNAMIC_WEAK`` is not required when
-  using :doc:`geopmlaunch(1) <geopmlaunch.1>`.  When not using :doc:`geopmlaunch(1) <geopmlaunch.1>`
-  setting ``LD_DYNAMIC_WEAK`` may be required, see next paragraph for
-  details.
-
   When dynamically linking an application to ``libgeopm`` for any
   features supported by the PMPI profiling of the MPI runtime it may
   be required that the ``LD_DYNAMIC_WEAK`` environment variable be set
