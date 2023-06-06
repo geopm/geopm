@@ -256,3 +256,14 @@ TEST_F(ServiceProxyTest, platform_write_control)
     EXPECT_CALL(*m_bus, call_method("PlatformWriteControl", "frequency", 1, 2, 1.0e9));
     m_proxy->platform_write_control("frequency", 1, 2, 1.0e9);
 }
+
+TEST_F(ServiceProxyTest, topo_get_cache)
+{
+    std::string expect_topo = "TEST TOPO CACHE CONTENTS";
+    EXPECT_CALL(*m_bus, call_method("TopoGetCache"))
+        .WillOnce(Return(m_bus_reply));
+    EXPECT_CALL(*m_bus_reply, read_string())
+        .WillOnce(Return(expect_topo));
+    std::string actual_topo = m_proxy->topo_get_cache();
+    EXPECT_EQ(expect_topo, actual_topo);
+}
