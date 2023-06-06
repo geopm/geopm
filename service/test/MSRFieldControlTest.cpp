@@ -25,9 +25,13 @@ class MSRFieldControlTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        void set_up_default_expectations();
 
         std::shared_ptr<MockMSRIO> m_msrio;
         int m_cpu;
+        int m_save_restore_ctx;
+        int m_save_idx;
+        int m_restore_idx;
         uint64_t m_offset;
         int m_begin_bit;
         int m_end_bit;
@@ -39,6 +43,9 @@ void MSRFieldControlTest::SetUp()
 {
     m_msrio = std::make_shared<MockMSRIO>();
     m_cpu = 1;
+    m_save_restore_ctx = 1;
+    m_save_idx = 1;
+    m_restore_idx = 1;
     m_offset = 0xABC;
     m_begin_bit = 16;
     m_end_bit = 23;
@@ -46,10 +53,19 @@ void MSRFieldControlTest::SetUp()
     m_idx = 42;
 }
 
+void MSRFieldControlTest::set_up_default_expectations()
+{
+    EXPECT_CALL(*m_msrio, add_read(m_cpu, m_offset, m_save_restore_ctx))
+        .WillOnce(Return(m_save_idx));
+    EXPECT_CALL(*m_msrio, add_write(m_cpu, m_offset, m_save_restore_ctx))
+        .WillOnce(Return(m_restore_idx));
+}
+
 TEST_F(MSRFieldControlTest, write_scale)
 {
     double scalar = 1.5;
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    set_up_default_expectations();
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_SCALE, scalar);
     double value = 150;
@@ -59,8 +75,9 @@ TEST_F(MSRFieldControlTest, write_scale)
 
 TEST_F(MSRFieldControlTest, write_batch_scale)
 {
+    set_up_default_expectations();
     double scalar = 1.5;
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_SCALE, scalar);
     double value = 150;
@@ -73,8 +90,9 @@ TEST_F(MSRFieldControlTest, write_batch_scale)
 
 TEST_F(MSRFieldControlTest, write_log_half)
 {
+    set_up_default_expectations();
     double scalar = 1.0;
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_LOG_HALF,
                                                    scalar);
@@ -85,8 +103,9 @@ TEST_F(MSRFieldControlTest, write_log_half)
 
 TEST_F(MSRFieldControlTest, write_batch_log_half)
 {
+    set_up_default_expectations();
     double scalar = 1.0;
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_LOG_HALF,
                                                    scalar);
@@ -100,8 +119,9 @@ TEST_F(MSRFieldControlTest, write_batch_log_half)
 
 TEST_F(MSRFieldControlTest, write_7_bit_float)
 {
+    set_up_default_expectations();
     double scalar = 3.0;
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_7_BIT_FLOAT,
                                                    scalar);
@@ -116,8 +136,9 @@ TEST_F(MSRFieldControlTest, write_7_bit_float)
 
 TEST_F(MSRFieldControlTest, write_batch_7_bit_float)
 {
+    set_up_default_expectations();
     double scalar = 3.0;
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_7_BIT_FLOAT,
                                                    scalar);
@@ -136,7 +157,8 @@ TEST_F(MSRFieldControlTest, write_batch_7_bit_float)
 
 TEST_F(MSRFieldControlTest, setup_batch)
 {
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    set_up_default_expectations();
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_SCALE, 1.0);
     // setup batch can be called multiple times without further side effects
@@ -148,30 +170,31 @@ TEST_F(MSRFieldControlTest, setup_batch)
 TEST_F(MSRFieldControlTest, errors)
 {
     // cannot construct with null msrio
-    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(nullptr, m_cpu, m_offset,
+    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(nullptr, m_save_restore_ctx, m_cpu, m_offset,
                                                m_begin_bit, m_end_bit,
                                                geopm::MSR::M_FUNCTION_SCALE, 1.0),
                                GEOPM_ERROR_INVALID, "null MSRIO");
 
     // cannot call adjust without setup batch
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    set_up_default_expectations();
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_SCALE, 1.0);
     GEOPM_EXPECT_THROW_MESSAGE(ctl->adjust(123), GEOPM_ERROR_RUNTIME,
                                "adjust() before setup_batch()");
 
     // invalid encode function
-    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(m_msrio, m_cpu, m_offset,
+    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                m_begin_bit, m_end_bit,
                                                -1, 1.0),
                                GEOPM_ERROR_INVALID, "unsupported encode function");
-    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(m_msrio, m_cpu, m_offset,
+    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                m_begin_bit, m_end_bit,
                                                MSR::M_FUNCTION_OVERFLOW, 1.0),
                                GEOPM_ERROR_INVALID, "unsupported encode function");
 
     // invalid number of bits
-    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(m_msrio, m_cpu, m_offset,
+    GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                4, 0,
                                                MSR::M_FUNCTION_SCALE, 1.0),
                                GEOPM_ERROR_INVALID, "begin bit must be <= end bit");
@@ -180,13 +203,14 @@ TEST_F(MSRFieldControlTest, errors)
 
 TEST_F(MSRFieldControlTest, save_restore)
 {
-    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+    set_up_default_expectations();
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_save_restore_ctx, m_cpu, m_offset,
                                                    m_begin_bit, m_end_bit,
                                                    MSR::M_FUNCTION_SCALE, 1.0);
     uint64_t saved_value = 0x420000;
-    EXPECT_CALL(*m_msrio, read_msr(m_cpu, m_offset))
+    EXPECT_CALL(*m_msrio, sample(m_save_idx, m_save_restore_ctx))
         .WillOnce(Return(saved_value | 0x12));  // extra bits should be masked off for write
     ctl->save();
-    EXPECT_CALL(*m_msrio, write_msr(m_cpu, m_offset, saved_value, m_mask));
+    EXPECT_CALL(*m_msrio, adjust(m_restore_idx, saved_value, m_mask, m_save_restore_ctx));
     ctl->restore();
 }

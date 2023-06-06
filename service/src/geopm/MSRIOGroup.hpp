@@ -195,6 +195,7 @@ namespace geopm
             static const std::string M_NAME_PREFIX;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<MSRIO> m_msrio;
+            int m_save_restore_ctx;
             int m_cpuid;
             int m_num_cpu;
             bool m_is_active;

@@ -723,37 +723,54 @@ TEST_F(MSRIOTest, read_batch)
         cpu_idx.push_back(i);
     }
 
-    std::vector<std::string> words{ "software", "engineer", "document",
-                                    "everyday", "modeling", "standout",
-                                    "patience", "goodwill" };
-    std::vector<uint64_t> offsets{ 0xd28, 0x520, 0x468, 0x570,
-                                   0x918, 0xd80, 0xa40, 0x688 };
+    std::vector<std::string> words0{ "software", "engineer", "document",
+                                     "everyday" };
+    std::vector<std::string> words1{ "modeling", "standout",
+                                     "patience", "goodwill" };
+    std::vector<uint64_t> offsets0{ 0xd28, 0x520, 0x468, 0x570 };
+    std::vector<uint64_t> offsets1{ 0x918, 0xd80, 0xa40, 0x688 };
+    ASSERT_EQ(words0.size(), offsets0.size());
+    ASSERT_EQ(words1.size(), offsets1.size());
 
-    std::vector<int> read_cpu_idx;
-    std::vector<uint64_t> read_offset;
-    std::vector<uint64_t> expected;
-    std::vector<int> sample_idx;
+    std::vector<uint64_t> expected0;
+    std::vector<uint64_t> expected1;
+    std::vector<int> sample_idx0;
+    std::vector<int> sample_idx1;
+    int sec_batch_ctx = m_msrio->create_batch_context();
     for (auto &ci : cpu_idx) {
-        auto wi = words.begin();
-        for (auto oi : offsets) {
-            sample_idx.push_back(m_msrio->add_read(ci, oi));
+        for (size_t i = 0; i < words0.size(); ++i) {
+            sample_idx0.push_back(m_msrio->add_read(ci, offsets0[i]));
             uint64_t result;
-            memcpy(&result, wi->data(), 8);
-            expected.push_back(result);
-            ++wi;
+            memcpy(&result, words0[i].data(), 8);
+            expected0.push_back(result);
+        }
+        for (size_t i = 0; i < words1.size(); ++i) {
+            sample_idx1.push_back(m_msrio->add_read(ci, offsets1[i], sec_batch_ctx));
+            uint64_t result;
+            memcpy(&result, words1[i].data(), 8);
+            expected1.push_back(result);
         }
     }
-    ASSERT_LT(0u, sample_idx.size());
+    ASSERT_LT(0u, sample_idx0.size());
+    ASSERT_LT(0u, sample_idx1.size());
 
     // sample without read_batch is an error
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx[0]), GEOPM_ERROR_INVALID,
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx0[0]), GEOPM_ERROR_INVALID,
+                               "cannot call sample() before read_batch()");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx1[0], sec_batch_ctx), GEOPM_ERROR_INVALID,
                                "cannot call sample() before read_batch()");
 
     m_msrio->read_batch();
-    // check that sample works with index from add_read
-    ASSERT_EQ(expected.size(), sample_idx.size());
-    for (size_t ii = 0; ii < sample_idx.size(); ++ii) {
-        EXPECT_EQ(expected[ii], m_msrio->sample(sample_idx[ii]));
+    // check that sample works with index from add_read (with default batch context)
+    ASSERT_EQ(expected0.size(), sample_idx0.size());
+    for (size_t ii = 0; ii < sample_idx0.size(); ++ii) {
+        EXPECT_EQ(expected0[ii], m_msrio->sample(sample_idx0[ii]));
+    }
+    m_msrio->read_batch(sec_batch_ctx);
+    // check that sample works with index from add_read (with second batch context)
+    ASSERT_EQ(expected1.size(), sample_idx1.size());
+    for (size_t ii = 0; ii < sample_idx1.size(); ++ii) {
+        EXPECT_EQ(expected1[ii], m_msrio->sample(sample_idx1[ii], sec_batch_ctx));
     }
 }
 
@@ -767,40 +784,53 @@ TEST_F(MSRIOTest, write_batch)
     //                       "everyday",
     //                                    "modeling", "standout", "patience",
     //                                    "goodwill"};
-    std::vector<std::string> end_words{ "HARDware", "BEgineRX", "Mocument",
-                                        "everyWay", "moBIling", "XHandout",
-                                        "patENTED", "goLdMill" };
+    std::vector<std::string> end_words0{ "HARDware", "BEgineRX", "Mocument",
+                                         "everyWay" };
+    std::vector<std::string> end_words1{ "moBIling", "XHandout",
+                                         "patENTED", "goLdMill" };
 
-    std::vector<uint64_t> offsets{ 0xd28, 0x520, 0x468, 0x570,
-                                   0x918, 0xd80, 0xa40, 0x688 };
-    std::vector<uint64_t> masks{ 0x00000000FFFFFFFF, 0xFFFF00000000FFFF,
-                                 0x00000000000000FF, 0x0000FF0000000000,
-                                 0x00000000FFFF0000, 0x000000000000FFFF,
-                                 0xFFFFFFFFFF000000, 0x000000FF00FF0000 };
-    std::vector<const char *> write_words{ "HARD\0\0\0\0",    "BE\0\0\0\0RX",
-                                           "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0",
-                                           "\0\0BI\0\0\0\0",  "XH\0\0\0\0\0\0",
-                                           "\0\0\0ENTED",     "\0\0L\0M\0\0\0" };
+    std::vector<uint64_t> offsets0{ 0xd28, 0x520, 0x468, 0x570 };
+    std::vector<uint64_t> offsets1{ 0x918, 0xd80, 0xa40, 0x688 };
+    std::vector<uint64_t> masks0{ 0x00000000FFFFFFFF, 0xFFFF00000000FFFF,
+                                 0x00000000000000FF, 0x0000FF0000000000 };
+    std::vector<uint64_t> masks1{ 0x00000000FFFF0000, 0x000000000000FFFF,
+                                  0xFFFFFFFFFF000000, 0x000000FF00FF0000 };
+    std::vector<const char *> write_words0{ "HARD\0\0\0\0",    "BE\0\0\0\0RX",
+                                           "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0" };
+    std::vector<const char *> write_words1{ "\0\0BI\0\0\0\0",  "XH\0\0\0\0\0\0",
+                                            "\0\0\0ENTED",     "\0\0L\0M\0\0\0" };
+    ASSERT_EQ(write_words0.size(), offsets0.size());
+    ASSERT_EQ(offsets0.size(), masks0.size());
+    ASSERT_EQ(write_words0.size(), end_words0.size());
+    ASSERT_EQ(write_words1.size(), offsets1.size());
+    ASSERT_EQ(offsets1.size(), masks1.size());
+    ASSERT_EQ(write_words1.size(), end_words1.size());
+
+    int sec_batch_ctx = m_msrio->create_batch_context();
 
     for (auto &ci : cpu_idx) {
-        auto wi = write_words.begin();
-        auto mi = masks.begin();
-        for (auto oi : offsets) {
+        for (size_t i = 0; i < write_words0.size(); ++i) {
             uint64_t result;
-            memcpy(&result, (*wi), 8);
-            int idx = m_msrio->add_write(ci, oi);
-            m_msrio->adjust(idx, result, *mi);
-            ++wi;
-            ++mi;
+            memcpy(&result, write_words0[i], 8);
+            int idx = m_msrio->add_write(ci, offsets0[i]);
+            m_msrio->adjust(idx, result, masks0[i]);
+        }
+        for (size_t i = 0; i < write_words1.size(); ++i) {
+            uint64_t result;
+            memcpy(&result, write_words1[i], 8);
+            int idx = m_msrio->add_write(ci, offsets1[i], sec_batch_ctx);
+            m_msrio->adjust(idx, result, masks1[i], sec_batch_ctx);
         }
     }
 
     m_msrio->write_batch();
+    m_msrio->write_batch(sec_batch_ctx);
     for (auto &ci : cpu_idx) {
-        auto wi = end_words.begin();
-        for (auto oi : offsets) {
-            EXPECT_EQ(0, memcmp(m_files->msr_space_ptr(ci, oi), wi->c_str(), 8));
-            ++wi;
+        for (size_t i = 0; i < end_words0.size(); ++i) {
+            EXPECT_EQ(0, memcmp(m_files->msr_space_ptr(ci, offsets0[i]), end_words0[i].c_str(), 8));
+        }
+        for (size_t i = 0; i < end_words1.size(); ++i) {
+            EXPECT_EQ(0, memcmp(m_files->msr_space_ptr(ci, offsets1[i]), end_words1[i].c_str(), 8));
         }
     }
 }
