@@ -127,6 +127,7 @@ namespace geopm
     MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, int cpuid, int num_cpu, std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(topo)
         , m_msrio(std::move(msrio))
+        , m_save_restore_ctx(m_msrio->create_batch_context())
         , m_cpuid(cpuid)
         , m_num_cpu(num_cpu)
         , m_is_active(false)
@@ -869,9 +870,9 @@ namespace geopm
         std::vector<std::string> unallowed_controls;
         for (auto &ctl : m_control_available) {
             try {
+                m_msrio->read_batch(m_save_restore_ctx);
                 for (auto &dom_ctl : ctl.second.controls) {
                     dom_ctl->save();
-                    dom_ctl->restore();
                 }
             }
             catch (const Exception &) {
@@ -890,6 +891,7 @@ namespace geopm
                 dom_ctl->restore();
             }
         }
+        m_msrio->write_batch(m_save_restore_ctx);
     }
 
     int MSRIOGroup::cpuid(void)
@@ -1585,7 +1587,7 @@ namespace geopm
                                                                domain_type, domain_idx);
             for (auto cpu_idx : cpus) {
                 cpu_controls.push_back(std::make_shared<MSRFieldControl>(
-                    m_msrio, cpu_idx, msr_offset,
+                    m_msrio, m_save_restore_ctx, cpu_idx, msr_offset,
                     begin_bit, end_bit, function,
                     scalar));
             }
