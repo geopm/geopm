@@ -534,6 +534,11 @@ GEOPM Options
                            override any value currently set in the environment.
                            See the :ref:`ENVIRONMENT section of
                            geopm(7)<geopm.7:Environment>`.
+--geopm-preload  .. _geopm-preload option:
+
+                Use LD_PRELOAD to link libgeopm.so at runtime.  This
+                can be used to enable the GEOPM runtime when an
+                application has not been compiled against libgeopm.so.
 --geopm-hyperthreads-disable  .. _geopm-hyperthreads-disable option:
 
                               Prevent the launcher from trying to use
