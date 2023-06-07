@@ -127,6 +127,7 @@ namespace geopm
             ///               defined in geopm_topo.h.
             /// @param domain_idx [in] Index of the domain to read the
             ///                   signal from.
+            /// @return The value of the signal read
             virtual double platform_read_signal(const std::string &signal_name,
                                                 int domain,
                                                 int domain_idx) = 0;
@@ -143,6 +144,9 @@ namespace geopm
                                                 int domain,
                                                 int domain_idx,
                                                 double setting) = 0;
+            /// @brief Calls the TopoGetCache API defined in the
+            ///        io.github.geopm D-Bus namespace.
+            /// @return The string buffer defining the system topology
             virtual std::string topo_get_cache(void) = 0;
     };
 
