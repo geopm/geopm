@@ -20,76 +20,76 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
 
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
-        "client_pid" : 750,
-        "reference_count" : 1,
-        "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 754
+        'client_pid' : 750,
+        'reference_count' : 1,
+        'signals' : ['CPU_FREQUENCY_MAX_AVAIL', 'DRAM_ENERGY', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' : 754
     }
     json_good_example_2 = {
-        "client_pid" : 450,
-        "reference_count" : 1,
-        "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 550
+        'client_pid' : 450,
+        'reference_count' : 1,
+        'signals' : ['CPU_FREQUENCY_MAX_AVAIL', 'DRAM_ENERGY', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' : 550
     }
     json_empty_signals_controls = {
-        "client_pid" : 450,
-        "reference_count" : 1,
-        "signals" : [],
-        "controls" : [],
-        "watch_id" : 550
+        'client_pid' : 450,
+        'reference_count' : 1,
+        'signals' : [],
+        'controls' : [],
+        'watch_id' : 550
     }
     json_negative_reference_count = {
-        "client_pid" : 750,
-        "reference_count" : -2,
-        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 754
+        'client_pid' : 750,
+        'reference_count' : -2,
+        'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' : 754
     }
     json_float_reference_count = {
-        "client_pid" : 750,
-        "reference_count" : 2.5,
-        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 754
+        'client_pid' : 750,
+        'reference_count' : 2.5,
+        'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' : 754
     }
     json_wrong_data_types = {
-        "client_pid" : "450",
-        "reference_count" : 1,
-        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : "550"
+        'client_pid' : '450',
+        'reference_count' : 1,
+        'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' : '550'
     }
     json_additional_properties = {
-        "client_pid" : 450,
-        "reference_count" : 1,
-        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "actuators" : ["DRAM_ENERGY", "FREQUENCY_MIN", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 550,
-        "batch_id" : 450,
+        'client_pid' : 450,
+        'reference_count' : 1,
+        'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'actuators' : ['DRAM_ENERGY', 'FREQUENCY_MIN', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' : 550,
+        'batch_id' : 450,
     }
     json_list_of_2 = [ json_good_example, json_good_example_2 ]
     json_empty_dictionary = {}
-    string_empty_file = ""
-    string_typos_json = """{
-        "client_pid" : 450,
-        "signals",  ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" 550,
+    string_empty_file = ''
+    string_typos_json = '''{
+        'client_pid' : 450,
+        'signals',  ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
+        'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
+        'watch_id' 550,
     }
-    """
-    string_c_code = """
+    '''
+    string_c_code = '''
     #include <stdio.h>
     #include <stdlib.h>
     int main(void) {
         int i = 0;
-        for (i = 0; "Hello World"[i] != '\0'; i++)
-            putchar(i["Hello World"]);
+        for (i = 0; 'Hello World'[i] != '\0'; i++)
+            putchar(i['Hello World']);
         return i;
     }
-    """
+    '''
 
     def setUp(self):
         """Create temporary directory
@@ -141,10 +141,10 @@ class TestActiveSessions(unittest.TestCase):
 
     def check_json_file(self, name, contents, is_valid):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{name}.json")
+        full_file_path = os.path.join(sess_path, f'session-{name}.json')
         renamed_path = f'{full_file_path}-uuid4-INVALID'
 
-        string_contents = ""
+        string_contents = ''
         if type(contents) is str:
             string_contents = contents
         else:
@@ -164,31 +164,19 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(
-                sess_path,
-                perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
 
             if is_valid:
-                calls = [
-                    mock.call('*'),
-                    mock.call(contents["client_pid"])
-                ]
+                calls = [mock.call('*'), mock.call(contents['client_pid'])]
                 mock_get_session_path.assert_has_calls(calls)
 
                 mock_os_stat.assert_called_once_with(full_file_path)
-                mock_pid_valid.assert_called_once_with(contents["client_pid"], session_mock.st_ctime)
+                mock_pid_valid.assert_called_once_with(contents['client_pid'], session_mock.st_ctime)
                 mock_smf.assert_called_once_with(full_file_path, string_contents)
                 mock_err.assert_not_called()
                 mock_os_rename.assert_not_called()
-                self.check_getters(
-                    act_sess,
-                    contents["client_pid"],
-                    contents["reference_count"],
-                    contents["signals"],
-                    contents["controls"],
-                    contents["watch_id"]
-                )
+                self.check_getters(act_sess, contents['client_pid'], contents['reference_count'], contents['signals'], contents['controls'], contents['watch_id'])
             else:
                 mock_get_session_path.assert_called_once_with('*')
 
@@ -203,27 +191,27 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         # Valid JSON file no batch server field
-        self.check_json_file("good_example", self.json_good_example, True)
+        self.check_json_file('good_example', self.json_good_example, True)
         # Valid JSON file with signals and controls fields are empty lists
-        self.check_json_file("empty_signals_controls", self.json_empty_signals_controls, True)
+        self.check_json_file('empty_signals_controls', self.json_empty_signals_controls, True)
         # Invalid JSON file which has a negative number for the reference_count
-        self.check_json_file("negative_reference_count", self.json_negative_reference_count, False)
+        self.check_json_file('negative_reference_count', self.json_negative_reference_count, False)
         # Invalid JSON file which has a floating point number for the reference_count
-        self.check_json_file("float_reference_count", self.json_float_reference_count, False)
+        self.check_json_file('float_reference_count', self.json_float_reference_count, False)
         # Invalid JSON file which has all the right fields, but the data types of the respective values are wrong.
-        self.check_json_file("wrong_data_types", self.json_wrong_data_types, False)
+        self.check_json_file('wrong_data_types', self.json_wrong_data_types, False)
         # Invalid JSON file which has additional extraneous fields
-        self.check_json_file("additional_properties", self.json_additional_properties, False)
+        self.check_json_file('additional_properties', self.json_additional_properties, False)
         # Invalid JSON file having two sessions instead of one, which is not allowed.
-        self.check_json_file("list_of_2", self.json_list_of_2, False)
+        self.check_json_file('list_of_2', self.json_list_of_2, False)
         # Invalid JSON file having no sessions at all!
-        self.check_json_file("empty_dictionary", self.json_empty_dictionary, False)
+        self.check_json_file('empty_dictionary', self.json_empty_dictionary, False)
         # Invalid string file which is an empty file
-        self.check_json_file("string_empty_file", self.string_empty_file, False)
+        self.check_json_file('string_empty_file', self.string_empty_file, False)
         # Invalid string file which is a JSON with typos
-        self.check_json_file("string_typos_json", self.string_typos_json, False)
+        self.check_json_file('string_typos_json', self.string_typos_json, False)
         # Invalid string file which is a C source code
-        self.check_json_file("string_c_code", self.string_c_code, False)
+        self.check_json_file('string_c_code', self.string_c_code, False)
 
     def test_load_clients(self):
         """ Create from existing clients
@@ -246,8 +234,8 @@ class TestActiveSessions(unittest.TestCase):
         watch_id_2 = self.json_good_example_2['watch_id']
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path_1 = os.path.join(sess_path, f"session-{client_pid_1}.json")
-        full_file_path_2 = os.path.join(sess_path, f"session-{client_pid_2}.json")
+        full_file_path_1 = os.path.join(sess_path, f'session-{client_pid_1}.json')
+        full_file_path_2 = os.path.join(sess_path, f'session-{client_pid_2}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
@@ -258,8 +246,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('glob.glob', side_effect=[[],[full_file_path_1, full_file_path_2]]), \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             calls = [mock.call(full_file_path_1, json.dumps(self.json_good_example)),
                      mock.call(full_file_path_2, json.dumps(self.json_good_example_2))]
             mock_smf.assert_has_calls(calls)
@@ -289,16 +276,13 @@ class TestActiveSessions(unittest.TestCase):
         watch_id = self.json_good_example['watch_id']
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
-        renamed_path = f'{full_file_path}-uuid4-REMOVE'
-        good_example_str = json.dumps(self.json_good_example)
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
              mock.patch('os.remove', autospec=True, specset=True) as mock_remove:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             act_sess.add_client(client_pid, signals, controls, watch_id)
             self.assertTrue(act_sess.is_client_active(client_pid))
@@ -309,7 +293,6 @@ class TestActiveSessions(unittest.TestCase):
             self.assertNotIn(client_pid, act_sess.get_clients())
             self.assertFalse(act_sess.is_client_active(client_pid))
             mock_remove.assert_called_once_with(full_file_path)
-
 
     def test_batch_server(self):
         """Assign the batch server PID to a client session
@@ -326,13 +309,12 @@ class TestActiveSessions(unittest.TestCase):
         batch_pid = 8765
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             # Add client BEFORE adding batch PID
             act_sess.add_client(client_pid, signals, controls, watch_id)
@@ -376,8 +358,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
             mock_stat.assert_called_once_with(full_file_path)
 
@@ -420,8 +401,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
             mock_stat.assert_called_once_with(full_file_path)
 
@@ -450,12 +430,12 @@ class TestActiveSessions(unittest.TestCase):
         batch_pid = 8765
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
-        signal_shmem_key = "geopm-service-batch-buffer-" + str(batch_pid) + "-signal"
-        control_shmem_key = "geopm-service-batch-buffer-" + str(batch_pid) + "-control"
-        read_fifo_key = "batch-status-" + str(batch_pid) + "-in"
-        write_fifo_key = "batch-status-" + str(batch_pid) + "-out"
+        signal_shmem_key = 'geopm-service-batch-buffer-' + str(batch_pid) + '-signal'
+        control_shmem_key = 'geopm-service-batch-buffer-' + str(batch_pid) + '-control'
+        read_fifo_key = 'batch-status-' + str(batch_pid) + '-in'
+        write_fifo_key = 'batch-status-' + str(batch_pid) + '-out'
         signal_shmem_path = os.path.join(sess_path, signal_shmem_key)
         control_shmem_path = os.path.join(sess_path, control_shmem_key)
         read_fifo_path = os.path.join(sess_path, read_fifo_key)
@@ -467,8 +447,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('os.path.exists', return_value=True) as os_path_exists, \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             # Add client BEFORE adding batch PID
             act_sess.add_client(client_pid, signals, controls, watch_id)
@@ -507,8 +486,7 @@ class TestActiveSessions(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
         fake_pid = 321
 
         with mock.patch('psutil.Process', autospec=True, spec_set=True) as mock_process:
@@ -545,13 +523,12 @@ class TestActiveSessions(unittest.TestCase):
         watch_id = json_good_example['watch_id']
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             act_sess.add_client(client_pid, signals, controls, watch_id)
             calls = [mock.call(full_file_path, json.dumps(json_good_example))]
@@ -580,13 +557,12 @@ class TestActiveSessions(unittest.TestCase):
         watch_id = session_json['watch_id']
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
             act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             act_sess.add_client(client_pid, signals, controls, watch_id)
             calls = [mock.call(full_file_path, json.dumps(session_json))]
