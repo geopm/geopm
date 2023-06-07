@@ -435,7 +435,7 @@ class TestActiveSessions(unittest.TestCase):
             mock_pid_valid.assert_has_calls(calls)
         self.assertIsNone(act_sess.get_batch_server(client_pid))
 
-    def remove_batch_server(self):
+    def test_remove_batch_server(self):
         """Assign the batch server PID to a client session
 
         Test that when set_batch_server() is called that the result of
@@ -569,11 +569,7 @@ class TestActiveSessions(unittest.TestCase):
             self.assertEqual(watch_id, watch_id_actual)
 
     def test_reference_count(self):
-        """Test the set_reference_count() and get_reference_count() methods
-
-        Create a session with the default reference count,
-        then set the reference count to something else,
-        then get the reference count and check that it matches.
+        """Test the *_reference_count()  methods
 
         """
         # Copy the object to ensure modifications don't leak between tests
@@ -603,43 +599,13 @@ class TestActiveSessions(unittest.TestCase):
             reference_count_actual = act_sess.get_reference_count(client_pid)
             self.assertEqual(8, reference_count_actual)
 
-    def increment_reference_count(self):
-        """Test the increment_reference_count() and decrement_reference_count() methods
-
-        Create a session with a custom reference count,
-        then increment the reference count and check that it matches,
-        then decrement the reference count and check that it matches.
-
-        """
-        # Copy the object to ensure modifications don't leak between tests
-        session_json = dict(self.json_good_example)
-        client_pid = session_json['client_pid']
-        signals = session_json['signals']
-        controls = session_json['controls']
-        watch_id = session_json['watch_id']
-
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
-
-        with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
-             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
-            act_sess = ActiveSessions(sess_path)
-            mock_smd.assert_called_once_with(sess_path,
-                                             GEOPM_SERVICE_RUN_PATH_PERM)
-
-            act_sess.add_client(client_pid, signals, controls, watch_id)
-            calls = [mock.call(full_file_path, json.dumps(session_json))]
-            mock_smf.assert_has_calls(calls)
-
-            act_sess.set_reference_count(client_pid, 7)
-            reference_count_actual = act_sess.get_reference_count(client_pid)
-            self.assertEqual(7, reference_count_actual)
             act_sess.increment_reference_count(client_pid)
             reference_count_actual = act_sess.get_reference_count(client_pid)
-            self.assertEqual(8, reference_count_actual)
+            self.assertEqual(9, reference_count_actual)
+
             act_sess.decrement_reference_count(client_pid)
             reference_count_actual = act_sess.get_reference_count(client_pid)
-            self.assertEqual(7, reference_count_actual)
+            self.assertEqual(8, reference_count_actual)
 
 if __name__ == '__main__':
     unittest.main()
