@@ -13,11 +13,10 @@ import json
 import tempfile
 from pathlib import Path
 
-from geopmdpy.system_files import ActiveSessions
-from geopmdpy.system_files import GEOPM_SERVICE_RUN_PATH_PERM
-
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.system_files import ActiveSessions
+    from geopmdpy.system_files import ActiveSessions
+    from geopmdpy.system_files import GEOPM_SERVICE_RUN_PATH_PERM
 
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
