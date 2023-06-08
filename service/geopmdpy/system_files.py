@@ -466,10 +466,7 @@ class ActiveSessions(object):
             sess = self._sessions[client_pid]
             profile_name = sess.get('profile_name')
             if profile_name is not None:
-                self.stop_profile(client_pid, [])
-                self._profiles[profile_name].remove(client_pid)
-                if len(self._profiles[profile_name]) == 0:
-                    self._profiles.pop(profile_name)
+                self.stop_profile(client_pid, [], do_update=False)
             self._sessions.pop(client_pid)
         except KeyError:
             pass
@@ -755,7 +752,7 @@ class ActiveSessions(object):
         shmem.create_prof('record-log', size, client_pid, uid, gid)
         self._update_session_file(client_pid)
 
-    def stop_profile(self, client_pid, region_names):
+    def stop_profile(self, client_pid, region_names, do_update=True):
         self.check_client_active(client_pid, 'stop_profile')
         try:
             profile_name = self._sessions[client_pid].pop('profile_name')
@@ -780,7 +777,8 @@ class ActiveSessions(object):
                 os.unlink(shmem.path_prof('status', client_pid, uid, gid))
             except FileNotFoundError:
                 pass
-        self._update_session_file(client_pid)
+        if do_update:
+            self._update_session_file(client_pid)
 
     def get_profile_pids(self, profile_name):
         return self._profiles.get(profile_name)
