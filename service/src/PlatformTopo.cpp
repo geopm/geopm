@@ -710,11 +710,6 @@ namespace geopm
     std::string PlatformTopoImp::read_lscpu(void)
     {
         std::string result;
-        // Early return for mocked file in test case
-        if (M_TEST_CACHE_FILE_NAME.size()) {
-            create_cache(M_TEST_CACHE_FILE_NAME);
-            return geopm::read_file(M_TEST_CACHE_FILE_NAME);
-        }
         // Early return for root user
         if (getuid() == 0) {
             create_cache(M_SERVICE_CACHE_FILE_NAME);
@@ -733,6 +728,11 @@ namespace geopm
                 }
                 m_service_proxy.reset();
             }
+        }
+        // Early return for mocked file in test case
+        if (M_TEST_CACHE_FILE_NAME.size()) {
+            create_cache(M_TEST_CACHE_FILE_NAME);
+            return geopm::read_file(M_TEST_CACHE_FILE_NAME);
         }
         // In all other cases create a cache in /tmp
         create_cache(M_CACHE_FILE_NAME);
