@@ -30,6 +30,7 @@ using geopm::PlatformTopoImp;
 using geopm::ServiceProxy;
 using geopm::Exception;
 using testing::Return;
+using testing::Throw;
 using testing::_;
 
 class PlatformTopoTest : public :: testing :: Test
@@ -459,6 +460,26 @@ TEST_F(PlatformTopoTest, bdx_domain_idx_service)
     EXPECT_CALL(*service_proxy, topo_get_cache())
         .WillOnce(Return(m_bdx_lscpu_str));
     check_bdx_domain_idx("", service_proxy);
+}
+
+TEST_F(PlatformTopoTest, bdx_domain_idx_fallback)
+{
+    std::string file_name = m_lscpu_file_name;
+    std::shared_ptr<MockServiceProxy> service_proxy = std::make_shared<MockServiceProxy>();
+    write_lscpu(m_bdx_lscpu_str);
+    geopm::Exception ex("Failed to call sd-bus function", GEOPM_ERROR_RUNTIME, 0, 0);
+    EXPECT_CALL(*service_proxy, topo_get_cache())
+        .WillOnce(Throw(ex));
+    check_bdx_domain_idx(m_lscpu_file_name, service_proxy);
+}
+
+TEST_F(PlatformTopoTest, bdx_domain_idx_throw)
+{
+    std::shared_ptr<MockServiceProxy> service_proxy = std::make_shared<MockServiceProxy>();
+    geopm::Exception bad_ex("Unmatched message", GEOPM_ERROR_RUNTIME, 0, 0);
+    EXPECT_CALL(*service_proxy, topo_get_cache())
+        .WillOnce(Throw(bad_ex));
+    EXPECT_THROW(check_bdx_domain_idx(m_lscpu_file_name, service_proxy), geopm::Exception);
 }
 
 void PlatformTopoTest::check_bdx_domain_idx(std::string file_name, std::shared_ptr<ServiceProxy> service_proxy)
