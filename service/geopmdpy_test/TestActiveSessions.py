@@ -294,6 +294,69 @@ class TestActiveSessions(unittest.TestCase):
             self.assertFalse(act_sess.is_client_active(client_pid))
             mock_remove.assert_called_once_with(full_file_path)
 
+    def test_add_remove_client_with_profiling(self):
+        """Add client session with profiling and remove it
+
+        """
+        client_pid = self.json_good_example['client_pid']
+        refcount = self.json_good_example['reference_count']
+        signals = self.json_good_example['signals']
+        controls = self.json_good_example['controls']
+        watch_id = self.json_good_example['watch_id']
+        client_uid = 123
+        client_gid = 321
+        profile_name = 'profile_test'
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
+
+        with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('os.remove', autospec=True, specset=True) as mock_remove, \
+             mock.patch('psutil.Process', autospec=True, spec_set=True) as mock_process, \
+             mock.patch('geopmdpy.shmem.create_prof', autospec=True, specset=True) as mock_shmem_create, \
+             mock.patch('geopmdpy.shmem.path_prof', autospec=True, specset=True, return_value='file_path') as mock_shmem_path, \
+             mock.patch('os.unlink') as mock_unlink:
+
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            self.assertTrue(act_sess.is_client_active(client_pid))
+            self.check_getters(act_sess, client_pid, refcount, signals, controls, watch_id)
+            mock_smf.assert_called_once_with(full_file_path, json.dumps(self.json_good_example))
+
+            instance = mock_process.return_value
+            instance.uids.return_value.effective = client_uid
+            instance.gids.return_value.effective = client_gid
+            act_sess.start_profile(client_pid, profile_name)
+            calls = [mock.call(client_pid), mock.call().uids(), mock.call().gids()]
+            mock_process.assert_has_calls(calls)
+            calls = [mock.call('status', 64 * os.cpu_count(), client_pid, client_uid, client_gid),
+                     mock.call('record-log', 57384, client_pid, client_uid, client_gid)]
+            mock_shmem_create.assert_has_calls(calls)
+            self.assertEqual({client_pid}, act_sess.get_profile_pids(profile_name))
+            updated_json_contents = dict(self.json_good_example)
+            updated_json_contents.update({'client_uid' : client_uid, 'client_gid' : client_gid,
+                                          'profile_name' : profile_name})
+            calls = [mock.call(full_file_path, json.dumps(self.json_good_example)),
+                     mock.call(full_file_path, json.dumps(updated_json_contents))]
+            mock_smf.assert_has_calls(calls)
+
+            act_sess.stop_profile(client_pid, ['test_region'])
+            calls = [mock.call('record-log', client_pid, client_uid, client_gid),
+                     mock.call('status', client_pid, client_uid, client_gid)]
+            mock_shmem_path.assert_has_calls(calls)
+            calls = [mock.call('file_path'), mock.call('file_path')]
+            mock_unlink.assert_has_calls(calls)
+            self.assertIsNone(act_sess.get_profile_pids(profile_name))
+            self.assertEqual({'test_region'}, act_sess.get_profile_region_names(profile_name))
+
+            act_sess.remove_client(client_pid)
+            self.assertNotIn(client_pid, act_sess.get_clients())
+            self.assertFalse(act_sess.is_client_active(client_pid))
+            mock_remove.assert_called_once_with(full_file_path)
+
     def test_batch_server(self):
         """Assign the batch server PID to a client session
 
