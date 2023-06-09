@@ -78,8 +78,8 @@ namespace geopm
         , m_is_open(false)
         , m_path(path)
     {
-        open_all();
         create_batch_context();
+        open_all();
     }
 
     MSRIOImp::~MSRIOImp()
@@ -221,8 +221,8 @@ namespace geopm
             throw Exception("MSRIOImp::adjust(): batch_idx out of range: " + std::to_string(batch_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_write_batch_op.size() == m_write_val.size() &&
-                           m_write_batch_op.size() == m_write_mask.size(),
+        GEOPM_DEBUG_ASSERT(ctx.m_write_batch_op.size() == ctx.m_write_val.size() &&
+                           ctx.m_write_batch_op.size() == ctx.m_write_mask.size(),
                            "Size of member vectors does not match");
         uint64_t wmask_sys = ctx.m_write_batch_op[batch_idx].wmask;
         if ((~wmask_sys & write_mask) != 0ULL) {

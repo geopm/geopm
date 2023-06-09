@@ -43,7 +43,6 @@ namespace geopm
             uint64_t encode(double value) const;
 
             std::shared_ptr<MSRIO> m_msrio;
-            int m_batch_ctx;
             int m_save_restore_ctx;
             const int m_cpu;
             const uint64_t m_offset;
