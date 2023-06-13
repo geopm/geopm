@@ -235,7 +235,17 @@ namespace geopm
         double result = default_period;
         std::string period_str = lookup("GEOPM_PERIOD");
         if (period_str.size() != 0) {
-            result = std::stod(period_str);
+            try {
+                result = std::stod(period_str);
+            }
+            catch (const std::invalid_argument &conv_ex) {
+                throw geopm::Exception("EnvironmentImp::period(): GEOPM_PERIOD environment variable could not be converted into a double: \"" + period_str + "\"",
+                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            catch (const std::out_of_range &range_ex) {
+                throw geopm::Exception("EnvironmentImp::period(): GEOPM_PERIOD environment variable could not be converted into a double, out of range: \"" + period_str + "\"",
+                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
         return result;
     }
@@ -331,7 +341,20 @@ namespace geopm
 
     int EnvironmentImp::max_fan_out(void) const
     {
-        return std::stoi(lookup("GEOPM_MAX_FAN_OUT"));
+        int result = 0;
+        std::string fan_out_str = lookup("GEOPM_MAX_FAN_OUT");
+        try {
+            result = std::stoi(fan_out_str);
+        }
+        catch (const std::invalid_argument &conv_ex) {
+            throw geopm::Exception("EnvironmentImp::max_fan_out(): GEOPM_MAX_FAN_OUT environment variable could not be converted into an integer: \"" + fan_out_str + "\"",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        catch (const std::out_of_range &range_ex) {
+            throw geopm::Exception("EnvironmentImp::max_fan_out(): GEOPM_MAX_FAN_OUT environment variable could not be converted into an integer, out of range: \"" + fan_out_str + "\"",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
     }
 
     int EnvironmentImp::pmpi_ctl(void) const
@@ -389,6 +412,22 @@ namespace geopm
 
     int EnvironmentImp::timeout(void) const
     {
+        int result = 0;
+        std::string timeout_str = lookup("GEOPM_TIMEOUT");
+        try {
+            result = std::stoi(timeout_str);
+        }
+        catch (const std::invalid_argument &conv_ex) {
+            throw geopm::Exception("EnvironmentImp::timeout(): GEOPM_TIMEOUT environment variable could not be converted into an integer: \"" + timeout_str + "\"",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        catch (const std::out_of_range &range_ex) {
+            throw geopm::Exception("EnvironmentImp::timeout(): GEOPM_TIMEOUT environment variable could not be converted into an integer, out of range: \"" + timeout_str + "\"",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+
+
         return std::stoi(lookup("GEOPM_TIMEOUT"));
     }
 
