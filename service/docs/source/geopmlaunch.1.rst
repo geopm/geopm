@@ -563,7 +563,7 @@ GEOPM Options
 	       seconds.  With longer control loop periods, the overhead for
 	       using GEOPM will be reduced, but more interpolation will be
 	       required when aligning the sparsely sampled hardware signals
-	       with the application feedback.  Additionally agent reaction
+	       with the application feedback.  Additionally, agent reaction
 	       time is reduced with longer control loop period.
 
 Examples
