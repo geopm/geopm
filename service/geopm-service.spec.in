@@ -180,7 +180,7 @@ install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/i
 install -Dp -m644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 mkdir -p %{buildroot}%{_sbindir}
-ln -s -r service %{buildroot}%{_sbindir}/rcgeopm
+ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %if 0%{?suse_version}
 %python_expand %fdupes %{buildroot}%{python3_sitelib}
 %endif
