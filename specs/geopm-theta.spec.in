@@ -11,7 +11,7 @@ Release:       1
 License:       BSD-3-Clause
 Group:         System Environment/Libraries
 URL:           https://geopm.github.io
-Source0:       https://github.com/geopm/geopm/releases/download/v%{version}/geopm-%{version}.tar.gz
+Source0:       https://github.com/geopm/geopm/releases/download/v%{version}/geopm-runtime-%{version}.tar.gz
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: hwloc-devel
