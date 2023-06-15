@@ -54,6 +54,8 @@ namespace geopm
                     : m_is_batch_read(false)
                     , m_read_batch({0, nullptr})
                     , m_write_batch({0, nullptr})
+                    , m_read_batch_op(0)
+                    , m_write_batch_op(0)
                     , m_read_batch_idx_map(num_cpu)
                     , m_write_batch_idx_map(num_cpu)
                 {}
@@ -86,16 +88,7 @@ namespace geopm
             std::vector<int> m_file_desc;
             std::vector<struct m_batch_context_s> m_batch_context;
             bool m_is_batch_enabled;
-            //struct m_msr_batch_array_s m_read_batch;
-            //struct m_msr_batch_array_s m_write_batch;
-            //std::vector<struct m_msr_batch_op_s> m_read_batch_op;
-            //std::vector<struct m_msr_batch_op_s> m_write_batch_op;
-            //bool m_is_batch_read;
-            //std::vector<std::map<uint64_t, int> > m_read_batch_idx_map;
-            //std::vector<std::map<uint64_t, int> > m_write_batch_idx_map;
             std::map<uint64_t, uint64_t> m_offset_mask_map;
-            //std::vector<uint64_t> m_write_val;
-            //std::vector<uint64_t> m_write_mask;
             bool m_is_open;
             std::shared_ptr<MSRPath> m_path;
     };

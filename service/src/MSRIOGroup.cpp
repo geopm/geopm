@@ -867,20 +867,11 @@ namespace geopm
 
     void MSRIOGroup::save_control(void)
     {
-        std::vector<std::string> unallowed_controls;
         for (auto &ctl : m_control_available) {
-            try {
-                m_msrio->read_batch(m_save_restore_ctx);
-                for (auto &dom_ctl : ctl.second.controls) {
-                    dom_ctl->save();
-                }
+            m_msrio->read_batch(m_save_restore_ctx);
+            for (auto &dom_ctl : ctl.second.controls) {
+                dom_ctl->save();
             }
-            catch (const Exception &) {
-                unallowed_controls.push_back(ctl.first);
-            }
-        }
-        for (auto &ctl : unallowed_controls) {
-            m_control_available.erase(ctl);
         }
     }
 
@@ -1581,24 +1572,29 @@ namespace geopm
     {
         int num_domain = m_platform_topo.num_domain(domain_type);
         std::vector<std::shared_ptr<Control> > result_field_control;
-        for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-            std::vector<std::shared_ptr<Control> > cpu_controls;
-            std::set<int> cpus = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                                               domain_type, domain_idx);
-            for (auto cpu_idx : cpus) {
-                cpu_controls.push_back(std::make_shared<MSRFieldControl>(
-                    m_msrio, m_save_restore_ctx, cpu_idx, msr_offset,
-                    begin_bit, end_bit, function,
-                    scalar));
+        try {
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                std::vector<std::shared_ptr<Control> > cpu_controls;
+                std::set<int> cpus = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                                                domain_type, domain_idx);
+                for (auto cpu_idx : cpus) {
+                    cpu_controls.push_back(std::make_shared<MSRFieldControl>(
+                        m_msrio, m_save_restore_ctx, cpu_idx, msr_offset,
+                        begin_bit, end_bit, function,
+                        scalar));
+                }
+                result_field_control.push_back(std::make_shared<DomainControl>(cpu_controls));
             }
-            result_field_control.push_back(std::make_shared<DomainControl>(cpu_controls));
+            m_control_available[msr_field_name] = {
+                .controls = result_field_control,
+                .domain = domain_type,
+                .units = units,
+                .description = description,
+            };
         }
-        m_control_available[msr_field_name] = {
-            .controls = result_field_control,
-            .domain = domain_type,
-            .units = units,
-            .description = description,
-        };
+        catch (const Exception &) {
+            // Simply don't add to available controls
+        }
     }
 
 
