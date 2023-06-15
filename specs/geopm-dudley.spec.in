@@ -17,7 +17,7 @@ Release:       1
 License:       BSD-3-Clause
 Group:         System Environment/Libraries
 URL:           https://geopm.github.io
-Source0:       https://github.com/geopm/geopm/releases/download/v%{version}/geopm-%{version}.tar.gz
+Source0:       https://github.com/geopm/geopm/releases/download/v%{version}/geopm-runtime-%{version}.tar.gz
 Patch1:        geopm-pyyaml-req.patch
 BuildRequires: autoconf
 BuildRequires: automake
