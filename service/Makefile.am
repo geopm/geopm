@@ -236,6 +236,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/TimeSignal.cpp \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \
+                       src/VariorumIOGroup.cpp \
+                       src/VariorumIOGroup.hpp \
+                       src/VariorumJSONIO.cpp \
+                       src/VariorumJSONIO.hpp \
                        src/geopm_hash.c \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \

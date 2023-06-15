@@ -30,6 +30,9 @@
 #ifdef GEOPM_ENABLE_NVML
 #include "NVMLIOGroup.hpp"
 #endif
+#ifdef GEOPM_VARIORUM_IOGROUP
+#include "VariorumIOGroup.hpp"
+#endif
 #ifdef GEOPM_ENABLE_LEVELZERO
 #include "LevelZeroIOGroup.hpp"
 #endif
@@ -113,6 +116,10 @@ namespace geopm
 #ifdef GEOPM_ENABLE_NVML
         register_plugin(NVMLIOGroup::plugin_name(),
                         NVMLIOGroup::make_plugin);
+#endif
+#ifdef GEOPM_VARIORUM_IOGROUP
+        register_plugin(VariorumIOGroup::plugin_name(),
+                        VariorumIOGroup::make_plugin);
 #endif
 #ifdef GEOPM_ENABLE_LEVELZERO
         register_plugin(LevelZeroIOGroup::plugin_name(),
