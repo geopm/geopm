@@ -69,27 +69,12 @@ class TestIntegration_power_governor(unittest.TestCase):
 
             first_epoch_index = tt.loc[tt['EPOCH_COUNT'] == 0][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
-
-            power_data = epoch_dropped_data.filter(regex='ENERGY')
-            power_data['TIME'] = epoch_dropped_data['TIME']
-            power_data = power_data.diff().dropna()
-            power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
-            power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
-
-            pkg_energy_cols = [s for s in power_data.keys() if 'CPU_ENERGY' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'DRAM_ENERGY' in s]
-            power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
-
             pandas.set_option('display.width', 100)
             with open('{}.log'.format(self._test_name), 'a') as fid:
                 fid.write('\n{}: Power stats from host {}: \n{}\n\n'.format(
-                    self._test_name, nn, power_data.describe()))
-
-            all_power_data[nn] = power_data
-
-        for node_name, power_data in all_power_data.items():
+                    self._test_name, nn, epoch_dropped_data['CPU_POWER']))
             # Allow for overages of 2% at the 75th percentile.
-            self.assertGreater(self._options['power_budget'] * 1.02, power_data['SOCKET_POWER'].quantile(.75))
+            self.assertGreater(self._options['power_budget'] * 1.02, epoch_dropped_data['CPU_POWER'].quantile(.75))
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
