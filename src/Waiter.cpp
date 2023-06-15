@@ -34,8 +34,9 @@ namespace geopm
 
     SleepWaiter::SleepWaiter(double period)
         : m_period(period)
+        , m_is_first_time(true)
     {
-        reset();
+
     }
 
     void SleepWaiter::reset(void)
@@ -52,6 +53,10 @@ namespace geopm
 
     void SleepWaiter::wait(void)
     {
+        if (m_is_first_time) {
+            reset();
+            m_is_first_time = false;
+        }
         int err = 0;
         do {
             err = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME,

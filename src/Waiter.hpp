@@ -52,6 +52,7 @@ namespace geopm
         private:
             double m_period;
             geopm_time_s m_time_target;
+            bool m_is_first_time;
     };
 }
 

@@ -53,6 +53,8 @@ TEST_F(WaiterTest, wait)
     geopm_time_s time_0;
     geopm_time_s time_1;
     std::shared_ptr<Waiter> waiter = Waiter::make_unique(m_period);
+    timespec delay = {0,100000000};
+    nanosleep(&delay, nullptr);
     for (int count = 0; count < 10; ++count) {
         geopm_time(&time_0);
         waiter->wait();
