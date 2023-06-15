@@ -72,7 +72,7 @@ class TestIntegration_power_governor(unittest.TestCase):
             pandas.set_option('display.width', 100)
             with open('{}.log'.format(self._test_name), 'a') as fid:
                 fid.write('\n{}: Power stats from host {}: \n{}\n\n'.format(
-                    self._test_name, nn, epoch_dropped_data['CPU_POWER']))
+                    self._test_name, nn, epoch_dropped_data['CPU_POWER'].describe()))
             # Allow for overages of 2% at the 75th percentile.
             self.assertGreater(self._options['power_budget'] * 1.02, epoch_dropped_data['CPU_POWER'].quantile(.75))
 
