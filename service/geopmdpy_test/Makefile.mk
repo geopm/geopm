@@ -39,6 +39,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestAccessLists.test_get_user_groups_invalid \
                  geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_empty \
                  geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_named \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_names \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_read \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_write \
