@@ -17,6 +17,7 @@ import shutil
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.system_files import ActiveSessions
     from geopmdpy.system_files import AccessLists
+    from geopmdpy.system_files import _get_names
     from geopmdpy.service import PlatformService
     from geopmdpy.service import TopoService
 
@@ -26,12 +27,12 @@ class TestAccessLists(unittest.TestCase):
         self._CONFIG_PATH = tempfile.TemporaryDirectory('{}_config'.format(self._test_name))
         self._signals_expect = ['controls', 'default', 'energy', 'geopm', 'power', 'signals']
         self._controls_expect = ['controls', 'default', 'geopm', 'power']
-        with mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect):
+
+        with mock.patch('geopmdpy.system_files._get_names',
+                        side_effect=[self._signals_expect, self._controls_expect]):
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
         self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
         self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
-
 
     def tearDown(self):
         self._CONFIG_PATH.cleanup()
@@ -46,6 +47,20 @@ class TestAccessLists(unittest.TestCase):
         control_lines = '\n'.join(control_lines)
 
         return signal_lines, control_lines
+
+    def test_get_names(self):
+        test_str="""hello
+goodbye
+farewell
+"""
+        names_dir = tempfile.TemporaryDirectory('{}_catpath'.format(self._test_name))
+        names_path = f'{names_dir.name}/names_file'
+        with open(names_path, 'w') as fid:
+            fid.write(test_str)
+        expect_names = ['hello', 'goodbye', 'farewell']
+        actual_names = _get_names(['cat', names_path])
+        names_dir.cleanup();
+        self.assertEqual(expect_names, actual_names)
 
     def test_config_parser(self):
         '''
@@ -77,8 +92,8 @@ default
 
 """
 
-        with mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect), \
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[self._signals_expect, self._controls_expect]), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
@@ -95,8 +110,8 @@ default
         '''
         all_signals = ['power', 'energy']
         all_controls = ['power', 'frequency']
-        with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals),  \
-             mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[all_signals, all_controls]), \
              mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
@@ -114,7 +129,8 @@ default
                      mock.call(control_file, 'frequency\n')]
             mock_smf.assert_has_calls(calls)
 
-        with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals), \
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[all_signals, all_controls]), \
              mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
 
@@ -129,7 +145,8 @@ default
             calls = [mock.call(signal_file, 'power\n')]
             mock_smf.assert_has_calls(calls)
 
-        with mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[all_signals, all_controls]), \
              mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
 
@@ -173,8 +190,8 @@ default
 
         signal_lines, control_lines = \
             self._write_group_files_helper('', self._signals_expect, self._controls_expect)
-        with mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect), \
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[self._signals_expect, self._controls_expect]), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
@@ -192,8 +209,8 @@ default
 
         signal_lines, control_lines = self._write_group_files_helper('named', [], self._controls_expect)
 
-        with mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect), \
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[self._signals_expect, self._controls_expect]), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
@@ -252,8 +269,8 @@ default
 
         with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups',
                         return_value=[]), \
-             mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_default), \
+             mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[signals_expect, controls_default]), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
@@ -298,8 +315,8 @@ default
         groups=['named']
         with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups',
                         return_value=groups), \
-             mock.patch('geopmdpy.pio.signal_names', return_value=signals_avail), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_avail), \
+             mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[signals_avail, controls_avail]), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam, \
              mock.patch('geopmdpy.system_files.secure_read_file',
@@ -329,8 +346,8 @@ default
         all_signals = signals_default + signals_named
         all_controls = controls_default + controls_named
 
-        with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals), \
-             mock.patch('geopmdpy.pio.control_names', return_value=all_controls):
+        with mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[all_signals, all_controls]):
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_user_access('root')
 
@@ -348,8 +365,8 @@ default
 
         with mock.patch('sys.stderr.write', return_value=None) as mock_err, \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
-             mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect):
+             mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[self._signals_expect, self._controls_expect]):
             self._access_lists = AccessLists(CONFIG_PATH.name)
 
             calls = [
@@ -370,8 +387,8 @@ default
 
         with mock.patch('sys.stderr.write', return_value=None) as mock_err, \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
-             mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect):
+             mock.patch('geopmdpy.system_files._get_names', \
+                        side_effect=[self._signals_expect, self._controls_expect]):
             self._access_lists = AccessLists(CONFIG_PATH.name)
             mock_err.assert_not_called()
         CONFIG_PATH.cleanup()
