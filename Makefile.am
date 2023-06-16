@@ -488,6 +488,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/TreeCommLevel.hpp \
                       src/ValidateRecord.cpp \
                       src/ValidateRecord.hpp \
+                      src/Waiter.cpp \
+                      src/Waiter.hpp \
                       src/geopm_agent.h \
                       src/geopm_daemon.h \
                       src/geopm_endpoint.h \
