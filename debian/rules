@@ -14,19 +14,19 @@ override_dh_auto_configure:
 	test -f configure || ./autogen.sh
 	./configure \
           --prefix=$(prefix) \
-	  --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
-	  --libexecdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
-	  --includedir=$(prefix)/include \
+          --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
+          --libexecdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
+          --includedir=$(prefix)/include \
           --sbindir=$(prefix)/sbin \
           --datadir=$(prefix)/share \
-	  --mandir=$(prefix)/share/man \
+          --mandir=$(prefix)/share/man \
           --docdir=$(prefix)/share/doc/geopm \
           --with-bash-completion-dir=/etc/bash_completion.d \
           --disable-mpi \
           --disable-openmp \
           --disable-fortran \
           --disable-geopmd-local \
-	  --disable-mpi
+          --disable-mpi
 
 override_dh_auto_test:
 	# make check

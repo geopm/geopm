@@ -13,11 +13,11 @@ include /usr/share/dpkg/buildtools.mk
 override_dh_auto_configure:
 	test -f configure || ./autogen.sh
 	./configure \
-	  --prefix=$(prefix) \
-	  --includedir=$(prefix)/include \
-	  --datadir=$(prefix)/share \
-	  --mandir=$(prefix)/share/man \
-	  --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+          --prefix=$(prefix) \
+          --includedir=$(prefix)/include \
+          --datadir=$(prefix)/share \
+          --mandir=$(prefix)/share/man \
+          --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_test:
 	# make check
