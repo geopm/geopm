@@ -51,7 +51,7 @@ namespace geopm
             /// @param [in] offset MSR offset to be read when
             ///        read_batch() is called.
             /// @return The logical index that will be passed to sample().
-            virtual int add_read(int cpu_idx, uint64_t offset);
+            virtual int add_read(int cpu_idx, uint64_t offset) = 0;
             /// @brief Extend the set of MSRs for batch read with a single offset.
             /// @param [in] cpu_idx logical Linux CPU index to read from when
             ///         read_batch() method is called.
@@ -65,7 +65,7 @@ namespace geopm
             ///        The memory used to store the result should have
             ///        been returned by add_read().
             ///        Note: uses the default batch context.
-            virtual void read_batch(void);
+            virtual void read_batch(void) = 0;
             /// @brief Batch read a set of MSRs configured by a
             ///        previous call to the batch_config() method.
             ///        The memory used to store the result should have
@@ -81,7 +81,7 @@ namespace geopm
             ///        write_batch() method is called.
             /// @return The logical index that will be passed to
             ///         adjust().
-            virtual int add_write(int cpu_idx, uint64_t offset);
+            virtual int add_write(int cpu_idx, uint64_t offset) = 0;
             /// @brief Add another offset to the list of MSRs to be
             ///        written in batch.
             /// @param [in] cpu_idx logical Linux CPU index to write
@@ -97,7 +97,7 @@ namespace geopm
             ///        Note: uses the default batch context.
             virtual void adjust(int batch_idx,
                                 uint64_t value,
-                                uint64_t write_mask);
+                                uint64_t write_mask) = 0;
             /// @brief Adjust a value that was previously added with
             ///        the add_write() method.
             /// @param [in] batch_ctx index of batch context where value will be
@@ -111,7 +111,7 @@ namespace geopm
             ///        read_batch() must be called prior to calling
             ///        this function.
             ///        Note: uses the default batch context.
-            virtual uint64_t sample(int batch_idx) const;
+            virtual uint64_t sample(int batch_idx) const = 0;
             /// @brief Read the full 64-bit value of the MSR that was
             ///        previously added to the MSRIO with add_read().
             ///        read_batch() must be called prior to calling
@@ -121,7 +121,7 @@ namespace geopm
             virtual uint64_t sample(int batch_idx, int batch_ctx) const = 0;
             /// @brief Write all adjusted values.
             ///        Note: uses the default batch context.
-            virtual void write_batch(void);
+            virtual void write_batch(void) = 0;
             /// @brief Write all adjusted values.
             /// @param [in] batch_ctx index for batch context to use for the write.
             virtual void write_batch(int batch_ctx) = 0;

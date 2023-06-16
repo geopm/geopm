@@ -35,36 +35,6 @@ namespace geopm
         return std::make_shared<MSRIOImp>();
     }
 
-    int MSRIO::add_read(int cpu_idx, uint64_t offset)
-    {
-        return add_read(cpu_idx, offset, 0);
-    }
-
-    void MSRIO::read_batch(void)
-    {
-        read_batch(0);
-    }
-
-    int MSRIO::add_write(int cpu_idx, uint64_t offset)
-    {
-        return add_write(cpu_idx, offset, 0);
-    }
-
-    void MSRIO::adjust(int batch_idx, uint64_t raw_value, uint64_t write_mask)
-    {
-        adjust(batch_idx, raw_value, write_mask, 0);
-    }
-
-    uint64_t MSRIO::sample(int batch_idx) const
-    {
-        return sample(batch_idx, 0);
-    }
-
-    void MSRIO::write_batch(void)
-    {
-        write_batch(0);
-    }
-
     MSRIOImp::MSRIOImp()
         : MSRIOImp(geopm_sched_num_cpu(), std::make_shared<MSRPath>())
     {
@@ -188,6 +158,11 @@ namespace geopm
         return ctx;
     }
 
+    int MSRIOImp::add_write(int cpu_idx, uint64_t offset)
+    {
+        return add_write(cpu_idx, offset, 0);
+    }
+
     int MSRIOImp::add_write(int cpu_idx, uint64_t offset, int batch_ctx)
     {
         m_batch_context_s &ctx = m_batch_context.at(batch_ctx);
@@ -212,6 +187,11 @@ namespace geopm
             result = batch_it->second;
         }
         return result;
+    }
+
+    void MSRIOImp::adjust(int batch_idx, uint64_t raw_value, uint64_t write_mask)
+    {
+        adjust(batch_idx, raw_value, write_mask, 0);
     }
 
     void MSRIOImp::adjust(int batch_idx, uint64_t raw_value, uint64_t write_mask, int batch_ctx)
@@ -241,6 +221,11 @@ namespace geopm
         ctx.m_write_mask[batch_idx] |= write_mask;
     }
 
+    int MSRIOImp::add_read(int cpu_idx, uint64_t offset)
+    {
+        return add_read(cpu_idx, offset, 0);
+    }
+
     int MSRIOImp::add_read(int cpu_idx, uint64_t offset, int batch_ctx)
     {
         /// @todo return same index for repeated calls with same inputs.
@@ -256,6 +241,11 @@ namespace geopm
         int idx = ctx.m_read_batch_op.size();
         ctx.m_read_batch_op.push_back(rd);
         return idx;
+    }
+
+    uint64_t MSRIOImp::sample(int batch_idx) const
+    {
+        return sample(batch_idx, 0);
     }
 
     uint64_t MSRIOImp::sample(int batch_idx, int batch_ctx) const
@@ -335,6 +325,11 @@ namespace geopm
         }
     }
 
+    void MSRIOImp::read_batch(void)
+    {
+        read_batch(0);
+    }
+
     void MSRIOImp::read_batch(int batch_ctx)
     {
         m_batch_context_s &ctx = m_batch_context.at(batch_ctx);
@@ -354,6 +349,11 @@ namespace geopm
             }
         }
         ctx.m_is_batch_read = true;
+    }
+
+    void MSRIOImp::write_batch(void)
+    {
+        write_batch(0);
     }
 
     void MSRIOImp::write_batch(int batch_ctx)

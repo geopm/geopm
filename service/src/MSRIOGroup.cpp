@@ -1576,7 +1576,7 @@ namespace geopm
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 std::vector<std::shared_ptr<Control> > cpu_controls;
                 std::set<int> cpus = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                                                domain_type, domain_idx);
+                                                                   domain_type, domain_idx);
                 for (auto cpu_idx : cpus) {
                     cpu_controls.push_back(std::make_shared<MSRFieldControl>(
                         m_msrio, m_save_restore_ctx, cpu_idx, msr_offset,
