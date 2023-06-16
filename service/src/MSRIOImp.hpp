@@ -28,11 +28,17 @@ namespace geopm
                            uint64_t raw_value,
                            uint64_t write_mask) override;
             int create_batch_context(void) override;
+            int add_read(int cpu_idx, uint64_t offset) override;
             int add_read(int cpu_idx, uint64_t offset, int batch_ctx) override;
+            void read_batch() override;
             void read_batch(int batch_ctx) override;
+            uint64_t sample(int batch_idx) const override;
             uint64_t sample(int batch_idx, int batch_ctx) const override;
+            void write_batch() override;
             void write_batch(int batch_ctx) override;
+            int add_write(int cpu_idx, uint64_t offset) override;
             int add_write(int cpu_idx, uint64_t offset, int batch_ctx) override;
+            void adjust(int batch_idx, uint64_t value, uint64_t write_mask) override;
             void adjust(int batch_idx, uint64_t value, uint64_t write_mask, int batch_ctx) override;
         private:
             struct m_msr_batch_op_s {
