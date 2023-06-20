@@ -124,6 +124,13 @@ If ``"-unmarked"`` is appended to any region name in the configuration, then
 the region will **not** be marked with the ``geopm_prof_*()`` API calls for
 ``enter()`` and ``exit()`` calls.
 
+Environment
+-----------
+The GEOPMBENCH_NO_MPI environment variable, if set, will skip all calls to
+MPI functions in the geopmbench executable.  This is primarily to enable
+integration testing.
+
+
 See Also
 --------
 
