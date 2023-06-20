@@ -322,6 +322,7 @@ class Launcher(object):
         self.num_node = num_node
         self.argv = argv
         self.argv_unparsed = argv
+        self.lib_name = 'libgeopm.so.1.0.0'
         try:
             self.config = Config(argv)
             self.is_geopm_enabled = True
@@ -831,7 +832,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
     def preload_option(self):
         if self.config and self.config.get_preload():
             self.environ_ext['LD_PRELOAD'] = ':'.join((ll for ll in
-                                                       ('libgeopm.so.1.0.0', os.getenv('LD_PRELOAD'))
+                                                       (self.lib_name, os.getenv('LD_PRELOAD'))
                                                        if ll is not None))
         return []
 
@@ -1148,7 +1149,7 @@ class SrunLauncher(Launcher):
         result = []
         if self.config and self.config.get_preload():
             value = ':'.join((ll for ll in
-                              ('libgeopm.so.1.0.0', os.getenv('LD_PRELOAD'))
+                              (self.lib_name, os.getenv('LD_PRELOAD'))
                               if ll is not None))
             result = ["--export=LD_PRELOAD={},ALL".format(value)]
         return result
@@ -1697,7 +1698,7 @@ class AprunLauncher(Launcher):
         result = []
         if self.config and self.config.get_preload():
             value = ':'.join((ll for ll in
-                              ('libgeopm.so.1.0.0', os.getenv('LD_PRELOAD'))
+                              (self.lib_name, os.getenv('LD_PRELOAD'))
                               if ll is not None))
             result = ['-e',  'LD_PRELOAD={}'.format(value)]
         return result
