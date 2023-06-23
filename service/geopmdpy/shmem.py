@@ -19,7 +19,7 @@ def create_prof(shm_key, size, pid, uid, gid):
     shm_key_cstr = gffi.gffi.new("char[]", shm_key.encode())
     err = _dl.geopm_shmem_create_prof(shm_key_cstr, size, pid, uid, gid)
     if err < 0:
-        raise RuntimeError('geopm_shmem_create() failed: {}'.format(error.message(err)))
+        raise RuntimeError('geopm_shmem_create_prof() failed: {}'.format(error.message(err)))
 
 def path_prof(shm_key, pid, uid, gid):
     global _dl
@@ -28,5 +28,5 @@ def path_prof(shm_key, pid, uid, gid):
     result_cstr = gffi.gffi.new("char[]", name_max)
     err = _dl.geopm_shmem_path_prof(shm_key_cstr, pid, uid, name_max, result_cstr)
     if err < 0:
-        raise RuntimeError('geopm_shmem_destroy() failed: {}'.format(error.message(err)))
+        raise RuntimeError('geopm_shmem_path_prof() failed: {}'.format(error.message(err)))
     return gffi.gffi.string(result_cstr).decode()
