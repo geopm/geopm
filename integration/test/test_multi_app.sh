@@ -18,12 +18,10 @@ export GEOPM_REPORT=${TEST_NAME}_report.yaml
 export GEOPM_TRACE=${TEST_NAME}_trace.csv
 export GEOPM_TRACE_PROFILE=${TEST_NAME}_trace_profile.csv
 export GEOPM_PROFILE=${TEST_NAME}
-#export GEOPM_REPORT_SIGNALS=CPU_TIMESTAMP_COUNTER@package
 export GEOPM_REPORT_SIGNALS=TIME@package
 export GEOPM_NUM_PROC=2
 
 geopmctl &
-sleep 2
 
 # geopmbench
 numactl --cpunodebind=0 -- sh -c "LD_PRELOAD=libgeopm.so.1.0.0 geopmbench temp_config.json" &
