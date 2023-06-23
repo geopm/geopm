@@ -731,7 +731,7 @@ class PlatformService(object):
             result = [pid for pid in pids if psutil.pid_exists(pid)]
         return result
 
-    def get_profile_region_names(self, profile_name):
+    def pop_profile_region_names(self, profile_name):
         """Get region names associated with an application
 
         Called by a profiling thread to find all region names
@@ -747,7 +747,7 @@ class PlatformService(object):
 
         """
         result = []
-        region_names = self._active_sessions.get_profile_region_names(profile_name)
+        region_names = self._active_sessions.pop_profile_region_names(profile_name)
         if region_names is not None:
             result = list(region_names)
             result.sort()
@@ -951,8 +951,8 @@ class GEOPMService(object):
         return self._platform.get_profile_pids(profile_name)
 
     # TODO: This method should check credentials
-    def PlatformGetProfileRegionNames(self, profile_name):
-        return self._platform.get_profile_region_names(profile_name)
+    def PlatformPopProfileRegionNames(self, profile_name):
+        return self._platform.pop_profile_region_names(profile_name)
 
     def _get_user(self, call_info):
         """Use DBus proxy object to derive the user name that owns the client

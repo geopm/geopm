@@ -353,7 +353,7 @@ class TestActiveSessions(unittest.TestCase):
             calls = [mock.call('file_path'), mock.call('file_path')]
             mock_unlink.assert_has_calls(calls)
             self.assertIsNone(act_sess.get_profile_pids(profile_name))
-            self.assertEqual({'test_region'}, act_sess.get_profile_region_names(profile_name))
+            self.assertEqual({'test_region'}, act_sess.pop_profile_region_names(profile_name))
 
             act_sess.remove_client(client_pid)
             self.assertNotIn(client_pid, act_sess.get_clients())

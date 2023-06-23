@@ -310,12 +310,12 @@ TEST_F(ServiceProxyTest, platform_get_profile_pids)
     EXPECT_EQ(expected_pids, actual_pids);
 }
 
-TEST_F(ServiceProxyTest, platform_get_profile_region_names)
+TEST_F(ServiceProxyTest, platform_pop_profile_region_names)
 {
     std::string profile_name = "service_proxy_test";
     std::vector<std::string> expected_region_names = {"hello", "hi", "goodbye", "farewell"};
 
-    EXPECT_CALL(*m_bus, call_method("PlatformGetProfileRegionNames", profile_name))
+    EXPECT_CALL(*m_bus, call_method("PlatformPopProfileRegionNames", profile_name))
         .WillOnce(Return(m_bus_reply));
 
     EXPECT_CALL(*m_bus_reply, enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "s"));
@@ -332,6 +332,6 @@ TEST_F(ServiceProxyTest, platform_get_profile_region_names)
         .WillOnce(Return(true))
         .WillOnce(Return(false));
     EXPECT_CALL(*m_bus_reply, exit_container());
-    std::vector<std::string> actual_region_names = m_proxy->platform_get_profile_region_names(profile_name);
+    std::vector<std::string> actual_region_names = m_proxy->platform_pop_profile_region_names(profile_name);
     EXPECT_EQ(expected_region_names, actual_region_names);
 }
