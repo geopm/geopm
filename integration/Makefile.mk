@@ -15,12 +15,6 @@ EXTRA_DIST += integration/README.md \
               integration/config/smng_env.sh \
               integration/config/theta_env.sh \
               integration/requirements.txt \
-              integration/test-no-mpi/README.md \
-              integration/test-no-mpi/Makefile \
-              integration/test-no-mpi/test_sleep_region.c \
-              integration/test-no-mpi/test_sleep_region_map.sh \
-              integration/test-no-mpi/test_sleep_region.sh \
-              integration/test-no-mpi/test_sleep.sh \
               # end
 
 include integration/apps/Makefile.mk
