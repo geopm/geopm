@@ -102,8 +102,6 @@ class TestIntegration_time(unittest.TestCase):
         host_names = self._report.host_names()
         self.assertEqual(len(host_names), self._num_node)
         for host in host_names:
-            found_nw = False
-            found_nw_mem = False
             self.assertEqual(0, len(self._report.region_names(host)))
             raw_totals = self._report.raw_totals(host_name=host)
             msg = "Application totals should have 10 seconds of total time"
