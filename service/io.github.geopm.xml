@@ -690,7 +690,7 @@ a named application.
         </doc:description>
       </doc:doc>
     </method>
-    <method name="PlatformGetProfileRegionNames">
+    <method name="PlatformPopProfileRegionNames">
       <arg direction="in" name="profile_name" type="s">
         <doc:doc>
           <doc:summary>Name of application that PID supports

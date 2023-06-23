@@ -786,7 +786,7 @@ class ActiveSessions(object):
     def get_profile_pids(self, profile_name):
         return self._profiles.get(profile_name)
 
-    def get_profile_region_names(self, profile_name):
+    def pop_profile_region_names(self, profile_name):
         result = None
         if profile_name in self._region_names:
             result = self._region_names.pop(profile_name)

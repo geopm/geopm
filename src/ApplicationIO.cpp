@@ -131,7 +131,7 @@ namespace geopm
     std::set<std::string> ApplicationIOImp::region_name_set(void) const
     {
         std::set<std::string> result;
-        auto profile_names = m_service_proxy->platform_get_profile_region_names(m_profile_name);
+        auto profile_names = m_service_proxy->platform_pop_profile_region_names(m_profile_name);
         for (const auto &name : profile_names) {
             result.insert(name);
         }

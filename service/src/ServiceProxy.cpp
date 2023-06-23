@@ -191,9 +191,9 @@ namespace geopm
         return result;
     }
 
-    std::vector<std::string> ServiceProxyImp::platform_get_profile_region_names(const std::string &profile_name)
+    std::vector<std::string> ServiceProxyImp::platform_pop_profile_region_names(const std::string &profile_name)
     {
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformGetProfileRegionNames",
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformPopProfileRegionNames",
                                                                      profile_name);
         return read_string_array(bus_reply);
     }
