@@ -342,6 +342,9 @@ class TestActiveSessions(unittest.TestCase):
             calls = [mock.call(full_file_path, json.dumps(self.json_good_example)),
                      mock.call(full_file_path, json.dumps(updated_json_contents))]
             mock_smf.assert_has_calls(calls)
+            err_msg = f'Client pid {client_pid} has requested profiling twice'
+            with self.assertRaisesRegex(RuntimeError, err_msg):
+                act_sess.start_profile(client_pid, 'overwrite_name')
 
             act_sess.stop_profile(client_pid, ['test_region'])
             calls = [mock.call('record-log', client_pid, client_uid, client_gid),
