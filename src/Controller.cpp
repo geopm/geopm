@@ -11,6 +11,7 @@
 #include <climits>
 
 #include <algorithm>
+#include <memory>
 
 #include "ApplicationIO.hpp"
 #include "Environment.hpp"
@@ -158,13 +159,13 @@ namespace geopm
                      environment().agent(),
                      Agent::num_policy(environment().agent()),
                      Agent::num_sample(environment().agent()),
-                     geopm::make_unique<TreeCommImp>(
+                     std::make_unique<TreeCommImp>(
                          ppn1_comm,
                          Agent::num_policy(environment().agent()),
                          Agent::num_sample(environment().agent())),
                      ApplicationSampler::application_sampler(),
                      std::make_shared<ApplicationIOImp>(),
-                     geopm::make_unique<ReporterImp>(
+                     std::make_unique<ReporterImp>(
                          get_start_time(),
                          environment().report(),
                          PlatformIOProf::platform_io(),
@@ -253,7 +254,7 @@ namespace geopm
             m_endpoint = EndpointUser::make_unique(endpoint_path, get_hostnames(hostname()));
         }
         else if (m_do_policy && !m_do_endpoint) {
-            m_file_policy = geopm::make_unique<FilePolicy>(policy_path, policy_names);
+            m_file_policy = std::make_unique<FilePolicy>(policy_path, policy_names);
             m_in_policy = m_file_policy->get_policy();
         }
         if (m_do_endpoint && m_policy_tracer == nullptr) {
@@ -488,7 +489,7 @@ namespace geopm
     void Controller::setup_trace(void)
     {
         if (m_tracer == nullptr) {
-            m_tracer = geopm::make_unique<TracerImp>(get_start_time());
+            m_tracer = std::make_unique<TracerImp>(get_start_time());
         }
         std::vector<std::string> agent_cols = m_agent[0]->trace_names();
         std::vector<std::function<std::string(double)> > agent_formats = m_agent[0]->trace_formats();
