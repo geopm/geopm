@@ -738,6 +738,8 @@ class ActiveSessions(object):
     def start_profile(self, client_pid, profile_name):
         profile_name = str(profile_name)
         self.check_client_active(client_pid, 'start_profile')
+        if 'profile_name' in self._sessions[client_pid]:
+            raise RuntimeError(f'Client pid {client_pid} has requested profiling twice')
         uid, gid = self._pid_info(client_pid)
         self._sessions[client_pid]['client_uid'] = int(uid)
         self._sessions[client_pid]['client_gid'] = int(gid)
