@@ -71,7 +71,6 @@ namespace geopm
         , m_report(report)
         , m_curr_region_id(0)
         , m_current_hash(GEOPM_REGION_HASH_UNMARKED)
-        , m_ctl_shmem(nullptr)
         , m_num_cpu(num_cpu)
         , m_cpu_set(cpu_set)
         , m_app_status(app_status)
