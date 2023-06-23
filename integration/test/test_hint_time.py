@@ -76,7 +76,6 @@ class TestIntegration_hint_time(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'hint_time'
         cls._report_path = 'test_{}.report'.format(cls._test_name)
-        cls._trace_path = f'test_{cls._test_name}.trace'
         cls._image_path = 'test_{}.png'.format(cls._test_name)
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'
@@ -100,11 +99,9 @@ class TestIntegration_hint_time(unittest.TestCase):
             launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         agent_conf,
                                                         cls._report_path,
-                                                        cls._trace_path,
                                                         time_limit=time_limit)
             launcher.set_num_node(cls._num_node)
             launcher.set_num_rank(num_rank)
-            launcher.set_pmpi_ctl('application')
             # Run the test application
             launcher.run('test_' + cls._test_name)
         cls._report = geopmpy.io.RawReport(cls._report_path)
