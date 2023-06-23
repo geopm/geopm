@@ -273,9 +273,6 @@ namespace geopm
             ///        for the current region.
             uint64_t m_curr_region_id;
             uint64_t m_current_hash;
-            /// @brief Attaches to the shared memory region for
-            ///        control messages.
-            std::unique_ptr<SharedMemory> m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
