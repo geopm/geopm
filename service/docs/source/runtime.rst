@@ -4,8 +4,8 @@ Guide for Runtime Users
 
 The GEOPM Runtime is software designed to enhance energy efficiency of
 applications though active hardware configuration.  The architecture is
-designed to provide an secure infrastructure to support a wide range
-of tuning algorithms while solving three related challenges.
+designed to provide a secure infrastructure to support a wide range
+of tuning algorithms while solving three related challenges:
 
 
 1. Measuring Performance
