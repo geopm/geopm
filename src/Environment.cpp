@@ -432,9 +432,6 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
-
-
-        return std::stoi(lookup("GEOPM_TIMEOUT"));
     }
 
     int EnvironmentImp::num_proc(void) const
