@@ -102,6 +102,7 @@ class TestIntegration_hint_time(unittest.TestCase):
                                                         time_limit=time_limit)
             launcher.set_num_node(cls._num_node)
             launcher.set_num_rank(num_rank)
+            launcher.set_pmpi_ctl('application')
             # Run the test application
             launcher.run('test_' + cls._test_name)
         cls._report = geopmpy.io.RawReport(cls._report_path)
