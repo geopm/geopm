@@ -50,7 +50,7 @@ def get_dl_geopm():
 # Enforce load order of libgeopm.so and libgeopmd.so
 try:
     _dl_geopm = gffi.dlopen('libgeopm.so.1',
-                                  gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
+                            gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopm = err
 
