@@ -128,7 +128,8 @@ Environment
 -----------
 The GEOPMBENCH_NO_MPI environment variable, if set, will skip all calls to
 MPI functions in the geopmbench executable.  This is primarily to enable
-integration testing.
+integration testing.  Note that the "all2all" model region replaces
+the call to ``MPI_Alltoall()`` with a 100 microsecond sleep.
 
 
 See Also
