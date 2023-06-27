@@ -622,9 +622,6 @@ class Launcher(object):
         Determine the topology of the compute nodes that the job will be
         launched on.  This is used to inform CPU affinity assignment.
         """
-        # Create the cache for the PlatformTopo on each compute node
-        self.run_compute_cmd('geopmread --cache')
-
         # Query the topology for Launcher calculations by running lscpu on one node.
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
@@ -1489,10 +1486,9 @@ class IMPIExecLauncher(Launcher):
         elif self.host_file is not None:
             result = ['-f', self.host_file]
         else:
-            # If this error is encountered, without the is_once check it will be displayed 3 times per run:
-            #     1. For the PlatformTopo cache creation.
-            #     2. For the call to 'lscpu --hex' used in the Launcher itself.
-            #     3. For actually running the app requested.
+            # If this error is encountered, without the is_once check it will be displayed 2 times per run:
+            #     1. For the call to 'lscpu --hex' used in the Launcher itself.
+            #     2. For actually running the app requested.
             if IMPIExecLauncher._is_once:
                 sys.stderr.write('Warning: <geopm> geopmpy.launcher: Hosts not defined, GEOPM may fail to start.  '
                                  'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
