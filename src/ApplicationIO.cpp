@@ -57,6 +57,7 @@ namespace geopm
             return result;
         }
         double timeout = m_timeout;
+        // TODO: This is a temporary work around until issue #2987 is resolved
         if (timeout < 0.0) {
             timeout = 60.0;
         }
