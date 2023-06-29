@@ -24,11 +24,11 @@ export GEOPM_APPS_SOURCES=${GEOPM_APPS_SOURCES:?Please set GEOPM_APPS_SOURCES in
 
 # Using Intel specific names for MPI compiler wrappers if no other settings
 # are provided by the user.
-export CC=${CC:-icc}
-export CXX=${CXX:-icpc}
-export FC=${FC:-ifort}
-export F77=${F77:-ifort}
-export F90=${F90:-ifort}
+export CC=${CC:-icx}
+export CXX=${CXX:-icpx}
+export FC=${FC:-ifx}
+export F77=${F77:-ifx}
+export F90=${F90:-ifx}
 export MPICC=${MPICC:-mpiicc}
 export MPICXX=${MPICXX:-mpiicpc}
 export MPIFORT=${MPIFORT:-mpiifort}
