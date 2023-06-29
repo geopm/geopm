@@ -147,6 +147,9 @@ class TestIntegration_hint_time(unittest.TestCase):
             self.assertTrue(found_nw_mem)
             raw_totals = self._report.raw_totals(host_name=host)
             overhead_time = raw_totals['GEOPM overhead (s)']
+            init_region = self._report.raw_region(host_name=host,
+                                                  region_name='MPI_Init_thread')
+            init_time = init_region['runtime (s)']
             msg = "Application totals should have three seconds of network time"
             expect = 3.0
             actual = raw_totals['time-hint-network (s)']
@@ -156,7 +159,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             actual = raw_totals['time-hint-memory (s)']
             util.assertNear(self, expect, actual, msg=msg)
             msg = "Application totals should have nine seconds of total time"
-            expect = 9.0 + overhead_time
+            expect = 9.0 + overhead_time + init_time
             actual = raw_totals['runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
 

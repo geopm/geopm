@@ -23,7 +23,8 @@ class TestIntegration_multi_app(unittest.TestCase):
     TEST_NAME = 'test_multi_app'
     TIME_LIMIT = 30
     NUM_NODE = 1
-    EXPECTED_REGIONS = {'model-init', 'stream', 'dgemm'}
+    EXPECTED_REGIONS = {'model-init', 'stream', 'dgemm',
+                        'MPI_Init_thread'}
 
     @classmethod
     def setUpClass(cls):
@@ -50,11 +51,14 @@ class TestIntegration_multi_app(unittest.TestCase):
         for node in self._node_names:
             for region in self._report.region_names(node):
                 region_data = self._report.raw_region(node, region)
-                if region == 'model-init':
+                if region in ('model-init', 'MPI_Init_thread'):
                     self.assertEqual(region_data['count'], 0.5)
                 else:
                     self.assertEqual(region_data['count'], 1)
-                self.assertGreater(region_data['TIME@package-0'], 0)
+                if region != 'MPI_Init_thread':
+                    # We do not sample during PMPI_Init_thread call
+                    # but other regions should have non-zero sample time
+                    self.assertGreater(region_data['TIME@package-0'], 0)
                 self.assertEqual(region_data['TIME@package-1'], 0)
 
     def test_non_mpi_app_tracked(self):
