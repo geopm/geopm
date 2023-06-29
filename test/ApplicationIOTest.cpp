@@ -12,6 +12,7 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationIO.hpp"
+#include "Environment.hpp"
 #include "geopm/Helper.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
@@ -46,7 +47,8 @@ void ApplicationIOTest::SetUp()
                                                     m_profile_name,
                                                     m_report_name,
                                                     5,
-                                                    1);
+                                                    1,
+                                                    geopm::Environment::M_CTL_NONE);
     m_app_io->connect();
 }
 

@@ -25,7 +25,8 @@ namespace geopm
                            environment().profile(),
                            environment().report(),
                            environment().timeout(),
-                           environment().num_proc())
+                           environment().num_proc(),
+                           environment().pmpi_ctl())
     {
 
     }
@@ -34,13 +35,15 @@ namespace geopm
                                        const std::string &profile_name,
                                        const std::string &report_name,
                                        int timeout,
-                                       int num_proc)
+                                       int num_proc,
+                                       int ctl_mode)
         : m_is_connected(false)
         , m_service_proxy(service_proxy)
         , m_profile_name(profile_name)
         , m_report_name(report_name)
         , m_timeout(timeout)
         , m_num_proc(num_proc)
+        , m_ctl_mode(ctl_mode)
     {
 
     }
@@ -67,9 +70,11 @@ namespace geopm
         timespec delay = {0, 1000000};
         do {
             m_profile_pids = get_profile_pids();
-            auto ctl_it = m_profile_pids.find(getpid());
-            if (ctl_it != m_profile_pids.end()) {
-                m_profile_pids.erase(ctl_it);
+            if (m_ctl_mode != Environment::M_CTL_PTHREAD) {
+                auto ctl_it = m_profile_pids.find(getpid());
+                if (ctl_it != m_profile_pids.end()) {
+                    m_profile_pids.erase(ctl_it);
+                }
             }
             if (m_profile_pids.size() >= (size_t)m_num_proc) {
                 m_is_connected = true;
