@@ -28,10 +28,6 @@ namespace geopm
         : m_app_sampler(sampler)
     {
         m_num_process = m_app_sampler.client_pids().size();
-        if (m_num_process == 0) {
-            throw Exception("ProcessRegionAggregator: expected at least one process",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
     }
 
     void ProcessRegionAggregatorImp::update(void)
@@ -95,7 +91,9 @@ namespace geopm
                 total += it->second.total_runtime;
             }
         }
-        total = total / m_num_process;
+        if (m_num_process != 0) {
+            total = total / m_num_process;
+        }
         return total;
     }
 
@@ -108,7 +106,9 @@ namespace geopm
                 total += it->second.total_count;
             }
         }
-        total = total / m_num_process;
+        if (m_num_process != 0) {
+            total = total / m_num_process;
+        }
         return total;
     }
 }
