@@ -52,7 +52,8 @@ namespace geopm
                              const std::string &profile_name,
                              const std::string &report_name,
                              int timeout,
-                             int num_proc);
+                             int num_proc,
+                             int ctl_mode);
             virtual ~ApplicationIOImp();
             std::vector<int> connect(void) override;
             bool do_shutdown(void) override;
@@ -70,6 +71,7 @@ namespace geopm
             const int m_timeout;
             std::set<int> m_profile_pids;
             int m_num_proc;
+            int m_ctl_mode;
     };
 }
 
