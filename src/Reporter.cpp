@@ -290,9 +290,9 @@ namespace geopm
             total_marked_runtime += region.per_rank_avg_runtime;
         }
 
-        double epoch_count = m_platform_io.sample(m_epoch_count_idx);
         // Do not add epoch or unmarked section if no application attached
-        if (!std::isnan(epoch_count)) {
+        if (m_epoch_count_idx != -1) {
+            double epoch_count = m_platform_io.sample(m_epoch_count_idx);
             yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
             double unmarked_time = m_total_time -
                                    total_marked_runtime;
