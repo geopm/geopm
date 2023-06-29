@@ -270,7 +270,12 @@ extern "C" {
             required < MPI_THREAD_MULTIPLE) {
             required = MPI_THREAD_MULTIPLE;
         }
+        uint64_t rid = 0;
+        geopm_prof_region("MPI_Init_thread",
+                          GEOPM_REGION_HINT_NETWORK, &rid);
+        geopm_prof_enter(rid);
         err = PMPI_Init_thread(argc, argv, required, provided);
+        geopm_prof_exit(rid);
         geopm_time_s begin_time;
         geopm_time(&begin_time);
         if (!err &&
