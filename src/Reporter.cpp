@@ -291,8 +291,11 @@ namespace geopm
         }
 
         // Do not add epoch or unmarked section if no application attached
+        double epoch_count = 0;
         if (m_epoch_count_idx != -1) {
-            double epoch_count = m_platform_io.sample(m_epoch_count_idx);
+            epoch_count = m_platform_io.sample(m_epoch_count_idx);
+        }
+        if (total_marked_runtime != 0.0) {
             yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
             double unmarked_time = m_total_time -
                                    total_marked_runtime;
@@ -306,7 +309,9 @@ namespace geopm
             if (it != agent_region_report.end()) {
                 yaml_write(report, M_INDENT_UNMARKED_FIELD, agent_region_report.at(GEOPM_REGION_HASH_UNMARKED));
             }
-
+        }
+        if (m_platform_io.is_valid_value(epoch_count) &&
+            epoch_count != 0) {
             yaml_write(report, M_INDENT_EPOCH, "Epoch Totals:");
             double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
             yaml_write(report, M_INDENT_EPOCH_FIELD,
