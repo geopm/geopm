@@ -146,6 +146,7 @@ class TestLauncher(object):
                 argv.extend(['--geopm-trace-signals', self._trace_signals])
             if self._init_control_path:
                 argv.extend(['--geopm-init-control', self._init_control_path])
+            argv.extend(['--geopm-preload'])
             argv.extend(add_geopm_args)
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')

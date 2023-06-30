@@ -61,7 +61,7 @@ class TestIntegration_time(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        cls._test_name = 'hint_time'
+        cls._test_name = 'time'
         cls._report_path = 'test_{}.report'.format(cls._test_name)
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'
@@ -108,11 +108,8 @@ class TestIntegration_time(unittest.TestCase):
             expect = 10.0
             actual = raw_totals['runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
-            raw_epoch = self._report.raw_epoch(host_name=host)
-            msg = "Epoch count expected to be zero"
-            expect = 0
-            actual = raw_epoch['count']
-            self.assertEqual(expect, actual, msg=msg)
+            with self.assertRaises(KeyError):
+                raw_epoch = self._report.raw_epoch(host_name=host)
 
 
 if __name__ == '__main__':
