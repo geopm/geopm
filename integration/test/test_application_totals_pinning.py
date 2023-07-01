@@ -34,7 +34,7 @@ class TestIntegration_monitor(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        test_name = 'test_monitor'
+        test_name = 'test_application_totals_pinning'
         cls._report_path = '{}.report'.format(test_name)
         cls._trace_path = '{}.trace'.format(test_name)
         cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
