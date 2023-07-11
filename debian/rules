@@ -29,7 +29,7 @@ override_dh_auto_configure:
           --disable-mpi
 
 override_dh_auto_test:
-	# make check
+	# make check # TODO Fix issue #2999
 
 override_dh_auto_clean:
 	if [ -e Makefile ]; then make clean; fi

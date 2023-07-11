@@ -20,7 +20,7 @@ override_dh_auto_configure:
           --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_test:
-	# make check
+	# make check # TODO Fix issue #2999
 
 override_dh_auto_build:
 	make
