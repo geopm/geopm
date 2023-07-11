@@ -18,14 +18,8 @@ import geopmpy.agent
 from integration.test import geopm_test_launcher
 
 
-# This skip decorator "False" is required to prevent this test from being run in the nightlies.
-# This test always fails under normal operation, and we want to prevent this test from running
-# during the nightlies, because any single failed test would fail the nightlies, and we don't
-# want that. While a fix is pending, the expectedFailure decorator is used to assert the test
-# fails as expected.
 @unittest.skipUnless(geopm_test_launcher.detect_launcher() == "srun",
                      'Using srun --cpu-bind command line option in this test')
-@unittest.expectedFailure
 class TestIntegration_monitor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
