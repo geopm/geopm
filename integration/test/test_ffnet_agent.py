@@ -109,7 +109,10 @@ class TestIntegration_ffnet(unittest.TestCas):
                 raw_region = self._report.raw_region(host_name=host,
                                                      region_name=region_name)
                 if (region_name in expected_freqs.keys()):
-                    #TODO: Figure out how to get freq from this object
+                    msg = region_name + ": frequency should be near assigned map frequency"
+                    actual = raw_region['frequency (Hz)']
+                    expect = expected_freqs[region_name]
+                    util.assertNear(self, expect, actual, msg=msg)
 
 
 #TODO [stretch]: Run geopmbench on pkg0 with dgemm/sleep, geopmbench on pkg1 with stream
