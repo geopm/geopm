@@ -120,6 +120,7 @@ service/docs/source/geopm_agent_ffnet.7.rst
 service/docs/source/geopm_agent_frequency_map.7.rst
 service/docs/source/geopm_agent_gpu_activity.7.rst
 service/docs/source/geopm_agent_monitor.7.rst
+service/docs/source/geopm_agent_node_power_governor.7.rst
 service/docs/source/geopm_agent_power_balancer.7.rst
 service/docs/source/geopm_agent_power_governor.7.rst
 service/docs/source/geopmbench.1.rst
@@ -142,6 +143,7 @@ service/docs/source/GEOPM_CXX_MAN_MonitorAgent.3.rst
 service/docs/source/GEOPM_CXX_MAN_MPIComm.3.rst
 service/docs/source/GEOPM_CXX_MAN_MSRIO.3.rst
 service/docs/source/GEOPM_CXX_MAN_MSRIOGroup.3.rst
+service/docs/source/GEOPM_CXX_MAN_NodePowerGovernorAgent.3.rst
 service/docs/source/GEOPM_CXX_MAN_PlatformIO.3.rst
 service/docs/source/GEOPM_CXX_MAN_PlatformTopo.3.rst
 service/docs/source/GEOPM_CXX_MAN_PluginFactory.3.rst

@@ -214,6 +214,15 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
+              test/gtest_links/NodePowerGovernorAgentTest.adjust_platform \
+              test/gtest_links/NodePowerGovernorAgentTest.agent_unsupported \
+              test/gtest_links/NodePowerGovernorAgentTest.aggregate_sample \
+              test/gtest_links/NodePowerGovernorAgentTest.enforce_policy \
+              test/gtest_links/NodePowerGovernorAgentTest.split_policy \
+              test/gtest_links/NodePowerGovernorAgentTest.sample_platform \
+              test/gtest_links/NodePowerGovernorAgentTest.trace \
+              test/gtest_links/NodePowerGovernorAgentTest.validate_policy \
+              test/gtest_links/NodePowerGovernorAgentTest.wait \
               test/gtest_links/OptionParserTest.get_invalid \
               test/gtest_links/OptionParserTest.parse_errors \
               test/gtest_links/OptionParserTest.add_option_errors \
@@ -521,6 +530,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockWaiter.hpp \
                           test/ModelApplicationTest.cpp \
                           test/MonitorAgentTest.cpp \
+                          test/NodePowerGovernorAgentTest.cpp \
                           test/OptionParserTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
