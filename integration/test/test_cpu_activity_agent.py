@@ -31,6 +31,7 @@ from apps.arithmetic_intensity import arithmetic_intensity
 from apps.minife import minife
 
 @util.skip_unless_config_enable('beta')
+@unittest.skip('Disabled pending resolution of issue #3015.')
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_avx2")
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_avx512")
