@@ -98,7 +98,7 @@ namespace geopm
                     , units(units)
                     , description(description)
                     , behavior(behavior)
-                    , agg_function(agg_function)
+                    , agg_function(std::move(agg_function))
                 {
                 }
                 uint32_t request_data;
@@ -149,7 +149,7 @@ namespace geopm
                     , end_bit(end_bit)
                     , units(units)
                     , description(description)
-                    , agg_function(agg_function)
+                    , agg_function(std::move(agg_function))
                 {
                 }
                 uint32_t write_data;
@@ -206,7 +206,7 @@ namespace geopm
                     , multiplier(multiplier)
                     , units(units)
                     , description(description)
-                    , agg_function(agg_function)
+                    , agg_function(std::move(agg_function))
                 {
                 }
                 uint32_t begin_bit;
@@ -261,7 +261,7 @@ namespace geopm
                     , units(units)
                     , description(description)
                     , behavior(behavior)
-                    , agg_function(agg_function)
+                    , agg_function(std::move(agg_function))
                 {
                 }
                 uint32_t write_value;

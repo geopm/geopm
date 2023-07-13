@@ -47,7 +47,7 @@ namespace geopm
     {
         if (m_level_ctl.size() == 0) {
             std::shared_ptr<Comm> comm_cart = comm->split_cart(m_fan_out);
-            m_level_ctl = init_level(comm_cart, m_root_level);
+            m_level_ctl = init_level(std::move(comm_cart), m_root_level);
         }
 #ifdef GEOPM_DEBUG
         if (m_num_level_ctl > m_root_level) {
@@ -78,8 +78,8 @@ namespace geopm
         std::vector<std::shared_ptr<TreeCommLevel> > result;
         int rank_cart = comm_cart->rank();
         std::vector<int> coords = comm_cart->coordinate(rank_cart);
-        m_num_level_ctl = num_level_controlled(coords);
         std::vector<int> parent_coords = coords;
+        m_num_level_ctl = num_level_controlled(std::move(coords));
         int level = 0;
         m_max_level = m_num_level_ctl;
         if (m_num_level_ctl != root_level) {

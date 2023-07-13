@@ -64,7 +64,7 @@ namespace geopm
 
         try {
             if (eptr) {
-                std::rethrow_exception(eptr);
+                std::rethrow_exception(std::move(eptr));
             }
         }
         catch (const std::exception &ex) {

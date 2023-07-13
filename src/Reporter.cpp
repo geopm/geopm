@@ -74,8 +74,8 @@ namespace geopm
         , m_report_name(report_name)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
-        , m_sample_agg(sample_agg)
-        , m_proc_region_agg(proc_agg)
+        , m_sample_agg(std::move(sample_agg))
+        , m_proc_region_agg(std::move(proc_agg))
         , m_env_signals(env_signals)
         , m_policy_path(policy_path)
         , m_do_endpoint(do_endpoint)
@@ -165,7 +165,7 @@ namespace geopm
                                                 tree_comm.overhead_send(),
                                                 agent_host_report,
                                                 agent_region_report);
-        std::string full_report = gather_report(host_report, comm);
+        std::string full_report = gather_report(host_report, std::move(comm));
 
         if (!rank) {
             common_report << full_report;

@@ -44,7 +44,7 @@ namespace geopm
     std::set<uint64_t> ApplicationSampler::region_hash_network(void)
     {
         static std::set <uint64_t> result = region_hash_network_once();
-        return result;
+        return std::move(result);
     }
 
     std::set<uint64_t> ApplicationSampler::region_hash_network_once(void)
@@ -116,7 +116,7 @@ namespace geopm
                                                  const std::string &profile_name,
                                                  const std::map<int, std::set<int> > &client_cpu_map,
                                                  std::shared_ptr<Scheduler> scheduler)
-        : m_status(status)
+        : m_status(std::move(status))
         , m_topo(platform_topo)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_process_map(process_map)
@@ -130,7 +130,7 @@ namespace geopm
         , m_do_profile(do_profile)
         , m_profile_name(profile_name)
         , m_client_cpu_map(client_cpu_map)
-        , m_scheduler(scheduler)
+        , m_scheduler(std::move(scheduler))
         , m_do_shutdown(false)
         , m_last_stop({})
         , m_total_time(0.0)
@@ -359,7 +359,7 @@ namespace geopm
                 process.filter = RecordFilter::make_unique(m_filter_name);
             }
             process.record_log_shmem = record_log_shmem;
-            process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
+            process.record_log = ApplicationRecordLog::make_unique(std::move(record_log_shmem));
             process.records.reserve(ApplicationRecordLog::max_record());
             process.short_regions.reserve(ApplicationRecordLog::max_region());
         }
@@ -375,7 +375,7 @@ namespace geopm
             throw Exception("ApplicationSamplerImp::connect(): Status shared memory buffer is incorrectly sized",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_status = ApplicationStatus::make_unique(m_num_cpu, status_shmem);
+        m_status = ApplicationStatus::make_unique(m_num_cpu, std::move(status_shmem));
     }
 
     void ApplicationSamplerImp::update_cpu_active(void)

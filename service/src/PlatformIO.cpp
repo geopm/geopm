@@ -234,7 +234,7 @@ namespace geopm
         : m_is_signal_active(false)
         , m_is_control_active(false)
         , m_platform_topo(topo)
-        , m_iogroup_list(iogroup_list)
+        , m_iogroup_list(std::move(iogroup_list))
         , m_do_restore(false)
     {
         if (m_iogroup_list.empty()) {
@@ -384,7 +384,7 @@ namespace geopm
         }
         auto agg_func = iogroups.at(0)->agg_function(control_name);
         bool result = true;
-        if (Agg::function_to_type(agg_func) == Agg::M_SUM) {
+        if (Agg::function_to_type(std::move(agg_func)) == Agg::M_SUM) {
             result = false;
         }
         return result;
@@ -982,7 +982,7 @@ namespace geopm
             throw Exception("PlatformIOImp::start_batch_server(): Created a server with PID of existing server: " + std::to_string(server_pid),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        m_batch_server[server_pid] = batch_server;
+        m_batch_server[server_pid] = std::move(batch_server);
     }
 
     void PlatformIOImp::stop_batch_server(int server_pid)
@@ -1328,9 +1328,9 @@ extern "C" {
         int err = 0;
         try {
             auto agg_func = geopm::platform_io().agg_function(signal_name);
-            *aggregation_type = geopm::Agg::function_to_type(agg_func);
+            *aggregation_type = geopm::Agg::function_to_type(std::move(agg_func));
             auto format_func = geopm::platform_io().format_function(signal_name);
-            *format_type = geopm::string_format_function_to_type(format_func);
+            *format_type = geopm::string_format_function_to_type(std::move(format_func));
             *behavior_type = geopm::platform_io().signal_behavior(signal_name);
         }
         catch (...) {

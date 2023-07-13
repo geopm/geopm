@@ -242,13 +242,13 @@ namespace geopm
 
     SSTIOGroup::SSTIOGroup(const PlatformTopo &topo, std::shared_ptr<SSTIO> sstio, std::shared_ptr<SaveControl> save_control)
         : m_topo(topo)
-        , m_sstio(sstio)
+        , m_sstio(std::move(sstio))
         , m_is_read(false)
         , m_signal_available()
         , m_control_available()
         , m_signal_pushed()
         , m_control_pushed()
-        , m_mock_save_ctl(save_control)
+        , m_mock_save_ctl(std::move(save_control))
     {
         if (m_sstio == nullptr) {
             m_sstio = SSTIO::make_shared(m_topo.num_domain(GEOPM_DOMAIN_CPU));

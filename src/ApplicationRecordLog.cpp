@@ -40,7 +40,7 @@ namespace geopm
     }
 
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem)
-        : ApplicationRecordLogImp(shmem, getpid(), Scheduler::make_unique())
+        : ApplicationRecordLogImp(std::move(shmem), getpid(), Scheduler::make_unique())
     {
     }
 
@@ -48,10 +48,10 @@ namespace geopm
                                                      int process,
                                                      std::shared_ptr<Scheduler> scheduler)
         : m_process(process)
-        , m_shmem(shmem)
+        , m_shmem(std::move(shmem))
         , m_epoch_count(0)
         , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
-        , m_scheduler(scheduler)
+        , m_scheduler(std::move(scheduler))
     {
         if (m_shmem->size() < buffer_size()) {
             throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",

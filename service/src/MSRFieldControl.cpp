@@ -21,7 +21,7 @@ namespace geopm
                                      int end_bit,
                                      int function,
                                      double scalar)
-        : m_msrio(msrio)
+        : m_msrio(std::move(msrio))
         , m_save_restore_ctx(save_restore_ctx)
         , m_cpu(cpu)
         , m_offset(offset)

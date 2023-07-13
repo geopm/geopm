@@ -139,7 +139,7 @@ namespace geopm
         , m_pmc_bit_width(get_pmc_bit_width())
         , m_derivative_window(8)
         , m_sleep_time(0.005)  // 5000 us
-        , m_mock_save_ctl(save_control)
+        , m_mock_save_ctl(std::move(save_control))
     {
         // Load available signals and controls from files
         parse_json_msrs(arch_msr_json());
@@ -342,7 +342,7 @@ namespace geopm
                     auto sub = readings[domain_idx];
                     result[domain_idx] = std::make_shared<DifferenceSignal>(max, sub);
                 }
-                m_signal_available[signal_name] = {result,
+                m_signal_available[signal_name] = {std::move(result),
                                                    read_domain,
                                                    IOGroup::M_UNITS_CELSIUS,
                                                    agg_function(msr_name),
@@ -407,7 +407,7 @@ namespace geopm
                                                            m_derivative_window,
                                                            m_sleep_time);
                 }
-                m_signal_available[signal_name] = {result,
+                m_signal_available[signal_name] = {std::move(result),
                                                    energy_domain,
                                                    IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
@@ -492,7 +492,7 @@ namespace geopm
                 // Store the PCNT_RATE and ACNT_RATE in a data structure that is not
                 // m_signal_available so that the end user is not exposed to intermediary
                 // signals
-                signal_hidden[signal_name] = {result,
+                signal_hidden[signal_name] = {std::move(result),
                                               cnt_domain,
                                               IOGroup::M_UNITS_HERTZ,
                                               Agg::average,
@@ -529,7 +529,7 @@ namespace geopm
                 }
             }
 
-            m_signal_available[signal_name] = {result,
+            m_signal_available[signal_name] = {std::move(result),
                                                cnt_domain,
                                                IOGroup::M_UNITS_NONE,
                                                Agg::average,
@@ -572,7 +572,7 @@ namespace geopm
                 result[domain_idx] =
                     std::make_shared<MultiplicationSignal>(ctr, (double)m_rdt_info.mbm_scalar);
             }
-            m_signal_available[signal_name] = {result,
+            m_signal_available[signal_name] = {std::move(result),
                                                ctr_domain,
                                                IOGroup::M_UNITS_NONE,
                                                agg_function(msr_name),
@@ -610,7 +610,7 @@ namespace geopm
                                                        m_derivative_window,
                                                        m_sleep_time);
             }
-            m_signal_available[signal_name] = {result,
+            m_signal_available[signal_name] = {std::move(result),
                                                ctr_domain,
                                                IOGroup::M_UNITS_NONE,
                                                agg_function(msr_name),

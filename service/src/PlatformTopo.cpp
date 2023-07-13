@@ -133,7 +133,7 @@ namespace geopm
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name,
                                      std::shared_ptr<ServiceProxy> service_proxy)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
-        , m_service_proxy(service_proxy)
+        , m_service_proxy(std::move(service_proxy))
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);

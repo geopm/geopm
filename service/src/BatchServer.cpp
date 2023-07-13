@@ -117,13 +117,14 @@ namespace geopm
                                BatchServer::get_control_shmem_key(
                                   m_server_key))
         , m_pio(pio)
-        , m_signal_shmem(signal_shmem)
-        , m_control_shmem(control_shmem)
+        , m_signal_shmem(std::move(signal_shmem))
+        , m_control_shmem(std::move(control_shmem))
         , m_batch_status(batch_status != nullptr ?
-                         batch_status : BatchStatus::make_unique_server(m_client_pid,
-                                                                        m_server_key))
+                         std::move(batch_status) :
+                         BatchStatus::make_unique_server(m_client_pid, m_server_key))
         , m_posix_signal(posix_signal != nullptr ?
-                         posix_signal : POSIXSignal::make_unique())
+                         std::move(posix_signal) :
+                         POSIXSignal::make_unique())
         , m_server_pid(server_pid)
         , m_is_active(true)
         , m_is_client_attached(false)

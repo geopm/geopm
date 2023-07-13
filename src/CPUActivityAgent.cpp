@@ -45,7 +45,7 @@ namespace geopm
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , m_do_write_batch(false)
         , m_do_send_policy(true)
-        , m_freq_governor(gov)
+        , m_freq_governor(std::move(gov))
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_core_batch_writes(0)
@@ -55,7 +55,7 @@ namespace geopm
         , m_resolved_f_uncore_max(0)
         , m_resolved_f_core_efficient(0)
         , m_resolved_f_core_max(0)
-        , m_waiter(waiter)
+        , m_waiter(std::move(waiter))
     {
 
     }

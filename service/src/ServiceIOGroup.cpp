@@ -36,10 +36,10 @@ namespace geopm
                                    std::shared_ptr<ServiceProxy> service_proxy,
                                    std::shared_ptr<BatchClient> batch_client_mock)
         : m_platform_topo(platform_topo)
-        , m_service_proxy(service_proxy)
+        , m_service_proxy(std::move(service_proxy))
         , m_signal_info(service_signal_info(m_service_proxy))
         , m_control_info(service_control_info(m_service_proxy))
-        , m_batch_client(batch_client_mock)
+        , m_batch_client(std::move(batch_client_mock))
         , m_session_pid(-1)
         , m_is_batch_active(false)
     {

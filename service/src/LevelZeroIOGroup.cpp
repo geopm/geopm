@@ -566,7 +566,7 @@ namespace geopm
         })
         , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
         , m_perf_factor(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), 0.5)
-        , m_mock_save_ctl(save_control_test)
+        , m_mock_save_ctl(std::move(save_control_test))
     {
         std::vector <std::string> unsupported_signal_names;
         // populate signals for each domain
@@ -591,7 +591,7 @@ namespace geopm
                     break;
                 }
             }
-            sv.second.m_signals = result;
+            sv.second.m_signals = std::move(result);
         }
 
         for (const auto &name : unsupported_signal_names) {
@@ -632,7 +632,7 @@ namespace geopm
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
                 result.push_back(ctrl);
             }
-            sv.second.m_controls = result;
+            sv.second.m_controls = std::move(result);
         }
 
         // Cache the initial min and max frequencies
@@ -714,7 +714,7 @@ namespace geopm
                                                 ds.second.m_agg_function,
                                                 ds.second.m_behavior,
                                                 format_function(ds.second.m_base_name),
-                                                result,
+                                                std::move(result),
                                                 nullptr,
                                                 1};
 

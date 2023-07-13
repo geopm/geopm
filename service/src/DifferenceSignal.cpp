@@ -15,8 +15,8 @@ namespace geopm
 {
     DifferenceSignal::DifferenceSignal(std::shared_ptr<Signal> minuend,
                                        std::shared_ptr<Signal> subtrahend)
-        : m_minuend(minuend)
-        , m_subtrahend(subtrahend)
+        : m_minuend(std::move(minuend))
+        , m_subtrahend(std::move(subtrahend))
         , m_is_batch_ready(false)
     {
         GEOPM_DEBUG_ASSERT(m_minuend && m_subtrahend,

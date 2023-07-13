@@ -46,7 +46,7 @@ namespace geopm
         , M_NUM_CHIP_PER_GPU(M_NUM_GPU_CHIP / M_NUM_GPU)
         , m_do_write_batch(false)
         , m_do_send_policy(true)
-        , m_waiter(waiter)
+        , m_waiter(std::move(waiter))
     {
 
     }

@@ -25,7 +25,7 @@ namespace geopm
 
     MonitorAgent::MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                std::shared_ptr<Waiter> waiter)
-        : m_waiter(waiter)
+        : m_waiter(std::move(waiter))
     {
 
     }

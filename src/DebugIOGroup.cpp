@@ -15,7 +15,7 @@ namespace geopm
     DebugIOGroup::DebugIOGroup(const PlatformTopo &topo,
                                std::shared_ptr<std::vector<double> > value_cache)
         : m_topo(topo)
-        , m_value_cache(value_cache)
+        , m_value_cache(std::move(value_cache))
         , m_num_reg_signals(0)
     {
         if (m_value_cache == nullptr) {

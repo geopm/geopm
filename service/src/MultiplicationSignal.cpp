@@ -14,8 +14,8 @@
 namespace geopm
 {
     MultiplicationSignal::MultiplicationSignal(std::shared_ptr<Signal> multiplier,
-                                   double multiplicand)
-        : m_multiplier(multiplier)
+                                               double multiplicand)
+        : m_multiplier(std::move(multiplier))
         , m_multiplicand(multiplicand)
         , m_is_batch_ready(false)
     {

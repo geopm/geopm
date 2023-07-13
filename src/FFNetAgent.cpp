@@ -70,7 +70,7 @@ namespace geopm
         : m_platform_io(plat_io)
           , m_do_write_batch(false)
           , m_perf_energy_bias(0)
-          , m_waiter(waiter)
+          , m_waiter(std::move(waiter))
     {
         init_domain_indices(topo);
 

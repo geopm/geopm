@@ -18,7 +18,7 @@ namespace geopm
     RawMSRSignal::RawMSRSignal(std::shared_ptr<MSRIO> msrio,
                                int cpu,
                                uint64_t offset)
-        : m_msrio(msrio)
+        : m_msrio(std::move(msrio))
         , m_cpu(cpu)
         , m_offset(offset)
         , m_data_idx(-1)

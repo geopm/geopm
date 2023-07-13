@@ -33,8 +33,8 @@ namespace geopm
 
     DaemonImp::DaemonImp(std::shared_ptr<Endpoint> endpoint,
                          std::shared_ptr<const PolicyStore> policystore)
-        : m_endpoint(endpoint)
-        , m_policystore(policystore)
+        : m_endpoint(std::move(endpoint))
+        , m_policystore(std::move(policystore))
     {
         m_endpoint->open();
     }

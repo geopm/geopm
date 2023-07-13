@@ -30,7 +30,7 @@ namespace geopm
     }
 
     SSTIOImp::SSTIOImp(uint32_t max_cpus, std::shared_ptr<SSTIoctl> ioctl_interface)
-        : m_ioctl(ioctl_interface)
+        : m_ioctl(std::move(ioctl_interface))
         , m_batch_command_limit(0)
     {
         sst_version_s sst_version;

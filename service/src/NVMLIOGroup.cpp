@@ -235,7 +235,7 @@ namespace geopm
                                     string_format_double
                                     }}
                               })
-        , m_mock_save_ctl(save_control_test)
+        , m_mock_save_ctl(std::move(save_control_test))
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -244,7 +244,7 @@ namespace geopm
                 std::shared_ptr<signal_s> sgnl = std::make_shared<signal_s>(signal_s{0, false});
                 result.push_back(sgnl);
             }
-            sv.second.signals = result;
+            sv.second.signals = std::move(result);
         }
 
         // Setup FREQUENCY MINIMUM_AVAIL and MAXIMUM_AVAIL signals
@@ -318,7 +318,7 @@ namespace geopm
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
                 result.push_back(ctrl);
             }
-            sv.second.controls = result;
+            sv.second.controls = std::move(result);
         }
 
         // Only a user with elevated privileges will be able to control
@@ -692,7 +692,7 @@ namespace geopm
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
             std::map<pid_t, double> process_map = gpu_process_map();
-            result = cpu_gpu_affinity(domain_idx, process_map);
+            result = cpu_gpu_affinity(domain_idx, std::move(process_map));
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
             result = m_frequency_max_control_request.at(domain_idx);

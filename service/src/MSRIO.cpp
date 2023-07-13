@@ -46,7 +46,7 @@ namespace geopm
         , m_file_desc(m_num_cpu + 1, -1) // Last file descriptor is for the batch file
         , m_is_batch_enabled(true)
         , m_is_open(false)
-        , m_path(path)
+        , m_path(std::move(path))
     {
         create_batch_context();
         open_all();

@@ -22,7 +22,7 @@ namespace geopm
     }
 
     CombinedSignal::CombinedSignal(std::function<double(const std::vector<double> &)> func)
-        : m_agg_function(func)
+        : m_agg_function(std::move(func))
     {
 
     }
