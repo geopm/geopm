@@ -32,7 +32,7 @@ namespace geopm
     ApplicationStatusImp::ApplicationStatusImp(int num_cpu,
                                                std::shared_ptr<SharedMemory> shmem)
         : m_num_cpu(num_cpu)
-        , m_shmem(shmem)
+        , m_shmem(std::move(shmem))
     {
         if (m_shmem == nullptr) {
             throw Exception("ApplicationStatus: shared memory pointer cannot be null",

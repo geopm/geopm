@@ -72,15 +72,15 @@ namespace geopm
         , m_curr_region_id(0)
         , m_current_hash(GEOPM_REGION_HASH_UNMARKED)
         , m_num_cpu(num_cpu)
-        , m_cpu_set(cpu_set)
-        , m_app_status(app_status)
-        , m_app_record_log(app_record_log)
+        , m_cpu_set(std::move(cpu_set))
+        , m_app_status(std::move(app_status))
+        , m_app_record_log(std::move(app_record_log))
         , m_overhead_time(0.0)
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
         , m_do_profile(do_profile)
-        , m_service_proxy(service_proxy)
-        , m_scheduler(scheduler)
+        , m_service_proxy(std::move(service_proxy))
+        , m_scheduler(std::move(scheduler))
         , m_pid_registered(pid_registered)
     {
         if (!m_do_profile) {
@@ -155,7 +155,7 @@ namespace geopm
         if (m_pid_registered != M_PID_TEST) {
             std::string shmem_path = shmem_path_prof("status", getpid(), geteuid());
             std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
-            m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
+            m_app_status = ApplicationStatus::make_unique(m_num_cpu, std::move(shmem));
         }
         GEOPM_DEBUG_ASSERT(m_app_status != nullptr,
                            "Profile::init_app_status(): m_app_status not initialized");
@@ -167,7 +167,7 @@ namespace geopm
         if (m_pid_registered != M_PID_TEST) {
             std::string shmem_path = shmem_path_prof("record-log", getpid(), geteuid());
             std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
-            m_app_record_log = ApplicationRecordLog::make_unique(shmem);
+            m_app_record_log = ApplicationRecordLog::make_unique(std::move(shmem));
         }
         m_app_record_log->start_profile(geopm::time_zero(), m_prof_name);
     }

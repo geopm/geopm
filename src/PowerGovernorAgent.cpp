@@ -53,7 +53,7 @@ namespace geopm
         , m_ascend_period(10)
         , m_min_num_converged(15)
         , m_adjusted_power(0.0)
-        , m_waiter(waiter)
+        , m_waiter(std::move(waiter))
     {
 
     }

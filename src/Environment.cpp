@@ -108,7 +108,7 @@ namespace geopm
         parse_environment();
         if (have_default_endpoint && !is_set("GEOPM_ENDPOINT") && !is_set("GEOPM_POLICY")) {
             // restore default endpoint only if user did not pass GEOPM_POLICY
-            m_name_value_map["GEOPM_ENDPOINT"] = default_endpoint;
+            m_name_value_map["GEOPM_ENDPOINT"] = std::move(default_endpoint);
         }
         parse_environment_file(m_override_config_path, m_all_names, m_user_defined_names, m_name_value_map);
     }
@@ -143,7 +143,7 @@ namespace geopm
         for (const auto &env_var : m_all_names) {
             std::string value;
             if(get_env(env_var, value)) {
-                m_name_value_map[env_var] = value;
+                m_name_value_map[env_var] = std::move(value);
                 m_user_defined_names.insert(env_var);
             }
         }
@@ -191,7 +191,7 @@ namespace geopm
                               << "\" with value <"  << user_value << ">"
                               << " has been overridden with value <"  << override_value << ">" << std::endl;
                 }
-                name_value_map[var_name] = override_value;
+                name_value_map[var_name] = std::move(override_value);
             }
         }
     }

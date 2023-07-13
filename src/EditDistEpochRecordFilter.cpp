@@ -125,7 +125,7 @@ namespace geopm
                                                          int min_detectable_period,
                                                          double stable_period_hysteresis,
                                                          double unstable_period_hysteresis)
-        : m_edpd(edpd)
+        : m_edpd(std::move(edpd))
         , m_min_hysteresis_base_period(min_hysteresis_base_period)
         , m_min_detectable_period(min_detectable_period)
         , m_stable_period_hysteresis(stable_period_hysteresis)

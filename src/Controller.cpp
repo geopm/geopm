@@ -133,7 +133,8 @@ namespace geopm
     static std::string get_start_time()
     {
         static bool once = true;
-        static std::string ret;
+        static std::string cache;
+        std::string ret = cache;
 
         if (once) {
             const int buf_size = 64;
@@ -141,7 +142,8 @@ namespace geopm
             geopm_time_string(buf_size, time_buff);
             std::string tmp(time_buff);
             tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
-            ret = tmp;
+            cache = tmp;
+            ret = std::move(tmp);
             once = false;
         }
         return ret;
@@ -207,7 +209,7 @@ namespace geopm
                            bool do_endpoint,
                            std::shared_ptr<InitControl> init_control,
                            bool do_init_control)
-        : m_comm(comm)
+        : m_comm(std::move(comm))
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
         , m_num_send_down(num_send_down)
@@ -232,7 +234,7 @@ namespace geopm
         , m_endpoint(std::move(endpoint))
         , m_do_endpoint(do_endpoint)
         , m_do_policy(do_policy)
-        , m_init_control(init_control)
+        , m_init_control(std::move(init_control))
         , m_do_init_control(do_init_control)
     {
         if (m_num_send_down > 0 && !(m_do_policy || m_do_endpoint)) {

@@ -29,7 +29,7 @@ namespace geopm
     }
 
     ServiceProxyImp::ServiceProxyImp(std::shared_ptr<SDBus> bus)
-        : m_bus(bus)
+        : m_bus(std::move(bus))
     {
 
     }
@@ -53,7 +53,7 @@ namespace geopm
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->make_call_message("PlatformGetSignalInfo");
         bus_message->append_strings(signal_names);
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(std::move(bus_message));
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(ssiiii)");
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "ssiiii");
         while (bus_reply->was_success()) {
@@ -64,7 +64,7 @@ namespace geopm
             int string_format = bus_reply->read_integer();
             int behavior = bus_reply->read_integer();
             bus_reply->exit_container();
-            result.push_back({name, description, domain, aggregation,
+            result.push_back({std::move(name), std::move(description), domain, aggregation,
                               string_format, behavior});
             bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "ssiiii");
         }
@@ -79,7 +79,7 @@ namespace geopm
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->make_call_message("PlatformGetControlInfo");
         bus_message->append_strings(control_names);
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(std::move(bus_message));
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(ssi)");
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "ssi");
         while (bus_reply->was_success()) {
@@ -87,7 +87,7 @@ namespace geopm
             std::string description = bus_reply->read_string();
             int domain = bus_reply->read_integer();
             bus_reply->exit_container();
-            result.push_back({name, description, domain});
+            result.push_back({std::move(name), std::move(description), domain});
             bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "ssi");
         }
         bus_reply->exit_container();
@@ -122,7 +122,7 @@ namespace geopm
         }
         bus_message->close_container();
 
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(std::move(bus_message));
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is");
         server_pid = bus_reply->read_integer();
         server_key = bus_reply->read_string();
@@ -173,7 +173,7 @@ namespace geopm
     {
         std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStopProfile");
         bus_message->append_strings(region_names);
-        (void)m_bus->call_method(bus_message);
+        (void)m_bus->call_method(std::move(bus_message));
     }
 
     std::vector<int> ServiceProxyImp::platform_get_profile_pids(const std::string &profile_name)
@@ -195,7 +195,7 @@ namespace geopm
     {
         std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformPopProfileRegionNames",
                                                                      profile_name);
-        return read_string_array(bus_reply);
+        return read_string_array(std::move(bus_reply));
     }
 
     std::vector<std::string> ServiceProxyImp::read_string_array(

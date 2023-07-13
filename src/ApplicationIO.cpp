@@ -38,7 +38,7 @@ namespace geopm
                                        int num_proc,
                                        int ctl_mode)
         : m_is_connected(false)
-        , m_service_proxy(service_proxy)
+        , m_service_proxy(std::move(service_proxy))
         , m_profile_name(profile_name)
         , m_report_name(report_name)
         , m_timeout(timeout)

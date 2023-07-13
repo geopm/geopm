@@ -19,8 +19,8 @@ namespace geopm
                                        std::shared_ptr<Signal> y_sig,
                                        int num_sample_history,
                                        double sleep_time)
-        : m_time_sig(time_sig)
-        , m_y_sig(y_sig)
+        : m_time_sig(std::move(time_sig))
+        , m_y_sig(std::move(y_sig))
         , M_NUM_SAMPLE_HISTORY(num_sample_history)
         , m_history(M_NUM_SAMPLE_HISTORY)
         , m_derivative_num_fit(0)

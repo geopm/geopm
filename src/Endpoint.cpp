@@ -53,8 +53,8 @@ namespace geopm
                              size_t num_policy,
                              size_t num_sample)
         : m_path(path)
-        , m_policy_shmem(policy_shmem)
-        , m_sample_shmem(sample_shmem)
+        , m_policy_shmem(std::move(policy_shmem))
+        , m_sample_shmem(std::move(sample_shmem))
         , m_num_policy(num_policy)
         , m_num_sample(num_sample)
         , m_is_open(false)

@@ -55,7 +55,7 @@ namespace geopm
         if (num_op) {
             size_t mid_idx = num_op / 2;
             bool is_even = ((num_op % 2) == 0);
-            std::vector<double> operand_sorted(filtered);
+            std::vector<double> operand_sorted(std::move(filtered));
             std::sort(operand_sorted.begin(), operand_sorted.end());
             result = operand_sorted[mid_idx];
             if (is_even) {

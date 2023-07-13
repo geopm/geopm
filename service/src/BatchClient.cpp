@@ -51,9 +51,9 @@ namespace geopm
                                    std::shared_ptr<SharedMemory> control_shmem)
         : m_num_signal(num_signal)
         , m_num_control(num_control)
-        , m_batch_status(batch_status)
-        , m_signal_shmem(signal_shmem)
-        , m_control_shmem(control_shmem)
+        , m_batch_status(std::move(batch_status))
+        , m_signal_shmem(std::move(signal_shmem))
+        , m_control_shmem(std::move(control_shmem))
     {
 
     }

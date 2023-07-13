@@ -38,7 +38,7 @@ namespace geopm
             }
         }
 
-        m_layers = layers;
+        m_layers = std::move(layers);
     }
 
     TensorOneD LocalNeuralNetImp::forward(const TensorOneD &inp) const

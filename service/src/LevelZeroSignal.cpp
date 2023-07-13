@@ -14,7 +14,7 @@ namespace geopm
 {
     LevelZeroSignal::LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
                                      unsigned int domain_idx, double scalar)
-        : m_devpool_func(devpool_func)
+      : m_devpool_func(std::move(devpool_func))
         , m_domain_idx(domain_idx)
         , m_scalar(scalar)
         , m_is_batch_ready(false)

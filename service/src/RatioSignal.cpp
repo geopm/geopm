@@ -18,8 +18,8 @@ namespace geopm
 {
     RatioSignal::RatioSignal(std::shared_ptr<Signal> numerator,
                              std::shared_ptr<Signal> denominator)
-        : m_numerator(numerator)
-        , m_denominator(denominator)
+        : m_numerator(std::move(numerator))
+        , m_denominator(std::move(denominator))
         , m_is_batch_ready(false)
     {
         GEOPM_DEBUG_ASSERT(m_numerator && m_denominator,

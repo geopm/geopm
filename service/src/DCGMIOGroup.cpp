@@ -102,7 +102,7 @@ namespace geopm
                 std::shared_ptr<signal_s> sgnl = std::make_shared<signal_s>(signal_s{0, false});
                 result.push_back(sgnl);
             }
-            sv.second.m_signals = result;
+            sv.second.m_signals = std::move(result);
         }
         register_signal_alias("GPU_CORE_ACTIVITY", "DCGM::SM_ACTIVE");
         register_signal_alias("GPU_UNCORE_ACTIVITY", "DCGM::DRAM_ACTIVE");
@@ -114,7 +114,7 @@ namespace geopm
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
                 result.push_back(ctrl);
             }
-            sv.second.m_controls = result;
+            sv.second.m_controls = std::move(result);
         }
     }
 

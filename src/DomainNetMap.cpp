@@ -52,7 +52,7 @@ namespace geopm
                                      PlatformIO &plat_io,
                                      std::shared_ptr<NNFactory> nn_factory)
         : m_platform_io(plat_io)
-        , m_nn_factory(nn_factory)
+        , m_nn_factory(std::move(nn_factory))
     {
         std::ifstream file(nn_path);
 

@@ -16,7 +16,7 @@ namespace geopm
                          int cpu_idx, uint16_t command, uint16_t subcommand,
                          uint32_t subcommand_arg,      // write_value
                          uint32_t interface_parameter) // mbox_interface_param
-        : m_sstio(sstio)
+        : m_sstio(std::move(sstio))
         , m_signal_type(signal_type)
         , m_cpu_idx(cpu_idx)
         , m_command(command)

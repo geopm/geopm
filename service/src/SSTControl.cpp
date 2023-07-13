@@ -16,7 +16,7 @@ namespace geopm
                            uint32_t begin_bit, uint32_t end_bit, double scale,
                            uint32_t rmw_subcommand,
                            uint32_t rmw_interface_parameter, uint32_t rmw_read_mask)
-        : m_sstio(sstio)
+        : m_sstio(std::move(sstio))
         , m_control_type(control_type)
         , m_cpu_idx(cpu_idx)
         , m_command(command)
@@ -121,7 +121,7 @@ namespace geopm
             uint64_t dependency_write_value)
     {
         m_trigger_write_value = trigger_value;
-        m_dependency = dependency;
+        m_dependency = std::move(dependency);
         m_dependency_write_value = dependency_write_value;
     }
 }

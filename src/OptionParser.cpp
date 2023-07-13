@@ -226,7 +226,7 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
 #endif
             }
-            format_option(tmp, short_form, long_form, description);
+            format_option(tmp, short_form, long_form, std::move(description));
         }
         tmp << M_COPYRIGHT_TEXT;
         return tmp.str();

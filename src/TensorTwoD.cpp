@@ -27,7 +27,7 @@ namespace geopm
     TensorTwoD::TensorTwoD(size_t rows,
                            size_t cols,
                            std::shared_ptr<TensorMath> math)
-        : m_math(math)
+        : m_math(std::move(math))
     {
         set_dim(rows, cols);
     }
@@ -49,7 +49,7 @@ namespace geopm
 
     TensorTwoD::TensorTwoD(const std::vector<TensorOneD> &input,
                            std::shared_ptr<TensorMath> math)
-        : m_math(math)
+        : m_math(std::move(math))
     {
         set_data(input);
     }
@@ -61,7 +61,7 @@ namespace geopm
 
     TensorTwoD::TensorTwoD(const std::vector<std::vector<double> > &input,
                            std::shared_ptr<TensorMath> math)
-        : m_math(math)
+        : m_math(std::move(math))
     {
         if (input.size() == 0) {
             throw Exception("TensorTwoD::" + std::string(__func__) +

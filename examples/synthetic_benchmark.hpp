@@ -121,7 +121,7 @@ class SyntheticBenchmarkConfig
 
         void filename_static(std::string s)
         {
-            m_filename_static = s;
+            m_filename_static = std::move(s);
         }
         void num_iters(int i)
         {

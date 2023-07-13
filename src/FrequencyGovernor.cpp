@@ -145,7 +145,7 @@ namespace geopm
             frequency_actual.push_back(clamp_freq);
             m_platform_io.adjust(m_control_idx[idx], frequency_actual[idx]);
         }
-        m_last_freq = frequency_actual;
+        m_last_freq = std::move(frequency_actual);
     }
 
     bool FrequencyGovernorImp::do_write_batch(void) const

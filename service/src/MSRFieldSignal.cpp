@@ -20,7 +20,7 @@ namespace geopm
                                    int end_bit,
                                    int function,
                                    double scalar)
-        : m_raw_msr(raw_msr)
+        : m_raw_msr(std::move(raw_msr))
         , m_shift(begin_bit)
         , m_num_bit(end_bit - begin_bit + 1)
         , m_mask(((1ULL << m_num_bit) - 1) << begin_bit)
@@ -35,7 +35,7 @@ namespace geopm
         /// comes from user input files or if this interface is
         /// public. Alternatively, checks for these at the json
         /// parsing step would make these correctly logic errors.
-        GEOPM_DEBUG_ASSERT(raw_msr != nullptr,
+        GEOPM_DEBUG_ASSERT(m_raw_msr != nullptr,
                            "Signal pointer for raw_msr cannot be null");
         GEOPM_DEBUG_ASSERT(m_num_bit < 64, "64-bit fields are not supported");
         GEOPM_DEBUG_ASSERT(begin_bit <= end_bit,

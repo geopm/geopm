@@ -38,7 +38,7 @@ namespace geopm
 
     FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                          std::shared_ptr<Waiter> waiter)
-        : FrequencyMapAgent(plat_io, topo, waiter, {}, {})
+        : FrequencyMapAgent(plat_io, topo, std::move(waiter), {}, {})
     {
 
     }
@@ -74,7 +74,7 @@ namespace geopm
         , m_default_gpu_freq(NAN)
         , m_hash_freq_map(hash_freq_map)
         , m_default_freq_hash(default_freq_hash)
-        , m_waiter(waiter)
+        , m_waiter(std::move(waiter))
     {
 
     }

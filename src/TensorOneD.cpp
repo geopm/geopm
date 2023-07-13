@@ -42,7 +42,7 @@ namespace geopm
     TensorOneD::TensorOneD(const std::vector<double> &input, std::shared_ptr<TensorMath> math)
     {
         m_vec = input;
-        m_math = math;
+        m_math = std::move(math);
     }
 
     void TensorOneD::set_dim(size_t dim)

@@ -14,8 +14,8 @@ namespace geopm
 {
     TimeSignal::TimeSignal(std::shared_ptr<geopm_time_s> time_zero,
                            std::shared_ptr<double> time_batch)
-        : m_time_zero(time_zero)
-        , m_time_batch(time_batch)
+        : m_time_zero(std::move(time_zero))
+        , m_time_batch(std::move(time_batch))
         , m_is_batch_ready(false)
     {
 

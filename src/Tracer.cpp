@@ -135,7 +135,7 @@ namespace geopm
             size_t num_col = agent_cols.size();
             for (size_t col_idx = 0; col_idx != num_col; ++col_idx) {
                 std::function<std::string(double)> format = col_formats.size() ? col_formats.at(col_idx) : string_format_double;
-                m_csv->add_column(agent_cols.at(col_idx), format);
+                m_csv->add_column(agent_cols.at(col_idx), std::move(format));
             }
             m_csv->activate();
             m_last_telemetry.resize(base_columns.size() + num_col);
