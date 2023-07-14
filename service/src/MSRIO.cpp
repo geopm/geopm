@@ -19,6 +19,7 @@
 #include "geopm_debug.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "MSRPath.hpp"
 
 #define GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct geopm::MSRIOImp::m_msr_batch_array_s)
@@ -36,7 +37,7 @@ namespace geopm
     }
 
     MSRIOImp::MSRIOImp()
-        : MSRIOImp(geopm_sched_num_cpu(), std::make_shared<MSRPath>())
+        : MSRIOImp(platform_topo().num_domain(GEOPM_DOMAIN_CPU), std::make_shared<MSRPath>())
     {
 
     }
