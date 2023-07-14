@@ -301,9 +301,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         char *data_ptr = m_window_buffers.at(window_id).data() + disp;
-        std::copy((char *)send_buf, (char*)send_buf + send_size, data_ptr),
-        throw Exception("NullComm::" + std::string(__func__) + ": NullComm does not support communication",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        std::copy((char *)send_buf, (char*)send_buf + send_size, data_ptr);
     }
 
     void NullComm::tear_down(void)
