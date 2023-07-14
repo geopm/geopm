@@ -213,7 +213,7 @@ namespace geopm
         std::set<int> cpu_idx;
         switch (domain_type) {
             case GEOPM_DOMAIN_BOARD:
-                for (auto numa_cpus : m_numa_map) {
+                for (auto &numa_cpus : m_numa_map) {
                     cpu_idx.insert(numa_cpus.begin(), numa_cpus.end());
                 }
                 break;
