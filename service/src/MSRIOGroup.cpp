@@ -74,10 +74,10 @@ namespace geopm
                 platform_info_obj["offset"].string_value(), 0, 16);
             auto domain_type = PlatformTopo::domain_name_to_type(
                 platform_info_obj["domain"].string_value());
-            auto trl_mode_it =
-                platform_info_obj["fields"].object_items().find("PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE");
+            auto items = platform_info_obj["fields"].object_items();
+            auto trl_mode_it = items.find("PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE");
 
-            if (trl_mode_it != platform_info_obj.end()) {
+            if (trl_mode_it != items.end()) {
                 auto begin_bit = (int)(trl_mode_it->second["begin_bit"].number_value());
                 auto end_bit = (int)(trl_mode_it->second["end_bit"].number_value());
                 int function = MSR::string_to_function(
