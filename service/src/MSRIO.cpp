@@ -168,8 +168,9 @@ namespace geopm
     {
         m_batch_context_s &ctx = m_batch_context.at(batch_ctx);
         int result = -1;
-        auto batch_it = ctx.m_write_batch_idx_map.at(cpu_idx).find(offset);
-        if (batch_it == ctx.m_write_batch_idx_map[cpu_idx].end()) {
+        auto &context = ctx.m_write_batch_idx_map.at(cpu_idx);
+        auto batch_it = context.find(offset);
+        if (batch_it == context.end()) {
             result = ctx.m_write_batch_op.size();
             m_msr_batch_op_s wr {
                 .cpu = (uint16_t)cpu_idx,
