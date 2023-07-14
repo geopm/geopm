@@ -29,8 +29,22 @@ using geopm::PlatformIO;
 using geopm::PlatformTopo;
 
 int parse_domain_type(const std::string &dom);
+static int main_imp(int argc, char **argv);
 
 int main(int argc, char **argv)
+{
+    int err = 0;
+    try {
+        err = main_imp(argc, argv);
+    }
+    catch (const geopm::Exception &ex) {
+        std::cerr << "Error: geopmwrite: " << ex.what() << "\n\n";
+        err = ex.err_value();
+    }
+    return err;
+}
+
+static int main_imp(int argc, char **argv)
 {
     const char *usage = "\nUsage:\n"
                         "       geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE\n"
