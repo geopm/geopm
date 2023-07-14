@@ -569,8 +569,7 @@ namespace geopm
         }
         try {
             num_package = std::stoi(values[3].c_str());
-            int num_core = std::stoi(values[2].c_str()) * num_package;
-            core_per_package = num_core / num_package;
+            core_per_package = std::stoi(values[2].c_str());
             thread_per_core = std::stoi(values[1].c_str());
         }
         catch (const std::invalid_argument &ex) {
