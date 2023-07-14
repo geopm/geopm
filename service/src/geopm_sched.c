@@ -80,9 +80,9 @@ int geopm_sched_proc_cpuset_helper(int num_cpu, uint32_t *proc_cpuset, FILE *fid
                 if (num_match != 1) {
                     err = GEOPM_ERROR_RUNTIME;
                 }
-                else {
+                else if (read_idx != 0) {
                     line_ptr = strchr(line_ptr, ',');
-                    if (read_idx != 0 && line_ptr == NULL) {
+                    if (line_ptr == NULL) {
                         err = GEOPM_ERROR_RUNTIME;
                     }
                     else {
