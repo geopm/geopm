@@ -130,10 +130,10 @@ namespace geopm
     BatchStatusServer::~BatchStatusServer()
     {
         if (m_read_fd != -1) {
-            check_return(close(m_read_fd), "close(2)");
+            (void)close(m_read_fd);
         }
         if (m_write_fd != -1) {
-            check_return(close(m_write_fd), "close(2)");
+            (void)close(m_write_fd);
         }
 
         (void)unlink(m_read_fifo_path.c_str());
