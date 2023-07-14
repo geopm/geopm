@@ -551,7 +551,7 @@ namespace geopm
     void PowerBalancerAgent::ReduceLimitStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
     {
         double target = in_policy[PowerBalancerAgent::M_POLICY_MAX_EPOCH_RUNTIME];
-        for (auto balancer : role.m_power_balancer) {
+        for (auto &balancer : role.m_power_balancer) {
             balancer->target_runtime(target);
         }
     }

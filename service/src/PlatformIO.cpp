@@ -415,7 +415,7 @@ namespace geopm
         }
         std::string err_msg;
         if (result == -1) {
-            for (auto ii : find_signal_iogroup(signal_name)) {
+            for (auto &ii : find_signal_iogroup(signal_name)) {
                 if (domain_type == ii->signal_domain_type(signal_name)) {
                     bool do_push_signal = false;
                     try {
@@ -548,7 +548,7 @@ namespace geopm
         }
         std::string err_msg;
         if (result == -1) {
-            for (auto ii : find_control_iogroup(control_name)) {
+            for (auto &ii : find_control_iogroup(control_name)) {
                 if (ii->control_domain_type(control_name) == domain_type) {
                     bool do_push_control = false;
                     int val;
@@ -728,7 +728,7 @@ namespace geopm
         }
 
         std::string err_msg;
-        for (auto ii : iogroups) {
+        for (auto &ii : iogroups) {
             if (ii->signal_domain_type(signal_name) != domain_type) {
                 result = read_signal_convert_domain(signal_name, domain_type, domain_idx);
                 is_read_successful = true;
@@ -804,7 +804,7 @@ namespace geopm
 
         std::string err_msg;
         bool is_write_complete = false;
-        for (auto ii : iogroups) {
+        for (auto &ii : iogroups) {
             if (ii->control_domain_type(control_name) != domain_type) {
                 write_control_convert_domain(control_name, domain_type, domain_idx, setting);
                 is_write_complete = true;
