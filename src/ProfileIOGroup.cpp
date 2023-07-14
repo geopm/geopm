@@ -450,12 +450,10 @@ namespace geopm
         if (it != m_signal_idx_map.end()) {
             signal_type = it->second;
         }
-#ifdef GEOPM_DEBUG
         else {
             throw Exception("ProfileIOGroup::check_signal: is_valid_signal() returned true, but signal name is unknown",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-#endif
         return signal_type;
     }
 
