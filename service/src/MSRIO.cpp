@@ -263,11 +263,11 @@ namespace geopm
     void MSRIOImp::msr_ioctl(struct m_msr_batch_array_s &batch)
     {
         int err = ioctl(msr_batch_desc(), GEOPM_IOC_MSR_BATCH, &batch);
-        if (err) {
-            err = errno ? errno : err;
+        std::string err_msg = errno ? strerror(errno) : "";
+        if (err == -1) {
             std::ostringstream err_str;
             err_str << "MSRIOImp::msr_ioctl(): call to ioctl() for /dev/cpu/msr_batch failed: "
-                    << " system error: " << strerror(err);
+                    << " system error: " << err_msg;
             throw Exception(err_str.str(), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
         for (uint32_t batch_idx = 0; batch_idx != batch.numops; ++batch_idx) {
