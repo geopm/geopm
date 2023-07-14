@@ -90,6 +90,7 @@ listed below.
 
 GEOPM Options
 -------------
+
 --geopm-report path   .. _geopm-report option:
 
                       Specifies the path to the GEOPM report output file that
