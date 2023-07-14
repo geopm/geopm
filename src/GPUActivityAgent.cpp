@@ -46,6 +46,17 @@ namespace geopm
         , M_NUM_CHIP_PER_GPU(M_NUM_GPU_CHIP / M_NUM_GPU)
         , m_do_write_batch(false)
         , m_do_send_policy(true)
+        , m_agent_domain_count(0)
+        , m_agent_domain(0)
+        , m_gpu_frequency_requests(0.0)
+        , m_gpu_frequency_clipped(0.0)
+        , m_freq_gpu_min(0.0)
+        , m_freq_gpu_max(0.0)
+        , m_freq_gpu_efficient(0.0)
+        , m_resolved_f_gpu_max(0.0)
+        , m_resolved_f_gpu_efficient(0.0)
+        , m_f_range(0.0)
+        , m_time({})
         , m_waiter(std::move(waiter))
     {
 
