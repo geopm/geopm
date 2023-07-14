@@ -95,7 +95,6 @@ namespace geopm
             std::map<std::string, double> m_policy_available;
 
             double m_perf_energy_bias;
-            int m_sample;
             std::map<m_domain_key_s, std::shared_ptr<DomainNetMap> > m_net_map;
             std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > m_freq_recommender;
 
