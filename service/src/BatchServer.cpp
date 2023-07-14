@@ -8,6 +8,7 @@
 
 #include <cstdlib>
 #include <cerrno>
+#include <sstream>
 #include <limits.h>
 #include <unistd.h>
 #include <wait.h>
@@ -426,8 +427,10 @@ namespace geopm
         char msg = '\0';
         check_return(read(pipe_fd[0], &msg, 1), "read(2)");
         if (msg != BatchStatus::M_MESSAGE_CONTINUE) {
-            throw Exception("BatchServerImp: Receivied unexpected message from batch server at startup: \"" +
-                            std::to_string(msg) + "\"", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::ostringstream err_msg;
+            err_msg << "BatchServerImp: Receivied unexpected message from batch server at startup: \""
+                    << msg << "\"";
+            throw Exception(err_msg.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         check_return(close(pipe_fd[0]), "close(2)");
         return forked_pid;
