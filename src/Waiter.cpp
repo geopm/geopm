@@ -34,6 +34,7 @@ namespace geopm
 
     SleepWaiter::SleepWaiter(double period)
         : m_period(period)
+        , m_time_target({{0, 0}})
         , m_is_first_time(true)
     {
 
