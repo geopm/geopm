@@ -473,27 +473,15 @@ namespace geopm
         }
 
         if (is_file_ok == false) {
-            mode_t perms;
-            if (cache_file_name == M_SERVICE_CACHE_FILE_NAME) {
-                perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
-            }
-            else {
-                perms = S_IRUSR | S_IWUSR; // 0o600
-            }
-
             std::string tmp_string = cache_file_name + "XXXXXX";
             char tmp_path[NAME_MAX];
             tmp_path[NAME_MAX - 1] = '\0';
             strncpy(tmp_path, tmp_string.c_str(), NAME_MAX - 1);
+            mode_t orig_mask = umask(S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH);
             int tmp_fd = mkstemp(tmp_path);
+            umask(orig_mask);
             if (tmp_fd == -1) {
                 throw Exception("PlatformTopo::create_cache(): Could not create temp file: ",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            int err = fchmod(tmp_fd, perms);
-            if (err) {
-                close(tmp_fd);
-                throw Exception("PlatformTopo::create_cache(): Could not chmod tmp_path: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             close(tmp_fd);
@@ -502,7 +490,7 @@ namespace geopm
             cmd << "unset LD_PRELOAD; lscpu -x >> " << tmp_path << ";";
 
             FILE *pid;
-            err = geopm_topo_popen(cmd.str().c_str(), &pid);
+            int err = geopm_topo_popen(cmd.str().c_str(), &pid);
             if (err) {
                 unlink(cache_file_name.c_str());
                 throw Exception("PlatformTopo::create_cache(): Could not popen lscpu command: ",
@@ -688,14 +676,7 @@ namespace geopm
             return false; // file is older than last boot
         }
         else {
-            mode_t expected_perms;
-            if (file_path == M_SERVICE_CACHE_FILE_NAME) {
-                expected_perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
-            }
-            else {
-                expected_perms = S_IRUSR | S_IWUSR; // 0o600
-            }
-
+            mode_t expected_perms = S_IRUSR | S_IWUSR; // 0o600
             mode_t actual_perms = file_stat.st_mode & ~S_IFMT;
             if (expected_perms == actual_perms) {
                 return true; // file has been created since boot with the right permissions

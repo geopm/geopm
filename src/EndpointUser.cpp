@@ -6,6 +6,8 @@
 #include "EndpointUser.hpp"
 
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <fstream>
 
@@ -79,7 +81,9 @@ namespace geopm
         m_hostlist_path = hostlist_path;
         if (m_hostlist_path == "") {
             char temp_path[NAME_MAX] = "/tmp/geopm_hostlist_XXXXXX";
+            mode_t orig_mask = umask(S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH);
             int hostlist_fd = mkstemp(temp_path);
+            umask(orig_mask);
             if (hostlist_fd == -1) {
                 throw Exception("Failed to create temporary file for endpoint hostlist.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
