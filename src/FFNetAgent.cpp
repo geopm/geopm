@@ -68,9 +68,9 @@ namespace geopm
                                           std::shared_ptr<RegionHintRecommender> > &freq_recommender,
                            std::shared_ptr<Waiter> waiter)
         : m_platform_io(plat_io)
-          , m_do_write_batch(false)
-          , m_perf_energy_bias(0)
-          , m_waiter(std::move(waiter))
+        , m_do_write_batch(false)
+        , m_perf_energy_bias(0.0)
+        , m_waiter(std::move(waiter))
     {
         init_domain_indices(topo);
 
@@ -236,8 +236,6 @@ namespace geopm
     // Read signals from the platform and calculate samples to be sent up
     void FFNetAgent::sample_platform(std::vector<double> &out_sample)
     {
-        ++m_sample;
-
         for (auto &kv : m_net_map) {
             kv.second->sample();
         }
