@@ -97,7 +97,11 @@ namespace geopm
                     std::cerr << "Warning: <geopm> Unable to open report file '" << m_report_name
                               << "' for writing: " << strerror(errno) << std::endl;
                 }
-                std::remove(m_report_name.c_str());
+                else if (std::remove(m_report_name.c_str()) != 0) {
+                    std::cerr << "Warning: <geopm> Unable to remove report file '" << m_report_name
+                              << "' after creation: " << strerror(errno) << std::endl;
+                }
+                errno = 0;
             }
         }
     }
