@@ -388,7 +388,7 @@ namespace geopm
 
     CommWindow::~CommWindow()
     {
-        check_mpi(PMPI_Win_free(&m_window));
+        (void)PMPI_Win_free(&m_window);
     }
 
     void CommWindow::lock(bool is_exclusive, int rank, int assert)
