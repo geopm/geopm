@@ -14,6 +14,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm_hash.h"
+#include "geopm_field.h"
 #include "PlatformIOImp.hpp"
 #include "geopm/IOGroup.hpp"
 #include "MockIOGroup.hpp"
@@ -824,7 +825,7 @@ TEST_F(PlatformIOTest, is_valid_value)
     EXPECT_EQ(false, m_platio->is_valid_value(std::numeric_limits<double>::quiet_NaN()));
     EXPECT_EQ(false, m_platio->is_valid_value(std::numeric_limits<double>::signaling_NaN()));
     {
-        long temp = 0x7ff00ff000000000;  // One of the possible NaN values
-        EXPECT_EQ(false, m_platio->is_valid_value(*(double*)&temp));
+        uint64_t temp = 0x7ff00ff000000000;  // One of the possible NaN values
+        EXPECT_EQ(false, m_platio->is_valid_value(geopm_field_to_signal(temp)));
     }
 }
