@@ -47,6 +47,20 @@ fi
 [enable_coverage="0"]
 )
 
+AC_ARG_ENABLE([asan],
+  [AS_HELP_STRING([--enable-asan], [Build and test with address sanitizers enabled])],
+[if test "x$enable_asan" = "xno" ; then
+  enable_asan="0"
+else
+  enable_asan="1"
+  enable_debug="1"
+fi
+],
+[enable_asan="0"]
+)
+AC_SUBST([enable_asan])
+AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
+
 AC_ARG_ENABLE([docs],
   [AS_HELP_STRING([--disable-docs], [Disable the use of the Python sphinx tool to generate documentation])],
 [if test "x$enable_docs" = "xno" ; then
@@ -148,6 +162,10 @@ if test "x$enable_coverage" = "x1" ; then
 fi
 AC_SUBST([enable_coverage])
 
+if test "x$enable_asan" = "x1" ; then
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+fi
+
 if test "x$enable_dcgm" = "x1" ; then
   ENABLE_DCGM=True
   AC_DEFINE([GEOPM_ENABLE_DCGM], [ ], [Enables use of the DCGM library to support NVIDA board GPUs])
@@ -219,11 +237,6 @@ AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -std=c99 -msse4.2"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -std=c++17 -msse4.2"]
-
-[LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
-[CFLAGS="$EXTRA_CFLAGS $CFLAGS"]
-[CXXFLAGS="$EXTRA_CXXFLAGS $CXXFLAGS"]
-[CPPFLAGS="$EXTRA_CPPFLAGS $CPPFLAGS"]
 
 AC_SEARCH_LIBS([shm_open], [rt])
 AC_SEARCH_LIBS([shm_unlink], [rt])

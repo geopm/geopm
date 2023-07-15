@@ -79,27 +79,6 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
-if test "x$enable_debug" = "x1" ; then
-  AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
-fi
-AC_SUBST([enable_debug])
-
-
-if test "x$enable_coverage" = "x1" ; then
-  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
-fi
-AC_SUBST([enable_coverage])
-
-if test "x$enable_overhead" = "x1" ; then
-  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
-fi
-AC_SUBST([enable_overhead])
-
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
 if test "x$with_sqlite3" != x; then
@@ -175,8 +154,6 @@ fi
 ],
 [enable_mpi="1"]
 )
-AC_SUBST([enable_mpi])
-AM_CONDITIONAL([ENABLE_MPI], [test "x$enable_mpi" = "x1"])
 
 AC_ARG_ENABLE([fortran],
   [AS_HELP_STRING([--disable-fortran], [Do not build fortran interface])],
@@ -188,6 +165,52 @@ fi
 ],
 [enable_fortran="1"]
 )
+
+# This block of code for enabling address sanitizers must come after debug,
+# mpi and fortran options, so its settings take precedence. At the moment,
+# sanitizers are targeted for C++ code and unit tests.
+AC_ARG_ENABLE([asan],
+  [AS_HELP_STRING([--enable-asan], [Build and test with address sanitizers enabled])],
+[if test "x$enable_asan" = "xno" ; then
+  enable_asan="0"
+else
+  enable_asan="1"
+  enable_debug="1"
+  enable_mpi="0"
+  enable_fortran="0"
+fi
+],
+[enable_asan="0"]
+)
+
+if test "x$enable_debug" = "x1" ; then
+  AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
+  CFLAGS="$CFLAGS -O0 -g"
+  CXXFLAGS="$CXXFLAGS -O0 -g"
+fi
+AC_SUBST([enable_debug])
+
+if test "x$enable_coverage" = "x1" ; then
+  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
+  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
+fi
+AC_SUBST([enable_coverage])
+
+if test "x$enable_asan" = "x1" ; then
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+fi
+
+if test "x$enable_overhead" = "x1" ; then
+  AC_DEFINE([GEOPM_OVERHEAD], [ ], [Enables code for measuring overhead])
+fi
+AC_SUBST([enable_overhead])
+
+AC_SUBST([enable_asan])
+AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
+AC_SUBST([enable_mpi])
+AM_CONDITIONAL([ENABLE_MPI], [test "x$enable_mpi" = "x1"])
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
@@ -243,7 +266,6 @@ if test "x$with_geopmd_lib" != x; then
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
   AC_SUBST([GEOPMD_LIBDIR])
 fi
-
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
@@ -432,6 +454,7 @@ AC_SEARCH_LIBS([geopm_pio_read_signal], [geopmd])
 AC_CHECK_LIB([geopmd], [geopm_pio_read_signal], [], [
     echo "missing libgeopmd: Install the geopm-service and use --with-geopmd or --with-geopmd-lib to specify location"
     exit -1])
+
 AC_CHECK_HEADER([geopm_pio.h], [], [
     echo "missing geopm_pio.h: Install the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
     exit -1])
