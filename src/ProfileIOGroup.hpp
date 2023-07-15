@@ -9,6 +9,7 @@
 #include <set>
 #include <string>
 #include <functional>
+#include <array>
 
 #include "geopm/IOGroup.hpp"
 

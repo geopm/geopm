@@ -9,6 +9,7 @@
 #include <functional>
 #include <iostream>
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <cerrno>
 #include <stdexcept>

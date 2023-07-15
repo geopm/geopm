@@ -44,20 +44,20 @@ void BatchStatusTest::SetUp(void)
     // Explicitly force the fifo to be removed if it is already existing.
     m_status_path_in = m_server_prefix + m_server_key + "-in" ;
     m_status_path_out = m_server_prefix + m_server_key + "-out";
-    (void)unlink(m_status_path_in.c_str());
-    (void)unlink(m_status_path_out.c_str());
+    (void)!unlink(m_status_path_in.c_str());
+    (void)!unlink(m_status_path_out.c_str());
 }
 
 void BatchStatusTest::TearDown(void)
 {
-    (void)unlink(m_status_path_in.c_str());
-    (void)unlink(m_status_path_out.c_str());
+    (void)!unlink(m_status_path_in.c_str());
+    (void)!unlink(m_status_path_out.c_str());
 }
 
 int BatchStatusTest::fork_other(std::function<void(int)> child_process_func)
 {
     int pipe_fd[2];
-    pipe(pipe_fd);
+    (void)!pipe(pipe_fd);
     int &write_pipe_fd = pipe_fd[1];
     int &read_pipe_fd  = pipe_fd[0];
     int result = fork();
@@ -112,7 +112,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_expect)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         server_status->receive_message(BatchStatus::M_MESSAGE_READ);
     };
@@ -131,7 +131,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo_expect)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         server_status->send_message(BatchStatus::M_MESSAGE_READ);
     };
@@ -150,7 +150,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         server_status->send_message(BatchStatus::M_MESSAGE_READ);
     };
@@ -171,7 +171,7 @@ TEST_F(BatchStatusTest, both_send_at_once_fifo_expect)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         server_status->send_message(BatchStatus::M_MESSAGE_WRITE);
         server_status->receive_message(BatchStatus::M_MESSAGE_READ);
@@ -192,7 +192,7 @@ TEST_F(BatchStatusTest, server_and_client_do_nothing)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
     };
     int server_pid = fork_other(child_process_func);
 
@@ -208,7 +208,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_incorrect_expect)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         GEOPM_EXPECT_THROW_MESSAGE(
             server_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE),
@@ -231,7 +231,7 @@ TEST_F(BatchStatusTest, bad_client_key)
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
     };
     int server_pid = fork_other(child_process_func);
 

@@ -946,7 +946,7 @@ int BatchServerTest::fork_other(std::function<void(int, int)> child_process_func
 {
     int main_pid = getpid();
     int pipe_fd[2];
-    pipe(pipe_fd);
+    (void)!pipe(pipe_fd);
     int &write_pipe_fd = pipe_fd[1];
     int &read_pipe_fd  = pipe_fd[0];
     int result = fork();
@@ -1052,7 +1052,7 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
             .WillOnce([&write_pipe_fd](){
                 /* Extra code for synchronizing the server. */
                 char unique_char = '!';
-                write(write_pipe_fd, &unique_char, sizeof(unique_char));
+                (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
                 sleep(1024);
                 throw geopm::Exception("BatchStatusImp: System call failed: "
                                        "read(2)", EINTR, __FILE__, __LINE__);
@@ -1177,7 +1177,7 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
             .WillOnce([&write_pipe_fd](){
                 /* Extra code for synchronizing the server. */
                 char unique_char = '!';
-                write(write_pipe_fd, &unique_char, sizeof(unique_char));
+                (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
                 sleep(1024);
                 throw geopm::Exception("BatchStatusImp: System call failed: "
                                        "read(2)", EINTR, __FILE__, __LINE__);
@@ -1253,7 +1253,7 @@ TEST_F(BatchServerTest, action_sigchld)
 
         /* Extra code for synchronizing the server. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         errno = 0;
         sleep(UINT_MAX);  // exits the sleep when it is interrupted by a signal
@@ -1307,7 +1307,7 @@ TEST_F(BatchServerTest, action_sigchld_error)
 
         /* Extra code for synchronizing the server. */
         char unique_char = '!';
-        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+        (void)!write(write_pipe_fd, &unique_char, sizeof(unique_char));
 
         errno = 0;
         sleep(UINT_MAX);  // exits the sleep when it is interrupted by a signal
