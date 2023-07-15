@@ -695,7 +695,11 @@ rpm-dudley: dist
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
 
+if !ENABLE_SANITIZERS
 checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+else
+checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+endif
 
 # INCLUDES
 check_PROGRAMS =
@@ -712,9 +716,12 @@ PHONY_TARGETS = clean-local \
                 # end
 
 include test/Makefile.mk
+
+if !ENABLE_SANITIZERS
 include integration/Makefile.mk
 include examples/Makefile.mk
 include scripts/Makefile.mk
 include shell_completion/Makefile.mk
+endif
 
 .PHONY: $(PHONY_TARGETS)

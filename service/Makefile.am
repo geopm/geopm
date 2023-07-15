@@ -341,7 +341,11 @@ rpm: dist
 	cp geopm-service.spec $(rpm_topdir)/SPECS/geopm-service.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
 
+if !ENABLE_SANITIZERS
 checkprogs: gtest-checkprogs geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+else
+checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+endif
 
 all-local: $(all_local)
 
@@ -364,6 +368,10 @@ DISTCLEANFILES =
 CLEANFILES = $(msr_cpp_files)
 
 include test/Makefile.mk
+
+if !ENABLE_SANITIZERS
 include geopmdpy_test/Makefile.mk
-include docs/Makefile.mk
 include integration/Makefile.mk
+endif
+
+include docs/Makefile.mk
