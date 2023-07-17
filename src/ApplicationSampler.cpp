@@ -380,13 +380,11 @@ namespace geopm
 
     void ApplicationSamplerImp::update_cpu_active(void)
     {
-        int num_active_cpu = 0;
         std::fill(m_is_cpu_active.begin(), m_is_cpu_active.end(), false);
         for (const auto &client_it : m_client_cpu_map) {
             const std::set<int> &cpu_set = client_it.second;
             for (int cpu_idx : cpu_set) {
                 m_is_cpu_active[cpu_idx] = true;
-                ++num_active_cpu;
             }
         }
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
