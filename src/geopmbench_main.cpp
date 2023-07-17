@@ -24,7 +24,7 @@
 int main(int argc, char **argv)
 {
     int err = 0;
-    int rank;
+    int rank = 0;
     int verbosity = 0;
     int do_markup_init = 1;
     uint64_t init_rid;
