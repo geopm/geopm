@@ -6,6 +6,8 @@
 #include "config.h"
 #include "ModelRegion.hpp"
 
+#include <iostream>
+
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm_imbalancer.h"
@@ -88,13 +90,17 @@ namespace geopm
     ModelRegion::ModelRegion(int verbosity)
         : m_big_o(0.0)
         , m_verbosity(verbosity)
+        , m_region_id(0)
         , m_do_imbalance(false)
         , m_do_progress(false)
         , m_do_unmarked(false)
         , m_num_progress_updates(1)
         , m_norm(1.0)
     {
-
+        int err = region();
+        if (err != 0) {
+            std::cerr << "Warning: <geopm> ModelRegion: failed to create region identifier: " << geopm::error_message(err) << "\n";
+        }
     }
 
     ModelRegion::~ModelRegion()
