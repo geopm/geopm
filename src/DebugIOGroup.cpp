@@ -204,8 +204,10 @@ namespace geopm
 
     std::string DebugIOGroup::control_description(const std::string &control_name) const
     {
-        throw Exception("DebugIOGroup::control_description(): there are no controls supported by the DebugIOGroup",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (control_name != "") {
+            throw Exception("DebugIOGroup::control_description(): there are no controls supported by the DebugIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         return "";
     }
 
