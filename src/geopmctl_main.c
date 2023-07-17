@@ -29,7 +29,6 @@ int main(int argc, char **argv)
     int opt;
     int err0 = 0;
     char error_str[NAME_MAX] = {0};
-    char *arg_ptr = NULL;
     const char *usage = "    %s [--help] [--version]\n"
                         "\n"
                         "DESCRIPTION\n"
@@ -60,22 +59,11 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    while (!err0 && (opt = getopt(argc, argv, "")) != -1) {
-        arg_ptr = NULL;
-        switch (opt) {
-            default:
-                fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
-                fprintf(stderr, usage, argv[0]);
-                err0 = EINVAL;
-                break;
-        }
-        if (!err0) {
-            strncpy(arg_ptr, optarg, GEOPMCTL_STRING_LENGTH);
-            if (arg_ptr[GEOPMCTL_STRING_LENGTH - 1] != '\0') {
-                fprintf(stderr, "Error: config_file name too long\n");
-                err0 = EINVAL;
-            }
-        }
+    opt = getopt(argc, argv, "");
+    if (opt != -1) {
+        fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
+        fprintf(stderr, usage, argv[0]);
+        err0 = EINVAL;
     }
     if (!err0 && optind != argc) {
         fprintf(stderr, "Error: %s does not take positional arguments\n", argv[0]);
