@@ -26,7 +26,22 @@ enum geopmagent_const {
     GEOPMAGENT_DOUBLE_LENGTH = 100,
 };
 
+static int main_imp(int argc, char **argv);
+
 int main(int argc, char **argv)
+{
+    int err = 0;
+    try {
+        err = main_imp(argc, argv);
+    }
+    catch (const geopm::Exception &ex) {
+        std::cerr << "Error: geopmagent: " << ex.what() << "\n\n";
+        err = ex.err_value();
+    }
+    return err;
+}
+
+static int main_imp(int argc, char **argv)
 {
     geopm::OptionParser parser{"geopmagent", std::cout, std::cerr, ""};
     parser.add_option("agent", 'a', "agent", "", "specify the name of the agent");
