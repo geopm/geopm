@@ -228,9 +228,6 @@ TEST_F(CommNullImpTest, window_put)
     static const unsigned int BUFFER_SIZE = senders.size() * sizeof senders[0];
     void * window;
 
-    // TODO: All 4 branches of the implementation result in throw. Just change
-    //       to an unconditional throw?
-
     // Can't put on a window that doesn't exist
     EXPECT_THROW(m_comm->window_put(senders.data(), senders.size(), 0, 0, 1234), geopm::Exception);
 
@@ -242,8 +239,7 @@ TEST_F(CommNullImpTest, window_put)
     // Can't use an offset that is out of bounds
     EXPECT_THROW(m_comm->window_put(senders.data(), senders.size(), 0, BUFFER_SIZE, window_id), geopm::Exception);
 
-    // All valid inputs
-    EXPECT_THROW(m_comm->window_put(senders.data(), senders.size(), 0, 0, window_id), geopm::Exception);
+    m_comm->window_put(senders.data(), senders.size(), 0, 0, window_id);
 
     m_comm->window_destroy(window_id);
     m_comm->free_mem(window);
