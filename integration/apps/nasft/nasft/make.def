@@ -154,7 +154,7 @@ CLINKFLAGS = -O3 -xAVX -shared-intel -mcmodel=medium -fpic -i-dynamic
 # this compiler go here also; typically there are few flags required; hence
 # there are no separate macros provided for such flags.
 #---------------------------------------------------------------------------
-CC	= icc -g
+CC	= icx -g
 
 
 #---------------------------------------------------------------------------

@@ -21,7 +21,7 @@ function get_config
 }
 
 # Determine the compiler
-if [[ $(get_config CC) == 'icc' ]]; then
+if [[ $(get_config CC) == 'icx' ]]; then
     compiler=intel
 elif [[ $(get_config CC) == 'gcc' ]]; then
     compiler=gnu

@@ -24,7 +24,7 @@ if ENABLE_OPENMP
     integration_apps_nasft_nasft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
     integration_apps_nasft_nasft_nas_ft_FCFLAGS = -std=legacy -fopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
     integration_apps_nasft_nasft_nas_ft_FFLAGS =  -fopenmp -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3
-if HAVE_IFORT
+if HAVE_IFX
     integration_apps_nasft_nasft_nas_ft_FCFLAGS += -std=legacy -xAVX -shared-intel -mcmodel=medium -fpic
     integration_apps_nasft_nasft_nas_ft_FFLAGS += -xAVX -shared-intel -mcmodel=medium -fpic
 endif

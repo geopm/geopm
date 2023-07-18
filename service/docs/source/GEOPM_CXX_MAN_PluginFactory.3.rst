@@ -172,7 +172,7 @@ version as the GEOPM library they are intended to be loaded by.  Do
 not link the plugin shared object against any of the GEOPM libraries;
 this will cause a circular link dependency.  Compile the shared object
 with flags appropriate for a dynamically loaded library, e.g. for
-``g++`` and ``icpc`` you must provide the ``-fPIC`` and ``-shared`` options.
+``g++`` and ``icpx`` you must provide the ``-fPIC`` and ``-shared`` options.
 
 Plugin Search Path And Load Order
 ---------------------------------
