@@ -482,11 +482,11 @@ AC_COMPILE_IFELSE([
 AC_LANG_POP([C++])
 
 AM_CONDITIONAL([HAVE_GFORTRAN], [test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null])
-AM_CONDITIONAL([HAVE_IFORT], [test ! -z "$FC" && $FC --version | grep ifort > /dev/null])
-AM_CONDITIONAL([HAVE_ICC], [test ! -z "$CC" && $CC --version | grep icc > /dev/null])
-AM_CONDITIONAL([HAVE_ICPC], [test ! -z "$CXX" && $CXX --version | grep icpc > /dev/null])
+AM_CONDITIONAL([HAVE_IFX], [test ! -z "$FC" && $FC --version | grep ifx > /dev/null])
+AM_CONDITIONAL([HAVE_ICX], [test ! -z "$CC" && $CC --version | grep icx > /dev/null])
+AM_CONDITIONAL([HAVE_ICPX], [test ! -z "$CXX" && $CXX --version | grep icpx > /dev/null])
 
-if test ! -z "$CC" && $CC --version | grep icc > /dev/null; then
+if test ! -z "$CC" && $CC --version | grep icx > /dev/null; then
    AC_DEFINE([GEOPM_ENABLE_MKL], [], [Compiling with Intel MKL support.])
 fi
 

@@ -314,8 +314,8 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_region.h \
                 # end
 
-if HAVE_ICC
-    MATH_CLDFLAGS = -lm -mkl
+if HAVE_ICX
+    MATH_CLDFLAGS = -lm -qmkl
     MATH_CFLAGS = -xAVX
     MATH_LIB = -lm
 else
