@@ -23,8 +23,6 @@
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
-#include "geopm/PlatformIO.hpp"
-#include "geopm/PlatformTopo.hpp"
 
 #include "MockPlatformTopo.hpp"
 
@@ -34,8 +32,6 @@ using ::testing::AtMost;
 
 using geopm::ConstConfigIOGroup;
 using geopm::Exception;
-using geopm::PlatformIO;
-using geopm::PlatformTopo;
 
 class ConstConfigIOGroupTest : public::testing::Test
 {

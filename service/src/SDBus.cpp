@@ -33,6 +33,12 @@ namespace geopm
         }
     }
 
+    static std::unique_ptr<sd_bus_error, void(*)(sd_bus_error*)>
+    create_bus_error_ptr(sd_bus_error *bus_error)
+    {
+        return std::unique_ptr<sd_bus_error, void(*)(sd_bus_error*)>(bus_error, sd_bus_error_free);
+    }
+
     std::unique_ptr<SDBus> SDBus::make_unique(void)
     {
         return geopm::make_unique<SDBusImp>();
@@ -53,7 +59,9 @@ namespace geopm
 
     SDBusImp::~SDBusImp()
     {
+        //sd_bus_flush(m_bus);
         sd_bus_close(m_bus);
+        sd_bus_unref(m_bus);
     }
 
     std::shared_ptr<SDBusMessage> SDBusImp::call_method(
@@ -61,6 +69,7 @@ namespace geopm
     {
         sd_bus_message *bus_reply;
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        auto bus_error_ptr = create_bus_error_ptr(&bus_error);
         int err = sd_bus_call(m_bus,
                               message->get_sd_ptr(),
                               m_dbus_timeout_usec,
@@ -74,6 +83,7 @@ namespace geopm
         const std::string &member)
     {
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        auto bus_error_ptr = create_bus_error_ptr(&bus_error);
         sd_bus_message *bus_reply = nullptr;
         int err = sd_bus_call_method(m_bus,
                                      m_dbus_destination,
@@ -94,6 +104,7 @@ namespace geopm
         int arg2)
     {
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        auto bus_error_ptr = create_bus_error_ptr(&bus_error);
         sd_bus_message *bus_reply = nullptr;
         int err = sd_bus_call_method(m_bus,
                                      m_dbus_destination,
@@ -116,6 +127,7 @@ namespace geopm
         double arg3)
     {
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        auto bus_error_ptr = create_bus_error_ptr(&bus_error);
         sd_bus_message *bus_reply = nullptr;
         int err = sd_bus_call_method(m_bus,
                                      m_dbus_destination,
@@ -135,6 +147,7 @@ namespace geopm
         int arg0)
     {
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        auto bus_error_ptr = create_bus_error_ptr(&bus_error);
         sd_bus_message *bus_reply = nullptr;
         int err = sd_bus_call_method(m_bus,
                                      m_dbus_destination,
@@ -154,6 +167,7 @@ namespace geopm
         const std::string &arg0)
     {
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        auto bus_error_ptr = create_bus_error_ptr(&bus_error);
         sd_bus_message *bus_reply = nullptr;
         int err = sd_bus_call_method(m_bus,
                                      m_dbus_destination,

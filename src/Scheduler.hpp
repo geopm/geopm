@@ -7,15 +7,11 @@
 #define SCHEDULER_HPP_INCLUDE
 
 #include <memory>
-#include <set>
 #include <functional>
 #include <sched.h>
 
 namespace geopm
 {
-    std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
-        make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled);
-
     class Scheduler
     {
         public:
