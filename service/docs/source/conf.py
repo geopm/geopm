@@ -67,6 +67,7 @@ extensions = [
     'sphinx.ext.todo',
     'geopmlint',
     'geopm_rst_extensions',
+    'sphinx_tabs.tabs',
 ]
 
 # The suffix(es) of source filenames.
