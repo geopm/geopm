@@ -22,6 +22,8 @@ namespace geopm
                                bool do_progress,
                                bool do_unmarked);
             virtual ~ScalingModelRegion();
+            ScalingModelRegion(const ScalingModelRegion &other) = delete;
+            ScalingModelRegion &operator=(const ScalingModelRegion &other) = delete;
             void big_o(double big_o);
             void run(void);
             void run_atom(void);

@@ -146,6 +146,8 @@ namespace geopm
     {
         public:
             SDBusImp();
+            SDBusImp(const SDBusImp &other) = delete;
+            SDBusImp &operator=(const SDBusImp &other) = delete;
             virtual ~SDBusImp();
             std::shared_ptr<SDBusMessage> call_method(
                 std::shared_ptr<SDBusMessage> message) override;

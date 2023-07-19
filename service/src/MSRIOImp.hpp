@@ -20,6 +20,8 @@ namespace geopm
         public:
             MSRIOImp();
             MSRIOImp(int num_cpu, std::shared_ptr<MSRPath> path);
+            MSRIOImp(const MSRIOImp &other) = delete;
+            MSRIOImp &operator=(const MSRIOImp &other) = delete;
             virtual ~MSRIOImp();
             uint64_t read_msr(int cpu_idx,
                               uint64_t offset) override;

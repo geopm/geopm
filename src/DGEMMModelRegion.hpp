@@ -18,6 +18,8 @@ namespace geopm
                              bool do_imbalance,
                              bool do_progress,
                              bool do_unmarked);
+            DGEMMModelRegion(const DGEMMModelRegion &other) = delete;
+            DGEMMModelRegion &operator=(const DGEMMModelRegion &other) = delete;
             virtual ~DGEMMModelRegion();
             void big_o(double big_o);
             void run(void);

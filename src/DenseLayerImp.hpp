@@ -16,8 +16,6 @@ namespace geopm
     class DenseLayerImp : public DenseLayer
     {
         public:
-            DenseLayerImp(const DenseLayerImp &other);
-            DenseLayerImp &operator=(DenseLayerImp other);
             /// @brief Constructor ingesting a TensoTwoD and TensorOneD object
             ///
             /// @param [in] weights The TensorTwoD object containing weights

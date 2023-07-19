@@ -80,6 +80,8 @@ namespace geopm
             BatchStatusServer(int other_pid, const std::string &server_key);
             BatchStatusServer(int other_pid, const std::string &server_key,
                               const std::string &fifo_prefix);
+            BatchStatusServer(const BatchStatusServer &other) = delete;
+            BatchStatusServer &operator=(const BatchStatusServer &other) = delete;
             virtual ~BatchStatusServer();
 
         private:
@@ -97,6 +99,8 @@ namespace geopm
             BatchStatusClient(const std::string &server_key);
             BatchStatusClient(const std::string &server_key,
                               const std::string &fifo_prefix);
+            BatchStatusClient(const BatchStatusClient &other) = delete;
+            BatchStatusClient &operator=(const BatchStatusClient &other) = delete;
             virtual ~BatchStatusClient();
 
         private:

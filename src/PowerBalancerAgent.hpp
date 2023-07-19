@@ -128,7 +128,7 @@ namespace geopm
                                double max_power,
                                std::shared_ptr<Waiter> waiter);
             PowerBalancerAgent();
-            virtual ~PowerBalancerAgent();
+            virtual ~PowerBalancerAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
             void split_policy(const std::vector<double> &in_policy,
@@ -251,7 +251,7 @@ namespace geopm
                 friend class ReduceLimitStep;
                 public:
                     TreeRole(int level, const std::vector<int> &fan_in);
-                    virtual ~TreeRole();
+                    virtual ~TreeRole() = default;
                     virtual bool descend(const std::vector<double> &in_policy,
                                          std::vector<std::vector<double> >&out_policy) override;
                     virtual bool ascend(const std::vector<std::vector<double> > &in_sample,
@@ -268,7 +268,7 @@ namespace geopm
                 friend class ReduceLimitStep;
                 public:
                     RootRole(int level, const std::vector<int> &fan_in, double min_power, double max_power);
-                    virtual ~RootRole();
+                    virtual ~RootRole() = default;
                     bool descend(const std::vector<double> &in_policy,
                                  std::vector<std::vector<double> >&out_policy) override;
                     bool ascend(const std::vector<std::vector<double> > &in_sample,
@@ -293,7 +293,7 @@ namespace geopm
                              double time_window,
                              bool is_single_node,
                              int num_node);
-                    virtual ~LeafRole();
+                    virtual ~LeafRole() = default;
                     bool adjust_platform(const std::vector<double> &in_policy) override;
                     bool sample_platform(std::vector<double> &out_sample) override;
                     void trace_values(std::vector<double> &values) override;

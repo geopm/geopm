@@ -47,7 +47,7 @@ namespace geopm
             PowerGovernorAgent(PlatformIO &platform_io,
                                std::unique_ptr<PowerGovernor> power_gov,
                                std::shared_ptr<Waiter> waiter);
-            virtual ~PowerGovernorAgent();
+            virtual ~PowerGovernorAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
             void split_policy(const std::vector<double> &in_policy,

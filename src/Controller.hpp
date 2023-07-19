@@ -62,6 +62,9 @@ namespace geopm
                        bool do_endpoint,
                        std::shared_ptr<InitControl> init_control,
                        bool do_init_control);
+
+            Controller(const Controller &other) = delete;
+            Controller &operator=(const Controller &other) = delete;
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///

@@ -18,6 +18,8 @@ namespace geopm
                               bool do_imbalance,
                               bool do_progress,
                               bool do_unmarked);
+            StreamModelRegion(const StreamModelRegion &other) = delete;
+            StreamModelRegion &operator=(const StreamModelRegion &other) = delete;
             virtual ~StreamModelRegion();
             void big_o(double big_o);
             void run(void);
