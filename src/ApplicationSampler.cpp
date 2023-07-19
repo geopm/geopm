@@ -25,6 +25,7 @@
 #include "ValidateRecord.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
 #include "Scheduler.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
@@ -32,7 +33,6 @@
 #include "geopm_hint.h"
 #include "geopm_shmem.h"
 #include "geopm_field.h"
-#include "Scheduler.hpp"
 
 namespace geopm
 {

@@ -504,20 +504,20 @@ namespace geopm
         double result = -1;
         size_t num_cpu = m_platform_topo.num_domain(GEOPM_DOMAIN_CPU);
         size_t alloc_size = CPU_ALLOC_SIZE(num_cpu);
-        cpu_set_t *proc_cpuset = CPU_ALLOC(num_cpu);
+	auto proc_cpuset = make_cpu_set(num_cpu, {});
         if (proc_cpuset == NULL) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) +
                             ": failed to allocate process CPU mask",
                             ENOMEM, __FILE__, __LINE__);
         }
         for (auto &proc : process_map) {
-            int err = sched_getaffinity(proc.first, alloc_size, proc_cpuset);
+            int err = sched_getaffinity(proc.first, alloc_size, proc_cpuset.get());
             if (err == EINVAL || err == EFAULT) {
                 throw Exception("NVMLIOGroup::" + std::string(__func__) +
                                 ": failed to get affinity mask for process: " +
                                 std::to_string(proc.first), err, __FILE__, __LINE__);
             }
-            if (!err && CPU_ISSET(cpu_idx, proc_cpuset)) {
+            if (!err && CPU_ISSET(cpu_idx, proc_cpuset.get())) {
                 result = proc.second;
                 // Return first match, w/o break will return last match
                 break;

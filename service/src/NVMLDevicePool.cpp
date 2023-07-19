@@ -96,8 +96,8 @@ namespace geopm
     {
         check_gpu_range(gpu_idx);
         unsigned int cpu_set_size = CPU_ALLOC_SIZE(M_NUM_CPU) / sizeof(unsigned long);
-        cpu_set_t *gpu_cpuset = CPU_ALLOC(M_NUM_CPU);
-        CPU_ZERO_S(CPU_ALLOC_SIZE(M_NUM_CPU), gpu_cpuset);
+	auto gpu_cpuset = make_cpu_set(M_NUM_CPU, {});
+        CPU_ZERO_S(CPU_ALLOC_SIZE(M_NUM_CPU), gpu_cpuset.get());
 
         if (!gpu_cpuset) {
             throw Exception("NVMLDevicePool: unable to allocate process CPU mask",
@@ -105,11 +105,11 @@ namespace geopm
         }
 
         nvmlReturn_t nvml_result = nvmlDeviceGetCpuAffinity(m_nvml_device.at(gpu_idx), cpu_set_size,
-                                                            (unsigned long *)gpu_cpuset);
+                                                            (unsigned long *)gpu_cpuset.get());
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get CPU Affinity bitmask for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
-        return gpu_cpuset;
+        return gpu_cpuset.get();
     }
 
     uint64_t NVMLDevicePoolImp::frequency_status_sm(int gpu_idx) const
