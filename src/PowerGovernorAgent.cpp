@@ -58,8 +58,6 @@ namespace geopm
 
     }
 
-    PowerGovernorAgent::~PowerGovernorAgent() = default;
-
     void PowerGovernorAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
     {
         if (level < 0 || level > (int)fan_in.size()) {

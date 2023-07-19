@@ -24,6 +24,8 @@ namespace geopm
         public:
             CommWindow(MPI_Comm comm, void *base, size_t size);
             virtual ~CommWindow();
+            CommWindow(const CommWindow &other) = delete;
+            CommWindow &operator=(const CommWindow &other) = delete;
             void lock(bool is_exclusive, int rank, int assert);
             void unlock(int rank);
             void put(const void *send_buf, size_t send_size, int rank, off_t disp);

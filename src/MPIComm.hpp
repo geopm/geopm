@@ -23,6 +23,8 @@ namespace geopm
     {
         public:
             MPIComm();
+            MPIComm(const MPIComm &other) = delete;
+            MPIComm &operator=(const MPIComm &other) = delete;
             MPIComm(MPI_Comm in_comm);
             MPIComm(const MPIComm *in_comm);
             MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder);

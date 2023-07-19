@@ -17,6 +17,8 @@ namespace geopm
         public:
             SharedMemoryScopedLock() = delete;
             SharedMemoryScopedLock(pthread_mutex_t *mutex);
+            SharedMemoryScopedLock(const SharedMemoryScopedLock &other) = delete;
+            SharedMemoryScopedLock &operator=(const SharedMemoryScopedLock &other) = delete;
             virtual ~SharedMemoryScopedLock();
         private:
             pthread_mutex_t *m_mutex;

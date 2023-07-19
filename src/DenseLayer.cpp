@@ -25,18 +25,6 @@ namespace geopm
         return forward(input);
     }
 
-    DenseLayerImp::DenseLayerImp(const DenseLayerImp &other)
-        : DenseLayerImp(other.m_weights, other.m_biases)
-    {
-    }
-
-    DenseLayerImp &DenseLayerImp::operator=(DenseLayerImp other)
-    {
-        std::swap(m_weights, other.m_weights);
-        std::swap(m_biases, other.m_biases);
-        return *this;
-    }
-
     DenseLayerImp::DenseLayerImp(const TensorTwoD &weights, const TensorOneD &biases) 
 	    : m_weights(weights)
 	    , m_biases(biases)

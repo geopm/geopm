@@ -156,6 +156,8 @@ namespace geopm
         public:
             ELFImp() = delete;
             ELFImp(const std::string &file_path);
+            ELFImp(const ELFImp &other) = delete;
+            ELFImp &operator=(const ELFImp &other) = delete;
             virtual ~ELFImp();
             size_t num_symbol(void) override;
             std::string symbol_name(void) override;

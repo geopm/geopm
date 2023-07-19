@@ -20,6 +20,8 @@ namespace geopm
             SharedMemoryImp();
             /// @brief Destructor destroys and unlinks the shared memory region.
             virtual ~SharedMemoryImp();
+            SharedMemoryImp(SharedMemoryImp &other) = delete;
+            SharedMemoryImp &operator=(const SharedMemoryImp &other) = delete;
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
             void *pointer(void) const override;

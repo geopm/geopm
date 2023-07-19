@@ -18,6 +18,8 @@ namespace geopm
                                bool do_imbalance,
                                bool do_progress,
                                bool do_unmarked);
+            All2allModelRegion(const All2allModelRegion &other) = delete;
+            All2allModelRegion &operator=(const All2allModelRegion &other) = delete;
             virtual ~All2allModelRegion();
             void big_o(double big_o);
             void run(void);

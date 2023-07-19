@@ -30,6 +30,8 @@ namespace geopm
             ServiceIOGroup(const PlatformTopo &platform_topo,
                            std::shared_ptr<ServiceProxy> service_proxy,
                            std::shared_ptr<BatchClient> batch_client_mock);
+            ServiceIOGroup(const ServiceIOGroup &other) = delete;
+            ServiceIOGroup &operator=(const ServiceIOGroup &other) = delete;
             virtual ~ServiceIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;

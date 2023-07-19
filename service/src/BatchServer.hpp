@@ -115,6 +115,8 @@ namespace geopm
                            std::shared_ptr<SharedMemory> signal_shmem,
                            std::shared_ptr<SharedMemory> control_shmem,
                            int server_pid);
+            BatchServerImp(const BatchServerImp &other) = delete;
+            BatchServerImp &operator=(const BatchServerImp &other) = delete;
             virtual ~BatchServerImp();
             int server_pid(void) const override;
             std::string server_key(void) const override;

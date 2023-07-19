@@ -22,7 +22,8 @@ namespace geopm
             /// @brief create an object to interact with this interface.
             /// @param path Path to the ioctl node.
             SSTIoctlImp(const std::string &path);
-
+            SSTIoctlImp(const SSTIoctlImp &other) = delete;
+            SSTIoctlImp &operator=(const SSTIoctlImp &other) = delete;
             ~SSTIoctlImp();
 
             /// @brief Send an ioctl to the SST version interface

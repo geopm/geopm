@@ -80,6 +80,8 @@ namespace geopm
                    const std::string &host_name,
                    const std::string &start_time,
                    size_t buffer_size);
+            CSVImp(const CSVImp &other) = delete;
+            CSVImp & operator=(const CSVImp &other) = delete;
             virtual ~CSVImp();
             void add_column(const std::string &name) override;
             void add_column(const std::string &name,

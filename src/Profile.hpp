@@ -114,7 +114,6 @@ namespace geopm
     {
         public:
             Profile() = default;
-            Profile &operator=(const Profile &other) = default;
             virtual ~Profile() = default;
             static Profile &default_profile(void);
 
@@ -245,6 +244,8 @@ namespace geopm
                        std::shared_ptr<ServiceProxy> service_proxy,
                        std::shared_ptr<Scheduler> scheduler,
                        int registered_pid);
+            ProfileImp(const ProfileImp &other) = delete;
+            ProfileImp operator=(const ProfileImp &other) = delete;
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             uint64_t region(const std::string &region_name, long hint) override;

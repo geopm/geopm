@@ -148,8 +148,6 @@ namespace geopm
         are_steps_complete(true);
     }
 
-    PowerBalancerAgent::LeafRole::~LeafRole() = default;
-
     void PowerBalancerAgent::LeafRole::init_platform_io(void)
     {
         // Setup signals and controls
@@ -328,8 +326,6 @@ namespace geopm
 #endif
     }
 
-    PowerBalancerAgent::TreeRole::~TreeRole() = default;
-
     bool PowerBalancerAgent::TreeRole::descend(const std::vector<double> &in_policy,
                                                std::vector<std::vector<double> >&out_policy)
     {
@@ -401,8 +397,6 @@ namespace geopm
         m_step_count = M_STEP_SEND_DOWN_LIMIT;
         m_is_step_complete = false;
     }
-
-    PowerBalancerAgent::RootRole::~RootRole() = default;
 
     bool PowerBalancerAgent::RootRole::ascend(const std::vector<std::vector<double> > &in_sample,
             std::vector<double> &out_sample)
@@ -619,8 +613,6 @@ namespace geopm
     {
         m_power_tdp = m_platform_io.read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD, 0);
     }
-
-    PowerBalancerAgent::~PowerBalancerAgent() = default;
 
     void PowerBalancerAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
