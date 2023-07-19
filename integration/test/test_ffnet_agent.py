@@ -22,21 +22,19 @@ from experiment.ffnet import ffnet
 
 @util.skip_unless_config_enable('beta')
 @util.skip_unless_do_launch()
-#@util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 
-class TestIntegration_ffnet(unittest.TestCas):
+class TestIntegration_ffnet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
         Setup applications, execute, and set up class variables.
         """
-    def test_ffnet_agent(self):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'test_ffnet'
-        cls._report_path = '{}.report'.format(test_name)
-        cls._trace_path = '{}.trace'.format(test_name)
-        cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
+        cls._report_path = '{}.report'.format(cls._test_name)
+        cls._trace_path = '{}.trace'.format(cls._test_name)
+        cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'
 
         # Set the job size parameters
         cls._num_node = 1
@@ -53,14 +51,14 @@ class TestIntegration_ffnet(unittest.TestCas):
             'loop_count': 5
         }
 
-        app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.set_loop_count(test_app_params['loop_count'])
         for region in ['spin', 'sleep', 'sleep-unmarked', 'dgemm', 'stream']:
             app_conf.append_region(region, test_app_params[f"{region}_bigo"])
         app_conf.write()
 
         # Configure the ffnet agent
-        cls._ffnet_policy = {'perf_energy_bias':0}
+        cls._ffnet_policy = {'PERF_ENERGY_BIAS':0}
         cls._agent = 'ffnet'
         cls._cpu_nn_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
         cls._cpu_fmap_path = os.path.dirname(__file__) + "/fmap_dummy.json"
@@ -68,7 +66,9 @@ class TestIntegration_ffnet(unittest.TestCas):
         os.environ["GEOPM_CPU_NN_PATH"] = cls._cpu_nn_path
         os.environ["GEOPM_CPU_FMAP_PATH"] = cls._cpu_fmap_path
 
-        agent_conf = geopmpy.agent.AgentConf(test_name + '_agent.config')
+        agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config',
+                                             cls._agent, cls._ffnet_policy)
+        trace_signals = 'REGION_HASH@package' #,geopmbench-0x536c798f_cpu_0@package,geopmbench-0x644f9787_cpu_0@package,geopmbench-0x725e8066_cpu_0@package,geopmbench-0xa74bbf35_cpu_0@package,geopmbench-0xd691da00_cpu_0@package,geopmbench-0xeebad5f7_cpu_0@package'
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf=app_conf,
@@ -104,7 +104,6 @@ class TestIntegration_ffnet(unittest.TestCas):
 #
 
 
-
     def test_agent_ffnet_dummy_expected_fmap(self):
         """
         Testing to ensure that the correct frequency is set based on the
@@ -119,7 +118,7 @@ class TestIntegration_ffnet(unittest.TestCas):
                 raw_region = self._report.raw_region(host_name=host,
                                                      region_name=region_name)
                 region_hash = raw_region['hash']
-                region_key = f"\"geopmbench-0x{region_hash:08x}"
+                region_key = f"geopmbench-0x{region_hash:08x}"
                 if region_key in fmap:
                     msg = region_name + ": frequency should be near assigned map frequency"
                     actual = raw_region['frequency (Hz)']
