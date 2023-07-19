@@ -273,5 +273,5 @@ if __name__ == '__main__':
                         help='Data files to train on')
      args = parser.parse_args()
 
-     main(args.data, args.output, args.describe_net, args.region_ignore)
+     main(args.data, args.output_name, args.describe_net, args.region_ignore)
 

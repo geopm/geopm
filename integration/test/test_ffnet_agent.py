@@ -22,7 +22,7 @@ from experiment.ffnet import ffnet
 
 @util.skip_unless_config_enable('beta')
 @util.skip_unless_do_launch()
-@util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
+#@util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 
 class TestIntegration_ffnet(unittest.TestCas):
     @classmethod
@@ -44,30 +44,29 @@ class TestIntegration_ffnet(unittest.TestCas):
         time_limit = 6000
 
         # Configure the test application
-        cls._spin_bigo = 0.5
-        cls._sleep_bigo = 1.0
-        cls._unmarked_bigo = 1.0
-        cls._dgemm_bigo = 1.0
-        cls._stream_bigo = 2.0
-        cls._loop_count = 5
+        test_app_params = {
+            'spin_bigo': 0.5,
+            'sleep_bigo': 1.0,
+            'sleep-unmarked_bigo': 1.0,
+            'dgemm_bigo': 1.0,
+            'stream_bigo': 2.0,
+            'loop_count': 5
+        }
 
         app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
-        app_conf.set_loop_count(cls._loop_count)
-        app_conf.append_region('spin', cls._spin_bigo)
-        app_conf.append_region('sleep', cls._sleep_bigo)
-        app_conf.append_region('sleep-unmarked', cls._unmarked_bigo)
-        app_conf.append_region('dgemm', cls._dgemm_bigo)
-        app_conf.append_region('stream', cls._stream_bigo)
+        app_conf.set_loop_count(test_app_params['loop_count'])
+        for region in ['spin', 'sleep', 'sleep-unmarked', 'dgemm', 'stream']:
+            app_conf.append_region(region, test_app_params[f"{region}_bigo"])
         app_conf.write()
 
         # Configure the ffnet agent
         cls._ffnet_policy = {'perf_energy_bias':0}
         cls._agent = 'ffnet'
-        cpu_nn_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
-        cpu_fmap_path = os.path.dirname(__file__) + "/fmap_dummy.json"
+        cls._cpu_nn_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
+        cls._cpu_fmap_path = os.path.dirname(__file__) + "/fmap_dummy.json"
 
-        os.environ["GEOPM_CPU_NN_PATH"] = cpu_nn_path
-        os.environ["GEOPM_CPU_FMAP_PATH"] = cpu_fmap_path
+        os.environ["GEOPM_CPU_NN_PATH"] = cls._cpu_nn_path
+        os.environ["GEOPM_CPU_FMAP_PATH"] = cls._cpu_fmap_path
 
         agent_conf = geopmpy.agent.AgentConf(test_name + '_agent.config')
 
@@ -87,20 +86,31 @@ class TestIntegration_ffnet(unittest.TestCas):
         cls._report = geopmpy.io.RawReport(cls._report_path)
         cls._trace = geopmpy.io.AppOutput('{}*'.format(cls._trace_path))
 
-    def test_agent_ffnet_dummy_expected_region(self):
-        """
-        Testing to ensure that the correct region is identified with dummy
-        neural net that maps REGION_HASH to region.
-        """
+#    def test_agent_ffnet_dummy_expected_region(self):
+#        """
+#        Testing to ensure that the correct region is identified with dummy
+#        neural net that maps REGION_HASH to region. Criteria is >=95%
+#        confidence >=95% of the time (PAC)
+#        """
+#     #   import pdb; pdb.set_trace()
+#
+#        fmap = json.load(open(cli._cpu_fmap_path))
+#        for region_key in fmap:
+#            region_hash = region_key.str("-")[1]
+#            region_rows = cls._trace["REGION_HASH"] = region_hash
+#
+#            #TODO: How to assert >=
+#            util.assertNear(self, 0.95, region_confidence, msg=msg)
+#
+
+
 
     def test_agent_ffnet_dummy_expected_fmap(self):
         """
         Testing to ensure that the correct frequency is set based on the
         identified region.
         """
-        #TODO: Figure out how to not hardcode this--read in fmap_dummy
-        #      and determine how to get region hashes from reports
-        expected_freqs={"dgemm":1.2e9, "stream":2.1e9, "spin":1.6e9, "sleep":1e9}
+        fmap = json.load(open(self._cpu_fmap_path))
 
         host_names = self._report.host_names()
         self.assertEqual(len(host_names), self._num_node)
@@ -108,15 +118,22 @@ class TestIntegration_ffnet(unittest.TestCas):
             for region_name in self._report.region_names(host):
                 raw_region = self._report.raw_region(host_name=host,
                                                      region_name=region_name)
-                if (region_name in expected_freqs.keys()):
+                region_hash = raw_region['hash']
+                region_key = f"\"geopmbench-0x{region_hash:08x}"
+                if region_key in fmap:
                     msg = region_name + ": frequency should be near assigned map frequency"
                     actual = raw_region['frequency (Hz)']
-                    expect = expected_freqs[region_name]
+                    expect = fmap[region_key]
                     util.assertNear(self, expect, actual, msg=msg)
 
 
 #TODO [stretch]: Run geopmbench on pkg0 with dgemm/sleep, geopmbench on pkg1 with stream
 #TODO:           and check that apps are identified independently on each socket
+
+#Get the set of region probabilities given pandas trace lines
+#def region_probabilities(trace_lines):
+#    nn = json.load(open(cli._cpu_nn_path))
+
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
