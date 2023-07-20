@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <dlfcn.h>
 
 #include "geopm_error.h"
 #include "geopm_plugin.hpp"
@@ -21,6 +22,46 @@
 
 namespace geopm
 {
+    class DLRegistry
+    {
+        public:
+            static DLRegistry &dl_registry(void);
+            DLRegistry(const DLRegistry &other) = delete;
+            DLRegistry &operator=(const DLRegistry &other) = delete;
+            void add(void *handle);
+            virtual ~DLRegistry();
+            void reset(void);
+        private:
+            DLRegistry() = default;
+            std::vector<void *> m_handles;
+    };
+
+    DLRegistry &DLRegistry::dl_registry(void)
+    {
+        static DLRegistry instance;
+        return instance;
+    }
+
+    DLRegistry::~DLRegistry()
+    {
+        reset();
+    }
+
+    void DLRegistry::add(void *handle)
+    {
+        m_handles.push_back(handle);
+    }
+
+    void DLRegistry::reset(void)
+    {
+        for (auto &it : m_handles) {
+            if (dlclose(it) != 0) {
+                std::cerr << "Warning: <geopm> Failed to dlclose(3) an active shared object handle\n";
+            }
+        }
+        m_handles.clear();
+    }
+
     void plugin_load(const std::string &plugin_prefix)
     {
         std::string env_plugin_path_str(geopm::get_env("GEOPM_PLUGIN_PATH"));
@@ -46,14 +87,28 @@ namespace geopm
             }
         }
         for (const auto &plugin : plugins) {
-            if (NULL == dlopen(plugin.c_str(), RTLD_NOLOAD)) {
-                if (NULL == dlopen(plugin.c_str(), RTLD_LAZY|RTLD_GLOBAL)) {
+            void *dl_handle = dlopen(plugin.c_str(), RTLD_NOLOAD);
+            if (dl_handle != nullptr) {
+                DLRegistry::dl_registry().add(dl_handle);
+            }
+            else {
+                dl_handle = dlopen(plugin.c_str(), RTLD_LAZY|RTLD_GLOBAL);
+                if (dl_handle != nullptr) {
+                    DLRegistry::dl_registry().add(dl_handle);
+                }
 #ifdef GEOPM_DEBUG
+                else {
+
                     std::cerr << "Warning: <geopm> Failed to dlopen plugin with dlerror(): "
                               << dlerror() << std::endl;
-#endif
                 }
+#endif
             }
         }
+    }
+
+    void plugin_reset(void)
+    {
+        DLRegistry::dl_registry().reset();
     }
 }
