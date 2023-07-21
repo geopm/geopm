@@ -1777,6 +1777,7 @@ GEOPM_OPTIONS:
       --geopm-init-control=path
                                set initial control values with data read from "path"
       --geopm-period=sec       Control loop period override for Agent value
+      --geopm-preload          Use LD_PRELOAD to load libgeopm with the target application
 
 {}
 
