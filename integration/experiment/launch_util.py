@@ -68,7 +68,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     bash_path = apps.make_bash(app_conf, run_id, log_path)
     argv.extend([bash_path])
 
-    num_ranks = app_conf.get_rank_per_node() * num_nodes
+    num_ranks = app_conf.get_total_ranks(num_nodes)
     cpu_per_rank = app_conf.get_cpu_per_rank()
 
     # Attempt to run if there are no valid report files for the current configuration
