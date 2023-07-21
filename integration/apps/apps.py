@@ -96,6 +96,20 @@ class AppConf(object):
         '''
         return self._run_id
 
+    def get_total_ranks(self, num_nodes):
+        ''' Total number of ranks required by the application.
+            By default, returns get_rank_per_node() * num_nodes, but
+            may be overridden by an application (e.g., if the app cannot
+            evenly distribute all ranks across nodes).
+
+            Args:
+                num_nodes (int): Number of nodes used to launch the app.
+
+            Returns:
+                int: number of ranks per node to pass to launch.
+        '''
+        return self.get_rank_per_node() * num_nodes
+
     def get_rank_per_node(self):
         ''' Number of ranks per node required by the application.
 
