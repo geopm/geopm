@@ -106,7 +106,9 @@ namespace geopm
             /// @brief Oerload = operator with an in-place deep copy
             ///
             /// @param [in] TensorTwoD& Reference to the 2D Tensor to copy
-            TensorTwoD& operator=(const TensorTwoD &);
+            TensorTwoD& operator=(const TensorTwoD &other);
+
+            TensorTwoD& operator=(TensorTwoD &&other);
             /// @brief Overload == operator to do comparison of the underlying
             //         data
             ///

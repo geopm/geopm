@@ -128,6 +128,16 @@ namespace geopm
         return *this;
     }
 
+    TensorTwoD& TensorTwoD::operator=(TensorTwoD &&other)
+    {
+        if (&other != this) {
+            m_mat = std::move(other.m_mat);
+            m_math = std::move(other.m_math);
+        }
+        return *this;
+
+    }
+
     bool TensorTwoD::operator==(const TensorTwoD &other) const
     {
         return m_mat == other.m_mat;
