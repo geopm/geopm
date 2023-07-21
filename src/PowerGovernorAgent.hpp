@@ -11,13 +11,12 @@
 #include <memory>
 
 #include "Agent.hpp"
+#include "geopm/CircularBuffer.hpp"
 
 namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
-    template <class type>
-    class CircularBuffer;
     class PowerGovernor;
     class Waiter;
 

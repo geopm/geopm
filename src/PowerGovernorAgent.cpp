@@ -16,7 +16,6 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
-#include "geopm/CircularBuffer.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
 #include "Environment.hpp"
