@@ -117,19 +117,26 @@ class ControllerTest : public ::testing::Test
         void SetUp();
         void TearDown();
 
+	void set_up_agents(int num_level, std::vector<int> &fan_out);
+
         std::string m_agent_name = "temp";
         int m_num_send_up = 4;
         int m_num_send_down = 2;
         std::shared_ptr<MockComm> m_comm;
         ControllerTestMockPlatformIO m_platform_io;
         std::shared_ptr<MockApplicationIO> m_application_io;
-        MockTreeComm *m_tree_comm;
-        MockReporter *m_reporter;
-        MockTracer *m_tracer;
-        MockEndpointPolicyTracer *m_policy_tracer;
+	std::unique_ptr<MockTreeComm> m_tree_comm;
+	MockTreeComm *m_tree_comm_ptr;
+	std::unique_ptr<MockReporter> m_reporter;
+	MockReporter *m_reporter_ptr;
+	std::unique_ptr<MockTracer> m_tracer;
+	MockTracer *m_tracer_ptr;
+	std::unique_ptr<MockEndpointPolicyTracer> m_policy_tracer;
+	MockEndpointPolicyTracer *m_policy_tracer_ptr;
         std::vector<MockAgent*> m_level_agent;
         std::vector<std::unique_ptr<Agent> > m_agents;
-        MockEndpointUser *m_endpoint;
+	std::unique_ptr<MockEndpointUser> m_endpoint;
+        MockEndpointUser *m_endpoint_ptr;
 
         int m_num_step = 3;
         std::vector<std::pair<std::string, std::string> > m_agent_report;
@@ -151,11 +158,16 @@ void ControllerTest::SetUp()
 
     m_comm = std::make_shared<MockComm>();
     m_application_io = std::make_shared<MockApplicationIO>();
-    m_tree_comm = new MockTreeComm();
-    m_endpoint = new MockEndpointUser();
-    m_reporter = new MockReporter();
-    m_tracer = new MockTracer();
-    m_policy_tracer = new MockEndpointPolicyTracer();
+    m_tree_comm = std::make_unique<MockTreeComm>();
+    m_tree_comm_ptr = m_tree_comm.get();
+    m_endpoint = std::make_unique<MockEndpointUser>();
+    m_endpoint_ptr = m_endpoint.get();
+    m_reporter = std::make_unique<MockReporter>();
+    m_reporter_ptr = m_reporter.get();
+    m_tracer = std::make_unique<MockTracer>();
+    m_tracer_ptr = m_tracer.get();
+    m_policy_tracer = std::make_unique<MockEndpointPolicyTracer>();
+    m_policy_tracer_ptr = m_policy_tracer.get();
     m_profile_tracer = std::make_shared<MockProfileTracer>();
     m_init_control = std::make_shared<MockInitControl>();
 
@@ -166,6 +178,18 @@ void ControllerTest::SetUp()
 void ControllerTest::TearDown()
 {
     unlink(m_file_policy_path.c_str());
+}
+
+void ControllerTest::set_up_agents(int num_level, std::vector<int> &fan_out)
+{
+    for (int level = 0; level < num_level + 1; ++level) {
+        auto tmp = std::make_unique<MockAgent>();
+        EXPECT_CALL(*tmp, init(level, fan_out, true));
+        tmp->init(level, fan_out, true);
+        m_level_agent.push_back(tmp.get());
+
+        m_agents.push_back(std::move(tmp));
+    }
 }
 
 TEST_F(ControllerTest, construct_with_file_policy_and_init_control)
@@ -179,32 +203,25 @@ TEST_F(ControllerTest, construct_with_file_policy_and_init_control)
     std::vector<int> fan_out = {2, 2};
     ASSERT_EQ(root_level, (int)fan_out.size());
 
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
-        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+        EXPECT_CALL(*m_tree_comm_ptr, level_size(level)).WillOnce(Return(fan_out[level]));
     }
-    for (int level = 0; level < num_level_ctl + 1; ++level) {
-        auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level, fan_out, true));
-        tmp->init(level, fan_out, true);
-        m_level_agent.push_back(tmp);
-
-        m_agents.emplace_back(m_level_agent[level]);
-    }
+    set_up_agents(num_level_ctl, fan_out);
     ASSERT_EQ(3u, m_level_agent.size());
     EXPECT_CALL(*m_init_control, parse_input(_));
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {"A", "B"},
@@ -222,31 +239,24 @@ TEST_F(ControllerTest, run_with_no_policy)
     std::vector<int> fan_out = {2, 2};
     ASSERT_EQ(root_level, (int)fan_out.size());
 
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
-        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+        EXPECT_CALL(*m_tree_comm_ptr, level_size(level)).WillOnce(Return(fan_out[level]));
     }
-    for (int level = 0; level < num_level_ctl + 1; ++level) {
-        auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level, fan_out, true));
-        tmp->init(level, fan_out, true);
-        m_level_agent.push_back(tmp);
-
-        m_agents.emplace_back(m_level_agent[level]);
-    }
+    set_up_agents(num_level_ctl, fan_out);
     ASSERT_EQ(3u, m_level_agent.size());
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {"A", "B"},
@@ -260,13 +270,13 @@ TEST_F(ControllerTest, run_with_no_policy)
     };
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_level_agent[0], trace_formats()).WillOnce(Return(trace_formats));
-    EXPECT_CALL(*m_tracer, columns(_, _));
+    EXPECT_CALL(*m_tracer_ptr, columns(_, _));
     controller.setup_trace();
 
     EXPECT_CALL(m_application_sampler, update(_)).Times(m_num_step);
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
-    EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_reporter_ptr, update()).Times(m_num_step);
+    EXPECT_CALL(*m_tracer_ptr, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
@@ -304,18 +314,18 @@ TEST_F(ControllerTest, run_with_no_policy)
     EXPECT_CALL(*m_level_agent[root_level], report_header()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
-    EXPECT_CALL(*m_tracer, flush());
+    EXPECT_CALL(*m_reporter_ptr, generate(_, _, _, _, _, _, _));
+    EXPECT_CALL(*m_tracer_ptr, flush());
     controller.generate();
 
     std::set<int> send_down_levels {};
     std::set<int> recv_down_levels {};
     std::set<int> send_up_levels {0, 1};
     std::set<int> recv_up_levels {0, 1};
-    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
-    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
-    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
-    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm_ptr->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm_ptr->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_up()));
 }
 
 TEST_F(ControllerTest, get_hostnames)
@@ -325,21 +335,14 @@ TEST_F(ControllerTest, get_hostnames)
     std::vector<int> fan_out = {2, 2};
     ASSERT_EQ(root_level, (int)fan_out.size());
 
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
-        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+        EXPECT_CALL(*m_tree_comm_ptr, level_size(level)).WillOnce(Return(fan_out[level]));
     }
-    for (int level = 0; level < num_level_ctl + 1; ++level) {
-        auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level, fan_out, true));
-        tmp->init(level, fan_out, true);
-        m_level_agent.push_back(tmp);
-
-        m_agents.emplace_back(m_level_agent[level]);
-    }
+    set_up_agents(num_level_ctl, fan_out);
     ASSERT_EQ(3u, m_level_agent.size());
 
     std::set<std::string> multi_node_list = {"node4", "node6", "node8", "node9"};
@@ -347,16 +350,16 @@ TEST_F(ControllerTest, get_hostnames)
 
     Controller controller(multi_node_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          std::move(m_endpoint),
                           "", true,  // endpoint
                           m_init_control, false);
 
@@ -369,27 +372,29 @@ TEST_F(ControllerTest, single_node)
 {
     int num_level_ctl = 0;
     int root_level = 0;
-    auto agent = new MockAgent();
-    m_agents.emplace_back(agent);
+
+    auto tmp = std::make_unique<MockAgent>();
+    MockAgent *agent = tmp.get();
+    m_agents.push_back(std::move(tmp));
 
     // constructor
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false,  // file policy
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          std::move(m_endpoint),
                           "", true,  // endpoint
                           m_init_control, false);
 
@@ -400,7 +405,7 @@ TEST_F(ControllerTest, single_node)
     };
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*agent, trace_formats()).WillOnce(Return(trace_formats));
-    EXPECT_CALL(*m_tracer, columns(_, _));
+    EXPECT_CALL(*m_tracer_ptr, columns(_, _));
     controller.setup_trace();
 
     // step
@@ -409,12 +414,12 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
-    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
+    EXPECT_CALL(*m_endpoint_ptr, read_policy(_)).Times(m_num_step)
         .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
-    EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_reporter_ptr, update()).Times(m_num_step);
+    EXPECT_CALL(*m_tracer_ptr, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_policy_tracer, update(_)).Times(1);
+    EXPECT_CALL(*m_policy_tracer_ptr, update(_)).Times(1);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
@@ -423,7 +428,7 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(m_num_step);
+    EXPECT_CALL(*m_endpoint_ptr, write_sample(_)).Times(m_num_step);
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
     // should not call aggregate_sample/split_policy
     EXPECT_CALL(*agent, aggregate_sample(_, _)).Times(0);
@@ -437,13 +442,13 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(*agent, report_header()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*agent, report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
-    EXPECT_CALL(*m_tracer, flush());
+    EXPECT_CALL(*m_reporter_ptr, generate(_, _, _, _, _, _, _));
+    EXPECT_CALL(*m_tracer_ptr, flush());
     controller.generate();
 
     // single node Controller should not send anything via TreeComm
-    EXPECT_EQ(0, m_tree_comm->num_send());
-    EXPECT_EQ(0, m_tree_comm->num_recv());
+    EXPECT_EQ(0, m_tree_comm_ptr->num_send());
+    EXPECT_EQ(0, m_tree_comm_ptr->num_recv());
 }
 
 // controller with only leaf responsibilities
@@ -451,26 +456,27 @@ TEST_F(ControllerTest, two_level_controller_1)
 {
     int num_level_ctl = 0;
     int root_level = 2;
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
 
-    auto agent = new MockAgent();
-    m_agents.emplace_back(agent);
+    auto tmp = std::make_unique<MockAgent>();
+    MockAgent *agent = tmp.get();
+    m_agents.push_back(std::move(tmp));
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          std::move(m_endpoint),
                           "", true,  // endpoint
                           m_init_control, false);
 
@@ -480,24 +486,24 @@ TEST_F(ControllerTest, two_level_controller_1)
     };
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*agent, trace_formats()).WillOnce(Return(trace_formats));
-    EXPECT_CALL(*m_tracer, columns(_, _));
+    EXPECT_CALL(*m_tracer_ptr, columns(_, _));
     controller.setup_trace();
 
     // mock parent sending to this child
     std::vector<std::vector<double> > policy = {{1, 2}, {3, 4}};
-    m_tree_comm->send_down(num_level_ctl, policy);
-    m_tree_comm->reset_spy();
+    m_tree_comm_ptr->send_down(num_level_ctl, policy);
+    m_tree_comm_ptr->reset_spy();
 
     // should not interact with endpoint
-    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
-    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
-    EXPECT_CALL(*m_policy_tracer, update(_)).Times(0);
+    EXPECT_CALL(*m_endpoint_ptr, read_policy(_)).Times(0);
+    EXPECT_CALL(*m_endpoint_ptr, write_sample(_)).Times(0);
+    EXPECT_CALL(*m_policy_tracer_ptr, update(_)).Times(0);
 
     EXPECT_CALL(m_application_sampler, update(_)).Times(m_num_step);
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
-    EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_reporter_ptr, update()).Times(m_num_step);
+    EXPECT_CALL(*m_tracer_ptr, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
@@ -521,18 +527,18 @@ TEST_F(ControllerTest, two_level_controller_1)
 
     EXPECT_CALL(*agent, report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
-    EXPECT_CALL(*m_tracer, flush());
+    EXPECT_CALL(*m_reporter_ptr, generate(_, _, _, _, _, _, _));
+    EXPECT_CALL(*m_tracer_ptr, flush());
     controller.generate();
 
     std::set<int> send_down_levels {};
     std::set<int> recv_down_levels {0};
     std::set<int> send_up_levels {0};
     std::set<int> recv_up_levels {};
-    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
-    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
-    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
-    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm_ptr->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm_ptr->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_up()));
 }
 
 // controller with leaf and tree responsibilities, but not at the root
@@ -543,35 +549,28 @@ TEST_F(ControllerTest, two_level_controller_2)
     std::vector<int> fan_out = {2, 2};
     ASSERT_EQ(root_level, (int)fan_out.size());
 
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
-        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+        EXPECT_CALL(*m_tree_comm_ptr, level_size(level)).WillOnce(Return(fan_out[level]));
     }
-    for (int level = 0; level < num_level_ctl + 1; ++level) {
-        auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level, fan_out, true));
-        tmp->init(level, fan_out, true);
-        m_level_agent.push_back(tmp);
-
-        m_agents.emplace_back(m_level_agent[level]);
-    }
+    set_up_agents(num_level_ctl, fan_out);
     ASSERT_EQ(2u, m_level_agent.size());
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          std::move(m_endpoint),
                           "", true, // endpoint
                           m_init_control, false);
 
@@ -581,23 +580,23 @@ TEST_F(ControllerTest, two_level_controller_2)
     };
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_level_agent[0], trace_formats()).WillOnce(Return(trace_formats));
-    EXPECT_CALL(*m_tracer, columns(_, _));
+    EXPECT_CALL(*m_tracer_ptr, columns(_, _));
     controller.setup_trace();
 
     // mock parent sending to this child
     std::vector<std::vector<double> > policy = {{1, 2}, {3, 4}};
-    m_tree_comm->send_down(num_level_ctl, policy);
-    m_tree_comm->reset_spy();
+    m_tree_comm_ptr->send_down(num_level_ctl, policy);
+    m_tree_comm_ptr->reset_spy();
 
     // should not interact with endpoint
-    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
-    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
-    EXPECT_CALL(*m_policy_tracer, update(_)).Times(0);
+    EXPECT_CALL(*m_endpoint_ptr, read_policy(_)).Times(0);
+    EXPECT_CALL(*m_endpoint_ptr, write_sample(_)).Times(0);
+    EXPECT_CALL(*m_policy_tracer_ptr, update(_)).Times(0);
 
     EXPECT_CALL(m_application_sampler, update(_)).Times(m_num_step);
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
-    EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_reporter_ptr, update()).Times(m_num_step);
+    EXPECT_CALL(*m_tracer_ptr, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
@@ -631,18 +630,18 @@ TEST_F(ControllerTest, two_level_controller_2)
     }
     EXPECT_CALL(*m_level_agent[0], report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
-    EXPECT_CALL(*m_tracer, flush());
+    EXPECT_CALL(*m_reporter_ptr, generate(_, _, _, _, _, _, _));
+    EXPECT_CALL(*m_tracer_ptr, flush());
     controller.generate();
 
     std::set<int> send_down_levels {0};
     std::set<int> recv_down_levels {1, 0};
     std::set<int> send_up_levels {0, 1};
     std::set<int> recv_up_levels {0};
-    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
-    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
-    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
-    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm_ptr->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm_ptr->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_up()));
 }
 
 // controller with responsibilities at all levels of the tree
@@ -653,35 +652,28 @@ TEST_F(ControllerTest, two_level_controller_0)
     std::vector<int> fan_out = {2, 2};
     ASSERT_EQ(root_level, (int)fan_out.size());
 
-    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+    EXPECT_CALL(*m_tree_comm_ptr, num_level_controlled())
         .WillOnce(Return(num_level_ctl));
-    EXPECT_CALL(*m_tree_comm, root_level())
+    EXPECT_CALL(*m_tree_comm_ptr, root_level())
         .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
-        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+        EXPECT_CALL(*m_tree_comm_ptr, level_size(level)).WillOnce(Return(fan_out[level]));
     }
-    for (int level = 0; level < num_level_ctl + 1; ++level) {
-        auto tmp = new MockAgent();
-        EXPECT_CALL(*tmp, init(level, fan_out, true));
-        tmp->init(level, fan_out, true);
-        m_level_agent.push_back(tmp);
-
-        m_agents.emplace_back(m_level_agent[level]);
-    }
+    set_up_agents(num_level_ctl, fan_out);
     ASSERT_EQ(3u, m_level_agent.size());
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
-                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
-                          std::unique_ptr<MockReporter>(m_reporter),
-                          std::unique_ptr<MockTracer>(m_tracer),
-                          std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          std::move(m_reporter),
+                          std::move(m_tracer),
+                          std::move(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          std::move(m_endpoint),
                           "", true, // endpoint
                           m_init_control, false);
 
@@ -691,19 +683,19 @@ TEST_F(ControllerTest, two_level_controller_0)
     };
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_level_agent[0], trace_formats()).WillOnce(Return(trace_formats));
-    EXPECT_CALL(*m_tracer, columns(_, _));
+    EXPECT_CALL(*m_tracer_ptr, columns(_, _));
     controller.setup_trace();
 
     EXPECT_CALL(m_application_sampler, update(_)).Times(m_num_step);
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
-    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
+    EXPECT_CALL(*m_endpoint_ptr, read_policy(_)).Times(m_num_step)
         .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
-    EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
+    EXPECT_CALL(*m_reporter_ptr, update()).Times(m_num_step);
+    EXPECT_CALL(*m_tracer_ptr, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_policy_tracer, update(_)).Times(1);
+    EXPECT_CALL(*m_policy_tracer_ptr, update(_)).Times(1);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
@@ -732,7 +724,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[2], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[2], do_send_sample())
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(m_num_step);
+    EXPECT_CALL(*m_endpoint_ptr, write_sample(_)).Times(m_num_step);
 
     for (int step = 0; step < m_num_step; ++step) {
         controller.step();
@@ -741,16 +733,16 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[root_level], report_header()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
-    EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
-    EXPECT_CALL(*m_tracer, flush());
+    EXPECT_CALL(*m_reporter_ptr, generate(_, _, _, _, _, _, _));
+    EXPECT_CALL(*m_tracer_ptr, flush());
     controller.generate();
 
     std::set<int> send_down_levels {1, 0};
     std::set<int> recv_down_levels {1, 0};
     std::set<int> send_up_levels {0, 1};
     std::set<int> recv_up_levels {0, 1};
-    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm->levels_sent_down()));
-    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm->levels_rcvd_down()));
-    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm->levels_sent_up()));
-    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm->levels_rcvd_up()));
+    EXPECT_THAT(send_down_levels, ContainerEq(m_tree_comm_ptr->levels_sent_down()));
+    EXPECT_THAT(recv_down_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_down()));
+    EXPECT_THAT(send_up_levels, ContainerEq(m_tree_comm_ptr->levels_sent_up()));
+    EXPECT_THAT(recv_up_levels, ContainerEq(m_tree_comm_ptr->levels_rcvd_up()));
 }
