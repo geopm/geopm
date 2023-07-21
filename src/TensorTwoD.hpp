@@ -29,7 +29,7 @@ namespace geopm
             /// @brief Copy constructor using a deep copy
             ///
             /// @param [in] TensorTwoD& 2D Tensor to copy
-            TensorTwoD(const TensorTwoD &);
+            TensorTwoD(const TensorTwoD &other);
 
             TensorTwoD(TensorTwoD &&other);
             /// @brief Constructor input from a vector of vectors of values.

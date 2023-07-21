@@ -28,7 +28,7 @@ namespace geopm
             /// @brief Constructs a deep copy of the argument
             ///
             /// @param [in] TensorOneD Tensor to copy
-            TensorOneD(const TensorOneD &);
+            TensorOneD(const TensorOneD &other);
 
             TensorOneD(TensorOneD &&other);
             /// @brief Constructor from vector of values
