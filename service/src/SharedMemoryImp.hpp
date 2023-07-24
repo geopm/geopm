@@ -8,10 +8,6 @@
 
 #include "geopm/SharedMemory.hpp"
 
-#include <pthread.h>
-#include <algorithm>
-
-
 namespace geopm
 {
     class SharedMemoryImp : public SharedMemory
