@@ -15,10 +15,12 @@
 #include <sys/types.h>
 #include <string.h>
 #include <glob.h>
+#include <pthread.h>
 
 #include <iostream>
 #include <sstream>
 #include <utility>
+#include <algorithm>
 
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
