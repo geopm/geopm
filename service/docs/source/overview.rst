@@ -112,8 +112,8 @@ Code Examples
 """""""""""""
 
 All of the code examples require linking against ``libgeopmd`` for C/C++.  The
-Python examples requires that your ``PYTHONPATH`` contains the ``geopmdpy``
-module.
+Python examples require that your ``PYTHONPATH`` contains the ``geopmdpy``
+module and that ``libgeopmd`` is available in your ``LD_LIBRARY_PATH``.
 
 The following examples leverage :doc:`geopmread <geopmread.1>` or
 :doc:`geopmwrite <geopmwrite.1>` for command-line usage, and the
@@ -487,13 +487,14 @@ Simiarly, to write the same value to all cores in all packages, issue the
 request at the ``board`` domain.
 
 To determine how the disaggregation will occur for a given control, you need to
-examine the aggregation type.  In this example, ``CPU_FREQUENCY_MAX_CONTROL`` has an
-aggregation type of ``expect_same``.  When writing this control at a more
-coarse domain than the native one, this means that all the native domains will
-receive the same value as the coarse domain.
+examine the aggregation type.  In this example, ``CPU_FREQUENCY_MAX_CONTROL``
+has an aggregation type of ``expect_same``.  When writing this control at a
+more coarse domain than the native one, this means that all the native domains
+will receive the same value as the coarse domain.  This behavior is in place
+for any other aggregation type *except* ``sum``.
 
-Controls that use any other aggregation type will have the requested value
-distributed evenly across the native domain.  Taking
+Controls that use ``sum`` aggregation will have the requested value distributed
+evenly across the native domain.  Taking
 ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT`` as an example, it has the following
 information:
 
