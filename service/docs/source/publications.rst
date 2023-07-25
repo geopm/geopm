@@ -2,13 +2,14 @@
 Community-Maintained Publications
 =================================
 
-Conference Publications
------------------------
+Publications - Conference & Workshop
+------------------------------------
 
-* `Introducing Application Awareness Into a Unified Power Management Stack, IPDPS 2021 <https://ieeexplore.ieee.org/abstract/document/9460501>`_
+* `Guiding Hardware-Driven Turbo with Application Performance Awareness <https://ieeexplore.ieee.org/abstract/document/9969356>`_. In Proceedings of IEEE 13th International Green and Sustainable Computing Conference (IGSC) Energy Efficient HPC State of the Practice Workshop (EE HPC SOP), Sept. 2022.
 
-* `Global Extensible Open Power Manager: A Vehicle for HPC Community Collaboration on Co-Designed Energy Management Solutions, ISC 2017 <https://link.springer.com/chapter/10.1007/978-3-319-58667-0_21>`_
+* `Introducing Application Awareness Into a Unified Power Management Stack <https://ieeexplore.ieee.org/abstract/document/9460501>`_. In Proceedings of IEEE International Parallel and Distributed Processing Symposium (IPDPS), May 2021.
 
+* `Global Extensible Open Power Manager: A Vehicle for HPC Community Collaboration on Co-Designed Energy Management Solutions <https://link.springer.com/chapter/10.1007/978-3-319-58667-0_21>`_. In International Conference on High Performance Computing (ISC), June 2017.
 
 
 HPC Lab Resources
