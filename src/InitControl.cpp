@@ -55,6 +55,13 @@ namespace geopm
         // )      End capture group
         std::regex sci_notation_regex("([+-]?[0-9]*[.]?[0-9]+(?:[eE]?[+-]?[0-9]+)?)");
 
+        // (            Start capture group
+        // 0            Mandatory start character
+        // [xX]         Allow "0x" or "0X" only
+        // [0-9a-fA-F]+ One or more digits or hex letters
+        // )            End capture group
+        std::regex hex_regex("(0[xX][0-9a-fA-F]+)");
+
         // ^\\s*  String begins with zero or more whitespace characters
         // (\\S+) Capture group #1 for one or more non-whitespace characters (CONTROL NAME)
         // \\s+   One or more whitespace characters
@@ -71,7 +78,8 @@ namespace geopm
             // Line parsing is done in 2 phases:
             //   1. Parse the entire line into match_line with capture groups defined in request_regex.
             //   2. Parse the SETTING value into match_setting with the capture group defined
-            //      in sci_notation_regex.  Continue to parse it into a double if it is valid.
+            //      in hex_regex, then if no match sci_notation_regex.  Continue to parse it into
+            //      a double if it is valid.
             std::regex_search(line, match_line, request_regex);
 
             if (match_line.empty()) { // No match; possible bad input or comment
@@ -95,17 +103,20 @@ namespace geopm
 
                 std::smatch match_setting;
                 std::string setting(match_line[4].str());
-                std::regex_search(setting, match_setting, sci_notation_regex);
+                std::regex_search(setting, match_setting, hex_regex);
 
-                if (match_setting.empty()) {
-                    throw Exception("Missing setting value while parsing: " + line,
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                }
+                if (match_setting.empty() || match_setting.suffix().str().size() > 0) {
+                    std::regex_search(setting, match_setting, sci_notation_regex);
+                    if (match_setting.empty()) {
+                        throw Exception("Missing setting value while parsing: " + line,
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
 
-                if (match_setting.suffix().str().size() > 0) {
-                    throw Exception("Improperly formatted setting value encountered while parsing: " + line +
-                                    " bad input: " + match_setting.suffix().str(),
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    if (match_setting.suffix().str().size() > 0) {
+                        throw Exception("Improperly formatted setting value encountered while parsing: " + line +
+                                        " bad input: " + match_setting.suffix().str(),
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
                 }
 
                 try {

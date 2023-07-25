@@ -64,6 +64,7 @@ TEST_F(InitControlTest, parse_valid_file)
                            "FAKE_CONTROL4 package 0 -1.3e-5\n"
                            "FAKE_CONTROL5 package 3 1e9\n"
                            "    #FAKE_CONTROL6 package 3 2e9\n"
+                           "FAKE_CONTROL7 cpu 3 0xB33F\n"
                            "";
     WriteFile(contents);
 
@@ -80,6 +81,8 @@ TEST_F(InitControlTest, parse_valid_file)
                 write_control("FAKE_CONTROL4", PlatformTopo::domain_name_to_type("package"), 0, -1.3e-5));
     EXPECT_CALL(m_platform_io,
                 write_control("FAKE_CONTROL5", PlatformTopo::domain_name_to_type("package"), 3, 1e9));
+    EXPECT_CALL(m_platform_io,
+                write_control("FAKE_CONTROL7", PlatformTopo::domain_name_to_type("cpu"), 3, 0xB33F));
 
     m_init_control = std::make_shared<InitControlImp>(m_platform_io);
     m_init_control->parse_input(m_file_name);
@@ -195,6 +198,11 @@ TEST_F(InitControlTest, throw_bad_input)
     WriteFile(contents);
     GEOPM_EXPECT_THROW_MESSAGE(m_init_control->parse_input(m_file_name),
                                GEOPM_ERROR_INVALID, "unrecognized domain_name");
+
+    contents = "CPU_POWER_LIMIT 1 1 0xZ123\n";
+    WriteFile(contents);
+    GEOPM_EXPECT_THROW_MESSAGE(m_init_control->parse_input(m_file_name),
+                               GEOPM_ERROR_INVALID, "bad input: xZ123");
 }
 
 TEST_F(InitControlTest, throw_invalid_write)
