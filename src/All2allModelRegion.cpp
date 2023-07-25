@@ -46,8 +46,8 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
         }
-        err = ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
-        if (!err && m_is_mpi_enabled) {
+        ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
+        if (m_is_mpi_enabled) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
         if (err) {
