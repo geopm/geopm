@@ -13,6 +13,7 @@
 #include "geopm_imbalancer.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "Profile.hpp"
 
 #include "SleepModelRegion.hpp"
 #include "All2allModelRegion.hpp"
@@ -97,10 +98,7 @@ namespace geopm
         , m_num_progress_updates(1)
         , m_norm(1.0)
     {
-        int err = region();
-        if (err != 0) {
-            std::cerr << "Warning: <geopm> ModelRegion: failed to create region identifier: " << geopm::error_message(err) << "\n";
-        }
+        region();
     }
 
     ModelRegion::~ModelRegion()
@@ -132,18 +130,16 @@ namespace geopm
         (void)geopm_tprof_init(m_num_progress_updates);
     }
 
-    int ModelRegion::region(uint64_t hint)
+    void ModelRegion::region(uint64_t hint)
     {
-        int err = 0;
         if (!m_do_unmarked) {
-            err = geopm_prof_region(m_name.c_str(), hint, &m_region_id);
+            m_region_id = Profile::default_profile().region(m_name, hint);
         }
-        return err;
     }
 
-    int ModelRegion::region(void)
+    void ModelRegion::region(void)
     {
-        return region(GEOPM_REGION_HINT_UNKNOWN);
+        region(GEOPM_REGION_HINT_UNKNOWN);
     }
 
     void ModelRegion::region_enter(void)

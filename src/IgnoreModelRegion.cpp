@@ -25,11 +25,7 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
-        int err = ModelRegion::region(GEOPM_REGION_HINT_IGNORE);
-        if (err) {
-            throw Exception("IgnoreModelRegion::IgnoreModelRegion()",
-                            err, __FILE__, __LINE__);
-        }
+        ModelRegion::region(GEOPM_REGION_HINT_IGNORE);
         big_o(big_o_in);
     }
 
