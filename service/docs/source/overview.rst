@@ -483,7 +483,7 @@ Using ``CPU_FREQUENCY_MAX_CONTROL`` as an example, the output in `Listing Contro
 Information`_ shows the native domain as ``core``.  If the user desires to
 write the same value to all the cores in a package, simply issue the request at
 the ``package`` domain, and all cores in that package will be written.
-Simiarly, to write the same value to all cores in all packages, issue the
+Similarly, to write the same value to all cores in all packages, issue the
 request at the ``board`` domain.
 
 To determine how the disaggregation will occur for a given control, you need to
@@ -720,37 +720,36 @@ programs the counter to track ``LONGEST_LAT_CACHE.MISS`` on CPU 0:
     # Read the counter. Repeat this read operation across whatever you're measuring.
     $ geopmread MSR::IA32_PMC0:PERFCTR cpu 0
 
-Runtime example is WIP.
+To accomplish this with the Runtime, leverage the :ref:`geopm-init-control
+<geopm-init-control option>` feature along with the :ref:`geopm-report-signals
+<geopm-report-signals option>` and/or :ref:`geopm-trace-signals
+<geopm-trace-signals option>` options to ``geopmlaunch``.  First, create a file
+in your current working directory with the following contents:
 
-.. To accomplish this with the Runtime, leverage the ``--geopm-init-control``
-.. feature along with the ``--geopm-report-signals`` or ``--geopm-trace-signals``
-.. options to ``geopmlaunch``.  First, create a file in your current working
-.. directory with the following contents:
+.. code-block:: bash
 
-.. .. code-block:: bash
+    # LONGEST_LAT_CACHE.MISS: EVENT_CODE = 0x2E | UMASK = 0x41
+    MSR::IA32_PERFEVTSEL0:EVENT_SELECT package 0 0x2E
+    MSR::IA32_PERFEVTSEL0:UMASK package 0 0x41
+    MSR::IA32_PERFEVTSEL0:USR package 0 1
+    MSR::IA32_PERFEVTSEL0:OS package 0 1
+    MSR::IA32_PERFEVTSEL0:EN package 0 1
+    MSR::PERF_GLOBAL_CTRL:EN_PMC0 package 0 1
 
-..     # LONGEST_LAT_CACHE.MISS: EVENT_CODE = 0x2E | UMASK = 0x41
-..     MSR::IA32_PERFEVTSEL0:EVENT_SELECT cpu 0 0x2E
-..     MSR::IA32_PERFEVTSEL0:UMASK cpu 0 0x41
-..     MSR::IA32_PERFEVTSEL0:USR cpu 0 1
-..     MSR::IA32_PERFEVTSEL0:OS cpu 0 1
-..     MSR::IA32_PERFEVTSEL0:EN cpu 0 1
-..     MSR::PERF_GLOBAL_CTRL:EN_PMC0 cpu 0 1
+Name the file accordingly (e.g. ``enable_cache_misses``).  This configuration
+will program and enable all the counters on all of the CPUs on the first
+package.Use the file, with ``geopmlaunch`` and add the desired counter to the
+reports and/or traces:
 
-.. Name the file accordingly (e.g. ``enable_cache_misses``).  Use the file, with
-.. ``geopmlaunch`` and add the desired counter to the reports and/or traces:
+.. code-block:: bash
 
-.. .. code-block:: bash
+    $ OMP_NUM_THREADS=1 geopmlaunch srun -N 1 -n 2 --geopm-preload \
+                                         --geopm-init-control=enable_cache_misses \
+                                         --geopm-report-signals=MSR::IA32_PMC0:PERFCTR@package \
+                                         -- ./mpi_application
 
-..     $ OMP_NUM_THREADS=1 geopmlaunch srun -N 1 -n 2 --geopm-preload \
-..                                          --geopm-init-control=enable_cache_misses
-..                                          --geopm-report-signals=MSR::PERF_GLOBAL_CTRL:EN_PMC0@cpu
-..                                          -- ./mpi_application
-
-.. For more information, see the ``--geopm-init-control`` :ref:`option description
-.. <geopm-init-control option>`, the ``--geopm-report-signals`` :ref:`option
-.. description <geopm-report-signals option>`, or the ``--geopm-trace-signals``
-.. :ref:`option description <geopm-trace-signals option>`
+As configured above, the report data associated with each region will include the
+counter data summarized per package.
 
 .. Extending GEOPM's Capabilities
 .. """"""""""""""""""""""""""""""
