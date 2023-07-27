@@ -11,7 +11,6 @@
 
 #include "config.h"
 #include "geopm/Exception.hpp"
-#include "geopm/Helper.hpp"
 #include "NVMLDevicePool.hpp"
 #include "NVMLGPUTopo.hpp"
 #include "geopm_topo.h"
@@ -33,9 +32,9 @@ namespace geopm
         else {
             int cpu_remaining = 0;
             std::vector<cpu_set_t *> ideal_affinitization_mask_vec;
+            cpu_set_t *affinitized_cpuset = CPU_ALLOC(num_cpu);
 
-	    auto affinitized_cpuset = make_cpu_set(num_cpu, {});
-            CPU_ZERO_S(CPU_ALLOC_SIZE(num_cpu), affinitized_cpuset.get());
+            CPU_ZERO_S(CPU_ALLOC_SIZE(num_cpu), affinitized_cpuset);
 
             m_cpu_affinity_ideal.resize(num_gpu);
 
@@ -49,10 +48,10 @@ namespace geopm
             for (unsigned int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
                 for (int cpu_idx = 0; cpu_idx < num_cpu; cpu_idx++) {
                     if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx))) {
-                        if (CPU_ISSET(cpu_idx, affinitized_cpuset.get()) == 0) {
+                        if (CPU_ISSET(cpu_idx, affinitized_cpuset) == 0) {
                             //if this is in this GPU mask and has not
                             //been picked by another GPU
-                            CPU_SET(cpu_idx, affinitized_cpuset.get());
+                            CPU_SET(cpu_idx, affinitized_cpuset);
                             ++cpu_remaining;
                         }
                     }

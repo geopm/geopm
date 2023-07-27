@@ -6,15 +6,13 @@
 #ifndef HELPER_HPP_INCLUDE
 #define HELPER_HPP_INCLUDE
 
-#include <stdint.h>
-#include <sched.h>
-
 #include <string>
 #include <memory>
 #include <utility>
 #include <vector>
+#include <stdint.h>
 #include <functional>
-#include <set>
+
 
 namespace geopm
 {
@@ -142,14 +140,6 @@ namespace geopm
     /// @param [in] pid The process id to query.
     /// @return The group id.
     unsigned int pid_to_gid(const int pid);
-
-    /// @brief Wrapper around CPU_ALLOC and CPU_FREE
-    /// @param [in] num_cpu The number of CPUs to allocate the CPU set
-    /// @param [in] cpu_enabled The CPUs to be included in the CPU set
-    /// @return A std::unique_ptr to a cpu_set_t configured to use CPU_FREE as
-    ///         the deleter.
-    std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
-        make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled);
 }
 
 #endif
