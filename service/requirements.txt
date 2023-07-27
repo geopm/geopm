@@ -9,4 +9,4 @@ jsonschema>=3.2.0
 pyyaml>=6.0.0
 setuptools>=59.6.0
 pygments>=2.13.0
-sphinx-tabs>=3.4.1
+sphinx-tabs>=3.3.1
