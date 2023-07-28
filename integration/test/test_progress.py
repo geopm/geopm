@@ -110,7 +110,7 @@ class TestIntegration_progress(unittest.TestCase):
         full_name = [rn for rn in region_names if function_name in rn]
         if len(full_name) != 1:
             raise RuntimeError("Single match not found for {}".format(function_name))
-        return hex(self._report.raw_region(host, full_name[0])['hash'])
+        return f'{self._report.raw_region(host, full_name[0])["hash"]:#010x}'
 
     def check_progress(self, time, progress, expected_max, msg):
         """Check a time series of progress values from a region.
