@@ -237,7 +237,7 @@ TEST_F(EnvironmentTest, user_only)
 
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
-    exp_vars["GEOPM_PROFILE"] = std::string(program_invocation_name);
+    exp_vars["GEOPM_PROFILE"] = "default";
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
     expect_vars(exp_vars);
@@ -259,7 +259,7 @@ TEST_F(EnvironmentTest, user_only_do_profile)
 
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
-    exp_vars["GEOPM_PROFILE"] = std::string(program_invocation_name);
+    exp_vars["GEOPM_PROFILE"] = "default";
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
     expect_vars(exp_vars);
@@ -475,7 +475,7 @@ TEST_F(EnvironmentTest, user_default_and_override)
         {"GEOPM_AGENT", override_vars["GEOPM_AGENT"]},
         {"GEOPM_TRACE", m_user["GEOPM_TRACE"]},
         {"GEOPM_TRACE_PROFILE", m_user["GEOPM_TRACE_PROFILE"]},
-        {"GEOPM_PROFILE", std::string(program_invocation_name)},
+        {"GEOPM_PROFILE", "default"},
         {"GEOPM_FREQUENCY_MAP", m_user["GEOPM_FREQUENCY_MAP"]},
         {"GEOPM_CTL", override_vars["GEOPM_CTL"]},
         {"GEOPM_MAX_FAN_OUT", default_vars["GEOPM_MAX_FAN_OUT"]},

@@ -255,9 +255,8 @@ GEOPM Options
                                 example, when running a sweep of experiments
                                 with multiple power caps, the profile could
                                 contain the power setting for one run.  The
-                                default profile name is the name of the compute
-                                application executable.  This option is used by
-                                the launcher to set the ``GEOPM_PROFILE``
+                                default profile name is "default".  This option
+                                is used by the launcher to set the ``GEOPM_PROFILE``
                                 environment variable.  The command line option
                                 will override any value currently set in the
                                 environment.  See the :ref:`ENVIRONMENT section

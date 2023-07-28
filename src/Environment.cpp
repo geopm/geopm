@@ -8,7 +8,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -276,7 +275,7 @@ namespace geopm
         std::string env_profile = lookup("GEOPM_PROFILE");
         std::string ret = env_profile;
         if (do_profile() && ret.empty()) {
-            ret = std::string(program_invocation_name);
+            ret = "default";
         }
         else if (!ret.empty()) {
             // Sanitize the input: No carriage returns nor double quotes
