@@ -27,7 +27,8 @@ namespace geopm
             /// @param [in] gpu_idx The index indicating a particular
             ///        GPU.
             /// @return CPU to GPU idea affinitization bitmask.
-            virtual cpu_set_t *cpu_affinity_ideal_mask(int gpu_idx) const = 0;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                cpu_affinity_ideal_mask(int gpu_idx) const = 0;
             /// @brief Get the NVML device streaming multiprocessor frequency
             ///        in MHz.
             /// @param [in] gpu_idx The index indicating a particular

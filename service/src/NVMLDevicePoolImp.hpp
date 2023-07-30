@@ -17,7 +17,8 @@ namespace geopm
             NVMLDevicePoolImp(const int num_cpu);
             virtual ~NVMLDevicePoolImp();
             virtual int num_gpu(void) const override;
-            virtual cpu_set_t *cpu_affinity_ideal_mask(int gpu_idx) const override;
+            virtual std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
+                cpu_affinity_ideal_mask(int gpu_idx) const override;
             virtual uint64_t frequency_status_sm(int gpu_idx) const override;
             virtual std::vector<unsigned int> frequency_supported_sm(int gpu_idx) const override;
             virtual uint64_t utilization(int gpu_idx) const override;

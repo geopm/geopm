@@ -32,9 +32,10 @@ namespace geopm
         }
         else {
             int cpu_remaining = 0;
-            std::vector<cpu_set_t *> ideal_affinitization_mask_vec;
+            std::vector<std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >>
+                ideal_affinitization_mask_vec;
 
-	    auto affinitized_cpuset = make_cpu_set(num_cpu, {});
+            auto affinitized_cpuset = make_cpu_set(num_cpu, {});
             CPU_ZERO_S(CPU_ALLOC_SIZE(num_cpu), affinitized_cpuset.get());
 
             m_cpu_affinity_ideal.resize(num_gpu);
@@ -48,7 +49,7 @@ namespace geopm
             //       and CPU_COUNT of the output
             for (unsigned int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
                 for (int cpu_idx = 0; cpu_idx < num_cpu; cpu_idx++) {
-                    if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx))) {
+                    if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx).get())) {
                         if (CPU_ISSET(cpu_idx, affinitized_cpuset.get()) == 0) {
                             //if this is in this GPU mask and has not
                             //been picked by another GPU
@@ -77,14 +78,14 @@ namespace geopm
                          cpu_idx != num_cpu &&
                          gpu_cpu_count < num_cpu_per_gpu;
                          ++cpu_idx) {
-                        if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx))) {
+                        if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx).get())) {
                             m_cpu_affinity_ideal.at(gpu_idx).insert(cpu_idx);
                             --cpu_remaining;
                             ++gpu_cpu_count;
 
                             // Remove this CPU from the affinity mask of all GPUs
                             for (unsigned int gpu_idx_inner = 0; gpu_idx_inner <  num_gpu; ++gpu_idx_inner) {
-                                CPU_CLR(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx_inner));
+                                CPU_CLR(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx_inner).get());
                             }
                         }
                     }
