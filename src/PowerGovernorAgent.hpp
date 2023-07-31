@@ -75,7 +75,6 @@ namespace geopm
             void init_platform_io(void);
             PlatformIO &m_platform_io;
             int m_level;
-            bool m_is_converged;
             bool m_is_sample_stable;
             bool m_do_send_sample;
             double m_min_power_setting;

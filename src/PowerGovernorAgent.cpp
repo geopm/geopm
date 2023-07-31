@@ -34,7 +34,6 @@ namespace geopm
                                            std::shared_ptr<Waiter> waiter)
         : m_platform_io(platform_io)
         , m_level(-1)
-        , m_is_converged(false)
         , m_is_sample_stable(false)
         , m_do_send_sample(false)
         , m_min_power_setting(m_platform_io.read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
@@ -149,7 +148,6 @@ namespace geopm
                 out_policy[child_idx][M_POLICY_POWER] = power_budget_in;
             }
             m_epoch_power_buf->clear();
-            m_is_converged = false;
             m_power_budget_changed = true;
         }
         else {
