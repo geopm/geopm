@@ -301,7 +301,7 @@
             }
         },
         "PACKAGE_THERM_INTERRUPT": {
-            "offset": "0x1B0",
+            "offset": "0x1B2",
             "domain": "package",
             "fields": {
                 "THRESH_1": {
