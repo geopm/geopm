@@ -60,6 +60,7 @@ jobs:
       CXX: ${{ matrix.config.cxx }}
       FC: gfortran-9
       F77: gfortran-9
+      CXXFLAGS: -Wno-array-bounds
 
     steps:
     - uses: actions/checkout@v4
