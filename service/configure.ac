@@ -336,8 +336,8 @@ fi
 if test "x$enable_io_uring" = "x1" ; then
     AC_DEFINE([GEOPM_HAS_IO_URING], [ ], [Enables liburing in GEOPM])
     AC_SEARCH_LIBS([io_uring_queue_init], [uring])
-    AC_CHECK_LIB([uring], [io_uring_queue_init], [], [
-        echo "missing liburing: Configure with --with-liburing or --with-liburing-lib to specify the location or --disable-io-uring to avoid this dependency"
+    AC_CHECK_LIB([uring], [io_uring_get_probe], [], [
+        echo "missing liburing or version is too old: Configure with --with-liburing or --with-liburing-lib to specify the location or --disable-io-uring to avoid this dependency"
         exit -1])
     AC_CHECK_HEADER([liburing.h], [], [
         echo "missing liburing.h: Configure with --with-liburing or --with-liburing-include to specify the location or --disable-io-uring to avoid this dependency"
