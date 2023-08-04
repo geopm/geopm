@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <vector>
 #include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "ModelRegion.hpp"
 
 
@@ -46,6 +47,24 @@ void triad_no_post(std::vector<double> &aa_vec,
     for (size_t idx = 0; idx < aa_vec.size(); ++idx) {
         aa_vec[idx] = bb_vec[idx] + scalar * cc_vec[idx];
     }
+}
+
+__attribute__((noinline))
+void triad_no_omp_with_post(std::vector<double> &aa_vec,
+                            const std::vector<double> &bb_vec,
+                            const std::vector<double> &cc_vec)
+{
+    uint64_t triad_rid;
+    geopm_prof_region("triad_no_omp_with_post", GEOPM_REGION_HINT_COMPUTE, &triad_rid);
+    geopm_tprof_init(aa_vec.size());
+
+    double scalar = 3.0;
+    geopm_prof_enter(triad_rid);
+    for (size_t idx = 0; idx < aa_vec.size(); ++idx) {
+        geopm_tprof_post();
+        aa_vec[idx] = bb_vec[idx] + scalar * cc_vec[idx];
+    }
+    geopm_prof_exit(triad_rid);
 }
 
 __attribute__((noinline))
@@ -124,6 +143,9 @@ int main(int argc, char **argv)
 
     MPI_Barrier(MPI_COMM_WORLD);
     triad_no_post(aa_vec, bb_vec, cc_vec);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    triad_no_omp_with_post(aa_vec, bb_vec, cc_vec);
 
     MPI_Barrier(MPI_COMM_WORLD);
     loop_dgemm_warmup(0.01, 100);

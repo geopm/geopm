@@ -216,6 +216,23 @@ class TestIntegration_progress(unittest.TestCase):
                                 max_progress,
                                 err_msg)
 
+    def test_linear_progress_triad_no_omp(self):
+        """Test that the triad region without OMP markup and
+        with the geopm_tprof_post() call reports
+        progress that is well behaved when aggregated.
+
+        """
+        triad_post_hash = self.get_hash('triad_no_omp_with_post')
+        df = self._trace.get_trace_df()
+        grouped_df = df.groupby('REGION_HASH')
+        triad_post_df = grouped_df.get_group(triad_post_hash)
+        max_progress = self._num_rank
+
+        self.check_progress(triad_post_df['TIME'],
+                            triad_post_df['REGION_PROGRESS'],
+                            max_progress,
+                            'Bad fit for triad aggregated progress')
+
     def test_linear_progress_dgemm(self):
         """Test that the dgemm region with the calls to geopm_tprof_post()
         reports progress that is well behaved for all CPUs and also
@@ -245,14 +262,14 @@ class TestIntegration_progress(unittest.TestCase):
         df = self._trace.get_trace_df()
         grouped_df = df.groupby('REGION_HASH')
 
-        triad_post_hash = self.get_hash('triad_with_post')
-        dgemm_post_hash = self.get_hash('dgemm_with_post')
-        unmarked_hash = hex(geopmpy.hash.crc32_str('GEOPM_REGION_HASH_UNMARKED'))
+        post_region_names = [aa for aa in self._report.region_names(self._report.host_names()[0])
+                             if 'with_post' in aa]
+        hashes_to_exclude = [self.get_hash(aa) for aa in post_region_names]
+        hashes_to_exclude.append(hex(geopmpy.hash.crc32_str('GEOPM_REGION_HASH_UNMARKED')))
+        hashes_to_exclude.append('NAN')
+
         other_groups = [gg for gg in list(grouped_df.groups)
-                        if gg not in (triad_post_hash,
-                                      dgemm_post_hash,
-                                      unmarked_hash,
-                                      'NAN')]
+                        if gg not in hashes_to_exclude]
         for gg in other_groups:
            for cpu in self.get_cpu_with_progress():
                name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
@@ -263,7 +280,7 @@ class TestIntegration_progress(unittest.TestCase):
                    self.assertEqual(0.0, uu[0], msg=err_msg)
 
         self.assertLessEqual(0, min(df['REGION_PROGRESS'].dropna()))
-        self.assertGreaterEqual(1.0, max(df['REGION_PROGRESS'].dropna()))
+        self.assertGreaterEqual(self._num_rank, max(df['REGION_PROGRESS'].dropna()))
 
     def check_overhead(self, key, epsilon):
         """Compare the regions where geopm_tprof_post() was and was not called
