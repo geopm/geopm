@@ -32,11 +32,11 @@ extern "C"
     }
 
     static void on_ompt_event_target(ompt_target_t kind,
-                                    ompt_scope_endpoint_t endpoint,
-                                    int device_num,
-                                    ompt_data_t* task_data,
-                                    ompt_id_t target_id,
-                                    const void* target_function) {
+                                     ompt_scope_endpoint_t endpoint,
+                                     int device_num,
+                                     ompt_data_t *task_data,
+                                     ompt_id_t target_id,
+                                     const void *target_function) {
         if (endpoint == ompt_scope_begin) {
             geopm::OMPT::ompt().region_enter(target_function);
         }
