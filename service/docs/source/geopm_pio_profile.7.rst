@@ -53,11 +53,23 @@ Signals
     * **Unit**: geopm_region_hint_e
 
 ``PROFILE::REGION_PROGRESS``
-    Minimum per-rank reported progress through the current region.  The
-    returned value will be on the interval [0, 1].  0 indicates no progress
-    while 1 indicates the region is complete.
+    Minimum per-rank reported progress through the current region.  When
+    utilizing OpenMP, the per-CPU returned value will be on the interval [0, 1
+    / *num_thread*] where *num_thread* is the number of requested OpenMP threads
+    per rank.  When running single-threaded (i.e. not leveraging OpenMP), the
+    per-CPU returned value will be on the interval [0, 1].
 
-    * **Aggregation**: min
+    When aggregating this signal to the board domain, the aggregated value will
+    always be on the interval [0, *num_rank*] where *num_rank* is equal to the
+    number of ranks (processes) in the run.  0 indicates no progress while 1 (if
+    examining the per-CPU signal) or *num_rank* (if examining the board
+    aggregated signal) indicates the region is complete.
+
+    This signal is not valid outside of a region.  Specifically, this signal
+    should be ignored any time the board aggregated ``REGION_HASH`` signal
+    resolves to ``GEOPM_REGION_HASH_UNMARKED``.
+
+    * **Aggregation**: sum
     * **Domain**: cpu
     * **Format**: float
     * **Unit**: progress percentage

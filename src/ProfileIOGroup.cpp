@@ -322,8 +322,8 @@ namespace geopm
     std::function<double(const std::vector<double> &)> ProfileIOGroup::agg_function(const std::string &signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
-            {"REGION_PROGRESS", Agg::min},
-            {"PROFILE::REGION_PROGRESS", Agg::min},
+            {"REGION_PROGRESS", Agg::sum},
+            {"PROFILE::REGION_PROGRESS", Agg::sum},
             {"REGION_HASH", Agg::region_hash},
             {"PROFILE::REGION_HASH", Agg::region_hash},
             {"REGION_HINT", Agg::region_hint},
