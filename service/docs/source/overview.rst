@@ -540,7 +540,7 @@ Using ``geopmlaunch`` with MPI Applications
 
 .. code-block:: bash
 
-    # Run with 1 OpenMP thread, and 2 ranks
+    # Run with 1 OpenMP thread per rank, and 2 ranks
 
     # SLURM example
 
@@ -566,13 +566,57 @@ option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
     with the ``--geopm-affinity-disable`` option to ``geopmlaunch``.  This behavior
     will change with the 3.0 release.
 
-Profiling Non-MPI Applications (WIP)
-""""""""""""""""""""""""""""""""""""
+Profiling Non-MPI Applications
+""""""""""""""""""""""""""""""
+
+In this simple example we run the ``sleep(1)`` command for 10 seconds
+and monitor the system during its execution.  Rather than using the
+``geopmlaunch`` tool as in the above example, we will run the
+``geopmctl`` command in the background while the application of
+interest is executing.  There are three requirements to enable the
+GEOPM controller process to connect to the application process and
+generate a report.
+
+1. Both the ``geopmctl`` process and the application process must have
+   the ``GEOPM_PROFILE`` environment variable set to the **same**
+   value.
+2. The application process must have ``LD_PRELOAD=libgeopm.so.1`` set
+   in the environment, or the application binary must be linked
+   directly to ``libgeopm.so.1`` at compile time.
+3. The ``GEOPM_REPORT`` environment variable must be set in the
+   environment of the ``geopmctl`` process.
+
+Beyond generating a report YAML file, we also show two of the optional
+GEOPM Runtime features.  The first is creating a CSV trace file using
+the ``GEOPM_TRACE`` environment variable.  Additionally, by using the
+``GEOPM_PERIOD`` environment variable we increase the sampling period
+of the controller to 200 milli-seconds (default value is 5
+milli-seconds).  These two options together will create a CSV trace
+file with approximately 50 rows of samples (five per-second for ten
+seconds).  The ``awk`` command in the example selects the columns
+measuring time since application start from column 1, CPU energy from
+column 6, and CPU power from column 8.
+
+.. code-block:: bash
+
+    $ GEOPM_PROFILE=sleep-ten \
+      GEOPM_REPORT=sleep-ten.yaml \
+      GEOPM_TRACE=sleep-ten.csv \
+      GEOPM_PERIOD=0.2 \
+      geopmctl &
+    $ GEOPM_PROFILE=sleep-ten \
+      LD_PRELOAD=libgeopm.so.1 \
+      sleep 10
+    $ cat sleep-ten.yaml
+    $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv | less
 
 .. note::
 
     Support for profiling non-MPI applications with the Runtime is not
-    available in v2.0.2.  It will be available with our next release.
+    available in v2.0.2.  This feature is available in the ``dev``
+    branch and will be included in the next release.
+
+
 
 Profiling Specific Parts of an Application
 """"""""""""""""""""""""""""""""""""""""""
@@ -755,4 +799,3 @@ counter data summarized per package.
 .. """"""""""""""""""""""""""""""
 
 .. WIP
-
