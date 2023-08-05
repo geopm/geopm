@@ -112,7 +112,7 @@ Group: System/Libraries
 # Optional dependency: Add --disable-io-uring to the ./configure step.
 # Lets GEOPM batch its IO operations to reduce syscall overhead in IOGroups
 # with a lot of reads/writes per GEOPM batch operation.
-%if ! %{defined suse_version} || %{suse_version} >= 1530
+%if ! %{defined suse_version} || 0%{?suse_version} >= 1530
 BuildRequires: liburing-devel
 %else
 %define io_uring_option --disable-io-uring
