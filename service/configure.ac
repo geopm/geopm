@@ -61,6 +61,21 @@ fi
 AC_SUBST([enable_asan])
 AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
 
+AC_ARG_ENABLE([fuzz],
+  [AS_HELP_STRING([--enable-fuzz], [Build fuzz tests])],
+[if test "x$enable_fuzz" = "xno" ; then
+  enable_fuzz="0"
+else
+  enable_fuzz="1"
+  enable_asan="1"
+  enable_debug="1"
+fi
+],
+[enable_fuzz="0"]
+)
+AC_SUBST([enable_fuzz])
+AM_CONDITIONAL([ENABLE_FUZZTESTS], [test "x$enable_fuzz" = "x1"])
+
 AC_ARG_ENABLE([docs],
   [AS_HELP_STRING([--disable-docs], [Disable the use of the Python sphinx tool to generate documentation])],
 [if test "x$enable_docs" = "xno" ; then
