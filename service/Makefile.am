@@ -15,6 +15,11 @@ bin_PROGRAMS = geopmread \
                geopmwrite \
                # end
 
+if ENABLE_FUZZTESTS
+noinst_PROGRAMS = fuzztest_geopmhash \
+                  #end
+endif
+
 include_HEADERS = src/geopm_debug.hpp \
                   src/geopm_error.h \
                   src/geopm_field.h \
@@ -121,6 +126,12 @@ geopmread_LDADD = libgeopmd.la
 geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmwrite_LDADD = libgeopmd.la
+
+if ENABLE_FUZZTESTS
+fuzztest_geopmhash_SOURCES = src/fuzztest_geopmhash_main.cpp
+fuzztest_geopmhash_CXXFLAGS = $(AM_CXXFLAGS) -fsanitize=fuzzer -fno-inline
+fuzztest_geopmhash_LDADD = libgeopmd.la
+endif
 
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
