@@ -19,39 +19,7 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
 class TestSession(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestSession'
-        self._geopm_proxy = mock.MagicMock()
-        self._session = Session(self._geopm_proxy)
-
-    def tearDown(self):
-        self._geopm_proxy.reset_mock(return_value=True, side_effect=True)
-
-    def test_create_session_invalid(self):
-        err_msg = "'NoneType' object has no attribute 'PlatformOpenSession'"
-        with self.assertRaisesRegex(AttributeError, err_msg):
-            Session(None)
-
-        # This must NOT be a mock so that the geopm_proxy.PlatformOpenSession
-        # check in the constructor is made without parenthesis.
-        class geopm_proxy:
-            def __getattr__(self, name):
-                raise DBusError('io.github.geopm was not provided')
-
-        err_msg = """The geopm systemd service is not enabled.
-    Install geopm service and run 'systemctl start geopm'"""
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            Session(geopm_proxy())
-
-        class geopm_proxy:
-            def __getattr__(self, name):
-                raise DBusError('Other DBusError')
-
-        err_msg = "Other DBusError"
-        with self.assertRaisesRegex(DBusError, err_msg):
-            Session(geopm_proxy())
-
-    def test_create_session(self):
-        # Constructed in setUp
-        self.assertIs(self._geopm_proxy, self._session._geopm_proxy)
+        self._session = Session()
 
     def test_format_signals_invalid(self):
         err_msg = 'Number of signal values does not match the number of requests'
@@ -76,7 +44,7 @@ class TestSession(unittest.TestCase):
         out_stream = mock.MagicMock()
 
         user_requests = [('power', 0, 0), ('SERVICE::energy', 1, 1), ('frequency', 2, 2)]
-        pio_requests = [('SERVICE::power', 0, 0), ('SERVICE::energy', 1, 1), ('SERVICE::frequency', 2, 2)]
+        pio_requests = [('power', 0, 0), ('SERVICE::energy', 1, 1), ('frequency', 2, 2)]
 
         mock_requests = mock.MagicMock()
         mock_requests.__iter__.return_value = user_requests
@@ -135,7 +103,7 @@ class TestSession(unittest.TestCase):
              mock.patch('geopmdpy.session.Session.run_read') as srr:
             self._session.run(runtime, period, request_stream, out_stream)
 
-            srrq.assert_called_once_with(request_stream, self._geopm_proxy)
+            srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)
             srr.assert_called_once_with(rrq_return_value, runtime, period, out_stream)
 
