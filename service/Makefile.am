@@ -131,6 +131,10 @@ if ENABLE_FUZZTESTS
 fuzztest_geopmhash_SOURCES = src/fuzztest_geopmhash_main.cpp
 fuzztest_geopmhash_CXXFLAGS = $(AM_CXXFLAGS) -fsanitize=fuzzer -fno-inline
 fuzztest_geopmhash_LDADD = libgeopmd.la
+else
+EXTRA_DIST += \
+          src/fuzztest_geopmhash_main.cpp \
+          # end
 endif
 
 # Add ABI version
