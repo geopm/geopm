@@ -575,7 +575,7 @@ and monitor the system during its execution.  Rather than using the
 ``geopmctl`` command in the background while the application of
 interest is executing.  There are three requirements to enable the
 GEOPM controller process to connect to the application process and
-generate a report.
+generate a report:
 
 1. Both the ``geopmctl`` process and the application process must have
    the ``GEOPM_PROFILE`` environment variable set to the **same**
@@ -590,8 +590,8 @@ Beyond generating a report YAML file, we also show two of the optional
 GEOPM Runtime features.  The first is creating a CSV trace file using
 the ``GEOPM_TRACE`` environment variable.  Additionally, by using the
 ``GEOPM_PERIOD`` environment variable we increase the sampling period
-of the controller to 200 milli-seconds (default value is 5
-milli-seconds).  These two options together will create a CSV trace
+of the controller to 200 milliseconds (default value is 5
+milliseconds).  These two options together will create a CSV trace
 file with approximately 50 rows of samples (five per-second for ten
 seconds).  The ``awk`` command in the example selects the columns
 measuring time since application start from column 1, CPU energy from
@@ -615,8 +615,6 @@ column 6, and CPU power from column 8.
     Support for profiling non-MPI applications with the Runtime is not
     available in v2.0.2.  This feature is available in the ``dev``
     branch and will be included in the next release.
-
-
 
 Profiling Specific Parts of an Application
 """"""""""""""""""""""""""""""""""""""""""
