@@ -14,7 +14,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     std::vector<char> input(data, data + size);
     input.push_back('\0');
-    uint64_t result = geopm_crc32_str(input.data());
-    std::cout << "[DEBUG] " << result << std::endl;
+    (void)!geopm_crc32_str(input.data());
     return 0;
 }
