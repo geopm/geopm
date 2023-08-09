@@ -261,6 +261,7 @@ class Config(object):
             result['LD_LIBRARY_PATH'] = ':'.join((ll for ll in
                                                   (libdir[0], os.getenv('LD_LIBRARY_PATH'))
                                                   if ll is not None))
+        result['LC_ALL'] = 'C'
         return result
 
     def unparsed(self):
