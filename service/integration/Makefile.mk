@@ -2,11 +2,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-if ENABLE_FUZZTESTS
-noinst_PROGRAMS = fuzztest_geopmhash \
-                  #end
-endif
-
 EXTRA_DIST += integration/README.md \
               integration/build_dasbus.sh \
               integration/check_session_clean.sh \
@@ -42,9 +37,11 @@ EXTRA_DIST += integration/README.md \
               # end
 
 if ENABLE_FUZZTESTS
-fuzztest_geopmhash_SOURCES = integration/test/fuzztest_geopmhash_main.cpp
-fuzztest_geopmhash_CXXFLAGS = $(AM_CXXFLAGS) -fsanitize=fuzzer -fno-inline
-fuzztest_geopmhash_LDADD = libgeopmd.la
+check_PROGRAMS += integration/test/fuzztest_geopmhash \
+                  #end
+integration_test_fuzztest_geopmhash_SOURCES = integration/test/fuzztest_geopmhash_main.cpp
+integration_test_fuzztest_geopmhash_CXXFLAGS = $(AM_CXXFLAGS) -fsanitize=fuzzer -fno-inline
+integration_test_fuzztest_geopmhash_LDADD = libgeopmd.la
 else
 EXTRA_DIST += \
           integration/test/fuzztest_geopmhash_main.cpp \
