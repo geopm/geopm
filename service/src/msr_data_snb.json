@@ -80,7 +80,7 @@
                     "behavior":  "variable",
                     "writeable": true,
                     "description": "Target operating frequency of the CPU based on the control register. Note: when querying at a higher domain, if NaN is returned, query at its native domain.",
-                    "aggregation": "expect_same"
+                    "aggregation": "average"
                 }
             }
         },
