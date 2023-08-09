@@ -215,7 +215,7 @@ $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
 docs_html: $(abs_srcdir)/geopmdpy/version.py
 	sphinx-build -M html $(abs_srcdir)/docs/source docs/build -W
 
-docs_man: $(abs_srcdir)/geopmdpy/version.py
+docs_man: docs_html $(abs_srcdir)/geopmdpy/version.py
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 
 # Nobody asked for this build target, so don't make it a build-blocker unless
