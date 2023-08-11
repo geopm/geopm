@@ -8,16 +8,16 @@
 This integration test verifies that the gpu_activity agent can improve
 efficiency of an application.
 """
+import math
+import os
 import sys
 import unittest
-import os
 
 import geopmpy.io
 import geopmpy.agent
 import geopmdpy.error
 from integration.test import geopm_test_launcher
 from integration.test import util
-
 
 class AppConf(object):
     """Class that is used by the test launcher to get access
@@ -66,7 +66,8 @@ class TestIntegration_ompt_gpu(unittest.TestCase):
             launcher = geopm_test_launcher.TestLauncher(AppConf(),
                                                         agent_conf,
                                                         report_path,
-                                                        time_limit=6000)
+                                                        report_signals="GPU_UTILIZATION,GPU_UTILIZATION@gpu",
+                                                        time_limit=200)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             launcher.run(curr_run)
@@ -77,16 +78,38 @@ class TestIntegration_ompt_gpu(unittest.TestCase):
 
     def test_offload_regions(self):
         """
+        Test the offload regions exist and that the GPUs were used
         """
-        print("test")
         report = geopmpy.io.RawReport(self._report_path[0])
         host_names = report.host_names()
         for host_name in report.host_names():
             for expected_region in self._expected_regions:
                 self.assertTrue(expected_region in report.region_names(host_name),
                                  msg='Region {} should be present in report'.format(expected_region))
-        #TODO: check that GPU_UTILIZATION is non-zero
-        #TODO: check count is 10 (hard-coded in test_ompt_gpu.cpp)
+
+                # check number of region instances
+                region_count = report.raw_region(report.host_names()[0], self._expected_regions[0])['count']
+                self.assertTrue(region_count == 5,
+                                msg="Expected region count of 5 for region {}".format(expected_region))
+
+                # Future tests may use every GPU, check individual GPU usage, etc.
+                gpu_utilization = report.raw_region(report.host_names()[0], self._expected_regions[0])['GPU_UTILIZATION']
+                self.assertTrue(not math.isnan(gpu_utilization),
+                                msg="GPU_UTILIZATION should not be NAN for region {}".format(expected_region))
+                self.assertTrue(gpu_utilization > 0,
+                                msg="GPU_UTILIZATION should be non-zero for region {}".format(expected_region))
+
+
+    def test_app_totals(self):
+        report = geopmpy.io.RawReport(self._report_path[0])
+        host_names = report.host_names()
+
+        for host_name in report.host_names():
+            gpu_utilization = report.raw_totals(report.host_names()[0])['GPU_UTILIZATION']
+            self.assertTrue(not math.isnan(gpu_utilization), msg="GPU_UTILIZATION should not be NAN")
+
+            # Future tests may use every GPU, check individual GPU usage, etc.
+            self.assertTrue(gpu_utilization > 0, msg="GPU_UTILIZATION should be nonn-zero")
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option

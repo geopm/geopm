@@ -56,7 +56,7 @@ int main(int argc, char **argv)
         validation_b.push_back(3.0 * i);
     }
 
-    for (uint64_t i = 0; i < 10; ++i) {
+    for (uint64_t i = 0; i < 5; ++i) {
         #pragma omp target teams distribute map(from:vector_c[0:vector_size]) map(to:vector_a[0:vector_size],vector_b[0:vector_size])
         for (int i = 0; i < vector_size; i++) {
             vector_c[i] = vector_a[i] * vector_b[i];
