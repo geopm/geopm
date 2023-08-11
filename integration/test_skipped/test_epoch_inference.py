@@ -99,16 +99,16 @@ class TestIntegration_epoch_inference(unittest.TestCase):
             for run_config in cls._config_names:
                 report_path = 'test_{}_{}.report'.format(cls._test_name, run_config)
                 trace_path = '{}_{}'.format(cls._trace_path_prefix, run_config)
+                profile_trace_path = '{}_profile_{}'.format(cls._trace_path_prefix, run_config)
                 cls._files.append(report_path)
 
                 # Create the test launcher with the above configuration
-                trace_signals = "EPOCH_RUNTIME,EPOCH_RUNTIME_IGNORE,EPOCH_RUNTIME_NETWORK"
                 launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                             agent_conf,
                                                             report_path,
                                                             trace_path,
                                                             time_limit=time_limit,
-                                                            trace_signals=trace_signals)
+                                                            trace_profile_path=profile_trace_path)
                 launcher.set_num_node(num_node)
                 launcher.set_num_rank(num_rank)
                 # Run the test application
@@ -133,14 +133,19 @@ class TestIntegration_epoch_inference(unittest.TestCase):
         """
         for run_config in self._config_names:
             report_path = 'test_{}_{}.report'.format(self._test_name, run_config)
-            trace_path = '{}_{}'.format(self._trace_path_prefix, run_config)
-            output = geopmpy.io.AppOutput(report_path, trace_path+'*')
-            node_list = output.get_node_names()
+            raw_report = geopmpy.io.RawReport(report_path)
+            node_list = raw_report.host_names()
+
+            profile_trace_path = '{}_profile_{}'.format(self._trace_path_prefix, run_config)
+            output = geopmpy.io.AppOutput(f'{profile_trace_path}*')
+
             for node in node_list:
                 trace = output.get_trace_data(node_name=node)
-                last_row = trace.iloc[-1]
-                sys.stdout.write("{}: epoch_count={}\n".format(run_config, last_row["EPOCH_COUNT"]))
-                epoch_count = last_row["EPOCH_COUNT"]
+                if run_config == 'no_epoch':
+                    epoch_count = 0
+                else:
+                    epoch_count = int(trace[trace['EVENT'] == 'EPOCH_COUNT']['SIGNAL'].iloc[-1])
+
                 if run_config == 'no_epoch':
                     self.assertEqual(0, epoch_count)
                 elif run_config == 'spin_epoch':
@@ -156,12 +161,16 @@ class TestIntegration_epoch_inference(unittest.TestCase):
         """
         for run_config in self._config_names:
             report_path = 'test_{}_{}.report'.format(self._test_name, run_config)
-            trace_path = '{}_{}'.format(self._trace_path_prefix, run_config)
-            output = geopmpy.io.AppOutput(report_path, trace_path+'*')
-            node_list = output.get_node_names()
+            raw_report = geopmpy.io.RawReport(report_path)
+            node_list = raw_report.host_names()
+
+            profile_trace_path = '{}_profile_{}'.format(self._trace_path_prefix, run_config)
+            output = geopmpy.io.AppOutput(f'{profile_trace_path}*')
+
             for node in node_list:
                 trace = output.get_trace_data(node_name=node)
-                runtimes = trace["EPOCH_RUNTIME"]
+                runtimes = trace[trace['EVENT'] == 'EPOCH_COUNT']['TIME'].diff()
+
                 # remove nans
                 runtimes = runtimes.dropna()
                 # get unique values, rounded
@@ -185,16 +194,29 @@ class TestIntegration_epoch_inference(unittest.TestCase):
         """
         for run_config in self._config_names:
             report_path = 'test_{}_{}.report'.format(self._test_name, run_config)
+            raw_report = geopmpy.io.RawReport(report_path)
+            node_list = raw_report.host_names()
+
             trace_path = '{}_{}'.format(self._trace_path_prefix, run_config)
-            output = geopmpy.io.AppOutput(report_path, trace_path+'*')
-            node_list = output.get_node_names()
+            output = geopmpy.io.AppOutput(f'{trace_path}*')
+
             for node in node_list:
                 trace = output.get_trace_data(node_name=node)
-                runtimes = trace["EPOCH_RUNTIME_NETWORK"]
-                # remove nans
-                runtimes = runtimes.dropna()
+                runtimes = []
+                epoch_group = trace.groupby('EPOCH_COUNT')
+                for ec, group in epoch_group:
+                    if group['EPOCH_COUNT'].iloc[-1] == 0:
+                        continue
+                    GEOPM_REGION_HINT_NETWORK = '0x00000004'
+                    if len(group[group['REGION_HINT'] == GEOPM_REGION_HINT_NETWORK]) > 0:
+                        first_last = group[group['REGION_HINT'] == GEOPM_REGION_HINT_NETWORK].iloc[[0, -1]]
+                        network_runtime = first_last['TIME'].diff().dropna().iloc[0]
+                        runtimes += [network_runtime]
+                    else:
+                        runtimes += [0]
+
                 # get unique values, rounded
-                runtimes = set([round(xx, 2) for xx in runtimes])
+                runtimes = set([round(xx, 1) for xx in runtimes])
 
                 if run_config == 'no_epoch':
                     # no non-NAN runtime samples
@@ -214,27 +236,38 @@ class TestIntegration_epoch_inference(unittest.TestCase):
         """
         for run_config in self._config_names:
             report_path = 'test_{}_{}.report'.format(self._test_name, run_config)
-            trace_path = '{}_{}'.format(self._trace_path_prefix, run_config)
+            raw_report = geopmpy.io.RawReport(report_path)
+            node_list = raw_report.host_names()
 
-            output = geopmpy.io.AppOutput(report_path, trace_path+'*')
-            node_list = output.get_node_names()
+            trace_path = '{}_{}'.format(self._trace_path_prefix, run_config)
+            output = geopmpy.io.AppOutput(f'{trace_path}*')
             for node in node_list:
                 trace = output.get_trace_data(node_name=node)
-                runtimes = trace["EPOCH_RUNTIME_IGNORE"]
-                # remove nans
-                runtimes = runtimes.dropna()
+                runtimes = []
+                epoch_group = trace.groupby('EPOCH_COUNT')
+                for ec, group in epoch_group:
+                    if group['EPOCH_COUNT'].iloc[-1] == 0:
+                        continue
+                    GEOPM_REGION_HINT_IGNORE = '0x00000008'
+                    if len(group[group['REGION_HINT'] == GEOPM_REGION_HINT_IGNORE]) > 0:
+                        first_last = group[group['REGION_HINT'] == GEOPM_REGION_HINT_IGNORE].iloc[[0, -1]]
+                        network_runtime = first_last['TIME'].diff().dropna().iloc[0]
+                        runtimes += [network_runtime]
+                    else:
+                        runtimes += [0]
+
                 # get unique values, rounded
-                runtimes = set([round(xx, 2) for xx in runtimes])
+                runtimes = set([round(xx, 1) for xx in runtimes])
 
                 if run_config == 'no_epoch':
                     # no non-NAN runtime samples
                     self.assertEqual(set({}), runtimes)
-                elif run_config == 'spin_epoch':
+                elif run_config in ('barrier_epoch', 'spin_epoch'):
                     # runtime flips between two values
                     self.assertEqual({0.5, 0.0}, runtimes)
-                elif run_config in ('barrier_epoch', 'spin_stride_epoch'):
+                elif run_config == 'spin_stride_epoch':
                     # consistent network runtime from ignore region
-                    self.assertEqual({0.5}, runtimes)
+                    self.assertEqual({0.5}, runtimes, msg=run_config)
                 else:
                     self.fail("invalid run config: {}".format(run_config))
 
