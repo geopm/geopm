@@ -390,8 +390,11 @@ class Trace(object):
         self._df = pandas.read_csv(trace_path, sep='|', skiprows=skiprows, header=0, names=column_headers, encoding='utf-8',
                                    dtype={'REGION_HASH': 'unicode', 'REGION_HINT': 'unicode'})
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
-        self._df['REGION_HASH'] = self._df['REGION_HASH'].astype('unicode').map(str.strip)  # Strip whitespace from region hashes
-        self._df['REGION_HINT'] = self._df['REGION_HINT'].astype('unicode').map(str.strip)  # Strip whitespace from region hints
+        try:
+            self._df['REGION_HASH'] = self._df['REGION_HASH'].astype('unicode').map(str.strip)  # Strip whitespace from region hashes
+            self._df['REGION_HINT'] = self._df['REGION_HINT'].astype('unicode').map(str.strip)  # Strip whitespace from region hints
+        except KeyError: # Hash and hint are not present in profile traces
+            pass
 
         self._version = None
         self._start_time = None
