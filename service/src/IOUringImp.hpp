@@ -25,6 +25,8 @@ namespace geopm
         public:
             IOUringImp(unsigned entries);
             virtual ~IOUringImp();
+            IOUringImp(const IOUringImp &other) = delete;
+            IOUringImp &operator=(const IOUringImp &other) = delete;
 
             void submit() override;
 
