@@ -52,8 +52,8 @@ namespace geopm
         , m_is_batch_enabled(true)
         , m_is_open(false)
         , m_path(std::move(path))
-        , m_batch_reader(batch_reader)
-        , m_batch_writer(batch_writer)
+        , m_batch_reader(std::move(batch_reader))
+        , m_batch_writer(std::move(batch_writer))
     {
         create_batch_context();
         open_all();

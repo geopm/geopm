@@ -87,7 +87,7 @@ namespace geopm
         auto sqe = get_sqe_or_throw();
         // Available since Linux 5.10
         io_uring_prep_read(sqe, fd, buf, nbytes, offset);
-        set_sqe_return_destination(sqe, ret);
+        set_sqe_return_destination(sqe, std::move(ret));
     }
 
     void IOUringImp::prep_write(std::shared_ptr<int> ret, int fd, const void *buf,
@@ -96,7 +96,7 @@ namespace geopm
         auto sqe = get_sqe_or_throw();
         // Available since Linux 5.10
         io_uring_prep_write(sqe, fd, buf, nbytes, offset);
-        set_sqe_return_destination(sqe, ret);
+        set_sqe_return_destination(sqe, std::move(ret));
     }
 
     bool IOUringImp::is_supported()
