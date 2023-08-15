@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <algorithm>
 #include <string>
@@ -73,11 +74,6 @@ namespace geopm
                                    const std::string &override_config_path,
                                    const PlatformIO *platform_io)
         : m_all_names(get_all_vars())
-        , m_runtime_names({"GEOPM_PROFILE",
-                           "GEOPM_REPORT",
-                           "GEOPM_TRACE",
-                           "GEOPM_TRACE_PROFILE",
-                           "GEOPM_CTL"})
         , m_name_value_map ({{"GEOPM_AGENT", "monitor"},
 #ifdef GEOPM_ENABLE_MPI
                              {"GEOPM_COMM" ,"MPIComm"},
@@ -134,7 +130,8 @@ namespace geopm
                 "GEOPM_RECORD_FILTER",
                 "GEOPM_INIT_CONTROL",
                 "GEOPM_PERIOD",
-                "GEOPM_NUM_PROC"};
+                "GEOPM_NUM_PROC",
+                "GEOPM_PROGRAM_FILTER"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -410,9 +407,15 @@ namespace geopm
 
     bool EnvironmentImp::do_profile(void) const
     {
-
-        return std::any_of(m_runtime_names.begin(), m_runtime_names.end(),
-                           [this](std::string var) {return (is_set(var));});
+        bool result = true;
+        if (is_set("GEOPM_PROGRAM_FILTER")) {
+            auto valid_names = geopm::string_split(lookup("GEOPM_PROGRAM_FILTER"), ",");
+            result = std::any_of(valid_names.begin(), valid_names.end(),
+                                 [](const std::string &vn) {
+                                     return vn == program_invocation_name ||
+                                            vn == program_invocation_short_name;});
+        }
+        return result;
     }
 
     int EnvironmentImp::timeout(void) const
