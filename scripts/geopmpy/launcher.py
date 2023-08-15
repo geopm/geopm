@@ -828,11 +828,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         return []
 
     def preload_option(self):
-        if self.config and self.config.get_preload():
-            self.environ_ext['LD_PRELOAD'] = ':'.join((ll for ll in
-                                                       (self.lib_name, os.getenv('LD_PRELOAD'))
-                                                       if ll is not None))
-        return []
+        raise NotImplementedError('<geopm> geopmpy.launcher: preload_option() not implemented in base class.')
 
     def timeout_option(self):
         """
@@ -1497,6 +1493,15 @@ class IMPIExecLauncher(Launcher):
 
         return result
 
+    def preload_option(self):
+        result = []
+        if self.config and self.config.get_preload():
+            value = ':'.join((ll for ll in
+                              (self.lib_name, os.getenv('LD_PRELOAD'))
+                              if ll is not None))
+            result = ["--env=LD_PRELOAD={}".format(value)]
+        return result
+
     def bootstrap_option(self):
         """
         Returns a list containing the command line options specifying the
@@ -1566,6 +1571,15 @@ class PALSLauncher(IMPIExecLauncher):
                 result.append('list:' + ':'.join(set_list))
             else:
                 result.append('verbose,list:' + ':'.join(set_list))
+        return result
+
+    def preload_option(self):
+        result = []
+        if self.config and self.config.get_preload():
+            value = ':'.join((ll for ll in
+                              (self.lib_name, os.getenv('LD_PRELOAD'))
+                              if ll is not None))
+            result = ["--env=LD_PRELOAD={}".format(value)]
         return result
 
 
