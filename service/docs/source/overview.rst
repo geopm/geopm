@@ -659,7 +659,7 @@ the runtime.  An example app could be annotated as follows:
                           &region_2);
 
         //Begin execution loop...
-        for (int ii = 0; i < iterations; i++) {
+        for (int ii = 0; ii < iterations; ii++) {
             // Marker to capture behavior of all regions
             geopm_prof_epoch();
 
