@@ -720,7 +720,6 @@ namespace geopm
                                                            unsigned int l0_device_idx,
                                                            int l0_domain_idx) const
     {
-        ze_result_t ze_result = ZE_RESULT_ERROR_UNKNOWN;
         uint64_t result_energy = 0;
         uint64_t result_timestamp = 0;
 
@@ -824,7 +823,7 @@ namespace geopm
                                                   int l0_domain_idx,
                                                   double setting) const
     {
-        zes_pref_handle_t handle = m_devices.at(l0_device_idx).
+        zes_perf_handle_t handle = m_devices.at(l0_device_idx).
                                        subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
         check_ze_result(zesPerformanceFactorSetConfig(handle, setting),
                         GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
