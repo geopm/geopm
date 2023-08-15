@@ -48,8 +48,8 @@ namespace geopm
         // to the location the user requested we write operation return values.
         // Ensure that point remains valid by keeping the shared_ptr in our
         // result destinations vector until we finish cleaning up the batch.
-        m_result_destinations.push_back(destination);
         io_uring_sqe_set_data(sqe, destination.get());
+        m_result_destinations.push_back(std::move(destination));
     }
 
     void IOUringImp::submit()
