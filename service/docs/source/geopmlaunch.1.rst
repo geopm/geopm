@@ -562,14 +562,26 @@ GEOPM Options
                       for more information about OpenMP region detection.
 --geopm-period  .. _geopm-period option:
 
-               Override the control loop period specified by the Agent.  All
-	       agents have a default control loop period, and this command
-	       line option allows users to set a different value in units of
-	       seconds.  With longer control loop periods, the overhead for
-	       using GEOPM will be reduced, but more interpolation will be
-	       required when aligning the sparsely sampled hardware signals
-	       with the application feedback.  Additionally, agent reaction
-	       time is reduced with longer control loop period.
+                Override the control loop period specified by the Agent.  All
+                agents have a default control loop period, and this command
+                line option allows users to set a different value in units of
+                seconds.  With longer control loop periods, the overhead for
+                using GEOPM will be reduced, but more interpolation will be
+                required when aligning the sparsely sampled hardware signals
+                with the application feedback.  Additionally, agent reaction
+                time is reduced with longer control loop period.
+--geopm-program-filter  .. _geopm-program-filter option:
+
+                        Only enable profiling for processes with
+                        program invocation name or short program
+                        invocation name that matches one of the names
+                        in the comma separated list provided by
+                        option.  This option is especially useful when
+                        launching a bash script to avoid profiling
+                        bash or other ancilary commands that are not
+                        part of the main application process set.  See
+                        `program_invocation_name(3)` for more details.
+
 
 Examples
 --------
