@@ -8,6 +8,5 @@ EXTRA_DIST += integration/test_skipped/test_controller.py \
               integration/test_skipped/test_reporter.cpp \
               # end
 
-include integration/test_skipped/test_epoch_inference.mk
 include integration/test_skipped/test_fmap_short_region_slop.mk
 include integration/test_skipped/test_levelzero_signals.mk
