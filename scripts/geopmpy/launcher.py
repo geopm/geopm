@@ -148,6 +148,7 @@ class Config(object):
         parser.add_argument('--geopm-launch-script', dest='launch_script', type=str)
         parser.add_argument('--geopm-init-control', dest='init_control', type=str)
         parser.add_argument('--geopm-period', dest='period', type=str)
+        parser.add_argument('--geopm-program-filter', dest='program_filter', type=str)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -177,6 +178,7 @@ class Config(object):
         self.launch_script = opts.launch_script
         self.init_control = opts.init_control
         self.period = opts.period
+        self.program_filter = opts.program_filter
 
     def __repr__(self):
         """
@@ -243,6 +245,8 @@ class Config(object):
             result['GEOPM_INIT_CONTROL'] = self.init_control
         if self.period:
             result['GEOPM_PERIOD'] = self.period
+        if self.program_filter:
+            result['GEOPM_PROGRAM_FILTER'] = self.program_filter
 
         # Add geopm installed OpenMP library to LD_LIBRARY_PATH if it
         # is present.
@@ -1791,8 +1795,12 @@ GEOPM_OPTIONS:
                                emit launch script to output_file
       --geopm-init-control=path
                                set initial control values with data read from "path"
-      --geopm-period=sec       Control loop period override for Agent value
-      --geopm-preload          Use LD_PRELOAD to load libgeopm with the target application
+      --geopm-period=sec       control loop period override for Agent value
+      --geopm-preload          use LD_PRELOAD to load libgeopm with the target application
+      --geopm-program-filter=names
+                               only enable profiling for processes with program invocation
+                               names that match one of the comma separated list of "names",
+                               especially useful when launching a bash script
 
 {}
 
