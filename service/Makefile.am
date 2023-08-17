@@ -387,4 +387,8 @@ include geopmdpy_test/Makefile.mk
 include integration/Makefile.mk
 endif
 
+if ENABLE_FUZZTESTS
+include fuzz_tests/Makefile.mk
+endif
+
 include docs/Makefile.mk
