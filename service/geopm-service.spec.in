@@ -70,6 +70,8 @@ BuildRequires: python-rpm-macros
 Requires: python%{python3_pkgversion}-geopmdpy = %{version}
 Requires: libgeopmd1 = %{version}
 
+%{?python_disable_dependency_generator}
+
 %description
 
 The GEOPM Service provides a user-level interface to read telemetry
