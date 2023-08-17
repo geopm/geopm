@@ -627,7 +627,7 @@ namespace geopm
                                                 M_TIME_WINDOW,
                                                 is_tree_root,
                                                 calc_num_node(fan_in));
-            m_platform_io.write_control("CPU_POWER_TIME_WINDOW",
+            m_platform_io.write_control("CPU_POWER_TIME_WINDOW_CONTROL",
                                         GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW);
         }
         else if (is_tree_root) {

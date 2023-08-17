@@ -48,10 +48,10 @@ class TestIntegrationInitControl(unittest.TestCase):
             outfile.write(f'CPU_POWER_LIMIT_CONTROL board 0 {cls._requested_power_limit} '
                            '# Sets a power limit\n'
                            '# Next we\'ll set the time window:\n'
-                          f'CPU_POWER_TIME_WINDOW board 0 {cls._requested_time_window}\n')
+                          f'CPU_POWER_TIME_WINDOW_CONTROL board 0 {cls._requested_time_window}\n')
 
         # Capture trace signals for the desired controls
-        trace_signals = 'CPU_POWER_LIMIT_CONTROL@board,CPU_POWER_TIME_WINDOW@board'
+        trace_signals = 'CPU_POWER_LIMIT_CONTROL@board,CPU_POWER_TIME_WINDOW_CONTROL@board'
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf,
@@ -88,9 +88,9 @@ class TestIntegrationInitControl(unittest.TestCase):
                              self._requested_power_limit)
             self.assertEqual(trace_data['CPU_POWER_LIMIT_CONTROL'].std(), 0.0)
 
-            self.assertEqual(trace_data['CPU_POWER_TIME_WINDOW'].iloc[0],
+            self.assertEqual(trace_data['CPU_POWER_TIME_WINDOW_CONTROL'].iloc[0],
                              self._requested_time_window)
-            self.assertEqual(trace_data['CPU_POWER_TIME_WINDOW'].std(), 0.0)
+            self.assertEqual(trace_data['CPU_POWER_TIME_WINDOW_CONTROL'].std(), 0.0)
 
 
 if __name__ == '__main__':

@@ -111,7 +111,7 @@ namespace geopm
          "PL1_TIME_WINDOW.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"},
-        {"CPU_POWER_TIME_WINDOW",
+        {"CPU_POWER_TIME_WINDOW_CONTROL",
          "    description: The time window associated with power limit 1.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW"},

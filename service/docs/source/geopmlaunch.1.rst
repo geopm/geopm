@@ -362,7 +362,7 @@ GEOPM Options
 
                               CPU_POWER_LIMIT_CONTROL board 0 200 # Set a 200W power limit
                               # Also set the time limit
-                              CPU_POWER_TIME_WINDOW board 0 0.015
+                              CPU_POWER_TIME_WINDOW_CONTROL board 0 0.015
 
                            This option is used by the launcher to set the
                            ``GEOPM_INIT_CONTROL`` environment variable.  The

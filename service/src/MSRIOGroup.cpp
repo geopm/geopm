@@ -194,7 +194,7 @@ namespace geopm
         register_signal_alias("CPU_POWER_MAX_AVAIL", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_signal_alias("CPU_POWER_LIMIT_DEFAULT", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
         register_signal_alias("CPU_POWER_LIMIT_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_signal_alias("CPU_POWER_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+        register_signal_alias("CPU_POWER_TIME_WINDOW_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
 
         // CNLIOGroup provides a CNL::BOARD_ENERGY & BOARD_ENERGY high level alias.
         // If it loads after the MSRIOGroup the BOARD_ENERGY alias below will be
@@ -210,7 +210,7 @@ namespace geopm
         register_rdt_signals();
 
         register_control_alias("CPU_POWER_LIMIT_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_control_alias("CPU_POWER_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+        register_control_alias("CPU_POWER_TIME_WINDOW_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
         register_control_alias("BOARD_POWER_LIMIT_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("BOARD_POWER_TIME_WINDOW_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW");
     }
