@@ -89,6 +89,14 @@ Signals
     *  **Format**: double
     *  **Unit**: joules
 
+``LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP``
+    GPU compute hardware domain energy timestamp in seconds.  Value cached on LEVELZERO::GPU_CORE_ENERGY read.
+
+    *  **Aggregation**: sum
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: seconds
+
 ``LEVELZERO::GPU_ENERGY_TIMESTAMP``
     Timestamp for the GPU energy read in seconds.
 
@@ -239,6 +247,14 @@ Signals
     *  **Aggregation**: average
     *  **Domain**: gpu_chip
     *  **Format**: double
+    *  **Unit**: none
+
+``LEVELZERO::GPU_CORE_THROTTLE_REASONS``
+    GPU Compute Hardware throttle reasons.  See oneAPI Level Zero Sysman Spec for decoding.
+
+    *  **Aggregation**: integer_bitwise_or
+    *  **Domain**: gpu_chip
+    *  **Format**: integer
     *  **Unit**: none
 
 Controls
