@@ -58,8 +58,6 @@ fi
 ],
 [enable_asan="0"]
 )
-AC_SUBST([enable_asan])
-AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
 
 AC_ARG_ENABLE([fuzz],
   [AS_HELP_STRING([--enable-fuzz], [Build fuzz tests])],
@@ -194,6 +192,8 @@ AC_SUBST([enable_coverage])
 if test "x$enable_asan" = "x1" ; then
   EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
 fi
+AC_SUBST([enable_asan])
+AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
 
 if test "x$enable_dcgm" = "x1" ; then
   ENABLE_DCGM=True

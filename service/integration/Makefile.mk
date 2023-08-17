@@ -36,18 +36,6 @@ EXTRA_DIST += integration/README.md \
               integration/test/do_write.sh \
               # end
 
-if ENABLE_FUZZTESTS
-check_PROGRAMS += integration/test/fuzztest_geopmhash \
-                  #end
-integration_test_fuzztest_geopmhash_SOURCES = integration/test/fuzztest_geopmhash_main.cpp
-integration_test_fuzztest_geopmhash_CXXFLAGS = $(AM_CXXFLAGS) -fsanitize=fuzzer -fno-inline
-integration_test_fuzztest_geopmhash_LDADD = libgeopmd.la
-else
-EXTRA_DIST += \
-          integration/test/fuzztest_geopmhash_main.cpp \
-          # end
-endif
-
 check_PROGRAMS += integration/test/test_batch_server \
                   integration/test/test_batch_interface \
                   integration/test/test_invalid_values \
