@@ -35,7 +35,7 @@ Signals
 System Info
 ^^^^^^^^^^^
 
-``SST::CONFIG_LEVEL``
+``SST::CONFIG_LEVEL:LEVEL``
     Returns the system's configuration level (SST-PP feature)
 
     * **Aggregation**: expect_same
@@ -43,7 +43,7 @@ System Info
     * **Format**: double
     * **Unit**: n/a
 
-``SST::COREPRIORITY_SUPPORT``
+``SST::COREPRIORITY_SUPPORT:CAPABILITIES``
     Returns 1 if SST-CP feature is supported, 0 if
     unsupported.
 
@@ -102,7 +102,7 @@ System Info
     * **Format**: double
     * **Unit**: n/a
 
-``SST::TURBOFREQ_SUPPORT``
+``SST::TURBOFREQ_SUPPORT:SUPPORTED``
     Returns 1 if SST-TF feature is supported, 0 if
     unsupported.
 
@@ -114,7 +114,7 @@ System Info
 Configuration
 """""""""""""
 
-``SST::TURBO_ENABLE``
+``SST::TURBO_ENABLE:ENABLE``
     Returns 1 if SST-TF feature is enabled, 0 if
     disabled.
 
@@ -123,7 +123,7 @@ Configuration
     * **Format**: double
     * **Unit**: n/a
 
-``SST::COREPRIORITY_ENABLE``
+``SST::COREPRIORITY_ENABLE:ENABLE``
     Returns 1 if SST-CP feature is enabled, 0 if
     disabled.
 
