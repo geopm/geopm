@@ -51,9 +51,9 @@ void PowerGovernorTest::SetUp(void)
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MAX));
-    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
+    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW_CONTROL", GEOPM_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
         .Times(1);
-    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
+    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW_CONTROL", GEOPM_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
         .Times(1);
 
     m_governor = geopm::make_unique<PowerGovernorImp>(m_platform_io, m_platform_topo);

@@ -63,7 +63,7 @@ namespace geopm
         for(int domain_idx = 0; domain_idx < m_num_pkg; ++domain_idx) {
             int control_idx = m_platform_io.push_control("CPU_POWER_LIMIT_CONTROL", m_pkg_pwr_domain_type, domain_idx);
             m_control_idx.push_back(control_idx);
-            m_platform_io.write_control("CPU_POWER_TIME_WINDOW", m_pkg_pwr_domain_type, domain_idx, M_CPU_POWER_TIME_WINDOW);
+            m_platform_io.write_control("CPU_POWER_TIME_WINDOW_CONTROL", m_pkg_pwr_domain_type, domain_idx, M_CPU_POWER_TIME_WINDOW);
         }
     }
 

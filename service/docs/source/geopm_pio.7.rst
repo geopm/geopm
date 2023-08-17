@@ -141,7 +141,7 @@ Descriptions Of High Level Aliases
     The average power usage limit over the time window specified in
     PL1_TIME_WINDOW.
 
-``CPU_POWER_TIME_WINDOW``
+``CPU_POWER_TIME_WINDOW_CONTROL``
     The time window associated with power limit 1.
 
 ``CPU_POWER_MAX_AVAIL``
