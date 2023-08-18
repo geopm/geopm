@@ -5,12 +5,12 @@
 #
 
 import sys
-import geopmdpy.runtime
+import geopmpy.runtime
 import geopmdpy.topo
 import geopmpy.reporter
 
-class LocalAgent(geopmdpy.runtime.Agent):
-    """Simple example that uses the geopmdpy.runtime module
+class LocalAgent(geopmpy.runtime.Agent):
+    """Simple example that uses the geopmpy.runtime module
 
     Runs a command while executing a five millisecond control loop. On
     each control loop step the agent prints out time and instructions
@@ -71,7 +71,7 @@ def main():
         return err
     cpu_frequency_max = float(sys.argv[1])
     agent = LocalAgent()
-    controller = geopmdpy.runtime.Controller(agent)
+    controller = geopmpy.runtime.Controller(agent)
     report = controller.run(sys.argv[2:], cpu_frequency_max, profile='test_profile_name')
     with open('geopm.report', 'w') as fid:
         fid.write(report)

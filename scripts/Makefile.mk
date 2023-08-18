@@ -16,12 +16,15 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/hash.py \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/policy_store.py \
+              scripts/geopmpy/pio_rt.py \
               scripts/geopmpy/reporter.py \
+              scripts/geopmpy/runtime.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
               scripts/test/TestAffinity.py \
               scripts/test/TestAgent.py \
+              scripts/test/TestController.py \
               scripts/test/TestEndpoint.py \
               scripts/test/TestHash.py \
               scripts/test/TestIO.py \
@@ -99,6 +102,12 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestPolicyStore.test_get_best \
                scripts/test/pytest_links/TestPolicyStore.test_set_best \
                scripts/test/pytest_links/TestPolicyStore.test_set_default \
+               scripts/test/pytest_links/TestController.test_agent \
+               scripts/test/pytest_links/TestController.test_controller_construction \
+               scripts/test/pytest_links/TestController.test_controller_construction_invalid \
+               scripts/test/pytest_links/TestController.test_controller_run \
+               scripts/test/pytest_links/TestController.test_controller_run_app_error \
+               scripts/test/pytest_links/TestController.test_controller_run_app_rc \
                # end
 
 if ENABLE_BETA

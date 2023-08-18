@@ -8,12 +8,11 @@
 
 import sys
 import os
-import time
 import math
 from argparse import ArgumentParser
 from . import topo
 from . import pio
-from . import runtime
+from . import loop
 
 
 class Session:
@@ -25,7 +24,7 @@ class Session:
 
     The Session object depends on the RequestQueue object to parse the
     input request buffer from the user.  The Session object also
-    depends on the runtime.TimedLoop object when executing a periodic
+    depends on the loop.TimedLoop object when executing a periodic
     read session.
 
     """
@@ -94,7 +93,7 @@ class Session:
         for name, dom, dom_idx in requests:
             signal_handles.append(pio.push_signal(name, dom, dom_idx))
 
-        for sample_idx in runtime.TimedLoop(period, num_period):
+        for sample_idx in loop.TimedLoop(period, num_period):
             pio.read_batch()
             signals = [pio.sample(handle) for handle in signal_handles]
             line = self.format_signals(signals, requests.get_formats())

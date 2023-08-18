@@ -13,12 +13,11 @@ import argparse
 import yaml
 
 import geopmdpy
-import geopmdpy.runtime
-import geopmdpy.pio
-import geopmpy.reporter
+import geopmpy.runtime
+import geopmpy.pio_rt
 
 
-class StaticAgent(geopmdpy.runtime.Agent):
+class StaticAgent(geopmpy.runtime.Agent):
     """GEOPM python agent that monitors an application and optionally writes
     one or more controls that last the duration of the application run.
     """
@@ -31,14 +30,13 @@ class StaticAgent(geopmdpy.runtime.Agent):
         """
         self._control_period = period_seconds
         self._initial_controls = dict() if initial_controls is None else initial_controls
-        geopmpy.reporter.init()
 
     def run_begin(self, policy, profile):
         # The GEOPM runtime already saved controls by now. It will take care of
         # restoring the original values of these controls after our run finishes.
         self._profile = profile
         for control_name, value in self._initial_controls.items():
-            geopmdpy.pio.write_control(control_name, 'board', 0, value)
+            geopmpy.pio_rt.write_control(control_name, 'board', 0, value)
 
     def run_end(self):
         # Handle anything that should be managed after PlatformIO restores the
@@ -57,10 +55,6 @@ class StaticAgent(geopmdpy.runtime.Agent):
         # This agent doesn't dynamically make decisions based on any signals
         # signals is a list of values corresponding to get_signals().
         # E.g., to get a dict[signal_name, value], use dict(zip(self.get_signals(), signals))
-
-        # We only need to tell our reporter to update its snapshot of the
-        # state of PlatformIO.
-        geopmpy.reporter.update()
 
         # This agent does not dynamically modify any controls.
         # Otherwise, we would return a list of their *values* here.
@@ -103,8 +97,6 @@ def main():
                         help='Initialize a control to a given value, separated by an "=" '
                              'symbol. e.g., to run at a cpu frequency of 2 GHz: '
                              '--initialize-control CPU_FREQUENCY_MAX_CONTROL=2e9')
-    parser.add_argument('--geopm-profile',
-                        help='Override the report profile name. Default: the launched command')
 
     args, app_args = parser.parse_known_args()
 
@@ -133,7 +125,7 @@ def main():
     agent = StaticAgent(period_seconds=args.geopm_control_period,
                         initial_controls=initial_controls)
 
-    controller = geopmdpy.runtime.Controller(agent)
+    controller = geopmpy.runtime.Controller(agent)
     report = controller.run(app_args, None)
 
     if args.geopm_report:
