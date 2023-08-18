@@ -25,6 +25,14 @@ geopmdpy.dbus\_xml
    :undoc-members:
    :show-inheritance:
 
+geopmdpy.loop
+-------------
+
+.. automodule:: geopmdpy.loop
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 geopmdpy.error
 --------------
 
@@ -37,14 +45,6 @@ geopmdpy.pio
 ------------
 
 .. automodule:: geopmdpy.pio
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-geopmdpy.runtime
-----------------
-
-.. automodule:: geopmdpy.runtime
    :members:
    :undoc-members:
    :show-inheritance:

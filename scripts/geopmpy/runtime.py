@@ -10,162 +10,11 @@ import math
 import time
 import subprocess # nosec
 import sys
+import os
 import shlex
-from . import pio
-
-
-class TimedLoop:
-    """Object that can be iterated over to run a timed loop
-
-    Use in a for loop to execute a fixed number of timed delays.  The
-    overhead time for executing what is inside of the loop is
-    accounted for.  Calls to time.sleep() are made to delay until the
-    targeted end time for each iteration.
-
-    Example:
-
-        >>> from time import time
-        >>> time_0 = time()
-        >>> for index in TimedLoop(0.1, 10):
-        ...     print(f'{index}: {time() - time_0}')
-        ...
-        0: 0.0008680820465087891
-        1: 0.10126090049743652
-        2: 0.20174455642700195
-        3: 0.30123186111450195
-        4: 0.4010961055755615
-        5: 0.5020360946655273
-        6: 0.6011238098144531
-        7: 0.7011349201202393
-        8: 0.8020164966583252
-        9: 0.9015650749206543
-        10: 1.0021190643310547
-
-    """
-
-    def __init__(self, period, num_period=None):
-        """Constructor for timed loop object
-
-        The number of loops executed is one greater than the number of
-        time intervals requested, and that the first iteration is not
-        delayed.  The total amount of time spanned by the loop is the
-        product of the two input parameters.
-
-        To create an infinite loop, specify num_period is None.
-
-        Args:
-            period (float): Target interval for the loop execution in
-                            units of seconds.
-
-            num_period (int): Number of time periods spanned by the
-                              loop.  The total loop time is
-                              num_periods * period, but since there is
-                              no delay in the first loop, there will
-                              be num_period + 1 loop iterations.
-
-        """
-
-        if period < 0.0:
-            raise RuntimeError('Specified period is invalid.  Must be >= 0.')
-        if num_period is not None:
-            if num_period < 0:
-                raise RuntimeError('Specified num_period is invalid.  Must be > 0.')
-            if not isinstance(num_period, int):
-                raise ValueError('num_period must be a whole number.')
-        self._period = period
-        self._num_loop = num_period
-        # Add one to ensure:
-        #     total_time == num_loop * period
-        # because we do not delay the start iteration
-        if self._num_loop is not None:
-            self._num_loop += 1
-
-    def __iter__(self):
-        """Set up a timed loop
-
-        Iteration method for timed loop.  This iterator can be used in
-        a for statement to execute the loop periodically.
-
-        """
-        self._loop_idx = 0
-        self._target_time = time.time()
-        return self
-
-    def __next__(self):
-        """Sleep until next targeted time for loop and update counter
-
-        """
-        result = self._loop_idx
-        if self._loop_idx == self._num_loop:
-            raise StopIteration
-        if self._loop_idx != 0:
-            sleep_time = self._target_time - time.time()
-            if sleep_time > 0:
-                self.wait(sleep_time)
-        self._target_time += self._period
-        self._loop_idx += 1
-        return result
-
-    def wait(self, timeout):
-        """Pass-through to time.sleep()
-
-        Args:
-            timeout (float): Target interval for the loop execution in
-                             units of seconds.
-        """
-        time.sleep(timeout)
-
-
-class PIDTimedLoop(TimedLoop):
-    def __init__(self, pid, period, num_period=None):
-        """Similar to the TimedLoop but stop when subprocess ends
-
-        The number of loops executed is one greater than the number of
-        time intervals requested, and that the first iteration is not
-        delayed.  The total amount of time spanned by the loop is the
-        product of the two input parameters.
-
-        To create an infinite loop, specify num_period is None.
-
-        Loop will always terminate when the subprocess pid terminates.
-
-        Args:
-            pid (Popen): Object returned by subprocess.Popen() constructor.
-
-            period (float): Target interval for the loop execution in
-                            units of seconds.
-
-            num_period (int): Number of time periods spanned by the
-                              loop.  The total loop time is
-                              num_periods * period, but since there is
-                              no delay in the first loop, there will
-                              be num_period + 1 loop iterations.
-
-        """
-
-        super(PIDTimedLoop, self).__init__(period, num_period)
-        self._pid = pid
-        self._is_active = pid.poll() is None
-
-    def wait(self, timeout):
-        """Wait for timeout seconds or until pid ends
-
-        Args:
-            timeout (float): Target interval for the loop execution in
-                             units of seconds.
-
-        Raises:
-            StopIteration: When last call to wait termintated due to
-                           the process ending
-
-        """
-        if not self._is_active:
-            raise StopIteration
-        try:
-            self._pid.wait(timeout=timeout)
-            self._is_active = False
-        except subprocess.TimeoutExpired:
-            pass
+from . import pio_rt
+from . import reporter
+from geopmdpy import loop
 
 class Agent:
     """Base class that documents the interfaces required by an agent
@@ -283,6 +132,16 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
+class Environment:
+    def __init__(self):
+        self._env = {kk:vv for (kk, vv) in
+                     os.environ.items()
+                     if kk.startswith('GEOPM_')}
+    def profile(self):
+        return self._env.get('GEOPM_PROFILE', 'default')
+
+    def get(self):
+        return dict(self._env)
 
 class Controller:
     """Class that supports a runtime control algorithm
@@ -317,19 +176,20 @@ class Controller:
         if timeout != 0:
             self._num_update = math.ceil(timeout / self._update_period)
         self._returncode = None
+        self._env = Environment()
 
     def push_all(self):
-        self._signals_idx = [pio.push_signal(*ss) for ss in self._signals]
-        self._controls_idx = [pio.push_control(*cc) for cc in self._controls]
+        self._signals_idx = [pio_rt.push_signal(*ss) for ss in self._signals]
+        self._controls_idx = [pio_rt.push_control(*cc) for cc in self._controls]
 
     def read_all_signals(self):
-        """Sample for all signals pushed with pio
+        """Sample for all signals pushed with pio_rt
 
         Returns:
             list(float): Sampled values for each signal
 
         """
-        return [pio.sample(signal_idx)
+        return [pio_rt.sample(signal_idx)
                 for signal_idx in self._signals_idx]
 
     def returncode(self):
@@ -342,10 +202,10 @@ class Controller:
             raise RuntimeError('App process is still running')
         return self._returncode
 
-    def run(self, argv, policy=None, profile=None):
+    def run(self, argv, policy=None):
         """Execute control loop defined by agent
 
-        Interfaces with PlatformIO directly through the geopmdpy.pio module.
+        Interfaces with PlatformIO directly through the geopmpy.pio_rt module.
 
         Args:
             argv (list(str)): Arguments for application that is executed
@@ -356,28 +216,32 @@ class Controller:
             str: Human readable report created by agent
 
         """
-        sys.stderr.write('<geopmdpy> RUN BEGIN\n')
-        if profile is None:
-            profile = ' '.join([shlex.quote(arg) for arg in argv])
+        sys.stderr.write('<geopmpy> RUN BEGIN\n')
+        profile = self._env.profile();
         try:
-            pio.save_control()
+            pio_rt.save_control()
             self.push_all()
+            reporter.init()
             pid = subprocess.Popen(argv)
+            pio_rt.update()
+
             self._agent.run_begin(policy, profile)
-            for loop_idx in PIDTimedLoop(pid, self._update_period, self._num_update):
-                pio.read_batch()
+            for loop_idx in loop.PIDTimedLoop(pid, self._update_period, self._num_update):
+                pio_rt.update()
+                pio_rt.read_batch()
                 signals = self.read_all_signals()
                 new_settings = self._agent.update(signals)
+                reporter.update()
                 if pid.poll() is not None:
                     break
                 for control_idx, new_setting in zip(self._controls_idx, new_settings):
-                    pio.adjust(control_idx, new_setting)
-                pio.write_batch()
+                    pio_rt.adjust(control_idx, new_setting)
+                pio_rt.write_batch()
             self._agent.run_end()
         except:
             raise
         finally:
-            pio.restore_control()
+            pio_rt.restore_control()
         self._returncode = pid.returncode
-        sys.stderr.write(f'<geopmdpy> RUN END, return: {self._returncode}\n')
+        sys.stderr.write(f'<geopmpy> RUN END, return: {self._returncode}\n')
         return self._agent.get_report()

@@ -11,7 +11,7 @@ from time import time
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
-    from geopmdpy.runtime import TimedLoop
+    from geopmdpy.loop import TimedLoop
 
 class TestTimedLoop(unittest.TestCase):
     def setUp(self):

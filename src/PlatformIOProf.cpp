@@ -14,6 +14,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "ProfileIOGroup.hpp"
+#include "EpochIOGroup.hpp"
 
 
 namespace geopm
@@ -30,6 +31,8 @@ namespace geopm
         try {
             m_platform_io.register_iogroup(
                 ProfileIOGroup::make_plugin());
+            m_platform_io.register_iogroup(
+                EpochIOGroup::make_plugin());
         }
         catch (const geopm::Exception &ex) {
             print_load_warning("ProfileIOGroup", ex.what());
