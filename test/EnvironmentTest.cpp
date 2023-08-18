@@ -82,18 +82,18 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
 {
     EXPECT_EQ(exp_vars.find("GEOPM_TRACE") != exp_vars.end(), m_env->do_trace());
     EXPECT_EQ(exp_vars.find("GEOPM_TRACE_PROFILE") != exp_vars.end(), m_env->do_trace_profile());
-    EXPECT_EQ(exp_vars.find("GEOPM_PROFILE") != exp_vars.end() ||
-              exp_vars.find("GEOPM_REPORT") != exp_vars.end() ||
-              exp_vars.find("GEOPM_TRACE") != exp_vars.end() ||
-              exp_vars.find("GEOPM_TRACE_PROFILE") != exp_vars.end() ||
-              exp_vars.find("GEOPM_CTL") != exp_vars.end(), m_env->do_profile());
     EXPECT_EQ(exp_vars["GEOPM_REPORT"], m_env->report());
     EXPECT_EQ(exp_vars["GEOPM_COMM"], m_env->comm());
     EXPECT_EQ(exp_vars["GEOPM_POLICY"], m_env->policy());
     EXPECT_EQ(exp_vars["GEOPM_AGENT"], m_env->agent());
     EXPECT_EQ(exp_vars["GEOPM_TRACE"], m_env->trace());
     EXPECT_EQ(exp_vars["GEOPM_TRACE_PROFILE"], m_env->trace_profile());
-    EXPECT_EQ("\"" + exp_vars["GEOPM_PROFILE"] + "\"", m_env->profile());
+    if (exp_vars.find("GEOPM_PROFILE") != exp_vars.end()) {
+        EXPECT_EQ("\"" + exp_vars["GEOPM_PROFILE"] + "\"", m_env->profile());
+    }
+    else {
+        EXPECT_EQ("\"default\"", m_env->profile());
+    }
     EXPECT_EQ(exp_vars["GEOPM_FREQUENCY_MAP"], m_env->frequency_map());
     auto it = m_pmpi_ctl_map.find(exp_vars["GEOPM_CTL"]);
     if (it != m_pmpi_ctl_map.end()) {
