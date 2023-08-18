@@ -66,14 +66,14 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Programming Language :: Python :: 3.6',
 ]
 
-install_requires = ['cffi>=1.15.0',
+install_requires = ['cffi>=1.14.5',
                     'cycler>=0.11.0',
                     'natsort>=8.1.0',
                     'numpy>=1.19.5',
                     'pandas>=1.1.5',
-                    'psutil>=5.9.0',
+                    'psutil>=5.8.0',
                     'pyyaml>=6.0.0',
-                    'setuptools>=59.6.0',
+                    'setuptools>=53.0.0',
                     'tables>=3.7.0',
                     'geopmdpy']
 
