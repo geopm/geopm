@@ -337,7 +337,6 @@ namespace geopm
     {
         m_application_sampler.connect(m_application_io->connect());
         geopm::time_zero();
-        m_platform_io.register_iogroup(EpochIOGroup::make_plugin());
         geopm_time_s curr_time;
         geopm_time(&curr_time);
         m_application_sampler.update(curr_time);

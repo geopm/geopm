@@ -13,8 +13,8 @@ import subprocess # nosec
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
-    from geopmdpy.runtime import Agent
-    from geopmdpy.runtime import Controller
+    from geopmpy.runtime import Agent
+    from geopmpy.runtime import Controller
 
 class PassthroughAgent(Agent):
     def __init__(self, signals, controls, period):
@@ -116,15 +116,18 @@ class TestController(unittest.TestCase):
         pa = PassthroughAgent(signals, controls, period)
         loops = 5 if return_code is None else 1
 
-        with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
-             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
-             mock.patch('geopmdpy.pio.restore_control') as prc, \
-             mock.patch('geopmdpy.pio.sample', side_effect = itertools.count()) as ps, \
-             mock.patch('geopmdpy.pio.save_control') as psc, \
-             mock.patch('geopmdpy.pio.read_batch') as prb, \
-             mock.patch('geopmdpy.pio.write_batch') as pwb, \
-             mock.patch('geopmdpy.pio.adjust') as pad, \
-             mock.patch('geopmdpy.runtime.PIDTimedLoop', return_value=list(range(loops))) as rtl, \
+        with mock.patch('geopmpy.pio_rt.push_signal', side_effect = itertools.count()) as pps, \
+             mock.patch('geopmpy.pio_rt.push_control', side_effect = itertools.count()) as ppc, \
+             mock.patch('geopmpy.pio_rt.restore_control') as prc, \
+             mock.patch('geopmpy.pio_rt.sample', side_effect = itertools.count()) as ps, \
+             mock.patch('geopmpy.pio_rt.save_control') as psc, \
+             mock.patch('geopmpy.pio_rt.read_batch') as prb, \
+             mock.patch('geopmpy.pio_rt.write_batch') as pwb, \
+             mock.patch('geopmpy.pio_rt.update') as mock_pio_update, \
+             mock.patch('geopmpy.reporter.init') as mock_init, \
+             mock.patch('geopmpy.reporter.update') as mock_reporter_update, \
+             mock.patch('geopmpy.pio_rt.adjust') as pad, \
+             mock.patch('geopmdpy.loop.PIDTimedLoop', return_value=list(range(loops))) as rtl, \
              mock.patch('subprocess.Popen') as sp:
 
             con = Controller(pa)
@@ -155,6 +158,9 @@ class TestController(unittest.TestCase):
                 pad.assert_has_calls(calls)
                 pwb.assert_has_calls([mock.call()] * loops)
                 prc.assert_called_once()
+                mock_init.assert_called_once()
+                mock_reporter_update.assert_has_calls([mock.call()] * loops)
+                mock_pio_update.assert_has_calls([mock.call()] * loops)
                 self.assertEqual(pa._report_data, result)
 
                 if return_code is None:

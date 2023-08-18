@@ -53,7 +53,7 @@ class TestSession(unittest.TestCase):
         signal_handle = list(range(3))
         signal_expect = num_period * [1.234, 2.345, 3.456]
 
-        with mock.patch('geopmdpy.runtime.TimedLoop', return_value=[0, 1]) as mock_timed_loop, \
+        with mock.patch('geopmdpy.loop.TimedLoop', return_value=[0, 1]) as mock_timed_loop, \
              mock.patch('geopmdpy.pio.push_signal', side_effect=signal_handle) as mock_push_signal, \
              mock.patch('geopmdpy.pio.read_batch') as mock_read_batch, \
              mock.patch('geopmdpy.pio.sample', side_effect=signal_expect) as mock_sample, \

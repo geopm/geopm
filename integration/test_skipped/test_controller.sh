@@ -8,7 +8,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     Run the test controller
     -----------------------
 
-    This test shows the geopmdpy.runtime module being used to run the
+    This test shows the geopmpy.runtime module being used to run the
     sleep command.
 
 "

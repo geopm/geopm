@@ -17,7 +17,6 @@ from integration.test import util
 
 @util.skip_unless_do_launch()
 @util.skip_unless_stressng()
-@unittest.skip('Use legacy-dev branch until issues with python agents in dev branch are fixed https://github.com/geopm/geopm/issues/2995')
 class TestIntegration_tutorial_python_agents(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

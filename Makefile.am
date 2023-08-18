@@ -510,6 +510,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/geopm_endpoint.h \
                       src/geopm_imbalancer.h \
                       src/geopm_lib_init.cpp \
+                      src/geopm_pio_rt.cpp \
+                      src/geopm_pio_rt.h \
                       src/geopm_policystore.h \
                       src/geopm_prof.h \
                       src/geopm_reporter.h \
