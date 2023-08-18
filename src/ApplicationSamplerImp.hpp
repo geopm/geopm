@@ -37,7 +37,6 @@ namespace geopm
                                   bool is_filtered,
                                   const std::string &filter_name,
                                   const std::vector<bool> &is_cpu_active,
-                                  bool do_profile,
                                   const std::string &profile_name,
                                   const std::map<int, std::set<int> > &client_cpu_map,
                                   std::shared_ptr<Scheduler> scheduler);
@@ -75,7 +74,6 @@ namespace geopm
             geopm_time_s m_update_time;
             bool m_is_first_update;
             std::vector<uint64_t> m_hint_last;
-            bool m_do_profile;
             std::string m_profile_name;
             std::map<int, std::set<int> > m_client_cpu_map;
             std::shared_ptr<Scheduler> m_scheduler;

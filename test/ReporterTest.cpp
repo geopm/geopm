@@ -346,7 +346,6 @@ TEST_F(ReporterTest, generate)
                                                  m_region_agg,
                                                  env_signals,
                                                  "",
-                                                 true,
                                                  true);
     m_reporter->init();
 
@@ -531,7 +530,6 @@ TEST_F(ReporterTest, generate_conditional)
                                                  m_region_agg,
                                                  env_signals,
                                                  "",
-                                                 true,
                                                  true);
     m_reporter->init();
     m_reporter->total_time(56.0);

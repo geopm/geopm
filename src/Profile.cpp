@@ -122,7 +122,7 @@ namespace geopm
                      {},  // cpu_set
                      nullptr,  // app_status
                      nullptr,  // app_record_log
-                     environment().timeout() != -1,
+                     environment().do_profile(),
                      ServiceProxy::make_unique(),
                      Scheduler::make_unique(),
                      M_PID_INIT)
