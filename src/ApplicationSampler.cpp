@@ -99,7 +99,6 @@ namespace geopm
                                 environment().do_record_filter(),
                                 environment().record_filter(),
                                 {},
-                                environment().timeout() != -1,
                                 environment().profile(),
                                 {},
                                 Scheduler::make_unique())
@@ -113,7 +112,6 @@ namespace geopm
                                                  bool is_filtered,
                                                  const std::string &filter_name,
                                                  const std::vector<bool> &is_cpu_active,
-                                                 bool do_profile,
                                                  const std::string &profile_name,
                                                  const std::map<int, std::set<int> > &client_cpu_map,
                                                  std::shared_ptr<Scheduler> scheduler)
@@ -128,7 +126,6 @@ namespace geopm
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
         , m_hint_last(m_num_cpu, uint64_t(GEOPM_REGION_HINT_UNSET))
-        , m_do_profile(do_profile)
         , m_profile_name(profile_name)
         , m_client_cpu_map(client_cpu_map)
         , m_scheduler(std::move(scheduler))
@@ -146,7 +143,7 @@ namespace geopm
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
-        if (!m_do_profile || !m_status) {
+        if (!m_status) {
             return;
         }
         GEOPM_DEBUG_ASSERT((int) m_hint_time.size() == m_num_cpu &&
@@ -407,7 +404,7 @@ namespace geopm
 
     void ApplicationSamplerImp::connect(const std::vector<int> &client_pids)
     {
-        if (!m_status && m_do_profile) {
+        if (!m_status) {
             m_num_client = (int)client_pids.size();
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");

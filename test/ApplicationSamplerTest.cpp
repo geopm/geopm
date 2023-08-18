@@ -83,7 +83,6 @@ void ApplicationSamplerTest::SetUp()
                                                             false,
                                                             "",
                                                             is_active,
-                                                            true,
                                                             "profile_name",
                                                             m_client_cpu_map,
                                                             m_scheduler);
