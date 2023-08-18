@@ -40,9 +40,9 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Programming Language :: Python :: 3.6',
 ]
 
-install_requires = ['cffi>=1.15.0',
-                    'setuptools>=59.6.0',
-                    'psutil>=5.9.0',
+install_requires = ['cffi>=1.14.5',
+                    'setuptools>=53.0.0',
+                    'psutil>=5.8.0',
                     'dasbus>=1.6.0',
                     'jsonschema>=3.2.0']
 
