@@ -35,7 +35,7 @@ python3 -m unittest discover \
 
 # Execute tests in test_monitor.py and log to file
 PYTHONPATH=${GEOPM_SOURCE}:${PYTHONPATH} \
-python3 ${GEOPM_SOURCE}/test/integration/test_monitor.py \
+python3 ${GEOPM_SOURCE}/integration/test/test_monitor.py \
     --verbose >& test-monitor.log
 
 # Use discover to execute tests in test_monitor.py log to file
