@@ -388,7 +388,7 @@ include integration/Makefile.mk
 endif
 
 if ENABLE_FUZZTESTS
-include fuzz_tests/Makefile.mk
+include fuzz_test/Makefile.mk
 endif
 
 include docs/Makefile.mk
