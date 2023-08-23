@@ -15,6 +15,7 @@ the geopm::ApplicationSampler).
 '''
 
 import cffi
+import os
 
 '''gffi is the global FFI object used by all geopm python modules
 
@@ -49,8 +50,14 @@ def get_dl_geopm():
 
 # Enforce load order of libgeopm.so and libgeopmd.so
 try:
+    old_env = os.environ.get('GEOPM_PROGRAM_FILTER')
+    os.environ['GEOPM_PROGRAM_FILTER'] = ''
     _dl_geopm = gffi.dlopen('libgeopm.so.1',
                             gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
+    if old_env is not None:
+        os.environ['GEOPM_PROGRAM_FILTER'] = old_env
+    else:
+        os.environ.pop('GEOPM_PROGRAM_FILTER')
 except OSError as err:
     _dl_geopm = err
 

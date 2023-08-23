@@ -9,6 +9,7 @@
 #include <utility>
 #include <unistd.h>
 #include <ctime>
+#include <iostream>
 
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
@@ -83,6 +84,13 @@ namespace geopm
             clock_nanosleep(CLOCK_REALTIME, 0, &delay, NULL);
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
+#ifdef GEOPM_DEBUG
+        std::cout << "Info: <geopm> Controller will profile PIDs: ";
+        for (auto pid : m_profile_pids) {
+            std::cout << pid << " ";
+        }
+        std::cout << std::endl;
+#endif
         result.assign(m_profile_pids.begin(), m_profile_pids.end());
         return result;
     }
