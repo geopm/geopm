@@ -48,19 +48,25 @@ def get_dl_geopm():
         raise _dl_geopm
     return _dl_geopm
 
-# Enforce load order of libgeopm.so and libgeopmd.so
+# Enforce load order of libgeopm.so and libgeopmd.so by loading
+# them together in this module.
+
+# Set GEOPM_PROGRAM_FILTER to empty string to avoid registering for
+# profiling upon calling dlopen() on libgeopm.so
+_orig_filter = os.environ.get('GEOPM_PROGRAM_FILTER')
+os.environ['GEOPM_PROGRAM_FILTER'] = ''
 try:
-    old_env = os.environ.get('GEOPM_PROGRAM_FILTER')
-    os.environ['GEOPM_PROGRAM_FILTER'] = ''
     _dl_geopm = gffi.dlopen('libgeopm.so.1',
                             gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
-    if old_env is not None:
-        os.environ['GEOPM_PROGRAM_FILTER'] = old_env
-    else:
-        os.environ.pop('GEOPM_PROGRAM_FILTER')
 except OSError as err:
     _dl_geopm = err
+finally:
+    if _orig_filter is not None:
+        os.environ['GEOPM_PROGRAM_FILTER'] = _orig_filter
+    else:
+        os.environ.pop('GEOPM_PROGRAM_FILTER')
 
+# Load libgeopmd.so after libgeopm.so
 try:
     _dl_geopmd =  gffi.dlopen('libgeopmd.so.1',
                               gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
