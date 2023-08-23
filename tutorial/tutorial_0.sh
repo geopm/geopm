@@ -26,6 +26,7 @@ HOSTNAME=$(hostname)
 if [ "$MPIEXEC" ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
     LD_PRELOAD=$GEOPM_LIB/libgeopm.so \
+    GEOPM_PROGRAM_FILTER=tutorial_0 \
     LD_DYNAMIC_WEAK=true \
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_0_report_${HOSTNAME} \
