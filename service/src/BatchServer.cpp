@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include "geopm_error.h"
+#include "geopm_sched.h"
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/SharedMemory.hpp"
@@ -23,11 +24,15 @@
 #include "BatchStatus.hpp"
 #include "POSIXSignal.hpp"
 #include "geopm_debug.hpp"
+#ifdef GEOPM_ENABLE_NVML
+#include "NVMLDevicePool.hpp"
+#endif
 
 volatile static sig_atomic_t g_sigterm_count = 0;
 volatile static sig_atomic_t g_sigchld_count = 0;
 volatile static sig_atomic_t g_sigchld_status = 0;
 volatile static sig_atomic_t g_wait_status = 0;
+
 
 static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
 {
@@ -83,6 +88,12 @@ namespace geopm
     {
         // Fork the server when calling real constructor.
         auto setup = [this]() {
+#ifdef GEOPM_ENABLE_NVML
+            // NVML requires reinitialization after fork
+            // TODO: Switch to fork()/excecv() model to
+            //       avoid this issue
+            nvml_device_pool(geopm_sched_num_cpu()).reset();
+#endif
             this->child_register_handler();
             this->create_shmem();
             return BatchStatus::M_MESSAGE_CONTINUE;
@@ -421,6 +432,11 @@ namespace geopm
                 std::cerr << "Warning: <geopm>: " << __FILE__ << ":" << __LINE__
                           << " Batch server was terminated with unknown exception\n";
             }
+            // Calling _Exit() avoids destroying resources associated
+            // with the parent process, however any resources created
+            // after fork() will not be automatically destroyed
+            // TODO: Switch to fork()/execv() to avoid this issue,
+            //       execv() does not return.
             _Exit(0);
         }
         check_return(close(pipe_fd[1]), "close(2)");

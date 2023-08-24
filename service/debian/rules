@@ -24,7 +24,7 @@ override_dh_auto_test:
 	# make check # TODO Fix issue #2999
 
 override_dh_auto_build:
-	make
+	make -j
 
 override_dh_auto_install:
 	make DESTDIR=$(DESTDIR) install
