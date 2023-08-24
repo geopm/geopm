@@ -299,9 +299,6 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/plugin_load/bob/BobIOGroup.cpp \
                 tutorial/plugin_load/bob/BobIOGroup.hpp \
                 tutorial/plugin_load/README.md \
-                tutorial/python_agents/README.rst \
-                tutorial/python_agents/__init__.py \
-                tutorial/python_agents/static_agent.py \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
@@ -510,8 +507,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/geopm_endpoint.h \
                       src/geopm_imbalancer.h \
                       src/geopm_lib_init.cpp \
-                      src/geopm_pio_rt.cpp \
-                      src/geopm_pio_rt.h \
                       src/geopm_policystore.h \
                       src/geopm_prof.h \
                       src/geopm_reporter.h \

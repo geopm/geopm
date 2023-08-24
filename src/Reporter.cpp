@@ -594,7 +594,7 @@ int geopm_reporter_init(void)
     int err = geopm_time_string(NAME_MAX, start_time);
     if (!err) {
         try {
-            geopm::basic_reporter(start_time).init();
+            geopm::basic_reporter(start_time);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
