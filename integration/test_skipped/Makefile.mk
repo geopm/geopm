@@ -2,9 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/test_skipped/test_controller.py \
-              integration/test_skipped/test_controller.sh \
-              integration/test_skipped/test_reporter.py \
+EXTRA_DIST += integration/test_skipped/test_reporter.py \
               integration/test_skipped/test_reporter.cpp \
               # end
 
