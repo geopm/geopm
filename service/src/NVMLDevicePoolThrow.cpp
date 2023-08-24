@@ -12,7 +12,7 @@ namespace geopm
 {
     class NVMLDevicePool;
 
-    const NVMLDevicePool &nvml_device_pool(const int num_cpu)
+    NVMLDevicePool &nvml_device_pool(const int num_cpu)
     {
         throw Exception("NVMLDevicePoolThrow::" + std::string(__func__) +
                         ": GEOPM configured without nvml library support.  Please configure with --enable-nvml",

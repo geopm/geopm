@@ -24,7 +24,7 @@
 namespace geopm
 {
 
-    const NVMLDevicePool &nvml_device_pool(const int num_cpu)
+    NVMLDevicePool &nvml_device_pool(const int num_cpu)
     {
         static NVMLDevicePoolImp instance(num_cpu);
         return instance;
@@ -34,6 +34,11 @@ namespace geopm
         : M_MAX_CONTEXTS(64)
         , M_MAX_FREQUENCIES(200)
         , M_NUM_CPU(num_cpu)
+    {
+        reset();
+    }
+
+    void NVMLDevicePoolImp::reset(void)
     {
         nvmlReturn_t nvml_result;
 

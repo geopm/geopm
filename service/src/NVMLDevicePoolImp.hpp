@@ -38,13 +38,14 @@ namespace geopm
             virtual void frequency_reset_control(int gpu_idx) const override;
             virtual void power_control(int gpu_idx, int setting) const override;
             virtual bool is_privileged_access(void) const override;
+            virtual void reset(void) override;
 
         private:
             const unsigned int M_MAX_CONTEXTS;
             const unsigned int M_MAX_FREQUENCIES;
             const unsigned int M_NUM_CPU;
-            virtual void check_gpu_range(int gpu_idx) const;
-            virtual void check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const;
+            void check_gpu_range(int gpu_idx) const;
+            void check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const;
             unsigned int m_num_gpu;
             std::vector<nvmlDevice_t> m_nvml_device;
     };

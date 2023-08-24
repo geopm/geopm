@@ -130,9 +130,10 @@ namespace geopm
             virtual void power_control(int gpu_idx, int setting) const = 0;
 
             virtual bool is_privileged_access(void) const = 0;
+            virtual void reset(void) = 0;
         private:
     };
 
-    const NVMLDevicePool &nvml_device_pool(int num_cpu);
+    NVMLDevicePool &nvml_device_pool(int num_cpu);
 }
 #endif
