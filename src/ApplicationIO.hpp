@@ -34,8 +34,6 @@ namespace geopm
             /// @brief Returns true if the application has indicated
             ///        it is shutting down.
             virtual bool do_shutdown(void) = 0;
-            /// @brief Returns the path to the report file.
-            virtual std::string report_name(void) const = 0;
             /// @brief Returns the profile name to be used in the
             ///        report.
             virtual std::string profile_name(void) const = 0;
@@ -50,14 +48,12 @@ namespace geopm
             ApplicationIOImp();
             ApplicationIOImp(std::shared_ptr<ServiceProxy> service_proxy,
                              const std::string &profile_name,
-                             const std::string &report_name,
                              int timeout,
                              int num_proc,
                              int ctl_mode);
             virtual ~ApplicationIOImp();
             std::vector<int> connect(void) override;
             bool do_shutdown(void) override;
-            std::string report_name(void) const override;
             std::string profile_name(void) const override;
             std::set<std::string> region_name_set(void) const override;
         private:
@@ -67,7 +63,6 @@ namespace geopm
             bool m_is_connected;
             std::shared_ptr<ServiceProxy> m_service_proxy;
             const std::string m_profile_name;
-            const std::string m_report_name;
             const int m_timeout;
             std::set<int> m_profile_pids;
             int m_num_proc;

@@ -33,10 +33,6 @@ namespace geopm
         public:
             Reporter() = default;
             virtual ~Reporter() = default;
-            /// @brief Handle any initialization that must take place
-            ///        after the Controller has connected to the
-            ///        application.
-            virtual void init(void) = 0;
             /// @brief Read values from PlatformIO to update
             ///        aggregated samples.
             virtual void update(void) = 0;
@@ -87,22 +83,20 @@ namespace geopm
     {
         public:
             ReporterImp(const std::string &start_time,
-                        const std::string &report_name,
                         PlatformIO &platform_io,
                         const PlatformTopo &platform_topo,
                         int rank);
             ReporterImp(const std::string &start_time,
-                        const std::string &report_name,
                         PlatformIO &platform_io,
                         const PlatformTopo &platform_topo,
                         int rank,
                         std::shared_ptr<SampleAggregator> sample_agg,
                         std::shared_ptr<ProcessRegionAggregator> proc_agg,
+                        const std::string &report_name,
                         const std::vector<std::pair<std::string, int> > &env_signal,
                         const std::string &policy_path,
                         bool do_endpoint);
             virtual ~ReporterImp() = default;
-            void init(void) override;
             void update(void) override;
             void generate(const std::string &agent_name,
                           const std::vector<std::pair<std::string, std::string> > &agent_report_header,
@@ -192,7 +186,6 @@ namespace geopm
 
             // Signals added through environment
             std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
-            bool m_do_init;
             double m_total_time;
             double m_overhead_time;
             double m_sample_delay;

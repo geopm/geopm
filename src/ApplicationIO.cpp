@@ -24,7 +24,6 @@ namespace geopm
     ApplicationIOImp::ApplicationIOImp()
         : ApplicationIOImp(ServiceProxy::make_unique(),
                            environment().profile(),
-                           environment().report(),
                            environment().timeout(),
                            environment().num_proc(),
                            environment().pmpi_ctl())
@@ -34,14 +33,12 @@ namespace geopm
 
     ApplicationIOImp::ApplicationIOImp(std::shared_ptr<ServiceProxy> service_proxy,
                                        const std::string &profile_name,
-                                       const std::string &report_name,
                                        int timeout,
                                        int num_proc,
                                        int ctl_mode)
         : m_is_connected(false)
         , m_service_proxy(std::move(service_proxy))
         , m_profile_name(profile_name)
-        , m_report_name(report_name)
         , m_timeout(timeout)
         , m_num_proc(num_proc)
         , m_ctl_mode(ctl_mode)
@@ -128,13 +125,6 @@ namespace geopm
             result = true;
         }
         return result;
-    }
-
-    std::string ApplicationIOImp::report_name(void) const
-    {
-        // Get report name from controller's environment not the
-        // application environment
-        return m_report_name;
     }
 
     std::string ApplicationIOImp::profile_name(void) const

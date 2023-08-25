@@ -169,7 +169,6 @@ namespace geopm
                      std::make_shared<ApplicationIOImp>(),
                      std::make_unique<ReporterImp>(
                          get_start_time(),
-                         environment().report(),
                          PlatformIOProf::platform_io(),
                          platform_topo(),
                          ppn1_comm->rank()),
@@ -344,7 +343,6 @@ namespace geopm
         m_platform_io.save_control();
         m_init_control->write_controls();
         init_agents();
-        m_reporter->init();
         setup_trace();
         m_platform_io.read_batch();
         geopm_time_s zero = geopm::time_zero();

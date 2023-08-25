@@ -40,17 +40,16 @@
 namespace geopm
 {
     ReporterImp::ReporterImp(const std::string &start_time,
-                             const std::string &report_name,
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo,
                              int rank)
         : ReporterImp(start_time,
-                      report_name,
                       platform_io,
                       platform_topo,
                       rank,
                       SampleAggregator::make_unique(),
                       nullptr,
+                      environment().report(),
                       environment().report_signals(),
                       environment().policy(),
                       environment().do_endpoint())
@@ -59,12 +58,12 @@ namespace geopm
     }
 
     ReporterImp::ReporterImp(const std::string &start_time,
-                             const std::string &report_name,
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo,
                              int rank,
                              std::shared_ptr<SampleAggregator> sample_agg,
                              std::shared_ptr<ProcessRegionAggregator> proc_agg,
+                             const std::string &report_name,
                              const std::vector<std::pair<std::string, int> > &env_signals,
                              const std::string &policy_path,
                              bool do_endpoint)
@@ -80,7 +79,6 @@ namespace geopm
         , m_rank(rank)
         , m_sticker_freq(m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         , m_epoch_count_idx(-1)
-        , m_do_init(true)
         , m_total_time(0.0)
         , m_overhead_time(0.0)
         , m_sample_delay(0.0)
@@ -106,22 +104,12 @@ namespace geopm
                 errno = 0;
             }
         }
-    }
-
-    void ReporterImp::init(void)
-    {
-        if (m_do_init) {
-            // ProcessRegionAggregator should not be constructed until
-            // application connection is established.
-            init_sync_fields();
-            init_environment_signals();
-            m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
-            if (m_proc_region_agg == nullptr) {
-                m_proc_region_agg = ProcessRegionAggregator::make_unique();
-            }
-            m_do_init = false;
+        init_sync_fields();
+        init_environment_signals();
+        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
+        if (m_proc_region_agg == nullptr) {
+            m_proc_region_agg = ProcessRegionAggregator::make_unique();
         }
-
     }
 
     void ReporterImp::update()
@@ -151,15 +139,14 @@ namespace geopm
                                std::shared_ptr<Comm> comm,
                                const TreeComm &tree_comm)
     {
-        std::string report_name(application_io.report_name());
-        if (report_name.size() == 0) {
+        if (m_report_name.size() == 0) {
             return;
         }
 
         int rank = comm->rank();
         std::ofstream common_report;
         if (!rank) {
-            common_report.open(report_name);
+            common_report.open(m_report_name);
             if (!common_report.good()) {
                 throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
@@ -574,7 +561,6 @@ namespace geopm
     static Reporter &basic_reporter(const std::string &start_time)
     {
         static ReporterImp instance(start_time,
-                                    "",
                                     PlatformIOProf::platform_io(),
                                     platform_topo(),
                                     0);
