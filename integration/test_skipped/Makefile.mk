@@ -4,8 +4,6 @@
 
 EXTRA_DIST += integration/test_skipped/test_controller.py \
               integration/test_skipped/test_controller.sh \
-              integration/test_skipped/test_reporter.py \
-              integration/test_skipped/test_reporter.cpp \
               # end
 
 include integration/test_skipped/test_fmap_short_region_slop.mk
