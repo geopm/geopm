@@ -33,7 +33,6 @@ volatile static sig_atomic_t g_sigchld_count = 0;
 volatile static sig_atomic_t g_sigchld_status = 0;
 volatile static sig_atomic_t g_wait_status = 0;
 
-
 static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
 {
     if (siginfo->si_value.sival_int == geopm::BatchStatus::M_MESSAGE_TERMINATE) {
