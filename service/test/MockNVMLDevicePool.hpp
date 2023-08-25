@@ -34,6 +34,7 @@ class MockNVMLDevicePool : public geopm::NVMLDevicePool
         MOCK_METHOD(void, frequency_reset_control, (int), (const, override));
         MOCK_METHOD(void, power_control, (int, int), (const, override));
         MOCK_METHOD(bool, is_privileged_access, (), (const, override));
+        MOCK_METHOD(void, reset, (), (override));
 };
 
 #endif
