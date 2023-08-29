@@ -79,6 +79,7 @@ namespace geopm
         , m_rank(rank)
         , m_sticker_freq(m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         , m_epoch_count_idx(-1)
+        , m_do_init(true)
         , m_total_time(0.0)
         , m_overhead_time(0.0)
         , m_sample_delay(0.0)
@@ -104,11 +105,20 @@ namespace geopm
                 errno = 0;
             }
         }
-        init_sync_fields();
-        init_environment_signals();
-        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
-        if (m_proc_region_agg == nullptr) {
-            m_proc_region_agg = ProcessRegionAggregator::make_unique();
+    }
+
+    void ReporterImp::init(void)
+    {
+        if (m_do_init) {
+            // ProcessRegionAggregator should not be constructed until
+            // application connection is established.
+            init_sync_fields();
+            init_environment_signals();
+            m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
+            if (m_proc_region_agg == nullptr) {
+                m_proc_region_agg = ProcessRegionAggregator::make_unique();
+            }
+            m_do_init = false;
         }
     }
 
