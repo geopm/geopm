@@ -52,7 +52,8 @@ namespace geopm
                       environment().report(),
                       environment().report_signals(),
                       environment().policy(),
-                      environment().do_endpoint())
+                      environment().do_endpoint(),
+                      environment().profile())
     {
 
     }
@@ -66,7 +67,8 @@ namespace geopm
                              const std::string &report_name,
                              const std::vector<std::pair<std::string, int> > &env_signals,
                              const std::string &policy_path,
-                             bool do_endpoint)
+                             bool do_endpoint,
+                             const std::string &profile_name)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
@@ -83,6 +85,7 @@ namespace geopm
         , m_total_time(0.0)
         , m_overhead_time(0.0)
         , m_sample_delay(0.0)
+        , m_profile_name(profile_name)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
         if (!m_rank) {
@@ -160,7 +163,7 @@ namespace geopm
             if (!common_report.good()) {
                 throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            common_report << create_header(agent_name, application_io.profile_name(), agent_report_header);
+            common_report << create_header(agent_name, m_profile_name, agent_report_header);
         }
 
         std::string host_report = create_report(application_io.region_name_set(),

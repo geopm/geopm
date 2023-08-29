@@ -34,9 +34,6 @@ namespace geopm
             /// @brief Returns true if the application has indicated
             ///        it is shutting down.
             virtual bool do_shutdown(void) = 0;
-            /// @brief Returns the profile name to be used in the
-            ///        report.
-            virtual std::string profile_name(void) const = 0;
             /// @brief Returns the set of region names recorded by the
             ///        application.
             virtual std::set<std::string> region_name_set(void) const = 0;
@@ -54,7 +51,6 @@ namespace geopm
             virtual ~ApplicationIOImp();
             std::vector<int> connect(void) override;
             bool do_shutdown(void) override;
-            std::string profile_name(void) const override;
             std::set<std::string> region_name_set(void) const override;
         private:
             std::set<int> get_profile_pids(void);

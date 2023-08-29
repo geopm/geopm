@@ -127,11 +127,6 @@ namespace geopm
         return result;
     }
 
-    std::string ApplicationIOImp::profile_name(void) const
-    {
-        return m_profile_name;
-    }
-
     std::set<std::string> ApplicationIOImp::region_name_set(void) const
     {
         std::set<std::string> result;
