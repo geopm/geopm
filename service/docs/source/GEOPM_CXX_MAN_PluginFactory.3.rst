@@ -206,6 +206,15 @@ detailed example of plugin load order can be found in
        export GEOPM_PLUGIN_PATH=$GEOPM_HOME/tutorial/iogroup
        export GEOPM_PLUGIN_PATH=$HOME/plugin/iogroup:$GEOPM_PLUGIN_PATH
 
+.. warning::
+
+    It is imperative that any dynamically loaded library that is a dependency
+    of a plugin is available in the environment of the systemd initiated geopmd
+    service.  If dependent libararies are not available on the root user's
+    LD_LIBRARY_PATH, the plugin will fail to load.
+    For this reason, it is recommended that any plugins are compiled with
+    system installed gcc/g++ compilers.
+
 Plugin Load Constructor Function
 --------------------------------
 
