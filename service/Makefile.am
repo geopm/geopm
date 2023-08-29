@@ -79,6 +79,7 @@ EXTRA_DIST = .gitignore \
              debian/rules \
              dox/blurb.md \
              dox/Doxyfile.in \
+             fuzz_test/run_fuzz_tests.sh \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
