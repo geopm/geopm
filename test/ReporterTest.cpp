@@ -179,8 +179,6 @@ ReporterTest::ReporterTest()
     m_sample_agg = std::make_shared<MockSampleAggregator>();
     m_region_agg = std::make_shared<MockProcessRegionAggregator>();
 
-    ON_CALL(m_application_io, profile_name())
-        .WillByDefault(Return(m_profile_name));
     ON_CALL(m_application_io, region_name_set())
         .WillByDefault(Return(m_region_set));
 
@@ -242,7 +240,6 @@ void check_report(std::istream &expected, std::istream &result);
 void ReporterTest::generate_setup(void)
 {
     // ApplicationIO calls: to be removed
-    EXPECT_CALL(m_application_io, profile_name()).WillOnce(Return(m_profile_name));
     EXPECT_CALL(m_application_io, region_name_set()).WillOnce(Return(m_region_set));
 
     // ProcessRegionAgregator
@@ -345,7 +342,8 @@ TEST_F(ReporterTest, generate)
                                                  m_report_name,
                                                  env_signals,
                                                  "",
-                                                 true);
+                                                 true,
+                                                 m_profile_name);
     m_reporter->init();
 
     std::vector<std::pair<std::string, std::string> > agent_header {
@@ -529,7 +527,8 @@ TEST_F(ReporterTest, generate_conditional)
                                                  m_report_name,
                                                  env_signals,
                                                  "",
-                                                 true);
+                                                 true,
+                                                 m_profile_name);
     m_reporter->init();
     m_reporter->total_time(56.0);
 
