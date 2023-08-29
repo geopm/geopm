@@ -197,6 +197,15 @@ filename must begin with "libgeopmiogroup_" and end in
 An alternative is to install the plugin by copying the .so file into
 the GEOPM install directory, <GEOPM_INSTALL_DIR>/lib/geopm.
 
+> [!WARNING]
+> When installing plugins system-wide for use through the GEOPM service,
+> it is imperative that any dynamically loaded library that is a dependency
+> of a plugin is available in the environment of the systemd initiated geopmd
+> service.  If dependent libararies are not available on the root user's
+> LD_LIBRARY_PATH, the plugin will fail to load.
+> For this reason, it is recommended that any plugins are compiled with
+> the system installed gcc/g++ compilers.
+
 
 5. Run with geopmread and geopmwrite
 ------------------------------------
