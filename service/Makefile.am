@@ -365,12 +365,13 @@ all-local: $(all_local)
 all_local =
 
 CLEAN_LOCAL_TARGETS = clean-local-python
+if ENABLE_FUZZTESTS
+CLEAN_LOCAL_TARGETS += clean-local-fuzztest
+endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
 PHONY_TARGETS = clean-local-python doxygen
-
-.PHONY: $(PHONY_TARGETS)
 
 # INCLUDES
 check_PROGRAMS =
@@ -392,3 +393,5 @@ include fuzz_test/Makefile.mk
 endif
 
 include docs/Makefile.mk
+
+.PHONY: $(PHONY_TARGETS)
