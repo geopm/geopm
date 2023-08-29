@@ -6,7 +6,6 @@
 #include "config.h"
 
 #include "Reporter.hpp"
-#include "geopm_reporter.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -570,70 +569,4 @@ namespace geopm
             os << indent << kv.first << ": " << kv.second << std::endl;
         }
     }
-
-    static Reporter &basic_reporter(const std::string &start_time)
-    {
-        static ReporterImp instance(start_time,
-                                    PlatformIOProf::platform_io(),
-                                    platform_topo(),
-                                    0);
-        return instance;
-    }
-
-    static Reporter &basic_reporter(void)
-    {
-        return basic_reporter("");
-    }
-
-}
-
-int geopm_reporter_init(void)
-{
-    char start_time[NAME_MAX];
-    int err = geopm_time_string(NAME_MAX, start_time);
-    if (!err) {
-        try {
-            geopm::basic_reporter(start_time);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
-        }
-    }
-    return err;
-}
-
-int geopm_reporter_update(void)
-{
-    int err = 0;
-    try {
-        geopm::basic_reporter().update();
-    }
-    catch (...) {
-        err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
-    }
-    return err;
-}
-
-int geopm_reporter_generate(const char *profile_name,
-                            const char *agent_name,
-                            size_t result_max,
-                            char *result)
-{
-    int err = 0;
-    try {
-        std::string result_cxx = geopm::basic_reporter().generate(profile_name, agent_name, {}, {}, {});
-        result[result_max - 1] = '\0';
-        strncpy(result, result_cxx.c_str(), result_max);
-        if (result[result_max - 1] != '\0') {
-            err = GEOPM_ERROR_INVALID;
-            result[result_max - 1] = '\0';
-        }
-    }
-    catch (...) {
-        err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
-    }
-    return err;
 }

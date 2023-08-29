@@ -509,7 +509,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/geopm_lib_init.cpp \
                       src/geopm_policystore.h \
                       src/geopm_prof.h \
-                      src/geopm_reporter.h \
                       src/record.cpp \
                       src/record.hpp \
                       # end

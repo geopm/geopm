@@ -16,7 +16,6 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/hash.py \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/policy_store.py \
-              scripts/geopmpy/reporter.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
