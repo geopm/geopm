@@ -26,7 +26,7 @@ Upstream RHEL and CentOS Package Requirements
 .. code-block:: bash
 
     yum install python3 python3-devel python3-gobject-base \
-                python3-Sphinx python3-sphinx_rtd_theme \
+                python3-sphinx python3-sphinx_rtd_theme \
                 systemd-devel
 
 
