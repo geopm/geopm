@@ -34,18 +34,15 @@ class ApplicationIOTest : public ::testing::Test
         std::unique_ptr<ApplicationIO> m_app_io;
         std::shared_ptr<geopm::ServiceProxy> m_service_proxy;
         std::string m_profile_name;
-        std::string m_report_name;
 };
 
 void ApplicationIOTest::SetUp()
 {
     m_service_proxy = std::make_shared<MockServiceProxy>();
     m_profile_name = "test_profile_name";
-    m_report_name = "test_geopm.report";
 
     m_app_io = geopm::make_unique<ApplicationIOImp>(m_service_proxy,
                                                     m_profile_name,
-                                                    m_report_name,
                                                     5,
                                                     1,
                                                     geopm::Environment::M_CTL_NONE);
@@ -55,8 +52,6 @@ void ApplicationIOTest::SetUp()
 TEST_F(ApplicationIOTest, passthrough)
 {
     EXPECT_TRUE(m_app_io->do_shutdown());
-
-    EXPECT_EQ(m_report_name, m_app_io->report_name());
 
     EXPECT_EQ(m_profile_name, m_app_io->profile_name());
 }

@@ -242,7 +242,6 @@ void check_report(std::istream &expected, std::istream &result);
 void ReporterTest::generate_setup(void)
 {
     // ApplicationIO calls: to be removed
-    EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
     EXPECT_CALL(m_application_io, profile_name()).WillOnce(Return(m_profile_name));
     EXPECT_CALL(m_application_io, region_name_set()).WillOnce(Return(m_region_set));
 
@@ -338,12 +337,12 @@ TEST_F(ReporterTest, generate)
         {"CPU_ENERGY", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
     };
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
-                                                 m_report_name,
                                                  m_platform_io,
                                                  m_platform_topo,
                                                  0,
                                                  m_sample_agg,
                                                  m_region_agg,
+                                                 m_report_name,
                                                  env_signals,
                                                  "",
                                                  true);
@@ -522,12 +521,12 @@ TEST_F(ReporterTest, generate_conditional)
         {"CPU_ENERGY", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
     };
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
-                                                 m_report_name,
                                                  m_platform_io,
                                                  m_platform_topo,
                                                  0,
                                                  m_sample_agg,
                                                  m_region_agg,
+                                                 m_report_name,
                                                  env_signals,
                                                  "",
                                                  true);
