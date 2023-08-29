@@ -109,13 +109,6 @@ geopmpy.policy_store
    :undoc-members:
    :show-inheritance:
 
-geopmpy.reporter
-^^^^^^^^^^^^^^^^
-.. automodule:: geopmpy.reporter
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Troubleshooting
 ---------------
 
