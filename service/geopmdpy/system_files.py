@@ -892,13 +892,17 @@ class ActiveSessions(object):
         else:
            os.rename(sess_path, renamed_path)
 
-def _get_names(exec_name):
+def _get_names(exec_name, quiet=True):
     try:
         stdout_encoding = sys.stdout.encoding
+        stderr_encoding = sys.stderr.encoding
     except AttributeError:
         stdout_encoding = None
+        stderr_encoding = None
     if stdout_encoding is None:
         stdout_encoding = locale.getpreferredencoding()
+    if stderr_encoding is None:
+        stderr_encoding = locale.getpreferredencoding()
 
     try:
         stderr_encoding = sys.stderr.encoding
@@ -910,6 +914,8 @@ def _get_names(exec_name):
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
     stdout_bytes, stderr_bytes = signals_pid.communicate()
+    if not quiet:
+        sys.stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
     return stdout_bytes.decode(encoding=stdout_encoding).split()
 
 
@@ -921,7 +927,7 @@ class AccessLists(object):
         self._CONFIG_PATH = config_path
         secure_make_dirs(self._CONFIG_PATH)
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
-        self._signal_names = _get_names('/usr/bin/geopmread')
+        self._signal_names = _get_names('/usr/bin/geopmread', quiet=False)
         self._control_names = _get_names('/usr/bin/geopmwrite')
 
     def _validate_group(self, group):
