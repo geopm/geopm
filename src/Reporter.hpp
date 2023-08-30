@@ -196,7 +196,7 @@ namespace geopm
             double m_total_time;
             double m_overhead_time;
             double m_sample_delay;
-            std::string m_profile_name;
+            const std::string m_profile_name;
     };
 }
 
