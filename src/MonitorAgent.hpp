@@ -56,7 +56,7 @@ namespace geopm
             /// @return a list of sample names
             static std::vector<std::string> sample_names(void);
         private:
-            static constexpr double M_WAIT_SEC = 0.005;
+            static constexpr double M_WAIT_SEC = 0.2; // 200 msec
             std::shared_ptr<Waiter> m_waiter;
 
     };

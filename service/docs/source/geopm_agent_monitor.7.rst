@@ -48,7 +48,8 @@ reports and traces with additional Agent-specific information.
 *
   **Control Loop Gate**\ :
 
-      The Monitor agent gates the Controller's control loop to a cadence of *5ms*.
+      The Monitor agent gates the Controller's control loop to a
+      cadence of *200 ms*.
 
 See Also
 --------
