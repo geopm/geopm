@@ -79,7 +79,6 @@ EXTRA_DIST = .gitignore \
              debian/rules \
              dox/blurb.md \
              dox/Doxyfile.in \
-             fuzz_test/run_fuzz_tests.sh \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
@@ -389,9 +388,7 @@ include geopmdpy_test/Makefile.mk
 include integration/Makefile.mk
 endif
 
-if ENABLE_FUZZTESTS
 include fuzz_test/Makefile.mk
-endif
 
 include docs/Makefile.mk
 
