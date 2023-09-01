@@ -141,21 +141,35 @@ jobs:
     - name: make service dist
       working-directory: service
       run: make -j2 dist
+    - name: make service libs
+      working-directory: service
+      run: make -j2
+    - name: configure runtime dir
+      run: ./autogen.sh && ./configure --disable-openmp --disable-mpi
+    - name: make runtime dist
+      run: make -j2 dist
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
            echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
-           if [[ "${{ github.ref_name }}" == "release-v2.0-candidate" ]] || [[ "${{ github.ref_name }}" == "release-v2.0" ]]; then
+           if [[ "${{ github.ref_name }}" == "release-v2.0" ]] || [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
                echo "OSC_PACKAGE=home:${{ github.repository_owner }}:${{ github.ref_name }}/geopm-service" >> ${GITHUB_ENV}
            else
                echo "OSC_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
            fi
-    - name: publish
+    - name: publish service
       working-directory: service
       run: |
            osc co ${OSC_PACKAGE}
            cp geopm-service.spec ${OSC_PACKAGE}
            cp geopm-service*.tar.gz ${OSC_PACKAGE}/geopm-service.tar.gz
            osc add ${OSC_PACKAGE}/geopm-service.spec ${OSC_PACKAGE}/geopm-service.tar.gz
-           osc ci -m ${{ github.sha }} ${OSC_PACKAGE}
+           osc ci -m "geopm service ${{ github.sha }}" ${OSC_PACKAGE}
+    - name: publish runtime
+      run: |
+           osc co ${OSC_PACKAGE}
+           cp specs/geopm-runtime.spec ${OSC_PACKAGE}
+           cp geopm-runtime*.tar.gz ${OSC_PACKAGE}/geopm-runtime.tar.gz
+           osc add ${OSC_PACKAGE}/geopm-runtime.spec ${OSC_PACKAGE}/geopm-runtime.tar.gz
+           osc ci -m "geopm runtime ${{ github.sha }}" ${OSC_PACKAGE}
