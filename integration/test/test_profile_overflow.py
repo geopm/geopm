@@ -84,8 +84,9 @@ class TestIntegration_profile_overflow(unittest.TestCase):
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         # Run the test application
+        geopm_args = ['--geopm-period=0.005']
         try:
-            launcher.run(test_name)
+            launcher.run(test_name, add_geopm_args=geopm_args)
         except subprocess.CalledProcessError:
             sys.stderr.write('{} failed; check log for details.\n'.format(test_name))
             raise

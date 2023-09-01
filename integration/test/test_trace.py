@@ -47,7 +47,8 @@ class TestIntegration_trace(unittest.TestCase):
                                                     time_limit=time_limit)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
-        launcher.run(cls._test_name)
+        geopm_args = ['--geopm-period=0.005']
+        launcher.run(cls._test_name, add_geopm_args=geopm_args)
 
     def test_sample_rate(self):
         """ Test that the sample rate is regular and fast"""

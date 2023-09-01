@@ -112,13 +112,13 @@ class TestIntegration_epoch_inference(unittest.TestCase):
                 launcher.set_num_node(num_node)
                 launcher.set_num_rank(num_rank)
                 # Run the test application
-                geopm_args = []
+                geopm_args = ['--geopm-period=0.005']
                 if run_config == 'spin_epoch':
-                    geopm_args = ['--geopm-record-filter', 'proxy_epoch,spin']
+                    geopm_args.extend(['--geopm-record-filter', 'proxy_epoch,spin'])
                 elif run_config == 'barrier_epoch':
-                    geopm_args = ['--geopm-record-filter', 'proxy_epoch,all2all']
+                    geopm_args.extend(['--geopm-record-filter', 'proxy_epoch,all2all'])
                 elif run_config == 'spin_stride_epoch':
-                    geopm_args = ['--geopm-record-filter', 'proxy_epoch,spin,2']
+                    geopm_args.extend(['--geopm-record-filter', 'proxy_epoch,spin,2'])
 
                 launcher.run('test_' + cls._test_name, add_geopm_args=geopm_args)
 
