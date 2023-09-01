@@ -103,7 +103,8 @@ class TestIntegration_hint_time(unittest.TestCase):
             launcher.set_num_rank(num_rank)
             launcher.set_pmpi_ctl('application')
             # Run the test application
-            launcher.run('test_' + cls._test_name)
+            geopm_args = ['--geopm-period=0.005']
+            launcher.run('test_' + cls._test_name, add_geopm_args=geopm_args)
         cls._report = geopmpy.io.RawReport(cls._report_path)
 
     def tearDown(self):
