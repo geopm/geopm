@@ -47,7 +47,14 @@ else
     export PATH=${PATH_EXT}
 fi
 
-LD_LIBRARY_PATH_EXT=${GEOPM_INSTALL}/lib
+# "${GEOPM_INSTALL}/$(rpm --eval '%{_lib}')" would mimic our rpm packaging, but
+# the correct usage for this script depends on what the user ran in ./configure
+if [ -e "${GEOPM_INSTALL}/lib64/libgeopm.so" ]; then
+    LD_LIBRARY_PATH_EXT=${GEOPM_INSTALL}/lib64
+else
+    LD_LIBRARY_PATH_EXT=${GEOPM_INSTALL}/lib
+fi
+
 if [ ! -z "${LD_LIBRARY_PATH}" ]; then
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH_EXT}:${LD_LIBRARY_PATH}
 else
