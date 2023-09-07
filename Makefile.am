@@ -354,6 +354,12 @@ if ENABLE_FORTRAN
 endif
 else
     libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+    libgeopm_la_CFLAGS = $(AM_CFLAGS)
+    libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS)
+
+    geopmctl_LDFLAGS = $(AM_LDFLAGS)
+    geopmctl_CFLAGS = $(AM_CFLAGS)
+    geopmctl_CXXFLAGS = $(AM_CXXFLAGS)
 endif # ENABLE_MPI
 
 
