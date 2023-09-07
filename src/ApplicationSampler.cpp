@@ -16,23 +16,24 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "ApplicationSamplerImp.hpp"
-#include "ApplicationRecordLog.hpp"
-#include "ApplicationStatus.hpp"
-#include "geopm/Exception.hpp"
-#include "RecordFilter.hpp"
-#include "Environment.hpp"
-#include "ValidateRecord.hpp"
-#include "geopm/SharedMemory.hpp"
-#include "geopm/PlatformTopo.hpp"
-#include "geopm/Helper.hpp"
-#include "Scheduler.hpp"
-#include "record.hpp"
 #include "geopm_debug.hpp"
 #include "geopm_hash.h"
 #include "geopm_hint.h"
 #include "geopm_shmem.h"
 #include "geopm_field.h"
+#include "geopm/Exception.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "ApplicationSamplerImp.hpp"
+#include "ApplicationRecordLog.hpp"
+#include "ApplicationStatus.hpp"
+#include "Environment.hpp"
+#include "MonitorAgent.hpp"
+#include "record.hpp"
+#include "RecordFilter.hpp"
+#include "Scheduler.hpp"
+#include "ValidateRecord.hpp"
 
 namespace geopm
 {
@@ -491,8 +492,10 @@ namespace geopm
 #ifdef GEOPM_DEBUG
         std::cout << "Info: <geopm> ApplicationSampler::sampler_cpu(): The Controller will run on logical CPU " << result << std::endl;
 #endif
-
-        if (!found_inactive_core) {
+        bool is_slow_monitor = (environment().agent() == "monitor" &&
+                                environment().period(MonitorAgent::M_WAIT_SEC) ==
+                                MonitorAgent::M_WAIT_SEC);
+        if (!found_inactive_core && !is_slow_monitor) {
             std::cerr << "Warning: <geopm> ApplicationSampler::sampler_cpu(): User requested "
                       << "all cores for application.  GEOPM will share a core with the "
                       << "Application, running on logical CPU " << result;

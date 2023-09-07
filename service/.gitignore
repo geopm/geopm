@@ -21,6 +21,8 @@ compile_commands.json
 /depcomp
 /dist
 /docs/build
+/fuzz_test/geopmhash_corpus.tar.gz
+/fuzz_test/geopmhash_corpus
 /geopmdpy.egg-info
 /geopmdpy/schemas.py
 /geopmdpy/system_files.py
