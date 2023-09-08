@@ -145,7 +145,7 @@ AC_SUBST([bashcompdir])
 AM_CONDITIONAL([ENABLE_BASH_COMPLETION], [test "x$with_bash_completion_dir" != "xno"])
 
 AC_ARG_ENABLE([mpi],
-  [AS_HELP_STRING([--disable-mpi], [Do not build components that require MPI])],
+  [AS_HELP_STRING([--disable-mpi], [Do not link to MPI])],
 [if test "x$enable_mpi" = "xno" ; then
   enable_mpi="0"
 else
@@ -182,6 +182,14 @@ fi
 ],
 [enable_asan="0"]
 )
+
+
+if test "x$enable_mpi" = "x1"; then
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS $MPI_CLDFLAGS"
+  EXTRA_CFLAGS="$EXTRA_CFLAGS $MPI_CFLAGS"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $MPI_CFLAGS"
+  EXTRA_FCFLAGS="$EXTRA_FCFLAGS $MPI_FCFLAGS"
+fi
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
@@ -382,6 +390,7 @@ AC_SUBST([MPI_FLIBS])
 [CXXFLAGS="$EXTRA_CXXFLAGS $CXXFLAGS"]
 [CPPFLAGS_SAVE="$CPPFLAGS"]
 [CPPFLAGS="$EXTRA_CPPFLAGS $MPI_CXXFLAGS $CPPFLAGS"]
+[FCFLAGS="$EXTRA_FCFLAGS $FCFLAGS"]
 
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])

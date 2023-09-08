@@ -334,49 +334,20 @@ else
     MATH_LIB = -lm
 endif
 
-# EXTEND FLAGS FOR MPI TARGETS
-if ENABLE_MPI
-    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
-    libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
-
-    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS)
-    geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
-
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c99 $(MATH_CFLAGS)
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++17 $(MATH_CFLAGS)
-if ENABLE_FORTRAN
-    libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
-    libgeopmfort_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
-endif
-else
-    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
-    libgeopm_la_CFLAGS = $(AM_CFLAGS)
-    libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS)
-
-    geopmctl_LDFLAGS = $(AM_LDFLAGS)
-    geopmctl_CFLAGS = $(AM_CFLAGS)
-    geopmctl_CXXFLAGS = $(AM_CXXFLAGS)
-endif # ENABLE_MPI
-
+geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MATH_CLDFLAGS)
+geopmbench_CFLAGS = $(AM_CFLAGS) -D_GNU_SOURCE -std=c99 $(MATH_CFLAGS)
+geopmbench_CXXFLAGS = $(AM_CXXFLAGS) -D_GNU_SOURCE -std=c++17 $(MATH_CFLAGS)
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmagent_LDADD = libgeopm.la
 geopmadmin_LDADD = libgeopm.la
-if ENABLE_MPI
-    geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
-    geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
-    libgeopm_la_LIBADD = $(MPI_CLIBS)
-if ENABLE_FORTRAN
-    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
-endif
+geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
+geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+libgeopm_la_LIBADD = $(MPI_CLIBS)
 
-else
-    geopmctl_LDADD = libgeopm.la
-endif # ENABLE_MPI
+libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+libgeopm_la_CFLAGS = $(AM_CFLAGS)
+libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS)
 
 libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/Accumulator.hpp \
@@ -589,6 +560,11 @@ endif
 if ENABLE_MPI
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = $(fortran_source_files)
+    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
+    libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+    libgeopmfort_la_CFLAGS = $(AM_CFLAGS)
+    libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS)
+    libgeopmfort_la_CXXFLAGS = $(AM_CXXFLAGS)
 else
     EXTRA_DIST += $(fortran_source_files)
 endif
@@ -624,21 +600,9 @@ model_source_files = src/All2allModelRegion.cpp \
                      src/TimedScalingModelRegion.hpp \
                      # end
 
-if ENABLE_MPI
-if ENABLE_OPENMP
-    geopmbench_SOURCES = $(model_source_files) \
-                         src/geopmbench_main.cpp \
-                         # end
-else
-    EXTRA_DIST += $(model_source_files) \
-                  src/geopmbench_main.cpp \
-                  # end
-endif
-else
-    EXTRA_DIST += $(model_source_files) \
-                  src/geopmbench_main.cpp \
-                  # end
-endif # ENABLE_MPI
+geopmbench_SOURCES = $(model_source_files) \
+                     src/geopmbench_main.cpp \
+                     # end
 
 # CLEAN TARGETS
 DISTCLEANFILES = VERSION MANIFEST
@@ -666,7 +630,7 @@ if ENABLE_MPI
 if ENABLE_FORTRAN
 BUILT_SOURCES = geopm_prof.mod
 geopm_prof.mod: src/geopm_prof.f90
-	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
+	$(FC) $(AM_FCFLAGS) $(FCFLAGS) -c $<
 else
 BUILT_SOURCES =
 endif
