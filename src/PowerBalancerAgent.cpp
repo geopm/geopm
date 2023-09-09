@@ -21,6 +21,7 @@
 #include "SampleAggregator.hpp"
 #include "Environment.hpp"
 #include "Waiter.hpp"
+#include "geopm_debug.hpp"
 
 namespace geopm
 {
@@ -794,6 +795,10 @@ namespace geopm
 
     void PowerBalancerAgent::validate_policy(std::vector<double> &policy) const
     {
+        GEOPM_DEBUG_ASSERT(policy.size() == M_NUM_POLICY,
+                           "PowerBalancerAgent::" + std::string(__func__) +
+                           "(): policy vector not correctly sized.");
+
         // If NAN, use default
         if (std::isnan(policy[M_POLICY_CPU_POWER_LIMIT])) {
             policy[M_POLICY_CPU_POWER_LIMIT] = m_power_tdp;
