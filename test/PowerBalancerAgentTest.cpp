@@ -362,22 +362,22 @@ TEST_F(PowerBalancerAgentTest, validate_policy)
     std::vector<double> policy;
 
     // valid policy unchanged
-    policy = {100};
+    policy = {100, NAN, NAN, NAN};
     m_agent->validate_policy(policy);
     EXPECT_EQ(100, policy[0]);
 
     // NAN becomes default
-    policy = {NAN};
+    policy = {NAN, NAN, NAN, NAN};
     m_agent->validate_policy(policy);
     EXPECT_EQ(M_CPU_POWER_LIMIT_DEFAULT, policy[0]);
 
     // clamp to min
-    policy = {M_CPU_POWER_MIN_AVAIL - 1};
+    policy = {M_CPU_POWER_MIN_AVAIL - 1, NAN, NAN, NAN};
     m_agent->validate_policy(policy);
     EXPECT_EQ(M_CPU_POWER_MIN_AVAIL, policy[0]);
 
     // clamp to max
-    policy = {M_CPU_POWER_MAX_AVAIL + 1};
+    policy = {M_CPU_POWER_MAX_AVAIL + 1, NAN, NAN, NAN};
     m_agent->validate_policy(policy);
     EXPECT_EQ(M_CPU_POWER_MAX_AVAIL, policy[0]);
 
