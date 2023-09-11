@@ -370,25 +370,18 @@ GEOPM Options
                            set in the environment.  See the :ref:`ENVIRONMENT
                            section of geopm(7)<geopm.7:Environment>`.
 
---geopm-affinity-disable  .. _geopm-affinity-disable option:
+--geopm-affinity-enable  .. _geopm-affinity-enable option:
 
-                          Enable direct user control of all application CPU
-                          affinity settings.  When specified, the launcher will
-                          not emit command line arguments or environment
-                          variables related to affinity settings for the
-                          underlying launcher.  The user is free to provide
-                          whatever affinity settings are best for their
-                          application.
+                          GEOPM will choose CPU affinity settings minimize
+			  interference between the GEOPM Runtime, the OS and the
+			  application.  When specified, the launcher will emit
+			  command line arguments and/or environment variables
+			  related to affinity settings for the underlying
+			  launcher.  The user should refrain from using of
+			  command line options or environment variable that are
+			  known to modify application CPU affinity when
+			  specifying this option for ``geopmlaunch``.
 
-                          It is recommended that at least one core is left free
-                          for the GEOPM controller thread, and if there is a
-                          free core, the controller will automatically
-                          affinitize itself to a CPU on that core when it
-                          connects with the application.  When this option is
-                          specified the user is responsible for providing
-                          settings that affinitize MPI ranks to distinct CPUs.
-                          Note: this requirement is satisfied by the default
-                          behavior for some launchers like Intel MPI.
 --geopm-endpoint endpoint  .. _geopm-endpoint option:
 
                            Prefix for shared memory keys used by the endpoint.

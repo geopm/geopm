@@ -115,7 +115,6 @@ class ArithmeticIntensityAppConf(apps.AppConf):
         args = ['--geopm-hyperthreads-disable']
         if self._distribute_slow_ranks:
             args.extend([
-                '--geopm-affinity-disable',
                 '--distribution=cyclic:cyclic',
                 '--ntasks-per-core=1'
             ])

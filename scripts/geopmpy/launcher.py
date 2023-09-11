@@ -143,7 +143,7 @@ class Config(object):
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
         parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
         parser.add_argument('--geopm-record-filter', dest='record_filter', type=str)
-        parser.add_argument('--geopm-affinity-disable', dest='do_affinity', action='store_false', default=True)
+        parser.add_argument('--geopm-affinity-enable', dest='do_affinity', action='store_true', default=False)
         parser.add_argument('--geopm-launch-verbose', dest='quiet', action='store_false', default=True)
         parser.add_argument('--geopm-launch-script', dest='launch_script', type=str)
         parser.add_argument('--geopm-init-control', dest='init_control', type=str)
@@ -332,6 +332,8 @@ class Launcher(object):
             self.config = Config(argv)
             self.is_geopm_enabled = True
             self.is_override_enabled = True
+            if self.config.do_affinity is not None:
+                self.do_affinity = self.config.do_affinity
             self.argv_unparsed = self.config.unparsed()
         except PassThroughError:
             self.config = None
@@ -1535,7 +1537,7 @@ class PALSLauncher(IMPIExecLauncher):
         if (self.is_geopm_enabled and
             self.config.do_affinity and
             any(aa.startswith(('--cpu-bind')) for aa in self.argv)):
-            raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specified, this is controlled by the launcher.  Use --geopm-affinity-disable to disable automatic pinning.')
+            raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specifiedwith --geopm-affinity-enable.')
 
         # Parse --ppn since it is different than impi
         parser = argparse.ArgumentParser(add_help=False)
@@ -1789,7 +1791,7 @@ GEOPM_OPTIONS:
       --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
       --geopm-ompt-disable     disable automatic OpenMP region detection
-      --geopm-affinity-disable do not emit CPU affinity settings
+      --geopm-affinity-enable  Emit CPU affinity settings
       --geopm-launch-verbose   emit launch script and affinity configuration to stderr
       --geopm-launch-script=output_file
                                emit launch script to output_file

@@ -110,7 +110,7 @@ class TestLauncher(object):
                                                          self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
-    def run(self, test_name, include_geopm_policy=True, add_geopm_args=[]):
+    def run(self, test_name, include_geopm_policy=True, add_geopm_args=[], enable_affinity=True):
         """ Run the test as configured at construction time.
 
         Arguments:
@@ -146,7 +146,9 @@ class TestLauncher(object):
                 argv.extend(['--geopm-trace-signals', self._trace_signals])
             if self._init_control_path:
                 argv.extend(['--geopm-init-control', self._init_control_path])
-            argv.extend(['--geopm-preload'])
+            argv.append('--geopm-preload')
+            if enable_affinity:
+                argv.append('--geopm-affinity-enable')
             argv.extend(add_geopm_args)
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
