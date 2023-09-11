@@ -28,27 +28,16 @@ BuildRequires: gdb-headless
 %endif
 
 %define python_major_version 3
-%if %{defined rhel}
-%if 0%{?rhel} < 8
-BuildRequires: python3-rpm-macros
+
 BuildRequires: python3
 BuildRequires: python3-devel
-%else
-BuildRequires: python36-rpm-macros
-BuildRequires: python36
-BuildRequires: python36-devel
-%endif
-%define python_bin %{__python3}
-%else
-%if ((%{defined suse_version}) && (0%{?suse_version} < 1500))
-%define python_bin /usr/bin/python3
-%else
+BuildRequires: python3-setuptools
+%if 0%{?suse_version}
+BuildRequires: systemd-rpm-macros
 BuildRequires: python-rpm-macros
+%endif
+
 %define python_bin %{__python3}
-%endif
-BuildRequires: python3
-BuildRequires: python3-devel
-%endif
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
