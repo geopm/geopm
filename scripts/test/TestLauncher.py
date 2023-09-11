@@ -157,7 +157,7 @@ class TestLauncher(unittest.TestCase):
             is disabled.
         """
         launcher = geopmpy.launcher.Factory().create(
-                ['unittest_geopm_launcher', 'srun', '--geopm-affinity-disable', 'unittest_workload'],
+                ['unittest_geopm_launcher', 'srun', 'unittest_workload'],
                 num_rank = 2, num_node = 1)
         launcher.run()
         srun_args, srun_kwargs = mock_popen.call_args
@@ -165,6 +165,19 @@ class TestLauncher(unittest.TestCase):
         self.assertNotIn('--cpu-bind', srun_args[0])
         self.assertNotIn('OMP_PROC_BIND', srun_kwargs['env'].keys())
 
+    @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
+    def test_affinity_enable(self, mock_popen):
+        """ Test that geopm does emit affinity related env options when affinity
+            is enabled.
+        """
+        launcher = geopmpy.launcher.Factory().create(
+                ['unittest_geopm_launcher', 'srun', '--geopm-affinity-enable', 'unittest_workload'],
+                num_rank = 2, num_node = 1)
+        launcher.run()
+        srun_args, srun_kwargs = mock_popen.call_args
+
+        self.assertIn('--cpu-bind', srun_args[0])
+        self.assertIn('OMP_PROC_BIND', srun_kwargs['env'].keys())
 
 if __name__ == '__main__':
     unittest.main()

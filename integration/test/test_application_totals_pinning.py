@@ -58,9 +58,10 @@ class TestIntegration_monitor(unittest.TestCase):
         launcher.set_num_node(cls._num_node)
         launcher.set_num_rank(num_rank)
         # Run the test application
-        launcher.run(test_name, add_geopm_args=['--geopm-affinity-disable',
-                                                '--cpu-bind=map_cpu=0',
-                                                '--geopm-report-signals=CPU_ENERGY@package'])
+        launcher.run(test_name,
+                     add_geopm_args=['--cpu-bind=map_cpu=0',
+                                     '--geopm-report-signals=CPU_ENERGY@package'],
+                     enable_affinity=False)
 
         # Output to be reused by all tests
         cls._report = geopmpy.io.RawReport(cls._report_path)

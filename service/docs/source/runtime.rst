@@ -343,8 +343,8 @@ The GEOPM runtime requires that each MPI process of the application
 under control is affinitized to distinct CPUs.  This is a strict
 requirement for the runtime and must be enforced by the MPI launch
 command.  When using the geopmlaunch wrapper described in the previous
-section, these affinity requirements are handled by geopmlaunch unless
-the ``--geopm-affinity-disable`` command line option is provided (see
+section, these affinity requirements are handled by geopmlaunch when
+the ``--geopm-affinity-enable`` command line option is provided (see
 :doc:`geopmlaunch(1) <geopmlaunch.1>`).
 
 While the GEOPM control thread connects to the application it will

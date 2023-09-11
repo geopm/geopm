@@ -558,14 +558,6 @@ option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
 :doc:`geopmlaunch.1`.  For more information about the reports, see:
 :doc:`geopm_report.7`.
 
-.. warning::
-
-    By default, ``geopmlaunch`` will attempt to automatically affinitize your
-    application across the available CPUs.  In order to use your own custom
-    affinity options to the target launcher, disable the automatic affinitization
-    with the ``--geopm-affinity-disable`` option to ``geopmlaunch``.  This behavior
-    will change with the 3.0 release.
-
 Profiling Non-MPI Applications
 """"""""""""""""""""""""""""""
 

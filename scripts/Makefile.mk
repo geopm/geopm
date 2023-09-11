@@ -89,6 +89,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestIO.test_raw_report_collection_epoch_totals \
                scripts/test/pytest_links/TestIO.test_raw_report_collection_unmarked_totals \
                scripts/test/pytest_links/TestLauncher.test_affinity_disable \
+               scripts/test/pytest_links/TestLauncher.test_affinity_enable \
                scripts/test/pytest_links/TestLauncher.test_main \
                scripts/test/pytest_links/TestLauncher.test_non_file_output \
                scripts/test/pytest_links/TestLauncher.test_process_count \

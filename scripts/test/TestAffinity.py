@@ -32,7 +32,7 @@ class Topo():
 class ExampleAffinityLauncher(geopmpy.launcher.Launcher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank, topo):
         self.topo = topo
-        super(ExampleAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
+        super(ExampleAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, do_affinity=True)
 
     def init_topo(self):
         self.thread_per_core = self.topo._hthread_per_core
