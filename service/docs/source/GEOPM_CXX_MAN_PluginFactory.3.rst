@@ -179,10 +179,11 @@ Plugin Search Path And Load Order
 
 The ``GEOPM_PLUGIN_PATH`` is a colon-separated list of directories
 that contain plugin shared object files to be loaded by the GEOPM
-runtime.  See :doc:`geopm(7) <geopm.7>` for details about ``GEOPM_PLUGIN_PATH``.
-Note that an Exception will be thrown by the ``register_plugin()``
-method if an attempt is made to register a plugin with the same name
-as a previously registered plugin.
+runtime.  Any symlink that resides in a directory specified by this
+variable will be ignored.  See :doc:`geopm(7) <geopm.7>` for details
+about ``GEOPM_PLUGIN_PATH``.  Note that an Exception will be thrown by
+the ``register_plugin()`` method if an attempt is made to register a
+plugin with the same name as a previously registered plugin.
 
 In the case of ``IOGroup`` plugins, the most recently loaded plugin to
 register a signal or control name provides the implementation at

@@ -232,6 +232,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/SaveControl.hpp \
                        src/SDBus.hpp \
                        src/SDBusMessage.hpp \
+                       src/SecurePath.cpp \
+                       src/SecurePath.hpp \
                        src/ServiceIOGroup.cpp \
                        src/ServiceIOGroup.hpp \
                        src/ServiceProxy.cpp \
