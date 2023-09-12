@@ -27,8 +27,8 @@ class TestIntegration_ompt(unittest.TestCase):
         cls._report_path = '{}.report'.format(test_name)
         cls._agent_conf_path = test_name + '-agent-config.json'
         # Set the job size parameters
-        cls._num_node = 4
-        num_rank = 16
+        cls._num_node = util.get_num_node()
+        num_rank = 4 * cls._num_node
 
         app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
         app_conf.append_region('stream-unmarked', 1.0)

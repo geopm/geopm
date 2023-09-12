@@ -33,8 +33,8 @@ class TestIntegration_frequency_map(unittest.TestCase):
         cls._trace_path = '{}.trace'.format(cls._test_name)
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
         # Set the job size parameters
-        cls._num_node = 1
-        num_rank = 4
+        cls._num_node = util.get_num_node()
+        num_rank = 4 * cls._num_node
         loop_count = 5
         dgemm_bigo = 15.0
         stream_bigo = 1.0

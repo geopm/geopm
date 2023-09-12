@@ -83,7 +83,7 @@ class TestLauncher(unittest.TestCase):
         """ Test that geopm requests an additional rank for itself by default.
         """
         launcher = geopmpy.launcher.Factory().create(
-                ['unittest_geopm_launcher', 'srun', 'unittest_workload'],
+                ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process', 'unittest_workload'],
                 num_rank = 2, num_node = 1)
         launcher.run()
         srun_args, srun_kwargs = mock_popen.call_args
@@ -108,7 +108,7 @@ class TestLauncher(unittest.TestCase):
         error_stream = StringIO()
 
         launcher = geopmpy.launcher.Factory().create(
-                ['unittest_geopm_launcher', 'srun', 'unittest_workload'],
+                ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process', 'unittest_workload'],
                 num_rank = 2, num_node = 1)
         launcher.run(stdout=out_stream, stderr=error_stream)
 
@@ -119,7 +119,7 @@ class TestLauncher(unittest.TestCase):
     def test_main(self, mock_popen):
         """ Test that the geopm CLI correctly feeds ntasks and nodes to the launcher.
         """
-        with mock.patch('sys.argv', ['unittest_geopm_launcher', 'srun',
+        with mock.patch('sys.argv', ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process',
                                      'unittest_workload', '--ntasks', '4', '--nodes', '2']):
             geopmpy.launcher.main()
 
@@ -143,7 +143,7 @@ class TestLauncher(unittest.TestCase):
         """
         workload_command = "unittest_workload 'multiple words'"
         with mock.patch('sys.argv', shlex.split(
-            'unittest_geopm_launcher srun --ntasks 4 --nodes 2 -- {}'.format(workload_command))):
+            'unittest_geopm_launcher srun --geopm-ctl=process --ntasks 4 --nodes 2 -- {}'.format(workload_command))):
             geopmpy.launcher.main()
 
         # [0][0] gets the first positional arg to Popen(), which is a string
@@ -157,7 +157,7 @@ class TestLauncher(unittest.TestCase):
             is disabled.
         """
         launcher = geopmpy.launcher.Factory().create(
-                ['unittest_geopm_launcher', 'srun', 'unittest_workload'],
+                ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process', 'unittest_workload'],
                 num_rank = 2, num_node = 1)
         launcher.run()
         srun_args, srun_kwargs = mock_popen.call_args
@@ -171,7 +171,7 @@ class TestLauncher(unittest.TestCase):
             is enabled.
         """
         launcher = geopmpy.launcher.Factory().create(
-                ['unittest_geopm_launcher', 'srun', '--geopm-affinity-enable', 'unittest_workload'],
+                ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process', '--geopm-affinity-enable', 'unittest_workload'],
                 num_rank = 2, num_node = 1)
         launcher.run()
         srun_args, srun_kwargs = mock_popen.call_args

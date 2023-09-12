@@ -29,8 +29,8 @@ class TestIntegrationEnvironment(unittest.TestCase):
         user_policy (dict str->float): Policy to request in the geopmlaunch command.
         """
         report_path = '{}.report'.format(context)
-        num_node = 1
-        num_rank = 1
+        num_node = util.get_num_node()
+        num_rank = num_node
         app_conf = geopmpy.io.BenchConf(context + '.app.config')
         app_conf.append_region('sleep', 0.01)
         user_agent_conf = geopmpy.agent.AgentConf(context + '.user.agent.config', self._agent, {} if user_policy is None else user_policy)

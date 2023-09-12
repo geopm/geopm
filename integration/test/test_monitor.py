@@ -33,8 +33,8 @@ class TestIntegration_monitor(unittest.TestCase):
         cls._trace_path = '{}.trace'.format(test_name)
         cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
         # Set the job size parameters
-        cls._num_node = 2
-        num_rank = 4
+        cls._num_node = util.get_num_node()
+        num_rank = 2 * cls._num_node
         time_limit = 6000
         # Configure the test application
         cls._spin_bigo = 0.5

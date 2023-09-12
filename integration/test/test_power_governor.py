@@ -29,8 +29,8 @@ class TestIntegration_power_governor(unittest.TestCase):
         cls._trace_path = '{}.trace'.format(cls._test_name)
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
         # Set the job size parameters
-        cls._num_node = 4
-        num_rank = 16
+        cls._num_node = util.get_num_node()
+        num_rank = 4 * cls._num_node
         loop_count = 500
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.append_region('dgemm', 8.0)

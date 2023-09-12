@@ -66,8 +66,8 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         cls._region_hash = [geopmpy.hash.crc32_str('scaling_region_{}'.format(idx))
                             for idx in range(31)]
         if not cls._skip_launch:
-            num_node = 1
-            num_rank = 1
+            num_node = util.get_num_node()
+            num_rank = num_node
             # Set up agent configuration so that each region is assigned a different frequency
             freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")

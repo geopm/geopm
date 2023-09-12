@@ -45,8 +45,8 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         geopmpy.policy_store.disconnect()
 
         # common run parameters
-        self._num_rank = 1
         self._num_node = 1
+        self._num_rank = 1
         agent = 'power_balancer'
         self._app_conf = geopmpy.io.BenchConf('test_profile_policy_app.config')
         self._app_conf.append_region('sleep', 1.0)
@@ -56,6 +56,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         endpoint_prefix = '/geopm_endpoint_profile_policy_test'
         # test launcher sets profile, have to use real launcher for now
         self._argv = ['dummy', 'srun',
+                      '--geopm-ctl=process',
                       '--geopm-endpoint', endpoint_prefix,
                       '--geopm-agent', agent,
                       '--geopm-timeout', "5"]
