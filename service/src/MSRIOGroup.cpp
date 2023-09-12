@@ -39,6 +39,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 #include "SaveControl.hpp"
+#include "SecurePath.hpp"
 
 using json11::Json;
 
@@ -157,8 +158,14 @@ namespace geopm
         }
         auto custom_files = msr_data_files();
         for (const auto &filename : custom_files) {
-            std::string data = read_file(filename);
-            parse_json_msrs(data);
+            try {
+                SecurePath sp (filename);
+                std::string data = read_file(sp.secure_path());
+                parse_json_msrs(data);
+            }
+            catch (const geopm::Exception &ex) {
+                std::cerr << "Warning: " << ex.what() << std::endl;
+            }
         }
 
         // HWP enable is checked via an MSR, so we cannot do this as part of
@@ -1256,12 +1263,17 @@ namespace geopm
         }
         std::vector<std::unique_ptr<MSR> > msr_arr_custom;
         for (const auto &dir : plugin_paths) {
-            auto files = list_directory_files(dir);
-            for (const auto &file : files) {
-                std::string filename = dir + "/" + file;
-                if (string_begins_with(file, "msr_") && string_ends_with(file, ".json")) {
-                    data_files.insert(filename);
+            try {
+                auto files = list_directory_files(dir);
+                for (const auto &file : files) {
+                    std::string filename = dir + "/" + file;
+                    if (string_begins_with(file, "msr_") && string_ends_with(file, ".json")) {
+                        data_files.insert(filename);
+                    }
                 }
+            }
+            catch (const geopm::Exception &ex) {
+                std::cerr << ex.what() << std::endl;
             }
         }
         return data_files;

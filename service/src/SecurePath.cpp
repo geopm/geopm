@@ -7,15 +7,15 @@
 
 #include "SecurePath.hpp"
 
-#include <string>
-#include <iostream>
-#include <sstream>
-
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include <string>
+#include <iostream>
+#include <sstream>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
