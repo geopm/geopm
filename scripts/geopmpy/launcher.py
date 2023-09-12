@@ -332,12 +332,12 @@ class Launcher(object):
             self.config = Config(argv)
             self.is_geopm_enabled = True
             self.is_override_enabled = True
-            if self.config.do_affinity is not None:
-                self.do_affinity = self.config.do_affinity
             self.argv_unparsed = self.config.unparsed()
+            self.do_affinity = self.config.do_affinity
         except PassThroughError:
             self.config = None
             self.is_geopm_enabled = False
+            self.do_affinity = False
             self.is_override_enabled = False
         self.is_slurm_enabled = False
         self.governor = None
@@ -782,7 +782,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         result.extend(self.num_node_option(is_geopmctl))
         result.extend(self.exclude_list_option())
         result.extend(self.num_rank_option(is_geopmctl))
-        if self.config and self.config.do_affinity:
+        if self.do_affinity:
             result.extend(self.affinity_option(is_geopmctl))
         if not is_geopmctl:
             result.extend(self.preload_option())
@@ -1008,7 +1008,7 @@ class SrunLauncher(Launcher):
         self.reservation = opts.reservation
 
         if (self.is_geopm_enabled and
-            self.config.do_affinity and
+            self.do_affinity and
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
             raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
 
@@ -1535,7 +1535,7 @@ class PALSLauncher(IMPIExecLauncher):
         manipulated by GEOPM.
         """
         if (self.is_geopm_enabled and
-            self.config.do_affinity and
+            self.do_affinity and
             any(aa.startswith(('--cpu-bind')) for aa in self.argv)):
             raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specified with --geopm-affinity-enable.')
 
@@ -1635,7 +1635,7 @@ class AprunLauncher(Launcher):
         self.exclude_list = opts.exclude_list
 
         if (self.is_geopm_enabled and
-            self.config.do_affinity and
+            self.do_affinity and
             any(aa.startswith('--cpu-binding') or
             aa.startswith('-cc') for aa in self.argv)):
             raise SyntaxError('<geopm> geopmpy.launcher: The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
