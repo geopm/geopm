@@ -473,6 +473,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/SharedMemoryTest.cpp \
                           test/SaveControlTest.cpp \
+                          test/SecurePathTest.cpp \
                           test/ServiceIOGroupTest.cpp \
                           test/ServiceProxyTest.cpp \
                           test/SSTControlTest.cpp \
