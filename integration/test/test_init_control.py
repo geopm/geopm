@@ -28,8 +28,8 @@ class TestIntegrationInitControl(unittest.TestCase):
         cls._trace_path = '{}.trace'.format(test_name)
         cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
         # Set the job size parameters
-        cls._num_node = 1
-        num_rank = 2
+        cls._num_node = util.get_num_node()
+        num_rank = 2 * cls._num_node
         time_limit = 600
         # Configure the test application
         cls._loop_count = 500

@@ -85,7 +85,7 @@ class TestIntegration_progress(unittest.TestCase):
         launcher.set_num_node(cls._num_node)
         launcher.set_num_rank(cls._num_rank)
         # Run the test application
-        geopm_args = ['--geopm-period=0.005']
+        geopm_args = ['--geopm-period=0.005', '--geopm-ctl=process']
         launcher.run(cls._test_name, add_geopm_args=geopm_args)
 
         # Output to be reused by all tests

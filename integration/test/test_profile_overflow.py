@@ -21,7 +21,7 @@ import geopmdpy.error
 import geopmdpy.topo
 from integration.test import geopm_test_launcher
 from integration.test import check_trace
-
+from integration.test import util
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
@@ -67,7 +67,7 @@ class TestIntegration_profile_overflow(unittest.TestCase):
         cls._agent_conf_path = test_name + '-agent-config.json'
         # Set the job size parameters such that we have a 3 level tree
         os.environ["GEOPM_MAX_FAN_OUT"] = "2"
-        num_node = 4
+        num_node = util.get_num_node()
         num_rank = num_node * (geopmdpy.topo.num_domain(geopmdpy.topo.DOMAIN_CORE) - 2)
         time_limit = 600
         # Configure the test application

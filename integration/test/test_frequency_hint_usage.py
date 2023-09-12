@@ -77,8 +77,8 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
 
         if not cls._skip_launch:
             # Set the job size parameters
-            num_node = 1
-            num_rank = 2
+            num_node = util.get_num_node()
+            num_rank = 2 * num_node
             time_limit = 6000
             # Configure the test application
             app_conf = AppConf()

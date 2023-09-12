@@ -29,8 +29,8 @@ class TestIntegration_trace(unittest.TestCase):
 
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
 
-        num_node = 4
-        num_rank = 4
+        num_node = util.get_num_node()
+        num_rank = num_node
         time_limit = 600
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.set_loop_count(1)

@@ -397,3 +397,6 @@ def get_scripts_from_readme(rst_readme_path):
             if 'sh' in code_block['classes']:
                 script_bodies.append(code_block.astext())
     return script_bodies
+
+def get_num_node():
+    return int(os.environ.get("GEOPM_NUM_NODE", os.environ.get("SLURM_NNODES", 4)))

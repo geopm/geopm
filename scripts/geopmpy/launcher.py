@@ -132,7 +132,7 @@ class Config(object):
         parser.add_argument('--geopm-trace-profile', dest='trace_profile', type=str)
         parser.add_argument('--geopm-trace-endpoint-policy', dest='trace_endpoint_policy', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
-        parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
+        parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='application')
         parser.add_argument('--geopm-agent', dest='agent', type=str)
         parser.add_argument('--geopm-policy', dest='policy', type=str)
         parser.add_argument('--geopm-timeout', dest='timeout', type=str)

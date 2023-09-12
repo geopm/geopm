@@ -74,8 +74,8 @@ class TestIntegration_time(unittest.TestCase):
 
         if not cls._skip_launch:
             # Set the job size parameters
-            cls._num_node = 4
-            num_rank = 4
+            cls._num_node = util.get_num_node()
+            num_rank = cls._num_node
             time_limit = 60
             # Configure the test application
             app_conf = AppConf()

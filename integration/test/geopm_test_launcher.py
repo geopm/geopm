@@ -76,8 +76,8 @@ class TestLauncher(object):
         self._timeout = 30
         self._disable_ompt = False
         self.set_num_cpu()
-        self.set_num_rank(16)
-        self.set_num_node(4)
+        self.set_num_rank(4 * test_util.get_num_node())
+        self.set_num_node(test_util.get_num_node())
         self._msr_save_path = None
         if fatal_test:
             self.msr_save()

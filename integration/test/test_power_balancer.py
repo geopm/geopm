@@ -50,7 +50,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
 
         """
         cls._test_name = 'test_power_balancer'
-        cls._num_node = 4
+        cls._num_node = util.get_num_node()
         cls._agent_list = ['power_governor', 'power_balancer']
         cls._skip_launch = not util.do_launch()
         cls._show_details = True

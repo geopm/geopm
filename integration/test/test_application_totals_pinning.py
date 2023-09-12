@@ -16,7 +16,7 @@ import os
 import geopmpy.io
 import geopmpy.agent
 from integration.test import geopm_test_launcher
-
+from integration.test import util
 
 @unittest.skipUnless(geopm_test_launcher.detect_launcher() == "srun",
                      'Using srun --cpu-bind command line option in this test')
@@ -33,8 +33,8 @@ class TestIntegration_monitor(unittest.TestCase):
         cls._trace_path = '{}.trace'.format(test_name)
         cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
         # Set the job size parameters
-        cls._num_node = 1
-        num_rank = 1
+        cls._num_node = util.get_num_node()
+        num_rank = cls._num_node
         time_limit = 6000
         # Configure the test application
         cls._spin_bigo = 0.5

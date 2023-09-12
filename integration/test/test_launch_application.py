@@ -27,8 +27,8 @@ class TestIntegration_launch_application(unittest.TestCase):
         cls._report_path = '{}.report'.format(cls._test_name)
         cls._trace_path_prefix = '{}_trace'.format(cls._test_name)
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
-        num_node = 4
-        num_rank = 16
+        num_node = util.get_num_node()
+        num_rank = 4 * num_node
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.append_region('sleep', 1.0)
         agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)

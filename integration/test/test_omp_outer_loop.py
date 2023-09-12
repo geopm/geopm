@@ -58,8 +58,8 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         cls._expected_regions = ['MPI_Allreduce']
         cls._report_path = []
         cls._skip_launch = not util.do_launch()
-        num_node = 1
-        num_rank = 4
+        num_node = util.get_num_node()
+        num_rank = 4 * num_node
         for config in test_config:
             curr_run = test_name + config
             report_path = curr_run + '.report'
