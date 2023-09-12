@@ -372,8 +372,8 @@ GEOPM Options
 
 --geopm-affinity-enable  .. _geopm-affinity-enable option:
 
-                          GEOPM will choose CPU affinity settings minimize
-			  interference between the GEOPM Runtime, the OS and the
+                          GEOPM will choose CPU affinity settings to minimize
+			  interference between the GEOPM Runtime, the OS, and the
 			  application.  When specified, the launcher will emit
 			  command line arguments and/or environment variables
 			  related to affinity settings for the underlying
