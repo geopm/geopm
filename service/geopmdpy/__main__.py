@@ -6,7 +6,12 @@ from dasbus.loop import EventLoop
 from dasbus.connection import SystemMessageBus
 from signal import signal
 from signal import SIGTERM
+import sys
 from . import service
+from geopmdpy.restorable_file_writer import RestorableFileWriter
+
+ALLOW_WRITES_PATH = '/sys/module/msr/parameters/allow_writes'
+ALLOW_WRITES_BACKUP_PATH = '/run/geopm-service/msr-saved-allow-writes'
 
 _bus = None
 _loop = None
@@ -23,17 +28,23 @@ def stop():
     if _loop is not None:
         _loop.quit()
 
+
 def main():
     signal(SIGTERM, term_handler)
     global _bus, _loop
     _loop = EventLoop()
     _bus = SystemMessageBus()
-    try:
-        _bus.publish_object("/io/github/geopm", service.GEOPMService())
-        _bus.register_service("io.github.geopm")
-        _loop.run()
-    finally:
-        stop()
+    with RestorableFileWriter(
+        ALLOW_WRITES_PATH, ALLOW_WRITES_BACKUP_PATH,
+        warning_handler=lambda warning: print('Warning <geopm-service>', warning,
+                                              file=sys.stderr)) as writer:
+        try:
+            writer.backup_and_try_update('on\n')
+            _bus.publish_object("/io/github/geopm", service.GEOPMService())
+            _bus.register_service("io.github.geopm")
+            _loop.run()
+        finally:
+            stop()
 
 if __name__ == '__main__':
     main()
