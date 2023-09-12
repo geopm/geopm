@@ -108,15 +108,15 @@ void ExampleAgent::adjust_platform(const std::vector<double>& in_policy)
     // Check for NAN to set default values for policy
     double low_thresh = in_policy[M_POLICY_LOW_THRESH];
     double high_thresh = in_policy[M_POLICY_HIGH_THRESH];
-    if (std::isnan(low_thresh)) {
+    if (!geopm_pio_check_valid_value(low_thresh)) {
         low_thresh = 0.30;
     }
-    if (std::isnan(high_thresh)) {
+    if (!geopm_pio_check_valid_value(high_thresh)) {
         high_thresh = 0.70;
     }
 
     double idle_percent = m_last_sample[M_SAMPLE_IDLE_PCT];
-    if (!std::isnan(idle_percent)) {
+    if (geopm_pio_check_valid_value(idle_percent)) {
         if (idle_percent < low_thresh) {
             m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
         }
@@ -132,7 +132,7 @@ void ExampleAgent::adjust_platform(const std::vector<double>& in_policy)
 // If idle percent had a valid value, execute the print
 bool ExampleAgent::do_write_batch(void) const
 {
-    return !(std::isnan(m_last_sample[M_SAMPLE_IDLE_PCT]));
+    return geopm_pio_check_valid_value(m_last_sample[M_SAMPLE_IDLE_PCT]);
 }
 
 // Read signals from the platform and calculate samples to be sent up
@@ -155,10 +155,10 @@ void ExampleAgent::sample_platform(std::vector<double> &out_sample)
     out_sample[M_SAMPLE_IDLE_PCT] = m_last_sample[M_SAMPLE_IDLE_PCT];
 
     // Update mix and max for the report
-    if (std::isnan(m_min_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] < m_min_idle) {
+    if (!geopm_pio_check_valid_value(m_min_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] < m_min_idle) {
         m_min_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
     }
-    if (std::isnan(m_max_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] > m_max_idle) {
+    if (!geopm_pio_check_valid_value(m_max_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] > m_max_idle) {
         m_max_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
     }
 }

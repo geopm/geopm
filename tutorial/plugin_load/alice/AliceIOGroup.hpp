@@ -37,8 +37,8 @@ class AliceIOGroup : public geopm::IOGroup
         void restore_control(const std::string &save_path) override;
         std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
         std::function<std::string(double)> format_function(const std::string &signal_name) const override;
-        std::string signal_description(const std::string &signal_name) const;
-        std::string control_description(const std::string &control_name) const;
+        std::string signal_description(const std::string &signal_name) const override;
+        std::string control_description(const std::string &control_name) const override;
         int signal_behavior(const std::string &signal_name) const override;
         std::string name(void) const override;
         static std::string plugin_name(void);
