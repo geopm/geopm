@@ -316,6 +316,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/SaveControlTest.make_from_io_group \
               test/gtest_links/SaveControlTest.write_file \
               test/gtest_links/SaveControlTest.bad_json \
+              test/gtest_links/SecurePathTest.umask \
+              test/gtest_links/SecurePathTest.bad_file \
               test/gtest_links/ServiceIOGroupTest.signal_control_info \
               test/gtest_links/ServiceIOGroupTest.domain_type \
               test/gtest_links/ServiceIOGroupTest.read_signal_behavior \

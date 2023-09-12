@@ -10,12 +10,12 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <dlfcn.h>
 
 #include "geopm_error.h"
 #include "geopm_plugin.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "SecurePath.hpp"
 
 #include "config.h"
 
@@ -77,32 +77,41 @@ namespace geopm
         }
         std::vector<std::string> plugins;
         for (const auto &path : plugin_paths) {
-            std::vector<std::string> files = geopm::list_directory_files(path);
-            for (const auto &name : files) {
-                if (geopm::string_ends_with(name, so_suffix)) {
-                    if (geopm::string_begins_with(name, plugin_prefix)) {
-                        plugins.push_back(path + "/" + name);
+            try {
+                std::vector<std::string> files = geopm::list_directory_files(path);
+                for (const auto &name : files) {
+                    if (geopm::string_ends_with(name, so_suffix)) {
+                        if (geopm::string_begins_with(name, plugin_prefix)) {
+                            plugins.push_back(path + "/" + name);
+                        }
                     }
                 }
             }
+            catch (const geopm::Exception &ex) {
+                std::cerr << ex.what() << std::endl;
+            }
         }
         for (const auto &plugin : plugins) {
-            void *dl_handle = dlopen(plugin.c_str(), RTLD_NOLOAD);
-            if (dl_handle != nullptr) {
-                DLRegistry::dl_registry().add(dl_handle);
-            }
-            else {
-                dl_handle = dlopen(plugin.c_str(), RTLD_LAZY|RTLD_GLOBAL);
+            try {
+                SecurePath sp (plugin.c_str());
+                void *dl_handle = dlopen(sp.secure_path().c_str(), RTLD_NOLOAD);
                 if (dl_handle != nullptr) {
                     DLRegistry::dl_registry().add(dl_handle);
                 }
-#ifdef GEOPM_DEBUG
                 else {
-
-                    std::cerr << "Warning: <geopm> Failed to dlopen plugin with dlerror(): "
-                              << dlerror() << std::endl;
+                    dl_handle = dlopen(sp.secure_path().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+                    if (dl_handle != nullptr) {
+                        DLRegistry::dl_registry().add(dl_handle);
+                    }
+                    else {
+                        std::cerr << "Warning: <geopm> Failed to dlopen plugin ("
+                                  << plugin << ") with dlerror(): "
+                                  << dlerror() << std::endl;
+                    }
                 }
-#endif
+            }
+            catch (const geopm::Exception &ex) {
+                std::cerr << "Warning: " << ex.what() << std::endl;
             }
         }
     }
