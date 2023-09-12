@@ -345,7 +345,9 @@ requirement for the runtime and must be enforced by the MPI launch
 command.  When using the geopmlaunch wrapper described in the previous
 section, these affinity requirements are handled by geopmlaunch when
 the ``--geopm-affinity-enable`` command line option is provided (see
-:doc:`geopmlaunch(1) <geopmlaunch.1>`).
+:doc:`geopmlaunch(1) <geopmlaunch.1>`).  Otherwise, it is required that
+the user will explicitly affinitize their application using the appropriate
+options for their desired launcher.
 
 While the GEOPM control thread connects to the application it will
 automatically affinitize itself to the highest indexed core not used
