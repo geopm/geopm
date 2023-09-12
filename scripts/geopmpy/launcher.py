@@ -1537,7 +1537,7 @@ class PALSLauncher(IMPIExecLauncher):
         if (self.is_geopm_enabled and
             self.config.do_affinity and
             any(aa.startswith(('--cpu-bind')) for aa in self.argv)):
-            raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specifiedwith --geopm-affinity-enable.')
+            raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specified with --geopm-affinity-enable.')
 
         # Parse --ppn since it is different than impi
         parser = argparse.ArgumentParser(add_help=False)
