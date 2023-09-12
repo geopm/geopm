@@ -12,6 +12,7 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
               geopmdpy_test/TestPIO.py \
               geopmdpy_test/TestTopo.py \
               geopmdpy_test/TestRequestQueue.py \
+              geopmdpy_test/TestRestorableFileWriter.py \
               geopmdpy_test/TestSession.py \
               geopmdpy_test/TestActiveSessions.py \
               geopmdpy_test/TestSecureFiles.py \
@@ -90,6 +91,13 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue_invalid \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_request_queue_invalid \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_modify_existing_file \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_modify_is_no_op_if_no_initial_file \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_modify_does_not_overwrite_existing_backup \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_restore_saved_file \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_restore_is_no_op_if_no_backup_file \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_context_manager_restores_backup \
+		 geopmdpy_test/pytest_links/TestRestorableFileWriter.test_context_manager_warns_on_cleanup_failure \
                  geopmdpy_test/pytest_links/TestSession.test_check_read_args \
                  geopmdpy_test/pytest_links/TestSession.test_format_signals \
                  geopmdpy_test/pytest_links/TestSession.test_format_signals_invalid \

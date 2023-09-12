@@ -92,6 +92,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/gffi.py \
              geopmdpy/loop.py \
              geopmdpy/pio.py \
+             geopmdpy/restorable_file_writer.py \
              geopmdpy/service.py \
              geopmdpy/session.py \
              geopmdpy/shmem.py \
