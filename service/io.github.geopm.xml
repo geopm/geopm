@@ -632,6 +632,24 @@ range.
         </doc:description>
       </doc:doc>
     </method>
+    <method name="PlatformRestoreControl">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>Restore the state of all controls recorded at the start of a
+          </doc:summary>
+          <doc:para>session.
+
+For the session associated to the given process, restore the state
+of all controls, which is recorded at the beginning of the session.
+
+Raises
+    RuntimeError: If client_pid does not have an open session or
+                  if a different client currently has an open
+                  session in write mode
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
     <method name="PlatformStartProfile">
       <arg direction="in" name="profile_name" type="s">
         <doc:doc>

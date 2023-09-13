@@ -22,6 +22,7 @@ class MockServiceProxy : public geopm::ServiceProxy
                     (const std::vector<std::string> &control_names), (override));
         MOCK_METHOD(void, platform_open_session, (), (override));
         MOCK_METHOD(void, platform_close_session, (), (override));
+        MOCK_METHOD(void, platform_close_session_admin, (int client_pid), (override));
         MOCK_METHOD(void, platform_start_batch,
                     (const std::vector<struct geopm_request_s> &signal_config,
                      const std::vector<struct geopm_request_s> &control_config,
@@ -33,6 +34,7 @@ class MockServiceProxy : public geopm::ServiceProxy
         MOCK_METHOD(void, platform_write_control,
                     (const std::string &control_name, int domain,
                      int domain_idx, double setting), (override));
+        MOCK_METHOD(void, platform_restore_control, (), (override));
         MOCK_METHOD(std::string, topo_get_cache,
                     (), (override));
         MOCK_METHOD(void, platform_start_profile, (const std::string &profile_name),

@@ -97,6 +97,9 @@ namespace geopm
             /// @brief Calls the PlatformCloseSession API defined in
             ///        the io.github.geopm D-Bus namespace.
             virtual void platform_close_session(void) = 0;
+            /// @brief Calls the PlatformCloseSessionAdmin API defined in
+            ///        the io.github.geopm D-Bus namespace.
+            virtual void platform_close_session_admin(int client_pid) = 0;
             /// @brief Calls the PlatformStartBatch API defined in the
             ///        io.github.geopm D-Bus namespace.
             /// @param signal_config [in] Vector of signal requests
@@ -144,6 +147,9 @@ namespace geopm
                                                 int domain,
                                                 int domain_idx,
                                                 double setting) = 0;
+            /// @brief Calls the PlatformRestoreControl API defined in the
+            ///        io.github.geopm D-Bus namespace.
+            virtual void platform_restore_control() = 0;
             /// @brief Calls the TopoGetCache API defined in the
             ///        io.github.geopm D-Bus namespace.
             /// @return The string buffer defining the system topology
@@ -166,6 +172,7 @@ namespace geopm
             std::vector<control_info_s> platform_get_control_info(const std::vector<std::string> &control_names) override;
             void platform_open_session(void) override;
             void platform_close_session(void) override;
+            void platform_close_session_admin(int client_pid) override;
             void platform_start_batch(const std::vector<struct geopm_request_s> &signal_config,
                                       const std::vector<struct geopm_request_s> &control_config,
                                       int &server_pid,
@@ -178,6 +185,7 @@ namespace geopm
                                         int domain,
                                         int domain_idx,
                                         double setting) override;
+            void platform_restore_control() override;
             std::string topo_get_cache(void) override;
             void platform_start_profile(const std::string &profile_name) override;
             void platform_stop_profile(const std::vector<std::string> &region_names) override;

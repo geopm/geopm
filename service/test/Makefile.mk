@@ -335,6 +335,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ServiceProxyTest.platform_get_control_info \
               test/gtest_links/ServiceProxyTest.platform_open_session \
               test/gtest_links/ServiceProxyTest.platform_close_session \
+              test/gtest_links/ServiceProxyTest.platform_close_session_admin \
+              test/gtest_links/ServiceProxyTest.platform_restore_control \
               test/gtest_links/ServiceProxyTest.platform_start_batch \
               test/gtest_links/ServiceProxyTest.platform_stop_batch \
               test/gtest_links/ServiceProxyTest.platform_read_signal \

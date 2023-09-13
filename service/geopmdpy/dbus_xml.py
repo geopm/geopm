@@ -385,6 +385,16 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         </doc:description>
       </doc:doc>
     </method>
+    <method name="PlatformRestoreControl">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformRestoreControl_short_description}
+          </doc:summary>
+          <doc:para>{PlatformRestoreControl_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
     <method name="PlatformStartProfile">
       <arg direction="in" name="profile_name" type="s">
         <doc:doc>
@@ -483,6 +493,7 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         PlatformStopBatch = google.parse(PlatformService.stop_batch.__doc__)
         PlatformReadSignal = google.parse(PlatformService.read_signal.__doc__)
         PlatformWriteControl = google.parse(PlatformService.write_control.__doc__)
+        PlatformRestoreControl = google.parse(PlatformService.restore_control.__doc__)
         PlatformStartProfile = google.parse(PlatformService.start_profile.__doc__)
         PlatformStopProfile = google.parse(PlatformService.stop_profile.__doc__)
         PlatformGetProfilePids = google.parse(PlatformService.get_profile_pids.__doc__)
@@ -556,6 +567,8 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
             PlatformWriteControl_params3_description=PlatformWriteControl.params[3].description,
             PlatformWriteControl_short_description=PlatformWriteControl.short_description,
             PlatformWriteControl_long_description=PlatformWriteControl.long_description,
+            PlatformRestoreControl_short_description=PlatformRestoreControl.short_description,
+            PlatformRestoreControl_long_description=PlatformRestoreControl.long_description,
             PlatformStartProfile_params2_description=PlatformStartProfile.params[2].description,
             PlatformStartProfile_short_description=PlatformStartProfile.short_description,
             PlatformStartProfile_long_description=PlatformStartProfile.long_description,

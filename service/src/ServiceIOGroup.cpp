@@ -296,12 +296,13 @@ namespace geopm
 
     void ServiceIOGroup::save_control(void)
     {
-        // Proxy, so no direct save/restore
+        // Implementation not required as ServiceIOGroup works with the service, which manages
+        // sessions and saving controls.
     }
 
     void ServiceIOGroup::restore_control(void)
     {
-        // Proxy, so no direct save/restore
+        m_service_proxy->platform_restore_control();
     }
 
     std::function<double(const std::vector<double> &)> ServiceIOGroup::agg_function(const std::string &signal_name) const

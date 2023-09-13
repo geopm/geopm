@@ -290,8 +290,9 @@ TEST_F(ServiceIOGroupTest, save_control)
 
 TEST_F(ServiceIOGroupTest, restore_control)
 {
-    /// These are noops, make sure mock objects are not called into
-    /// We want it to fail if it tries to open the non-existent file path.
+    EXPECT_CALL(*m_proxy, platform_restore_control());
     m_serviceio_group->restore_control();
+    /// This is a noop, make sure mock objects are not called into
+    /// We want it to fail if it tries to open the non-existent file path.
     m_serviceio_group->restore_control("/bad/file/path");
 }

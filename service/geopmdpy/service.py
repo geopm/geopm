@@ -675,6 +675,23 @@ class PlatformService(object):
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
+    def restore_control(self, client_pid):
+        """Restore the state of all controls recorded at the start of a
+        session.
+
+        For the session associated to the given process, restore the state
+        of all controls, which is recorded at the beginning of the session.
+
+        Raises
+            RuntimeError: If client_pid does not have an open session or
+                          if a different client currently has an open
+                          session in write mode
+        """
+        self._active_sessions.check_client_active(client_pid, 'PlatformRestoreControl')
+        self._write_mode(client_pid)
+        save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
+        self._pio.restore_control_dir(save_dir)
+
     def start_profile(self, user, client_pid, profile_name):
         """Begin profiling a user PID
 
@@ -919,7 +936,10 @@ class GEOPMService(object):
 
     @accepts_additional_arguments
     def PlatformCloseSessionAdmin(self, client_pid, **call_info):
-        self._check_cap_sys_admin(call_info, "PlatformCloseSessionAdmin")
+        caller_pid = self._get_pid(**call_info)
+        # Allow user to close their own session completely (without requiring admin priv.)
+        if caller_pid != client_pid:
+            self._check_cap_sys_admin(call_info, "PlatformCloseSessionAdmin")
         self._platform.close_session_admin(client_pid)
 
     @accepts_additional_arguments
@@ -937,6 +957,11 @@ class GEOPMService(object):
     @accepts_additional_arguments
     def PlatformWriteControl(self, control_name, domain, domain_idx, setting, **call_info):
         self._platform.write_control(self._get_pid(**call_info), control_name, domain, domain_idx, setting)
+
+    @accepts_additional_arguments
+    def PlatformRestoreControl(self, **call_info):
+        caller_pid = self._get_pid(**call_info)
+        self._platform.restore_control(caller_pid)
 
     @accepts_additional_arguments
     def PlatformStartProfile(self, profile_name, **call_info):
