@@ -368,6 +368,55 @@ class TestPlatformService(unittest.TestCase):
             self._platform_service.write_control(client_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
 
+    def test_restore_already_closed(self):
+        client_pid = -999
+        session_data = self.open_mock_session('user_name', client_pid, True, 2)  # 2
+        self._platform_service.close_session(client_pid)  # 1
+        self._platform_service.close_session(client_pid)  # 0
+        self._platform_service._active_sessions.check_client_active = mock.MagicMock(side_effect=RuntimeError)
+        with self.assertRaises(RuntimeError):
+            self._platform_service.restore_control(client_pid)
+
+    def test_restore_write_blocked(self):
+        client_pid = 999
+        client_sid = 333
+        other_pid = 666
+        control_name = 'geopm'
+        domain = 7
+        domain_idx = 42
+        setting = 777
+
+        self.open_mock_session('other', other_pid)
+        with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
+             mock.patch('geopmdpy.pio.save_control_dir'), \
+             mock.patch('os.getsid', return_value=other_pid):
+            self._platform_service.write_control(other_pid, control_name, domain, domain_idx, setting)
+            mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
+
+        self.open_mock_session('', client_pid)
+        mock_pwuid = mock.MagicMock()
+        mock_pwuid.pw_name = 'test_user'
+        self._mock_write_lock.try_lock.return_value = other_pid
+        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {abs(other_pid)}'
+        with self.assertRaisesRegex(RuntimeError, err_msg), \
+             mock.patch('geopmdpy.pio.restore_control_dir'), \
+             mock.patch('os.getsid', return_value=client_sid), \
+             mock.patch('pwd.getpwuid', return_value=mock_pwuid), \
+             mock.patch('psutil.pid_exists', return_value=True):
+            self._platform_service.restore_control(client_pid)
+
+    def test_restore_control(self):
+        session_data = self.open_mock_session('')
+        client_pid = session_data['client_pid']
+        self._mock_write_lock.try_lock.return_value = client_pid
+        with mock.patch('geopmdpy.pio.save_control_dir'), \
+             mock.patch('os.getsid', return_value=client_pid), \
+             mock.patch('geopmdpy.pio.restore_control_dir') as mock_restore_control_dir:
+            self._platform_service.restore_control(client_pid)
+            save_dir = os.path.join(self._platform_service._RUN_PATH,
+                                    self._platform_service._SAVE_DIR)
+            mock_restore_control_dir.assert_called_once_with(save_dir)
+
     def test_get_cache(self):
         topo = mock.MagicMock()
         topo_service = TopoService(topo=topo)

@@ -194,6 +194,13 @@ TEST_F(ServiceProxyTest, platform_close_session)
     m_proxy->platform_close_session();
 }
 
+TEST_F(ServiceProxyTest, platform_close_session_admin)
+{
+    int client_pid = 1234;
+    EXPECT_CALL(*m_bus, call_method("PlatformCloseSessionAdmin", client_pid));
+    m_proxy->platform_close_session_admin(client_pid);
+}
+
 TEST_F(ServiceProxyTest, platform_start_batch)
 {
     std::vector<geopm_request_s> signal_config = {geopm_request_s {1, 0, "CPU_FREQUENCY"},
@@ -255,6 +262,12 @@ TEST_F(ServiceProxyTest, platform_write_control)
 {
     EXPECT_CALL(*m_bus, call_method("PlatformWriteControl", "frequency", 1, 2, 1.0e9));
     m_proxy->platform_write_control("frequency", 1, 2, 1.0e9);
+}
+
+TEST_F(ServiceProxyTest, platform_restore_control)
+{
+    EXPECT_CALL(*m_bus, call_method("PlatformRestoreControl"));
+    m_proxy->platform_restore_control();
 }
 
 TEST_F(ServiceProxyTest, topo_get_cache)

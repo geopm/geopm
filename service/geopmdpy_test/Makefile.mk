@@ -40,6 +40,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_empty \
                  geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_named \
                  geopmdpy_test/pytest_links/TestAccessLists.test_get_names \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_close_already_closed \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_read \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_write \
@@ -48,8 +49,12 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestPlatformService.test_lock_control \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session_twice \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_read_already_closed \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal_invalid \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_restore_already_closed \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_restore_control \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_restore_write_blocked \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_write_blocked \
