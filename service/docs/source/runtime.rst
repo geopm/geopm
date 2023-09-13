@@ -3,13 +3,19 @@ Guide for Runtime Users
 =======================
 
 The GEOPM Runtime is software designed to enhance energy efficiency of
-applications though active hardware configuration.  The architecture is
-designed to provide a secure infrastructure to support a wide range
-of tuning algorithms while solving three related challenges:
+applications through active hardware configuration.  
+
+
+User Model
+----------
+
+The architecture is designed to provide a secure infrastructure to 
+support a wide range of tuning algorithms while solving three related 
+challenges:
 
 
 1. Measuring Performance
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first challenge is to enable hardware tuning algorithms to derive
 a robust estimate of application performance.  This is crucial because
@@ -25,7 +31,7 @@ than if an adaptive algorithm were not applied.
 
 
 2. Hardware Configuration
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This leads to the second challenge: enabling a hardware control
 algorithm to be driven by unprivileged user input (i.e. application
@@ -36,7 +42,7 @@ is specifically designed to address these problems.
 
 
 3. Advanced Data Analysis
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The third challenge is providing a software development platform for
 control algorithms that can be safely deployed and use high level
@@ -70,37 +76,73 @@ Runtime launch options.
          trace file per host, and one report across all hosts.
    :align: center
 
-   The geopmlaunch tool is the main user interface to the GEOPM Runtime. It
+
+.. admonition:: Quick start for MPI applications
+
+   The ``geopmlaunch`` tool is the recommended user interface to launch the GEOPM Runtime for 
+   profiling and optimizing MPI applications. It
    wraps a launcher application (srun in this example), generates a summarizing
    report file, and optionally generates a time-series trace per host.
 
-.. admonition:: Quick Start
-
-  Run ``geopmlaunch`` with your application:
+   The steps for using ``geopmlaunch`` with your MPI application are:
 
   * Specify how many nodes and processes to use.
   * Run the ``geopmlaunch`` command wherever you would normally run the
-    wrapped command (e.g., ``srun``, ``mpiexec``, etc.).
+    wrapped launcher command (e.g., ``srun``, ``mpiexec``, etc.).
   * Read the generated ``geopm.report`` file
   
   .. code-block:: console
-    :caption: Examples using ``geopmlaunch``
+    :caption: examples using ``geopmlaunch``
 
-    $ # Launch with srun and explore the generated GEOPM report
+    $ # Launch with srun and explore the generated geopm report
     $ geopmlaunch srun -N 1 -n 20 -- ./my-app
     $ less geopm.report
     $ # Launch with Intel mpiexec and explore the generated GEOPM report
-    $ geopmlaunch impi -n 1 -ppn 20 -- ./my-app
+    $ geopmlaunch impi -N 1 -ppn 20 -- ./my-app
     $ less geopm.report
     $ # show all options and available launchers
     $ geopmlaunch --help
 
-  The `GEOPM Runtime tutorial
-  <https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
-  to profile unmodified applications, select and evaluate different GEOPM Agent
-  algorithms, and how to add markup to an application.  The tutorial provides a
-  starting point for someone trying to get familiar with the GEOPM Runtime.
 
+.. admonition:: Quick start for Non-MPI applications
+
+   In order to profile non-MPI applications, the recommended approach is to launch
+   the GEOPM runtime alongside the target application. This can be done by launching
+   the ``geopmctl`` application in the background on every host node that the non-MPI 
+   application is expected to run. After a clean or forced termination of the 
+   application being profiled, the ``geopmctl`` application is designed to terminate
+   and generate a summarizing report file, and optionally, a time-series trace per host. 
+ 
+   The following requirements must be met while launching ``geopmctl`` with your 
+   non-MPI application:
+ 
+   * Both the ``geopmctl`` process and the application process must have
+     the ``GEOPM_PROFILE`` environment variable set to the **same**
+     value.
+   * The application process must have ``LD_PRELOAD=libgeopm.so.1`` set
+     in the environment, or the application binary must be linked
+     directly to ``libgeopm.so.1`` at compile time.
+   * The ``GEOPM_REPORT`` environment variable must be set in the
+     environment of the ``geopmctl`` process.
+ 
+   .. code-block:: console
+     :caption: examples using ``geopmctl``
+ 
+     $ GEOPM_PROFILE=sleep-ten \
+       GEOPM_REPORT=sleep-ten.yaml \
+       geopmctl &
+     $ GEOPM_PROFILE=sleep-ten \
+       LD_PRELOAD=libgeopm.so.1 \
+       sleep 10
+     $ cat sleep-ten.yaml
+     $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv | less
+
+
+The `geopm runtime tutorial
+<https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
+to profile unmodified applications, select and evaluate different geopm agent
+algorithms, and how to add markup to an application.  The tutorial provides a
+starting point for someone trying to get familiar with the geopm runtime.
 
 The runtime enables complex coordination between hardware settings across all
 compute nodes used by a distributed HPC application in
@@ -119,7 +161,7 @@ individual MPI application and enable the management of system power
 resources for multiple MPI jobs and multiple users by the system
 resource manager.
 
-The GEOPM Runtime package provides the libgeopm shared object library.
+The GEOPM Runtime package provides the *libgeopm* shared object library.
 There are several command line tools included in GEOPM which have
 dedicated manual pages.  The :doc:`geopmlaunch(1) <geopmlaunch.1>`
 command line tool is used to launch an MPI application while enabling
@@ -144,7 +186,7 @@ package which is contained in the service directory of the GEOPM
 repository.  The PlatformIO abstraction enables Agent implementations
 to be ported to different hardware platforms without modification.
 
-The libgeopm library can be called directly or indirectly within MPI
+The *libgeopm* library can be called directly or indirectly within MPI
 applications to enable application feedback for informing the control
 decisions.  The indirect calls are facilitated by GEOPM's integration
 with MPI and OpenMP through their profiling decorators, and the direct

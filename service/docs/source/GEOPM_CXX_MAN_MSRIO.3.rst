@@ -18,7 +18,7 @@ Synopsis
 
 #include `<geopm/MSRIO.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/MSRIO.hpp>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
+Link with ``-lgeopmd``
 
 
 .. code-block:: c++
