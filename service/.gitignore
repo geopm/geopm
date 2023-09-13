@@ -25,7 +25,6 @@ compile_commands.json
 /fuzz_test/geopmhash_corpus
 /geopmdpy.egg-info
 /geopmdpy/schemas.py
-/geopmdpy/system_files.py
 /geopmdpy/version.py
 /geopmdpy_test/pytest_links/
 /geopmread
