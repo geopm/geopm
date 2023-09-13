@@ -8,7 +8,7 @@ Synopsis
 
 #include `<geopm_pio.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_pio.h>`_\
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
+Link with ``-lgeopmd``
 
 
 .. code-block:: c

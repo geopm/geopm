@@ -10,7 +10,7 @@ package provides many built-in features. A simple use case is reading hardware
 counters and setting hardware controls with platform independent syntax using
 a command line tool on a particular compute node. An advanced use case is
 dynamically coordinating hardware settings across all compute nodes used by a
-distributed application is response to the application's behavior and requests
+distributed application in response to the application's behavior and requests
 from the resource manager.
 
 

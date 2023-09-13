@@ -18,7 +18,7 @@ Synopsis
 
 #include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/IOGroup.hpp>`_\
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
+Link with ``-lgeopmd``
 
 
 .. code-block:: c++

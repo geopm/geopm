@@ -17,7 +17,7 @@ Synopsis
 
 #include `<geopm/CNLIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/CNLIOGroup.hpp>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
+Link with ``-lgeopmd``
 
 
 .. code-block:: c++
