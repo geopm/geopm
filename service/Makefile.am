@@ -74,7 +74,7 @@ EXTRA_DIST = .gitignore \
              debian/geopm-service.postinst \
              debian/libgeopmd-dev.dirs \
              debian/libgeopmd-dev.install \
-             debian/libgeopmd1.install \
+             debian/libgeopmd2.install \
              debian/python3-geopmdpy.install \
              debian/rules \
              dox/blurb.md \

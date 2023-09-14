@@ -25,8 +25,8 @@ Section: utils
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgeopm1 (= ${binary:Version}),
-         libgeopmd1 (= ${binary:Version})
+         libgeopm2 (= ${binary:Version}),
+         libgeopmd2 (= ${binary:Version})
 Description: The GEOPM Service provides a foundation for manipulating
  hardware settings to optimize an objective defined by an unprivileged
  user.  The GEOPM Runtime is a software platform built on top of the
@@ -41,14 +41,14 @@ Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgeopm1 (= ${binary:Version})
+         libgeopm2 (= ${binary:Version})
 Description: Development package for the GEOPM Runtime.  This provides
  the programming interface to libgeopm.so.  The package includes the C
  and C++ header files, maunuals for these interfaces and the
  unversioned libgeopm.so shared object symbolic link and the static
  library.
 
-Package: libgeopm1
+Package: libgeopm2
 Section: libs
 Architecture: any
 Multi-Arch: same
@@ -63,7 +63,7 @@ Package: python3-geopmpy
 Section: python
 Architecture: any
 Depends: ${python3:Depends},
-         libgeopm1 (= ${binary:Version}),
+         libgeopm2 (= ${binary:Version}),
          python3-cffi (>=1.15.0),
          python3-cycler (>=0.11.0),
          python3-natsort (>=8.0.2),

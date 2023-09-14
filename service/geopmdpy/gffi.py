@@ -56,7 +56,7 @@ def get_dl_geopm():
 _orig_filter = os.environ.get('GEOPM_PROGRAM_FILTER')
 os.environ['GEOPM_PROGRAM_FILTER'] = ''
 try:
-    _dl_geopm = gffi.dlopen('libgeopm.so.1',
+    _dl_geopm = gffi.dlopen('libgeopm.so.2',
                             gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopm = err
@@ -68,7 +68,7 @@ finally:
 
 # Load libgeopmd.so after libgeopm.so
 try:
-    _dl_geopmd =  gffi.dlopen('libgeopmd.so.1',
+    _dl_geopmd =  gffi.dlopen('libgeopmd.so.2',
                               gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopmd = err

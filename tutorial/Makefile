@@ -11,10 +11,10 @@ TUTORIAL_BIN = tutorial_0 \
                tutorial_5 \
                # end
 
-TUTORIAL_LIB = agent/libgeopmagent_example_agent.so.1.0.0 \
-               iogroup/libgeopmiogroup_example_iogroup.so.1.0.0 \
-               plugin_load/alice/libgeopmiogroup_alice.so.1.0.0 \
-               plugin_load/bob/libgeopmiogroup_bob.so.1.0.0
+TUTORIAL_LIB = agent/libgeopmagent_example_agent.so.2.0.0 \
+               iogroup/libgeopmiogroup_example_iogroup.so.2.0.0 \
+               plugin_load/alice/libgeopmiogroup_alice.so.2.0.0 \
+               plugin_load/bob/libgeopmiogroup_bob.so.2.0.0
                # end
 
 GEOPM_PLUGIN_FLAGS=-fPIC -shared
@@ -68,16 +68,16 @@ tutorial_region.o: tutorial_region.c tutorial_region.h
 tutorial_region_prof.o: tutorial_region_prof.c tutorial_region.h
 	$(MPICC) $(CFLAGS) -c tutorial_region_prof.c -o $@
 
-agent/libgeopmagent_example_agent.so.1.0.0: agent/ExampleAgent.cpp agent/ExampleAgent.hpp
+agent/libgeopmagent_example_agent.so.2.0.0: agent/ExampleAgent.cpp agent/ExampleAgent.hpp
 	$(CXX) $(CXXFLAGS) -I ./agent $(GEOPM_PLUGIN_FLAGS) agent/ExampleAgent.cpp -o $@
 
-iogroup/libgeopmiogroup_example_iogroup.so.1.0.0: iogroup/ExampleIOGroup.cpp iogroup/ExampleIOGroup.hpp
+iogroup/libgeopmiogroup_example_iogroup.so.2.0.0: iogroup/ExampleIOGroup.cpp iogroup/ExampleIOGroup.hpp
 	$(CXX) $(CXXFLAGS) -I ./iogroup $(GEOPM_PLUGIN_FLAGS) iogroup/ExampleIOGroup.cpp -o $@
 
-plugin_load/alice/libgeopmiogroup_alice.so.1.0.0: plugin_load/alice/AliceIOGroup.cpp plugin_load/alice/AliceIOGroup.hpp
+plugin_load/alice/libgeopmiogroup_alice.so.2.0.0: plugin_load/alice/AliceIOGroup.cpp plugin_load/alice/AliceIOGroup.hpp
 	$(CXX) $(CXXFLAGS) -I ./plugin_load/alice $(GEOPM_PLUGIN_FLAGS) plugin_load/alice/AliceIOGroup.cpp -o $@
 
-plugin_load/bob/libgeopmiogroup_bob.so.1.0.0: plugin_load/bob/BobIOGroup.cpp plugin_load/bob/BobIOGroup.hpp
+plugin_load/bob/libgeopmiogroup_bob.so.2.0.0: plugin_load/bob/BobIOGroup.cpp plugin_load/bob/BobIOGroup.hpp
 	$(CXX) $(CXXFLAGS) -I ./plugin_load/bob $(GEOPM_PLUGIN_FLAGS) plugin_load/bob/BobIOGroup.cpp -o $@
 
 clean:

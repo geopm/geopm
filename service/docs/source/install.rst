@@ -11,12 +11,12 @@ Packages built by OBS:
 
 - ``geopm-service``:
    Installs and activates the geopm systemd service
-- ``libgeopmd1``:
+- ``libgeopmd2``:
    Provides the library that supports the PlatformIO interface
 - ``python3-geopmdpy``:
    Implementation of geopmd, CLI tools, and bindings for PlatformIO
 - ``geopm-service-devel``:
-   Headers and man pages for C and C++ APIs provided by ``libgeopmd1``
+   Headers and man pages for C and C++ APIs provided by ``libgeopmd2``
 
 In addition to these packages that are built each time a tracked
 branch is updated, the download repositories also provide
@@ -25,7 +25,7 @@ branch is updated, the download repositories also provide
 distributions.
 
 Installing the ``geopm-service`` package will also install the
-``libgeopmd1``, ``python3-geopmdpy`` and ``python3-dasbus`` dependency
+``libgeopmd2``, ``python3-geopmdpy`` and ``python3-dasbus`` dependency
 packages.  The ``geopm-service-devel`` package must be explicitly
 installed if it is required by the user.
 
@@ -62,13 +62,13 @@ pages:
 
 - Install Release Packages (``release-v2.0`` branch)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=geopm-service>`__
-   + `libgeopmd1 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=libgeopmd1>`__
+   + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=libgeopmd2>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=geopm-service-devel>`__
 
 - Install Development Packages (``dev`` branch)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
-   + `libgeopmd1 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd1>`__
+   + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd2>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
 

@@ -27,7 +27,7 @@ Section: utils
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgeopmd1 (= ${binary:Version}),
+         libgeopmd2 (= ${binary:Version}),
          python3-geopmdpy (= ${binary:Version})
 Description: The GEOPM Service provides a user-level interface to read
  telemetry and configure settings of heterogeneous hardware
@@ -43,14 +43,14 @@ Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgeopmd1 (= ${binary:Version})
+         libgeopmd2 (= ${binary:Version})
 Description: Development package for the GEOPM Service.  This provides
  the programming interface to libgeopmd.so.  The package includes the
  C and C++ header files, maunuals for these interfaces and the
  unversioned libgeopmd.so shared object symbolic link and the static
  library.
 
-Package: libgeopmd1
+Package: libgeopmd2
 Section: libs
 Architecture: any
 Multi-Arch: same
@@ -65,7 +65,7 @@ Package: python3-geopmdpy
 Section: python
 Architecture: any
 Depends: ${python3:Depends},
-         libgeopmd1 (= ${binary:Version}),
+         libgeopmd2 (= ${binary:Version}),
          python3-cffi (>=1.15.0),
          python3-dasbus (>=1.6),
          python3-psutil (>=5.9.0),

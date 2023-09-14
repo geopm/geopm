@@ -188,7 +188,7 @@ The ExampleIOGroup plugin is built by running tutorial_build_gnu.sh or
 tutorial_build_intel.sh.  The plugin will be loaded with the geopm library if
 it is found in a directory in GEOPM_PLUGIN_PATH.  Note that to be recognized as
 an iogroup plugin, the filename must begin with "libgeopmiogroup_", end in
-".so.1.0.0", and must not be a symlink.  Add the current directory (containing
+".so.2.0.0", and must not be a symlink.  Add the current directory (containing
 the .so file) to GEOPM_PLUGIN_PATH as follows:
 
     $ export GEOPM_PLUGIN_PATH=$PWD
