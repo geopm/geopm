@@ -58,6 +58,14 @@ Used to force the integration tests to target a specific Launcher
 implementation as supported by the Launcher factory.  See
 **geopmlaunch(1)** for more details.
 
+#### GEOPM_NUM_NODE
+Set the number of compute nodes used by each integration test.  Some
+tests are required to run on one node only, and these tests are not
+affected by this environment variable.  If this variable is not set,
+the logic falls back to SLURM_NNODES (number of nodes allocated within
+the Slurm environment), and if this is not set, then four compute
+nodes are used.
+
 ### GEOPM_EXEC_WRAPPER
 Configure string for GEOPM test launcher to run arbitrary
 application to wrap target job execution.  Some examples
