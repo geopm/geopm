@@ -282,7 +282,7 @@ def make_bash(app_conf, run_id, log_file):
         {env} {app_exec} {app_params} 2>&1 | tee -a {log_file}
         {cleanup}
     '''.format(setup=app_conf.get_bash_setup_commands(),
-               env='LD_PRELOAD=libgeopm.so.1.0.0',
+               env='LD_PRELOAD=libgeopm.so.2.0.0',
                app_exec=app_conf.get_bash_exec_path(),
                app_params=app_params,
                log_file=log_file,

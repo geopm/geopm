@@ -42,7 +42,7 @@ directory:
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
-    $HOME/rpmbuild/RPMS/x86_64/libgeopmd1-<VERSION>-1.x86_64.rpm
+    $HOME/rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
 
 
 Installing and Starting the GEOPM Service

@@ -572,9 +572,9 @@ generate a report:
 1. Both the ``geopmctl`` process and the application process must have
    the ``GEOPM_PROFILE`` environment variable set to the **same**
    value.
-2. The application process must have ``LD_PRELOAD=libgeopm.so.1`` set
+2. The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
    in the environment, or the application binary must be linked
-   directly to ``libgeopm.so.1`` at compile time.
+   directly to ``libgeopm.so.2`` at compile time.
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
 
@@ -597,7 +597,7 @@ column 6, and CPU power from column 8.
       GEOPM_PERIOD=0.2 \
       geopmctl &
     $ GEOPM_PROFILE=sleep-ten \
-      LD_PRELOAD=libgeopm.so.1 \
+      LD_PRELOAD=libgeopm.so.2 \
       sleep 10
     $ cat sleep-ten.yaml
     $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv | less

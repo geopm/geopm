@@ -6,7 +6,7 @@
 TEST_NAME=test_multi_app
 export GEOPM_PROFILE=${TEST_NAME}
 export GEOPM_PROGRAM_FILTER=geopmbench,stress-ng
-export LD_PRELOAD=libgeopm.so.1.0.0
+export LD_PRELOAD=libgeopm.so.2.0.0
 
 cat > temp_config.json << "EOF"
 {

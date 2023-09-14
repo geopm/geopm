@@ -129,8 +129,8 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libgeopm.so.1.0.0
-%{_libdir}/libgeopm.so.1
+%{_libdir}/libgeopm.so.2.0.0
+%{_libdir}/libgeopm.so.2
 %{_libdir}/libgeopm.so
 %{_bindir}/geopmadmin
 %{_bindir}/geopmagent
