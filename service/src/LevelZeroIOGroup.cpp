@@ -575,12 +575,18 @@ namespace geopm
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
                                      signal_domain_type(sv.first)); ++domain_idx) {
                 try {
-                    sv.second.m_devpool_func(domain_idx);
-                    std::shared_ptr<Signal> signal =
-                            std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
-                                                              domain_idx,
-                                                              sv.second.m_scalar);
-                    result.push_back(signal);
+                    double init_setting = 0;
+                    init_setting = sv.second.m_devpool_func(domain_idx);
+                    if (init_setting == -1) {
+                        unsupported_signal_names.push_back(sv.first);
+                    }
+                    else {
+                        std::shared_ptr<Signal> signal =
+                                std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
+                                                                  domain_idx,
+                                                                  sv.second.m_scalar);
+                        result.push_back(signal);
+                    }
                 }
                 catch (const geopm::Exception &ex) {
                     if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
