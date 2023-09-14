@@ -369,12 +369,18 @@ namespace geopm
                     }
 
                     // GPU on time tracking
-                    m_gpu_on_time.at(domain_idx) += m_time.value - m_prev_time;
-                    m_gpu_on_energy.at(domain_idx) += m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
+                    if (m_time.value > m_prev_time) {
+                        m_gpu_on_time.at(domain_idx) += m_time.value - m_prev_time;
+                    }
+                    // TODO: handle roll-over more gracefully than dropping a sample
+                    if (m_gpu_energy.at(domain_idx).value < m_prev_gpu_energy.at(domain_idx)) {
+                        m_gpu_on_energy.at(domain_idx) += m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
+                    }
                 }
                 else {
                     // ROI proxy tracking
-                    if (m_gpu_active_region_stop.at(domain_idx) == 0) {
+                    if (m_gpu_active_region_start.at(domain_idx) != 0 &&
+                        m_gpu_active_region_stop.at(domain_idx) == 0) {
                         m_gpu_active_region_stop.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
                     }
