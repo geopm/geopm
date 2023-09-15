@@ -676,8 +676,7 @@ class PlatformService(object):
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
     def restore_control(self, client_pid):
-        """Restore the state of all controls recorded at the start of a
-        session.
+        """Restore all controls recorded at the start of a session.
 
         For the session associated to the given process, restore the state
         of all controls, which is recorded at the beginning of the session.

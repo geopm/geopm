@@ -635,11 +635,9 @@ range.
     <method name="PlatformRestoreControl">
      <doc:doc>
         <doc:description>
-          <doc:summary>Restore the state of all controls recorded at the start of a
+          <doc:summary>Restore all controls recorded at the start of a session.
           </doc:summary>
-          <doc:para>session.
-
-For the session associated to the given process, restore the state
+          <doc:para>For the session associated to the given process, restore the state
 of all controls, which is recorded at the beginning of the session.
 
 Raises
