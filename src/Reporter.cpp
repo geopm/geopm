@@ -102,7 +102,7 @@ namespace geopm
                     (void) !
 #endif
                     std::remove(m_report_name.c_str());
-                    GEOPM_DEBUG_ASSERT(err == 0, "Unable to remove empty file created to test permissions");                    
+                    GEOPM_DEBUG_ASSERT(err == 0, "Unable to remove empty file created to test permissions");
                 }
                 errno = 0;
             }
@@ -332,12 +332,20 @@ namespace geopm
         auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
         // Controller overhead
+        uint64_t mpi_init_thread_hash = 0xb178041c;
+        double mpi_startup = m_proc_region_agg->get_runtime_average(mpi_init_thread_hash);
+
         std::vector<std::pair<std::string, double> > overhead {
-            {"GEOPM overhead (s)", m_overhead_time},
             {"GEOPM startup (s)", m_sample_delay},
+            {"GEOPM overhead (s)", m_overhead_time},
             {"geopmctl memory HWM (B)", max_memory},
             {"geopmctl network BW (B/s)", comm_overhead / m_total_time}
         };
+        if (mpi_startup != 0.0) {
+            overhead.insert(overhead.begin(),
+                            {"MPI startup (s)", mpi_startup});
+        }
+
         yaml_write(report, M_INDENT_TOTALS_FIELD, overhead);
         return report.str();
     }
