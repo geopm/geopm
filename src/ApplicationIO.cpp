@@ -81,6 +81,12 @@ namespace geopm
             clock_nanosleep(CLOCK_REALTIME, 0, &delay, NULL);
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
+
+        if (!m_is_connected) {
+            std::cerr << "Warning: <geopm> Timeout while trying to detect the application. "
+                      << "This can happen if the application has a very short duration." << std::endl;
+        }
+
 #ifdef GEOPM_DEBUG
         std::cout << "Info: <geopm> Controller will profile PIDs: ";
         for (auto pid : m_profile_pids) {
