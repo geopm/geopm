@@ -304,6 +304,9 @@ class Launcher(object):
     Abstract base class for MPI job launch application abstraction.
     Defines common methods used by all Launcher objects.
     """
+
+    is_slurm_enabled = False
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
                  partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
@@ -339,7 +342,6 @@ class Launcher(object):
             self.is_geopm_enabled = False
             self.do_affinity = False
             self.is_override_enabled = False
-        self.is_slurm_enabled = False
         self.governor = None
         self.parse_launcher_argv()
 
@@ -411,10 +413,14 @@ class Launcher(object):
             self.is_slurm_enabled = True
         if (self.is_geopm_enabled and
             self.is_slurm_enabled and
-            self.config.get_ctl() == 'application' and
-            os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
-                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+            self.config.get_ctl() == 'application'):
+            if self.num_node is None and os.getenv('SLURM_NNODES') is not None:
+                self.num_node = int(os.getenv('SLURM_NNODES'))
+            elif os.getenv('SLURM_NNODES') != str(self.num_node):
+                raise RuntimeError('When using srun and specifying ' +
+                                   '--geopm-ctl=application call must be made ' +
+                                   'inside of an salloc or sbatch environment ' +
+                                   'and application must run on all allocated nodes.')
 
         self.num_app_rank = self.num_rank
         self.num_app_mask = self.rank_per_node
@@ -941,22 +947,8 @@ class SrunLauncher(Launcher):
     Launcher derived object for use with the SLURM job launch
     application ``srun``.
     """
-    def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
-        """
-        Pass through to Launcher constructor.
-        """
-        super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                           time_limit, job_name, node_list, exclude_list, host_file,
-                                           partition=partition, reservation=reservation, quiet=quiet,
-                                           do_affinity=do_affinity)
 
-        if (self.is_geopm_enabled and
-            self.config.get_ctl() == 'application' and
-            os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('<geopm> geopmpy.launcher: When using srun and specifying --geopm-ctl=application call must ' +
-                               'be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+    is_slurm_enabled = True
 
     def int_handler(self, signum, frame):
         """
@@ -1374,17 +1366,6 @@ class IMPIExecLauncher(Launcher):
     application ``mpiexec.hydra``.
     """
     _is_once = True
-
-    def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
-        """
-        Pass through to Launcher constructor.
-        """
-        super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                               time_limit, job_name, node_list, exclude_list, host_file,
-                                               reservation=reservation, quiet=quiet, do_affinity=do_affinity,
-                                               bootstrap=bootstrap)
 
     def launcher_command(self):
         """
