@@ -264,17 +264,28 @@ GEOPM Options
 --geopm-ctl CONTROL_MODE  .. _geopm-ctl option:
 
                           Use the GEOPM runtime and launch GEOPM with one of
-                          three ``CONTROL_MODE``\ s: *process*, *pthread* or
-                          *application*.
+                          three ``CONTROL_MODE``\ s: *application*, *process*,
+                          or *pthread*.
+
+                          When used with ``srun``, the *application* method of
+                          launch must be called inside an existing allocation
+                          made with ``salloc`` or ``sbatch`` and the command
+                          must request all the compute nodes assigned to the
+                          allocation. This method is the default if the
+                          ``--geopm-ctl`` option is not provided.
+
+                          When invoked with non-MPI applications, the *process*
+                          and *pthread* methods will silently fail to launch geopm.
+                          Only the *application* method will launch geopm with
+                          non-MPI applications.
 
                           The *process* method allocates one extra MPI process
-                          per node for the GEOPM controller, and this is the
-                          default method if the ``--geopm-ctl`` option is not
-                          provided. The *process* method can be used in the
-                          widest variety of cases, but some systems require
-                          that each MPI process be assigned the same number of
-                          CPUs which may waste resources by assigning more than
-                          one CPU to the GEOPM controller process.
+                          per node for the GEOPM controller. The *process* method
+                          can be used in the widest variety of cases, but some
+                          systems require that each MPI process be assigned the
+                          same number of CPUs which may waste resources by
+                          assigning more than one CPU to the GEOPM controller
+                          process.
 
                           The *pthread* method spawns a thread from one MPI
                           process per node to run the GEOPM controller.  The
@@ -284,12 +295,6 @@ GEOPM Options
                           *pthread* option requires support for
                           ``MPI_THREAD_MULTIPLE``, which is not enabled at many
                           sites.
-
-                          The *application* method of launch is not compatible
-                          with ``aprun``; with ``srun``, the call must be made
-                          inside an existing allocation made with ``salloc`` or
-                          ``sbatch`` and the command must request all the
-                          compute nodes assigned to the allocation.
 
                           The ``--geopm-ctl`` option is used by the launcher to
                           set the ``GEOPM_CTL`` environment variable.  The command
