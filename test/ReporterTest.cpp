@@ -94,82 +94,82 @@ class ReporterTest : public testing::Test
         std::unique_ptr<Reporter> m_reporter;
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
         std::string m_profile_name = "my profile";
-        std::set<std::string> m_region_set = {"all2all", "model-init"};
+        std::set<std::string> m_region_set = {"all2all", "MPI_Init_thread"};
         std::map<uint64_t, double> m_region_runtime = {
             {geopm_crc32_str("all2all"), 33.33},
-            {geopm_crc32_str("model-init"), 22.11},
+            {geopm_crc32_str("MPI_Init_thread"), 22.11},
         };
         std::map<uint64_t, double> m_region_network_time = {
             {geopm_crc32_str("all2all"), 3.4},
-            {geopm_crc32_str("model-init"), 5.6},
+            {geopm_crc32_str("MPI_Init_thread"), 5.6},
             {GEOPM_REGION_HASH_UNMARKED, 1.2},
             {GEOPM_REGION_HASH_EPOCH, 4.2},
             {GEOPM_REGION_HASH_APP, 45}
         };
         std::map<uint64_t, double> m_region_ignore_time = {
             {geopm_crc32_str("all2all"), 3.5},
-            {geopm_crc32_str("model-init"), 5.7},
+            {geopm_crc32_str("MPI_Init_thread"), 5.7},
             {GEOPM_REGION_HASH_UNMARKED, 1.3},
             {GEOPM_REGION_HASH_EPOCH, 4.3},
             {GEOPM_REGION_HASH_APP, 46}
         };
         std::map<uint64_t, double> m_region_count = {
             {geopm_crc32_str("all2all"), 20},
-            {geopm_crc32_str("model-init"), 1},
+            {geopm_crc32_str("MPI_Init_thread"), 1},
             {GEOPM_REGION_HASH_EPOCH, 66}
         };
         std::map<uint64_t, double> m_region_sync_rt = {
             {geopm_crc32_str("all2all"), 555},
-            {geopm_crc32_str("model-init"), 333},
+            {geopm_crc32_str("MPI_Init_thread"), 333},
             {GEOPM_REGION_HASH_UNMARKED, 444},
             {GEOPM_REGION_HASH_EPOCH, 70},
             {GEOPM_REGION_HASH_APP, 56}
         };
         std::map<uint64_t, double> m_region_energy = {
             {geopm_crc32_str("all2all"), 777},
-            {geopm_crc32_str("model-init"), 888},
+            {geopm_crc32_str("MPI_Init_thread"), 888},
             {GEOPM_REGION_HASH_UNMARKED, 222},
             {GEOPM_REGION_HASH_EPOCH, 334},
             {GEOPM_REGION_HASH_APP, 4444}
         };
         std::map<uint64_t, double> m_region_frequency_cpu_uncore = {
             {geopm_crc32_str("all2all"), 755},
-            {geopm_crc32_str("model-init"), 198},
+            {geopm_crc32_str("MPI_Init_thread"), 198},
             {GEOPM_REGION_HASH_UNMARKED, 421},
             {GEOPM_REGION_HASH_EPOCH, 653},
             {GEOPM_REGION_HASH_APP, 121213}
         };
         std::map<uint64_t, double> m_region_frequency_gpu = {
             {geopm_crc32_str("all2all"), 567},
-            {geopm_crc32_str("model-init"), 890},
+            {geopm_crc32_str("MPI_Init_thread"), 890},
             {GEOPM_REGION_HASH_UNMARKED, 123},
             {GEOPM_REGION_HASH_EPOCH, 456},
             {GEOPM_REGION_HASH_APP, 74489}
         };
         std::map<uint64_t, double> m_region_power_gpu = {
             {geopm_crc32_str("all2all"), 764},
-            {geopm_crc32_str("model-init"), 653},
+            {geopm_crc32_str("MPI_Init_thread"), 653},
             {GEOPM_REGION_HASH_UNMARKED, 211},
             {GEOPM_REGION_HASH_EPOCH, 432},
             {GEOPM_REGION_HASH_APP, 8992}
         };
         std::map<uint64_t, double> m_region_clk_core = {
             {geopm_crc32_str("all2all"), 4545},
-            {geopm_crc32_str("model-init"), 5656},
+            {geopm_crc32_str("MPI_Init_thread"), 5656},
             {GEOPM_REGION_HASH_UNMARKED, 3434},
             {GEOPM_REGION_HASH_EPOCH, 7878},
             {GEOPM_REGION_HASH_APP, 22222}
         };
         std::map<uint64_t, double> m_region_clk_ref = {
             {geopm_crc32_str("all2all"), 5555},
-            {geopm_crc32_str("model-init"), 6666},
+            {geopm_crc32_str("MPI_Init_thread"), 6666},
             {GEOPM_REGION_HASH_UNMARKED, 4444},
             {GEOPM_REGION_HASH_EPOCH, 8888},
             {GEOPM_REGION_HASH_APP, 33344}
         };
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_agent_detail = {
             {geopm_crc32_str("all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
-            {geopm_crc32_str("model-init"), {{"agent stat", "2"}}},
+            {geopm_crc32_str("MPI_Init_thread"), {{"agent stat", "2"}}},
             {GEOPM_REGION_HASH_UNMARKED, {{"agent stat", "3"}}},
         };
 };
@@ -244,9 +244,17 @@ void ReporterTest::generate_setup(void)
 
     // ProcessRegionAgregator
     EXPECT_CALL(*m_region_agg, update);
+    uint64_t mpi_init_hash = geopm_crc32_str("MPI_Init_thread");
     for (auto rid : m_region_runtime) {
-        EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
-            .WillOnce(Return(rid.second));
+        if (rid.first == mpi_init_hash) {
+            EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
+                .WillOnce(Return(rid.second))
+                .WillOnce(Return(rid.second));
+        }
+        else {
+            EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
+                .WillOnce(Return(rid.second));
+        }
     }
     for (auto rid : m_region_count) {
         if (GEOPM_REGION_HASH_EPOCH == rid.first) {
@@ -392,8 +400,8 @@ TEST_F(ReporterTest, generate)
         "      agent stat: 1\n"
         "      agent other stat: 2\n"
         "    -\n"
-        "      region: \"model-init\"\n"
-        "      hash: 0x644f9787\n"
+        "      region: \"MPI_Init_thread\"\n"
+        "      hash: 0xb178041c\n"
         "      runtime (s): 22.11\n"
         "      count: 1\n"
         "      sync-runtime (s): 333\n"
@@ -479,8 +487,9 @@ TEST_F(ReporterTest, generate)
         "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 1111\n"
         "      CPU_ENERGY@package-1: 1111\n"
-        "      GEOPM overhead (s): 0.123\n"
+        "      MPI startup (s): 22.11\n"
         "      GEOPM startup (s): 0.321\n"
+        "      GEOPM overhead (s): 0.123\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
         "      geopmctl network BW (B/s): 678\n\n";
 
@@ -601,8 +610,8 @@ TEST_F(ReporterTest, generate_conditional)
         "      agent stat: 1\n"
         "      agent other stat: 2\n"
         "    -\n"
-        "      region: \"model-init\"\n"
-        "      hash: 0x644f9787\n"
+        "      region: \"MPI_Init_thread\"\n"
+        "      hash: 0xb178041c\n"
         "      runtime (s): 22.11\n"
         "      count: 1\n"
         "      sync-runtime (s): 333\n"
@@ -704,8 +713,9 @@ TEST_F(ReporterTest, generate_conditional)
         "      uncore-frequency (Hz): 121213\n"
         "      CPU_ENERGY@package-0: 1111\n"
         "      CPU_ENERGY@package-1: 1111\n"
-        "      GEOPM overhead (s): 0.123\n"
+        "      MPI startup (s): 22.11\n"
         "      GEOPM startup (s): 0.321\n"
+        "      GEOPM overhead (s): 0.123\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
         "      geopmctl network BW (B/s): 678\n\n";
 
