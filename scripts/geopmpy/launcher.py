@@ -1386,16 +1386,6 @@ class IMPIExecLauncher(Launcher):
                                                reservation=reservation, quiet=quiet, do_affinity=do_affinity,
                                                bootstrap=bootstrap)
 
-        self.is_slurm_enabled = False
-        if os.getenv('SLURM_NNODES'):
-            self.is_slurm_enabled = True
-        if (self.is_geopm_enabled and
-            self.is_slurm_enabled and
-            self.config.get_ctl() == 'application' and
-            os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('<geopm> geopmpy.launcher: When using srun and specifying --geopm-ctl=application call must be made ' +
-                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
-
     def launcher_command(self):
         """
         Returns ``'mpiexec.hydra'``, the name of the Intel MPI Library job launch application.
