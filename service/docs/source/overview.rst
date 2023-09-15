@@ -529,11 +529,11 @@ setting up the necessary environment settings and directly calling ``geopmctl``.
 
 ``geopmlaunch`` will bring up the Runtime alongside your application using one
 of three launch methods: ``process``, ``pthread``, or ``application``.  The
-``process`` launch method (default when unspecified) will attempt to launch the
-main entity of the Runtime, the Controller, as an extra rank in the MPI gang.
-The ``application`` launch method will launch the Controller as a separate
-application (useful for non-MPI applications).  For more information, see the
-``--geopm-ctl`` :ref:`option description <geopm-ctl option>`.
+``process`` launch method will attempt to launch the main entity of the
+Runtime, the Controller, as an extra rank in the MPI gang.  The ``application``
+launch method (default when unspecified) will launch the Controller as a
+separate application (useful for non-MPI applications).  For more information,
+see the ``--geopm-ctl`` :ref:`option description <geopm-ctl option>`.
 
 Using ``geopmlaunch`` with MPI Applications
 """""""""""""""""""""""""""""""""""""""""""
