@@ -305,7 +305,7 @@ class Launcher(object):
     Defines common methods used by all Launcher objects.
     """
 
-    is_slurm_enabled = False
+    _is_slurm_enabled = False
 
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
@@ -410,9 +410,9 @@ class Launcher(object):
             self.num_node = int_ceil_div(self.num_rank, self.rank_per_node)
 
         if os.getenv('SLURM_NNODES'):
-            self.is_slurm_enabled = True
+            self._is_slurm_enabled = True
         if (self.is_geopm_enabled and
-            self.is_slurm_enabled and
+            self._is_slurm_enabled and
             self.config.get_ctl() == 'application'):
             if self.num_node is None and os.getenv('SLURM_NNODES') is not None:
                 self.num_node = int(os.getenv('SLURM_NNODES'))
@@ -914,7 +914,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         Returns a list of the names of compute nodes that are currently
         available to run jobs.
         """
-        if self.is_slurm_enabled:
+        if self._is_slurm_enabled:
             return list(set(subprocess.check_output(['sinfo', '-t', 'idle', '-hNo', '%N']).decode().splitlines()))
         else:
             raise NotImplementedError('<geopm> geopmpy.launcher: Idle nodes feature requires SLURM')
@@ -927,7 +927,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         sinfo command.
 
         """
-        if self.is_slurm_enabled:
+        if self._is_slurm_enabled:
             # Use scontrol instead of sinfo -t alloc since sinfo will show all nodes currently allocated, not just
             # the nodes associated with the current job context.
             return list(set(subprocess.check_output(['scontrol', 'show', 'hostname']).decode().splitlines()))
@@ -948,7 +948,7 @@ class SrunLauncher(Launcher):
     application ``srun``.
     """
 
-    is_slurm_enabled = True
+    _is_slurm_enabled = True
 
     def int_handler(self, signum, frame):
         """
