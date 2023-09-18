@@ -15,6 +15,7 @@ BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: geopm-service-devel
+BuildRequires: bash-completion-devel
 
 %if 0%{?suse_version}
 BuildRequires: libelf-devel
@@ -73,6 +74,20 @@ Requires: geopm-runtime
 %description devel
 Development package for GEOPM.
 
+%package -n libgeopm2
+Summary: Provides libgeopm shared object library
+%if 0%{?rhel_version} || 0%{?centos_version}
+# Deprecated for RHEL and CentOS
+Group: System Environment/Libraries
+%else
+Group: System/Libraries
+%endif
+
+%description -n libgeopm2
+
+Library supportingthe GEOPM Runtime.  This provides the libgeopm
+library which provides C and C++ interfaces.
+
 %package -n python%{python_major_version}-geopmpy
 Summary: Global Extensible Open Power Manager - python %{python_major_version}
 Group: System Environment/Libraries
@@ -129,14 +144,30 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libgeopm.so.2.0.0
-%{_libdir}/libgeopm.so.2
-%{_libdir}/libgeopm.so
 %{_bindir}/geopmadmin
 %{_bindir}/geopmagent
 %{_bindir}/geopmctl
 %{_bindir}/geopmlaunch
 %{compdir}
+
+%files -n libgeopm2
+%defattr(-,root,root,-)
+%{_libdir}/libgeopm.so.2.0.0
+%{_libdir}/libgeopm.so.2
+
+%files devel
+%defattr(-,root,root,-)
+%dir %{_includedir}/geopm
+%{_includedir}/geopm/Agent.hpp
+%{_includedir}/geopm/FrequencyGovernor.hpp
+%{_includedir}/geopm/PlatformIOProf.hpp
+%{_includedir}/geopm/PowerBalancer.hpp
+%{_includedir}/geopm/PowerGovernor.hpp
+%{_includedir}/geopm/SampleAggregator.hpp
+%{_includedir}/geopm_agent.h
+%{_includedir}/geopm_imbalancer.h
+%{_includedir}/geopm_prof.h
+%{_libdir}/libgeopm.so
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/COPYING-TPP
@@ -157,19 +188,6 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 %doc %{_mandir}/man7/geopm_agent_monitor.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_balancer.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_governor.7.gz
-
-%files devel
-%defattr(-,root,root,-)
-%dir %{_includedir}/geopm
-%{_includedir}/geopm/Agent.hpp
-%{_includedir}/geopm/FrequencyGovernor.hpp
-%{_includedir}/geopm/PlatformIOProf.hpp
-%{_includedir}/geopm/PowerBalancer.hpp
-%{_includedir}/geopm/PowerGovernor.hpp
-%{_includedir}/geopm/SampleAggregator.hpp
-%{_includedir}/geopm_agent.h
-%{_includedir}/geopm_imbalancer.h
-%{_includedir}/geopm_prof.h
 
 %files -n python%{python_major_version}-geopmpy
 %defattr(-,root,root,-)
