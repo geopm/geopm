@@ -256,19 +256,15 @@ Enum Type
 Environment
 -----------
 
-If the ``GEOPM_PLUGIN_PATH`` environment variable is set to a
+If the ``GEOPM_MSR_CONFIG_PATH`` environment variable is set to a
 colon-separated list of paths, the paths will be checked for files
-starting with ``msr_`` and ending in ``.json``.  The default plugin path
+starting with ``msr_`` and ending in ``.json``.  The ``/etc/geopm`` directory
 will also be searched.  The ``MSRIOGroup`` will attempt to load additional
 MSR definitions from any JSON file it finds. The files must follow this
 schema:
 
 .. literalinclude:: ../../json_schemas/msrs.schema.json
     :language: json
-
-Refer to the documentation for ``--geopm-plugin-path`` in
-:doc:`geopmlaunch(1) <geopmlaunch.1>`.
-
 
 
 See Also

@@ -17,15 +17,26 @@ CPU. The MSR IOGroup will declare a set of common signals and controls,
 including MSRs for CPU performance, temperature and power.
 
 Additional MSRs can be specified via configuration files. If the
-``GEOPM_PLUGIN_PATH`` environment variable is set, the paths specified there
-will be checked for any JSON files prefixed with ``msr_``. The default plugin
-path will also be searched. The files must follow this schema:
+``GEOPM_MSR_CONFIG_PATH`` environment variable is set, the paths specified there
+will be checked for any JSON files prefixed with ``msr_``. The ``/etc/geopm``
+directory will also be searched. The files must follow this schema:
 
 .. literalinclude:: ../../json_schemas/msrs.schema.json
     :language: json
 
 For an example of an MSR configuration file, please see:
 `<msr_reasons.json> <https://github.com/geopm/geopm/blob/dev/examples/custom_msr/msr_reasons.json>`_
+
+.. note::
+
+   Before GEOPM 3.0, MSR configuration files were stored near the GEOPM
+   library objects (e.g., in ``/usr/lib64/geopm``), and discovered in the
+   search paths from the ``GEOPM_PLUGIN_PATH`` environment variable. Since
+   version 3.0, GEOPM additionally searches ``/etc/geopm`` and locations from
+   the ``GEOPM_MSR_CONFIG_PATH`` environment variable. Future releases may
+   stop searching the library and plugin paths for MSR configuration data.
+   If GEOPM uses a configuration from the old location, then a deprecation
+   warning is emitted.
 
 This guide includes a list of signals and controls that are more commonly
 available. Use geopmread and geopmwrite to query the full set of signals and

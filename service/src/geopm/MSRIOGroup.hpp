@@ -112,9 +112,18 @@ namespace geopm
             /// @brief Return the JSON string for the MSR data
             ///        associated with the given cpuid.
             static std::string platform_data(int cpu_id);
+
+            enum MsrConfigWarningPreference_e {
+                SILENCE_CONFIG_DEPRECATION_WARNING,
+                EMIT_CONFIG_DEPRECATION_WARNING,
+            };
             /// @brief Returns the filenames for user-defined MSRs if
             ///        found in the plugin path.
-            static std::set<std::string> msr_data_files(void);
+            /// @param [in] emit_config_deprecation_warning Whether to emit a warning
+            ///        if MSR config files are found while searching the plugin
+            ///        path instead of while searching config file locations.
+            static std::set<std::string> msr_data_files(
+                    MsrConfigWarningPreference_e warning_preference = SILENCE_CONFIG_DEPRECATION_WARNING);
             /// @brief Override the default description for a signal.
             ///        If signal is not available, does nothing.
             void set_signal_description(const std::string &name,
