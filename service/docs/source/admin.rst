@@ -27,16 +27,16 @@ GEOPM Service Files
 In addition to the files provided by the installation packages, the
 GEOPM Service may create and modify files while active.  The files
 created by the GEOPM Service are located within two directories.  The
-files in ``/etc/geopm-service`` hold the access control lists.  These
+files in ``/etc/geopm`` hold the access control lists.  These
 files persist across reboots and restarts of the service.  The files
-in ``/run/geopm-service`` track information about clients that are
+in ``/run/geopm`` track information about clients that are
 actively using the service.  These files save the state of the GEOPM
 Service and if the service is stopped for any reason the files will be
 used when the service is started again.  The files in ``/run`` are
 erased upon reboot.
 
-All files and directories within ``/etc/geopm-service`` or
-``/run/geopm-service`` are created by the GEOPM Service with
+All files and directories within ``/etc/geopm`` or
+``/run/geopm`` are created by the GEOPM Service with
 restricted access permissions and root ownership.  The GEOPM Service
 will not read any file or directory if they are modified to have more
 permissive access restrictions, non-root ownership, or if they are

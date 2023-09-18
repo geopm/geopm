@@ -107,7 +107,7 @@ Options
                 does not exist or if the existing cache is from a previous boot
                 cycle.  If a privileged user requests this option (e.g. root or
                 if invoked with sudo) the file path will be
-                ``/run/geopm-service/geopm-topo-cache`` and the permissions will
+                ``/run/geopm/geopm-topo-cache`` and the permissions will
                 be ``-rw-r--r--``, i.e. **644**.  If a non-privileged user requests
                 this option the file path will be ``/tmp/geopm-topo-cache-<UID>``
                 and the permissions will be ``-rw-------``, i.e. **600**.  If the

@@ -56,7 +56,7 @@ then the default lists of allowed signals and controls are
 returned.
 
 The values are securely read from files located in
-/etc/geopm-service using the secure_read_file() interface.
+/etc/geopm using the secure_read_file() interface.
 
 If no secure file exist for the specified group, then two
 empty lists are returned.
@@ -93,7 +93,7 @@ then the default lists of allowed signals and controls are
 updated.
 
 The values are securely written atomically to files located in
-/etc/geopm-service using the secure_make_dirs() and
+/etc/geopm using the secure_make_dirs() and
 secure_make_file() interfaces.
           </doc:para>
         </doc:description>
@@ -122,7 +122,7 @@ then the default lists of allowed signals and controls are
 updated.
 
 The values are securely written atomically to files located in
-/etc/geopm-service using the secure_make_dirs() and
+/etc/geopm using the secure_make_dirs() and
 secure_make_file() interfaces.
           </doc:para>
         </doc:description>
@@ -151,7 +151,7 @@ then the default lists of allowed signals and controls are
 updated.
 
 The values are securely written atomically to files located in
-/etc/geopm-service using the secure_make_dirs() and
+/etc/geopm using the secure_make_dirs() and
 secure_make_file() interfaces.
           </doc:para>
         </doc:description>

@@ -1,2 +1,2 @@
 #/bin/bash
-mkdir -p -m 711 /run/geopm-service
+mkdir -p -m 711 /run/geopm

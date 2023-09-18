@@ -11,7 +11,7 @@ from . import service
 from geopmdpy.restorable_file_writer import RestorableFileWriter
 
 ALLOW_WRITES_PATH = '/sys/module/msr/parameters/allow_writes'
-ALLOW_WRITES_BACKUP_PATH = '/run/geopm-service/msr-saved-allow-writes'
+ALLOW_WRITES_BACKUP_PATH = '/run/geopm/msr-saved-allow-writes'
 
 _bus = None
 _loop = None

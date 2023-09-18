@@ -48,7 +48,7 @@ Get Help or Version
 Description
 -----------
 
-The GEOPM service uses the ``/etc/geopm-service`` directory to store
+The GEOPM service uses the ``/etc/geopm`` directory to store
 files that control which signals and controls may be accessed by a
 user through the service.  The purpose of the ``geopmaccess`` command
 line tool is to enable reading and writing of these access list files.
@@ -143,10 +143,10 @@ access list: the default behavior when writing equivalent to the
 Shared File Systems
 ~~~~~~~~~~~~~~~~~~~
 
-There are use cases where the ``/etc/geopm-service`` directory must be
+There are use cases where the ``/etc/geopm`` directory must be
 configured on a system where the signals and controls available at
 configuration-time do not match what is available at run-time.  This
-is particularly common when the ``/etc/geopm-service`` directory is
+is particularly common when the ``/etc/geopm`` directory is
 located on a shared file system to support distributed servers.
 
 The ``-n`` / ``--dry-run`` option may be specified to check the
@@ -155,14 +155,14 @@ validity of a configuration at run-time without modifying files in the
 to standard input, however no files are opened for writing.
 
 The ``-F`` / ``--force`` option enables the creation of access
-lists in ``/etc/geopm-service`` without checking that the names in the
+lists in ``/etc/geopm`` without checking that the names in the
 access list correspond to signals or controls supported by the active
 GEOPM Service.  This enables the creation of the configuration file on
 a system where the GEOPM Service does not support some signals or
 controls.
 
 Note that having signal or control names in an access list in
-``/etc/geopm-service`` which are not valid on a particular system is
+``/etc/geopm`` which are not valid on a particular system is
 not an error.  This enables access list files to be mounted on
 multiple systems which may have non-overlapping support.
 
@@ -302,7 +302,7 @@ Supporting Heterogeneous Clusters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This example demonstrates how to create and check access lists when
-the ``/etc/geopm-service`` directory must be modified on a system with
+the ``/etc/geopm`` directory must be modified on a system with
 incomplete support for signals and controls.
 
 In this example, the access lists created contain all signals and
@@ -336,7 +336,7 @@ and combine access lists when writing to a shared mount point.
     geopmaccess --write --dry-run < system2-signals.txt
     geopmaccess --write --controls --dry-run < system2-controls.txt
 
-    # Log onto node where /etc/geopm-service is writable
+    # Log onto node where /etc/geopm is writable
     ssh admin-system
 
     # Combine the created lists, duplicates are okay

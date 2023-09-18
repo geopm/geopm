@@ -6,11 +6,11 @@
 
 Provides secure interfaces for manipulating the files in
 
-    /run/geopm-service
+    /run/geopm
 
 that enable the service to be restarted and
 
-   /etc/geopm-service
+   /etc/geopm
 
 where the access lists are located.  These interfaces provide
 guarantees about the security of these system files, and an
@@ -30,13 +30,16 @@ import grp
 import pwd
 import fcntl
 import subprocess # nosec
+from functools import lru_cache
 
 from . import pio
 from . import schemas
 from . import shmem
 
-GEOPM_SERVICE_RUN_PATH = '/run/geopm-service'
-GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
+GEOPM_SERVICE_RUN_PATH = '/run/geopm'
+GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm'
+# Deprecated since 3.0. May remove in a future release.
+LEGACY_GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
 
 GEOPM_SERVICE_RUN_PATH_PERM = 0o711
 """Default permissions for the GEOPM service run path
@@ -47,6 +50,32 @@ GEOPM_SERVICE_CONFIG_PATH_PERM = 0o700
 """Default permissions for the GEOPM service config path
 
 """
+
+
+@lru_cache(None)
+def get_config_path():
+    """Get the GEOPM config path, which may be a legacy path from earlier GEOPM
+    releases, or may be the current release's config path. If neither path
+    exists yet or if both paths exist, use the current config path. Emit a
+    warning if the legacy path exists."""
+    current_path_exists = os.path.exists(GEOPM_SERVICE_CONFIG_PATH)
+    legacy_path_exists = os.path.exists(LEGACY_GEOPM_SERVICE_CONFIG_PATH)
+
+    use_current_path = current_path_exists or not legacy_path_exists
+    if legacy_path_exists:
+        if use_current_path:
+            warning_prefix = 'Detected multiple geopm configuration ' \
+                             'directories. The GEOPM service is using ' \
+                             f'"{GEOPM_SERVICE_CONFIG_PATH}" and ignoring ' \
+                             f'"{LEGACY_GEOPM_SERVICE_CONFIG_PATH}".'
+        else:
+            warning_prefix = 'Using an old GEOPM configuration directory.'
+        sys.stderr.write(f'Warning <geopm-service> {warning_prefix} The directory at '
+                         f'"{LEGACY_GEOPM_SERVICE_CONFIG_PATH}" is deprecated '
+                         'and may not be used in future GEOPM releases. '
+                         'Migrate configuration data to the directory at '
+                         f'"{GEOPM_SERVICE_CONFIG_PATH}"\n')
+    return GEOPM_SERVICE_CONFIG_PATH if use_current_path else LEGACY_GEOPM_SERVICE_CONFIG_PATH
 
 
 def secure_make_dirs(path, perm_mode=0o700):
@@ -274,7 +303,7 @@ class ActiveSessions(object):
     """Class that manages the session files for the service
 
     The state about active sessions opened with geopmd by a client
-    processes is stored in files in /run/geopm-service.  These
+    processes is stored in files in /run/geopm.  These
     files are loaded when the geopmd process starts.  The files are
     modified each time a client opens a session, closes a session,
     requests write permission, or starts a batch server.  The class is
@@ -288,12 +317,12 @@ class ActiveSessions(object):
     """
 
 
-    def __init__(self, run_path=GEOPM_SERVICE_RUN_PATH):
+    def __init__(self, run_path):
         """Create an ActiveSessions object that tracks geopmd session files
 
         The geopmd session files are stored in the directory
 
-            "/run/geopm-service"
+            "/run/geopm"
 
         by default, but the user may specify a different path.  The
         creation of an ActiveSessions object will make the directory
@@ -318,7 +347,7 @@ class ActiveSessions(object):
         user, and the permissions are set to GEOPM_SERVICE_RUN_PATH_PERM
         parsing will proceed.  All files matching the pattern
 
-            "/run/geopm-service/session-*.json"
+            "/run/geopm/session-*.json"
 
         will be parsed and verified. These files must conform to the
         session JSON schema, be owned by the geopmd user, and have
@@ -331,7 +360,7 @@ class ActiveSessions(object):
         Args:
             run_path (str): Optional argument to override the default
                             path to the session files which is
-                            "/run/geopm-service"
+                            "/run/geopm"
 
         Returns:
             ActiveSessions: Object containing all valid sessions data
@@ -411,7 +440,7 @@ class ActiveSessions(object):
         is interrupted before the session file is ready to be used,
         then no file will be present that matches load pattern below.
 
-            ``/run/geopm-service/session-*.json``
+            ``/run/geopm/session-*.json``
 
         The session file is created without the JSON object property
         "batch_server" specified.  This properties may be modified by the
@@ -761,7 +790,7 @@ class ActiveSessions(object):
             profile_name = self._sessions[client_pid].pop('profile_name')
         except KeyError:
             raise RuntimeError(f'Client PID {client_pid} requested to stop profiling, but it had not been started.')
-        # TODO: store region names in file in /run/geopm-service to enable clean restart
+        # TODO: store region names in file in /run/geopm to enable clean restart
         if profile_name in self._region_names:
             self._region_names[profile_name].update(region_names)
         else:
@@ -923,7 +952,7 @@ class AccessLists(object):
     """Class that manages the access list files
 
     """
-    def __init__(self, config_path=GEOPM_SERVICE_CONFIG_PATH):
+    def __init__(self, config_path):
         self._CONFIG_PATH = config_path
         secure_make_dirs(self._CONFIG_PATH)
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
@@ -978,7 +1007,7 @@ class AccessLists(object):
         returned.
 
         The values are securely read from files located in
-        /etc/geopm-service using the secure_read_file() interface.
+        /etc/geopm using the secure_read_file() interface.
 
         If no secure file exist for the specified group, then two
         empty lists are returned.
@@ -1023,7 +1052,7 @@ class AccessLists(object):
         updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm-service using the secure_make_dirs() and
+        /etc/geopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -1054,7 +1083,7 @@ class AccessLists(object):
         of allowed signals are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm-service using the secure_make_dirs() and
+        /etc/geopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -1081,7 +1110,7 @@ class AccessLists(object):
         of allowed controls are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm-service using the secure_make_dirs() and
+        /etc/geopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -1171,7 +1200,7 @@ class WriteLock(object):
     GEOPM Service control write lock.  The state of this lock is stored in the
     file path:
 
-        /run/geopm-service/CONTROL_LOCK
+        /run/geopm/CONTROL_LOCK
 
     This file is empty when the lock is free, and contains the PID of the
     controlling process when the lock is held.  The class manages the advisory
@@ -1182,7 +1211,7 @@ class WriteLock(object):
     effective.
 
     """
-    def __init__(self, run_path=GEOPM_SERVICE_RUN_PATH):
+    def __init__(self, run_path):
         """Set up initial state
 
         The WriteLock must be used within a context manager.  Use a

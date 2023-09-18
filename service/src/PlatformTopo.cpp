@@ -102,7 +102,7 @@ static int geopm_topo_popen(const char *cmd, FILE **fid)
 namespace geopm
 {
     const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache-" + std::to_string(getuid());
-    const std::string PlatformTopoImp::M_SERVICE_CACHE_FILE_NAME = "/run/geopm-service/geopm-topo-cache";
+    const std::string PlatformTopoImp::M_SERVICE_CACHE_FILE_NAME = "/run/geopm/geopm-topo-cache";
 
     const PlatformTopo &platform_topo(void)
     {

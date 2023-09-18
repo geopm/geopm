@@ -140,7 +140,7 @@ class TestActiveSessions(unittest.TestCase):
                 json.dump(contents, file)
 
     def check_json_file(self, name, contents, is_valid):
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{name}.json')
         renamed_path = f'{full_file_path}-uuid4-INVALID'
 
@@ -233,7 +233,7 @@ class TestActiveSessions(unittest.TestCase):
         controls_2 = self.json_good_example_2['controls']
         watch_id_2 = self.json_good_example_2['watch_id']
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path_1 = os.path.join(sess_path, f'session-{client_pid_1}.json')
         full_file_path_2 = os.path.join(sess_path, f'session-{client_pid_2}.json')
 
@@ -275,7 +275,7 @@ class TestActiveSessions(unittest.TestCase):
         controls = self.json_good_example['controls']
         watch_id = self.json_good_example['watch_id']
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
@@ -307,7 +307,7 @@ class TestActiveSessions(unittest.TestCase):
         client_gid = 321
         profile_name = 'profile_test'
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
@@ -374,7 +374,7 @@ class TestActiveSessions(unittest.TestCase):
         watch_id = json_good_example['watch_id']
         batch_pid = 8765
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
@@ -411,7 +411,7 @@ class TestActiveSessions(unittest.TestCase):
 
         batch_pid = 42
         json_good_example['batch_server'] = batch_pid
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
 
         session_mock = mock.create_autospec(os.stat_result, spec_set=True)
@@ -450,7 +450,7 @@ class TestActiveSessions(unittest.TestCase):
 
         batch_pid = 42
         json_good_example['batch_server'] = batch_pid
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
 
         session_mock = mock.create_autospec(os.stat_result, spec_set=True)
@@ -495,7 +495,7 @@ class TestActiveSessions(unittest.TestCase):
         watch_id = json_good_example['watch_id']
         batch_pid = 8765
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         signal_shmem_key = 'geopm-service-batch-buffer-' + str(batch_pid) + '-signal'
@@ -549,7 +549,7 @@ class TestActiveSessions(unittest.TestCase):
             self.assertEqual(None, batch_pid_actual)
 
     def test_is_pid_valid(self):
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
@@ -588,7 +588,7 @@ class TestActiveSessions(unittest.TestCase):
         controls = json_good_example['controls']
         watch_id = json_good_example['watch_id']
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
@@ -622,7 +622,7 @@ class TestActiveSessions(unittest.TestCase):
         controls = session_json['controls']
         watch_id = session_json['watch_id']
 
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \

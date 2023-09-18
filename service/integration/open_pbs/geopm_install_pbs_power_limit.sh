@@ -11,7 +11,7 @@ JOB_TYPE_RESOURCE="geopm-job-type"
 DEFAULT_SLOWDOWN_RESOURCE="geopm-default-slowdown"
 NODE_CAP_HOOK="geopm_power_limit"
 REMOVE_OPT="--remove"
-SAVED_CONTROLS_BASE_DIR="/run/geopm-pbs-hooks"
+SAVED_CONTROLS_BASE_DIR="/run/geopm/pbs-hooks"
 
 SCHED_CONFIG_MODIFIED_MESSAGE="\
 Note: ${PBS_HOME}/sched_priv/sched_config has been modified, but modifications
