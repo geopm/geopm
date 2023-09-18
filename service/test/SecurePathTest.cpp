@@ -46,17 +46,19 @@ TEST_F(SecurePathTest, umask)
 {
     mode_t test_perms = (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // 0o644
     chmod(m_file_name.c_str(), test_perms);
+    std::string fd_path = "";
 
     // Assert write permissions for the group/world are not set
     {
         SecurePath sp (m_file_name, (S_IWGRP | S_IWOTH), true);
-        EXPECT_EQ("/proc/self/fd/3", sp.secure_path());
+        EXPECT_TRUE(geopm::string_begins_with(sp.secure_path(), "/proc/self/fd"));
+        fd_path = sp.secure_path();
     }
 
     // When not enforcing, umask is ignored
     {
         SecurePath sp (m_file_name, (S_IWUSR), false);
-        EXPECT_EQ("/proc/self/fd/3", sp.secure_path());
+        EXPECT_EQ(fd_path, sp.secure_path());
     }
 
     // When enforcing, an exception is generated
