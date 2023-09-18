@@ -119,6 +119,26 @@ namespace geopm
         return is_writable;
     }
 
+    static std::set<std::string> get_msr_config_paths_from_directory(
+        const std::string &config_dir_path)
+    {
+        std::set<std::string> msr_config_paths;
+        try {
+            auto files = list_directory_files(config_dir_path);
+            for (const auto &file : files) {
+                std::string filename = config_dir_path + "/" + file;
+                if (string_begins_with(file, "msr_") && string_ends_with(file, ".json")) {
+                    msr_config_paths.insert(filename);
+                }
+            }
+        }
+        catch (const geopm::Exception &ex) {
+            std::cerr << "Warning: <geopm> Unable to read MSR configuration from "
+                      << config_dir_path << ". Reason: " << ex.what() << std::endl;
+        }
+        return msr_config_paths;
+    }
+
     MSRIOGroup::MSRIOGroup()
         : MSRIOGroup(platform_topo(), std::make_shared<MSRIOImp>(), cpuid(), geopm_sched_num_cpu(), nullptr)
     {
@@ -156,7 +176,7 @@ namespace geopm
                       << ex.what() << std::endl;
 #endif
         }
-        auto custom_files = msr_data_files();
+        auto custom_files = msr_data_files(EMIT_CONFIG_DEPRECATION_WARNING);
         for (const auto &filename : custom_files) {
             try {
                 SecurePath sp (filename);
@@ -1251,29 +1271,39 @@ namespace geopm
         return platform_msrs;
     }
 
-    std::set<std::string> MSRIOGroup::msr_data_files(void)
+    std::set<std::string> MSRIOGroup::msr_data_files(MsrConfigWarningPreference_e warning_preference)
     {
         std::set<std::string> data_files;
         // search path for additional json files to parse
+        std::string env_msr_config_path(geopm::get_env("GEOPM_MSR_CONFIG_PATH"));
+        std::vector<std::string> config_dir_paths {GEOPM_CONFIG_PATH};
+        if (!env_msr_config_path.empty()) {
+            std::vector<std::string> dirs = string_split(env_msr_config_path, ":");
+            config_dir_paths.insert(config_dir_paths.end(), dirs.begin(), dirs.end());
+        }
+        for (const auto &dir : config_dir_paths) {
+            auto msr_configs_in_dir = get_msr_config_paths_from_directory(dir);
+            data_files.insert(msr_configs_in_dir.begin(), msr_configs_in_dir.end());
+        }
+
+        // TODO some time after 3.0: Remove the deprecated GEOPM_PLUGIN_PATH check
         std::string env_plugin_path(geopm::get_env("GEOPM_PLUGIN_PATH"));
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
         if (!env_plugin_path.empty()) {
             std::vector<std::string> dirs = string_split(env_plugin_path, ":");
             plugin_paths.insert(plugin_paths.end(), dirs.begin(), dirs.end());
         }
-        std::vector<std::unique_ptr<MSR> > msr_arr_custom;
         for (const auto &dir : plugin_paths) {
-            try {
-                auto files = list_directory_files(dir);
-                for (const auto &file : files) {
-                    std::string filename = dir + "/" + file;
-                    if (string_begins_with(file, "msr_") && string_ends_with(file, ".json")) {
-                        data_files.insert(filename);
-                    }
-                }
-            }
-            catch (const geopm::Exception &ex) {
-                std::cerr << ex.what() << std::endl;
+            auto msr_configs_in_dir = get_msr_config_paths_from_directory(dir);
+            data_files.insert(msr_configs_in_dir.begin(), msr_configs_in_dir.end());
+            if (!msr_configs_in_dir.empty() && warning_preference == EMIT_CONFIG_DEPRECATION_WARNING) {
+                std::cerr << "Warning: <geopm> Loading MSRIOGroup config files from "
+                          << std::quoted(dir) << ", which is in a location intended "
+                          << "for plugin libraries. To maintain compatibility with "
+                          << "future releases, move \"msr_*.json\" files to "
+                          << std::quoted(GEOPM_CONFIG_PATH) << " or to somewhere "
+                          << "specified in the GEOPM_MSR_CONFIG_PATH environment variable."
+                          << std::endl;
             }
         }
         return data_files;

@@ -353,6 +353,9 @@ GEOPM Environment Variables
   The control loop period in seconds, if not specified this is determined by
   the Agent. See the ``--geopm-period`` :ref:`option description <geopm-period option>`
   in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
+``GEOPM_MSR_CONFIG_PATH``
+  The colon-separated list of search paths for additional MSR definitions. See
+  :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` for more details.
 
 Other Environment Variables
 ---------------------------

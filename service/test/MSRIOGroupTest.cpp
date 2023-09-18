@@ -67,8 +67,9 @@ class MSRIOGroupTest : public :: testing :: Test
 class ScopedPluginPath final
 {
     public:
-        ScopedPluginPath()
-            : m_old_path(geopm::get_env("GEOPM_PLUGIN_PATH"))
+        ScopedPluginPath(const std::string& env_var_name)
+            : m_env_var_name(env_var_name)
+            , m_old_path(geopm::get_env(env_var_name))
         {
             char tmp_path[NAME_MAX] = "/tmp/MSRIOGroupTestPluginPath_XXXXXX";
             char *rc = mkdtemp(tmp_path);
@@ -85,12 +86,12 @@ class ScopedPluginPath final
                                 errno, __FILE__, __LINE__);
             }
 
-            setenv("GEOPM_PLUGIN_PATH", m_path.c_str(), true);
+            setenv(m_env_var_name.c_str(), m_path.c_str(), true);
         }
 
         ~ScopedPluginPath()
         {
-            setenv("GEOPM_PLUGIN_PATH", m_old_path.c_str(), true);
+            setenv(m_env_var_name.c_str(), m_old_path.c_str(), true);
             for (auto &name : m_files) {
                 (void)unlink(name.c_str());
             }
@@ -104,6 +105,7 @@ class ScopedPluginPath final
         }
 
     private:
+        std::string m_env_var_name;
         std::string m_path;
         std::string m_old_path;
         std::vector<std::string> m_files;
@@ -1031,93 +1033,105 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, allowlist)
 {
-    ScopedPluginPath scoped_plugin_path;
-    char file_name[NAME_MAX] = __FILE__;
-    std::ifstream file(std::string(dirname(file_name)) + "/legacy_allowlist.out");
-    std::string line;
-    uint64_t offset;
-    uint64_t mask;
-    std::string comment;
-    std::map<uint64_t, uint64_t> legacy_map;
-    std::map<uint64_t, uint64_t> curr_map;
-    while (std::getline(file, line)) {
-        if (line.compare(0, 1, "#") == 0) continue;
-        std::string tmp;
-        size_t sz;
-        std::istringstream iss(line);
-        iss >> tmp;
-        offset = std::stoull(tmp, &sz, 16);
-        iss >> tmp;
-        mask = std::stoull(tmp, &sz, 16);
-        iss >> comment;// #
-        iss >> comment;// comment
-        legacy_map[offset] = mask;
-    }
+    std::vector<std::string> config_env_vars = {
+        "GEOPM_PLUGIN_PATH", // TODO in a post 3.0 release: can remove this one
+        "GEOPM_MSR_CONFIG_PATH",
+    };
+    for (const auto &config_env_var : config_env_vars) {
+        SCOPED_TRACE(std::string("MSR config from ") + config_env_var); // For more informative test logs
+        ScopedPluginPath scoped_plugin_path(config_env_var);
+        char file_name[NAME_MAX] = __FILE__;
+        std::ifstream file(std::string(dirname(file_name)) + "/legacy_allowlist.out");
+        std::string line;
+        uint64_t offset;
+        uint64_t mask;
+        std::string comment;
+        std::map<uint64_t, uint64_t> legacy_map;
+        std::map<uint64_t, uint64_t> curr_map;
+        while (std::getline(file, line)) {
+            if (line.compare(0, 1, "#") == 0) continue;
+            std::string tmp;
+            size_t sz;
+            std::istringstream iss(line);
+            iss >> tmp;
+            offset = std::stoull(tmp, &sz, 16);
+            iss >> tmp;
+            mask = std::stoull(tmp, &sz, 16);
+            iss >> comment;// #
+            iss >> comment;// comment
+            legacy_map[offset] = mask;
+        }
 
-    uint64_t user_added_offset = 0x123;
-    {
-        std::string contents = R"JSON({
-            "msrs": {
-                "FAKE_MSR": {
-                    "offset": "0x123",
-                    "domain": "package",
-                    "fields": {
-                        "FIELD" : {
-                            "begin_bit": 0,
-                            "end_bit": 31,
-                            "function": "overflow",
-                            "units": "none",
-                            "scalar": 1.0,
-                            "behavior": "monotone",
-                            "writeable": false,
-                            "aggregation": "sum",
-                            "description": "This is a test!"
+        uint64_t user_added_offset = 0x123;
+        {
+            std::string contents = R"JSON({
+                "msrs": {
+                    "FAKE_MSR": {
+                        "offset": "0x123",
+                        "domain": "package",
+                        "fields": {
+                            "FIELD" : {
+                                "begin_bit": 0,
+                                "end_bit": 31,
+                                "function": "overflow",
+                                "units": "none",
+                                "scalar": 1.0,
+                                "behavior": "monotone",
+                                "writeable": false,
+                                "aggregation": "sum",
+                                "description": "This is a test!"
+                            }
                         }
                     }
                 }
             }
+            )JSON";
+            scoped_plugin_path.write_file("msr_test.json", contents);
         }
-        )JSON";
-        scoped_plugin_path.write_file("msr_test.json", contents);
-    }
 
-    std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
-    std::istringstream iss(allowlist);
-    std::getline(iss, line);// throw away title line
-    while (std::getline(iss, line)) {
-        std::string tmp;
-        size_t sz;
-        std::istringstream iss(line);
-        iss >> tmp;
-        offset = std::stoull(tmp, &sz, 16);
-        iss >> tmp;
-        mask = std::stoull(tmp, &sz, 16);
-        iss >> comment;// #
-        iss >> comment;// comment
-        curr_map[offset] = mask;
-    }
+        std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
+        std::istringstream iss(allowlist);
+        std::getline(iss, line);// throw away title line
+        while (std::getline(iss, line)) {
+            std::string tmp;
+            size_t sz;
+            std::istringstream iss(line);
+            iss >> tmp;
+            offset = std::stoull(tmp, &sz, 16);
+            iss >> tmp;
+            mask = std::stoull(tmp, &sz, 16);
+            iss >> comment;// #
+            iss >> comment;// comment
+            curr_map[offset] = mask;
+        }
 
-    EXPECT_NE(0ull, curr_map.size()) << "Expected at least one register in allowlist.";
+        EXPECT_NE(0ull, curr_map.size()) << "Expected at least one register in allowlist.";
 
-    for (auto it = curr_map.begin(); it != curr_map.end(); ++it) {
-        offset = it->first;
-        mask = it->second;
-        auto leg_it = legacy_map.find(offset);
-        if (leg_it == legacy_map.end()) {
-            //not found error
-            if (!mask && offset != user_added_offset) {
-                FAIL() << std::setfill('0') << std::hex << "new read offset 0x"
-                       << std::setw(8) << offset << " introduced";
+        bool user_msr_is_loaded = false;
+        for (auto it = curr_map.begin(); it != curr_map.end(); ++it) {
+            offset = it->first;
+            if (offset == user_added_offset) {
+                user_msr_is_loaded = true;
             }
-            continue;
+            mask = it->second;
+            auto leg_it = legacy_map.find(offset);
+            if (leg_it == legacy_map.end()) {
+                //not found error
+                if (!mask && offset != user_added_offset) {
+                    FAIL() << std::setfill('0') << std::hex << "new read offset 0x"
+                           << std::setw(8) << offset << " introduced";
+                }
+                continue;
+            }
+            uint64_t leg_mask = leg_it->second;
+            EXPECT_EQ(mask, mask & leg_mask) << std::setfill('0') << std::hex
+                                             << "offset 0x" << std::setw(8) << offset
+                                             << "write mask change detected, from 0x"
+                                             << std::setw(16) << leg_mask << " to 0x"
+                                             << mask << " bitwise AND yields 0x"
+                                             << (mask & leg_mask);
         }
-        uint64_t leg_mask = leg_it->second;
-        EXPECT_EQ(mask, mask & leg_mask) << std::setfill('0') << std::hex
-                                         << "offset 0x" << std::setw(8) << offset
-                                         << "write mask change detected, from 0x"
-                                         << std::setw(16) << leg_mask << " to 0x"
-                                         << mask << " bitwise AND yields 0x"
-                                         << (mask & leg_mask);
+        EXPECT_TRUE(user_msr_is_loaded);
     }
 }
 
