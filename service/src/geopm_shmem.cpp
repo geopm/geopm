@@ -23,7 +23,7 @@ namespace geopm
             // The status key is a shared resource
             id = uid;
         }
-        result << "/run/geopm-service/profile-" << id << "-" << shm_key;
+        result << "/run/geopm/profile-" << id << "-" << shm_key;
         return result.str();
     }
 

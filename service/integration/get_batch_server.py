@@ -17,7 +17,7 @@ if os.getuid() != 0:
 session_pid=int(sys.argv[1])
 if session_pid < 0 or not psutil.pid_exists(session_pid):
      raise RuntimeError(f'{session_pid} is not a valid PID')
-with open(f'/run/geopm-service/session-{session_pid}.json') as fid:
+with open(f'/run/geopm/session-{session_pid}.json') as fid:
      server_pid = json.loads(fid.read()).get('batch_server')
 if server_pid is not None:
      print(server_pid)

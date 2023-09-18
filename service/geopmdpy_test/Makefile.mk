@@ -6,6 +6,7 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
               geopmdpy_test/__main__.py \
               geopmdpy_test/geopmdpy_test.sh \
               geopmdpy_test/TestAccess.py \
+              geopmdpy_test/TestConfigPath.py \
               geopmdpy_test/TestPlatformService.py \
               geopmdpy_test/TestDBusXML.py \
               geopmdpy_test/TestError.py \
@@ -93,6 +94,10 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestAccess.test_write_invalid_signals_dry_run \
                  geopmdpy_test/pytest_links/TestAccess.test_edit_signals \
                  geopmdpy_test/pytest_links/TestAccess.test_delete_default_signals \
+                 geopmdpy_test/pytest_links/TestConfigPath.test_no_existing_config_paths \
+                 geopmdpy_test/pytest_links/TestConfigPath.test_only_latest_config_path_exists \
+                 geopmdpy_test/pytest_links/TestConfigPath.test_only_legacy_config_path_exists \
+                 geopmdpy_test/pytest_links/TestConfigPath.test_multiple_config_paths_exist \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue_invalid \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_request_queue_invalid \

@@ -31,7 +31,7 @@ override_dh_auto_install:
 	install -Dp -m644 geopm.service $(DESTDIR)$(prefix)/lib/systemd/system/geopm.service
 	install -Dp -m644 io.github.geopm.conf $(DESTDIR)$(prefix)/share/dbus-1/system.d/io.github.geopm.conf
 	install -Dp -m644 io.github.geopm.xml $(DESTDIR)$(prefix)/share/dbus-1/interfaces/io.github.geopm.xml
-	mkdir -p -m 711 $(DESTDIR)/etc/geopm-service
+	mkdir -p -m 711 $(DESTDIR)/etc/geopm
 	rm -f $(DESTDIR)$(prefix)/lib/*/libgeopmd.la
 	install -d $(DESTDIR)$(prefix)/sbin
 	ln -s -r $(DESTDIR)$(prefix)/sbin/service $(DESTDIR)$(prefix)/sbin/rcgeopm

@@ -6,7 +6,7 @@
 RESOURCE="geopm-node-power-limit"
 HOOK="geopm_power_limit"
 REMOVE_OPT="--remove"
-SAVED_CONTROLS_BASE_DIR="/run/geopm-pbs-hooks"
+SAVED_CONTROLS_BASE_DIR="/run/geopm/pbs-hooks"
 
 print_usage() {
     echo "

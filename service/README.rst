@@ -134,8 +134,8 @@ have enhanced access.  The default lists are stored in:
 
 .. code-block::
 
-   /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals
-   /etc/geopm-service/0.DEFAULT_ACCESS/allowed_controls
+   /etc/geopm/0.DEFAULT_ACCESS/allowed_signals
+   /etc/geopm/0.DEFAULT_ACCESS/allowed_controls
 
 
 Each Unix group name ``<GROUP>`` that has extended permissions can
@@ -143,9 +143,17 @@ maintain one or both of the files
 
 .. code-block::
 
-   /etc/geopm-service/<GROUP>/allowed_signals
-   /etc/geopm-service/<GROUP>/allowed_controls
+   /etc/geopm/<GROUP>/allowed_signals
+   /etc/geopm/<GROUP>/allowed_controls
 
+
+.. note::
+
+   Before GEOPM 3.0, service configuration files were stored in
+   ``/etc/geopm-service``. Since version 3.0, they are stored in
+   ``/etc/geopm``. Version 3.0 ignores the old file location if the new
+   location exists. If the service uses a configuration from the old location,
+   then a deprecation warning is emitted.
 
 Any missing files are inferred to be empty lists, including the
 default access files.  A signal or control will not be available to
@@ -184,7 +192,7 @@ service is configured to support are recorded to a save directory in:
 
 .. code-block::
 
-   /run/geopm-service/SAVE_FILES
+   /run/geopm/SAVE_FILES
 
 
 When a write mode session ends, all of these saved controls are

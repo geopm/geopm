@@ -23,7 +23,7 @@ from geopmdpy import pio
 from geopmdpy import system_files
 
 
-_SAVED_CONTROLS_PATH = "/run/geopm-pbs-hooks/SAVE_FILES"
+_SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 

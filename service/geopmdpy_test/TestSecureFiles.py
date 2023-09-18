@@ -60,39 +60,39 @@ class TestSecureFiles(unittest.TestCase):
         self.assertEqual(os.getgid(), group_owner)
 
     def test_pre_exists(self):
-        """Usage of pre existing geopm-service directory
+        """Usage of pre existing geopm directory
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         directory has already been created.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(sess_path, mode=0o700)
         secure_make_dirs(sess_path)
         self.check_dir_perms(sess_path)
 
     def test_default_creation(self):
-        """Default creation of geopm-service directory
+        """Default creation of geopm directory
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         directory is not present.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         secure_make_dirs(sess_path)
         self.check_dir_perms(sess_path)
         current_umask = os.umask(self._old_umask)
         self.assertEqual(current_umask, self._old_umask)
 
     def test_creation_with_perm(self):
-        """Creation of geopm-service directory with permissions
+        """Creation of geopm directory with permissions
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         directory is not present and specifies the permissions
         to set.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         perm_mode = 0o711
         secure_make_dirs(sess_path, perm_mode)
         self.check_dir_perms(sess_path, perm_mode)
@@ -102,13 +102,13 @@ class TestSecureFiles(unittest.TestCase):
     def test_creation_link_not_dir(self):
         """The path specified is a link not a directory.
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         provided path is not a directory, but a link. It asserts that
         a warning message is printed to standard error and that a
         new directory is created while the link is renamed.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service-link'
+        sess_path = f'{self._TEMP_DIR.name}/geopm-link'
         os.symlink('/tmp', sess_path)
         with mock.patch('os.path.islink', wraps=os.path.islink) as mock_os_path_islink, \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
@@ -127,13 +127,13 @@ class TestSecureFiles(unittest.TestCase):
     def test_creation_file_not_dir(self):
         """The path specified is a file not a directory.
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         provided path is not a directory, but a file. It asserts that
         a warning message is printed to standard error and that a
         new directory is created while the file is renamed.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service.txt'
+        sess_path = f'{self._TEMP_DIR.name}/geopm.txt'
         filename = Path(sess_path)
         filename.touch(exist_ok=True)
 
@@ -153,13 +153,13 @@ class TestSecureFiles(unittest.TestCase):
     def test_creation_bad_perms(self):
         """Directory exists with bad permissions
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         directory is present with wrong permissions.  It asserts that
         a warning message is printed to standard error and that the
         permissions are changed.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(sess_path, mode=0o755)
 
         with mock.patch('os.stat', wraps=os.stat) as mock_os_stat, \
@@ -184,13 +184,13 @@ class TestSecureFiles(unittest.TestCase):
     def test_creation_bad_user_owner(self):
         """Directory exists with wrong user owner
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         directory is present with wrong ownership.  It asserts that
         a warning message is printed to standard error and that the
         ownership is changed.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(sess_path, mode=0o700)
 
         bad_user = mock.create_autospec(os.stat_result, spec_set=True)
@@ -220,13 +220,13 @@ class TestSecureFiles(unittest.TestCase):
     def test_creation_bad_group_owner(self):
         """Directory exists with wrong group owner
 
-        Test calls secure_make_dirs() when the geopm-service
+        Test calls secure_make_dirs() when the geopm
         directory is present with wrong ownership.  It asserts that
         a warning message is printed to standard error and that the
         ownership is changed.
 
         """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(sess_path, mode=0o700)
 
         bad_group = mock.create_autospec(os.stat_result, spec_set=True)
@@ -275,7 +275,7 @@ class TestSecureFiles(unittest.TestCase):
         when there are any errors creating the directories.
         """
         perm_mode = self._old_umask
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
         with mock.patch('os.makedirs', side_effect=Exception('Unable to create directories!')), \
              self.assertRaises(Exception):
             secure_make_dirs(sess_path, perm_mode)
@@ -285,11 +285,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_not_exists(self):
         """File to be securely read in does not exist!
 
-        Creates the geopm-service directory, but does not create the file within.
+        Creates the geopm directory, but does not create the file within.
         Calls secure_read_file() with a non existent file path.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -305,11 +305,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_is_directory(self):
         """File to be securely read in is actually a directory!
 
-        Creates the geopm-service directory, and creates another directory within.
+        Creates the geopm directory, and creates another directory within.
         Calls secure_read_file() with a directory instead of a file.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -329,11 +329,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_is_link(self):
         """File to be securely read in is actually a link!
 
-        Creates the geopm-service directory, and creates a link within.
+        Creates the geopm directory, and creates a link within.
         Calls secure_read_file() with a link instead of a file.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -361,11 +361,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_is_fifo(self):
         """File to be securely read in is actually a fifo!
 
-        Creates the geopm-service directory, and creates a fifo within.
+        Creates the geopm directory, and creates a fifo within.
         Calls secure_read_file() with a fifo instead of a file.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -394,11 +394,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_bad_permissions(self):
         """File to be securely read in has wrong permissions.
 
-        Creates the geopm-service directory, and creates a regular file with wrong permissions within.
+        Creates the geopm directory, and creates a regular file with wrong permissions within.
         Calls secure_read_file() with that file.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -435,11 +435,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_bad_user_owner(self):
         """File to be securely read in has wrong user owner.
 
-        Creates the geopm-service directory, and creates a regular file with wrong user owner within.
+        Creates the geopm directory, and creates a regular file with wrong user owner within.
         Calls secure_read_file() with that file.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -480,11 +480,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_file_bad_group_owner(self):
         """File to be securely read in has wrong group owner.
 
-        Creates the geopm-service directory, and creates a regular file with wrong group owner within.
+        Creates the geopm directory, and creates a regular file with wrong group owner within.
         Calls secure_read_file() with that file.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -525,11 +525,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_read_valid_file(self):
         """Opens and reads in a valid file which passes all checks.
 
-        Creates the geopm-service directory, and creates a regular file within, and write the contents to it.
+        Creates the geopm directory, and creates a regular file within, and write the contents to it.
         Calls secure_read_file() with that file, verifying that the contents match.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"
@@ -561,11 +561,11 @@ class TestSecureFiles(unittest.TestCase):
     def test_secure_make_file(self):
         """Opens and reads in a valid file which passes all checks.
 
-        Creates the geopm-service directory, and creates a regular file within, and write the contents to it.
+        Creates the geopm directory, and creates a regular file within, and write the contents to it.
         Calls secure_read_file() with that file, verifying that the contents match.
 
         """
-        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        dir_path = f'{self._TEMP_DIR.name}/geopm'
         os.mkdir(dir_path, mode=0o700)
         self.check_dir_perms(dir_path)
         file_name = "stuff.json"

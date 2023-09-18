@@ -45,8 +45,8 @@ class PlatformService(object):
         self._RUN_PATH = system_files.GEOPM_SERVICE_RUN_PATH
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_SEC = 1
-        self._active_sessions = system_files.ActiveSessions()
-        self._access_lists = system_files.AccessLists()
+        self._active_sessions = system_files.ActiveSessions(self._RUN_PATH)
+        self._access_lists = system_files.AccessLists(system_files.get_config_path())
         for client_pid in self._active_sessions.get_clients():
             is_active = self.check_client(client_pid)
             if is_active:
@@ -66,7 +66,7 @@ class PlatformService(object):
         returned.
 
         The values are securely read from files located in
-        /etc/geopm-service using the secure_read_file() interface.
+        /etc/geopm using the secure_read_file() interface.
 
         If no secure file exist for the specified group, then two
         empty lists are returned.
@@ -92,7 +92,7 @@ class PlatformService(object):
         updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm-service using the secure_make_dirs() and
+        /etc/geopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -116,7 +116,7 @@ class PlatformService(object):
         of allowed signal are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm-service using the secure_make_dirs() and
+        /etc/geopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -138,7 +138,7 @@ class PlatformService(object):
         of allowed control are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm-service using the secure_make_dirs() and
+        /etc/geopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -851,7 +851,7 @@ class TopoService(object):
 
         """
         self._topo.create_cache()
-        with open('/run/geopm-service/geopm-topo-cache') as fid:
+        with open(os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'geopm-topo-cache')) as fid:
             result = fid.read()
         return result
 

@@ -47,15 +47,15 @@ fi
 
 SESSION_PID=$1
 
-SESSION_FILE="/run/geopm-service/session-${SESSION_PID}.json"
+SESSION_FILE="/run/geopm/session-${SESSION_PID}.json"
 # fifo files for the batch status
-BATCH_STATUS_IN="/run/geopm-service/batch-status-${SESSION_PID}-in"
-BATCH_STATUS_OUT="/run/geopm-service/batch-status-${SESSION_PID}-out"
+BATCH_STATUS_IN="/run/geopm/batch-status-${SESSION_PID}-in"
+BATCH_STATUS_OUT="/run/geopm/batch-status-${SESSION_PID}-out"
 # shared memory keys
-SHMEM_KEY_SIGNAL="/run/geopm-service/batch-buffer-${SESSION_PID}-signal"
-SHMEM_KEY_CONTROL="/run/geopm-service/batch-buffer-${SESSION_PID}-control"
-SHMEM_KEY_STATUS="/run/geopm-service/profile-$(id -u)-status"
-SHMEM_KEY_RECORD_LOG="/run/geopm-service/profile-${SESSION_PID}-record-log"
+SHMEM_KEY_SIGNAL="/run/geopm/batch-buffer-${SESSION_PID}-signal"
+SHMEM_KEY_CONTROL="/run/geopm/batch-buffer-${SESSION_PID}-control"
+SHMEM_KEY_STATUS="/run/geopm/profile-$(id -u)-status"
+SHMEM_KEY_RECORD_LOG="/run/geopm/profile-${SESSION_PID}-record-log"
 
 check_file ${SESSION_FILE}
 check_file ${BATCH_STATUS_IN}
