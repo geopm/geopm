@@ -8,11 +8,13 @@ geopmhash_corpus_dir = fuzz_test/geopmhash_corpus/.dir
 
 corpus_archives_base_url = https://geopm.github.io/fuzz
 
-EXTRA_DIST += $(geopmhash_corpus_archive) \
-              fuzz_test/run_fuzz_tests.sh \
-              # end
+EXTRA_DIST += fuzz_test/run_fuzz_tests.sh
+
+if ENABLE_FUZZTESTS
 BUILT_SOURCES += $(geopmhash_corpus_dir)
 DISTCLEANFILES += $(geopmhash_corpus_archive)
+EXTRA_DIST += $(geopmhash_corpus_archive)
+endif
 
 clean-local-fuzztest:
 	rm -rf $(geopmhash_corpus_dir)
