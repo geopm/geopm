@@ -149,6 +149,7 @@ class Config(object):
         parser.add_argument('--geopm-init-control', dest='init_control', type=str)
         parser.add_argument('--geopm-period', dest='period', type=str)
         parser.add_argument('--geopm-program-filter', dest='program_filter', type=str)
+        parser.add_argument('--geopm-ctl-local', dest='ctl_local', action='store_true', default=False)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -179,6 +180,7 @@ class Config(object):
         self.init_control = opts.init_control
         self.period = opts.period
         self.program_filter = opts.program_filter
+        self.ctl_local = opts.ctl_local
 
     def __repr__(self):
         """
@@ -247,6 +249,8 @@ class Config(object):
             result['GEOPM_PERIOD'] = self.period
         if self.program_filter:
             result['GEOPM_PROGRAM_FILTER'] = self.program_filter
+        if self.ctl_local:
+            result['GEOPM_CTL_LOCAL'] = 'true'
 
         # Add geopm installed OpenMP library to LD_LIBRARY_PATH if it
         # is present.
@@ -1774,6 +1778,8 @@ GEOPM_OPTIONS:
                                only enable profiling for processes with program invocation
                                names that match one of the comma separated list of "names",
                                especially useful when launching a bash script
+      --geopm-ctl-local        Disable communication between controllers running on
+                               different compute nodes
 
 {}
 

@@ -22,7 +22,7 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(void);
+int geopmctl_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
@@ -71,37 +71,13 @@ int main(int argc, char **argv)
         err0 = EINVAL;
     }
 
-#ifdef GEOPM_ENABLE_MPI
-    int world_size = 1, my_rank = 0, i;
-    int err_mpi = 0;
-    MPI_Comm comm_world = MPI_COMM_NULL;
     if (!err0) {
-        err_mpi = PMPI_Init(&argc, &argv);
-        comm_world = MPI_COMM_WORLD;
-        if (!err_mpi) {
-            err_mpi = PMPI_Comm_size(comm_world, &world_size);
-        }
-        if (!err_mpi) {
-            err_mpi = PMPI_Comm_rank(comm_world, &my_rank);
-        }
-    }
-    if (err_mpi) {
-        i = NAME_MAX;
-        PMPI_Error_string(err_mpi, error_str, &i);
-        fprintf(stderr, "Error: %s\n", error_str);
-        err0 = err_mpi;
-    }
-#endif
-    if (!err0) {
-        err0 = geopmctl_main();
+        err0 = geopmctl_main(argc, argv);
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
             fprintf(stderr, "Error: %s\n", error_str);
         }
     }
 
-#ifdef GEOPM_ENABLE_MPI
-    PMPI_Finalize();
-#endif
     return err0;
 }

@@ -351,7 +351,8 @@ TEST_F(ReporterTest, generate)
                                                  env_signals,
                                                  "",
                                                  true,
-                                                 m_profile_name);
+                                                 m_profile_name,
+                                                 false);
     m_reporter->init();
 
     std::vector<std::pair<std::string, std::string> > agent_header {
@@ -537,7 +538,8 @@ TEST_F(ReporterTest, generate_conditional)
                                                  env_signals,
                                                  "",
                                                  true,
-                                                 m_profile_name);
+                                                 m_profile_name,
+                                                 false);
     m_reporter->init();
     m_reporter->total_time(56.0);
 

@@ -131,7 +131,8 @@ namespace geopm
                 "GEOPM_INIT_CONTROL",
                 "GEOPM_PERIOD",
                 "GEOPM_NUM_PROC",
-                "GEOPM_PROGRAM_FILTER"};
+                "GEOPM_PROGRAM_FILTER",
+                "GEOPM_CTL_LOCAL"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -214,7 +215,11 @@ namespace geopm
 
     std::string EnvironmentImp::comm(void) const
     {
-        return lookup("GEOPM_COMM");
+        std::string ret = "NullComm";
+        if (!is_set("GEOPM_CTL_LOCAL")) {
+            ret = lookup("GEOPM_COMM");
+        }
+        return ret;
     }
 
     std::string EnvironmentImp::policy(void) const
@@ -439,6 +444,15 @@ namespace geopm
     int EnvironmentImp::num_proc(void) const
     {
         return std::stoi(lookup("GEOPM_NUM_PROC"));
+    }
+
+    bool EnvironmentImp::do_ctl_local(void) const
+    {
+        bool result = false;
+        if (is_set("GEOPM_CTL_LOCAL")) {
+            result = true;
+        }
+        return result;
     }
 
     bool EnvironmentImp::do_debug_attach_all(void) const
