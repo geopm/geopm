@@ -319,7 +319,7 @@ TEST_F(PlatformIOTest, push_signal_iogroup_fallback_domain_change)
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("MODE", GEOPM_DOMAIN_BOARD, 0),
-                               GEOPM_ERROR_INVALID, "no support for signal name \"MODE\"");
+                               GEOPM_ERROR_INVALID, "unable to read signal name \"MODE\"");
 }
 
 TEST_F(PlatformIOTest, push_control)
@@ -385,11 +385,11 @@ TEST_F(PlatformIOTest, push_control_iogroup_fallback_domain_change)
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
-    // This IOGroup should should be pruned because the native domain of the control changed.
+    // This IOGroup should be pruned because the native domain of the control changed.
     EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_control("MODE", GEOPM_DOMAIN_BOARD, 0),
-                               GEOPM_ERROR_INVALID, "no support for control name \"MODE\"");
+                               GEOPM_ERROR_INVALID, "unable to push control name \"MODE\"");
 }
 
 TEST_F(PlatformIOTest, save_restore)
@@ -662,7 +662,7 @@ TEST_F(PlatformIOTest, read_signal_iogroup_fallback_domain_change)
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->read_signal("MODE", GEOPM_DOMAIN_BOARD, 0),
-                               GEOPM_ERROR_INVALID, "no support for signal name \"MODE\"");
+                               GEOPM_ERROR_INVALID, "unable to read signal name \"MODE\"");
 }
 
 TEST_F(PlatformIOTest, read_signal_iogroup_fallback)
@@ -784,7 +784,7 @@ TEST_F(PlatformIOTest, write_control_iogroup_fallback_domain_change)
     EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value),
-                               GEOPM_ERROR_INVALID, "no support for control name \"MODE\"");
+                               GEOPM_ERROR_INVALID, "unable to write control name \"MODE\"");
 }
 
 TEST_F(PlatformIOTest, agg_function)

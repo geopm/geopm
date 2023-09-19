@@ -410,12 +410,15 @@ namespace geopm
         int result = -1;
         auto sig_tup = std::make_tuple(signal_name, domain_type, domain_idx);
         auto sig_tup_it = m_existing_signal.find(sig_tup);
+        bool no_support = true;
         if (sig_tup_it != m_existing_signal.end()) {
             result = sig_tup_it->second;
+            no_support = false;
         }
         std::string err_msg;
         if (result == -1) {
             for (auto &ii : find_signal_iogroup(signal_name)) {
+                no_support = false;
                 if (domain_type == ii->signal_domain_type(signal_name)) {
                     bool do_push_signal = false;
                     try {
@@ -449,11 +452,19 @@ namespace geopm
             }
         }
         if (result == -1) {
-            std::string msg = "PlatformIOImp::push_signal(): no support for signal name \"" +
-                              signal_name + "\" and domain type \"" +
-                              std::to_string(domain_type) + "\"";
-            if (err_msg.size() > 0) {
-                msg += "\nThe following errors were observed:\n" + err_msg;
+            std::string msg;
+            if (no_support) {
+                msg = "PlatformIOImp::push_signal(): no support for signal name \"" +
+                      signal_name + "\" and domain type \"" +
+                      std::to_string(domain_type) + "\"";
+            }
+            else {
+                msg = "PlatformIOImp::push_signal(): unable to read signal name \"" +
+                      signal_name + "\" and domain type \"" +
+                      std::to_string(domain_type) + "\"";
+                if (err_msg.size() > 0) {
+                    msg += "\nThe following errors were observed:\n" + err_msg;
+                }
             }
             throw Exception(msg, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -543,12 +554,15 @@ namespace geopm
         int result = -1;
         auto ctl_tup = std::make_tuple(control_name, domain_type, domain_idx);
         auto ctl_tup_it = m_existing_control.find(ctl_tup);
+        bool no_support = true;
         if (ctl_tup_it != m_existing_control.end()) {
             result = ctl_tup_it->second;
+            no_support = false;
         }
         std::string err_msg;
         if (result == -1) {
             for (auto &ii : find_control_iogroup(control_name)) {
+                no_support = false;
                 if (ii->control_domain_type(control_name) == domain_type) {
                     bool do_push_control = false;
                     int val;
@@ -585,11 +599,19 @@ namespace geopm
             }
         }
         if (result == -1) {
-            std::string msg = "PlatformIOImp::push_control(): no support for control name \"" +
-                              control_name + "\" and domain type \"" +
-                              std::to_string(domain_type) + "\"";
-            if (err_msg.size() > 0) {
-                msg += "\nThe following errors were observed:\n" + err_msg;
+            std::string msg;
+            if (no_support) {
+                msg = "PlatformIOImp::push_control(): no support for control name \"" +
+                      control_name + "\" and domain type \"" +
+                      std::to_string(domain_type) + "\"";
+            }
+            else {
+                msg = "PlatformIOImp::push_control(): unable to push control name \"" +
+                      control_name + "\" and domain type \"" +
+                      std::to_string(domain_type) + "\"";
+                if (err_msg.size() > 0) {
+                    msg += "\nThe following errors were observed:\n" + err_msg;
+                }
             }
             throw Exception(msg, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -747,7 +769,7 @@ namespace geopm
             }
         }
         if (is_read_successful == false) {
-            std::string msg = "PlatformIOImp::read_signal(): no support for signal name \"" +
+            std::string msg = "PlatformIOImp::read_signal(): unable to read signal name \"" +
                               signal_name + "\" and domain type \"" +
                               std::to_string(domain_type) + "\"";
             if (err_msg.size() > 0) {
@@ -823,7 +845,7 @@ namespace geopm
             }
         }
         if (is_write_complete == false) {
-            std::string msg = "PlatformIOImp::write_control(): no support for control name \"" +
+            std::string msg = "PlatformIOImp::write_control(): unable to write control name \"" +
                               control_name + "\" and domain type \"" +
                               std::to_string(domain_type) + "\"";
             if (err_msg.size() > 0) {
