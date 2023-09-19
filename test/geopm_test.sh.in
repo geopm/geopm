@@ -16,7 +16,7 @@ exec_path=${obj_dir}/test/.libs
 xml_dir=${link_dir}
 run_test=true
 
-if echo $test_name | grep -v EnvironmentTest; then
+if echo $test_name | grep -vq EnvironmentTest; then
     export GEOPM_PROGRAM_FILTER=''
 fi
 
