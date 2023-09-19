@@ -100,7 +100,8 @@ namespace geopm
                         const std::vector<std::pair<std::string, int> > &env_signal,
                         const std::string &policy_path,
                         bool do_endpoint,
-                        const std::string &profile_name);
+                        const std::string &profile_name,
+                        bool do_ctl_local);
             virtual ~ReporterImp() = default;
             void init(void) override;
             void update(void) override;
@@ -197,6 +198,7 @@ namespace geopm
             double m_overhead_time;
             double m_sample_delay;
             const std::string m_profile_name;
+            bool m_do_ctl_local;
     };
 }
 

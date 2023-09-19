@@ -553,6 +553,13 @@ GEOPM Options
                      launch the GEOPM runtime in process mode.  When this
                      option is specified, the GEOPM runtime will not be
                      launched.
+--geopm-ctl-local  .. _geopm-ctl-local option:
+
+                   Disable all communication between controllers
+                   running on different compute nodes.  This will
+                   result in one report file per host, and each report
+                   file will have the ``hostname`` appended to the file
+                   path requested by the user.
 --geopm-ompt-disable  .. _geopm-ompt-disable option:
 
                       Disable OMPT detection of OpenMP regions.

@@ -52,7 +52,8 @@ namespace geopm
                       environment().report_signals(),
                       environment().policy(),
                       environment().do_endpoint(),
-                      environment().profile())
+                      environment().profile(),
+                      environment().do_ctl_local())
     {
 
     }
@@ -67,7 +68,8 @@ namespace geopm
                              const std::vector<std::pair<std::string, int> > &env_signals,
                              const std::string &policy_path,
                              bool do_endpoint,
-                             const std::string &profile_name)
+                             const std::string &profile_name,
+                             bool do_ctl_local)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
@@ -85,11 +87,15 @@ namespace geopm
         , m_overhead_time(0.0)
         , m_sample_delay(0.0)
         , m_profile_name(profile_name)
+        , m_do_ctl_local(do_ctl_local)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
         if (!m_rank) {
             // check if report file can be created
             if (!m_report_name.empty()) {
+                if (m_do_ctl_local) {
+                    m_report_name += "-" + geopm::hostname();
+                }
                 std::ofstream test_open(m_report_name);
                 if (!test_open.good()) {
                     std::cerr << "Warning: <geopm> Unable to open report file '" << m_report_name

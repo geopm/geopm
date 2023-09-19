@@ -356,6 +356,11 @@ GEOPM Environment Variables
 ``GEOPM_MSR_CONFIG_PATH``
   The colon-separated list of search paths for additional MSR definitions. See
   :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` for more details.
+``GEOPM_CTL_LOCAL``
+  Disable communication between controllers running on different
+  compute nodes and produce one report file per host. See the
+  ``--geopm-ctl-local`` :ref:`option description <geopm-ctl-local option>`
+  in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
 
 Other Environment Variables
 ---------------------------
