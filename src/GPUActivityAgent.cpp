@@ -372,8 +372,9 @@ namespace geopm
                     if (m_time.value > m_prev_time) {
                         m_gpu_on_time.at(domain_idx) += m_time.value - m_prev_time;
                     }
+
                     // TODO: handle roll-over more gracefully than dropping a sample
-                    if (m_gpu_energy.at(domain_idx).value < m_prev_gpu_energy.at(domain_idx)) {
+                    if (m_gpu_energy.at(domain_idx).value > m_prev_gpu_energy.at(domain_idx)) {
                         m_gpu_on_energy.at(domain_idx) += m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
                     }
                 }
