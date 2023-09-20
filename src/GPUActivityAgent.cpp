@@ -468,8 +468,14 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             double energy_stop = m_gpu_active_energy_stop.at(domain_idx);
             double energy_start = m_gpu_active_energy_start.at(domain_idx);
-            double region_stop = m_gpu_active_region_stop.at(domain_idx);
             double region_start =  m_gpu_active_region_start.at(domain_idx);
+            double region_stop = m_gpu_active_region_stop.at(domain_idx);
+            // If the end of the active region was never seen assume that the end of the run
+            // is the end of the region.
+            if (m_gpu_active_region_stop.at(domain_idx) == 0.0) {
+                region_stop = m_time.value;
+            }
+
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Energy", std::to_string(energy_stop - energy_start)});
             result.push_back({"GPU " + std::to_string(domain_idx) +
