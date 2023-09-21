@@ -291,6 +291,49 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_low)
 
 }
 
+TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    double mock_active = 0.0;
+    double mock_util = 0.0;
+
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_EFFICIENT)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_EFFICIENT)).Times(M_NUM_GPU_CHIP);
+
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_MIN)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_MIN)).Times(M_NUM_GPU_CHIP);
+
+    for (int i = 0; i < 10; i++) {
+        //Sample
+        std::vector<double> tmp;
+        EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
+                 .WillRepeatedly(Return(mock_active));
+        EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                 .WillRepeatedly(Return(mock_util));
+        EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
+                 .WillRepeatedly(Return(123456789));
+        EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                 .Times(1);
+        m_agent->sample_platform(tmp);
+
+        //Adjust
+        m_agent->adjust_platform(policy);
+
+        if(i == 0 || i == 9) {
+            //Check a frequency decision resulted in write batch being true
+            EXPECT_TRUE(m_agent->do_write_batch());
+        }
+        else {
+            //Check a frequency decision resulted in write batch being false
+            EXPECT_FALSE(m_agent->do_write_batch());
+        }
+    }
+}
+
+
 TEST_F(GPUActivityAgentTest, invalid_fe)
 {
     ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
