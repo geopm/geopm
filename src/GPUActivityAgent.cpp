@@ -23,6 +23,14 @@
 #include "Waiter.hpp"
 #include "Environment.hpp"
 
+// IDLE SAMPLE COUNT of 10 is based upon a study of the idle behavior of CORAL-2
+// workloads of interest assuming the default 20ms sample rate (200ms idle).
+// We could use 200ms as the default for the agent, but this does not provide a
+// mechanism for user control of the idle period.  Using a count provides partial
+// user control in that the idleness period is defined by the requested agent
+// control loop time.
+#define IDLE_SAMPLE_COUNT 10
+
 namespace geopm
 {
 
@@ -342,7 +350,10 @@ namespace geopm
                     }
                 }
                 else {
-                    m_gpu_idle_timer.at(domain_idx) = 10;
+                    // If no activity has been observed for a number of samples
+                    // IDLE_SAMPLE_COUNT we assume it is safe to reduce the frequency
+                    // to a minimum value.
+                    m_gpu_idle_timer.at(domain_idx) = IDLE_SAMPLE_COUNT;
                 }
 
                 if (m_gpu_idle_timer.at(domain_idx) <= 0) {
