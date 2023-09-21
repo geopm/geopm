@@ -51,6 +51,11 @@ extremely short phase behavior a 1 ms polling rate can be used.
 As the 1 ms polling rate is not officially recommended by the DCGM API the 100 ms
 setting should be used by default.
 
+If a ``phi`` value of 0.5 or greater is used and a long idle period, defined as
+10 samples with a ``GPU_UTILIZATION`` of 0, occurs the agent will request the
+minimum frequency for GPU as specified by the ``GPU_CORE_FREQUENCY_MIN_AVAIL``
+signal.
+
 Agent Name
 ----------
 
