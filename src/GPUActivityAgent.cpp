@@ -150,7 +150,7 @@ namespace geopm
             m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
                                                        m_agent_domain,
                                                        domain_idx), NAN});
-            m_gpu_idle_timer.push_back(10);
+            m_gpu_idle_timer.push_back(IDLE_SAMPLE_COUNT);
             m_gpu_idle_samples.push_back(0);
         }
 
