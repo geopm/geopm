@@ -69,14 +69,15 @@ extern "C"
     int geopmctl_main(int argc, char **argv)
     {
         int err = 0;
-        bool do_ctl_local = geopm::environment().do_ctl_local();
+
         try {
 #ifdef GEOPM_ENABLE_MPI
+            bool do_ctl_local = geopm::environment().do_ctl_local();
             if (!do_ctl_local) {
                 err = PMPI_Init(&argc, &argv);
                 if (err) {
-                    int str_size = NAME_MAX;
-                    char error_str[NAME_MAX + 1] = {};
+                    int str_size = MPI_MAX_ERROR_STRING;
+                    char error_str[MPI_MAX_ERROR_STRING + 1] = {};
                     PMPI_Error_string(err, error_str, &str_size);
                     fprintf(stderr, "Error: %s\n", error_str);
                     return err;
@@ -85,7 +86,7 @@ extern "C"
 #endif
             {
                 std::unique_ptr<geopm::Controller> ctl = std::make_unique<geopm::Controller>();
-                err = geopm_ctl_run((struct geopm_ctl_c *)ctl.get());
+                ctl->run();
             }
 #ifdef GEOPM_ENABLE_MPI
             if (!do_ctl_local) {

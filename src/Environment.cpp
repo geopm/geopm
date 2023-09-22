@@ -216,7 +216,7 @@ namespace geopm
     std::string EnvironmentImp::comm(void) const
     {
         std::string ret = "NullComm";
-        if (!is_set("GEOPM_CTL_LOCAL")) {
+        if (!do_ctl_local()) {
             ret = lookup("GEOPM_COMM");
         }
         return ret;
