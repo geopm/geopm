@@ -96,11 +96,13 @@ class TestIntegration_monitor(unittest.TestCase):
             app_total = self._report.raw_totals(node)
             util.assertNear(self, self._loop_count * self._spin_bigo, spin_data['runtime (s)'])
             util.assertNear(self, self._loop_count * self._sleep_bigo, sleep_data['runtime (s)'])
-            total_runtime = (app_total['GEOPM overhead (s)'] +
-                             spin_data['runtime (s)'] +
-                             sleep_data['runtime (s)'] +
-                             unmarked_data['runtime (s)'])
-            util.assertNear(self, total_runtime, app_total['runtime (s)'])
+            region_total_runtime = (app_total['GEOPM overhead (s)'] +
+                                    spin_data['runtime (s)'] +
+                                    sleep_data['runtime (s)'] +
+                                    unmarked_data['runtime (s)'])
+
+            total_runtime = app_total['runtime (s)'] - app_total['MPI startup (s)']
+            util.assertNear(self, region_total_runtime, total_runtime)
 
     def test_runtime_epoch(self):
         '''Test that region and epoch total runtimes match.'''
