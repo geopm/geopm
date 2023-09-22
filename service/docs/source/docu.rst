@@ -79,18 +79,18 @@ definition into a ``rst`` file. For example:
 .. code-block:: rst
    :caption: Render all MSRs in a json file
 
-   .. geopm-msr-json:: ../../src/msr_data_arch.json
+   .. geopm-msr-json:: ../json_data/msr_data_arch.json
 
 .. code-block:: rst
    :caption: Render only signals from a json file
 
-   .. geopm-msr-json:: ../../src/msr_data_arch.json
+   .. geopm-msr-json:: ../json_data/msr_data_arch.json
       :no-controls:
 
 .. code-block:: rst
    :caption: Render only controls from a json file
 
-   .. geopm-msr-json:: ../../src/msr_data_arch.json
+   .. geopm-msr-json:: ../json_data/msr_data_arch.json
       :no-signals:
 
 If you need to modify the output format of the ``geopm-msr-json`` directive,

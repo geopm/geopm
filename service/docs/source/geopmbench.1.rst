@@ -65,7 +65,7 @@ to CPU frequency. *all2all* represents a network-intensive region.
 
 The JSON config file must follow this schema:
 
-.. literalinclude:: ../../../json_schemas/geopmbench_config.schema.json
+.. literalinclude:: ../json_schemas/geopmbench_config.schema.json
     :language: json
 
 Examples

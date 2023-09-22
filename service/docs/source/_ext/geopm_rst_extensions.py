@@ -6,12 +6,12 @@
 Examples:
 
 * Render all MSRs in a json file
-    .. geopm-msr-json:: ../../src/msr_data_arch.json
+    .. geopm-msr-json:: ../json_data/msr_data_arch.json
 * Render only signals
-    .. geopm-msr-json:: ../../src/msr_data_arch.json
+    .. geopm-msr-json:: ../json_data/msr_data_arch.json
       :no-controls:
 * Render only controls
-    .. geopm-msr-json:: ../../src/msr_data_arch.json
+    .. geopm-msr-json:: ../json_data/msr_data_arch.json
       :no-signals:
 """
 from docutils import nodes

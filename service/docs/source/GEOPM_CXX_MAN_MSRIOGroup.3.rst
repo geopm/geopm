@@ -263,7 +263,7 @@ will also be searched.  The ``MSRIOGroup`` will attempt to load additional
 MSR definitions from any JSON file it finds. The files must follow this
 schema:
 
-.. literalinclude:: ../../json_schemas/msrs.schema.json
+.. literalinclude:: ../json_schemas/msrs.schema.json
     :language: json
 
 

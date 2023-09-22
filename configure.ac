@@ -79,6 +79,20 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
+AC_ARG_ENABLE([docs],
+  [AS_HELP_STRING([--disable-docs], [Disable the use of the Python sphinx tool to generate documentation])],
+[if test "x$enable_docs" = "xno" ; then
+  enable_docs="0"
+else
+  enable_docs="1"
+fi
+],
+[enable_docs="1"]
+)
+
+AC_SUBST([enable_docs])
+AM_CONDITIONAL([ENABLE_DOCS], [test "x$enable_docs" = "x1"])
+
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
 if test "x$with_sqlite3" != x; then
@@ -661,4 +675,5 @@ AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
+AC_MSG_RESULT([docs               : ${enable_docs}])
 AC_MSG_RESULT([===============================================================================])

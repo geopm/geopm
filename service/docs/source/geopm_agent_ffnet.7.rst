@@ -27,14 +27,14 @@ The neural net for region classification must be provided in a JSON configuratio
 file pointed to by environment variables GEOPM_CPU_NN_PATH and/or GEOPM_GPU_NN_PATH, 
 which must comply with the following schema:
 
-.. literalinclude:: ../../../json_schemas/domainnetmap_neural_net.schema.json
+.. literalinclude:: ../json_schemas/domainnetmap_neural_net.schema.json
     :language: json
 
 The per-region frequency recommendations must be provided in a JSON configuration
 file pointed to by environment variables GEOPM_CPU_FMAP_PATH and/or GEOPM_GPU_FMAP_PATH, 
 which must comply with the following schema:
 
-.. literalinclude:: ../../../json_schemas/regionhintrecommender_fmap.schema.json
+.. literalinclude:: ../json_schemas/regionhintrecommender_fmap.schema.json
     :language: json
 
 If you specify a neural net for a domain (CPU/GPU), you must specify a frequency 

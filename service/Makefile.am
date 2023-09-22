@@ -58,6 +58,50 @@ dist_doc_DATA = COPYING \
                 VERSION \
                 # end
 
+dist_man_MANS = docs/build/man/geopm.7 \
+                docs/build/man/GEOPM_CXX_MAN_Agg.3 \
+                docs/build/man/GEOPM_CXX_MAN_CircularBuffer.3 \
+                docs/build/man/GEOPM_CXX_MAN_CNLIOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_Exception.3 \
+                docs/build/man/GEOPM_CXX_MAN_Helper.3 \
+                docs/build/man/GEOPM_CXX_MAN_IOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_MSRIO.3 \
+                docs/build/man/GEOPM_CXX_MAN_MSRIOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_PlatformIO.3 \
+                docs/build/man/GEOPM_CXX_MAN_PlatformTopo.3 \
+                docs/build/man/GEOPM_CXX_MAN_PluginFactory.3 \
+                docs/build/man/GEOPM_CXX_MAN_SampleAggregator.3 \
+                docs/build/man/GEOPM_CXX_MAN_SharedMemory.3 \
+                docs/build/man/GEOPM_CXX_MAN_TimeIOGroup.3 \
+                docs/build/man/geopm_error.3 \
+                docs/build/man/geopm_field.3 \
+                docs/build/man/geopm_hash.3 \
+                docs/build/man/geopm_pio.3 \
+                docs/build/man/geopm_pio.7 \
+                docs/build/man/geopm_pio_cnl.7 \
+                docs/build/man/geopm_pio_const_config.7 \
+                docs/build/man/geopm_pio_cpuinfo.7 \
+                docs/build/man/geopm_pio_dcgm.7 \
+                docs/build/man/geopm_pio_levelzero.7 \
+                docs/build/man/geopm_pio_nvml.7 \
+                docs/build/man/geopm_pio_profile.7 \
+                docs/build/man/geopm_pio_service.7 \
+                docs/build/man/geopm_pio_sst.7 \
+                docs/build/man/geopm_pio_time.7 \
+                docs/build/man/geopm_pio_msr.7 \
+                docs/build/man/geopmread.1 \
+                docs/build/man/geopm_report.7 \
+                docs/build/man/geopm_sched.3 \
+                docs/build/man/geopm_time.3 \
+                docs/build/man/geopm_topo.3 \
+                docs/build/man/geopm_version.3 \
+                docs/build/man/geopmwrite.1 \
+                docs/build/man/geopmaccess.1 \
+                docs/build/man/geopmsession.1 \
+                docs/build/man/geopmdpy.7 \
+                # end
+
 EXTRA_DIST = .gitignore \
              Makefile.am \
              autogen.sh \
@@ -103,10 +147,14 @@ EXTRA_DIST = .gitignore \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
              geopmsession \
-             json_schemas/active_sessions.schema.json \
-             json_schemas/const_config_io.schema.json \
-             json_schemas/msrs.schema.json \
-             json_schemas/saved_controls.schema.json \
+             docs/json_schemas/active_sessions.schema.json \
+             docs/json_schemas/const_config_io.schema.json \
+             docs/json_schemas/msrs.schema.json \
+             docs/json_schemas/saved_controls.schema.json \
+             docs/json_schemas/domainnetmap_neural_net.schema.json \
+             docs/json_schemas/geopmagent_policy.schema.json \
+             docs/json_schemas/geopmbench_config.schema.json \
+             docs/json_schemas/regionhintrecommender_fmap.schema.json \
              requirements.txt \
              setup.py \
              src/geopm/json11.hpp \
@@ -138,11 +186,11 @@ msr_cpp_files = \
                 src/msr_data_snb.cpp \
                 # end
 EXTRA_DIST += \
-	      src/msr_data_arch.json \
-	      src/msr_data_hsx.json \
-	      src/msr_data_knl.json \
-	      src/msr_data_skx.json \
-	      src/msr_data_snb.json \
+	      docs/json_data/msr_data_arch.json \
+	      docs/json_data/msr_data_hsx.json \
+	      docs/json_data/msr_data_knl.json \
+	      docs/json_data/msr_data_skx.json \
+	      docs/json_data/msr_data_snb.json \
 	      src/msr_data.cpp.in \
 	      # end
 
@@ -331,7 +379,7 @@ io.github.geopm.xml:
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	$(PYTHON) -m geopmdpy.dbus_xml > $@
 
-$(msr_cpp_files): %.cpp: %.json src/msr_data.cpp.in
+$(msr_cpp_files): src/%.cpp: docs/json_data/%.json src/msr_data.cpp.in
 	sed -e '/@MSR_JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \

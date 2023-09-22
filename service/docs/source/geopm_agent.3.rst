@@ -148,7 +148,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
 For functions dealing with GEOPM agent policy configuration, the JSON data
 follows this schema:
 
-.. literalinclude:: ../../../json_schemas/geopmagent_policy.schema.json
+.. literalinclude:: ../json_schemas/geopmagent_policy.schema.json
     :language: json
 
 Errors
