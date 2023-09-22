@@ -1779,7 +1779,8 @@ GEOPM_OPTIONS:
                                names that match one of the comma separated list of "names",
                                especially useful when launching a bash script
       --geopm-ctl-local        Disable communication between controllers running on
-                               different compute nodes
+                               different compute nodes. Option has no effect if --geopm-ctl
+                               or --geopm-ctl-disable are provided
 
 {}
 

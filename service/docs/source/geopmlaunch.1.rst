@@ -559,7 +559,9 @@ GEOPM Options
                    running on different compute nodes.  This will
                    result in one report file per host, and each report
                    file will have the ``hostname`` appended to the file
-                   path requested by the user.
+                   path requested by the user.  Note this option has no
+                   effect if ``--geopm-ctl`` or ``--geopm-ctl-disable``
+                   are provided.
 --geopm-ompt-disable  .. _geopm-ompt-disable option:
 
                       Disable OMPT detection of OpenMP regions.
