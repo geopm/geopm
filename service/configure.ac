@@ -420,7 +420,7 @@ AC_SUBST([AM_FCFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
 AC_SUBST_FILE([JSON_SCHEMA_ACTIVE_SESSIONS])
-JSON_SCHEMA_ACTIVE_SESSIONS=json_schemas/active_sessions.schema.json
+JSON_SCHEMA_ACTIVE_SESSIONS=docs/json_schemas/active_sessions.schema.json
 
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])

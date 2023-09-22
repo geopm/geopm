@@ -21,7 +21,7 @@ Additional MSRs can be specified via configuration files. If the
 will be checked for any JSON files prefixed with ``msr_``. The ``/etc/geopm``
 directory will also be searched. The files must follow this schema:
 
-.. literalinclude:: ../../json_schemas/msrs.schema.json
+.. literalinclude:: ../json_schemas/msrs.schema.json
     :language: json
 
 For an example of an MSR configuration file, please see:
@@ -68,27 +68,27 @@ available across Intel x86 microarchitectures.
 
 Architectural Signals
 ^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_arch.json
+.. geopm-msr-json:: ../json_data/msr_data_arch.json
    :no-controls:
 
 Knights Landing (KNL) Signals
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_knl.json
+.. geopm-msr-json:: ../json_data/msr_data_knl.json
    :no-controls:
 
 Sandy Bridge (SNB) Signals
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_snb.json
+.. geopm-msr-json:: ../json_data/msr_data_snb.json
    :no-controls:
 
 Haswell (HSX) Signals
 ^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_hsx.json
+.. geopm-msr-json:: ../json_data/msr_data_hsx.json
    :no-controls:
 
 Skylake (SKX) Signals
 ^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_skx.json
+.. geopm-msr-json:: ../json_data/msr_data_skx.json
    :no-controls:
 
 ``MSR::CPU_SCALABILITY_RATIO``
@@ -111,27 +111,27 @@ available across Intel x86 microarchitectures.
 
 Architectural Controls
 ^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_arch.json
+.. geopm-msr-json:: ../json_data/msr_data_arch.json
    :no-signals:
 
 Knights Landing (KNL) Controls
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_knl.json
+.. geopm-msr-json:: ../json_data/msr_data_knl.json
    :no-signals:
 
 Sandy Bridge (SNB) Controls
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_snb.json
+.. geopm-msr-json:: ../json_data/msr_data_snb.json
    :no-signals:
 
 Haswell (HSX) Controls
 ^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_hsx.json
+.. geopm-msr-json:: ../json_data/msr_data_hsx.json
    :no-signals:
 
 Skylake (SKX) Controls
 ^^^^^^^^^^^^^^^^^^^^^^
-.. geopm-msr-json:: ../../src/msr_data_skx.json
+.. geopm-msr-json:: ../json_data/msr_data_skx.json
    :no-signals:
 
 

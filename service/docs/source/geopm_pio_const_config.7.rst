@@ -20,7 +20,7 @@ provided, it will default to looking for a file named ``const_config_io.json``
 in the GEOPM configuration path (``/etc/geopm``). In either case, the
 configuration file must comply with the following schema:
 
-.. literalinclude:: ../../json_schemas/const_config_io.schema.json
+.. literalinclude:: ../json_schemas/const_config_io.schema.json
     :language: json
 
 Notice how all signal fields are required. The ``values`` field is an array

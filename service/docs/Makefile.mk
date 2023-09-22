@@ -114,50 +114,6 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmwrite.1.rst \
               # end
 
-dist_man_MANS = docs/build/man/geopm.7 \
-                docs/build/man/GEOPM_CXX_MAN_Agg.3 \
-                docs/build/man/GEOPM_CXX_MAN_CircularBuffer.3 \
-                docs/build/man/GEOPM_CXX_MAN_CNLIOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_Exception.3 \
-                docs/build/man/GEOPM_CXX_MAN_Helper.3 \
-                docs/build/man/GEOPM_CXX_MAN_IOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_MSRIO.3 \
-                docs/build/man/GEOPM_CXX_MAN_MSRIOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_PlatformIO.3 \
-                docs/build/man/GEOPM_CXX_MAN_PlatformTopo.3 \
-                docs/build/man/GEOPM_CXX_MAN_PluginFactory.3 \
-                docs/build/man/GEOPM_CXX_MAN_SampleAggregator.3 \
-                docs/build/man/GEOPM_CXX_MAN_SharedMemory.3 \
-                docs/build/man/GEOPM_CXX_MAN_TimeIOGroup.3 \
-                docs/build/man/geopm_error.3 \
-                docs/build/man/geopm_field.3 \
-                docs/build/man/geopm_hash.3 \
-                docs/build/man/geopm_pio.3 \
-                docs/build/man/geopm_pio.7 \
-                docs/build/man/geopm_pio_cnl.7 \
-                docs/build/man/geopm_pio_const_config.7 \
-                docs/build/man/geopm_pio_cpuinfo.7 \
-                docs/build/man/geopm_pio_dcgm.7 \
-                docs/build/man/geopm_pio_levelzero.7 \
-                docs/build/man/geopm_pio_nvml.7 \
-                docs/build/man/geopm_pio_profile.7 \
-                docs/build/man/geopm_pio_service.7 \
-                docs/build/man/geopm_pio_sst.7 \
-                docs/build/man/geopm_pio_time.7 \
-                docs/build/man/geopm_pio_msr.7 \
-                docs/build/man/geopmread.1 \
-                docs/build/man/geopm_report.7 \
-                docs/build/man/geopm_sched.3 \
-                docs/build/man/geopm_time.3 \
-                docs/build/man/geopm_topo.3 \
-                docs/build/man/geopm_version.3 \
-                docs/build/man/geopmwrite.1 \
-                docs/build/man/geopmaccess.1 \
-                docs/build/man/geopmsession.1 \
-                docs/build/man/geopmdpy.7 \
-                # end
-
 base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopmagent.1 \
            docs/build/man/geopm_agent.3 \
@@ -212,17 +168,17 @@ $(all_man_target): $(all_man_rst)
 $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
 
 
-docs_html: $(abs_srcdir)/geopmdpy/version.py
+docs_html: $(abs_srcdir)/VERSION
 	sphinx-build -M html $(abs_srcdir)/docs/source docs/build -W
 
-docs_man: docs_html $(abs_srcdir)/geopmdpy/version.py
+docs_man: docs_html $(abs_srcdir)/VERSION
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 
 # Nobody asked for this build target, so don't make it a build-blocker unless
 # we decide to keep it. If we choose to keep it, then be sure to ratchet in all
 # the errors, add -W back to the options, and add this as a dependency to the
 # `docs` target
-docs_geopmlint: $(abs_srcdir)/geopmdpy/version.py
+docs_geopmlint: $(abs_srcdir)/VERSION
 	sphinx-build -M geopmlint $(abs_srcdir)/docs/source docs/build
 
 else

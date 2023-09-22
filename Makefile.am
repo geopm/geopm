@@ -84,51 +84,42 @@ endif # ENABLE_MPI
 
 all-local: $(all_local)
 
-# The transform variable will transform any installed file beginning
-# with "GEOPM_CXX_MAN_" to begin with "geopm::".  This is to avoid
-# having make targets that contain the colon character.  See autotools
-# documentation below.
-#
-# https://www.gnu.org/software/autoconf/manual/autoconf-2.67/html_node/Transformation-Rules.html
-#
-transform='s/GEOPM_CXX_MAN_/geopm::/'
-
-roff_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
-                man/GEOPM_CXX_MAN_PowerBalancer.3 \
-                man/GEOPM_CXX_MAN_PowerGovernor.3 \
-                man/geopm_agent.3 \
-                man/geopm_agent_frequency_map.7 \
-                man/geopm_agent_monitor.7 \
-                man/geopm_agent_power_balancer.7 \
-                man/geopm_agent_power_governor.7 \
-                man/geopm_ctl.3 \
-                man/geopm_fortran.3 \
-                man/geopm_imbalancer.3 \
-                man/geopm_prof.3 \
-                man/geopmadmin.1 \
-                man/geopmagent.1 \
-                man/geopmbench.1 \
-                man/geopmctl.1 \
-                man/geopmlaunch.1 \
-                man/geopmpy.7 \
+roff_man_inst = docs/build/man/GEOPM_CXX_MAN_Agent.3 \
+                docs/build/man/GEOPM_CXX_MAN_PowerBalancer.3 \
+                docs/build/man/GEOPM_CXX_MAN_PowerGovernor.3 \
+                docs/build/man/geopm_agent.3 \
+                docs/build/man/geopm_agent_frequency_map.7 \
+                docs/build/man/geopm_agent_monitor.7 \
+                docs/build/man/geopm_agent_power_balancer.7 \
+                docs/build/man/geopm_agent_power_governor.7 \
+                docs/build/man/geopm_ctl.3 \
+                docs/build/man/geopm_fortran.3 \
+                docs/build/man/geopm_imbalancer.3 \
+                docs/build/man/geopm_prof.3 \
+                docs/build/man/geopmadmin.1 \
+                docs/build/man/geopmagent.1 \
+                docs/build/man/geopmbench.1 \
+                docs/build/man/geopmctl.1 \
+                docs/build/man/geopmlaunch.1 \
+                docs/build/man/geopmpy.7 \
                 # end
 
-roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
-                  man/GEOPM_CXX_MAN_MonitorAgent.3 \
-                  man/GEOPM_CXX_MAN_MPIComm.3 \
-                  man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
-                  man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
-                  man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
+roff_man_noinst = docs/build/man/GEOPM_CXX_MAN_Comm.3 \
+                  docs/build/man/GEOPM_CXX_MAN_MonitorAgent.3 \
+                  docs/build/man/GEOPM_CXX_MAN_MPIComm.3 \
+                  docs/build/man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
+                  docs/build/man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
+                  docs/build/man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
                   # end
 
-roff_man_beta = man/geopmendpoint.1 \
-                man/geopm_agent_cpu_activity.7 \
-                man/geopm_agent_gpu_activity.7 \
-                man/geopm_daemon.3 \
-                man/geopm_endpoint.3 \
-                man/geopm_policystore.3 \
-                man/GEOPM_CXX_MAN_Daemon.3 \
-                man/GEOPM_CXX_MAN_Endpoint.3 \
+roff_man_beta = docs/build/man/geopmendpoint.1 \
+                docs/build/man/geopm_agent_cpu_activity.7 \
+                docs/build/man/geopm_agent_gpu_activity.7 \
+                docs/build/man/geopm_daemon.3 \
+                docs/build/man/geopm_endpoint.3 \
+                docs/build/man/geopm_policystore.3 \
+                docs/build/man/GEOPM_CXX_MAN_Daemon.3 \
+                docs/build/man/GEOPM_CXX_MAN_Endpoint.3 \
                 # end
 
 if ENABLE_BETA
@@ -218,43 +209,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              geopm-tutorial.tar.gz \
              indicators/index.html \
              indicators/indicators.py \
-             json_schemas/domainnetmap_neural_net.schema.json \
-             json_schemas/geopmagent_policy.schema.json \
-             json_schemas/geopmbench_config.schema.json \
-             json_schemas/regionhintrecommender_fmap.schema.json \
-             man/geopmadmin.1 \
-             man/geopmagent.1 \
-             man/geopm_agent.3 \
-             man/geopm_agent_cpu_activity.7 \
-             man/geopm_agent_frequency_map.7 \
-             man/geopm_agent_gpu_activity.7 \
-             man/geopm_agent_monitor.7 \
-             man/geopm_agent_power_balancer.7 \
-             man/geopm_agent_power_governor.7 \
-             man/geopmbench.1 \
-             man/geopmctl.1 \
-             man/geopm_ctl.3 \
-             man/GEOPM_CXX_MAN_Agent.3 \
-             man/GEOPM_CXX_MAN_Comm.3 \
-             man/GEOPM_CXX_MAN_Daemon.3 \
-             man/GEOPM_CXX_MAN_Endpoint.3 \
-             man/GEOPM_CXX_MAN_GPUActivityAgent.3 \
-             man/GEOPM_CXX_MAN_MonitorAgent.3 \
-             man/GEOPM_CXX_MAN_MPIComm.3 \
-             man/GEOPM_CXX_MAN_PowerBalancer.3 \
-             man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
-             man/GEOPM_CXX_MAN_PowerGovernor.3 \
-             man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
-             man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
-             man/geopm_daemon.3 \
-             man/geopmendpoint.1 \
-             man/geopm_endpoint.3 \
-             man/geopm_fortran.3 \
-             man/geopm_imbalancer.3 \
-             man/geopmlaunch.1 \
-             man/geopm_policystore.3 \
-             man/geopm_prof.3 \
-             man/geopmpy.7 \
              m4/ax_check_compile_flag.m4 \
              pull_request_template.md \
              specs/geopm-runtime.spec \
@@ -686,6 +640,7 @@ PHONY_TARGETS = clean-local \
                 # end
 
 include test/Makefile.mk
+include docs/Makefile.mk
 
 if !ENABLE_SANITIZERS
 include integration/Makefile.mk

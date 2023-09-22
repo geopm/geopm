@@ -16,11 +16,16 @@ import sphinx_rtd_theme
 linkcheck_timeout = 1
 
 _docs_dir = os.path.dirname(__file__)
-_repo_dir = os.path.abspath(os.path.join(_docs_dir, '..', '..', '..'))
+
+# Repo dir if this is for the base build
+_repo_dir = os.path.abspath(os.path.join(_docs_dir, '..', '..'))
+if os.path.exists(os.path.join(_repo_dir, 'geopmdpy')):
+    # Repo dir if this is the service build
+    _repo_dir = os.path.abspath(os.path.join(_docs_dir, '..', '..', '..'))
+    _geopmdpy_dir = os.path.join(_repo_dir, 'service')
+    sys.path.insert(0, _geopmdpy_dir)
 _ext_dir = os.path.join(_docs_dir, '_ext')
-_geopmdpy_dir = os.path.join(_repo_dir, 'service')
 _geopmpy_dir = os.path.join(_repo_dir, 'scripts')
-sys.path.insert(0, _geopmdpy_dir)
 sys.path.insert(0, _geopmpy_dir)
 sys.path.append(_ext_dir)
 
