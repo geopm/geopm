@@ -333,12 +333,115 @@ For more information about aggregation types, see: :doc:`GEOPM_CXX_MAN_Agg.3`.
 Reading Multiple Signals
 """"""""""""""""""""""""
 In order to regularly read platform telemetry for output directly to the
-console or to a file, use the ``geopmsession`` command-line tool.  It takes
-very similar input to ``geopmread``.  Examples:
+console or to a file, use the ``geopmsession`` from the command-line (which takes
+input that is similar to the arguments of ``geopmread``) or the batch read API
+from code.
 
-.. code-block:: bash
+.. tabs::
 
-    $ echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession
+    .. code-tab:: bash
+
+        $ echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession
+
+    .. code-tab:: c
+
+        // Read multiple signals for ten seconds using batch read every second
+
+        #include <limits.h>
+        #include <stdio.h>
+        #include <geopm_topo.h>
+        #include <geopm_pio.h>
+        #include <geopm_error.h>
+
+        int read_signals ()
+        {
+            int time_idx, freq_idx, err;
+            double time_value, freq_value;
+
+            time_idx = geopm_pio_push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+            if (time_idx < 0) {
+                // geopm_pio_push_signal will return a negative value when something went wrong
+                return time_idx;
+            }
+            freq_idx = geopm_pio_push_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_PACKAGE, 0);
+            if (freq_idx < 0) {
+                return freq_idx;
+            }
+            err = geopm_pio_read_batch();
+            if (err < 0) {
+                return err;
+            }
+            err = geopm_pio_sample(time_idx, &time_value);
+            if (err < 0) {
+                return err;
+            }
+            err = geopm_pio_sample(freq_idx, &freq_value);
+            if (err < 0) {
+                return err;
+            }
+            printf("Elapsed time = %f\n", time_value);
+            printf("Current CPU frequency for core 0 = %f\n", freq_value);
+
+            return 0;
+        }
+
+        int main (int argc, char** argv)
+        {
+            char err_msg[PATH_MAX];
+            int err = read_signals();
+            if (err < 0) {
+                geopm_error_message(err, err_msg, PATH_MAX);
+                fprintf(stderr, "Err msg = %s\n", err_msg);
+            }
+
+            return 0;
+        }
+
+    .. code-tab:: c++
+
+        // Read multiple signals for ten seconds using batch read every second
+
+        #include <limits.h>
+        #include <iostream>
+        #include <geopm/PlatformIO.hpp>
+        #include <geopm/PlatformTopo.hpp>
+
+        int main (int argc, char** argv)
+        {
+            geopm::PlatformIO &pio = geopm::platform_io();
+
+            int time_idx, freq_idx;
+            double time_value, freq_value;
+
+            time_idx = pio.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+            freq_idx = pio.push_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_PACKAGE, 0);
+
+            pio.read_batch();
+
+            time_value = pio.sample(time_idx);
+            freq_value = pio.sample(freq_idx);
+
+            std::cout << "Elapsed time = "
+                      << time_value << std::endl;
+            std::cout << "Current CPU frequency for core 0 = "
+                      << freq_value << std::endl;
+
+            return 0;
+        }
+
+    .. code-tab:: python
+
+        # Read multiple signals using batch read
+
+        import geopmdpy.topo as topo
+        import geopmdpy.pio as pio
+
+        time_idx = pio.push_signal('TIME', topo.DOMAIN_BOARD, 0)
+        freq_idx = pio.push_signal('CPU_FREQUENCY_STATUS', topo.DOMAIN_PACKAGE, 0)
+
+        pio.read_batch()
+        print(f"Elapsed time = {pio.sample(time_idx)}")
+        print(f"Current CPU frequency for core 0 = {pio.sample(freq_idx)}")
 
 For more information on ``geopmsession`` see: :doc:`geopmsession.1`.
 
@@ -348,11 +451,128 @@ Capturing Telemetry Over Time
 ``geopmsession`` can also capture data over time with the ``-p`` and ``-t``
 options.  Examples:
 
-.. code-block:: bash
+.. tabs::
 
-    # Read 2 signals for 10 seconds, sampling once a second:
+    .. code-tab:: bash
+    
+        # Read 2 signals for 10 seconds, sampling once a second:
+    
+        $ echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession -p 1.0 -t 10.0
 
-    $ echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession -p 1.0 -t 10.0
+    .. code-tab:: c
+
+        // Read multiple signals for 10 seconds using batch read, sampling once a second
+
+        #include <limits.h>
+        #include <stdio.h>
+        #include <unistd.h>
+        #include <geopm_topo.h>
+        #include <geopm_pio.h>
+        #include <geopm_error.h>
+
+        int read_signals ()
+        {
+            int time_idx, freq_idx, err;
+            double time_value, freq_value;
+            int ii;
+
+            time_idx = geopm_pio_push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+            if (time_idx < 0) {
+                // geopm_pio_push_signal will return a negative value when something went wrong
+                return time_idx;
+            }
+            freq_idx = geopm_pio_push_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_PACKAGE, 0);
+            if (freq_idx < 0) {
+                return freq_idx;
+            }
+            printf("time,frequency\n");
+            for (ii = 0; ii < 10; ii++) {
+                err = geopm_pio_read_batch();
+                if (err < 0) {
+                    return err;
+                }
+                err = geopm_pio_sample(time_idx, &time_value);
+                if (err < 0) {
+                    return err;
+                }
+                err = geopm_pio_sample(freq_idx, &freq_value);
+                if (err < 0) {
+                    return err;
+                }
+                printf("%f,%f\n", time_value, freq_value);
+                sleep(1);
+            }
+
+            return 0;
+        }
+
+        int main (int argc, char** argv)
+        {
+            char err_msg[PATH_MAX];
+            int err = read_signals();
+            if (err < 0) {
+                geopm_error_message(err, err_msg, PATH_MAX);
+                fprintf(stderr, "Err msg = %s\n", err_msg);
+            }
+
+            return 0;
+        }
+
+    .. code-tab:: c++
+
+        // Read multiple signals for ten seconds using batch read every second
+
+        #include <limits.h>
+        #include <unistd.h>
+        #include <iostream>
+        #include <geopm/PlatformIO.hpp>
+        #include <geopm/PlatformTopo.hpp>
+
+        int main (int argc, char** argv)
+        {
+            geopm::PlatformIO &pio = geopm::platform_io();
+
+            int time_idx, freq_idx;
+            double time_value, freq_value;
+
+            time_idx = pio.push_signal("TIME",
+                                       GEOPM_DOMAIN_BOARD,
+                                       0);
+
+            freq_idx = pio.push_signal("CPU_FREQUENCY_STATUS",
+                                       GEOPM_DOMAIN_PACKAGE,
+                                       0);
+
+            std::cout << "time,frequency" << std::endl;
+            for (int ii = 0; ii < 10; ii++) {
+                pio.read_batch();
+
+                time_value = pio.sample(time_idx);
+                freq_value = pio.sample(freq_idx);
+
+                std::cout << time_value << "," << freq_value << std::endl;
+                sleep(1);
+            }
+
+            return 0;
+        }
+
+    .. code-tab:: python
+
+        # Read multiple signals for ten seconds using batch read every second
+
+        import geopmdpy.topo as topo
+        import geopmdpy.pio as pio
+        import time
+
+        time_idx = pio.push_signal('TIME', topo.DOMAIN_BOARD, 0)
+        freq_idx = pio.push_signal('CPU_FREQUENCY_STATUS', topo.DOMAIN_PACKAGE, 0)
+
+        print("time,frequency")
+        for ii in range(10):
+            pio.read_batch()
+            print(f"{pio.sample(time_idx)},{pio.sample(freq_idx)}")
+            time.sleep(1)
 
 For more information on ``geopmsession`` see :doc:`geopmsession.1`.
 
