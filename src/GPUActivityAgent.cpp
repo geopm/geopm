@@ -487,6 +487,15 @@ namespace geopm
             if (m_gpu_active_region_stop.at(domain_idx) == 0.0) {
                 region_stop = m_time.value;
             }
+            // Either the last energy value was at the point of roll-over or the GPU Utilization
+            // was above cutoff for the entire run.  In either case grabbing the last sample
+            // value is a safe decision (if rollover it'll be 0 still, if not i'll be the end of
+            // run value).  We have to account for the case where no GPU activity was seen however,
+            // so we check for an active region time of 0 (i.e. region start != region stop)
+            if (m_gpu_active_energy_stop.at(domain_idx) == 0 &&
+                region_stop != region_start) {
+                energy_stop = m_gpu_energy.at(domain_idx).value;
+            }
 
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Energy", std::to_string(energy_stop - energy_start)});
