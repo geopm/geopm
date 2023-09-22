@@ -13,6 +13,34 @@ import subprocess # nosec
 from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
+from geopmdpy import system_files
+
+
+class DirectAccessProxy:
+    """A proxy for access-related GEOPM service interactions that attempts
+    in-process operations instead of issuing D-Bus calls.
+    """
+
+    def __init__(self):
+        self._access_lists = system_files.AccessLists(system_files.get_config_path())
+
+    def PlatformGetGroupAccess(self, group):
+        return self._access_lists.get_group_access(group)
+
+    def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls, **call_info):
+        self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
+
+    def PlatformSetGroupAccessSignals(self, group, allowed_signals, **call_info):
+        self._access_lists.set_group_access_signals(group, allowed_signals)
+
+    def PlatformSetGroupAccessControls(self, group, allowed_controls, **call_info):
+        self._access_lists.set_group_access_controls(group, allowed_controls)
+
+    def PlatformGetUserAccess(self, **call_info):
+        raise NotImplementedError('Cannot get user signals or controls in direct access mode')
+
+    def PlatformGetAllAccess(self):
+        return self._access_lists.get_all_access()
 
 
 class Access:
@@ -32,8 +60,9 @@ class Access:
             geopm_proxy.PlatformGetGroupAccess
         except DBusError as ee:
             if 'io.github.geopm was not provided' in str(ee):
-                err_msg = """The geopm systemd service is not enabled.
-    Install geopm service and run 'systemctl start geopm'"""
+                err_msg = "The geopm systemd service is not enabled. " \
+                          "Run with --direct or install geopm service " \
+                          "and run 'systemctl start geopm'"
                 raise RuntimeError(err_msg) from ee
             else:
                 raise ee
@@ -382,7 +411,7 @@ def main():
                                   help='Print all signals or controls supported by the service system')
     parser_group_weD = parser.add_mutually_exclusive_group(required=False)
     parser_group_weD.add_argument('-w', '--write', dest='write', action='store_true', default=False,
-                                  help='Use standard input to write an access list')
+                                  help='Use standard input to write an access list. Implies -u unless -g is provided.')
     parser_group_weD.add_argument('-e', '--edit', dest='edit', action='store_true', default=False,
                                   help='Edit an access list using EDITOR environment variable, default vi')
     parser_group_weD.add_argument('-D', '--delete', dest='delete', action='store_true', default=False,
@@ -392,10 +421,19 @@ def main():
                                  help='Do error checking on all user input, but do not modify configuration files')
     parser_group_nF.add_argument('-F', '--force', dest='force', action='store_true', default=False,
                                  help='Write access list without validating GEOPM Service support for names')
+    parser.add_argument('-x', '--direct', action='store_true', help='Write directly to files, do not use DBus')
+
     args = parser.parse_args()
+    if args.direct and not (args.group or args.default):
+        # This option is intended for early admin access list management before
+        # the GEOPM service is running. The option does not have a meaningful
+        # use case when run for the root user.
+        parser.error('Must specify either --group or --default with --direct.')
+
     try:
-        acc = Access(SystemMessageBus().get_proxy('io.github.geopm',
-                                                  '/io/github/geopm'))
+        geopm_proxy = (DirectAccessProxy() if args.direct
+                       else SystemMessageBus().get_proxy('io.github.geopm', '/io/github/geopm'))
+        acc = Access(geopm_proxy)
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
                          args.edit)

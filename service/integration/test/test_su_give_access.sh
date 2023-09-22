@@ -65,6 +65,23 @@ sudo -n geopmaccess -w -c < ${TEST_CONTROLS}
 ${TEST_SCRIPT} ||
     test_error "Access to $CONTROL was enabled, but write session failed"
 
+# TRY USING DIRECT ACCESS WITHOUT THE SERVICE RUNNING
+sudo systemctl stop geopm
+# 1) MODIFY
+grep -v "${CONTROL}" "${SAVE_SIGNALS}" > "${TEST_SIGNALS}"
+grep -v "${CONTROL}" "${SAVE_CONTROLS}" > "${TEST_CONTROLS}"
+sudo -n geopmaccess --direct --default -w < "${TEST_SIGNALS}"
+sudo -n geopmaccess --direct --default -w -c < "${TEST_CONTROLS}"
+# 2) READ BACK
+sudo -n geopmaccess --direct --default > "${TEST_SIGNALS}"
+sudo -n geopmaccess --direct --default -c > "${TEST_CONTROLS}"
+sudo systemctl start geopm
+# 3) TEST THAT WE READ BACK THE MODIFIED VALUES
+diff <(grep -v "${CONTROL}" "${SAVE_SIGNALS}") "${TEST_SIGNALS}" ||
+    test_error "Access to $CONTROL signal was not disabled with --direct"
+diff <(grep -v "${CONTROL}" "${SAVE_CONTROLS}") "${TEST_CONTROLS}" ||
+    test_error "Access to $CONTROL control was not disabled with --direct"
+
 # RESTORE INITIAL ACCESS SETTINGS
 sudo -n geopmaccess -w < ${SAVE_SIGNALS}
 sudo -n geopmaccess -w -c < ${SAVE_CONTROLS}
