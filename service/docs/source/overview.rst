@@ -345,7 +345,7 @@ from code.
 
     .. code-tab:: c
 
-        // Read multiple signals for ten seconds using batch read every second
+        // Read multiple signals using batch interface
 
         #include <limits.h>
         #include <stdio.h>
@@ -399,7 +399,7 @@ from code.
 
     .. code-tab:: c++
 
-        // Read multiple signals for ten seconds using batch read every second
+        // Read multiple signals using batch interface
 
         #include <limits.h>
         #include <iostream>
