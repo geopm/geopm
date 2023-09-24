@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include <unistd.h>
 #include <limits.h>
 #include <utime.h>
@@ -20,7 +22,6 @@
 #include "MockServiceProxy.hpp"
 #include "PlatformTopoImp.hpp"
 #include "geopm/Exception.hpp"
-#include "config.h"
 #include "LevelZero.hpp"
 #include "geopm_test.hpp"
 #include "geopm_time.h"
@@ -31,6 +32,8 @@ using geopm::ServiceProxy;
 using geopm::Exception;
 using testing::Return;
 using testing::Throw;
+using testing::Not;
+using testing::StartsWith;
 using testing::_;
 
 class PlatformTopoTest : public :: testing :: Test
@@ -926,6 +929,11 @@ TEST_F(PlatformTopoTest, create_cache)
     // Test case: file does not exist and lscpu returns an error code.
     unlink(cache_file_path.c_str());
     EXPECT_THROW(PlatformTopoImp::create_cache(cache_file_path), geopm::Exception);
+    for (const auto &file_path : geopm::list_directory_files("./")) {
+        EXPECT_THAT(file_path, Not(StartsWith(cache_file_path)))
+            << "PlatformTopoImp::create_cache leaked a temporary file";
+    }
+
     struct stat stat_struct;
     ASSERT_EQ(-1, stat(cache_file_path.c_str(), &stat_struct));
 }
