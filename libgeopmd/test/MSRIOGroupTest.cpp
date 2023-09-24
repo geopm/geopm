@@ -44,6 +44,7 @@ using geopm::MSRIOGroup;
 using geopm::PlatformTopo;
 using geopm::Exception;
 using geopm::MSR;
+using testing::AnyNumber;
 using testing::Return;
 using testing::SetArgReferee;
 using testing::_;
@@ -130,6 +131,9 @@ void MSRIOGroupTest::SetUp()
     EXPECT_CALL(*m_msrio, read_msr(_, _)).Times(AtLeast(0));
     EXPECT_CALL(*m_msrio, system_write_mask(_)).WillRepeatedly(Return(~0ULL));
     EXPECT_CALL(*m_mock_cpuid, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_SKX));
+    // suppress mock calls from initializing MSR fields from JSON config
+    EXPECT_CALL(*m_msrio, add_read(_, _, _)).Times(AnyNumber());
+    EXPECT_CALL(*m_msrio, add_write(_, _, _)).Times(AnyNumber());
     m_msrio_group = geopm::make_unique<MSRIOGroup>(*m_topo, m_msrio,
                                                    m_mock_cpuid,
                                                    m_num_cpu,
