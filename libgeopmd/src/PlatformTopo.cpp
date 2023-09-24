@@ -472,12 +472,12 @@ namespace geopm
             FILE *pid;
             int err = geopm_topo_popen(cmd.str().c_str(), &pid);
             if (err) {
-                unlink(cache_file_name.c_str());
+                unlink(tmp_path);
                 throw Exception("PlatformTopo::create_cache(): Could not popen lscpu command: ",
                                 err, __FILE__, __LINE__);
             }
             if (pclose(pid)) {
-                unlink(cache_file_name.c_str());
+                unlink(tmp_path);
                 throw Exception("PlatformTopo::create_cache(): Could not pclose lscpu command: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -505,6 +505,7 @@ namespace geopm
             }
             err = rename(tmp_path, cache_file_name.c_str());
             if (err) {
+                unlink(tmp_path);
                 throw Exception("PlatformTopo::create_cache(): Could not rename tmp_path: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
