@@ -15,6 +15,9 @@
 class MockPlatformTopo : public geopm::PlatformTopo
 {
     public:
+        MockPlatformTopo();
+        virtual ~MockPlatformTopo();
+
         MOCK_METHOD(int, num_domain, (int domain_type), (const, override));
         MOCK_METHOD(int, domain_idx, (int domain_type, int cpu_idx), (const, override));
         MOCK_METHOD(bool, is_nested_domain,

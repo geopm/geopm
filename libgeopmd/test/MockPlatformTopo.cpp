@@ -13,6 +13,14 @@ using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
 
+MockPlatformTopo::MockPlatformTopo()
+{
+}
+
+MockPlatformTopo::~MockPlatformTopo()
+{
+}
+
 std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int num_cpu)
 {
     if (num_core % num_package != 0 || num_cpu % num_core != 0) {
