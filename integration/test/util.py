@@ -224,7 +224,7 @@ def skip_unless_optimized():
 
 
 def skip_unless_batch():
-    batch_env_vars = ['SLURM_NODELIST', 'COBALT_JOBID']
+    batch_env_vars = ['SLURM_NODELIST', 'COBALT_JOBID', 'PBS_JOBID']
     if not g_util.skip_launch() and not any(opt in batch_env_vars for opt in os.environ):
         return unittest.skip('Requires batch session.')
     return lambda func: func
