@@ -30,6 +30,7 @@ import grp
 import pwd
 import fcntl
 import subprocess # nosec
+import tempfile
 from functools import lru_cache
 
 from . import pio
@@ -161,12 +162,14 @@ def secure_make_file(path, contents):
 
     The file is created by first writing the output to a temporary
     file with restricted permissions (mode 0o600) within the same
-    directory, and then renaming the file after it is closed.  This
-    temporary file with have the path `<path>-<uuid>-tmp`.
+    directory, and then renaming the file after it is closed.
 
     The rename operation is atomic, and will overwrite any existing
     file located in the specified path.  The permissions on the output
     file are mode 0o600 with uid and gid matching the process values.
+
+    The temporary file has the prefix `tmp.`. This file may persist if
+    the program exits abruptly.
 
     Args:
         path (str): The path where the file is created
@@ -174,12 +177,13 @@ def secure_make_file(path, contents):
         contents (str): The contents of the created file
 
     """
-    temp_path = f'{path}-{uuid.uuid4()}-tmp'
+    directory = os.path.dirname(os.path.abspath(path))
+    prefix = f'{os.path.basename(path)}-tmp-'
     old_mask = os.umask(0o077)
     try:
-        with open(os.open(temp_path, os.O_CREAT | os.O_WRONLY, 0o600), 'w') as file:
+        with tempfile.NamedTemporaryFile(mode="w+", prefix=prefix, dir=directory, delete=False) as file:
             file.write(contents)
-        os.rename(temp_path, path)
+        os.rename(file.name, path)
     finally:
         os.umask(old_mask)
 
