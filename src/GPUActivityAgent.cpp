@@ -507,6 +507,8 @@ namespace geopm
                               " On Time", std::to_string(m_gpu_on_time.at(domain_idx))});
         }
 
+        result.push_back({"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(IDLE_SAMPLE_COUNT)});
+        result.push_back({"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(IDLE_SAMPLE_COUNT * m_waiter->period())});
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
             result.push_back({"GPU Chip " + std::to_string(domain_idx) +
                               " Idle Agent Actions", std::to_string(m_gpu_idle_samples.at(domain_idx))});

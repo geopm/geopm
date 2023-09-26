@@ -343,11 +343,13 @@ TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
                                                                           {"GPU 0 Active Region Time", "0.000000"},
                                                                           {"GPU 0 On Energy", "0"},
                                                                           {"GPU 0 On Time", "0.000000"},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
                                                                           {"GPU Chip 0 Idle Agent Actions", "1"}};
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    for (int i = 0; i < expected_header.size(); ++i) {
+    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
         EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
         if (expected_header.at(i).first != "Agent Domain") {
             EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
@@ -401,11 +403,13 @@ TEST_F(GPUActivityAgentTest, header_check_full_util)
                                                                           {"GPU 0 Active Region Time", "18"},
                                                                           {"GPU 0 On Energy", "9"},
                                                                           {"GPU 0 On Time", "18"},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
                                                                           {"GPU Chip 0 Idle Agent Actions", "0"}};
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    for (int i = 0; i < expected_header.size(); ++i) {
+    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
         EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
         if (expected_header.at(i).first != "Agent Domain") {
             EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
@@ -463,15 +467,13 @@ TEST_F(GPUActivityAgentTest, header_check_on_off_util)
                                                                           {"GPU 0 Active Region Time", "18"},
                                                                           {"GPU 0 On Energy", "5"},
                                                                           {"GPU 0 On Time", "10"},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
                                                                           {"GPU Chip 0 Idle Agent Actions", "0"}};
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
-    for (const auto&[first, second] : report_header) {
-        std::cout << "\t"  << first << ": " << second << std::endl;
-    }
-
     EXPECT_EQ(expected_header.size(), report_header.size());
-    for (int i = 0; i < expected_header.size(); ++i) {
+    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
         EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
         if (expected_header.at(i).first != "Agent Domain") {
             EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
