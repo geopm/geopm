@@ -170,8 +170,9 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} has wrong permissions, it will be renamed to {renamed_path}\n'),
-                mock.call(f'Warning: <geopm-service> the wrong permissions were 0o755\n')
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong permissions, expected 0o700\n'),
+                mock.call(f'Warning: <geopm-service> the wrong permissions were 0o755\n'),
+                mock.call(f'Warning: <geopm-service> renamed invalid path {sess_path} to {renamed_path}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
@@ -206,8 +207,9 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} has wrong user owner, it will be renamed to {renamed_path}\n'),
-                mock.call(f'Warning: <geopm-service> the wrong user owner was {bad_user.st_uid}\n')
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong user owner\n'),
+                mock.call(f'Warning: <geopm-service> the wrong user owner was {bad_user.st_uid}\n'),
+                mock.call(f'Warning: <geopm-service> renamed invalid path {sess_path} to {renamed_path}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
@@ -242,8 +244,9 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} has wrong group owner, it will be renamed to {renamed_path}\n'),
-                mock.call(f'Warning: <geopm-service> the wrong group owner was {bad_group.st_gid}\n')
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong group owner\n'),
+                mock.call(f'Warning: <geopm-service> the wrong group owner was {bad_group.st_gid}\n'),
+                mock.call(f'Warning: <geopm-service> renamed invalid path {sess_path} to {renamed_path}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             # os.stat() is also called internally by system functions like maybe os.path.islink()

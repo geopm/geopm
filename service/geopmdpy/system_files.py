@@ -78,6 +78,54 @@ def get_config_path():
     return GEOPM_SERVICE_CONFIG_PATH if use_current_path else LEGACY_GEOPM_SERVICE_CONFIG_PATH
 
 
+def _directory_permissions_are_correct(directory, perm_mode):
+    """Helper function to check if a known directory has the correct permissions and ownership
+    """
+    path = directory
+    st = os.stat(path)
+
+    set_perm_mode = stat.S_IMODE(st.st_mode)
+    correct_permissions = set_perm_mode == perm_mode
+
+    user_owner = st.st_uid
+    correct_owner = user_owner == os.getuid()
+
+    group_owner = st.st_gid
+    correct_group = group_owner == os.getgid()
+
+    if correct_permissions and correct_owner and correct_group:
+        return True
+    if not correct_permissions:
+        sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, expected {oct(perm_mode)}\n')
+        sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(set_perm_mode)}\n')
+    if not correct_owner:
+        sys.stderr.write(f'Warning: <geopm-service> {path} has wrong user owner\n')
+        sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {user_owner}\n')
+    if not correct_group:
+        sys.stderr.write(f'Warning: <geopm-service> {path} has wrong group owner\n')
+        sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}\n')
+    return False
+
+
+def _is_already_secure_directory(candidate_dir, perm_mode):
+    """Helper function to check if a path is a directory with the correct permissions and ownership
+    """
+    path = candidate_dir
+    # If it's a link
+    if os.path.islink(path):
+        sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link\n')
+        sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
+        return False
+    # If it's a directory
+    if os.path.isdir(path):
+        if _directory_permissions_are_correct(path, perm_mode):
+            return True
+    else:
+        sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory\n')
+    # default condition: path is not a secure directory
+    return False
+
+
 def secure_make_dirs(path, perm_mode=0o700):
     """Securely create a directory
 
@@ -110,41 +158,10 @@ def secure_make_dirs(path, perm_mode=0o700):
 
     """
     if os.path.exists(path):
-        is_valid = True
-        renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
-        # If it's a link
-        if os.path.islink(path):
-            is_valid = False
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, the link will be renamed to {renamed_path}\n')
-            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
-        # If it's not a directory
-        elif not os.path.isdir(path):
-            is_valid = False
-            sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory, it will be renamed to {renamed_path}\n')
-        # If it's a directory
-        else:
-            st = os.stat(path)
-            # If the permissions are not what we wanted
-            set_perm_mode = stat.S_IMODE(st.st_mode)
-            if set_perm_mode != perm_mode:
-                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, it will be renamed to {renamed_path}\n')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(set_perm_mode)}\n')
-                is_valid = False
-            # If the user owner is not what we wanted
-            user_owner = st.st_uid
-            if user_owner != os.getuid():
-                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong user owner, it will be renamed to {renamed_path}\n')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {user_owner}\n')
-                is_valid = False
-            # If the group owner is not what we wanted
-            group_owner = st.st_gid
-            if group_owner != os.getgid():
-                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong group owner, it will be renamed to {renamed_path}\n')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}\n')
-                is_valid = False
-        # If one of the three above branches revealed an invalid file
-        if not is_valid:
+        if not _is_already_secure_directory(path, perm_mode):
+            renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
             os.rename(path, renamed_path)
+            sys.stderr.write(f'Warning: <geopm-service> renamed invalid path {path} to {renamed_path}\n')
             os.mkdir(path, mode=perm_mode)
     # If the path doesn't exist
     else:
