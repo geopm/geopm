@@ -3,11 +3,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-TEST_NAME=test_multi_app
-export GEOPM_PROFILE=${TEST_NAME}
-export GEOPM_PROGRAM_FILTER=geopmbench,stress-ng
-export LD_PRELOAD=libgeopm.so.2.0.0
-
 cat > temp_config.json << "EOF"
 {
     "loop-count": 2,
@@ -17,6 +12,11 @@ cat > temp_config.json << "EOF"
 EOF
 
 source ${GEOPM_SOURCE}/integration/config/run_env.sh
+
+TEST_NAME=test_multi_app
+export GEOPM_PROFILE=${TEST_NAME}
+export GEOPM_PROGRAM_FILTER=geopmbench,stress-ng
+export LD_PRELOAD=libgeopm.so.2.0.0
 
 GEOPM_REPORT=${TEST_NAME}_report.yaml \
 GEOPM_TRACE=${TEST_NAME}_trace.csv \
