@@ -3,10 +3,12 @@
 #
 
 EXTRA_DIST += shell_completion/README.md \
-              shell_completion/geopmlaunch.bash \
+              shell_completion/geopmread.bash \
+              shell_completion/geopmwrite.bash \
               #end
 
 if ENABLE_BASH_COMPLETION
-dist_bashcomp_DATA = shell_completion/geopmlaunch.bash \
+dist_bashcomp_DATA = shell_completion/geopmread.bash \
+                     shell_completion/geopmwrite.bash \
                      # end
 endif

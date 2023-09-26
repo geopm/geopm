@@ -42,6 +42,7 @@ BuildRequires: systemd-devel >= 221
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
+BuildRequires: bash-completion-devel
 %if %{defined enable_level_zero}
 BuildRequires: level-zero
 BuildRequires: level-zero-devel
@@ -58,8 +59,12 @@ BuildRequires: python-rpm-macros
 %else
 %define docdir %{_defaultdocdir}/geopm-service-%{version}
 %endif
+global debug_package %{nil}
 
-%global debug_package %{nil}
+%define compdir %(pkg-config --variable=completionsdir bash-completion)
+%if "x%{compdir}" == "x"
+%define compdir "%{_sysconfdir}/bash_completion.d"
+%endif
 
 %define python_bin %{__python3}
 
@@ -175,6 +180,7 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-python=%{python_bin} \
+            --with-bash-completion-dir=%{compdir} \
             %{?level_zero_option} \
             %{?io_uring_option} \
             || ( cat config.log && false )
@@ -236,6 +242,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
+%{compdir}
 %dir %{_datadir}/dbus-1
 %dir %{_datadir}/dbus-1/system.d
 %{_datadir}/dbus-1/system.d/io.github.geopm.conf

@@ -109,6 +109,18 @@ else
   ENABLE_SYSTEMD=False
 fi
 
+AC_ARG_WITH([bash-completion-dir], [AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
+            [Install the bash auto-completion script in this directory. @<:@default=yes@:>@])])
+if test "x$with_bash_completion_dir" = "x"; then
+  bashcompdir=`pkg-config --define-variable=prefix='${prefix}' --variable=completionsdir bash-completion`
+  if test "x$bashcompdir" = "x"; then
+    bashcompdir="$sysconfdir/bash_completion.d"
+  fi
+else
+  bashcompdir="$with_bash_completion_dir"
+fi
+AC_SUBST([bashcompdir])
+AM_CONDITIONAL([ENABLE_BASH_COMPLETION], [test "x$with_bash_completion_dir" != "xno"])
 
 AC_ARG_ENABLE([levelzero],
   [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board GPUs])],

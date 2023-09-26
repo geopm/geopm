@@ -1,5 +1,7 @@
 usr/bin/geopmread
 usr/bin/geopmwrite
+etc/bash_completion.d/geopmread.bash
+etc/bash_completion.d/geopmwrite.bash
 usr/lib/systemd/system/geopm.service
 usr/sbin/rcgeopm
 usr/share/dbus-1/interfaces/io.github.geopm.xml
