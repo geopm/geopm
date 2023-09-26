@@ -77,13 +77,13 @@ jobs:
       run: .github/include_guards.sh
     - name: configure service dir
       working-directory: service
-      run: ./autogen.sh && ./configure --${{ matrix.debug-flag }} --${{ matrix.service-asan-flag }}
+      run: ./autogen.sh && ./configure --${{ matrix.debug-flag }} --${{ matrix.service-asan-flag }}  || (cat config.log && false)
     - name: make service dir
       working-directory: service
       run: make -j2
     - name: configure base dir
       if: matrix.service-asan-flag != 'enable-asan'
-      run: ./autogen.sh && ./configure --enable-beta --disable-openmp --with-geopmd-lib=./service/.libs --with-geopmd-include=./service/src --${{ matrix.debug-flag }} --${{ matrix.base-asan-flag  }}
+      run: ./autogen.sh && ./configure --enable-beta --disable-openmp --with-geopmd-lib=./service/.libs --with-geopmd-include=./service/src --${{ matrix.debug-flag }} --${{ matrix.base-asan-flag  }} || (cat config.log && false)
     - name: make base dir
       if: matrix.service-asan-flag != 'enable-asan'
       run: make -j2
@@ -137,7 +137,7 @@ jobs:
            python3 -m pip install -r service/requirements.txt
     - name: configure service dir
       working-directory: service
-      run: ./autogen.sh && ./configure
+      run: ./autogen.sh && ./configure || cat config.log && false
     - name: make service dist
       working-directory: service
       run: make -j2 dist
@@ -145,7 +145,7 @@ jobs:
       working-directory: service
       run: make -j2
     - name: configure runtime dir
-      run: ./autogen.sh && ./configure --disable-openmp --disable-mpi
+      run: ./autogen.sh && ./configure --disable-openmp --disable-mpi || (cat config.log && false)
     - name: make runtime dist
       run: make -j2 dist
     - name: set OSC credentials
