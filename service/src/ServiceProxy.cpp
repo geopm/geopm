@@ -104,11 +104,6 @@ namespace geopm
         (void)m_bus->call_method("PlatformCloseSession");
     }
 
-    void ServiceProxyImp::platform_close_session_admin(int client_pid)
-    {
-        m_bus->call_method("PlatformCloseSessionAdmin", client_pid);
-    }
-
     void ServiceProxyImp::platform_start_batch(const std::vector<struct geopm_request_s> &signal_config,
                                                const std::vector<struct geopm_request_s> &control_config,
                                                int &server_pid,
