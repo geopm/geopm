@@ -23,6 +23,7 @@ compile_commands.json
 /docs/build
 /fuzz_test/geopmhash_corpus.tar.gz
 /fuzz_test/geopmhash_corpus
+/fuzz_test/geopmhash_corpus/.dir
 /geopmdpy.egg-info
 /geopmdpy/schemas.py
 /geopmdpy/version.py
