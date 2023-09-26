@@ -33,6 +33,7 @@ fuzz_test_geopmhash_reg_test_LDADD = libgeopmd.la
 
 $(geopmhash_corpus_dir): $(geopmhash_corpus_archive)
 	tar -xvf $< -C fuzz_test
+	touch $@
 
 $(geopmhash_corpus_archive):
 	wget --timeout=20 -O $@ $(corpus_archives_base_url)/$(geopmhash_corpus_archive_name) || \
