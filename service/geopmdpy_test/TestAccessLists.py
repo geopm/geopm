@@ -370,8 +370,9 @@ default
             self._access_lists = AccessLists(CONFIG_PATH.name)
 
             calls = [
-                mock.call(f'Warning: <geopm-service> {CONFIG_PATH.name} has wrong permissions, it will be renamed to {renamed_path}\n'),
-                mock.call('Warning: <geopm-service> the wrong permissions were 0o755\n')
+                mock.call(f'Warning: <geopm-service> {CONFIG_PATH.name} has wrong permissions, expected 0o700\n'),
+                mock.call('Warning: <geopm-service> the wrong permissions were 0o755\n'),
+                mock.call(f'Warning: <geopm-service> renamed invalid path {CONFIG_PATH.name} to {renamed_path}\n')
             ]
             mock_err.assert_has_calls(calls)
 
