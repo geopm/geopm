@@ -41,6 +41,6 @@
             "type": "string"
           }
         },
-        "required": ["client_pid", "signals", "controls"],
+        "required": ["client_pid", "client_uid", "client_gid", "signals", "controls"],
         "additionalProperties": false
     }

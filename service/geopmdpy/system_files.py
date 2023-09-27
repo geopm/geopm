@@ -412,6 +412,9 @@ class ActiveSessions(object):
     def is_client_active(self, client_pid):
         """Query if a Linux PID currently has an active session
 
+        If the UID or GID for the PID has changed, then the session is
+        terminated and a warning message is printed.
+
         If a session file matching the client_pid exists, but the file
         was not parsed or created by geopmd, then a warning message is
         printed to syslog and the file is renamed.  The warning
@@ -425,13 +428,23 @@ class ActiveSessions(object):
             bool: True if the PID has an open session, False otherwise
 
         """
-        result = client_pid in self._sessions
+        is_registered = client_pid in self._sessions
+        is_valid = False
+        if is_registered:
+            uid, gid = self._pid_info(client_pid)
+            session_uid = self._sessions[client_pid]['client_uid']
+            session_gid = self._sessions[client_pid]['client_gid']
+            if session_uid != uid or session_gid != gid:
+                self.remove_client(client_pid)
+                os.stderr.write(f'Warning: The gid or uid of the session for pid {client_pid} has changed so this session has been terminated: uid_orig={session_uid} uid_new={uid} gid_orig={session_gid} gid_new={gid}\n')
+            else:
+                is_valid = True
         session_path = self._get_session_path(client_pid)
-        if not result and os.path.isfile(session_path):
+        if not is_registered and os.path.isfile(session_path):
             renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
-            sys.stderr.write(f'Session file exists, but client {client_pid} is not tracked: {session_path} will be moved to {renamed_path}\n')
+            sys.stderr.write(f'Warning: Session file exists, but client {client_pid} is not tracked: {session_path} will be moved to {renamed_path}\n')
             os.rename(session_path, renamed_path)
-        return result
+        return is_registered and is_valid
 
     def check_client_active(self, client_pid, msg=''):
         """Raise an exception if a PID does not have an active session
@@ -485,7 +498,10 @@ class ActiveSessions(object):
         """
         if self.is_client_active(client_pid):
             return
+        uid, gid = self._pid_info(client_pid)
         session_data = {'client_pid': int(client_pid),
+                        'client_uid': int(uid),
+                        'client_gid': int(gid),
                         'reference_count': 1,
                         'signals': [str(ss) for ss in signals],
                         'controls': [str(cc) for cc in controls],
@@ -789,9 +805,6 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'start_profile')
         if 'profile_name' in self._sessions[client_pid]:
             raise RuntimeError(f'Client pid {client_pid} has requested profiling twice')
-        uid, gid = self._pid_info(client_pid)
-        self._sessions[client_pid]['client_uid'] = int(uid)
-        self._sessions[client_pid]['client_gid'] = int(gid)
         if len(self._profiles) == 0:
             size = 64 * os.cpu_count()
             shmem.create_prof('status', size, client_pid, uid, gid)
