@@ -437,8 +437,9 @@ include test/Makefile.mk
 if !ENABLE_SANITIZERS
 include geopmdpy_test/Makefile.mk
 include integration/Makefile.mk
-include shell_completion/Makefile.mk
 endif
+
+include shell_completion/Makefile.mk
 
 include fuzz_test/Makefile.mk
 
