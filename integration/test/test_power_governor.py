@@ -38,12 +38,8 @@ class TestIntegration_power_governor(unittest.TestCase):
 
         cls._agent = 'power_governor'
         cls._options = dict()
-        fam, mod = geopm_test_launcher.get_platform()
-        if fam == 6 and mod == 87:
-            # budget for KNL
-            cls._options['power_budget'] = 130
-        else:
-            cls._options['power_budget'] = 200
+        min_power = geopm_test_launcher.geopmread("CPU_POWER_MIN_AVAIL board 0")
+        cls._options['power_budget'] = min_power + 40
         agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config', cls._agent, cls._options)
 
         # Create the test launcher with the above configuration

@@ -41,7 +41,8 @@ class TestIntegrationInitControl(unittest.TestCase):
         agent_conf = geopmpy.agent.AgentConf(test_name + '_agent.config')
 
         # Create the InitControl configuration
-        cls._requested_power_limit = 200
+        min_power = geopm_test_launcher.geopmread("CPU_POWER_MIN_AVAIL board 0")
+        cls._requested_power_limit = min_power + 40
         cls._requested_time_window = 0.013671875 # 7 bit float representation of 0.015
         init_control_path = 'init_control'
         with open('init_control', 'w') as outfile:
