@@ -925,18 +925,21 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         else:
             raise NotImplementedError('<geopm> geopmpy.launcher: Idle nodes feature requires SLURM')
 
-
     def get_alloc_nodes(self):
         """
         Returns a list of the names of compute nodes that have been
-        reserved by a scheduler for current job context using the
-        sinfo command.
-
+        reserved by a scheduler for current job context.
         """
         if self._is_slurm_enabled:
             # Use scontrol instead of sinfo -t alloc since sinfo will show all nodes currently allocated, not just
             # the nodes associated with the current job context.
             return list(set(subprocess.check_output(['scontrol', 'show', 'hostname']).decode().splitlines()))
+        elif os.getenv('PBS_NODEFILE') is not None:
+            nodes = []
+            with open(os.getenv('PBS_NODEFILE')) as fid:
+                for line in fid.readlines():
+                    nodes.append(line.split('.')[0])
+            return nodes
         else:
             raise NotImplementedError('<geopm> geopmpy.launcher: Allocated nodes feature requires SLURM')
 
@@ -1151,7 +1154,6 @@ class SrunLauncher(Launcher):
                               if ll is not None))
             result = ["--export=LD_PRELOAD={},ALL".format(value)]
         return result
-
 
 class SrunTOSSLauncher(SrunLauncher):
     """
