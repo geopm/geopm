@@ -198,7 +198,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP", {
                                   "GPU compute hardware domain energy timestamp in seconds."
-                                  "\nValue cached on LEVELZERO::GPU_CORE_ENERGY read",
+                                  "\nBatch use only - value cached on LEVELZERO::GPU_CORE_ENERGY read",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -231,7 +231,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
                                   "Timestamp for the GPU energy read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_ENERGY read.",
+                                  "\nBatch use only - value is updated on LEVELZERO::GPU_ENERGY read.",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -361,7 +361,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_ACTIVE_TIME read."
+                                  "\nBatch use only - value is updated on LEVELZERO::GPU_ACTIVE_TIME read."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::sum,
@@ -396,7 +396,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
+                                  "\nBatch use only - value is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::sum,
@@ -431,7 +431,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
+                                  "\nBatch use only - value is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::sum,
