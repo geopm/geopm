@@ -17,6 +17,7 @@ import geopmpy.io
 import geopmpy.policy_store
 
 from integration.test import util
+from integration.test import geopm_test_launcher
 
 
 @util.skip_unless_do_launch()
@@ -55,7 +56,8 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         # must match prefix in .cpp file
         endpoint_prefix = '/geopm_endpoint_profile_policy_test'
         # test launcher sets profile, have to use real launcher for now
-        self._argv = ['dummy', 'srun',
+        launcher_type = geopm_test_launcher.detect_launcher()
+        self._argv = ['dummy', launcher_type,
                       '--geopm-ctl=process',
                       '--geopm-endpoint', endpoint_prefix,
                       '--geopm-agent', agent,
