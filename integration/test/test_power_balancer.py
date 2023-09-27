@@ -68,10 +68,8 @@ class TestIntegration_power_balancer(unittest.TestCase):
                sys.stderr.write(err_fmt.format(num_node, cls._num_node))
                cls._num_node = num_node
             num_rank = 2 * cls._num_node
-            power_budget = 180
-            if fam == 6 and mod == 87:
-                # budget for KNL
-                power_budget = 130
+            min_power = geopm_test_launcher.geopmread("CPU_POWER_MIN_AVAIL board 0")
+            power_budget = min_power + 40
             options = {'power_budget': power_budget}
             gov_agent_conf_path = cls._test_name + '_gov_agent.config'
             bal_agent_conf_path = cls._test_name + '_bal_agent.config'
