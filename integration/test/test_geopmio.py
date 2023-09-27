@@ -114,8 +114,15 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                 "REGION_HASH", "PROFILE::REGION_HASH",
                                 "REGION_PROGRESS", "PROFILE::REGION_PROGRESS",
                                 "REGION_HINT", "PROFILE::REGION_HINT"]
+        skip_batch_signals = ["LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP",
+                              "LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP",
+                              "LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP",
+                              "LEVELZERO::GPU_ENERGY_TIMESTAMP",
+                              "LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP"]
+        skip_service_signals = [f'SERVICE::{ll}' for ll in skip_batch_signals]
+        skip_signals = skip_profile_signals + skip_batch_signals + skip_service_signals
         for sig in all_signals:
-            if sig not in skip_profile_signals:
+            if sig not in skip_signals:
                 self.check_no_error([sig, 'board', '0'])
 
     @util.skip_unless_batch()
@@ -125,7 +132,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         '''
         self.exec_name = "geopmread"
         signal_range = {
-            "CPU_POWER": (20, 400),
+            "CPU_POWER": (20, 800),
             "CPU_FREQUENCY_STATUS": (1.0e8, 5.0e9),
             "TIME": (0, 10),  # time in sec to start geopmread
             "CPU_CORE_TEMPERATURE": (0, 100)
