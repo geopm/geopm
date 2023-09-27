@@ -21,6 +21,8 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
         'client_pid' : 750,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : 1,
         'signals' : ['CPU_FREQUENCY_MAX_AVAIL', 'DRAM_ENERGY', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -28,6 +30,8 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_good_example_2 = {
         'client_pid' : 450,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : 1,
         'signals' : ['CPU_FREQUENCY_MAX_AVAIL', 'DRAM_ENERGY', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -35,6 +39,8 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_empty_signals_controls = {
         'client_pid' : 450,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : 1,
         'signals' : [],
         'controls' : [],
@@ -42,6 +48,8 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_negative_reference_count = {
         'client_pid' : 750,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : -2,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -49,6 +57,8 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_float_reference_count = {
         'client_pid' : 750,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : 2.5,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -56,6 +66,8 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_wrong_data_types = {
         'client_pid' : '450',
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : 1,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -63,6 +75,8 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_additional_properties = {
         'client_pid' : 450,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'reference_count' : 1,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -75,6 +89,8 @@ class TestActiveSessions(unittest.TestCase):
     string_empty_file = ''
     string_typos_json = '''{
         'client_pid' : 450,
+        'client_uid' : 123,
+        'client_gid' : 123,
         'signals',  ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
         'watch_id' 550,
@@ -160,6 +176,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('os.stat', return_value=session_mock) as mock_os_stat, \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid, \
              mock.patch('geopmdpy.system_files.ActiveSessions._get_session_path', return_value=full_file_path) as mock_get_session_path, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(contents['client_uid'], contents['client_gid'])) as mock_pid_info, \
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
@@ -169,7 +186,8 @@ class TestActiveSessions(unittest.TestCase):
 
             if is_valid:
                 calls = [mock.call('*'), mock.call(contents['client_pid'])]
-                mock_get_session_path.assert_has_calls(calls)
+                mock_get_session_path.called_once_with(contents['client_pid'])
+                mock_pid_info.assert_has_calls(calls)
 
                 mock_os_stat.assert_called_once_with(full_file_path)
                 mock_pid_valid.assert_called_once_with(contents['client_pid'], session_mock.st_ctime)
@@ -299,12 +317,12 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         client_pid = self.json_good_example['client_pid']
+        client_uid = self.json_good_example['client_uid']
+        client_gid = self.json_good_example['client_gid']
         refcount = self.json_good_example['reference_count']
         signals = self.json_good_example['signals']
         controls = self.json_good_example['controls']
         watch_id = self.json_good_example['watch_id']
-        client_uid = 123
-        client_gid = 321
         profile_name = 'profile_test'
 
         sess_path = f'{self._TEMP_DIR.name}/geopm'
@@ -313,7 +331,6 @@ class TestActiveSessions(unittest.TestCase):
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
              mock.patch('os.remove', autospec=True, specset=True) as mock_remove, \
-             mock.patch('psutil.Process', autospec=True, spec_set=True) as mock_process, \
              mock.patch('geopmdpy.shmem.create_prof', autospec=True, specset=True) as mock_shmem_create, \
              mock.patch('geopmdpy.shmem.path_prof', autospec=True, specset=True, return_value='file_path') as mock_shmem_path, \
              mock.patch('os.unlink') as mock_unlink:
@@ -326,19 +343,13 @@ class TestActiveSessions(unittest.TestCase):
             self.check_getters(act_sess, client_pid, refcount, signals, controls, watch_id)
             mock_smf.assert_called_once_with(full_file_path, json.dumps(self.json_good_example))
 
-            instance = mock_process.return_value
-            instance.uids.return_value.effective = client_uid
-            instance.gids.return_value.effective = client_gid
             act_sess.start_profile(client_pid, profile_name)
-            calls = [mock.call(client_pid), mock.call().uids(), mock.call().gids()]
-            mock_process.assert_has_calls(calls)
             calls = [mock.call('status', 64 * os.cpu_count(), client_pid, client_uid, client_gid),
                      mock.call('record-log', 57384, client_pid, client_uid, client_gid)]
             mock_shmem_create.assert_has_calls(calls)
             self.assertEqual({client_pid}, act_sess.get_profile_pids(profile_name))
             updated_json_contents = dict(self.json_good_example)
-            updated_json_contents.update({'client_uid' : client_uid, 'client_gid' : client_gid,
-                                          'profile_name' : profile_name})
+            updated_json_contents.update({'profile_name' : profile_name})
             calls = [mock.call(full_file_path, json.dumps(self.json_good_example)),
                      mock.call(full_file_path, json.dumps(updated_json_contents))]
             mock_smf.assert_has_calls(calls)
