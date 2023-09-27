@@ -63,7 +63,6 @@ BuildRequires: python-rpm-macros
 %else
 %define docdir %{_defaultdocdir}/geopm-service-%{version}
 %endif
-global debug_package %{nil}
 
 %define compdir %(pkg-config --variable=completionsdir bash-completion)
 %if "x%{compdir}" == "x"
