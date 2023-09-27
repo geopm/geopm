@@ -220,6 +220,7 @@ service/docs/json_schemas/geopmagent_policy.schema.json
 service/docs/json_schemas/msrs.schema.json
 service/docs/json_schemas/regionhintrecommender_fmap.schema.json
 service/docs/json_schemas/saved_controls.schema.json
+service/shell_completion/README.md
 shell_completion/README.md
 specs/geopm-dudley.spec.in
 specs/geopm-ohpc.spec.in

@@ -42,7 +42,11 @@ BuildRequires: systemd-devel >= 221
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
+%if 0%{?suse_version}
 BuildRequires: bash-completion-devel
+%else
+BuildRequires: bash-completion
+%endif
 %if %{defined enable_level_zero}
 BuildRequires: level-zero
 BuildRequires: level-zero-devel

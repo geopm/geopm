@@ -15,12 +15,13 @@ BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: geopm-service-devel
-BuildRequires: bash-completion-devel
 
 %if 0%{?suse_version}
 BuildRequires: libelf-devel
+BuildRequires: bash-completion-devel
 %else
 BuildRequires: elfutils-libelf-devel
+BuildRequires: bash-completion
 %endif
 
 %if 0%{?rhel} >= 8
