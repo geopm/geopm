@@ -134,7 +134,7 @@ compile_commands.json
 /scripts/README
 /scripts/test/pytest_links/*
 /scripts/test/geopmpy_test.sh
-/specs/geopm*.spec
+/geopm-runtime*.spec
 /src/*.lo
 /src/*.o
 /stamp-h1
@@ -179,3 +179,9 @@ compile_commands.json
 /tutorial/tutorial_4_imbalance.conf
 /tutorial/python_agents/*.report
 /VERSION
+/*geopm*.ddeb
+/*geopm*.deb
+/geopm-runtime*.dsc
+/geopm-runtime*.tar.gz
+/geopm-runtime*.buildinfo
+/geopm-runtime*.changes

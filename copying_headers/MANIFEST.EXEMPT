@@ -222,9 +222,6 @@ service/docs/json_schemas/regionhintrecommender_fmap.schema.json
 service/docs/json_schemas/saved_controls.schema.json
 service/shell_completion/README.md
 shell_completion/README.md
-specs/geopm-dudley.spec.in
-specs/geopm-ohpc.spec.in
-specs/geopm-theta.spec.in
 test/EditDistPeriodicityDetectorTest.0_pattern_a.trace
 test/EditDistPeriodicityDetectorTest.1_pattern_ab.trace
 test/EditDistPeriodicityDetectorTest.2_pattern_abb.trace
