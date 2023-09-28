@@ -300,7 +300,7 @@ can be tested by running the copying_headers/test_license script after
 committing the new file to git, and rerunning the autogen.sh script.
 Files for which a license comment is not appropriate should be listed
 in copying_headers/MANIFEST.EXEMPT.  Any new installed files should
-also be added to specs/geopm.spec.in or service/geopm-service.spec.in.
+also be added to geopm-runtime.spec.in or service/geopm-service.spec.in.
 
 
 Creating Manuals

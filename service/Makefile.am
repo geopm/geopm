@@ -405,6 +405,12 @@ rpm: dist
 	cp geopm-service.spec $(rpm_topdir)/SPECS/geopm-service.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
 
+deb: dist
+	rm -rf geopm-service-$(VERSION)
+	tar xvf geopm-service-$(VERSION).tar.gz
+	cd geopm-service-$(VERSION) && dpkg-buildpackage -us -uc
+	rm -rf geopm-service-$(VERSION)
+
 if !ENABLE_SANITIZERS
 checkprogs: gtest-checkprogs geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 else

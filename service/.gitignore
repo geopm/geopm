@@ -53,3 +53,9 @@ src/msr_data_*.cpp
 /test/geopm_test
 /test/gtest_links/
 /VERSION
+/*geopm*.ddeb
+/*geopm*.deb
+/geopm-service*.dsc
+/geopm-service*.tar.gz
+/geopm-service*.buildinfo
+/geopm-service*.changes

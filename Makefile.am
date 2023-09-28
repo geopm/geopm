@@ -211,17 +211,8 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              indicators/indicators.py \
              m4/ax_check_compile_flag.m4 \
              pull_request_template.md \
-             specs/geopm-runtime.spec \
-             specs/geopm-runtime.spec.in \
-             specs/geopm-dudley.spec \
-             specs/geopm-dudley.spec.in \
-             specs/geopm-gcc-mvapich2-toss.spec \
-             specs/geopm-intel-mvapich2-toss.spec \
-             specs/geopm-ohpc.spec \
-             specs/geopm-ohpc.spec.in \
-             specs/geopm-pyyaml-req.patch \
-             specs/geopm-theta.spec \
-             specs/geopm-theta.spec.in \
+             geopm-runtime.spec \
+             geopm-runtime.spec.in \
              test_hw/Makefile \
              test_hw/geopm_time.h \
              test_hw/rapl_pkg_limit_plot.py \
@@ -598,23 +589,14 @@ rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
 	cp geopm-runtime-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm-runtime.tar.gz
-	cp specs/geopm-runtime.spec $(rpm_topdir)/SPECS/geopm-runtime.spec
+	cp geopm-runtime.spec $(rpm_topdir)/SPECS/geopm-runtime.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-runtime.spec
 
-rpm-theta: dist
-	mkdir -p $(rpm_topdir)/SOURCES
-	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/
-	cp specs/geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
-	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
-
-rpm-dudley: dist
-	mkdir -p $(rpm_topdir)/SOURCES
-	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/
-	cp specs/geopm-dudley.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
-	cp specs/geopm-pyyaml-req.patch $(rpm_topdir)/SOURCES/
-	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
+deb: dist
+	rm -rf geopm-runtime-$(VERSION)
+	tar xvf geopm-runtime-$(VERSION).tar.gz
+	cd geopm-runtime-$(VERSION) && dpkg-buildpackage -us -uc
+	rm -rf geopm-runtime-$(VERSION)
 
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
