@@ -275,7 +275,7 @@ namespace geopm
                     message = "SharedMemoryImp: Could not open shared memory region, time limit expired";
                 }
                 else {
-                    message = "SharedMemoryImp: Could not open shared memory region of non-zero size, time limit expired";
+                    message = "SharedMemoryImp: Could open shared memory file, but it remained size zero until the timeout expired";
                 }
                 throw Exception(message, errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
