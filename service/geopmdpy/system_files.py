@@ -1149,7 +1149,7 @@ class AccessLists(object):
         path = os.path.join(group_dir, 'allowed_controls')
         self._write_allowed(path, allowed_controls)
 
-    def get_user_access(self, user):
+    def get_user_access(self, user, client_pid):
         """Get the list of all of the signals and controls that are
         accessible to the specified user.
 
@@ -1157,7 +1157,7 @@ class AccessLists(object):
         users if the empty string is provided.
 
         All available signals and controls are returned if the caller
-        specifies the user name 'root'.  A RuntimeError is
+        provides a pid with CAP_SYSADMIN.  A RuntimeError is
         raised if the user does not exist on the system.
 
         When a user requests a signal or control through one of the
@@ -1171,6 +1171,8 @@ class AccessLists(object):
                         string is provided, the default allowed list
                         is returned.
 
+            client_pid (int): Linux PID to query
+
         Returns:
             list(str), list(str): Signal and control allowed lists, in sorted order.
 
@@ -1178,7 +1180,7 @@ class AccessLists(object):
             RuntimeError: The user does not exist.
 
         """
-        if user == 'root':
+        if has_cap_sys_admin(client_pid):
             return self.get_all_access()
         user_groups = []
         if user != '':
@@ -1204,7 +1206,7 @@ class AccessLists(object):
         Returns the list of all signals and controls supported by the
         service.  The lists returned are independent of the access
         controls; therefore, calling get_all_access() is equivalent
-        to calling get_user_access('root').
+        to calling get_user_access() for a process with CAP_SYSADMIN.
 
         Returns:
             list(str), list(str): All supported signals and controls, in sorted order.
@@ -1400,3 +1402,13 @@ class WriteLock(object):
         self._fid.write(str(pid))
         self._fid.flush()
         self._fid.seek(0)
+
+def has_cap_sys_admin(pid):
+    cap = 0
+    cap_sys_admin = 0x00200000
+    status_path = f'/proc/{pid}/status'
+    with open(status_path) as fid:
+        for line in fid.readlines():
+            if line.startswith('CapEff:'):
+                cap = int(line.split(':')[1], 16)
+    return (cap & cap_sys_admin != 0)
