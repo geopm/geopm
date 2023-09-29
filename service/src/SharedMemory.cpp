@@ -130,6 +130,7 @@ namespace geopm
                           S_IROTH | S_IWOTH);
         }
         if (shm_id < 0) {
+            (void) umask(old_mask);
             std::ostringstream ex_str;
             ex_str << "SharedMemoryImp: Could not open shared memory with key " << m_shm_key;
             throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
