@@ -482,7 +482,8 @@ class Launcher(object):
         if stderr_encoding is None:
             stderr_encoding = locale.getpreferredencoding()
 
-        argv_mod = [self.launcher_command()]
+        argv_mod = []
+        argv_mod.extend(self.launcher_command())
         if self.quiet:
             argv_mod.extend(self.quiet_option())
         if self.is_override_enabled:
@@ -506,7 +507,8 @@ class Launcher(object):
         # Re-quote the arguments before concatenating them so we don't treat
         # any quoted words as separate args
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
-            geopm_argv = [self.launcher_command()]
+            geopm_argv = []
+            geopm_argv.extend(self.launcher_command())
             geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
             is_geopmctl = True
@@ -1012,7 +1014,7 @@ class SrunLauncher(Launcher):
         """
         Returns ``'srun'``, the name of the SLURM MPI job launch application.
         """
-        return 'srun'
+        return ['srun']
 
     def num_node_option(self, is_geopmctl):
         """
@@ -1206,7 +1208,7 @@ class OMPIExecLauncher(Launcher):
         """
         Returns ``'mpiexec'``, the name of the Open MPI project job launch application.
         """
-        return 'mpiexec'
+        return ['mpiexec']
 
     def parse_launcher_argv(self):
         """
@@ -1375,7 +1377,7 @@ class IMPIExecLauncher(Launcher):
         """
         Returns ``'mpiexec.hydra'``, the name of the Intel MPI Library job launch application.
         """
-        return 'mpiexec.hydra'
+        return ['mpiexec.hydra']
 
     def parse_launcher_argv(self):
         """
@@ -1528,7 +1530,10 @@ class PALSLauncher(IMPIExecLauncher):
         """
         Returns 'mpiexec', the name of the PALS MPI Library job launch application.
         """
-        return 'mpiexec'
+        result = ['mpiexec']
+        if self.time_limit is not None:
+            result = ['timeout', '-v', '--preserve-status', f'{self.time_limit}s'] + result
+        return result
 
     def num_node_option(self, is_geopmctl):
         result = []
@@ -1619,7 +1624,7 @@ class AprunLauncher(Launcher):
         """
         Returns ``'aprun'``, the name of the ALPS MPI job launch application.
         """
-        return 'aprun'
+        return ['aprun']
 
     def num_node_option(self, is_geopmctl):
         """
