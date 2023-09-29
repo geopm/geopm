@@ -87,44 +87,43 @@ def _directory_permissions_are_correct(directory, perm_mode):
 
     set_perm_mode = stat.S_IMODE(st.st_mode)
     correct_permissions = set_perm_mode == perm_mode
-
-    user_owner = st.st_uid
-    correct_owner = user_owner == os.getuid()
-
-    group_owner = st.st_gid
-    correct_group = group_owner == os.getgid()
-
-    if correct_permissions and correct_owner and correct_group:
-        return True
     if not correct_permissions:
         sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, expected {oct(perm_mode)}\n')
         sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(set_perm_mode)}\n')
+
+    user_owner = st.st_uid
+    correct_owner = user_owner == os.getuid()
     if not correct_owner:
         sys.stderr.write(f'Warning: <geopm-service> {path} has wrong user owner\n')
         sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {user_owner}\n')
+
+    group_owner = st.st_gid
+    correct_group = group_owner == os.getgid()
     if not correct_group:
         sys.stderr.write(f'Warning: <geopm-service> {path} has wrong group owner\n')
         sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}\n')
-    return False
+
+    return correct_permissions and correct_owner and correct_group
 
 
 def _is_already_secure_directory(candidate_dir, perm_mode):
     """Helper function to check if a path is a directory with the correct permissions and ownership
     """
     path = candidate_dir
+    is_secure_directory = False
     # If it's a link
     if os.path.islink(path):
         sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link\n')
         sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
-        return False
     # If it's a directory
-    if os.path.isdir(path):
+    elif os.path.isdir(path):
         if _directory_permissions_are_correct(path, perm_mode):
-            return True
+          is_secure_directory = True
+    # Don't know what it is, definitely not a directory
     else:
         sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory\n')
     # default condition: path is not a secure directory
-    return False
+    return is_secure_directory
 
 
 def secure_make_dirs(path, perm_mode=0o700):
