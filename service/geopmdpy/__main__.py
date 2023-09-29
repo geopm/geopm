@@ -7,11 +7,13 @@ from dasbus.connection import SystemMessageBus
 from signal import signal
 from signal import SIGTERM
 import sys
+import os
 from . import service
+from . import system_files
 from geopmdpy.restorable_file_writer import RestorableFileWriter
 
 ALLOW_WRITES_PATH = '/sys/module/msr/parameters/allow_writes'
-ALLOW_WRITES_BACKUP_PATH = '/run/geopm/msr-saved-allow-writes'
+ALLOW_WRITES_BACKUP_PATH = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'msr-saved-allow-writes')
 
 _bus = None
 _loop = None
