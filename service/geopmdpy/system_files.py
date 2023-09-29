@@ -432,13 +432,21 @@ class ActiveSessions(object):
         is_valid = False
         if is_registered:
             uid, gid = self._pid_info(client_pid)
+            create_time = psutil.Process(client_pid).create_time()
             session_uid = self._sessions[client_pid]['client_uid']
             session_gid = self._sessions[client_pid]['client_gid']
-            if session_uid != uid or session_gid != gid:
+            session_time = self._sessions[client_pid]['create_time']
+            is_valid = session_uid == uid and session_gid == gid and session_time == create_time
+            if not is_valid:
                 self.remove_client(client_pid)
-                os.stderr.write(f'Warning: The gid or uid of the session for pid {client_pid} has changed so this session has been terminated: uid_orig={session_uid} uid_new={uid} gid_orig={session_gid} gid_new={gid}\n')
-            else:
-                is_valid = True
+                warn = f'Warning: <geopm-service> Session PID {client_pid} identifying property has changed during the session:'
+                if session_uid != uid:
+                    warn += f' uid_orig={session_uid} uid_new={uid}'
+                if session_gid != gid:
+                    warn += f' gid_orig={session_gid} gid_new={gid}'
+                if session_time != create_time:
+                    warn += f' PID creation time has changed'
+                os.stderr.write(f'{warn}\n')
         session_path = self._get_session_path(client_pid)
         if not is_registered and os.path.isfile(session_path):
             renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
@@ -499,9 +507,11 @@ class ActiveSessions(object):
         if self.is_client_active(client_pid):
             return
         uid, gid = self._pid_info(client_pid)
+        create_time = psutil.Process(client_pid).create_time()
         session_data = {'client_pid': int(client_pid),
                         'client_uid': int(uid),
                         'client_gid': int(gid),
+                        'create_time': float(create_time),
                         'reference_count': 1,
                         'signals': [str(ss) for ss in signals],
                         'controls': [str(cc) for cc in controls],
