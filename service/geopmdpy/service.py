@@ -992,7 +992,10 @@ class GEOPMService(object):
         """
         unique_name = call_info['sender']
         uid = self._dbus_proxy.GetConnectionUnixUser(unique_name)
-        return pwd.getpwuid(uid).pw_name
+        name = pwd.getpwuid(uid).pw_name
+        if name == 'root':
+            self._check_cap_sys_admin(call_info)
+        return name
 
     def _get_pid(self, call_info):
         """Use DBus proxy object to derive the Linux PID of the client
@@ -1009,7 +1012,7 @@ class GEOPMService(object):
         unique_name = call_info['sender']
         return self._dbus_proxy.GetConnectionUnixProcessID(unique_name)
 
-    def _check_cap_sys_admin(self, call_info, api_name):
+    def _check_cap_sys_admin(self, call_info, api_name=None):
         has_admin = False
         cap = 0
         cap_sys_admin = 0x00200000
@@ -1020,4 +1023,8 @@ class GEOPMService(object):
                 if line.startswith('CapEff:'):
                     cap = int(line.split(':')[1], 16)
         if cap & cap_sys_admin == 0:
-            raise RuntimeError(f'Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)')
+            if api_name is not None:
+                msg = f'Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)'
+            else:
+                msg = f'User name is "root", but this user does not have CAP_SYS_ADMIN'
+            raise RuntimeError(msg)
