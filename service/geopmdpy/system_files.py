@@ -446,7 +446,7 @@ class ActiveSessions(object):
                     warn += f' gid_orig={session_gid} gid_new={gid}'
                 if session_time != create_time:
                     warn += f' PID creation time has changed'
-                os.stderr.write(f'{warn}\n')
+                sys.stderr.write(f'{warn}\n')
         session_path = self._get_session_path(client_pid)
         if not is_registered and os.path.isfile(session_path):
             renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
