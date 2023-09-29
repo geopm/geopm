@@ -92,13 +92,13 @@ Runtime launch options.
   * Read the generated ``geopm.report`` file
   
   .. code-block:: console
-    :caption: examples using ``geopmlaunch``
+    :caption: Examples using ``geopmlaunch``
 
-    $ # Launch with srun and explore the generated geopm report
+    $ # Launch with srun and explore the generated GEOPM report
     $ geopmlaunch srun -N 1 -n 20 -- ./my-app
     $ less geopm.report
     $ # Launch with Intel mpiexec and explore the generated GEOPM report
-    $ geopmlaunch impi -N 1 -ppn 20 -- ./my-app
+    $ geopmlaunch impi -n 1 -ppn 20 -- ./my-app
     $ less geopm.report
     $ # show all options and available launchers
     $ geopmlaunch --help
@@ -119,30 +119,31 @@ Runtime launch options.
    * Both the ``geopmctl`` process and the application process must have
      the ``GEOPM_PROFILE`` environment variable set to the **same**
      value.
-   * The application process must have ``LD_PRELOAD=libgeopm.so.1`` set
+   * The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
      in the environment, or the application binary must be linked
-     directly to ``libgeopm.so.1`` at compile time.
+     directly to ``libgeopm.so.2`` at compile time.
    * The ``GEOPM_REPORT`` environment variable must be set in the
      environment of the ``geopmctl`` process.
  
    .. code-block:: console
-     :caption: examples using ``geopmctl``
+     :caption: Examples using ``geopmctl``
  
      $ GEOPM_PROFILE=sleep-ten \
        GEOPM_REPORT=sleep-ten.yaml \
+       GEOPM_TRACE=sleep-ten-trace \
        geopmctl &
      $ GEOPM_PROFILE=sleep-ten \
-       LD_PRELOAD=libgeopm.so.1 \
+       LD_PRELOAD=libgeopm.so.2 \
        sleep 10
      $ cat sleep-ten.yaml
-     $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv | less
+     $ awk -F\| '{print $1, $6, $8}' sleep-ten-trace* | less
 
 
-The `geopm runtime tutorial
+The `GEOPM runtime tutorial
 <https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
-to profile unmodified applications, select and evaluate different geopm agent
+to profile unmodified applications, select and evaluate different GEOPM agent
 algorithms, and how to add markup to an application.  The tutorial provides a
-starting point for someone trying to get familiar with the geopm runtime.
+starting point for someone trying to get familiar with the GEOPM runtime.
 
 The runtime enables complex coordination between hardware settings across all
 compute nodes used by a distributed HPC application in
