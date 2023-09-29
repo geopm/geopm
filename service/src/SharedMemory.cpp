@@ -234,6 +234,10 @@ namespace geopm
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_size = stat_struct.st_size;
+            if (m_size == 0) {
+                throw Exception("SharedMemoryImp: Shared memory cannot be mapped: it is of zero size",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
 
             m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
             if (m_ptr == MAP_FAILED) {
@@ -253,15 +257,26 @@ namespace geopm
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
-            while (!m_size && geopm_time_since(&begin_time) < (double)timeout) {
+            m_size = 0;
+            bool does_time_remain = true;
+            err = 0;
+            while (m_size == 0 && does_time_remain) {
                 err = fstat(shm_id, &stat_struct);
                 if (!err) {
                     m_size = stat_struct.st_size;
                 }
+                does_time_remain = (geopm_time_since(&begin_time) < (double)timeout);
             }
             if (!m_size) {
                 (void) close(shm_id);
-                throw Exception("SharedMemoryImp: Opened shared memory region, but it is zero length", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::string message;
+                if (err != 0) {
+                    message = "SharedMemoryImp: Could not open shared memory region, time limit expired";
+                }
+                else {
+                    message = "SharedMemoryImp: Could not open shared memory region of non-zero size, time limit expired";
+                }
+                throw Exception(message, errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
             m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
