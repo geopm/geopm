@@ -225,7 +225,7 @@ default
         self.assertEqual(set(self._controls_expect), set(controls))
 
     def test_get_user_access_empty(self):
-        signals, controls = self._access_lists.get_user_access('')
+        signals, controls = self._access_lists.get_user_access('', os.getpid())
         self.assertEqual([], signals)
         self.assertEqual([], controls)
 
@@ -233,7 +233,7 @@ default
         bad_user = self._bad_user_id
         err_msg = "Specified user '{}' does not exist.".format(bad_user)
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._access_lists.get_user_access(bad_user)
+            self._access_lists.get_user_access(bad_user, os.getpid())
 
     def test_get_user_groups_invalid(self):
         bad_user = self._bad_user_id
@@ -274,7 +274,7 @@ default
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
-            signals, controls = self._access_lists.get_user_access('')
+            signals, controls = self._access_lists.get_user_access('', os.getpid())
             mock_isdir.assert_called_with(default_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
@@ -323,7 +323,7 @@ default
                         side_effect=[named_control_lines, named_signal_lines,
                                      default_control_lines, default_signal_lines]) as mock_srf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
-            signals, controls = self._access_lists.get_user_access(valid_user)
+            signals, controls = self._access_lists.get_user_access(valid_user, os.getpid())
             calls = [mock.call(named_dir), mock.call(default_dir)]
             mock_isdir.assert_has_calls(calls)
             calls = [mock.call(named_control_file), mock.call(named_signal_file),
@@ -347,9 +347,10 @@ default
         all_controls = controls_default + controls_named
 
         with mock.patch('geopmdpy.system_files._get_names', \
-                        side_effect=[all_signals, all_controls]):
+                        side_effect=[all_signals, all_controls]), \
+             mock.patch('geopmdpy.system_files.has_cap_sys_admin', return_value=True):
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
-            signals, controls = self._access_lists.get_user_access('root')
+            signals, controls = self._access_lists.get_user_access('root', os.getpid())
 
         self.assertEqual(set(all_signals), set(signals))
         self.assertEqual(set(all_controls), set(controls))

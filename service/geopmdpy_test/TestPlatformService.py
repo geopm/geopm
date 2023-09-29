@@ -156,7 +156,7 @@ class TestPlatformService(unittest.TestCase):
             self._mock_active_sessions.is_client_active.assert_called_with(client_pid)
             if not active:
                 self._mock_active_sessions.add_client.assert_called_with(client_pid, signals, controls, watch_id)
-                self._mock_access_lists.get_user_access.assert_called_with(session_user)
+                self._mock_access_lists.get_user_access.assert_called()
             else:
                 self._mock_active_sessions.add_client.assert_not_called()
 

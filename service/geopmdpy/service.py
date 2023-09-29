@@ -152,7 +152,7 @@ class PlatformService(object):
         """
         self._access_lists.set_group_access_controls(group, allowed_controls)
 
-    def get_user_access(self, user):
+    def get_user_access(self, user, client_pid):
         """Get the list of all of the signals and controls that are
         accessible to the specified user.
 
@@ -160,7 +160,7 @@ class PlatformService(object):
         users if the empty string is provided.
 
         All available signals and controls are returned if the caller
-        specifies the user name 'root'.  A RuntimeError is
+        specifies the a pid with CAP_SYSADMIN.  A RuntimeError is
         raised if the user does not exist on the system.
 
         When a user requests a signal or control through one of the
@@ -174,6 +174,9 @@ class PlatformService(object):
                         string is provided, the default allowed list
                         is returned.
 
+            client_pid (int): Linux PID of the client thread opening
+                              the session.
+
         Returns:
             list(str), list(str): Signal and control allowed lists, both in sorted order.
 
@@ -181,7 +184,7 @@ class PlatformService(object):
             RuntimeError: The user does not exist.
 
         """
-        return self._access_lists.get_user_access(user)
+        return self._access_lists.get_user_access(user, client_pid)
 
     def get_all_access(self):
         """Get all of the signals and controls that the service supports.
@@ -189,7 +192,7 @@ class PlatformService(object):
         Returns the list of all signals and controls supported by the
         service.  The lists returned are independent of the access
         controls; therefore, calling get_all_access() is equivalent
-        to calling get_user_access('root').
+        to calling get_user_access() for a user with CAP_SYSADMIN.
 
         Returns:
             list(str), list(str): All supported signals and controls, in sorted order.
@@ -379,7 +382,7 @@ class PlatformService(object):
         if self._active_sessions.is_client_active(client_pid):
             self._active_sessions.increment_reference_count(client_pid)
         else:
-            signals, controls = self.get_user_access(user)
+            signals, controls = self.get_user_access(user, client_pid)
             watch_id = self._watch_client(client_pid)
             self._active_sessions.add_client(client_pid, signals, controls, watch_id)
 
@@ -904,7 +907,7 @@ class GEOPMService(object):
 
     @accepts_additional_arguments
     def PlatformGetUserAccess(self, **call_info):
-        return self._platform.get_user_access(self._get_user(**call_info))
+        return self._platform.get_user_access(self._get_user(**call_info), self._get_pid(**call_info))
 
     def PlatformGetAllAccess(self):
         return self._platform.get_all_access()
@@ -992,10 +995,7 @@ class GEOPMService(object):
         """
         unique_name = call_info['sender']
         uid = self._dbus_proxy.GetConnectionUnixUser(unique_name)
-        name = pwd.getpwuid(uid).pw_name
-        if name == 'root':
-            self._check_cap_sys_admin(call_info)
-        return name
+        return pwd.getpwuid(uid).pw_name
 
     def _get_pid(self, call_info):
         """Use DBus proxy object to derive the Linux PID of the client
@@ -1012,19 +1012,7 @@ class GEOPMService(object):
         unique_name = call_info['sender']
         return self._dbus_proxy.GetConnectionUnixProcessID(unique_name)
 
-    def _check_cap_sys_admin(self, call_info, api_name=None):
-        has_admin = False
-        cap = 0
-        cap_sys_admin = 0x00200000
+    def _check_cap_sys_admin(self, call_info, api_name):
         pid = self._get_pid(**call_info)
-        status_path = f'/proc/{pid}/status'
-        with open(status_path) as fid:
-            for line in fid.readlines():
-                if line.startswith('CapEff:'):
-                    cap = int(line.split(':')[1], 16)
-        if cap & cap_sys_admin == 0:
-            if api_name is not None:
-                msg = f'Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)'
-            else:
-                msg = f'User name is "root", but this user does not have CAP_SYS_ADMIN'
-            raise RuntimeError(msg)
+        if not system_files.has_cap_sys_admin(pid):
+            raise RuntimeError(f'Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)')
