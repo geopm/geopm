@@ -803,11 +803,13 @@ GEOPM Runtime features.  The first is creating a CSV trace file using
 the ``GEOPM_TRACE`` environment variable.  Additionally, by using the
 ``GEOPM_PERIOD`` environment variable we increase the sampling period
 of the controller to 200 milliseconds (default value is 5
-milliseconds).  These two options together will create a CSV trace
-file with approximately 50 rows of samples (five per-second for ten
-seconds).  The ``awk`` command in the example selects the columns
-measuring time since application start from column 1, CPU energy from
-column 6, and CPU power from column 8.
+milliseconds). By using the optional ``GEOPM_PROGRAM_FILTER`` variable
+we can explicitly list the name of the non-MPI program invovation name
+of the non-MPI process to be profiled. These two options together will 
+create a CSV trace file with approximately 50 rows of samples (five 
+per-second for ten seconds).  The ``awk`` command in the example selects
+the columns measuring time since application start from column 1, CPU 
+energy from column 6, and CPU power from column 8.
 
 .. code-block:: bash
 
@@ -817,6 +819,7 @@ column 6, and CPU power from column 8.
       GEOPM_PERIOD=0.2 \
       geopmctl &
     $ GEOPM_PROFILE=sleep-ten \
+      GEOPM_PROGRAM_FILTER=sleep \
       LD_PRELOAD=libgeopm.so.2 \
       sleep 10
     $ cat sleep-ten.yaml
