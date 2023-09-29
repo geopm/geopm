@@ -56,6 +56,8 @@ class RestorableFileWriter:
             # contents, since that setting may be what the service wrote before.
             self._warning_handler(f'Reusing existing backup at {self._backup_path}')
         else:
+            system_files.secure_make_dirs(os.path.dirname(self._backup_path),
+                                          perm_mode=system_files.GEOPM_SERVICE_RUN_PATH_PERM)
             system_files.secure_make_file(self._backup_path, old_setting)
 
         with open(self._write_path, 'w') as f:
