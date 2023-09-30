@@ -116,8 +116,9 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} is a symbolic link, the link will be renamed to {renamed_path}\n'),
-                mock.call(f'Warning: <geopm-service> the symbolic link points to /tmp\n')
+                mock.call(f'Warning: <geopm-service> {sess_path} is a symbolic link\n'),
+                mock.call(f'Warning: <geopm-service> the symbolic link points to /tmp\n'),
+                mock.call(f'Warning: <geopm-service> renamed invalid path {sess_path} to {renamed_path}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_islink.assert_called_once_with(sess_path)
@@ -143,8 +144,11 @@ class TestSecureFiles(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
-            msg = f'Warning: <geopm-service> {sess_path} is not a directory, it will be renamed to {renamed_path}\n'
-            mock_sys_stderr_write.assert_called_once_with(msg)
+            calls = [
+                mock.call(f'Warning: <geopm-service> {sess_path} is not a directory\n'),
+                mock.call(f'Warning: <geopm-service> renamed invalid path {sess_path} to {renamed_path}\n')
+            ]
+            mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_islink.assert_called_once_with(sess_path)
             mock_os_path_isdir.assert_called_once_with(sess_path)
         self.assertTrue(os.path.exists(renamed_path))
