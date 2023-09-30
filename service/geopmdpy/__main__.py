@@ -34,6 +34,8 @@ def stop():
 def main():
     signal(SIGTERM, term_handler)
     global _bus, _loop
+    system_files.secure_make_dirs(system_files.GEOPM_SERVICE_RUN_PATH,
+                                  perm_mode=system_files.GEOPM_SERVICE_RUN_PATH_PERM)
     _loop = EventLoop()
     _bus = SystemMessageBus()
     with RestorableFileWriter(
