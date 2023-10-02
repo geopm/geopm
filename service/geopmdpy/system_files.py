@@ -110,6 +110,7 @@ def _is_already_secure_directory(candidate_dir, perm_mode):
     """Helper function to check if a path is a directory with the correct permissions and ownership
     """
     path = candidate_dir
+    # default condition: path is not a secure directory
     is_secure_directory = False
     # If it's a link
     if os.path.islink(path):
@@ -122,7 +123,6 @@ def _is_already_secure_directory(candidate_dir, perm_mode):
     # Don't know what it is, definitely not a directory
     else:
         sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory\n')
-    # default condition: path is not a secure directory
     return is_secure_directory
 
 
