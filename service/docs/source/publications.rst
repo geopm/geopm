@@ -29,13 +29,17 @@ HPC Lab Resources
 Media Posts
 -----------
 
+* `Top Considerations for HPC AI and Sustainability, HPCWire Article, 2023, <https://www.hpcwire.com/2023/06/26/top-considerations-for-hpc-ai-and-sustainability/>`
+
+* `Four Principles for Writing Energy and Carbon Efficient Software, Intel Community Blog Article, 2023 <https://community.intel.com/t5/Blogs/Thought-Leadership/Big-Ideas/Four-principles-for-writing-energy-and-carbon-efficient-software/post/1478842>`
+
 * `PowerStack: A global response to the power management problem for exascale, HIPEAC Blog Article, 2019 <https://www.hipeac.net/news/6895/powerstack-a-global-response-to-the-power-management-problem-for-exascale/>`_
 
 * `Power and Performance Optimization at Exascale, InsideHPC, March 2018, InsideHPC Podcast and article, March 2018 <https://insidehpc.com/2018/03/podcast-power-peformance-optimization-Exascale/>`_
 
-* `Energy Efficiency in the Software Stack — Cross Community Efforts, InsideHPC article, December 2017 <https://insidehpc.com/2017/12/sc17-energy-efficiency-software-stack-cross-community-efforts/>`_
+* `Energy Efficiency in the Software Stack — Cross Community Efforts, InsideHPC Article, December 2017 <https://insidehpc.com/2017/12/sc17-energy-efficiency-software-stack-cross-community-efforts/>`_
 
-* `First Global Survey of Energy and Power Aware Job Scheduling and Resource Management, InsideHPC article, November 2017 <https://insidehpc.com/2017/12/first-global-survey-energy-power-aware-job-scheduling-resource-management/>`_
+* `First Global Survey of Energy and Power Aware Job Scheduling and Resource Management, InsideHPC Article, November 2017 <https://insidehpc.com/2017/12/first-global-survey-energy-power-aware-job-scheduling-resource-management/>`_
 
 
 
