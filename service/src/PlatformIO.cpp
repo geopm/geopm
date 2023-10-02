@@ -921,7 +921,7 @@ namespace geopm
         // Special signals from PlatformIOImp are aggregated by underlying signals
         auto iogroups = find_signal_iogroup(signal_name);
         if (iogroups.empty()) {
-            throw Exception("PlatformIOImp::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+            throw Exception("PlatformIOImp::agg_function(): unknown signal \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -934,7 +934,7 @@ namespace geopm
         // PlatformIOImp forwards formatting request to underlying IOGroup
         auto iogroups = find_signal_iogroup(signal_name);
         if (iogroups.empty()) {
-            throw Exception("PlatformIOImp::format_function(): unknown how to format \"" + signal_name + "\"",
+            throw Exception("PlatformIOImp::format_function(): unknown signal \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return iogroups.at(0)->format_function(signal_name);
