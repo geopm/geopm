@@ -22,7 +22,8 @@ class TestActiveSessions(unittest.TestCase):
     json_good_example = {
         'client_pid' : 750,
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
+        'create_time' : 42.0,
         'reference_count' : 1,
         'signals' : ['CPU_FREQUENCY_MAX_AVAIL', 'DRAM_ENERGY', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -30,8 +31,9 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_good_example_2 = {
         'client_pid' : 450,
-        'client_uid' : 123,
+        'client_uid' : 321,
         'client_gid' : 123,
+        'create_time' : 52.0,
         'reference_count' : 1,
         'signals' : ['CPU_FREQUENCY_MAX_AVAIL', 'DRAM_ENERGY', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -40,7 +42,8 @@ class TestActiveSessions(unittest.TestCase):
     json_empty_signals_controls = {
         'client_pid' : 450,
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
+        'create_time' : 42.0,
         'reference_count' : 1,
         'signals' : [],
         'controls' : [],
@@ -49,7 +52,8 @@ class TestActiveSessions(unittest.TestCase):
     json_negative_reference_count = {
         'client_pid' : 750,
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
+        'create_time' : 42.0,
         'reference_count' : -2,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -58,7 +62,8 @@ class TestActiveSessions(unittest.TestCase):
     json_float_reference_count = {
         'client_pid' : 750,
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
+        'create_time' : 42.0,
         'reference_count' : 2.5,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -67,7 +72,8 @@ class TestActiveSessions(unittest.TestCase):
     json_wrong_data_types = {
         'client_pid' : '450',
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
+        'create_time' : 42.0,
         'reference_count' : 1,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -76,7 +82,8 @@ class TestActiveSessions(unittest.TestCase):
     json_additional_properties = {
         'client_pid' : 450,
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
+        'create_time' : 42.0,
         'reference_count' : 1,
         'signals' : ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
@@ -90,7 +97,7 @@ class TestActiveSessions(unittest.TestCase):
     string_typos_json = '''{
         'client_pid' : 450,
         'client_uid' : 123,
-        'client_gid' : 123,
+        'client_gid' : 321,
         'signals',  ['DRAM_ENERGY', 'CPU_FREQUENCY_MAX_AVAIL', 'MSR::DRAM_ENERGY_STATUS:ENERGY'],
         'controls' : ['CPU_FREQUENCY_MAX_CONTROL', 'MSR::IA32_PERFEVTSEL0:CMASK'],
         'watch_id' 550,
@@ -169,6 +176,15 @@ class TestActiveSessions(unittest.TestCase):
         session_mock = mock.create_autospec(os.stat_result, spec_set=True)
         session_mock.st_ctime = 123
 
+        try:
+            client_uid = contents['client_uid']
+            client_gid = contents['client_gid']
+            create_time = contents['create_time']
+        except (TypeError, KeyError):
+            client_uid = None
+            client_gid = None
+            create_time = None
+
         with mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_read_file', return_value=string_contents) as mock_srf, \
              mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf, \
@@ -176,7 +192,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('os.stat', return_value=session_mock) as mock_os_stat, \
              mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid, \
              mock.patch('geopmdpy.system_files.ActiveSessions._get_session_path', return_value=full_file_path) as mock_get_session_path, \
-             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(contents['client_uid'], contents['client_gid'])) as mock_pid_info, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info, \
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
@@ -185,10 +201,7 @@ class TestActiveSessions(unittest.TestCase):
             mock_srf.assert_called_once_with(full_file_path)
 
             if is_valid:
-                calls = [mock.call('*'), mock.call(contents['client_pid'])]
                 mock_get_session_path.called_once_with(contents['client_pid'])
-                mock_pid_info.assert_has_calls(calls)
-
                 mock_os_stat.assert_called_once_with(full_file_path)
                 mock_pid_valid.assert_called_once_with(contents['client_pid'], session_mock.st_ctime)
                 mock_smf.assert_called_once_with(full_file_path, string_contents)
@@ -240,12 +253,18 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         client_pid_1 = self.json_good_example['client_pid']
+        client_uid_1 = self.json_good_example['client_uid']
+        client_gid_1 = self.json_good_example['client_gid']
+        create_time_1 = self.json_good_example['create_time']
         refcount_1 = self.json_good_example['reference_count']
         signals_1 = self.json_good_example['signals']
         controls_1 = self.json_good_example['controls']
         watch_id_1 = self.json_good_example['watch_id']
 
         client_pid_2 = self.json_good_example_2['client_pid']
+        client_uid_2 = self.json_good_example_2['client_uid']
+        client_gid_2 = self.json_good_example_2['client_gid']
+        create_time_2 = self.json_good_example_2['create_time']
         refcount_2 = self.json_good_example['reference_count']
         signals_2 = self.json_good_example_2['signals']
         controls_2 = self.json_good_example_2['controls']
@@ -273,8 +292,10 @@ class TestActiveSessions(unittest.TestCase):
             mock_srf.assert_has_calls(calls)
             mock_stat.assert_has_calls(calls)
 
-            self.check_getters(act_sess, client_pid_1, refcount_1, signals_1, controls_1, watch_id_1)
-            self.check_getters(act_sess, client_pid_2, refcount_2, signals_2, controls_2, watch_id_2)
+            with mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid_1, client_gid_1, create_time_1)) as mock_pid_info:
+                self.check_getters(act_sess, client_pid_1, refcount_1, signals_1, controls_1, watch_id_1)
+            with mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid_2, client_gid_2, create_time_2)) as mock_pid_info:
+                self.check_getters(act_sess, client_pid_2, refcount_2, signals_2, controls_2, watch_id_2)
 
     def test_add_remove_client(self):
         """Add client session and remove it
@@ -288,6 +309,9 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         client_pid = self.json_good_example['client_pid']
+        client_uid = self.json_good_example['client_uid']
+        client_gid = self.json_good_example['client_gid']
+        create_time = self.json_good_example['create_time']
         refcount = self.json_good_example['reference_count']
         signals = self.json_good_example['signals']
         controls = self.json_good_example['controls']
@@ -298,11 +322,13 @@ class TestActiveSessions(unittest.TestCase):
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
-             mock.patch('os.remove', autospec=True, specset=True) as mock_remove:
+             mock.patch('os.remove', autospec=True, specset=True) as mock_remove, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             act_sess.add_client(client_pid, signals, controls, watch_id)
+            mock_pid_info.assert_called_once_with(client_pid)
             self.assertTrue(act_sess.is_client_active(client_pid))
             self.check_getters(act_sess, client_pid, refcount, signals, controls, watch_id)
             mock_smf.assert_called_once_with(full_file_path, json.dumps(self.json_good_example))
@@ -319,6 +345,7 @@ class TestActiveSessions(unittest.TestCase):
         client_pid = self.json_good_example['client_pid']
         client_uid = self.json_good_example['client_uid']
         client_gid = self.json_good_example['client_gid']
+        create_time = self.json_good_example['create_time']
         refcount = self.json_good_example['reference_count']
         signals = self.json_good_example['signals']
         controls = self.json_good_example['controls']
@@ -331,6 +358,7 @@ class TestActiveSessions(unittest.TestCase):
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
              mock.patch('os.remove', autospec=True, specset=True) as mock_remove, \
+             mock.patch('psutil.Process', autospec=True, spec_set=True) as mock_process, \
              mock.patch('geopmdpy.shmem.create_prof', autospec=True, specset=True) as mock_shmem_create, \
              mock.patch('geopmdpy.shmem.path_prof', autospec=True, specset=True, return_value='file_path') as mock_shmem_path, \
              mock.patch('os.unlink') as mock_unlink:
@@ -338,12 +366,19 @@ class TestActiveSessions(unittest.TestCase):
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
+            instance = mock_process.return_value
+            instance.uids.return_value.effective = client_uid
+            instance.gids.return_value.effective = client_gid
+            instance.create_time.return_value = create_time
+
             act_sess.add_client(client_pid, signals, controls, watch_id)
             self.assertTrue(act_sess.is_client_active(client_pid))
             self.check_getters(act_sess, client_pid, refcount, signals, controls, watch_id)
             mock_smf.assert_called_once_with(full_file_path, json.dumps(self.json_good_example))
-
             act_sess.start_profile(client_pid, profile_name)
+            calls = [mock.call(client_pid), mock.call().uids(), mock.call().gids(), mock.call().create_time()]
+            mock_process.assert_has_calls(calls)
+
             calls = [mock.call('status', 64 * os.cpu_count(), client_pid, client_uid, client_gid),
                      mock.call('record-log', 57384, client_pid, client_uid, client_gid)]
             mock_shmem_create.assert_has_calls(calls)
@@ -380,6 +415,9 @@ class TestActiveSessions(unittest.TestCase):
         """
         json_good_example = dict(self.json_good_example)
         client_pid = json_good_example['client_pid']
+        client_uid = json_good_example['client_uid']
+        client_gid = json_good_example['client_gid']
+        create_time = json_good_example['create_time']
         signals = json_good_example['signals']
         controls = json_good_example['controls']
         watch_id = json_good_example['watch_id']
@@ -389,7 +427,8 @@ class TestActiveSessions(unittest.TestCase):
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
-             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
@@ -397,6 +436,7 @@ class TestActiveSessions(unittest.TestCase):
             act_sess.add_client(client_pid, signals, controls, watch_id)
             first_smf_call = mock.call(full_file_path, json.dumps(json_good_example))
             mock_smf.assert_has_calls([first_smf_call])
+            mock_pid_info.assert_called_once_with(client_pid)
             batch_server_actual = act_sess.get_batch_server(client_pid)
             self.assertEqual(None, batch_server_actual)
 
@@ -419,6 +459,9 @@ class TestActiveSessions(unittest.TestCase):
         # Copy the object to ensure modifications don't leak between tests
         json_good_example = dict(self.json_good_example)
         client_pid = json_good_example['client_pid']
+        client_uid = json_good_example['client_uid']
+        client_gid = json_good_example['client_gid']
+        create_time = json_good_example['create_time']
 
         batch_pid = 42
         json_good_example['batch_server'] = batch_pid
@@ -433,7 +476,8 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
              mock.patch('os.stat', return_value=session_mock) as mock_stat, \
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
-             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
+             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
@@ -445,7 +489,8 @@ class TestActiveSessions(unittest.TestCase):
 
             mock_smf.assert_called_once_with(full_file_path, json.dumps(json_good_example))
 
-        self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
+            self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
+            mock_pid_info.assert_called_once_with(client_pid)
 
     def test_batch_server_bad_service_restart(self):
         """Verify batch pid is not returned
@@ -458,6 +503,9 @@ class TestActiveSessions(unittest.TestCase):
         # Copy the object to ensure modifications don't leak between tests
         json_good_example = dict(self.json_good_example)
         client_pid = json_good_example['client_pid']
+        client_uid = json_good_example['client_uid']
+        client_gid = json_good_example['client_gid']
+        create_time = json_good_example['create_time']
 
         batch_pid = 42
         json_good_example['batch_server'] = batch_pid
@@ -476,7 +524,8 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
              mock.patch('os.stat', return_value=session_mock) as mock_stat, \
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
-             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
+             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
@@ -490,7 +539,8 @@ class TestActiveSessions(unittest.TestCase):
                      mock.call(batch_pid, session_mock.st_ctime)]
 
             mock_pid_valid.assert_has_calls(calls)
-        self.assertIsNone(act_sess.get_batch_server(client_pid))
+            self.assertIsNone(act_sess.get_batch_server(client_pid))
+            mock_pid_info.assert_called_once_with(client_pid)
 
     def test_remove_batch_server(self):
         """Assign the batch server PID to a client session
@@ -501,6 +551,9 @@ class TestActiveSessions(unittest.TestCase):
         """
         json_good_example = dict(self.json_good_example)
         client_pid = json_good_example['client_pid']
+        client_uid = json_good_example['client_uid']
+        client_gid = json_good_example['client_gid']
+        create_time = json_good_example['create_time']
         signals = json_good_example['signals']
         controls = json_good_example['controls']
         watch_id = json_good_example['watch_id']
@@ -522,7 +575,8 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
              mock.patch('os.unlink') as os_unlink, \
              mock.patch('os.path.exists', return_value=True) as os_path_exists, \
-             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+             mock.patch('sys.stderr.write', return_value=None) as mock_err, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
@@ -595,6 +649,9 @@ class TestActiveSessions(unittest.TestCase):
         """
         json_good_example = dict(self.json_good_example)
         client_pid = json_good_example['client_pid']
+        client_uid = json_good_example['client_uid']
+        client_gid = json_good_example['client_gid']
+        create_time = json_good_example['create_time']
         signals = json_good_example['signals']
         controls = json_good_example['controls']
         watch_id = json_good_example['watch_id']
@@ -603,7 +660,8 @@ class TestActiveSessions(unittest.TestCase):
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
-             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
@@ -629,6 +687,9 @@ class TestActiveSessions(unittest.TestCase):
         # Copy the object to ensure modifications don't leak between tests
         session_json = dict(self.json_good_example)
         client_pid = session_json['client_pid']
+        client_uid = session_json['client_uid']
+        client_gid = session_json['client_gid']
+        create_time = session_json['create_time']
         signals = session_json['signals']
         controls = session_json['controls']
         watch_id = session_json['watch_id']
@@ -637,13 +698,15 @@ class TestActiveSessions(unittest.TestCase):
         full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
-             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
 
             act_sess.add_client(client_pid, signals, controls, watch_id)
             calls = [mock.call(full_file_path, json.dumps(session_json))]
             mock_smf.assert_has_calls(calls)
+            mock_pid_info.assert_called_once_with(client_pid)
 
             reference_count_actual = act_sess.get_reference_count(client_pid)
             self.assertEqual(1, reference_count_actual)
