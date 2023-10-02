@@ -798,15 +798,16 @@ generate a report:
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
 
-Beyond generating a report YAML file, we also show two of the optional
+Beyond generating a report YAML file, we also show three of the optional
 GEOPM Runtime features.  The first is creating a CSV trace file using
 the ``GEOPM_TRACE`` environment variable.  Additionally, by using the
 ``GEOPM_PERIOD`` environment variable we increase the sampling period
 of the controller to 200 milliseconds (default value is 5
-milliseconds). By using the optional ``GEOPM_PROGRAM_FILTER`` variable
+milliseconds). By using the third optional ``GEOPM_PROGRAM_FILTER`` variable,
 we can explicitly list the name of the non-MPI program invovation name
-of the non-MPI process to be profiled. These two options together will 
-create a CSV trace file with approximately 50 rows of samples (five 
+of the non-MPI process to be profiled. These three options together will inform
+the GEOPM runtime controller (``geopmctl``) to profile the ``sleep`` utility
+and generate a CSV trace file with approximately 50 rows of samples (five 
 per-second for ten seconds).  The ``awk`` command in the example selects
 the columns measuring time since application start from column 1, CPU 
 energy from column 6, and CPU power from column 8.
