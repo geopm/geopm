@@ -28,7 +28,7 @@ namespace geopm
 
             /// @brief Factory method to create a pointer to a BatchClient object
             ///
-            /// The BatchClient interface is used to communcate with an
+            /// The BatchClient interface is used to communicate with an
             /// existing GEOPM batch server. The batch server is typically
             /// created with the PlatformStartBatch GEOPM DBus interface.
             ///

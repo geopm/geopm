@@ -167,7 +167,7 @@ void FrequencyMapAgentTest::SetUp()
 
 }
 
-//Sets up GPU expecations and performs init. Every test must call this.
+//Sets up GPU expectations and performs init. Every test must call this.
 void FrequencyMapAgentTest::setup_gpu(bool do_gpu)
 {
     std::set<std::string> control_names = {

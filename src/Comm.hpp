@@ -132,7 +132,7 @@ namespace geopm
             virtual bool test(bool is_true) const = 0;
             /// @brief Reduce distributed messages across all ranks using specified operation, store result on all ranks
             ///
-            /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
+            /// @param [in] send_buf Start address of memory buffer to be transmitted.
             ///
             /// @param [out] recv_buf Start address of memory buffer to receive data.
             ///
@@ -141,7 +141,7 @@ namespace geopm
             virtual void reduce_max(double *send_buf, double *recv_buf, size_t count, int root) const = 0;
             /// @brief Gather bytes from all processes
             ///
-            /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
+            /// @param [in] send_buf Start address of memory buffer to be transmitted.
             ///
             /// @param [in] send_size Size of buffer to be sent.
             ///
@@ -154,7 +154,7 @@ namespace geopm
                                 size_t recv_size, int root) const = 0;
             /// @brief Gather bytes into specified location from all processes
             ///
-            /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
+            /// @param [in] send_buf Start address of memory buffer to be transmitted.
             ///
             /// @param [in] send_size Size of buffer to be sent.
             ///

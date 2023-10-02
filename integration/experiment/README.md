@@ -1,7 +1,7 @@
 # Experiments
 
 This directory provides the integration infrastructure with
-experiements.  All experiments are broken into two parts: running
+experiments.  All experiments are broken into two parts: running
 parallel jobs, and analyzing the job output.
 
 ## Common Python Supporting Files

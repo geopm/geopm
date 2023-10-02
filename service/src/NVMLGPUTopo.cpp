@@ -60,7 +60,7 @@ namespace geopm
                 }
             }
 
-            // In order to handle systems where the number of CPUs are not evenly divisble by the number of
+            // In order to handle systems where the number of CPUs are not evenly divisible by the number of
             // GPUs a two pass process is used.  This does not guarantee affinitization is successful,
             // fair, or that logical CPUs aren't split between GPUs, but it does cover many common cases
             for (int affinitization_attempts = 0; affinitization_attempts < 2; ++affinitization_attempts) {

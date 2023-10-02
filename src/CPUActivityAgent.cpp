@@ -450,7 +450,7 @@ namespace geopm
         return {{"Wait time (sec)", std::to_string(m_waiter->period())}};
     }
 
-    // Adds number of frquency requests to the per-node section of the report
+    // Adds number of frequency requests to the per-node section of the report
     std::vector<std::pair<std::string, std::string> > CPUActivityAgent::report_host(void) const
     {
         std::vector<std::pair<std::string, std::string> > result;

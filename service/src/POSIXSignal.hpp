@@ -38,7 +38,7 @@ namespace geopm
             /// @param signal_set [in]: Set of all signal numbers to
             ///                         add to the sigset.
             ///
-            /// @return A sigset_t that is zeroed execept for
+            /// @return A sigset_t that is zeroed except for
             ///         specified signals
             virtual sigset_t make_sigset(const std::set<int> &signal_set) const = 0;
 

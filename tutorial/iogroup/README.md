@@ -200,7 +200,7 @@ the GEOPM install directory, <GEOPM_INSTALL_DIR>/lib/geopm.
 > When installing plugins system-wide for use through the GEOPM service,
 > it is imperative that any dynamically loaded library that is a dependency
 > of a plugin is available in the environment of the systemd initiated geopmd
-> service.  If dependent libararies are not available on the root user's
+> service.  If dependent libraries are not available on the root user's
 > LD_LIBRARY_PATH, the plugin will fail to load.
 > For this reason, it is recommended that any plugins are compiled with
 > the system installed gcc/g++ compilers.
