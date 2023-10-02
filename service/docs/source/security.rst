@@ -140,9 +140,7 @@ other if requested provides a user interface to write
 controls. Requests to read, write, or quit are made through a FIFO
 channel connecting the client to the batch server, and a second FIFO
 is used to communicate to the client when requests have been
-completed. These FIFOs are opened in ``/tmp`` which by default systemd
-creates as a `tmpfs(5)
-<https://man7.org/linux/man-pages/man5/tmpfs.5.html>`__.
+completed. These FIFOs are opened in ``/run/geopm/batch-status-*``.
 
 
 Secure restart of the ``geopmd`` daemon process
