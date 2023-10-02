@@ -802,7 +802,7 @@ TEST_F(PlatformIOTest, agg_function)
     EXPECT_EQ(value, mode_func({5, 6, 7}));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->agg_function("INVALID"),
-                               GEOPM_ERROR_INVALID, "unknown how to aggregate");
+                               GEOPM_ERROR_INVALID, "unknown signal");
 }
 
 TEST_F(PlatformIOTest, signal_behavior)
