@@ -124,9 +124,10 @@ Runtime launch options.
      directly to ``libgeopm.so.2`` at compile time.
    * The ``GEOPM_REPORT`` environment variable must be set in the
      environment of the ``geopmctl`` process.
-   * The ``GEOPM_PROGRAM_FILTER`` environment variable can optionally be set to
-     explicitly list the program invocation name of the non-MPI processes that need
-     to be profiled.
+   * While not necessary in this example, in case of multiple extraneous processes 
+     getting launched, the optional ``GEOPM_PROGRAM_FILTER`` environment variable 
+     can be set to explicitly list the program invocation name of the specific 
+     non-MPI process that needs to be profiled.
  
    .. code-block:: console
      :caption: Examples using ``geopmctl``
