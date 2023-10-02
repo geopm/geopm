@@ -149,12 +149,11 @@ interface.
   file will be used by any calls to the other ``geopm_topo_*()`` functions
   documented here as well as any use of the GEOPM runtime.  If a privileged
   user is making this call (i.e. root or via sudo), the file path will be
-  ``/run/geopm/geopm-topo-cache`` and the permissions will be
-  ``-rw-r--r--``, i.e. 644.  If a non-privileged user makes this call file path
-  will be ``/tmp/geopm-topo-cache-<UID>`` and the permissions will be
-  ``-rw-------``, i.e. 600.  If the file exists from the current boot cycle and
-  has the proper permissions no operation will be performed.  To force the
-  creation of a new cache file, `unlink(3)
+  ``/run/geopm/geopm-topo-cache``. If a non-privileged user makes this call
+  file path will be ``/tmp/geopm-topo-cache-<UID>``. In either case, the
+  permissions will be ``-rw-------``, i.e. 600.  If the file exists from the
+  current boot cycle and has the proper permissions no operation will be
+  performed.  To force the creation of a new cache file, `unlink(3)
   <https://man7.org/linux/man-pages/man3/unlink.3p.html>`_ the existing cache
   file prior to calling this function.
 
