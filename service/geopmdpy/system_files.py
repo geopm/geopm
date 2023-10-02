@@ -813,6 +813,7 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'start_profile')
         if 'profile_name' in self._sessions[client_pid]:
             raise RuntimeError(f'Client pid {client_pid} has requested profiling twice')
+        uid, gid, _ = self._pid_info(client_pid)
         if len(self._profiles) == 0:
             size = 64 * os.cpu_count()
             shmem.create_prof('status', size, client_pid, uid, gid)
