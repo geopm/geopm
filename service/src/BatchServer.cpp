@@ -88,10 +88,17 @@ namespace geopm
         // Fork the server when calling real constructor.
         auto setup = [this]() {
 #ifdef GEOPM_ENABLE_NVML
-            // NVML requires reinitialization after fork
-            // TODO: Switch to fork()/excecv() model to
-            //       avoid this issue
-            nvml_device_pool(geopm_sched_num_cpu()).reset();
+            try {
+                // NVML requires reinitialization after fork
+                // TODO: Switch to fork()/excecv() model to
+                //       avoid this issue
+                nvml_device_pool(geopm_sched_num_cpu()).reset();
+            }
+            catch (const Exception &ex) {
+                if (std::string(ex.what()).find("NVML failed to initialize.") == std::string::npos) {
+                    throw ex;
+                }
+            }
 #endif
             this->child_register_handler();
             this->create_shmem();
