@@ -54,7 +54,7 @@ requirements for each application directory are provided.
 
   Each application is briefly described in the application directory
   markdown readme.  Any notes or information useful for running
-  experiements with the application should be noted in this file.
+  experiments with the application should be noted in this file.
 
 #### Application Python file
 

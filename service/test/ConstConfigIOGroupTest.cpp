@@ -265,7 +265,7 @@ TEST_F(ConstConfigIOGroupTest, input_capital_properties)
 
 TEST_F(ConstConfigIOGroupTest, input_duplicate_properties)
 {
-    /* Multiple apprearances of the same property overwrites the previous one. */
+    /* Multiple appearances of the same property overwrites the previous one. */
     set_up_topo_expect_exactly({GEOPM_DOMAIN_GPU});
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"

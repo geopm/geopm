@@ -56,7 +56,7 @@ Aliases
 
 This IOGroup provides all high-level aliases that the user has been granted privileges to
 access based on the :doc:`geopmaccess(1) <geopmaccess.1>` configuration.  These aliases
-are defined in the IOGroups that implement them.  This IOGroup provdes no additional aliases.
+are defined in the IOGroups that implement them.  This IOGroup provides no additional aliases.
 
 See Also
 --------

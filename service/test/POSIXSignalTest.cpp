@@ -252,7 +252,7 @@ TEST_F(POSIXSignalTest, sig_queue_EPERM)
 }
 
 /**
- * @test attempt is made to chenge the action for SIGKILL, which cannot be caught or ignored.
+ * @test attempt is made to change the action for SIGKILL, which cannot be caught or ignored.
  */
 TEST_F(POSIXSignalTest, sig_action_EINVAL)
 {

@@ -16,7 +16,7 @@ class TestPIOReset(unittest.TestCase):
     This test exercises a use case where the PlatformIO interface
     needs to be reset to free resources, including any
     signals/controls that might've been pushed, allowing to push a
-    new set of signals/conrols.
+    new set of signals/controls.
     """
     SIGNALS = ['CPUINFO::FREQ_MIN', 'CPUINFO::FREQ_MAX']
 

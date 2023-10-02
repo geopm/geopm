@@ -67,7 +67,7 @@ fi
 )
 
 AC_ARG_ENABLE([beta],
-  [AS_HELP_STRING([--enable-beta], [Enable beta features of GEOPM that have intefaces expected to change])],
+  [AS_HELP_STRING([--enable-beta], [Enable beta features of GEOPM that have interfaces expected to change])],
 [if test "x$enable_beta" = "xno" ; then
   enable_beta="0"
 else

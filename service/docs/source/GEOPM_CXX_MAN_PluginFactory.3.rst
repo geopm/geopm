@@ -211,7 +211,7 @@ detailed example of plugin load order can be found in
 
     It is imperative that any dynamically loaded library that is a dependency
     of a plugin is available in the environment of the systemd initiated geopmd
-    service.  If dependent libararies are not available on the root user's
+    service.  If dependent libraries are not available on the root user's
     LD_LIBRARY_PATH, the plugin will fail to load.
     For this reason, it is recommended that any plugins are compiled with
     system installed gcc/g++ compilers.
