@@ -431,8 +431,7 @@ class ActiveSessions(object):
         is_registered = client_pid in self._sessions
         is_valid = False
         if is_registered:
-            uid, gid = self._pid_info(client_pid)
-            create_time = psutil.Process(client_pid).create_time()
+            uid, gid, create_time = self._pid_info(client_pid)
             session_uid = self._sessions[client_pid]['client_uid']
             session_gid = self._sessions[client_pid]['client_gid']
             session_time = self._sessions[client_pid]['create_time']
@@ -506,8 +505,7 @@ class ActiveSessions(object):
         """
         if self.is_client_active(client_pid):
             return
-        uid, gid = self._pid_info(client_pid)
-        create_time = psutil.Process(client_pid).create_time()
+        uid, gid, create_time = self._pid_info(client_pid)
         session_data = {'client_pid': int(client_pid),
                         'client_uid': int(uid),
                         'client_gid': int(gid),
@@ -919,7 +917,8 @@ class ActiveSessions(object):
         proc = psutil.Process(pid)
         uid = proc.uids().effective
         gid = proc.gids().effective
-        return (uid, gid)
+        create_time = proc.create_time()
+        return (uid, gid, create_time)
 
     def _load_session_file(self, sess_path):
         """Load the session file into memory
