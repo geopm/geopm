@@ -288,7 +288,197 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_low)
     double mock_active = -12345;
     double mock_util = 1.0;
     test_adjust_platform(policy, mock_active, mock_util, M_FREQ_EFFICIENT);
+}
 
+TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    double mock_active = 0.0;
+    double mock_util = 0.0;
+
+    // We should see one write to efficient freq, subsequent writes are masked
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_EFFICIENT)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_EFFICIENT)).Times(M_NUM_GPU_CHIP);
+
+    // We should see one write to min freq after long idle
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_MIN)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_MIN)).Times(M_NUM_GPU_CHIP);
+
+    for (int i = 0; i < 10; i++) {
+        //Sample
+        std::vector<double> tmp;
+        EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
+                 .WillRepeatedly(Return(mock_active));
+        EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                 .WillRepeatedly(Return(mock_util));
+        EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
+                 .WillRepeatedly(Return(123456789 + i));
+        EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                 .Times(1);
+        m_agent->sample_platform(tmp);
+
+        //Adjust
+        m_agent->adjust_platform(policy);
+
+        if(i == 0 || i == 9) {
+            //Check a frequency decision resulted in write batch being true
+            EXPECT_TRUE(m_agent->do_write_batch());
+        }
+        else {
+            //Check a frequency decision resulted in write batch being false
+            EXPECT_FALSE(m_agent->do_write_batch());
+        }
+    }
+
+    std::vector<std::pair<std::string, std::string> > expected_header = { {"Agent Domain", "gpu_chip"},
+                                                                          {"GPU Frequency Requests", "2.000000"},
+                                                                          {"GPU Clipped Frequency Requests", "0.000000"},
+                                                                          {"Resolved Max Frequency", std::to_string(M_FREQ_MAX)},
+                                                                          {"Resolved Efficient Frequency", std::to_string(M_FREQ_EFFICIENT)},
+                                                                          {"Resolved Frequency Range", std::to_string(M_FREQ_MAX - M_FREQ_EFFICIENT)},
+                                                                          {"GPU 0 Active Region Energy", "0.000000"},
+                                                                          {"GPU 0 Active Region Time", "0.000000"},
+                                                                          {"GPU 0 On Energy", "0"},
+                                                                          {"GPU 0 On Time", "0.000000"},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
+                                                                          {"GPU Chip 0 Idle Agent Actions", "1"}};
+    std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
+
+    EXPECT_EQ(expected_header.size(), report_header.size());
+    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
+        EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
+        if (expected_header.at(i).first != "Agent Domain") {
+            EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
+        };
+    }
+}
+
+// this tests a 'full on' waveform
+// waveform: ‾‾‾‾‾‾‾‾
+TEST_F(GPUActivityAgentTest, header_check_full_util)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    double mock_active = 0.12345;
+    double mock_util = 1.0;
+
+    double expected_freq = M_FREQ_EFFICIENT +
+            (M_FREQ_MAX - M_FREQ_EFFICIENT) * mock_active;
+
+    //Check frequency
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+
+    // waveform: ‾‾‾‾‾‾‾‾
+    for (int i = 0; i < 10; i++) {
+        //Sample
+        std::vector<double> tmp;
+        EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
+                 .WillRepeatedly(Return(mock_active));
+        EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                 .WillRepeatedly(Return(mock_util));
+        EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
+                 .WillRepeatedly(Return(123456789 + i));
+        EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                 .WillRepeatedly(Return(21 + i*2));
+        m_agent->sample_platform(tmp);
+
+        //Adjust
+        m_agent->adjust_platform(policy);
+    }
+
+    std::vector<std::pair<std::string, std::string> > expected_header = { {"Agent Domain", "gpu_chip"},
+                                                                          {"GPU Frequency Requests", "1"},
+                                                                          {"GPU Clipped Frequency Requests", "0"},
+                                                                          {"Resolved Max Frequency", std::to_string(M_FREQ_MAX)},
+                                                                          {"Resolved Efficient Frequency", std::to_string(M_FREQ_EFFICIENT)},
+                                                                          {"Resolved Frequency Range", std::to_string(M_FREQ_MAX - M_FREQ_EFFICIENT)},
+                                                                          {"GPU 0 Active Region Energy", "9"},
+                                                                          {"GPU 0 Active Region Time", "18"},
+                                                                          {"GPU 0 On Energy", "9"},
+                                                                          {"GPU 0 On Time", "18"},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
+                                                                          {"GPU Chip 0 Idle Agent Actions", "0"}};
+    std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
+
+    EXPECT_EQ(expected_header.size(), report_header.size());
+    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
+        EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
+        if (expected_header.at(i).first != "Agent Domain") {
+            EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
+        };
+    }
+}
+
+// this tests a 'off on off on' waveform
+// waveform: _‾_‾_‾_‾_‾_
+TEST_F(GPUActivityAgentTest, header_check_on_off_util)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    // waveform: _‾_‾_‾_‾_‾_
+    // Five on samples
+    // Seven off samples
+    // Nine 'active region' samples from to last high sample
+    for (int i = 0; i < 11; i++) {
+
+        double mock_active = i % 2;
+        double mock_util = i % 2;
+
+        double expected_freq = M_FREQ_EFFICIENT +
+                               (M_FREQ_MAX - M_FREQ_EFFICIENT) * mock_active;
+
+        //Check frequency
+        EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+        EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+
+        //Sample
+        std::vector<double> tmp;
+        EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
+                 .WillRepeatedly(Return(mock_active));
+        EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                 .WillRepeatedly(Return(mock_util));
+        EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
+                 .WillRepeatedly(Return(123456789 + i));
+        EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                 .WillRepeatedly(Return(21 + i*2));
+        m_agent->sample_platform(tmp);
+
+        //Adjust
+        m_agent->adjust_platform(policy);
+    }
+
+    std::vector<std::pair<std::string, std::string> > expected_header = { {"Agent Domain", "gpu_chip"},
+                                                                          {"GPU Frequency Requests", "11"},
+                                                                          {"GPU Clipped Frequency Requests", "0"},
+                                                                          {"Resolved Max Frequency", std::to_string(M_FREQ_MAX)},
+                                                                          {"Resolved Efficient Frequency", std::to_string(M_FREQ_EFFICIENT)},
+                                                                          {"Resolved Frequency Range", std::to_string(M_FREQ_MAX - M_FREQ_EFFICIENT)},
+                                                                          {"GPU 0 Active Region Energy", "9"},
+                                                                          {"GPU 0 Active Region Time", "18"},
+                                                                          {"GPU 0 On Energy", "5"},
+                                                                          {"GPU 0 On Time", "10"},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
+                                                                          {"GPU Chip 0 Idle Agent Actions", "0"}};
+    std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
+
+    EXPECT_EQ(expected_header.size(), report_header.size());
+    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
+        EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
+        if (expected_header.at(i).first != "Agent Domain") {
+            EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
+        };
+    }
 }
 
 TEST_F(GPUActivityAgentTest, invalid_fe)

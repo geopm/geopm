@@ -217,10 +217,13 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/GPUActivityAgentTest.validate_policy \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_high \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_medium \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_long_idle \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_low \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_zero \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_high \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_low \
+              test/gtest_links/GPUActivityAgentTest.header_check_full_util \
+              test/gtest_links/GPUActivityAgentTest.header_check_on_off_util \
               test/gtest_links/GPUActivityAgentTest.invalid_fe \
               test/gtest_links/InitControlTest.parse_valid_file \
               test/gtest_links/InitControlTest.parse_valid_file_2 \

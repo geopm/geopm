@@ -23,6 +23,14 @@
 #include "Waiter.hpp"
 #include "Environment.hpp"
 
+// IDLE SAMPLE COUNT of 10 is based upon a study of the idle behavior of CORAL-2
+// workloads of interest assuming the default 20ms sample rate (200ms idle).
+// We could use 200ms as the default for the agent, but this does not provide a
+// mechanism for user control of the idle period.  Using a count provides partial
+// user control in that the idleness period is defined by the requested agent
+// control loop time.
+#define IDLE_SAMPLE_COUNT 10
+
 namespace geopm
 {
 
@@ -75,6 +83,10 @@ namespace geopm
             m_gpu_active_region_stop.push_back(0.0);
             m_gpu_active_energy_start.push_back(0.0);
             m_gpu_active_energy_stop.push_back(0.0);
+
+            m_gpu_on_time.push_back(0.0);
+            m_gpu_on_energy.push_back(0.0);
+            m_prev_gpu_energy.push_back(0.0);
         }
 
         if (level == 0) {
@@ -138,6 +150,8 @@ namespace geopm
             m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
                                                        m_agent_domain,
                                                        domain_idx), NAN});
+            m_gpu_idle_timer.push_back(IDLE_SAMPLE_COUNT);
+            m_gpu_idle_samples.push_back(0);
         }
 
         // We treat energy & time as special cases and only use them at a specific domain.
@@ -328,6 +342,26 @@ namespace geopm
             f_request = std::min(f_request, m_resolved_f_gpu_max);
             f_request = std::max(f_request, m_resolved_f_gpu_efficient);
 
+            if (phi >= 0.5) {
+                if (!std::isnan(gpu_utilization) &&
+                    gpu_utilization == 0) {
+                    if (m_gpu_idle_timer.at(domain_idx) > 0) {
+                        m_gpu_idle_timer.at(domain_idx) = m_gpu_idle_timer.at(domain_idx) - 1;
+                    }
+                }
+                else {
+                    // If no activity has been observed for a number of samples
+                    // IDLE_SAMPLE_COUNT we assume it is safe to reduce the frequency
+                    // to a minimum value.
+                    m_gpu_idle_timer.at(domain_idx) = IDLE_SAMPLE_COUNT;
+                }
+
+                if (m_gpu_idle_timer.at(domain_idx) <= 0) {
+                    f_request = m_freq_gpu_min;
+                    m_gpu_idle_samples.at(domain_idx) = m_gpu_idle_samples.at(domain_idx) + 1;
+                }
+            }
+
             // Store frequency request
             gpu_freq_request.push_back(f_request);
         }
@@ -338,14 +372,27 @@ namespace geopm
         if (!gpu_scoped_core_activity.empty()) {
             for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
                 if (gpu_scoped_core_activity.at(domain_idx) >= M_GPU_ACTIVITY_CUTOFF) {
+                    // ROI proxy tracking
                     m_gpu_active_region_stop.at(domain_idx) = 0;
                     if (m_gpu_active_region_start.at(domain_idx) == 0) {
                         m_gpu_active_region_start.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_start.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
                     }
+
+                    // GPU on time tracking
+                    if (m_time.value > m_prev_time) {
+                        m_gpu_on_time.at(domain_idx) += m_time.value - m_prev_time;
+                    }
+
+                    // TODO: handle roll-over more gracefully than dropping a sample
+                    if (m_gpu_energy.at(domain_idx).value > m_prev_gpu_energy.at(domain_idx)) {
+                        m_gpu_on_energy.at(domain_idx) += m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
+                    }
                 }
                 else {
-                    if (m_gpu_active_region_stop.at(domain_idx) == 0) {
+                    // ROI proxy tracking
+                    if (m_gpu_active_region_start.at(domain_idx) != 0 &&
+                        m_gpu_active_region_stop.at(domain_idx) == 0) {
                         m_gpu_active_region_stop.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
                     }
@@ -397,10 +444,12 @@ namespace geopm
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+            m_prev_gpu_energy.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
             m_gpu_energy.at(domain_idx).value = m_platform_io.sample(m_gpu_energy.at(
                                                                      domain_idx).batch_idx);
         }
 
+        m_prev_time = m_time.value;
         m_time.value = m_platform_io.sample(m_time.batch_idx);
     }
 
@@ -431,12 +480,38 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             double energy_stop = m_gpu_active_energy_stop.at(domain_idx);
             double energy_start = m_gpu_active_energy_start.at(domain_idx);
-            double region_stop = m_gpu_active_region_stop.at(domain_idx);
             double region_start =  m_gpu_active_region_start.at(domain_idx);
+            double region_stop = m_gpu_active_region_stop.at(domain_idx);
+            // If the end of the active region was never seen assume that the end of the run
+            // is the end of the region.
+            if (m_gpu_active_region_stop.at(domain_idx) == 0.0) {
+                region_stop = m_time.value;
+            }
+            // Either the last energy value was at the point of roll-over or the GPU Utilization
+            // was above cutoff for the entire run.  In either case grabbing the last sample
+            // value is a safe decision (if rollover it'll be 0 still, if not i'll be the end of
+            // run value).  We have to account for the case where no GPU activity was seen however,
+            // so we check for an active region time of 0 (i.e. region start != region stop)
+            if (m_gpu_active_energy_stop.at(domain_idx) == 0 &&
+                region_stop != region_start) {
+                energy_stop = m_gpu_energy.at(domain_idx).value;
+            }
+
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Energy", std::to_string(energy_stop - energy_start)});
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Time", std::to_string(region_stop - region_start)});
+            result.push_back({"GPU " + std::to_string(domain_idx) +
+                              " On Energy", std::to_string(m_gpu_on_energy.at(domain_idx))});
+            result.push_back({"GPU " + std::to_string(domain_idx) +
+                              " On Time", std::to_string(m_gpu_on_time.at(domain_idx))});
+        }
+
+        result.push_back({"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(IDLE_SAMPLE_COUNT)});
+        result.push_back({"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(IDLE_SAMPLE_COUNT * m_waiter->period())});
+        for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
+            result.push_back({"GPU Chip " + std::to_string(domain_idx) +
+                              " Idle Agent Actions", std::to_string(m_gpu_idle_samples.at(domain_idx))});
         }
 
         return result;

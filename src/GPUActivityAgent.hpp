@@ -101,11 +101,18 @@ namespace geopm
             std::vector<double> m_gpu_active_region_stop;
             std::vector<double> m_gpu_active_energy_start;
             std::vector<double> m_gpu_active_energy_stop;
+            std::vector<double> m_gpu_on_time;
+            std::vector<double> m_gpu_on_energy;
+            std::vector<int> m_gpu_idle_samples;
 
             std::vector<m_signal> m_gpu_core_activity;
             std::vector<m_signal> m_gpu_utilization;
             std::vector<m_signal> m_gpu_energy;
+            std::vector<int> m_gpu_idle_timer;
+
             m_signal m_time;
+            double m_prev_time;
+            std::vector<double> m_prev_gpu_energy;
 
             std::vector<m_control> m_gpu_freq_min_control;
             std::vector<m_control> m_gpu_freq_max_control;
