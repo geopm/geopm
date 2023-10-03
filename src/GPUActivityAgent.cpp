@@ -38,7 +38,6 @@ namespace geopm
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , M_POLICY_PHI_DEFAULT(0.5)
-        , M_GPU_ACTIVITY_CUTOFF(0.05)
         , M_NUM_GPU(m_platform_topo.num_domain(
                     GEOPM_DOMAIN_GPU))
         , M_NUM_GPU_CHIP(m_platform_topo.num_domain(
@@ -69,13 +68,6 @@ namespace geopm
         m_resolved_f_gpu_max = 0;
         m_resolved_f_gpu_efficient = 0;
         m_f_range = 0;
-
-        for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_active_region_start.push_back(0.0);
-            m_gpu_active_region_stop.push_back(0.0);
-            m_gpu_active_energy_start.push_back(0.0);
-            m_gpu_active_energy_stop.push_back(0.0);
-        }
 
         if (level == 0) {
             init_platform_io();
@@ -332,27 +324,6 @@ namespace geopm
             gpu_freq_request.push_back(f_request);
         }
 
-        // Tracking logic.  This is not needed for any performance reason,
-        // but does provide useful metrics for tracking agent behavior.  This
-        // may be removed when GPU regions are added to GEOPM.
-        if (!gpu_scoped_core_activity.empty()) {
-            for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-                if (gpu_scoped_core_activity.at(domain_idx) >= M_GPU_ACTIVITY_CUTOFF) {
-                    m_gpu_active_region_stop.at(domain_idx) = 0;
-                    if (m_gpu_active_region_start.at(domain_idx) == 0) {
-                        m_gpu_active_region_start.at(domain_idx) = m_time.value;
-                        m_gpu_active_energy_start.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
-                    }
-                }
-                else {
-                    if (m_gpu_active_region_stop.at(domain_idx) == 0) {
-                        m_gpu_active_region_stop.at(domain_idx) = m_time.value;
-                        m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
-                    }
-                }
-            }
-        }
-
         // set frequency control per gpu
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
             if (gpu_freq_request.at(domain_idx) !=
@@ -427,17 +398,6 @@ namespace geopm
         result.push_back({"Resolved Max Frequency", std::to_string(m_resolved_f_gpu_max)});
         result.push_back({"Resolved Efficient Frequency", std::to_string(m_resolved_f_gpu_efficient)});
         result.push_back({"Resolved Frequency Range", std::to_string(m_f_range)});
-
-        for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            double energy_stop = m_gpu_active_energy_stop.at(domain_idx);
-            double energy_start = m_gpu_active_energy_start.at(domain_idx);
-            double region_stop = m_gpu_active_region_stop.at(domain_idx);
-            double region_start =  m_gpu_active_region_start.at(domain_idx);
-            result.push_back({"GPU " + std::to_string(domain_idx) +
-                              " Active Region Energy", std::to_string(energy_stop - energy_start)});
-            result.push_back({"GPU " + std::to_string(domain_idx) +
-                              " Active Region Time", std::to_string(region_stop - region_start)});
-        }
 
         return result;
     }
