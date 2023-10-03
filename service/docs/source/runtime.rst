@@ -128,16 +128,20 @@ Runtime launch options.
      getting launched, the optional ``GEOPM_PROGRAM_FILTER`` environment variable 
      can be set to explicitly list the program invocation name of the specific 
      non-MPI process that needs to be profiled.
+   * While optional in this example, in case of launching non-MPI applications across
+     multiple nodes, the ``GEOPM_CTL_LOCAL`` environment variable should be set in order
+     to generate a unique GEOPM report file for each host node.
  
    .. code-block:: console
      :caption: Examples using ``geopmctl``
  
      $ GEOPM_PROFILE=sleep-ten \
        GEOPM_REPORT=sleep-ten.yaml \
+       GEOPM_CTL_LOCAL=true \
        GEOPM_TRACE=sleep-ten-trace \
+       GEOPM_PROGRAM_FILTER=sleep \
        geopmctl &
      $ GEOPM_PROFILE=sleep-ten \
-       GEOPM_PROGRAM_FILTER=sleep \
        LD_PRELOAD=libgeopm.so.2 \
        sleep 10
      $ cat sleep-ten.yaml

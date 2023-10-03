@@ -797,6 +797,8 @@ generate a report:
    directly to ``libgeopm.so.2`` at compile time.
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
+4. The ``GEOPM_CTL_LOCAL`` environment variable must be set which generates
+   a unique report file per host node over which the non-MPI application is run.
 
 Beyond generating a report YAML file, we also show three of the optional
 GEOPM Runtime features.  The first is creating a CSV trace file using
@@ -816,15 +818,16 @@ energy from column 6, and CPU power from column 8.
 
     $ GEOPM_PROFILE=sleep-ten \
       GEOPM_REPORT=sleep-ten.yaml \
+      GEOPM_CTL_LOCAL=true \
       GEOPM_TRACE=sleep-ten.csv \
       GEOPM_PERIOD=0.2 \
+      GEOPM_PROGRAM_FILTER=sleep \
       geopmctl &
     $ GEOPM_PROFILE=sleep-ten \
-      GEOPM_PROGRAM_FILTER=sleep \
       LD_PRELOAD=libgeopm.so.2 \
       sleep 10
-    $ cat sleep-ten.yaml
-    $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv | less
+    $ cat sleep-ten.yaml-$(hostname)
+    $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv-$(hostname) | less
 
 .. note::
 
