@@ -723,5 +723,38 @@ class TestActiveSessions(unittest.TestCase):
             reference_count_actual = act_sess.get_reference_count(client_pid)
             self.assertEqual(8, reference_count_actual)
 
+    def test_is_client_active(self):
+        """Test the is_client_active()  method
+
+        """
+        # Copy the object to ensure modifications don't leak between tests
+        session_json = dict(self.json_good_example)
+        client_pid = session_json['client_pid']
+        client_uid = session_json['client_uid']
+        client_gid = session_json['client_gid']
+        create_time = session_json['create_time']
+        signals = session_json['signals']
+        controls = session_json['controls']
+        watch_id = session_json['watch_id']
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm'
+        full_file_path = os.path.join(sess_path, f'session-{client_pid}.json')
+
+        with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', side_effect=[(client_uid, client_gid, create_time), (client_uid, client_gid, create_time), (client_uid + 1, client_gid, create_time + 1000)]) as mock_pid_info, \
+             mock.patch('sys.stderr.write') as mock_stderr:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            calls = [mock.call(full_file_path, json.dumps(session_json))]
+            mock_smf.assert_has_calls(calls)
+            self.assertTrue(act_sess.is_client_active(client_pid))
+            self.assertFalse(act_sess.is_client_active(client_pid))
+            calls = [mock.call(client_pid), mock.call(client_pid), mock.call(client_pid)]
+            mock_pid_info.assert_has_calls(calls)
+            mock_stderr.assert_called_with(f'Warning: <geopm-service> Session PID {client_pid} identifying property has changed during the session: uid_orig={client_uid} uid_new={client_uid + 1} PID creation time has changed\n')
+
 if __name__ == '__main__':
     unittest.main()
