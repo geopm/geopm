@@ -43,7 +43,8 @@ def main():
         warning_handler=lambda warning: print('Warning <geopm-service>', warning,
                                               file=sys.stderr)) as writer:
         try:
-            writer.backup_and_try_update('on\n')
+            if not os.path.exists('/dev/cpu/msr_batch'):
+                writer.backup_and_try_update('on\n')
             _bus.publish_object("/io/github/geopm", service.GEOPMService())
             _bus.register_service("io.github.geopm")
             _loop.run()
