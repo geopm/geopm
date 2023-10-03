@@ -54,7 +54,6 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             static constexpr double M_WAIT_SEC = 0.020; // 20ms wait default
             const double M_POLICY_PHI_DEFAULT;
-            const double M_GPU_ACTIVITY_CUTOFF;
             const int M_NUM_GPU;
             const int M_NUM_GPU_CHIP;
             const int M_NUM_CHIP_PER_GPU;
@@ -97,10 +96,6 @@ namespace geopm
             double m_resolved_f_gpu_max;
             double m_resolved_f_gpu_efficient;
             double m_f_range;
-            std::vector<double> m_gpu_active_region_start;
-            std::vector<double> m_gpu_active_region_stop;
-            std::vector<double> m_gpu_active_energy_start;
-            std::vector<double> m_gpu_active_energy_stop;
 
             std::vector<m_signal> m_gpu_core_activity;
             std::vector<m_signal> m_gpu_utilization;
