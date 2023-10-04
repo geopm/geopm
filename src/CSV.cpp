@@ -40,7 +40,7 @@ namespace geopm
             throw Exception("Unable to open CSV file '" + m_file_path + "'",
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        write_header(start_time, host_name);
+        write_header(host_name, start_time);
     }
 
     CSVImp::~CSVImp()
@@ -109,7 +109,7 @@ namespace geopm
         m_buffer.str("");
     }
 
-    void CSVImp::write_header(const std::string &start_time, const std::string &host_name)
+    void CSVImp::write_header(const std::string &host_name, const std::string &start_time)
     {
         m_buffer << "# geopm_version: " << geopm_version() << "\n"
                  << "# start_time: " << start_time << "\n"

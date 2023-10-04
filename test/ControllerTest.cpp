@@ -215,7 +215,7 @@ TEST_F(ControllerTest, construct_with_file_policy_and_init_control)
     EXPECT_CALL(*m_init_control, parse_input(_));
 
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
@@ -250,7 +250,7 @@ TEST_F(ControllerTest, run_with_no_policy)
     ASSERT_EQ(3u, m_level_agent.size());
 
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
@@ -349,7 +349,7 @@ TEST_F(ControllerTest, get_hostnames)
     auto multi_node_comm = std::make_shared<ControllerTestMockComm>(multi_node_list);
 
     Controller controller(multi_node_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
@@ -384,7 +384,7 @@ TEST_F(ControllerTest, single_node)
         .WillOnce(Return(root_level));
 
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
@@ -466,7 +466,7 @@ TEST_F(ControllerTest, two_level_controller_1)
     m_agents.push_back(std::move(tmp));
 
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
@@ -560,7 +560,7 @@ TEST_F(ControllerTest, two_level_controller_2)
     ASSERT_EQ(2u, m_level_agent.size());
 
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
@@ -663,7 +663,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     ASSERT_EQ(3u, m_level_agent.size());
 
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_agent_name, m_num_send_up, m_num_send_down,
                           std::move(m_tree_comm),
                           m_application_sampler,
                           m_application_io,
