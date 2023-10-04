@@ -183,8 +183,8 @@ namespace geopm
         : Controller(ppn1_comm,
                      PlatformIOProf::platform_io(),
                      environment().agent(),
-                     Agent::num_policy(environment().agent()),
                      Agent::num_sample(environment().agent()),
+                     Agent::num_policy(environment().agent()),
                      std::make_unique<TreeCommImp>(
                          ppn1_comm,
                          Agent::num_policy(environment().agent()),
