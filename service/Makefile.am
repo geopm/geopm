@@ -428,7 +428,7 @@ endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = clean-local-python doxygen
+PHONY_TARGETS = clean-local-python doxygen rpm deb
 
 # INCLUDES
 check_PROGRAMS =
