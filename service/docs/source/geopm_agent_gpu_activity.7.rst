@@ -41,6 +41,10 @@ agent towards higher frequencies by increasing the ``Fe`` value.
 In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi`` value greater than
 0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value.
 In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
+If a ``phi`` value of 0.5 or greater is used and a long idle period, defined as
+10 samples with a ``GPU_UTILIZATION`` of 0, occurs the agent will request the
+minimum frequency for GPU as specified by the ``GPU_CORE_FREQUENCY_MIN_AVAIL``
+signal.
 
 For NVIDIA based systems the agent should be used with DCGM settings of
 ``DCGM::FIELD_UPDATE_RATE`` = 100 ms, ``DCGM::MAX_STORAGE_TIME`` = 1 s, and ``DCGM::MAX_SAMPLES``
@@ -50,11 +54,6 @@ microsecond range. If the agent is intended to be used with workloads that exhib
 extremely short phase behavior a 1 ms polling rate can be used.
 As the 1 ms polling rate is not officially recommended by the DCGM API the 100 ms
 setting should be used by default.
-
-If a ``phi`` value of 0.5 or greater is used and a long idle period, defined as
-10 samples with a ``GPU_UTILIZATION`` of 0, occurs the agent will request the
-minimum frequency for GPU as specified by the ``GPU_CORE_FREQUENCY_MIN_AVAIL``
-signal.
 
 Agent Name
 ----------
