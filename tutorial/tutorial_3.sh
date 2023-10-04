@@ -130,6 +130,28 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3
     err=$?
+elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
+    # Use GEOPM launcher wrapper script with PALS
+    geopmlaunch pals \
+                -ppn ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --geopm-ctl=process \
+                --geopm-agent=power_governor \
+                --geopm-report=tutorial_3_governed_report_${HOSTNAME} \
+                --geopm-trace=tutorial_3_governed_trace \
+                --geopm-policy=tutorial_power_policy.json \
+                -- ./tutorial_3 \
+    && \
+    geopmlaunch pals \
+                -ppn ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --geopm-ctl=process \
+                --geopm-agent=power_balancer \
+                --geopm-report=tutorial_3_balanced_report_${HOSTNAME} \
+                --geopm-trace=tutorial_3_balanced_trace \
+                --geopm-policy=tutorial_power_policy.json \
+                -- ./tutorial_3
+    err=$?
 else
     echo "Error: tutorial_3.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
