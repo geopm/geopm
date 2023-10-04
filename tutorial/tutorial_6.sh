@@ -72,6 +72,16 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-trace=tutorial_6_trace \
                 -- geopmbench tutorial_6_config.json
     err=$?
+elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
+    # Use GEOPM launcher wrapper script with PALS
+    geopmlaunch pals \
+                -ppn ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --geopm-ctl=process \
+                --geopm-report=tutorial_6_report_${HOSTNAME} \
+                --geopm-trace=tutorial_6_trace \
+                -- geopmbench tutorial_6_config.json
+    err=$?
 else
     echo "Error: tutorial_6.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
