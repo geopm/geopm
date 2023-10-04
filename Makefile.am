@@ -619,6 +619,7 @@ PHONY_TARGETS = clean-local \
                 distclean-local \
                 gh_pages \
                 rpm \
+                deb \
                 # end
 
 include test/Makefile.mk
