@@ -55,6 +55,7 @@ namespace geopm
             static constexpr double M_WAIT_SEC = 0.020; // 20ms wait default
             const double M_POLICY_PHI_DEFAULT;
             const double M_GPU_ACTIVITY_CUTOFF;
+            const int M_IDLE_SAMPLE_COUNT;
             const int M_NUM_GPU;
             const int M_NUM_GPU_CHIP;
             const int M_NUM_CHIP_PER_GPU;

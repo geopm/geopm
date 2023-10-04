@@ -334,18 +334,18 @@ TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
     }
 
     std::vector<std::pair<std::string, std::string> > expected_header = { {"Agent Domain", "gpu_chip"},
-                                                                          {"GPU Frequency Requests", "2.000000"},
-                                                                          {"GPU Clipped Frequency Requests", "0.000000"},
+                                                                          {"GPU Frequency Requests", std::to_string(2.0)},
+                                                                          {"GPU Clipped Frequency Requests", std::to_string(0.0)},
                                                                           {"Resolved Max Frequency", std::to_string(M_FREQ_MAX)},
                                                                           {"Resolved Efficient Frequency", std::to_string(M_FREQ_EFFICIENT)},
                                                                           {"Resolved Frequency Range", std::to_string(M_FREQ_MAX - M_FREQ_EFFICIENT)},
-                                                                          {"GPU 0 Active Region Energy", "0.000000"},
-                                                                          {"GPU 0 Active Region Time", "0.000000"},
-                                                                          {"GPU 0 On Energy", "0"},
-                                                                          {"GPU 0 On Time", "0.000000"},
-                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
-                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
-                                                                          {"GPU Chip 0 Idle Agent Actions", "1"}};
+                                                                          {"GPU 0 Active Region Energy", std::to_string(0.0)},
+                                                                          {"GPU 0 Active Region Time", std::to_string(0.0)},
+                                                                          {"GPU 0 On Energy", std::to_string(0.0)},
+                                                                          {"GPU 0 On Time", std::to_string(0.0)},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(10)},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(0.0)},
+                                                                          {"GPU Chip 0 Idle Agent Actions", std::to_string(1)}};
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
@@ -353,7 +353,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
         EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
         if (expected_header.at(i).first != "Agent Domain") {
             EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
-        };
+        }
     }
 }
 
@@ -394,27 +394,22 @@ TEST_F(GPUActivityAgentTest, header_check_full_util)
     }
 
     std::vector<std::pair<std::string, std::string> > expected_header = { {"Agent Domain", "gpu_chip"},
-                                                                          {"GPU Frequency Requests", "1"},
-                                                                          {"GPU Clipped Frequency Requests", "0"},
+                                                                          {"GPU Frequency Requests", std::to_string(1.0)},
+                                                                          {"GPU Clipped Frequency Requests", std::to_string(0.0)},
                                                                           {"Resolved Max Frequency", std::to_string(M_FREQ_MAX)},
                                                                           {"Resolved Efficient Frequency", std::to_string(M_FREQ_EFFICIENT)},
                                                                           {"Resolved Frequency Range", std::to_string(M_FREQ_MAX - M_FREQ_EFFICIENT)},
-                                                                          {"GPU 0 Active Region Energy", "9"},
-                                                                          {"GPU 0 Active Region Time", "18"},
-                                                                          {"GPU 0 On Energy", "9"},
-                                                                          {"GPU 0 On Time", "18"},
-                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
-                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
-                                                                          {"GPU Chip 0 Idle Agent Actions", "0"}};
+                                                                          {"GPU 0 Active Region Energy", std::to_string(9.0)},
+                                                                          {"GPU 0 Active Region Time", std::to_string(18.0)},
+                                                                          {"GPU 0 On Energy", std::to_string(9.0)},
+                                                                          {"GPU 0 On Time", std::to_string(18.0)},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(10)},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(0.0)},
+                                                                          {"GPU Chip 0 Idle Agent Actions", std::to_string(0)}};
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
-        EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
-        if (expected_header.at(i).first != "Agent Domain") {
-            EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
-        };
-    }
+    EXPECT_THAT(expected_header, ::testing::ContainerEq(report_header));
 }
 
 // this tests a 'off on off on' waveform
@@ -458,27 +453,22 @@ TEST_F(GPUActivityAgentTest, header_check_on_off_util)
     }
 
     std::vector<std::pair<std::string, std::string> > expected_header = { {"Agent Domain", "gpu_chip"},
-                                                                          {"GPU Frequency Requests", "11"},
-                                                                          {"GPU Clipped Frequency Requests", "0"},
+                                                                          {"GPU Frequency Requests", std::to_string(11.0)},
+                                                                          {"GPU Clipped Frequency Requests", std::to_string(0.0)},
                                                                           {"Resolved Max Frequency", std::to_string(M_FREQ_MAX)},
                                                                           {"Resolved Efficient Frequency", std::to_string(M_FREQ_EFFICIENT)},
                                                                           {"Resolved Frequency Range", std::to_string(M_FREQ_MAX - M_FREQ_EFFICIENT)},
-                                                                          {"GPU 0 Active Region Energy", "9"},
-                                                                          {"GPU 0 Active Region Time", "18"},
-                                                                          {"GPU 0 On Energy", "5"},
-                                                                          {"GPU 0 On Time", "10"},
-                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", "10"},
-                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", "0"},
-                                                                          {"GPU Chip 0 Idle Agent Actions", "0"}};
+                                                                          {"GPU 0 Active Region Energy", std::to_string(9.0)},
+                                                                          {"GPU 0 Active Region Time", std::to_string(18.0)},
+                                                                          {"GPU 0 On Energy", std::to_string(5.0)},
+                                                                          {"GPU 0 On Time", std::to_string(10.0)},
+                                                                          {"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(10)},
+                                                                          {"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(0.0)},
+                                                                          {"GPU Chip 0 Idle Agent Actions", std::to_string(0)}};
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
-        EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
-        if (expected_header.at(i).first != "Agent Domain") {
-            EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
-        };
-    }
+    EXPECT_THAT(expected_header, ::testing::ContainerEq(report_header));
 }
 
 TEST_F(GPUActivityAgentTest, invalid_fe)

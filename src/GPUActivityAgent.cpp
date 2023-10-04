@@ -23,14 +23,6 @@
 #include "Waiter.hpp"
 #include "Environment.hpp"
 
-// IDLE SAMPLE COUNT of 10 is based upon a study of the idle behavior of CORAL-2
-// workloads of interest assuming the default 20ms sample rate (200ms idle).
-// We could use 200ms as the default for the agent, but this does not provide a
-// mechanism for user control of the idle period.  Using a count provides partial
-// user control in that the idleness period is defined by the requested agent
-// control loop time.
-#define IDLE_SAMPLE_COUNT 10
-
 namespace geopm
 {
 
@@ -47,6 +39,13 @@ namespace geopm
         , m_platform_topo(topo)
         , M_POLICY_PHI_DEFAULT(0.5)
         , M_GPU_ACTIVITY_CUTOFF(0.05)
+        // M_IDLE_SAMPLE_COUNT of 10 is based upon a study of the idle behavior of CORAL-2
+        // workloads of interest assuming the default 20ms sample rate (200ms idle).
+        // We could use 200ms as the default for the agent, but this does not provide a
+        // mechanism for user control of the idle period.  Using a count provides partial
+        // user control in that the idleness period is defined by the requested agent
+        // control loop time.
+        , M_IDLE_SAMPLE_COUNT(10)
         , M_NUM_GPU(m_platform_topo.num_domain(
                     GEOPM_DOMAIN_GPU))
         , M_NUM_GPU_CHIP(m_platform_topo.num_domain(
@@ -150,7 +149,7 @@ namespace geopm
             m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
                                                        m_agent_domain,
                                                        domain_idx), NAN});
-            m_gpu_idle_timer.push_back(IDLE_SAMPLE_COUNT);
+            m_gpu_idle_timer.push_back(M_IDLE_SAMPLE_COUNT);
             m_gpu_idle_samples.push_back(0);
         }
 
@@ -346,19 +345,19 @@ namespace geopm
                 if (!std::isnan(gpu_utilization) &&
                     gpu_utilization == 0) {
                     if (m_gpu_idle_timer.at(domain_idx) > 0) {
-                        m_gpu_idle_timer.at(domain_idx) = m_gpu_idle_timer.at(domain_idx) - 1;
+                        m_gpu_idle_timer.at(domain_idx) -= 1;
                     }
                 }
                 else {
-                    // If no activity has been observed for a number of samples
-                    // IDLE_SAMPLE_COUNT we assume it is safe to reduce the frequency
-                    // to a minimum value.
-                    m_gpu_idle_timer.at(domain_idx) = IDLE_SAMPLE_COUNT;
+                    // If activit is observed or is NAN, reset the sample count tracking
+                    m_gpu_idle_timer.at(domain_idx) = M_IDLE_SAMPLE_COUNT;
                 }
 
+                // If no activity has been observed for M_IDLE_SAMPLE_COUNT samples,
+                // we assume it is safe to reduce the frequency to a minimum value.
                 if (m_gpu_idle_timer.at(domain_idx) <= 0) {
                     f_request = m_freq_gpu_min;
-                    m_gpu_idle_samples.at(domain_idx) = m_gpu_idle_samples.at(domain_idx) + 1;
+                    m_gpu_idle_samples.at(domain_idx) += 1;
                 }
             }
 
@@ -507,8 +506,8 @@ namespace geopm
                               " On Time", std::to_string(m_gpu_on_time.at(domain_idx))});
         }
 
-        result.push_back({"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(IDLE_SAMPLE_COUNT)});
-        result.push_back({"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(IDLE_SAMPLE_COUNT * m_waiter->period())});
+        result.push_back({"Agent Idle Samples Required to Request Minimum Frequency", std::to_string(M_IDLE_SAMPLE_COUNT)});
+        result.push_back({"Agent Idle Time (estimate in seconds) Required to Request Minimum Frequency", std::to_string(M_IDLE_SAMPLE_COUNT * m_waiter->period())});
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
             result.push_back({"GPU Chip " + std::to_string(domain_idx) +
                               " Idle Agent Actions", std::to_string(m_gpu_idle_samples.at(domain_idx))});
