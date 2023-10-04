@@ -431,27 +431,35 @@ class ActiveSessions(object):
         is_registered = client_pid in self._sessions
         is_valid = False
         if is_registered:
-            uid, gid, create_time = self._pid_info(client_pid)
-            session_uid = self._sessions[client_pid]['client_uid']
-            session_gid = self._sessions[client_pid]['client_gid']
-            session_time = self._sessions[client_pid]['create_time']
-            is_valid = session_uid == uid and session_gid == gid and session_time == create_time
-            if not is_valid:
+            try:
+                uid, gid, create_time = self._pid_info(client_pid)
+                session_uid = self._sessions[client_pid]['client_uid']
+                session_gid = self._sessions[client_pid]['client_gid']
+                session_time = self._sessions[client_pid]['create_time']
+                is_valid = (session_uid == uid and session_gid == gid and session_time == create_time)
+                if not is_valid:
+                    self.remove_client(client_pid)
+                    is_registered = False
+                    warn = f'Warning: <geopm-service> Session PID {client_pid} identifying property has changed during the session:'
+                    if session_uid != uid:
+                        warn += f' uid_orig={session_uid} uid_new={uid}'
+                    if session_gid != gid:
+                        warn += f' gid_orig={session_gid} gid_new={gid}'
+                    if session_time != create_time:
+                        warn += f' PID creation time has changed'
+                    sys.stderr.write(f'{warn}\n')
+            except psutil.NoSuchProcess:
                 self.remove_client(client_pid)
-                warn = f'Warning: <geopm-service> Session PID {client_pid} identifying property has changed during the session:'
-                if session_uid != uid:
-                    warn += f' uid_orig={session_uid} uid_new={uid}'
-                if session_gid != gid:
-                    warn += f' gid_orig={session_gid} gid_new={gid}'
-                if session_time != create_time:
-                    warn += f' PID creation time has changed'
-                sys.stderr.write(f'{warn}\n')
+                is_registered = False
+                sys.stderr.write('Warning: <geopm-service> Session PID {client_pid} is no longer active\n')
+
         session_path = self._get_session_path(client_pid)
-        if not is_registered and os.path.isfile(session_path):
+        result = (is_valid and is_registered)
+        if not result and os.path.isfile(session_path):
             renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
             sys.stderr.write(f'Warning: Session file exists, but client {client_pid} is not tracked: {session_path} will be moved to {renamed_path}\n')
             os.rename(session_path, renamed_path)
-        return is_registered and is_valid
+        return result
 
     def check_client_active(self, client_pid, msg=''):
         """Raise an exception if a PID does not have an active session
@@ -505,17 +513,20 @@ class ActiveSessions(object):
         """
         if self.is_client_active(client_pid):
             return
-        uid, gid, create_time = self._pid_info(client_pid)
-        session_data = {'client_pid': int(client_pid),
-                        'client_uid': int(uid),
-                        'client_gid': int(gid),
-                        'create_time': float(create_time),
-                        'reference_count': 1,
-                        'signals': [str(ss) for ss in signals],
-                        'controls': [str(cc) for cc in controls],
-                        'watch_id': int(watch_id)}
-        self._sessions[client_pid] = session_data
-        self._update_session_file(client_pid)
+        try:
+            uid, gid, create_time = self._pid_info(client_pid)
+            session_data = {'client_pid': int(client_pid),
+                            'client_uid': int(uid),
+                            'client_gid': int(gid),
+                            'create_time': float(create_time),
+                            'reference_count': 1,
+                            'signals': [str(ss) for ss in signals],
+                            'controls': [str(cc) for cc in controls],
+                            'watch_id': int(watch_id)}
+            self._sessions[client_pid] = session_data
+            self._update_session_file(client_pid)
+        except psutil.NoSuchProcess:
+            sys.stderr.write('Warning: Session cannot be created for PID {client_pid}, it is no longer active')
 
     def remove_client(self, client_pid):
         """Delete the record of an active session
@@ -779,8 +790,6 @@ class ActiveSessions(object):
         """
         batch_pid = self._sessions[client_pid]['batch_server']
         self._sessions[client_pid].pop('batch_server')
-
-        self.check_client_active(client_pid, 'remove_batch_server')
         self._update_session_file(client_pid)
 
         signal_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-signal"
@@ -813,21 +822,25 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'start_profile')
         if 'profile_name' in self._sessions[client_pid]:
             raise RuntimeError(f'Client pid {client_pid} has requested profiling twice')
-        uid, gid, _ = self._pid_info(client_pid)
-        if len(self._profiles) == 0:
-            size = 64 * os.cpu_count()
-            shmem.create_prof('status', size, client_pid, uid, gid)
-        if profile_name in self._profiles:
-            self._profiles[profile_name].add(client_pid)
+        try:
+            uid, gid, _ = self._pid_info(client_pid)
+        except psutil.NoSuchProcess:
+            sys.stderr.write('Warning: Profile cannot be created for PID {client_pid}, it is no longer active')
+            self.remove_client(client_pid)
         else:
-            self._profiles[profile_name] = {client_pid}
-        self._sessions[client_pid]['profile_name'] = profile_name
-        size = 57384
-        shmem.create_prof('record-log', size, client_pid, uid, gid)
-        self._update_session_file(client_pid)
+            if len(self._profiles) == 0:
+                size = 64 * os.cpu_count()
+                shmem.create_prof('status', size, client_pid, uid, gid)
+            if profile_name in self._profiles:
+                self._profiles[profile_name].add(client_pid)
+            else:
+                self._profiles[profile_name] = {client_pid}
+            self._sessions[client_pid]['profile_name'] = profile_name
+            size = 57384
+            shmem.create_prof('record-log', size, client_pid, uid, gid)
+            self._update_session_file(client_pid)
 
     def stop_profile(self, client_pid, region_names, do_update=True):
-        self.check_client_active(client_pid, 'stop_profile')
         try:
             profile_name = self._sessions[client_pid].pop('profile_name')
         except KeyError:
@@ -915,6 +928,12 @@ class ActiveSessions(object):
         return result
 
     def _pid_info(self, pid):
+        """Get process information about a PID
+
+        Raises:
+            psutil.NoSuchProcess, psutil.AccessDenied
+
+        """
         proc = psutil.Process(pid)
         uid = proc.uids().effective
         gid = proc.gids().effective
