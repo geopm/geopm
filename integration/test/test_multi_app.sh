@@ -23,6 +23,7 @@ GEOPM_TRACE=${TEST_NAME}_trace.csv \
 GEOPM_TRACE_PROFILE=${TEST_NAME}_trace_profile.csv \
 GEOPM_REPORT_SIGNALS=TIME@package \
 GEOPM_NUM_PROC=2 \
+GEOPM_CTL_LOCAL=true \
 geopmctl &
 
 # geopmbench
