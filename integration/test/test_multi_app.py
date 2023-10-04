@@ -14,6 +14,7 @@ import sys
 import unittest
 import subprocess
 import os
+from socket import gethostname
 
 import geopmpy.io
 from integration.test import util
@@ -35,7 +36,7 @@ class TestIntegration_multi_app(unittest.TestCase):
         subprocess.run(['/bin/bash', script_path],
                        timeout=cls.TIME_LIMIT, check=True)
 
-        cls._report_path = f'{cls.TEST_NAME}_report.yaml'
+        cls._report_path = f'{cls.TEST_NAME}_report.yaml-{gethostname()}'
         cls._report = geopmpy.io.RawReport(cls._report_path)
         cls._node_names = cls._report.host_names()
 
