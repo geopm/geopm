@@ -507,7 +507,7 @@ namespace geopm
             std::cerr << "." << std::endl;
         }
 
-        if (!found_inactive_cpu) {
+        if (!found_inactive_cpu && ! is_slow_monitor) {
             std::cerr << "Warning: <geopm> ApplicationSampler::sampler_cpu(): "
                       << "GEOPM will run on the same HW thread (oversubscribe) as the "
                       << "Application." << std::endl;
