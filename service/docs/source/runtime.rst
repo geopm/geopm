@@ -150,7 +150,7 @@ Runtime launch options.
 
 
 The `GEOPM Environment Variables
-<https://geopm.github.io/geopm.7.html#geopm-environment-variables`_ section 
+<https://geopm.github.io/geopm.7.html#geopm-environment-variables>`_ section 
 includes a complete listing of the environment variables accepted by the GEOPM runtime. 
 
 

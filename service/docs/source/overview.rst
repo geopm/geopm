@@ -841,7 +841,7 @@ energy from column 6, and CPU power from column 8.
 
 For the full listing of the environment variables accepted by the GEOPM
 runtime, please refer to the `GEOPM Environment Variables
-<https://geopm.github.io/geopm.7.html#geopm-environment-variables`_ section of
+<https://geopm.github.io/geopm.7.html#geopm-environment-variables>`_ section of
 the GEOPM documentation.
 
 
