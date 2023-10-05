@@ -130,7 +130,8 @@ Runtime launch options.
      non-MPI process that needs to be profiled.
    * While optional in this example, in case of launching non-MPI applications across
      multiple nodes, the ``GEOPM_CTL_LOCAL`` environment variable should be set in order
-     to generate a unique GEOPM report file for each host node.
+     to generate a unique GEOPM report file for each host node. This disables all
+     intra-process MPI communication between the GEOPM controllers.
  
    .. code-block:: console
      :caption: Examples using ``geopmctl``
@@ -148,11 +149,16 @@ Runtime launch options.
      $ awk -F\| '{print $1, $6, $8}' sleep-ten-trace* | less
 
 
+The `GEOPM Environment Variables
+<https://geopm.github.io/geopm.7.html#geopm-environment-variables`_ section 
+includes a complete listing of the environment variables accepted by the GEOPM runtime. 
+
+
 The `GEOPM runtime tutorial
 <https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
 to profile unmodified applications, select and evaluate different GEOPM agent
-algorithms, and how to add markup to an application.  The tutorial provides a
-starting point for someone trying to get familiar with the GEOPM runtime.
+algorithms (see below), and how to add markup to an application.  The tutorial
+provides a starting point for someone trying to get familiar with the GEOPM runtime.
 
 The runtime enables complex coordination between hardware settings across all
 compute nodes used by a distributed HPC application in

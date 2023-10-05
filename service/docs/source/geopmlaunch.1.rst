@@ -561,7 +561,8 @@ GEOPM Options
                    file will have the ``hostname`` appended to the file
                    path requested by the user.  Note this option has no
                    effect if ``--geopm-ctl`` or ``--geopm-ctl-disable``
-                   are provided.
+                   are provided. This is especially useful when launching
+		   non-MPI applications.
 --geopm-ompt-disable  .. _geopm-ompt-disable option:
 
                       Disable OMPT detection of OpenMP regions.

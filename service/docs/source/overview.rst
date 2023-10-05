@@ -797,8 +797,10 @@ generate a report:
    directly to ``libgeopm.so.2`` at compile time.
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
-4. The ``GEOPM_CTL_LOCAL`` environment variable must be set which generates
-   a unique report file per host node over which the non-MPI application is run.
+4. The ``GEOPM_CTL_LOCAL`` environment variable must be set which disables
+   all intra-node MPI communication between the controllers on each node, thereby
+   generating a unique report file per host node over which the non-MPI
+   application processes are launched.
 
 Beyond generating a report YAML file, we also show three of the optional
 GEOPM Runtime features.  The first is creating a CSV trace file using
@@ -831,9 +833,19 @@ energy from column 6, and CPU power from column 8.
 
 .. note::
 
-    Support for profiling non-MPI applications with the Runtime is not
-    available in v2.0.2.  This feature is available in the ``dev``
+    support for profiling non-mpi applications with the runtime is not
+    available in v2.0.2.  this feature is available in the ``dev``
     branch and will be included in the next release.
+
+
+
+For the full listing of the environment variables accepted by the GEOPM
+runtime, please refer to the `GEOPM Environment Variables
+<https://geopm.github.io/geopm.7.html#geopm-environment-variables`_ section of
+the GEOPM documentation.
+
+
+
 
 Profiling Specific Parts of an Application
 """"""""""""""""""""""""""""""""""""""""""
