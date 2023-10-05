@@ -1752,7 +1752,7 @@ GEOPM_OPTIONS:
                                trace to "name"
       --geopm-ctl=ctl          use geopm runtime and launch geopm with the
                                "ctl" method, one of "process", "pthread" or
-                               "application" (default: "process")
+                               "application" (default: "application")
       --geopm-agent=agent      specify the agent to be used
       --geopm-policy=pol       use the geopm policy file or shared memory
                                region "pol"
