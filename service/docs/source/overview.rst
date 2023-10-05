@@ -810,7 +810,7 @@ generate a report:
    application processes are launched.
 
 In addition to generating a report in YAML format, the example below
-showcases two optional features of the GEOPM Runtime:
+showcases three optional features of the GEOPM Runtime:
 
 1. **CSV Trace File**: By setting the ``GEOPM_TRACE`` environment
    variable, you can generate a trace file in CSV format.
@@ -1031,6 +1031,59 @@ reports and/or traces:
 
 As configured above, the report data associated with each region will include the
 counter data summarized per package.
+
+
+System Characterization with GEOPM
+""""""""""""""""""""""""""""""""""
+
+GEOPM provides the ability to characterize hardware within a system, and features
+that rely on Frequency-Energy and Power-Performance Characterization.  To simplify
+the use of these features a series of helper scripts are provided.
+
+For Frequency-Energy characterization we use the arithmetic intensity benchmark
+for CPUs and the ParRes kernels for GPUs.
+
+For Intel CPUs
+.. code-block:: bash
+
+    cd $GEOPM_SOURCE/integration/apps/arithmetic_intensity
+    ./build.sh
+
+Frequency-Energy characterization of the CPU is discussed as part of the
+:doc:`geopm_agent_cpu_activity(7) <geopm_agent_cpu_activity.7>` man page in the
+``ConstConfigIOGroup Configuration File Generation`` section.
+
+For Intel GPUs
+.. code-block:: bash
+
+    cd $GEOPM_SOURCE/integration/apps/parres
+    ./build.sh cuda
+
+For NVIDIA GPUs
+.. code-block:: bash
+
+    cd $GEOPM_SOURCE/integration/apps/parres
+    ./build.sh cuda
+
+The ParRes workloads may be run with or without GEOPM, however characterization
+will require GEOPM.
+.. code-block:: bash
+
+    cd $GEOPM_SOURCE/integration/apps/parres/Kernels/Cxx11
+
+    #Without GEOPM
+    ./dgemm-onemkl 10 16000 16000
+
+    #With GEOPM
+    geopmlaunch pals -n 1 -ppn 1 --geopm-ctl=application --geopm-affinity-disable \
+    --geopm-agent=monitor --geopm-report=dgemm.report -- ./dgemm-onemkl 10 16000 16000
+
+Frequency-Energy characterization of the GPU is discussed as part of the
+:doc:`geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity.7>` man page in the
+``ConstConfigIOGroup Configuration File Generation`` section.
+
+Power-Performance characterization ...
+
 
 .. Extending GEOPM's Capabilities
 .. """"""""""""""""""""""""""""""

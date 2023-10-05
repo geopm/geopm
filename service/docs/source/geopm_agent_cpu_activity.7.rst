@@ -126,7 +126,7 @@ Without this, the uncore bandwidth characterization analysis scripts will not
 be able to accurately determine the maximum memory bandwidth at each uncore
 frequency.
 
-Additionally the ``test.sbatch`` should be modified to include the following
+Additionally the ``test.sbatch`` or ``test.pbs`` should be modified to include the following
 experiment options, where the text within angle brackets (``<>``) needs to be
 replaced with relevant system (or administrator chosen) values::
 
