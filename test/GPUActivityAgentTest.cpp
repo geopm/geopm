@@ -307,7 +307,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
     EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_MIN)).Times(M_NUM_GPU_CHIP);
     EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_MIN)).Times(M_NUM_GPU_CHIP);
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 11; i++) {
         //Sample
         std::vector<double> tmp;
         EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
@@ -323,7 +323,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
         //Adjust
         m_agent->adjust_platform(policy);
 
-        if(i == 0 || i == 9) {
+        if(i == 0 || i == 10) {
             //Check a frequency decision resulted in write batch being true
             EXPECT_TRUE(m_agent->do_write_batch());
         }
@@ -349,12 +349,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_long_idle)
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    for (long unsigned int i = 0; i < expected_header.size(); ++i) {
-        EXPECT_EQ(expected_header.at(i).first, report_header.at(i).first);
-        if (expected_header.at(i).first != "Agent Domain") {
-            EXPECT_EQ(std::stod(expected_header.at(i).second), std::stod(report_header.at(i).second));
-        }
-    }
+    EXPECT_THAT(report_header, ::testing::ContainerEq(expected_header));
 }
 
 // this tests a 'full on' waveform
@@ -409,7 +404,7 @@ TEST_F(GPUActivityAgentTest, header_check_full_util)
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    EXPECT_THAT(expected_header, ::testing::ContainerEq(report_header));
+    EXPECT_THAT(report_header, ::testing::ContainerEq(expected_header));
 }
 
 // this tests a 'off on off on' waveform
@@ -468,7 +463,7 @@ TEST_F(GPUActivityAgentTest, header_check_on_off_util)
     std::vector<std::pair<std::string, std::string> > report_header = m_agent->report_host();
 
     EXPECT_EQ(expected_header.size(), report_header.size());
-    EXPECT_THAT(expected_header, ::testing::ContainerEq(report_header));
+    EXPECT_THAT(report_header, ::testing::ContainerEq(expected_header));
 }
 
 TEST_F(GPUActivityAgentTest, invalid_fe)

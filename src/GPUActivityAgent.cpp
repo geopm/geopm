@@ -295,8 +295,9 @@ namespace geopm
                 // Frequency selection is based upon the gpu compute activity.
                 // For active regions this means that we scale with the amount of work
                 // being done (such as SM_ACTIVE for NVIDIA GPUs).
-                //
-                // The compute activity is scaled by the GPU Utilization, to help
+                f_request = m_resolved_f_gpu_efficient + m_f_range * gpu_core_activity;
+
+                // If possible, the compute activity is scaled by the GPU Utilization, to help
                 // address the issues that come from workloads that have short phases that are
                 // frequency sensitive.  If a workload has a compute activity of 0.5, and
                 // is resident on the GPU for 50% of cycles (0.5) it is treated as having
@@ -314,13 +315,27 @@ namespace geopm
                 // achieved through tracking the GPU Utilization signal and setting frequency
                 // to a separate idle value (f_idle) during regions where GPU Utilization is
                 // zero (or below some bar).
-                if (!std::isnan(gpu_utilization) &&
-                    gpu_utilization > 0) {
+                if (!std::isnan(gpu_utilization)) {
                     gpu_utilization = std::min(gpu_utilization, 1.0);
-                    f_request = m_resolved_f_gpu_efficient + m_f_range * (gpu_core_activity / gpu_utilization);
+                    if(gpu_utilization > 0) {
+                        f_request = m_resolved_f_gpu_efficient + m_f_range * (gpu_core_activity / gpu_utilization);
+                        m_gpu_idle_timer.at(domain_idx) = M_IDLE_SAMPLE_COUNT;
+                    }
+                    else if (phi >= 0.5) {
+                        if (m_gpu_idle_timer.at(domain_idx) > 0) {
+                            m_gpu_idle_timer.at(domain_idx) -= 1;
+                        }
+                        else {
+                            // If no activity has been observed for M_IDLE_SAMPLE_COUNT samples,
+                            // we assume it is safe to reduce the frequency to a minimum value.
+                            f_request = m_freq_gpu_min;
+                            m_gpu_idle_samples.at(domain_idx) += 1;
+                        }
+                    }
                 }
                 else {
-                    f_request = m_resolved_f_gpu_efficient + m_f_range * gpu_core_activity;
+                    // If activity is observed or is NAN, reset the sample count tracking
+                    m_gpu_idle_timer.at(domain_idx) = M_IDLE_SAMPLE_COUNT;
                 }
 
                 // We're using the activity of the first
@@ -335,31 +350,13 @@ namespace geopm
             }
 
             // Frequency clamping
-            if (f_request > m_resolved_f_gpu_max || f_request < m_resolved_f_gpu_efficient) {
+            double min_clamp = m_gpu_idle_timer.at(domain_idx) == 0 ? m_freq_gpu_min : m_resolved_f_gpu_efficient;
+
+            if (f_request > m_resolved_f_gpu_max || f_request < min_clamp) {
                 ++m_gpu_frequency_clipped;
             }
             f_request = std::min(f_request, m_resolved_f_gpu_max);
-            f_request = std::max(f_request, m_resolved_f_gpu_efficient);
-
-            if (phi >= 0.5) {
-                if (!std::isnan(gpu_utilization) &&
-                    gpu_utilization == 0) {
-                    if (m_gpu_idle_timer.at(domain_idx) > 0) {
-                        m_gpu_idle_timer.at(domain_idx) -= 1;
-                    }
-                }
-                else {
-                    // If activit is observed or is NAN, reset the sample count tracking
-                    m_gpu_idle_timer.at(domain_idx) = M_IDLE_SAMPLE_COUNT;
-                }
-
-                // If no activity has been observed for M_IDLE_SAMPLE_COUNT samples,
-                // we assume it is safe to reduce the frequency to a minimum value.
-                if (m_gpu_idle_timer.at(domain_idx) <= 0) {
-                    f_request = m_freq_gpu_min;
-                    m_gpu_idle_samples.at(domain_idx) += 1;
-                }
-            }
+            f_request = std::max(f_request, min_clamp);
 
             // Store frequency request
             gpu_freq_request.push_back(f_request);
