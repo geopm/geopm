@@ -454,9 +454,9 @@ options.  Examples:
 .. tabs::
 
     .. code-tab:: bash
-    
+
         # Read 2 signals for 10 seconds, sampling once a second:
-    
+
         $ echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession -p 1.0 -t 10.0
 
     .. code-tab:: c
@@ -811,9 +811,9 @@ milliseconds). By using the third optional ``GEOPM_PROGRAM_FILTER`` variable,
 we can explicitly list the name of the non-MPI program invovation name
 of the non-MPI process to be profiled. These three options together will inform
 the GEOPM runtime controller (``geopmctl``) to profile the ``sleep`` utility
-and generate a CSV trace file with approximately 50 rows of samples (five 
+and generate a CSV trace file with approximately 50 rows of samples (five
 per-second for ten seconds).  The ``awk`` command in the example selects
-the columns measuring time since application start from column 1, CPU 
+the columns measuring time since application start from column 1, CPU
 energy from column 6, and CPU power from column 8.
 
 .. code-block:: bash
@@ -841,9 +841,6 @@ For the full listing of the environment variables accepted by the GEOPM
 runtime, please refer to the `GEOPM Environment Variables
 <https://geopm.github.io/geopm.7.html#geopm-environment-variables>`_ section of
 the GEOPM documentation.
-
-
-
 
 Profiling Specific Parts of an Application
 """"""""""""""""""""""""""""""""""""""""""
