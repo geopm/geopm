@@ -562,7 +562,7 @@ GEOPM Options
                    path requested by the user.  Note this option has no
                    effect if ``--geopm-ctl`` or ``--geopm-ctl-disable``
                    are provided. This is especially useful when launching
-		   non-MPI applications.
+                   non-MPI applications.
 --geopm-ompt-disable  .. _geopm-ompt-disable option:
 
                       Disable OMPT detection of OpenMP regions.
@@ -581,7 +581,7 @@ GEOPM Options
 --geopm-program-filter  .. _geopm-program-filter option:
 
                         Only enable profiling for processes where their
-                        ``program_invocation_name`` or 
+                        ``program_invocation_name`` or
                         ``program_invocation_name_short_name`` matches one of the names
                         in the comma separated list provided by
                         option.  This is especially useful when
