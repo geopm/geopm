@@ -785,7 +785,7 @@ In this simple example we run the ``sleep(1)`` command for 10 seconds
 and monitor the system during its execution.  Rather than using the
 ``geopmlaunch`` tool as in the above example, we will run the
 ``geopmctl`` command in the background while the application of
-interest is executing.  There are three requirements to enable the
+interest is executing.  There are four requirements to enable the
 GEOPM controller process to connect to the application process and
 generate a report:
 
@@ -833,11 +833,9 @@ energy from column 6, and CPU power from column 8.
 
 .. note::
 
-    support for profiling non-mpi applications with the runtime is not
-    available in v2.0.2.  this feature is available in the ``dev``
+    Support for profiling non-MPI applications with the Runtime is not
+    available in v2.0.2.  This feature is available in the ``dev``
     branch and will be included in the next release.
-
-
 
 For the full listing of the environment variables accepted by the GEOPM
 runtime, please refer to the `GEOPM Environment Variables
