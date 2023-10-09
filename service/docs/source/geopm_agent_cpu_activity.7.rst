@@ -129,9 +129,9 @@ file with the following settings:
 
 .. code-block:: bash
 
-    MSR::PQR_ASSOC:RMID board 0 0
-    MSR::QM_EVTSEL:RMID board 0 0
-    MSR::QM_EVTSEL:EVENT_ID board 0 2
+    MSR::PQR_ASSOC:RMID board 0 0 # associate all cores with monitoring group 0
+    MSR::QM_EVTSEL:RMID board 0 0 # set up group 0 to monitor a specific event
+    MSR::QM_EVTSEL:EVENT_ID board 0 2 # the actual event of the associated group
 
 This file needs to  be passed to the experiment run script via the
 ``--geopm-init-control`` option. Without these settings, the uncore bandwidth
