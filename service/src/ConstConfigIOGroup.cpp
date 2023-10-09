@@ -150,7 +150,7 @@ namespace geopm
 
         m_pushed_signals.push_back({.signal_info = it->second,
                                     .domain_idx = domain_idx});
-        
+
         return m_pushed_signals.size() - 1;
     }
 
@@ -173,7 +173,7 @@ namespace geopm
     double ConstConfigIOGroup::sample(int batch_idx)
     {
         double result = NAN;
-        
+
         if (batch_idx < 0 ||
             static_cast<std::size_t>(batch_idx) >= m_pushed_signals.size()) {
             throw Exception("ConstConfigIOGroup::sample(): batch_idx " +
@@ -280,7 +280,7 @@ namespace geopm
         result =  "    description: " + it->second->description + '\n'; // Includes alias_for if applicable
         result += "    units: " + IOGroup::units_to_string(it->second->units) + '\n';
         result += "    aggregation: " + Agg::function_to_name(it->second->agg_function) + '\n';
-        result += "    domain: " + platform_topo().domain_type_to_name(it->second->domain) + '\n';
+        result += "    domain: " + m_platform_topo.domain_type_to_name(it->second->domain) + '\n';
         result += "    iogroup: ConstConfigIOGroup";
         return result;
     }
