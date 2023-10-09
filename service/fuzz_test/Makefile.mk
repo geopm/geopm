@@ -24,7 +24,7 @@ check_PROGRAMS += fuzz_test/geopmhash_fuzz_test \
 endif
 fuzz_test_geopmhash_fuzz_test_SOURCES = fuzz_test/geopmhash_harness.cpp
 fuzz_test_geopmhash_reg_test_SOURCES = fuzz_test/geopmhash_harness.cpp \
-                                       fuzz_test/StandaloneFuzzTargetMain.c \
+                                       fuzz_test/StandaloneFuzzTargetMain.cpp \
                                        # end
 fuzz_test_geopmhash_fuzz_test_CXXFLAGS = $(AM_CXXFLAGS) -fsanitize=fuzzer -fno-inline
 fuzz_test_geopmhash_reg_test_CXXFLAGS = $(AM_CXXFLAGS) -fno-inline
