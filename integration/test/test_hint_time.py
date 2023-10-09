@@ -84,10 +84,10 @@ class TestIntegration_hint_time(unittest.TestCase):
             cls._machine.load()
         except RuntimeError:
             cls._machine.save()
+        cls._num_node = util.get_num_node()
 
         if not cls._skip_launch:
             # Set the job size parameters
-            cls._num_node = util.get_num_node()
             num_rank = cls._num_node
             time_limit = 60
             # Configure the test application
@@ -152,7 +152,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             init_time = init_region['runtime (s)']
             msg = "Application totals should have three seconds of network time"
             expect = 3.0
-            actual = raw_totals['time-hint-network (s)']
+            actual = raw_totals['time-hint-network (s)'] - init_region['time-hint-network (s)']
             util.assertNear(self, expect, actual, msg=msg)
             msg = "Application totals should have one second of memory time"
             expect = 1.0
