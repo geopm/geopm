@@ -104,32 +104,45 @@ This will generate a file named ``const_config_io-characterization.json``
 in the current working directory containing configuration information for
 the node.  If successful, this is all that is required.
 
-The manual method of characterization consists of several steps.
-The first step is to generate the execution script by running
-the following for SLURM based systems::
+The manual method of characterization consists of several steps. The first
+step is to generate the launcher script by running the following:
 
-    gen_slurm.sh 1 arithmetic_intensity uncore_frequency_sweep
+.. tabs::
 
-Or if you're running a PBS based system run the following::
+    .. group-tab:: Slurm
 
-    gen_pbs.sh 1 arithmetic_intensity uncore_frequency_sweep
+        .. code-block:: bash
 
-The generated ``test.sbatch``  or ``test.pbs`` should be modified to enable
-Memory Bandwidth Monitoring by adding the following above the experiment
-script invocation::
+            # Generates launcher script test.sbatch
+            gen_slurm.sh 1 arithmetic_intensity uncore_frequency_sweep
 
-    srun -N ${SLURM_NNODES} geopmwrite MSR::PQR_ASSOC:RMID board 0 0
-    srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:RMID board 0 0
-    srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:EVENT_ID board 0 2
+    .. group-tab:: PBS
 
-Without this, the uncore bandwidth characterization analysis scripts will not
-be able to accurately determine the maximum memory bandwidth at each uncore
-frequency.
+        .. code-block:: bash
 
-Additionally the ``test.sbatch`` or ``test.pbs`` should be modified to include the following
-experiment options, where the text within angle brackets (``<>``) needs to be
-replaced with relevant system (or administrator chosen) values::
+            # Generates launcher script test.pbs
+            gen_pbs.sh 1 arithmetic_intensity uncore_frequency_sweep
 
+The generated launcher script should be modified to enable Memory Bandwidth
+Monitoring. First, create a :ref:`geopm-init-control <geopm-init-control option>`
+file with the following settings:
+
+.. code-block:: bash
+
+    MSR::PQR_ASSOC:RMID board 0 0
+    MSR::QM_EVTSEL:RMID board 0 0
+    MSR::QM_EVTSEL:EVENT_ID board 0 2
+
+This file needs to  be passed to the experiment run script via the
+``--geopm-init-control`` option. Without these settings, the uncore bandwidth
+characterization analysis scripts will not be able to accurately determine the
+maximum memory bandwidth at each uncore frequency.
+
+Additionally, the launcher script should be modified to include the following
+experiment options for the experiment run script, where the text within angle
+brackets (``<>``) needs to be replaced with relevant values::
+
+    --geopm-init-control=<memory bandwidth settings file>
     --geopm-report-signals="MSR::QM_CTR_SCALED_RATE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_MAX_CONTROL@package,CPU_UNCORE_FREQUENCY_MIN_CONTROL@package,CPU_UNCORE_FREQUENCY_MAX_CONTROL@package" \
     --min-frequency=<min. core frequency> \
     --max-frequency=<max. core frequency> \
@@ -147,13 +160,39 @@ options. For example::
     geopmread CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0
     geopmread CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0
 
-The ``test.sbatch`` script should also be modified to increase the run time to
-a sufficiently large value. This will depend on the system, but a full core and
+The launcher script should also be modified to increase the run time to a
+sufficiently large value. This will depend on the system, but a full core and
 uncore frequency sweep could take about 10 hours, for example.
 
-Then the ``test.sbatch`` script should be run on the node of interest using::
+.. tabs::
 
-    sbatch -w <node of interest> test.sbatch
+    .. group-tab:: Slurm
+
+        .. code-block:: bash
+
+            #SBATCH -t <HH:MM:SS>
+
+    .. group-tab:: PBS
+
+        .. code-block:: bash
+
+            #PBS -l walltime=<HH:MM:SS>
+
+Then the launcher script should be run on the node of interest using:
+
+.. tabs::
+
+    .. group-tab:: Slurm
+
+        .. code-block:: bash
+
+            sbatch -w <node of interest> test.sbatch
+
+    .. group-tab:: PBS
+
+        .. code-block:: bash
+
+            qsub -l select=host=<node of interest> test.pbs
 
 This will run multiple kernels of varying intensity that stress the core and
 uncore to help with system characterization.
