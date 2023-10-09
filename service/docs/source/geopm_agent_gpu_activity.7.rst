@@ -85,16 +85,20 @@ ConstConfigIO file is not available the agent will use the
 ``LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT`` signal.  If neither are available the
 agent will use the midpoint of ``GPU_CORE_FREQUENCY_MIN_AVAIL`` and ``GPU_CORE_FREQUENCY_MAX_AVAIL``.
 
-Generating a ConstConfigIOGroup configuration file for the GPU Compute Activity agent requires
-system characterization using the GEOPM experiment infrastructure located in
+These fallback signals can be checked using
+.. code-block:: bash
+
+    geopmread LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT board 0
+    geopmread GPU_CORE_FREQUENCY_MIN_AVAIL board 0
+    geopmread GPU_CORE_FREQUENCY_MAX_AVAIL board 0
+
+Generating a ConstConfigIOGroup configuration file for the GPU Compute Activity agent
+requires system characterization using the GEOPM experiment infrastructure located in
 ``$GEOPM_SOURCE/integration/experiment/`` and a benchmark or workload of interest.
 For most cases the Parallel Research (ParRes) located in
 ``$GEOPM_SOURCE/integration/apps/parres`` may be used.
 Prior to starting, the ParRes kernels need to be built (use
 the ``build.sh`` script provided in the benchmark's folder).
-
-
-
 
 
 
