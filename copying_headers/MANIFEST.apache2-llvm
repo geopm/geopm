@@ -1,1 +1,1 @@
-service/fuzz_test/StandaloneFuzzTargetMain.c
+service/fuzz_test/StandaloneFuzzTargetMain.cpp
