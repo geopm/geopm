@@ -44,9 +44,11 @@ int main(int argc, char **argv)
     uint64_t nw_mem_rid = prof.region("network-memory", GEOPM_REGION_HINT_NETWORK);
     uint64_t mem_rid = prof.region("memory", GEOPM_REGION_HINT_MEMORY);
 
+    MPI_Barrier(MPI_COMM_WORLD);
     prof.enter(nw_rid);
     spin->run();
     prof.exit(nw_rid);
+    MPI_Barrier(MPI_COMM_WORLD);
     prof.enter(nw_mem_rid);
     spin->run();
     prof.epoch();
