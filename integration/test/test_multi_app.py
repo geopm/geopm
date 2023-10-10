@@ -22,7 +22,7 @@ from integration.test import util
 
 class TestIntegration_multi_app(unittest.TestCase):
     TEST_NAME = 'test_multi_app'
-    TIME_LIMIT = 30
+    TIME_LIMIT = 60
     NUM_NODE = 1
     EXPECTED_REGIONS = {'model-init', 'stream', 'dgemm',
                         'MPI_Init_thread'}

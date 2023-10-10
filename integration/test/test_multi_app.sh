@@ -7,7 +7,7 @@ cat > temp_config.json << "EOF"
 {
     "loop-count": 2,
     "region": ["stream", "dgemm"],
-    "big-o": [1.0, 1.0]
+    "big-o": [1.0, 10.0]
 }
 EOF
 
