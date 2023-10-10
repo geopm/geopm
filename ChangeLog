@@ -1,3 +1,38 @@
+* Wed Mar 29 2023 Brad Geltz <brad.geltz@intel.com> v2.0.2
+- Hot fix 2 for release 2.0.
+- Add security.md doc for vulnerability reporting.
+- Align behavior of secure_make_dirs() to documentation w.r.t. intermediate directories.
+- Includes bug fixes and documentation improvements.
+- Fix constness of return value from dgcm_device_pool().
+- Fix warning from recent gcc about uninitialized variables.
+- Use PALSLauncher on australis.
+- PALSLauncher: use list option to cpu-bind
+- Fix for suppressed error reporting.
+- Fix for SST kernel driver on SLES 15.3.
+- Fix for issue where missing data can cause Controller crash.
+- Update copyright year to 2023.
+- Fix LevelZero exception location.
+- Fix error when GPUs are supported by service but not client.
+- Swap load order of msr and service iogroups.
+- Resolve service integration test issues.
+* Wed Jan 25 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.1
+- Hot fix 1 for release 2.0.
+- Includes bug fixes and documentation improvements.
+- Better error reporting from geopmd signal handler.
+- Fix for supporting LevelZero when MPI also initializes LevelZero.
+- Better error reporting when application handshake fails.
+- Use multi-user.target in systemd unit file rather than default.
+- Fix overwrite of access list with --force option (#2712).
+- Fix new CLANG reported issues.
+- Use control access list to generate signal list (#2707).
+- Fix spelling errors in documentation (#2644).
+- Support for recent LevelZero implementations which require user to zero call by reference parameters.
+- Better error reporting with LevelZero topology failures.
+- Update spec file to make LevelZero inclusion parameterized and suggestions from SUSE maintainers.
+- Enable CNLIOGroup by default.
+- Fix potential memory issue with CircularBuffer (not exposed by current implementation).
+- Use more robust method to obtain sticker frequency.
+- Use SKX MSR definitions for newer architectures.
 * Wed Aug 24 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0
 - Official v2.0.0 release tag.
 - Provides the GEOPM Systemd Service.
