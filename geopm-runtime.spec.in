@@ -58,8 +58,6 @@ Prefix: %{_prefix}
 %define compdir "%{_sysconfdir}/bash_completion.d"
 %endif
 
-%{?python_disable_dependency_generator}
-
 %description
 @BLURB@
 
