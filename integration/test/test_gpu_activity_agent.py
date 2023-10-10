@@ -26,8 +26,7 @@ from apps.parres import parres
 
 @util.skip_unless_do_launch()
 @util.skip_unless_gpu()
-@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
-@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
+@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
 class TestIntegration_gpu_activity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -72,6 +71,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             parres_init_setup=None,
             parres_exp_setup=None,
             parres_teardown=None,
+            init_control=None,
             parres_args=None,
             trial_count=1,
             cool_off_time=3,
@@ -80,21 +80,41 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             phi_list=None,
         )
 
-        launch_helper(gpu_activity, experiment_args, parres.create_dgemm_appconf_cuda(mach, experiment_args), [])
+
+        if util.get_service_config_value('enable_nvml') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
+            app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
+        elif util.get_service_config_value('enable_levelzero') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/dgemm-onemkl")
+            app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
+        if not os.path.exists(app_path):
+            self.fail("Neither NVIDIA nor Intel dgemm variant was found")
+        launch_helper(gpu_activity, experiment_args, app_conf, [])
 
         # STREAM
         cls._stream_output_dir = Path(os.path.join('test_gpu_activity_output', 'stream'))
         experiment_args.output_dir=cls._stream_output_dir
         experiment_args.parres_args="3 1000000000"
-        launch_helper(gpu_activity, experiment_args, parres.create_nstream_appconf_cuda(mach, experiment_args), [])
 
+        if util.get_service_config_value('enable_nvml') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
+            app_conf = parres.create_nstream_appconf_cuda(mach, experiment_args)
+        elif util.get_service_config_value('enable_levelzero') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/nstream-onemkl")
+            app_conf = parres.create_nstream_appconf_oneapi(mach, experiment_args)
+        if not os.path.exists(app_path):
+            self.fail("Neither NVIDIA nor Intel dgemm variant was found")
+        launch_helper(gpu_activity, experiment_args, app_conf, [])
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
             TestIntegration_gpu_activity._keep_files = True
 
-    @util.skip_unless_nvml()
-    def test_gpu_activity_dgemm_nvidia(self):
+    def test_gpu_activity_dgemm(self):
         """
         PARRES DGEMM exhibits less energy consumption with the agent at phi > 50
         and FoM doesn't change significantly from phi 0 to phi 50
@@ -110,11 +130,10 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             if phi <= 0.5:
                 util.assertNear(self, fom, default_fom)
             elif phi > 0.5:
-                self.assertLess(energy, default_energy);
+                self.assertLess(energy, default_energy)
                 self.assertLess(fom, default_fom);
 
-    @util.skip_unless_nvml()
-    def test_gpu_activity_stream_nvidia(self):
+    def test_gpu_activity_stream(self):
         """
         PARRES NSTREAM exhibits less energy consumption with the agent
         for all non-zero phi values.
