@@ -63,6 +63,11 @@ namespace geopm
 
     }
 
+    SDBusMessageImp::~SDBusMessageImp()
+    {
+       (void) ! sd_bus_message_unref(m_bus_message);
+    }
+
     sd_bus_message *SDBusMessageImp::get_sd_ptr(void)
     {
         return m_bus_message;

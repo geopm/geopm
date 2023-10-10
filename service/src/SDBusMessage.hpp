@@ -138,7 +138,7 @@ namespace geopm
         public:
             SDBusMessageImp();
             SDBusMessageImp(sd_bus_message *bus_message);
-            virtual ~SDBusMessageImp() = default;
+            virtual ~SDBusMessageImp();
             sd_bus_message *get_sd_ptr(void) override;
             void enter_container(
                 char type,
