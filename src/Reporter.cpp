@@ -496,6 +496,9 @@ namespace geopm
             if (!std::isnan(value)) { // Remove nan fields
                 result.push_back({field.field_label, value});
             }
+            else {
+                result.push_back({field.field_label, 0});
+            }
         }
 
         // signals added by user through environment
