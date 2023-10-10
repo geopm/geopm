@@ -1,4 +1,4 @@
-/*===- StandaloneFuzzTargetMain.c - standalone main() for fuzz targets. ---===//
+/*===- StandaloneFuzzTargetMain.cpp - GEOPM standalone main() for fuzz targets. ---===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -12,6 +12,8 @@
 //
 // Use this file to provide reproducers for bugs when linking against libFuzzer
 // or other fuzzing engine is undesirable.
+//
+// This file was modified from the original to use geopm/Helper.hpp.
 //===----------------------------------------------------------------------===*/
 
 
