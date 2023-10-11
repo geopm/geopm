@@ -127,8 +127,6 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         if sys.exc_info() != (None, None, None):
             TestIntegration_gpu_activity._keep_files = True
 
-    @util.skip_unless_gpu()
-    @util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
     def test_gpu_activity_dgemm(self):
         """
         PARRES DGEMM exhibits less energy consumption with the agent at phi > 50
@@ -148,8 +146,6 @@ class TestIntegration_gpu_activity(unittest.TestCase):
                 self.assertLess(energy, default_energy)
                 self.assertLess(fom, default_fom);
 
-    @util.skip_unless_gpu()
-    @util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
     def test_gpu_activity_stream(self):
         """
         PARRES NSTREAM exhibits less energy consumption with the agent
