@@ -5,7 +5,7 @@
 EXTRA_DIST += integration/test/test_@test_name@.py
 
 if ENABLE_MPI
-noinst_PROGRAMS += integration/test/test_@test_name@
+check_PROGRAMS += integration/test/test_@test_name@
 integration_test_test_@test_name@_SOURCES = integration/test/test_@test_name@.cpp
 integration_test_test_@test_name@_SOURCES += $(model_source_files)
 integration_test_test_@test_name@_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

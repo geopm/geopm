@@ -6,7 +6,7 @@ EXTRA_DIST += integration/test/test_omp_outer_loop.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-noinst_PROGRAMS += integration/test/test_omp_outer_loop
+check_PROGRAMS += integration/test/test_omp_outer_loop
 integration_test_test_omp_outer_loop_SOURCES = integration/test/test_omp_outer_loop.cpp
 integration_test_test_omp_outer_loop_SOURCES += $(model_source_files)
 integration_test_test_omp_outer_loop_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
