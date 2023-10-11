@@ -46,3 +46,4 @@ include integration/test/test_cpu_activity_agent.mk
 include integration/test/test_cpu_characterization.mk
 include integration/test/test_multi_app.mk
 include integration/test/test_epoch_inference.mk
+include integration/test/test_gen_pbs.mk
