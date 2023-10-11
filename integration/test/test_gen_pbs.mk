@@ -2,4 +2,4 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/test/test_gen_pbs.sh
+EXTRA_DIST += integration/test/test_gen_pbs.py
