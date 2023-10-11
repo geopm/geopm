@@ -561,6 +561,10 @@ class PlatformService(object):
         elif not cont_req.issubset(supported_controls):
             raise RuntimeError('Requested controls that are not in allowed list: {}' \
                                .format(sorted(cont_req.difference(supported_controls))))
+        for domain, domain_idx in [(cc[0], cc[1]) for cc in signal_config]:
+            self._check_domain_permissions(client_pid, domain, domain_idx)
+        for domain, domain_idx in [(cc[0], cc[1]) for cc in control_config]:
+            self._check_domain_permissions(client_pid, domain, domain_idx)
         if len(control_config) != 0:
             self._write_mode(client_pid)
         batch_pid = self._active_sessions.get_batch_server(client_pid)
@@ -634,6 +638,7 @@ class PlatformService(object):
         signal_avail = self._active_sessions.get_signals(client_pid)
         if not signal_name in signal_avail:
             raise RuntimeError('Requested signal that is not in allowed list: {}'.format(signal_name))
+        self._check_domain_permissions(client_pid, domain, domain_idx)
         return self._pio.read_signal(signal_name, domain, domain_idx)
 
     def write_control(self, client_pid, control_name, domain, domain_idx, setting):
@@ -675,6 +680,7 @@ class PlatformService(object):
         control_avail = self._active_sessions.get_controls(client_pid)
         if not control_name in control_avail:
             raise RuntimeError('Requested control that is not in allowed list: {}'.format(control_name))
+        self._check_domain_permissions(client_pid, domain, domain_idx)
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
@@ -825,6 +831,63 @@ class PlatformService(object):
             self._close_session_completely(client_pid)
             return False
         return True
+
+    def _get_cpuset(self, cgroup):
+        """Uses sysfs to get list of CPUs in specified cgroup cpuset
+
+        Args:
+            cgroup (str): Name of cgroup to query
+
+        Returns:
+            list(int): Linux logical CPUs allowed by cgroup
+
+        """
+        with open(f'/sys/fs/cgroup/cpuset/{cgroup}/cpuset.cpus') as fid:
+            cpu_str = fid.read()
+        result = []
+        for ent in cpu_str.split(','):
+            if '-' in ent:
+                ent = [int(ee) for ee in ent.split('-')]
+                result.extend(range(ent[0], ent[1] + 1))
+            else:
+                result.append(int(ent))
+        return result
+
+    def _get_cgroup(self, pid):
+        """Uses sysfs to get cpuset cgroup for specified PID
+
+        Args:
+            pid (int): PID of the process to query
+
+        Returns:
+            list(int): Linux logical CPUs allowed by cgroup
+
+        """
+        with open(f'/proc/{pid}/cgroup') as fid:
+            for line in fid:
+                fields = line.split(':')
+                if len(fields) == 3 and 'cpuset' in fields[1].split(','):
+                    cgroup = fields[2].strip()
+        return cgroup
+
+    def _check_domain_permissions(self, pid, domain, domain_idx):
+        """Use cgroups to check if a PID has permission to access domain
+
+        Args:
+            pid (int): PID of the process to query
+
+            domain (int): One of the geopmpy.topo.DOMAIN_* integers
+                          corresponding to a domain type to read from.
+
+            domain_idx (int): Specifies the particular domain index to
+                              read from.
+        """
+        cgroup = self._get_cgroup(pid)
+        allowed_cpuset = self._get_cpuset(cgroup)
+        requested_cpuset = set(topo.domain_nested('cpu', domain, domain_idx))
+        if not requested_cpuset.issubset(allowed_cpuset):
+            invalid_cpu = ', '.join([str(cc) for cc in requested_cpuset.difference(allowed_cpuset)])
+            raise RuntimeError(f'PID {pid} is in cgroup {cgroup} but requested access to CPUs outside of cpuset: {invalid_cpu}')
 
 
 class TopoService(object):
