@@ -28,7 +28,6 @@ from experiment.uncore_frequency_sweep import uncore_frequency_sweep
 from experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
 from apps.arithmetic_intensity import arithmetic_intensity
 
-@util.skip_unless_do_launch()
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 class TestIntegration_cpu_characterization(unittest.TestCase):
     @classmethod

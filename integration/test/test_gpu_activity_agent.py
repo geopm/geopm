@@ -24,7 +24,6 @@ from integration.test import geopm_test_launcher
 from experiment.energy_efficiency import gpu_activity
 from apps.parres import parres
 
-@util.skip_unless_do_launch()
 @util.skip_unless_gpu()
 @util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
 class TestIntegration_gpu_activity(unittest.TestCase):
@@ -33,6 +32,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         """
         Setup DGEMM & STREAM applications, setup agent config, and execute.
         """
+        cls._skip_launch = not util.do_launch()
 
         max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
 
@@ -49,13 +49,13 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         efficient_freq = (min_freq + max_freq) / 2
 
         def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
-            output_dir = experiment_args.output_dir
-            if output_dir.exists() and output_dir.is_dir():
-                shutil.rmtree(output_dir)
+            if not cls._skip_launch:
+                output_dir = experiment_args.output_dir
+                if output_dir.exists() and output_dir.is_dir():
+                    shutil.rmtree(output_dir)
 
-            experiment_type.launch(app_conf=app_conf, args=experiment_args,
-                                   experiment_cli_args=experiment_cli_args)
-
+                experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                       experiment_cli_args=experiment_cli_args)
 
         node_count=1
         mach = machine.init_output_dir('.')
@@ -79,7 +79,6 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             enable_profile_traces=False,
             phi_list=None,
         )
-
 
         if util.get_service_config_value('enable_nvml') == '1':
             app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
