@@ -26,7 +26,6 @@ from experiment.gpu_frequency_sweep import gpu_frequency_sweep
 from experiment.gpu_frequency_sweep import gen_gpu_activity_constconfig_recommendation
 from apps.parres import parres
 
-@util.skip_unless_config_enable('beta')
 @util.skip_unless_gpu()
 @util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
 class TestIntegration_gpu_activity(unittest.TestCase):
@@ -39,12 +38,13 @@ class TestIntegration_gpu_activity(unittest.TestCase):
 
         def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
             output_dir = experiment_args.output_dir
-            if output_dir.exists() and output_dir.is_dir():
-                shutil.rmtree(output_dir)
+            if not cls._skip_launch:
+                if output_dir.exists() and output_dir.is_dir():
+                    shutil.rmtree(output_dir)
 
-            experiment_cli_args.append('--geopm-ctl-local')
-            experiment_type.launch(app_conf=app_conf, args=experiment_args,
-                                   experiment_cli_args=experiment_cli_args)
+                experiment_cli_args.append('--geopm-ctl-local')
+                experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                       experiment_cli_args=experiment_cli_args)
 
         max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
         min_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MIN_AVAIL board 0")
