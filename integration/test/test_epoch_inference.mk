@@ -6,7 +6,7 @@ EXTRA_DIST += integration/test/test_epoch_inference.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-noinst_PROGRAMS += integration/test/test_epoch_inference
+check_PROGRAMS += integration/test/test_epoch_inference
 integration_test_test_epoch_inference_SOURCES = integration/test/test_epoch_inference.cpp
 integration_test_test_epoch_inference_SOURCES += $(model_source_files)
 integration_test_test_epoch_inference_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

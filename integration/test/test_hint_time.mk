@@ -6,7 +6,7 @@ EXTRA_DIST += integration/test/test_hint_time.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-noinst_PROGRAMS += integration/test/test_hint_time
+check_PROGRAMS += integration/test/test_hint_time
 integration_test_test_hint_time_SOURCES = integration/test/test_hint_time.cpp
 integration_test_test_hint_time_SOURCES += $(model_source_files)
 integration_test_test_hint_time_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
