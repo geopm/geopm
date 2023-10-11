@@ -82,16 +82,17 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             phi_list=None,
         )
 
-        path_nvidia = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                   "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
-        path_intel = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                  "apps/parres/Kernels/Cxx11/dgemm-onemkl")
-        if os.path.exists(path_nvidia):
-            launch_helper(gpu_activity, experiment_args, parres.create_dgemm_appconf_cuda(mach, experiment_args), [])
-        elif os.path.exists(path_intel):
-            launch_helper(gpu_activity, experiment_args, parres.create_dgemm_appconf_oneapi(mach, experiment_args), [])
-        else:
+        if util.get_service_config_value('enable_nvml') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
+            app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
+        elif util.get_service_config_value('enable_levelzero') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/dgemm-onemkl")
+            app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
+        if not os.path.exists(app_path):
             self.fail("Neither NVIDIA or Intel dgemm variant was found")
+        launch_helper(gpu_activity, experiment_args, app_conf, [])
 
         # STREAM
         cls._stream_output_dir = Path(os.path.join('test_gpu_activity_output', 'stream'))
@@ -110,16 +111,17 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             self.fail("Neither NVIDIA nor Intel dgemm variant was found")
         launch_helper(gpu_activity, experiment_args, app_conf, [])
 
-        path_nvidia = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                   "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
-        path_intel = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                  "apps/parres/Kernels/Cxx11/nstream-onemkl")
-        if os.path.exists(path_nvidia):
-            launch_helper(gpu_activity, experiment_args, parres.create_nstream_appconf_cuda(mach, experiment_args), [])
+        if util.get_service_config_value('enable_nvml') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                       "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
+            app_conf = parres.create_nstream_appconf_cuda(mach, experiment_args)
         elif os.path.exists(path_intel):
-            launch_helper(gpu_activity, experiment_args, parres.create_nstream_appconf_oneapi(mach, experiment_args), [])
-        else:
-            self.fail("Neither NVIDIA or Intel nstreamm variant was found")
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                     "apps/parres/Kernels/Cxx11/nstream-onemkl")
+            app_conf = parres.create_nstream_appconf_oneapi(mach, experiment_args)
+        if not os.path.exists(app_path):
+            self.fail("Neither NVIDIA or Intel dgemm variant was found")
+        launch_helper(gpu_activity, experiment_args, app_conf, [])
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
