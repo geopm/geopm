@@ -877,7 +877,10 @@ class RawReportCollection(object):
                     self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
                 except:
                     self._unmarked_reports_df = self._reports_df.loc[self._reports_df['region'] == 'unmarked-region']
-                self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
+                try:
+                    self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
+                except:
+                    pass
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(self._report_h5_name))
             except IOError:
@@ -1026,13 +1029,16 @@ class RawReportCollection(object):
 
                 epoch_row = copy.deepcopy(header)
                 epoch_row.update(per_host_data)
-                epoch_data = rr.raw_epoch(host)
-                for key, val in epoch_data.items():
-                    epoch_data[key] = _try_float(val)
-                for cc in epoch_data.keys():
-                    _add_column('epoch', cc)
-                epoch_row.update(epoch_data)
-                epoch_df_list.append(pandas.DataFrame(epoch_row, index=[0]))
+                try:
+                    epoch_data = rr.raw_epoch(host)
+                    for key, val in epoch_data.items():
+                        epoch_data[key] = _try_float(val)
+                    for cc in epoch_data.keys():
+                        _add_column('epoch', cc)
+                    epoch_row.update(epoch_data)
+                    epoch_df_list.append(pandas.DataFrame(epoch_row, index=[0]))
+                except:
+                    pass
 
                 app_row = copy.deepcopy(header)
                 if figure_of_merit is not None:
@@ -1057,9 +1063,12 @@ class RawReportCollection(object):
         unmarked_df = pandas.concat(unmarked_df_list, ignore_index=True)
         unmarked_df = unmarked_df.reindex(columns=self._columns_order['unmarked'])
         self._unmarked_reports_df = unmarked_df
-        epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
-        epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
-        self._epoch_reports_df = epoch_df
+        try:
+            epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
+            epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
+            self._epoch_reports_df = epoch_df
+        except:
+            pass
         app_df = pandas.concat(app_df_list, ignore_index=True)
         app_df = app_df.reindex(columns=self._columns_order['app'])
         self._app_reports_df = app_df
