@@ -64,10 +64,14 @@ extern "C"
             std::shared_ptr<geopm::SharedMemory> shmem_user = nullptr;
             int rank, color = -1;
 
-            MPI_Comm_rank(comm, &rank);
+            err = MPI_Comm_rank(comm, &rank);
+            if (!err) {
+                throw geopm::Exception("geopm_comm_split_shared(): Call to MPI_Comm_rank() failed",
+                                       GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
             // remove shared memory file if one already exists
-            (void)unlink(shmem_path.str().c_str());
-            MPI_Barrier(comm);
+            (void)! unlink(shmem_path.str().c_str());
+            (void)! MPI_Barrier(comm);
             err = stat(shmem_path.str().c_str(), &stat_struct);
             if (!err || (err && errno != ENOENT)) {
                 std::stringstream ex_str;
@@ -75,7 +79,7 @@ extern "C"
                        << " already exists and cannot be deleted.";
                 throw geopm::Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            MPI_Barrier(comm);
+            (void)! MPI_Barrier(comm);
             try {
                 shmem = geopm::SharedMemory::make_unique_owner(shmem_path.str(), sizeof(int));
             }
@@ -91,7 +95,7 @@ extern "C"
                 color = rank;
                 *((int*)(shmem->pointer())) = color;
             }
-            MPI_Barrier(comm);
+            (void)! MPI_Barrier(comm);
             if (shmem_user) {
                 color = *((int*)(shmem_user->pointer()));
             }
