@@ -357,8 +357,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/FrequencyMapAgent.hpp \
                       src/FrequencyTimeBalancer.cpp \
                       src/FrequencyTimeBalancer.hpp \
-                      src/GPUActivityAgent.cpp \
-                      src/GPUActivityAgent.hpp \
                       src/Imbalancer.cpp \
                       src/InitControl.cpp \
                       src/InitControl.hpp \
@@ -446,6 +444,8 @@ beta_source_files = src/CPUActivityAgent.cpp \
                     src/DaemonImp.hpp \
                     src/FFNetAgent.cpp \
                     src/FFNetAgent.hpp \
+                    src/GPUActivityAgent.cpp \
+                    src/GPUActivityAgent.hpp \
                     src/PolicyStore.cpp \
                     src/PolicyStore.hpp \
                     src/PolicyStoreImp.cpp \
