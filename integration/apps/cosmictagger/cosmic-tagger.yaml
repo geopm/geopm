@@ -1,0 +1,74 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cosmic-tagger
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: cosmic-tagger
+        image: geopm.github.io/dcw/cosmic:latest
+        workingDir: "/cosmic-data"
+        imagePullPolicy: Never
+        resources:
+          limits:
+            nvidia.com/gpu: 4
+        # Small-scale test run (~7 minutes)
+        # command: ["mpirun", "-n", "2", "-ppn", "2", "python3",
+        #           "/CosmicTagger-1.1.0/bin/exec.py", "mode=train",
+        #           "run.distributed=true", "run.minibatch_size=2",
+        #           "data.data_directory=/CosmicTagger-1.1.0/example_data/",
+        #           "data.file=cosmic_tagging_light.h5", "data.aux_file=cosmic_tagging_light.h5",
+        #           "run.id=test-run"]
+        # Full-size run
+        command: ["mpirun", "-n", "4", "-ppn", "4", "python3",
+                  "/CosmicTagger-1.1.0/bin/exec.py",
+                  "run.distributed=true", "run.minibatch_size=8",
+                  "data.data_directory=/cosmic-data/",
+                  "mode=train", "data.file=cosmic_tagging_train.h5", "data.aux_file=cosmic_tagging_val.h5",
+                  # "mode=inference", "data.file=cosmic_tagging_test.h5",
+                  "run.id=test-run"]
+        volumeMounts:
+        - name: cosmic-data
+          mountPath: /cosmic-data
+      volumes:
+      - name: cosmic-data
+        persistentVolumeClaim:
+          claimName: cosmic-pvc
+...
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cosmic-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: local-storage
+  selector:
+    matchLabels:
+      app: cosmic-tagger
+...
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cosmic-volume
+  labels:
+    type: local
+    app: cosmic-tagger
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  hostPath:
+    path: CHOOSE_A_PATH_TO_MOUNT
+...
