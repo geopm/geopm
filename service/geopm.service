@@ -14,9 +14,7 @@ Environment=PYTHONUNBUFFERED=true
 Environment=ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE
 Environment=ZES_ENABLE_SYSMAN=1
 
-Type=dbus
-BusName=io.github.geopm
-ExecStart=/usr/bin/geopmd
+ExecStart=/usr/bin/geopmd --grpc
 Restart=always
 
 [Install]
