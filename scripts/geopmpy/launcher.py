@@ -649,13 +649,12 @@ class Launcher(object):
         out = self.run_compute_cmd('lscpu --hex', 1)
         cpu_tpc_core_socket = [int(line.split(':')[1])
                                for line in out.splitlines()
-                               if line.find('CPU(s):') == 0 or
-                                  line.find('Thread(s) per core:') == 0 or
-                                  line.find('Core(s) per socket:') == 0 or
-                                  line.find('Socket(s):') == 0]
+                               if line.strip().find('CPU(s):') == 0 or
+                                  line.strip().find('Thread(s) per core:') == 0 or
+                                  line.strip().find('Core(s) per socket:') == 0 or
+                                  line.strip().find('Socket(s):') == 0]
         if len(cpu_tpc_core_socket) < 4:
-            raise RuntimeError('<geopm> geopmpy.launcher: Unable to initialize platform topology with run command: '
-                               + str(argv))
+            raise RuntimeError('<geopm> geopmpy.launcher: Unable to initialize platform topology with run command: lscpu --hex')
         self.num_linux_cpu = cpu_tpc_core_socket[0]
         self.thread_per_core = cpu_tpc_core_socket[1]
         self.core_per_socket = cpu_tpc_core_socket[2]

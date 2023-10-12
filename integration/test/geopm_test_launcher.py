@@ -200,10 +200,10 @@ class TestLauncher(object):
         out = ostream.getvalue()
         cpu_thread_core_socket = [int(line.split(':')[1])
                        for line in out.splitlines()
-                       if line.find('CPU(s):') == 0 or
-                          line.find('Thread(s) per core:') == 0 or
-                          line.find('Core(s) per socket:') == 0 or
-                          line.find('Socket(s):') == 0]
+                       if line.strip().find('CPU(s):') == 0 or
+                          line.strip().find('Thread(s) per core:') == 0 or
+                          line.strip().find('Core(s) per socket:') == 0 or
+                          line.strip().find('Socket(s):') == 0]
         if self._performance == True:
             # Multiply num core per socket by num sockets, subtract 1, then multiply by threads per core.
             # Remove one CPU for BSP to calculate number of CPU for application.
