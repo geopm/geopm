@@ -365,7 +365,7 @@ namespace geopm
                                                        request,
                                                        &response);
         if (!status.ok()) {
-            throw Exception("GRPCSericeProxy::get_profile_pids(): " +
+            throw Exception("GRPCSericeProxy::platform_get_profile_pids(): " +
                             status.error_message(),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -389,7 +389,7 @@ namespace geopm
                                                               request,
                                                               &response);
         if (!status.ok()) {
-            throw Exception("GRPCSericeProxy::get_profile_pids(): " +
+            throw Exception("GRPCSericeProxy::platform_pop_profile_region_names(): " +
                             status.error_message(),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
