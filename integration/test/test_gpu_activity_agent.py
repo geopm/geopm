@@ -22,6 +22,8 @@ import geopmpy.io
 from integration.test import util
 from integration.test import geopm_test_launcher
 from experiment.energy_efficiency import gpu_activity
+from experiment.gpu_frequency_sweep import gpu_frequency_sweep
+from experiment.gpu_frequency_sweep import gen_gpu_activity_constconfig_recommendation
 from apps.parres import parres
 
 @util.skip_unless_config_enable('beta')
@@ -35,38 +37,27 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         """
         cls._skip_launch = not util.do_launch()
 
-        max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
-
-        # TODO:
-        # Once the GPU Frequency sweep infrastructure is added a full
-        # characterization integration test should be added that does
-        # a GPU frequency sweep of parres dgemm, parses the frequency
-        # sweep using the gen_gpu_activity_constconfig_recommendation.py
-        # script, and uses the output provided.
-        #
-        # This is a less time consuming version of that approach,
-        # where efficient freq is estimated based on min and max
-        min_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MIN_AVAIL board 0")
-        efficient_freq = (min_freq + max_freq) / 2
-
-
         def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
             if not cls._skip_launch:
                 output_dir = experiment_args.output_dir
                 if output_dir.exists() and output_dir.is_dir():
                     shutil.rmtree(output_dir)
 
-                experiment_type.launch(app_conf=app_conf, args=experiment_args,
-                                       experiment_cli_args=experiment_cli_args)
+        max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
+        min_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MIN_AVAIL board 0")
 
         node_count=1
         mach = machine.init_output_dir('.')
 
-        # DGEMM
-        cls._dgemm_output_dir = Path(os.path.join('test_gpu_activity_output', 'dgemm'))
+        cls._dgemm_freq_sweep_output_dir = Path(os.path.join('test_gpu_activity_output', 'dgemm_gpu_freq_sweep'))
+
+        cpu_max_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MAX_AVAIL board 0")
+        uncore_max_freq = geopm_test_launcher.geopmread("CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0")
         experiment_args = SimpleNamespace(
-            output_dir=cls._dgemm_output_dir,
+            output_dir=cls._dgemm_freq_sweep_output_dir,
             node_count=node_count,
+            trial_count=1,
+            cool_off_time=3,
             parres_cores_per_node=None,
             parres_gpus_per_node=None,
             parres_cores_per_rank=1,
@@ -75,11 +66,37 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             parres_teardown=None,
             init_control=None,
             parres_args=None,
-            trial_count=1,
-            cool_off_time=3,
             enable_traces=False,
             enable_profile_traces=False,
-            phi_list=None,
+            verbose=False,
+            min_frequency = cpu_max_freq,
+            max_frequency = cpu_max_freq,
+            min_uncore_frequency = uncore_min_freq,
+            max_uncore_frequency = uncore_max_freq,
+            step_gpu_frequency = 1e8
+        )
+
+        # DGEMM GPU Freq Sweep
+        launch_helper(gpu_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg)
+        ##############
+        # Parse data #
+        ##############
+        df_frequency_sweep = geopmpy.io.RawReportCollection('*report', dir_name=cls._aib_uncore_freq_sweep_dir).get_df()
+        gpu_config = gen_cpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep, mach, 0, True) #TODO: Consider false
+
+        # Write config
+        json_config = json.dumps(gpu_config, indent=4)
+        with open("const_config_io-ca.json", "w") as outfile:
+            outfile.write(json_config)
+
+        const_path = Path('const_config_io-ca.json').resolve()
+        os.environ["GEOPM_CONST_CONFIG_PATH"] = str(const_path)
+
+        # DGEMM GPU-CA Phi Sweep
+        cls._dgemm_output_dir = Path(os.path.join('test_gpu_activity_output', 'dgemm'))
+        experiment_args = SimpleNamespace(
+            output_dir=cls._dgemm_output_dir,
+            phi_list=None
         )
 
         if util.get_service_config_value('enable_nvml') == '1':
@@ -92,6 +109,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
         if not os.path.exists(app_path):
             self.fail("Neither NVIDIA or Intel dgemm variant was found")
+
         launch_helper(gpu_activity, experiment_args, app_conf, [])
 
         # STREAM
