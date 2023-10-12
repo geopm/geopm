@@ -65,7 +65,7 @@ extern "C"
             int rank, color = -1;
 
             err = MPI_Comm_rank(comm, &rank);
-            if (!err) {
+            if (err != 0) {
                 throw geopm::Exception("geopm_comm_split_shared(): Call to MPI_Comm_rank() failed",
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
