@@ -1368,6 +1368,15 @@ class OMPIExecLauncher(Launcher):
     def exclude_list_option(self):
         return []
 
+    def preload_option(self):
+        result = []
+        if self.config and self.config.get_preload():
+            value = ':'.join((ll for ll in
+                              (self.lib_name, os.getenv('LD_PRELOAD'))
+                              if ll is not None))
+            result = ['-x', 'LD_PRELOAD={}'.format(value)]
+        return result
+
 class IMPIExecLauncher(Launcher):
     """
     Launcher derived object for use with the Intel(R) MPI Library job launch
