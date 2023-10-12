@@ -6,7 +6,8 @@ use geopm_package::geopm_service_server::{GeopmService, GeopmServiceServer};
 use geopm_package::geopm_service_client::GeopmServiceClient;
 use geopm_package::{AccessLists, InfoRequest, SignalInfoList, ControlInfoList,
                     SessionKey, Empty, BatchRequest, BatchKey, BatchSession,
-                    ReadRequest, Sample, WriteRequest, TopoCache};
+                    ReadRequest, Sample, WriteRequest, TopoCache, ProfileRequest,
+                    PidList, NameList};
 use std::convert::TryFrom;
 use std::fs;
 use std::fs::{Permissions};
@@ -166,6 +167,58 @@ impl GeopmService for GeopmServiceImp {
     ) -> Result<Response<TopoCache>, Status> {
         let mut geopm_client = self.geopm_client.lock().await;
         Ok(geopm_client.topo_get_cache(request).await?)
+    }
+
+    async fn start_profile(
+        &self,
+        request: Request<ProfileRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut profile_request = request.into_inner();
+        profile_request.session_key = Some(session_key);
+        let request = tonic::Request::new(profile_request);
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.start_profile(request).await?)
+    }
+
+    async fn stop_profile(
+        &self,
+        request: Request<ProfileRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut profile_request = request.into_inner();
+        profile_request.session_key = Some(session_key);
+        let request = tonic::Request::new(profile_request);
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.stop_profile(request).await?)
+    }
+
+    async fn get_profile_pids(
+        &self,
+        request: Request<ProfileRequest>,
+    ) -> Result<Response<PidList>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut profile_request = request.into_inner();
+        profile_request.session_key = Some(session_key);
+        let request = tonic::Request::new(profile_request);
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.get_profile_pids(request).await?)
+    }
+
+    async fn pop_profile_region_names(
+        &self,
+        request: Request<ProfileRequest>,
+    ) -> Result<Response<NameList>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut profile_request = request.into_inner();
+        profile_request.session_key = Some(session_key);
+        let request = tonic::Request::new(profile_request);
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.pop_profile_region_names(request).await?)
     }
 }
 
