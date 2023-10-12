@@ -38,10 +38,13 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         cls._skip_launch = not util.do_launch()
 
         def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
-            if not cls._skip_launch:
-                output_dir = experiment_args.output_dir
-                if output_dir.exists() and output_dir.is_dir():
-                    shutil.rmtree(output_dir)
+            output_dir = experiment_args.output_dir
+            if output_dir.exists() and output_dir.is_dir():
+                shutil.rmtree(output_dir)
+
+            experiment_cli_args.append('--geopm-ctl-local')
+            experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                   experiment_cli_args=experiment_cli_args)
 
         max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
         min_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MIN_AVAIL board 0")
@@ -150,7 +153,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         PARRES DGEMM exhibits less energy consumption with the agent at phi > 50
         and FoM doesn't change significantly from phi 0 to phi 50
         """
-        df = geopmpy.io.RawReportCollection('*report', dir_name=self._dgemm_output_dir).get_app_df()
+        df = geopmpy.io.RawReportCollection('*report*', dir_name=self._dgemm_output_dir).get_app_df()
 
         default_fom = float(df[df['GPU_PHI'] == 0]['FOM'])
         default_energy = float(df[df['GPU_PHI'] == 0]['gpu-energy (J)'])
@@ -169,7 +172,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         PARRES NSTREAM exhibits less energy consumption with the agent
         for all non-zero phi values.
         """
-        df = geopmpy.io.RawReportCollection('*report', dir_name=self._stream_output_dir).get_app_df()
+        df = geopmpy.io.RawReportCollection('*report*', dir_name=self._stream_output_dir).get_app_df()
 
         default_fom = float(df[df['GPU_PHI'] == 0]['FOM'])
         default_energy = float(df[df['GPU_PHI'] == 0]['gpu-energy (J)'])
