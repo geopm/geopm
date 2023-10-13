@@ -1,27 +1,25 @@
-Guide for GEOPM Documentation
-=============================
-These are the style guidelines for writing or modifying rst source files for
-GEOPM.  See :ref:`devel:Creating Manuals` section of the :doc:`Guide for GEOPM
-Developers <devel>` for information on how to add the new files to the build
-properly.
+GEOPM Documentation Guidelines
+==============================
 
-Some of these rules (:ref:`section ordering <docu:Section Ordering>` and the
-property list in :ref:`low-level signals/controls <docu:Signals/Controls (low
-level)>`) can be tested with the ``geopmlint`` Sphinx builder. Run ``make
-docs_geopmlint`` to run those checks. Edit
-``service/docs/source/_ext/geopmlint.py`` if you need to modify those checks.
+This guide outline the style specifications for writing or amending reStructuredText (rst) source files for
+the GEOPM project. Please refer to the :ref:`devel:Creating Manuals` section in the :doc:`Guide for GEOPM
+Developers <devel>` for detailed instructions on properly adding new files to the build.
+
+Certain rules such as :ref:`section ordering <docu:Section Ordering>` and the
+property list mentioned in :ref:`low-level signals/controls <docu:Signals/Controls (low
+level)>`, can be verified using the ``geopmlint`` Sphinx builder. Execute ``make
+docs_geopmlint`` command to perform those checks. If it's necessary to alter these checks,
+modify ``service/docs/source/_ext/geopmlint.py``.
 
 Whitespace
 ----------
-Minimize the amount of whitespace (carriage returns, spaces, and indentation)
-present in the source file.  Only use the necessary amount of whitespace to
-satisfy the rst compiler for what you are trying to do.
+Strive to reduce the usage of whitespace (carriage returns, spaces, and indentation)
+present in the source file. Use only the necessary amount of whitespace required by the rs compiler for your goal.
 
 Sections
 --------
-Follow the `Sphinx Documentation for Sections
-<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`_,
-namely:
+Adhere the `Sphinx Documentation for Sections
+<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`, explicitly:
 
   * ``=`` for page titles
   * ``-`` for sections within a page
@@ -30,7 +28,7 @@ namely:
 
 Section Ordering
 ----------------
-For chapter 7 man pages of IOGroups, follow the following ordering:
+For Chapter 7 man pages related to IOGroups, follow the following sequence:
 
 1. Description
 2. Requirements
@@ -45,24 +43,24 @@ For chapter 7 man pages of IOGroups, follow the following ordering:
 
 Signals/Controls (low level)
 ----------------------------
-Use the following code as an example:
+Use the following code as an illustration:
 
 .. code-block:: rst
 
    ``PROFILE::TIME_HINT_UNKNOWN``
-       The total amount of time that a CPU was measured to be running with this
-       hint value on the Linux logical CPU specified.
+       The aggregate time that a CPU was monitored while working with this
+       specific hint value on the designated Linux logical CPU.
 
        * **Aggregation**: average
        * **Domain**: cpu
        * **Format**: double
        * **Unit**: seconds
 
-That block will render as follows:
+This will appear as:
 
 ``PROFILE::TIME_HINT_UNKNOWN``
-    The total amount of time that a CPU was measured to be running with this
-    hint value on the Linux logical CPU specified.
+    The aggregate time that a CPU was monitored while working with this
+    specific hint value on the designated Linux logical CPU.
 
     * **Aggregation**: average
     * **Domain**: cpu
@@ -72,66 +70,66 @@ That block will render as follows:
 MSR Signals and controls
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Document MSRs in their respective ``msr_data_*.json`` files. Use the
-``geopm-msr-json`` directive to insert the formatted documentation from a json
-definition into a ``rst`` file. For example:
+MSRs should be documented in their related ``msr_data_*.json`` file. Apply the
+``geopm-msr-json`` to extract the formatted documentation from a JSON
+definition into a ``rst`` file. See the examples below:
 
 .. code-block:: rst
-   :caption: Render all MSRs in a json file
+   :caption: All MSRs in a json file
 
    .. geopm-msr-json:: ../json_data/msr_data_arch.json
 
 .. code-block:: rst
-   :caption: Render only signals from a json file
+   :caption: Only signals from a json file
 
    .. geopm-msr-json:: ../json_data/msr_data_arch.json
       :no-controls:
 
 .. code-block:: rst
-   :caption: Render only controls from a json file
+   :caption: Only controls from a json file
 
    .. geopm-msr-json:: ../json_data/msr_data_arch.json
       :no-signals:
 
-If you need to modify the output format of the ``geopm-msr-json`` directive,
-edit the ``GeopmMsrJson`` class in the
+To change the output format of the ``geopm-msr-json`` directive,
+revise the ``GeopmMsrJson`` class in the
 ``service/docs/source/_ext/geopm_rst_extensions.py`` Sphinx extension.
 
 Aliases
 -------
-The IOGroup specific chapter 7 pages should document how the high level
-alias relates to the signals or controls provided by said IOGroup.
-Use the following code as an example for 1-to-1 mappings:
+The Chapter 7 pages particular to IOGroup should describe how the high-level
+alias corresponds to the signals or controls provided by that IOGroup.
+This is an example of a direct 1-to-1 mapping:
 
 .. code-block:: rst
 
    ``CPU_FREQUENCY_MAX_AVAIL``
-       Maps to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
+       Corresponds to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
 
-That block will render as follows:
+It will display as:
 
 ``CPU_FREQUENCY_MAX_AVAIL``
-    Maps to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
+    Corresponds to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
 
-If the alias does not directly map, then a further explanation of how the alias
-is implemented is provided in the IOGroup specific page.
+If the alias does not have a straightforward mapping, then an expanded explanation of how the alias
+is implemented should be provided in the IOGroup specific page.
 
-The :doc:`geopm_pio(7) <geopm_pio.7>` page should document the high level alias
-in detail with full sentences.  Use the following code as an example:
+The :doc:`geopm_pio(7) <geopm_pio.7>` page should explain the high-level alias
+in full sentence descriptions. Here's an example:
 
 .. code-block:: rst
 
    ``CPU_FREQUENCY_MAX_AVAIL``
-       Maximum processor frequency.
+       Maximum available processor frequency.
 
-That block will render as follows:
+It will render as:
 
 ``CPU_FREQUENCY_MAX_AVAIL``
-    Maximum processor frequency.
+    Maximum available processor frequency.
 
 Examples
 --------
-See the following pages for examples of the style to follow:
+For style reference, consult the following pages:
 
 :doc:`geopm_pio_profile(7) <geopm_pio_profile.7>`,
 :doc:`geopm_pio(3) <geopm_pio.3>`,

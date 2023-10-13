@@ -1,14 +1,15 @@
-.. GEOPM Service documentation main file
+.. Documentation main file for GEOPM Service
 
-Guide for Service Users
-=======================
+User Guide for GEOPM Service
+=============================
 
-This guide describes why and how to use the GEOPM Service, which provides a
-userspace interface to access hardware telemetry and settings. The guide
-includes sections that describe how to build and install this software
-component of the GEOPM project, how to configure this service as a system
-administrator, and how to interact with the service as an unprivileged user.
-
+This user guide outlines the functionality and usage of the GEOPM
+Service. GEOPM Service is designed to provide a user interface for accessing
+hardware telemetry and settings. This guide includes sections detailing
+the process of building and installing this software component of the GEOPM
+project. Furthermore, it explains how to configure this service from a
+system administrator's standpoint and how an unprivileged user can interact
+with it.
 
 .. toctree::
    :maxdepth: 1

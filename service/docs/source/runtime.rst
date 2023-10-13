@@ -1,8 +1,7 @@
-
 Guide for Runtime Users
 =======================
 
-The GEOPM Runtime is software designed to enhance energy efficiency of
+The GEOPM Runtime is for software designed to enhance energy efficiency of
 applications through active hardware configuration.
 
 
@@ -13,76 +12,65 @@ The architecture is designed to provide a secure infrastructure to
 support a wide range of tuning algorithms while solving three related
 challenges:
 
-
 1. Measuring Performance
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The first challenge is to enable hardware tuning algorithms to derive
-a robust estimate of application performance.  This is crucial because
-measurements of energy efficiency are expressed as ratios of
-performance to power, e.g. "perf per watt."  Any dynamic tuning of
-hardware power control parameters with a goal of energy efficiency
-must derive some estimate of application performance.  Without
-application feedback about the critical path, these performance
-estimates may be very inaccurate.  In this way, hardware tuning
-algorithms may interfere with application performance leading to
-longer run times which incur even higher energy costs per unit of work
-than if an adaptive algorithm were not applied.
-
+For hardware tuning algorithms, the first challenge involves generating a
+durable estimate of application performance. In energy efficiency terms,
+performance measurements are power-to-performance ratios, for example,
+"perf per watt". Therefore, any dynamic hardware power control tuning
+that aims for energy efficiency must formulate an estimate of application
+performance. Without specific application feedback on the critical path,
+these performance estimate might prove inaccurate, causing hardware
+tuning algorithms to potentially disrupt application performance and lead
+to elongated run times, resulting in higher energy costs per unit of work
+than without the adaptive algorithm.
 
 2. Hardware Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This leads to the second challenge: enabling a hardware control
-algorithm to be driven by unprivileged user input (i.e. application
-feedback) is a security risk.  Without proper guards in place, this
-can lead to escalation of privilege, denial of service, and impacts to
-quality of service for other users of the system.  The GEOPM Service
-is specifically designed to address these problems.
-
+The second challenge arises from allowing hardware control algorithms to
+be influenced by unprivileged user input (like application feedback), which
+presents a security risk. Not having adequate checks can result in escalated
+privileges, service denial, and impacts on other system users' quality of
+service. GEOPM Service is created specifically to mitigate these issues.
 
 3. Advanced Data Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The third challenge is providing a software development platform for
-control algorithms that can be safely deployed and use high level
-languages for data analysis.  To effectively gain energy efficiency
-with some applications, significant software dependencies may be
-required.  Control algorithms may rely on optimization software like
-machine learning packages, or other numerical packages.  The
-application being optimized may be composed of millions of lines of
-code, and there may be significant coupling between the application
-and control algorithm.  For these reasons, restricting the privileges
-of the processes running the control algorithm reduces software
-security audit requirements significantly.
-
+The third challenge is to provide a software development platform suitable for
+control algorithms that can be securely deployed and use high-level languages
+for data analysis. To effectively enhance energy efficiency for certain
+applications, substantial software dependencies may be required. Control
+algorithms might lean on optimization software like machine learning
+packages or other numerical packages. The application being optimized could
+include millions of lines of code, and there may be significant interlinking
+between the application and the control algorithm. Limiting the privileges
+of the process running the control algorithm significantly reduces software
+security audit requirements.
 
 Introduction
 ------------
 
-The GEOPM Runtime enables interactions between GEOPM's :doc:`application
-instrumentation interfaces <geopm_prof.3>` and
-:doc:`platform monitoring/control interfaces <geopm_pio.7>`.
+GEOPM Runtime creates a bridge between GEOPM’s :doc:`application
+instrumentation interfaces <geopm_prof.3>` and :doc:`platform
+monitoring/control interfaces <geopm_pio.7>`.
 
-By default, the GEOPM Runtime simply summarizes relationships between
-application instrumentation and platform-monitoring interfaces in a report.
-More complex interactions, such as dynamic control of platform settings, can
-be enabled by using different GEOPM *agents*. See the :doc:`geopmlaunch(1)
-<geopmlaunch.1>` documentation for more information about user-facing GEOPM
-Runtime launch options.
+By default, the GEOPM Runtime presents relationships between application
+instrumentation and platform-monitoring interfaces in a report. For more
+complex interactions, such as dynamic control of platform settings, different
+GEOPM *agents* can be utilized.  For more information on user-facing GEOPM
+Runtime launch options, please refer to :doc:`geopmlaunch(1)<geopmlaunch.1>`
+documentation.
 
 .. figure:: https://geopm.github.io/images/geopm-runtime-usage.svg
-   :alt: An illustration of geopmlaunch running on 2 servers, generating a
-         trace file per host, and one report across all hosts.
+   :alt: An illustration of geopmlaunch running on 2 servers, generating a trace file per host, and one report across all hosts.
    :align: center
-
 
 .. admonition:: Quick start for MPI applications
 
-   The ``geopmlaunch`` tool is the recommended user interface to launch the GEOPM Runtime for
-   profiling and optimizing MPI applications. It
-   wraps a launcher application (srun in this example), generates a summarizing
-   report file, and optionally generates a time-series trace per host.
+   The ``geopmlaunch`` tool is the recommended user interface for GEOPM Runtime. It wraps a launcher application
+   (like srun in this example), generates a summarizing report file, and optionally generates a time-series trace for each host.
 
    The steps for using ``geopmlaunch`` with your MPI application are:
 
@@ -94,15 +82,14 @@ Runtime launch options.
   .. code-block:: console
     :caption: Examples using ``geopmlaunch``
 
-    $ # Launch with srun and explore the generated GEOPM report
+    $ # Launch with srun and examine the generated GEOPM report
     $ geopmlaunch srun -N 1 -n 20 -- ./my-app
     $ less geopm.report
-    $ # Launch with Intel mpiexec and explore the generated GEOPM report
+    $ # Launch with Intel mpiexec and examine the generated GEOPM report
     $ geopmlaunch impi -n 1 -ppn 20 -- ./my-app
     $ less geopm.report
-    $ # show all options and available launchers
+    $ # Display all options and available launchers
     $ geopmlaunch --help
-
 
 .. admonition:: Quick start for Non-MPI applications
 
@@ -158,82 +145,63 @@ to profile unmodified applications, select and evaluate different GEOPM agent
 algorithms (see below), and how to add markup to an application.  The tutorial
 provides a starting point for someone trying to get familiar with the GEOPM runtime.
 
-The runtime enables complex coordination between hardware settings across all
-compute nodes used by a distributed HPC application in
-response to the application's behavior and resource manager requests. The
-dynamic coordination is implemented as a hierarchical control system
-for scalable communication and decentralized control.
+GEOPM *agents* can exploit this hierarchical control system to optimize
+various objective functions. Examples include maximizing application
+performance within a power limit (such as GEOPM :doc:`power_balancer
+agent<geopm_agent_power_balancer.7>`) or decreasing energy consumption while
+minimally affecting application performance. The control hierarchy root
+can communicate with the system resource manager to extend the hierarchy
+beyond the individual MPI application, thus facilitating multiple MPI jobs
+and multiple-user system resource management.
 
-GEOPM *agents* can utilize the hierarchical control system to optimize for
-various objective functions including maximizing global application performance
-within a power bound (e.g., the GEOPM :doc:`power_balancer agent
-<geopm_agent_power_balancer.7>`) or
-minimizing energy consumption with marginal degradation of application
-performance.  The root of the control hierarchy tree can communicate
-with the system resource manager to extend the hierarchy above the
-individual MPI application and enable the management of system power
-resources for multiple MPI jobs and multiple users by the system
-resource manager.
+The GEOPM Runtime package includes the libgeopm shared object library. GEOPM
+comes with numerous command-line tools, each with dedicated manual pages. The
+:doc:`geopmlaunch(1) <geopmlaunch.1>` command-line tool launches an MPI
+application, enabling the GEOPM runtime to create a GEOPM Controller thread on
+each compute node. The Controller loads plugins and runs the Agent algorithm
+to manage the compute application. The :doc:`geopmlaunch(1)<geopmlaunch.1>`
+command is featured in the geopmpy python package that is part of the GEOPM
+installation. For more documentation and links, please visit the :doc:`GEOPM
+overview man page <geopm.7>`.
 
-The GEOPM Runtime package provides the *libgeopm* shared object library.
-There are several command line tools included in GEOPM which have
-dedicated manual pages.  The :doc:`geopmlaunch(1) <geopmlaunch.1>`
-command line tool is used to launch an MPI application while enabling
-the GEOPM runtime to create a GEOPM Controller thread on each compute
-node.  The Controller loads plugins and executes the Agent algorithm
-to control the compute application.  The :doc:`geopmlaunch(1)
-<geopmlaunch.1>` command is part of the geopmpy python package that is
-included in the GEOPM installation.  See the :doc:`GEOPM overview man
-page <geopm.7>` for further documentation and links.
+GEOPM Runtime offers several built-in algorithms, each incorporated within an
+"Agent" implementing the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class
+interface. Developers can expand these algorithm features by creating an Agent
+plugin. An implementation of this class can be dynamically loaded at runtime
+by the GEOPM Controller. The Agent class determines what data is collected,
+how control decisions are made, and how messages are exchanged between
+Agents in the compute nodes' tree hierarchy. The GEOPM Service package,
+which resides in the service directory of the GEOPM repository, provides
+the PlatformIO interface which abstracts reading signals and writing controls
+from the Agent within a compute node. This allows Agent implementations to
+be ported to various hardware platforms without modification.
 
-The GEOPM Runtime provides some built-in algorithms, each as an
-"Agent" that implements the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class interface.
-A developer may extend these algorithm features by writing an Agent
-plugin.  A new implementation of this class can be dynamically loaded
-at runtime by the GEOPM Controller.  The Agent class defines which
-data are collected, how control decisions are made, and what messages
-are communicated between Agents in the tree hierarchy of compute
-nodes.  The reading of data and writing of controls from within a
-compute node is abstracted from the Agent through the PlatformIO
-interface.  The PlatformIO interface is provided by the GEOPM Service
-package which is contained in the service directory of the GEOPM
-repository.  The PlatformIO abstraction enables Agent implementations
-to be ported to different hardware platforms without modification.
-
-The *libgeopm* library can be called directly or indirectly within MPI
-applications to enable application feedback for informing the control
-decisions.  The indirect calls are facilitated by GEOPM's integration
-with MPI and OpenMP through their profiling decorators, and the direct
-calls are made through the :doc:`geopm_prof(3) <geopm_prof.3>` or
-:doc:`geopm_fortran(3) <geopm_fortran.3>`
-interfaces.  Marking up a compute application with profiling
-information through these interfaces can enable better integration of
-the GEOPM runtime with the compute application and more precise
-control.
-
+The libgeopm library can be called indirectly or directly within
+MPI applications, enabling application feedback to aid control
+decisions. Indirect calls are facilitated through GEOPM's integration with
+MPI and OpenMP via their profiling decorators. Direct calls are made through
+:doc:`geopm_prof(3)<geopm_prof.3>` or :doc:`geopm_fortran(3)<geopm_fortran.3>`
+interfaces. The application can be better integrated with the GEOPM runtime
+and controlled more accurately by marking up the compute application with
+profiling information obtained through these interfaces.
 
 Build Requirements
 ------------------
 
-When using the build system in the base of the GEOPM source repository
-to build the GEOPM Runtime some additional requirements must be
-met.  If the user is not interested in building the GEOPM Runtime,
-these extra build requirements may be ignored.  The user may also opt
-out of the specific GEOPM Runtime features enabled by any of these
-requirements by providing the appropriate disable flag to the base
-build configure command line.
+When building the GEOPM Runtime from source, additional requirements must
+be met. Those uninterested in building the GEOPM Runtime can ignore these
+requirements, or by providing the disable flag to the configure command
+line, users may skip particular GEOPM Runtime features enabled by these
+requirements.
 
-The GEOPM Runtime requires support for MPI, the Message Passing
-Interface, standard 2.2 or higher.  In many cases meeting this
-requirement will depend on the specific HPC resource being targeted
-based on documentation that is site specific.  The Intel MPI
-implementation may be used to meet this requirement.  The MPI
-requirement may also be met through HPC packaging systems like OpenHPC
-or Spack.  Additionally, the OpenMPI binaries are distributed with
-most major Linux distributions, and may also be used to satisfy this
-requirement.  This requirement can be met by installing the
-``openmpi-devel`` package version 1.7 or greater on RHEL and SLES
-Linux, and ``libopenmpi-dev`` on Ubuntu.
+The GEOPM Runtime requires MPI standards, Message Passing Interface,
+version 2.2 or later. Fulfilling this requirement generally depends on the
+specific HPC resource targeted based on site-specific documentation. The
+Intel MPI implementation, OpenHPC or Spack packaging systems, or OpenMPI
+binaries distributed with most major Linux distributions satisfy this
+requirement. For RHEL and SLES Linux, the requirement can be met by installing
+the ``openmpi-devel`` package version 1.7 or later, and ``libopenmpi-dev``
+on Ubuntu.
 
 * Install all requirements on **RHEL** or **CentOS**
 
@@ -257,8 +225,7 @@ Linux, and ``libopenmpi-dev`` on Ubuntu.
           libelf-dev python libsqlite3-dev
 
 
-Requirements that can be avoided by removing features with configure
-option:
+Requirements that can be avoided by removing features with configure option:
 
 * Remove MPI compiler requirement
   ``--disable-mpi``
@@ -269,271 +236,236 @@ option:
 * Remove elfutils library requirement
   ``--disable-ompt``
 
-
 For details on how to use non-standard install locations for build
-requirements see
+requirements see:
 
   .. code-block:: bash
 
     ./configure --help
 
-
-which describes some options of the form ``--with-<feature>`` that can
-be used for this purpose, e.g. ``--with-mpi-bin``.
-
+This provides options, for example ``--with-<feature>``, to be used for
+this purpose, such as ``--with-mpi-bin``.
 
 Building the GEOPM Runtime
-------------------------------
-The best recommendation for building the GEOPM Runtime is to follow
-the :ref:`developer build process <devel:developer build process>` posted in
-the :doc:`developer guide <devel>`.  This will enable the use of the GEOPM
-Service and will also provide the latest development in the GEOPM repository.
+---------------------------
 
+The best recommendation for constructing the GEOPM Runtime is to
+follow the "developer build process" referenced in the :doc:`developer
+guide<devel>`. This will enable GEOPM Service use and also provide the
+latest developments in the GEOPM repository.
 
 Run Requirements
 ----------------
-The GEOPM Runtime has several requirements at time-of-use beyond
-what is required for the GEOPM Service.  These requirements are
-outlined in the following subsections.  A user that is not interested in
-running the GEOPM Runtime may ignore these requirements.
+
+Beyond the GEOPM Service, the GEOPM Runtime requires several additional
+features at the time of use. Users uninterested in running the GEOPM Runtime
+can ignore these requirements.
 
 .. contents:: Categories of run requirements:
    :local:
 
-
 BIOS Configuration
 ^^^^^^^^^^^^^^^^^^
-If power governing or power balancing is the intended use case
-for GEOPM deployment, then there is an additional dependency on
-the BIOS being configured to support RAPL control. To check for
-BIOS support, execute the following on a compute node:
+
+If power governing or power balancing is the intended usage for GEOPM
+deployment, an additional requirement involves configuring the BIOS to
+support RAPL control. To make this check for BIOS support, execute the
+following on a compute node:
 
 .. code-block:: bash
 
     ./tutorial/admin/00_test_prereqs.sh
 
-
-If the script output contains:
+If the script output includes:
 
 .. code-block:: none
 
     WARNING: The lock bit for the PKG_POWER_LIMIT MSR is set.  The power_balancer
              and power_governor agents will not function properly until this is cleared.
 
-
 Please enable RAPL in your BIOS, and if such an option doesn't exist please
 contact your BIOS vendor to obtain a BIOS that supports RAPL.
 
 For additional information, please contact the GEOPM team.
 
-
 Linux Power Management
 ^^^^^^^^^^^^^^^^^^^^^^
-Note that other Linux mechanisms for power management can interfere
-with GEOPM, and these must be disabled.  We suggest disabling the
-intel_pstate kernel driver by modifying the kernel command line
-through grub2 or the boot loader on your system by adding:
+
+It's crucial to note that other Linux mechanisms for power management can
+interfere with GEOPM, which must be disabled. It's recommended to disable the
+``intel_pstate`` kernel driver by modifying the kernel command line through
+grub2 or your system bootloader by adding:
 
 .. code-block:: bash
 
    "intel_pstate=disable"
 
-
-The cpufreq driver will be enabled when the intel_pstate driver is
-disabled.  The cpufreq driver has several modes controlled by the
-scaling_governor sysfs entry.  When the performance mode is selected,
-the driver will not interfere with GEOPM.  For SLURM based systems the
-:ref:`GEOPM launch wrapper <runtime:geopm application launch wrapper>` will
-attempt to set the scaling governor to "performance".  This alleviates the need
-to manually set the governor.  Older versions of SLURM require the
-desired governors to be explicitly listed in ``/etc/slurm.conf``.  In
-particular, SLURM 15.x requires the following option:
+The `cpufreq` driver will be enabled when the ``intel_pstate`` driver
+is disabled. It has several modes controlled by the ``scaling_governor``
+sysfs entry. When the performance mode is selected, the driver will not
+interfere with GEOPM. On SLURM-based systems, the :ref:`GEOPM launch wrapper
+<runtime:geopm application launch wrapper>` will attempt to set the scaling
+governor to "performance" automatically, eliminating the need to manually
+set the governor. On older versions of SLURM, the desired governors must be
+listed explicitly in ``/etc/slurm.conf``. Specifically, SLURM 15.x requires
+the following option:
 
 .. code-block:: bash
 
    CpuFreqGovernors=OnDemand,Performance
 
-
-More information on SLURM configuration can be found in the `slurm.conf manual
-<https://slurm.schedmd.com/slurm.conf.html>`_.
-Non-SLURM systems must still set the scaling governor through some
-other mechanism to ensure proper GEOPM behavior.  The following
-command will set the governor to performance:
+For more on SLURM configuration, please see the `slurm.conf manual
+<https://slurm.schedmd.com/slurm.conf.html>`_. On non-SLURM systems, the
+scaling governor should still be manually set through some other mechanism
+to ensure proper GEOPM behavior. The following command will set the governor
+to performance:
 
 .. code-block:: bash
 
    echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
-
-See the Linux Kernel documentation on `cpu-freq governors
-<https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt>`_ for more
-information.
-
+For more information, see the Linux Kernel documentation on `cpu-freq
+governors <https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt>`_.
 
 GEOPM Application Launch Wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The GEOPM Runtime package installs the ``geopmlaunch`` command.
-The ``geopmlaunch`` command is a wrapper for the MPI launch commands like ``srun``, ``aprun``,
-and ``mpiexec``, where the wrapper script enables the GEOPM runtime.  The
-"geopmlaunch" command supports exactly the same command line interface
-as the underlying launch command, but the wrapper extends the
-interface with GEOPM specific options.  The ``geopmlaunch`` application
-launches the primary compute application and the GEOPM control thread
-on each compute node and manages the CPU affinity requirements for all
-processes.  The wrapper is documented in the :doc:`geopmlaunch(1)
-<geopmlaunch.1>` man page.
 
-There are several underlying MPI application launchers that
-``geopmlaunch`` wrapper supports.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>`
-man page for information on available launchers and how to select them.  If the
-launch mechanism for your system is not supported, then affinity
-requirements must be enforced by the user and all options to the GEOPM
-runtime must be passed through environment variables.  Please consult
-the :doc:`geopm(7) <geopm.7>` man page for documentation of the environment
-variables used by the GEOPM runtime that are otherwise controlled by the
-wrapper script.
+The GEOPM Runtime package installs the ``geopmlaunch`` command. This
+command is a wrapper for MPI launch commands such as ``srun``, ``aprun``,
+and ``mpiexec``, where the wrapper script enables the GEOPM runtime. The
+``geopmlaunch`` command supports the same command-line interface as the
+underlying launch command, while extending the interface with GEOPM-specific
+options. The ``geopmlaunch`` application launches the primary compute
+application and the GEOPM control thread on each compute node, and manages
+all process CPU affinity requirements. This wrapper is documented in the
+:doc:`geopmlaunch(1)<geopmlaunch.1>` man page.
+
+``Geopmlaunch`` supports various underlying MPI application launchers
+as shown in the :doc:`geopmlaunch(1)<geopmlaunch.1>` man page. If your
+system's launch mechanism is not supported, then you must enforce affinity
+requirements, and all options to the GEOPM runtime must be passed through
+environment variables. Please consult the :doc:`geopm(7)<geopm.7>` man page
+for documentation of the environment variables used by the GEOPM runtime
+that would otherwise be controlled by the wrapper script.
 
 CPU Affinity Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-The GEOPM runtime requires that each MPI process of the application
-under control is affinitized to distinct CPUs.  This is a strict
-requirement for the runtime and must be enforced by the MPI launch
-command.  When using the geopmlaunch wrapper described in the previous
-section, these affinity requirements are handled by geopmlaunch when
-the ``--geopm-affinity-enable`` command line option is provided (see
-:doc:`geopmlaunch(1) <geopmlaunch.1>`).  Otherwise, it is required that
-the user will explicitly affinitize their application using the appropriate
-options for their desired launcher.
+
+The GEOPM runtime requires each of the application's MPI processes to
+be affinitized to different CPUs. This is a critical requirement for
+the runtime and must be enforced by the MPI launch command. When using
+the ``geopmlaunch`` wrapper, these affinity requirements are handled by
+``geopmlaunch`` when the ``--geopm-affinity-enable`` command-line option
+is provided (see :doc:`geopmlaunch(1)<geopmlaunch.1>`). Otherwise, users
+must explicitly affinitize their application using the appropriate options
+for their chosen launcher.
 
 While the GEOPM control thread connects to the application it will
-automatically affinitize itself to the highest indexed core not used
-by the application if the application is not affinitized to a CPU on
-every core.  In the case where the application is utilizing all cores
-of the system, the GEOPM control thread will be pinned to the highest
-logical CPU.
+automatically affinitize itself to the highest indexed core not used by the
+application if the application is not affinitized to a CPU on every core. If
+the application is using all cores of the system, the GEOPM control thread
+will be pinned to the highest logical CPU.
 
-There are many ways to launch an MPI application, and there is no
-single uniform way of enforcing MPI rank CPU affinities across
-different job launch mechanisms.  Additionally, OpenMP runtimes, which
-are associated with the compiler choice, have different mechanisms for
-affinitizing OpenMP threads within CPUs available to each MPI process.
-To complicate things further the GEOPM control thread can be launched
-as an application thread or a process that may be part of the primary
-MPI application or a completely separate MPI application.  For these
-reasons it is difficult to document how to correctly affinitize
-processes in all configurations.  Please refer to your site
-documentation about CPU affinity for the best solution on the system
-you are using and consider extending the geopmlaunch wrapper to
-support your system configuration (please see the :doc:`contrib`
-for information about how to share these implementations with the
-community).
+Many ways exist to launch an MPI application, and no single uniform
+way of enforcing MPI rank CPU affinities can work across all job launch
+mechanisms. OpenMP runtimes, which are linked with compiler choice, also have
+different mechanisms for affinitizing OpenMP threads within CPUs available
+to each MPI process. The GEOPM control thread can also be launched as an
+application thread or process that can either be part of the primary MPI
+application or a completely different MPI application. Due to these factors,
+it is challenging to document the correct process affinitization across all
+configurations. Please refer to your site documentation about CPU affinity for
+the best solution for your system and consider extending the ``geopmlaunch``
+wrapper to support your system configuration. For information on how to
+share these implementations with the community, refer to :doc:`contrib`.
 
 Resource Manager Integration
 ----------------------------
 
-The GEOPM Runtime package can be integrated with a compute cluster
-resource manager by modifying the resource manager daemon running on
-the cluster compute nodes.  An example of integration with the SLURM
-resource manager via a SPANK plugin can be found in the `geopm-slurm git
-repository <https://github.com/geopm/geopm-slurm>`_. The implementation
-reflects what is documented below.
+The GEOPM Runtime package can seamlessly integrate with a compute cluster
+resource manager by altering the daemon of the resource manager running on
+the cluster compute nodes. An integration example with the SLURM resource
+manager through a SPANK plugin is available in the `geopm-slurm git
+repository <https://github.com/geopm/geopm-slurm>`_. This example aligns
+with the process described below.
 
-Integration is achieved by modifying the daemon to make two
-``libgeopmd.so`` function calls prior to releasing resources to the
-user (prologue), and one call after the resources have been reclaimed
-from the user (epilogue).  In the prologue, the resource manager
-compute node daemon calls:
+To integrate, the daemon requires two ``libgeopmd.so`` function calls before
+allocating resources to the user (prologue) and one function call after
+the resources are released (epilogue). In the prologue, the daemon initiates:
 
 .. code-block:: C
 
    geopm_pio_save_control()
 
-
-which records into memory the value of all controls that can be
-written through GEOPM (see :doc:`geopm_pio(3) <geopm_pio.3>`).  The second call made in
-the prologue is:
+This function records all controllable GEOPM values into memory (refer
+to :doc:`geopm_pio(3) <geopm_pio.3>`). The next function called in the
+prologue is:
 
 .. code-block:: C
 
    geopm_agent_enforce_policy()
 
-
-and this call (see :doc:`geopm_agent(3) <geopm_agent.3>`) enforces the configured policy
-such as a power cap or a limit on CPU frequency by a one-time
-adjustment of hardware settings.  In the epilogue, the resource
-manager calls:
+As detailed in :doc:`geopm_agent(3) <geopm_agent.3>`, this function enforces
+a pre-set policy like a power cap or a CPU frequency limit by making a
+one-time hardware setting adjustment. In the epilogue, the manager triggers:
 
 .. code-block:: C
 
    geopm_pio_restore_control()
 
+This restores all GEOPM platform controls to their original state captured
+during the prologue.
 
-which will set all GEOPM platform controls back to the values read in
-the prologue.
-
-The configuration of the policy enforced in the prologue is controlled
-by the two files:
+The policy setup in the prologue relies on two configuration files:
 
 .. code-block:: bash
 
    /etc/geopm/environment-default.json
    /etc/geopm/environment-override.json
 
+These files contain JSON objects that map GEOPM environment variables to
+their respective values. The default configuration holds values for any
+unset GEOPM variable in the calling environment. Meanwhile, the override
+configuration enforces values, overriding the calling environment's
+specifications. A comprehensive list of GEOPM environment variables is
+available in the geopm(7) man page. The two primary environment variables
+that ``geopm_agent_enforce_policy()`` utilizes are ``GEOPM_AGENT`` and
+``GEOPM_POLICY``. It's important to note that ``/etc`` should be mounted on a
+local node file system, meaning the GEOPM configuration files typically become
+part of the compute node's boot image. The ``GEOPM_POLICY`` value directs
+to another JSON file, possibly located on a shared file system, dictating
+the enforced values (like the power cap in Watts or CPU frequency in Hz).
 
-which are JSON objects mapping GEOPM environment variable strings to
-string values.  The default configuration file controls values used
-when a GEOPM variable is not set in the calling environment.  The
-override configuration file enforces values for GEOPM variables
-regardless of what is specified in the calling environment.  The list
-of all GEOPM environment variables can be found in the geopm(7) man
-page.  The two GEOPM environment variables used by
-``geopm_agent_enforce_policy()`` are ``GEOPM_AGENT`` and ``GEOPM_POLICY``.
-Note that it is expected that ``/etc`` is mounted on a node-local file
-system, so the GEOPM configuration files are typically part of the
-compute node boot image.  Also note that the ``GEOPM_POLICY`` value
-specifies a path to another JSON file which may be located on a
-shared file system, and this second file controls the values enforced
-(e.g. power cap value in Watts, or CPU frequency value in Hz).
+For GEOPM's integration as the universal power management solution for
+a cluster, it's usual for a single agent algorithm with one policy to be
+applied across all compute nodes within a partition. The choice of agent
+rests upon the site's needs. For instance, if the aim is to keep the average
+CPU power draw for each node below a specific cap, the :doc:`power_balancer
+agent <geopm_agent_power_balancer.7>` is ideal. However, if the goal is to
+limit application CPU frequencies with exceptions for specific high-priority
+processes, the :doc:`frequency_map agent <geopm_agent_frequency_map.7>`
+is the best fit. Sites can also deploy a custom agent plugin. In every
+scenario, invoking ``geopm_agent_enforce_policy()`` before releasing
+compute resources ensures the enforcement of static limits impacting all
+user applications. For dynamic runtime features, users must initiate their
+MPI application using the :doc:`geopmlaunch(1) <geopmlaunch.1>` tool.
 
-When configuring a cluster to use GEOPM as the site-wide power
-management solution, it is expected that one agent algorithm with one
-policy will be applied to all compute nodes within a queue partition.
-The system administrator selects the agent based on the site
-requirements.  If the site requires that the average CPU power draw
-per compute node remains under a cap across the system, then they
-would choose the :doc:`power_balancer agent <geopm_agent_power_balancer.7>`.
-If the site would like to restrict
-applications to run below a particular CPU frequency unless they are
-executing a high priority optimized subroutine that has been granted
-permission by the site administration to run at an elevated CPU
-frequency, they would choose the :doc:`frequency_map agent
-<geopm_agent_frequency_map.7>`.  There is also the option for a site-specific
-custom agent plugin to be deployed.  In all of these use cases, calling
-``geopm_agent_enforce_policy()`` prior to releasing compute node resources to the
-end user will enforce static limits to power or CPU frequency, and these will
-impact all user applications.  In order to leverage the dynamic runtime
-features of GEOPM, the user must opt-in by launching their MPI application with
-the :doc:`geopmlaunch(1) <geopmlaunch.1>` command line tool.
-
-The following example shows how a system administrator would configure
-a system to use the power_balancer agent.  This use case will enforce
-a static power limit for applications which do not use geopmlaunch,
-and will optimize power limits to balance performance when
-geopmlaunch is used.  First, the system administrator creates the
-following JSON object in the boot image of the compute node in the
-path ``/etc/geopm/environment-override.json``:
+To illustrate, if a system administrator wants to use the ``power_balancer``
+agent, the process would involve setting a static power cap for
+apps not utilizing ``geopmlaunch``, while optimizing power caps for
+performance when ``geopmlaunch`` is in use. The administrator would
+install the following JSON object in the compute node's boot image at
+``/etc/geopm/environment-override.json``:
 
 .. code-block:: json
 
    {"GEOPM_AGENT": "power_balancer",
     "GEOPM_POLICY": "/shared_fs/config/geopm_power_balancer.json"}
 
-
-Note that the "CPU_POWER_LIMIT" value controlling the limit
-is specified in a secondary JSON file "geopm_power_balancer.json" that
-may be located on a shared file system and can be created with the
-:doc:`geopmagent(1) <geopmagent.1>` command line tool.  Locating the policy file on the
-shared file system enables the limit to be modified without changing
-the compute node boot image.  Changing the policy value will impact
-all subsequently launched GEOPM processes, but it will not change the
-behavior of already running GEOPM control processes.
+The controlling value, ``CPU_POWER_LIMIT``, is defined in a separate
+"geopm_power_balancer.json" file that could reside on a shared file
+system. This file can be generated using the :doc:`geopmagent(1)
+<geopmagent.1>` tool. By placing the policy file on a shared file system,
+you allow modifications to the limit without affecting the compute node
+boot image. Changing the policy value affects all new GEOPM processes but
+leaves running GEOPM processes untouched.

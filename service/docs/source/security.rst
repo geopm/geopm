@@ -1,192 +1,167 @@
-
 Guide to Service Security
 =========================
 
-This documentation describes the objectives, mechanisms, assets and
-threats that were considered when designing the GEOPM Service security
-architecture.  This information may be useful for system
-administrators, developers, and users who would like to better
-understand how the GEOPM Service provides security guarantees.
+This document explains the objectives, mechanisms, assets and threats
+associated with the design of the GEOPM Service security architecture. It
+can be beneficial to system administrators, developers, and users who wish
+to understand how the service provides security.
 
 
-High Level Security Objectives
+High-Level Security Objectives
 ------------------------------
 
-The GEOPM Service provides a secure gateway to privileged hardware
-features. This section describes the security expectations of the
-system administrator who deploys and configures the GEOPM Service as
-described in the GEOPM documentation.
+The GEOPM Service functions as a secure gateway to privileged hardware
+features. The security expectations of system administrators deploying
+and configuring the service, as outlined in the GEOPM documentation, are
+detailed in this section.
 
 
-Fine-grained access management for hardware features
+Fine-Grained Access Management for Hardware Features
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Service provides a user gateway to privileged system
-software interfaces. In general, these system software interfaces have
-other Linux mechanisms for system administrators to grant or deny user
-access.  The GEOPM Service improves upon other available Linux
-security mechanisms by combining fine-grained access management, ease
-of extension, and an optional high performance interface. Alternative
-options available tend to be more course-grained, less performant, or
-more difficult to extend.
+The GEOPM Service provides a user gateway to privileged system software
+interfaces. Typically, these interfaces have Linux mechanisms that allow
+administrators to grant or deny user access. The service enhances other
+Linux security mechanisms by integrating fine-grained access management,
+easy extension, and an optional high-performance interface—improving upon
+what typically are coarse-grained, less performant, or harder-to-extend
+alternatives.
 
-Some features of existing device drivers may be enabled for
-end users by changing file permissions, however this does not allow
-for filtering of which driver features will be available, and is often
-insufficient due to Linux
-`capabilities(7) <https://man7.org/linux/man-pages/man7/capabilities.7.html>`__
-requirements.
+It's possible to enable certain features of existing device
+drivers for end users by altering file permissions, but
+this doesn't allow for the filtering of driver features. This
+solution may often be insufficient due to Linux `capabilities(7)
+<https://man7.org/linux/man-pages/man7/capabilities.7.html>`__ requirements.
 
-Granting Linux capabilities to a helper command line tool or adding a
-command line tool to the
-`sudoers(5) <https://man7.org/linux/man-pages/man5/sudoers.5.html>`__
-configuration is a common way to filter which secure features are
-enabled.  These command line tools may also require independent
-security review and typically do not provide a high performance
-programmatic solution.
+Granting Linux capabilities to a helper command-line
+tool or adding a command-line tool to the `sudoers(5)
+<https://man7.org/linux/man-pages/man5/sudoers.5.html>`__ configuration is
+a common method of enabling specific secure features. These command-line
+tools may require independent security review and usually don't deliver
+high-performance programmatic solutions.
 
-High performance security solutions tend to require modifications to
-Linux kernel code through either a specialized driver, or through the
-insertion of `eBPF <https://ebpf.io>`__ programs.  These solutions
-require installation of custom tools into the Linux kernel that may
-require independent security review by administrators.  The developers
-and security experts must have specialized knowledge of the kernel or
-eBPF development environment.  Errors and security vulnerabilities in
-these filtering and device driver implementations may be more
-difficult to identify.
+High-performance security solutions often necessitate alterations to
+Linux kernel code either through a specialized driver or via `eBPF
+<https://ebpf.io>`__ program insertion. They require custom tools
+integrated into the Linux kernel, requiring independent security reviews
+by administrators and specialized kernel or eBPF development knowledge
+from developers and security experts. Identifying errors and security
+vulnerabilities in these filtering and device driver implementations can
+be particularly challenging.
 
-The GEOPM Service provides the system administrator with fine-grained
-access management for individual hardware features for a variety of
-hardware interfaces. Access to each individual feature provided by a
-system software interface may be granted to individual users, or to
-Unix user groups, or to all users of the system.  The hardware
-interfaces may be expanded through the ``IOGroup`` C++ plugin
-interface.
+The GEOPM Service offers fine-grained access management to individual
+hardware features for various hardware interfaces. System administrators can
+grant access to each unique feature provided by a system software interface
+to individual users, Unix user groups, or all system users. Expansion of
+hardware interfaces is possible via the ``IOGroup`` C++ plugin interface.
 
-Each hardware feature that may be read is referred to as a "signal"
-and mapped to a specific string name. Each hardware feature that may
-be written is referred to as a "control" and is mapped to a specific
-string name. These signals and controls are represented as double
-precision floating point numbers in SI units. Requests to GEOPM
-interfaces to read a signal or write a control are combined with a
-hardware domain and a domain index.  The hardware domain specifies the
-type of hardware component and the domain index identifies the
-specific component where the request will be applied.
+"Signals" refer to hardware features that can be read and are mapped to
+a particular string name. Writable hardware features, called "controls,"
+are also mapped to a specific string name. These signals and controls
+are represented as double-precision floating-point numbers in SI units
+and are combined with a hardware domain and domain index for requests to
+read signals or write controls. The hardware domain specifies the hardware
+component type, while the domain index identifies the exact component where
+the request applies.
 
-The GEOPM Service does not provide user access to any signals or
-controls until a system administrator grants this access; this follows
-the "Secure by Default" design. All available signals and controls are
-documented, and the description includes the security implications of
-granting access. The ``geopmaccess`` command line tool is used by a
-system administrator to query descriptions of signals and controls
-available on a system as well as managing user access to each feature
-by name.
+The GEOPM Service adheres to a "Secure by Default" design, which means no user
+access to signals or controls is provided until a system administrator grants
+it. All signal and control options are documented, and their descriptions
+include their security implications. The ``geopmaccess`` command-line tool
+enables system administrators to query signal and control descriptions and
+manage user access to each feature based on their name.
 
 
-Restore control configuration after a writing session ends
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Restoring Control Configuration After a Writing Session Ends
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Users are not allowed to make persistent changes to hardware settings
-using the GEOPM Service. The lifetime of configuration changes made
-through the GEOPM Service is limited to the lifetime of the writing
-PID's process session.  To learn more about the Linux process session
-interface see the
-`setsid(2) <https://man7.org/linux/man-pages/man2/setsid.2.html>`__
-man page.  Typically the process session is coupled to a controlling
-terminal.
+Users cannot make persistent changes to hardware settings through
+the GEOPM Service; any configuration alterations last only for
+the duration of the writing PID's process session. To understand
+the Linux process session interface more, refer to the `setsid(2)
+<https://man7.org/linux/man-pages/man2/setsid.2.html>`__ man page, which
+explains that a process session is usually linked to a controlling terminal.
 
-The GEOPM Service implements this feature by saving all control
-configuration settings to disk prior to enabling a user session to
-write. When the user's write session terminates, all configuration
-settings are restored to their previous value. The storage location
-for the saved state is in the directory
-``/run/geopm/SAVE_FILES``.
+The GEOPM Service supports this feature by saving all control configuration
+settings to disk before enabling a user session to write. After the user's
+write session terminates, all settings are restored to their original
+state. The saved state is stored in the directory ``/run/geopm/SAVE_FILES``.
 
-Note that all configuration settings are restored regardless of
-whether or not they were adjusted during the session through the
-service.
+Note that all configuration settings are restored, regardless of whether
+they were modified during the session through the service.
 
 
-One writing GEOPM session allowed at any time
+One GEOPM Writing Session Allowed at Any Time
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Service enforces that at most one writing user session is
-supported at any time.  This restriction enables the save/restore
-methodology outlined in the previous section to be effective. The
-write lock that enables this mutual exclusion is associated with the
-Unix "process session leader" PID of the requesting process. If this
-session leader PID does not refer to an active process, then the lock
-is associated with the requesting process PID. Otherwise, any PID
-within the requesting Unix process session is enabled to write through
-the GEOPM Service for the duration of the process session leader PID
-lifetime.
+The GEOPM Service only supports one active writing user session at a time.
+This restriction supports the save/restore methodology explained in the
+previous section. The write lock enabling this mutual exclusion is tied
+to the Unix "process session leader" PID of the requesting process. If
+this session leader PID doesn't refer to an active process, the lock
+is associated with the requesting process PID. Otherwise, any PID within
+the requesting Unix process session can write via the GEOPM Service for
+the entire process session leader PID lifespan.
 
 
-Provide a low latency interface
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Providing a Low-Latency Interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Service provides a batch interface that allows users to
-configure a server process.  The batch server process is forked by
-``geopmd`` which is the primary GEOPM Service daemon process started
-by
-`systemd(1) <https://man7.org/linux/man-pages/man1/systemd.1.html>`__.
-The user configures the batch server with an array of requests through
-DBus. The access permissions are checked when the call to start the
-server is made, and the server is only forked if the client has
-permission for all requests in the array. The batch server creates one
-or two inter-process shared memory regions to interact with the
-client: one region provides a user interface to read signals, and the
-other if requested provides a user interface to write
-controls. Requests to read, write, or quit are made through a FIFO
-channel connecting the client to the batch server, and a second FIFO
-is used to communicate to the client when requests have been
-completed. These FIFOs are opened in ``/run/geopm/batch-status-*``.
+The GEOPM Service offers a batch interface letting users configure
+a server process. The batch server process is forked by ``geopmd``,
+the primary GEOPM Service daemon process started by `systemd(1)
+<https://man7.org/linux/man-pages/man1/systemd.1.html>`__.  The user can
+configure the batch server with an array of requests via DBus. Access
+permissions are checked when initiating the server, which will only be
+forked if the client has authorization for all array requests.  The batch
+server establishes one or two inter-process shared memory regions to
+communicate with the client — one for user interface signal readings,
+and another (if requested) to provide the user interface control for
+writing.  The client makes requests to read, write, or quit through
+a FIFO channel, connecting them to the batch server. A second FIFO
+communicates to the client when requests are complete. These FIFOs are
+opened in ``/tmp``, which systemd sets up by default as a `tmpfs(5)
+<https://man7.org/linux/man-pages/man5/tmpfs.5.html>`__.
 
 
-Secure restart of the ``geopmd`` daemon process
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Securing Restart of the ``geopmd`` Daemon Process
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All state that is required to maintain the security guarantees of the
-GEOPM Service are stored to disk in a secure way (see
-:ref:`security:File Usage/Configuration`
-for more details).  This information is read from disk when the
-``geopmd`` daemon process begins. This enables the service to cleanly
-recover from any premature ending of the daemon process. The restart
-of the daemon process is enabled by the systemd Linux service though a
-configuration option that the GEOPM Service provides. These options
-enable the GEOPM Service to be restarted immediately, and to attempt
-to restart twice in rapid succession if necessary. The first attempt
-may be used to provide a clean environment for the second restart.
+All states required to uphold the GEOPM Service's security guarantees
+are stored securely on disk (for more details, see :ref:`security:File
+Usage/Configuration`). The ``geopmd`` daemon process reads this information
+from the disk on startup, allowing the service to recover cleanly in the
+event the daemon process ends prematurely. The systemd Linux service offers
+a restart of the daemon process through a configuration option provided
+by the GEOPM Service. The service may be restarted immediately, with the
+option to retry twice in quick succession if required. The first attempt
+resets the environment for the second restart.
 
 
 Secure Interfaces
 -----------------
 
-The interfaces that enable a user to access privileged system
-resources through the GEOPM Service are limited to the GEOPM DBus
-interface published on the system bus at ``io.github.geopm``. Using
-this interface may enable the creation of a batch server. The access
-rights of this batch server are verified prior to its creation, and
-the user may then interact with this batch server through faster
-mechanisms than DBus provides. In particular, the user interfaces with
-the batch server over inter-process shared memory and FIFO special files,
-both of which are created in ``/run/geopm``.
+Users can access privileged system resources through the GEOPM Service via the
+GEOPM DBus interface published on the system bus at ``io.github.geopm``. This
+interface can facilitate the creation of a batch server. The batch server's
+access rights are verified before it's created, and the user can then interact
+with it via faster mechanisms than those provided by DBus. In particular,
+the user interacts with the batch server over inter-process shared memory
+and FIFO special files, created in ``/run/geopm``.
 
-The DBus interface provides a layer of security that is leveraged
-throughout Linux services to verify the user identity of requests made
-to daemon processes. The GEOPM Service relies on the systemd DBus
-interface to provide the PID, UID, and GID of the requesting client.
-These identifiers are then used with standard system calls to enforce
-access permissions defined by a system administrator.
+The DBus interface offers a security layer used throughout Linux services
+to confirm the user identity of daemon process requests. The GEOPM Service
+relies on the systemd DBus interface to provide PID, UID, and GID details
+of the requesting client. These identifiers are then used with standard
+system calls to enforce access permissions defined by a system administrator.
 
 
 Secure Software Dependencies
 ----------------------------
 
-The GEOPM Service relies on external software packages to support
-security objectives. These external packages enable secure use of the
-DBus interface to systemd and provide standard methods for verifying
-JSON data.
+The GEOPM Service relies on external software packages to support its security
+objectives. These packages allow secure use of the DBus interface to systemd,
+providing standard methods for validating JSON data.
 
 1. GEOPM Service DBus Interface
 
@@ -206,326 +181,216 @@ JSON data.
 Protected Assets
 ----------------
 
-The GEOPM Service provides a security gateway to privileged hardware
-interfaces. These interfaces expose power and energy management
-features as well as hardware monitoring features such as reading
-performance counters. The secure system software interfaces that are
-available through the GEOPM Service are described in this
-section. These interfaces may also be expanded by using the GEOPM
-IOGroup plugin interface.
+The GEOPM Service operates as a secure passageway to privileged hardware
+interfaces, including power and energy management features and performance
+counter readings. These secure system software interfaces, accessible
+through the GEOPM Service, are explained in this section. The interfaces
+can also be expanded using the GEOPM IOGroup plugin interface.
 
-The GEOPM Service provides the ``geopmaccess`` command line interface
-for system administrators to manage access to hardware features. This
-interface is expected to be a reliable and secure mechanism for
-managing access rights of users to the assets described in this
-section.  Maintaining user privacy such that client interactions with
-the GEOPM service are not observable to other users is also a security
-priority.
+For system administrators to manage access to hardware features, the GEOPM
+service provides the ``geopmaccess`` command line interface. The interface
+is expected to be a reliable and secure means of managing users' access
+rights to the assets discussed in this section. User privacy maintenance,
+ensuring that the GEOPM service interactions with the client are not visible
+to other users, is also a security priority.
 
 
-Model Specific Register device driver
+Model-Specific Register Device Driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Service may be used as a gateway to the x86 Model Specific
-Register device driver
-`msr(4) <https://man7.org/linux/man-pages/man4/msr.4.html>`__
-which is loaded as the ``/dev/cpu/*/msr`` devices.  There are many
-features available through the MSR device driver, and the GEOPM
-Service provides access to a subset of these features. The features
-supported by the GEOPM Service are focused on power and energy
-management as well as performance monitoring. Some examples are
-reading instruction counters or setting limits on CPU core operating
-frequency.
+The GEOPM Service can function as a gateway to the x86 Model-Specific Register
+device driver, `msr(4) <https://man7.org/linux/man-pages/man4/msr.4.html>`__,
+loaded as ``/dev/cpu/*/msr`` devices. There are various features accessible
+through the MSR device driver, and the GEOPM Service allows usage of a subset
+of these features focused on energy and power management and performance
+monitoring. Examples include reading instruction counters or setting CPU
+core operating frequency limits.
 
-Direct access to the MSR driver is restricted as this may enable users
-to obtain information about processes they do not own or impact system
-performance for other users. For these reasons using the MSR driver
-requires the CAP_SYS_RAWIO Linux
-`capability <https://man7.org/linux/man-pages/man7/capabilities.7.html>`__.
+As direct access to the MSR driver may enable users to gain
+unauthorized information about processes they don’t own or
+influence system performance for other users, it's restricted. Using
+the MSR driver requires the ``CAP_SYS_RAWIO`` Linux `capability
+<https://man7.org/linux/man-pages/man7/capabilities.7.html>`__.
 
-The GEOPM Service access management system allows a system
-administrator to control precisely which subset of features available
-through the MSR driver may be accessed. Additionally, the GEOPM
-Service does not allow persistent changes to the MSR driver. For these
-reasons a system administrator may wish to provide MSR access through
-the GEOPM Service to processes that do not have the CAP_SYS_RAWIO
-Linux
-`capability <https://man7.org/linux/man-pages/man7/capabilities.7.html>`__.
+The GEOPM Service’s access management system enables a system
+administrator to control which features can be accessed through the MSR
+driver. The service also prevents permanent changes to the MSR driver. As
+such, administrators may want to provide MSR access through the GEOPM
+Service to processes that lack the ``CAP_SYS_RAWIO`` Linux `capability
+<https://man7.org/linux/man-pages/man7/capabilities.7.html>`__.
 
 
-Intel Speed Select device driver
+Intel Speed Select Device Driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Service may be used as a gateway to the Intel Speed Select
-device driver which is loaded as the ``/dev/isst_interface``
-device. This device driver enables a wide range of capabilities
-introduced with the 3rd generation Xeon Scalable server processor.
+The GEOPM Service can act as a gateway to the Intel Speed Select device
+driver, loaded as the ``/dev/isst_interface`` device. This driver offers a
+broad set of capabilities introduced with the 3rd generation Xeon Scalable
+server processor.
 
 https://www.kernel.org/doc/html/latest/admin-guide/pm/intel-speed-select.html
 
-The specific features enabled through the GEOPM Service are the
-`SST-CP <https://www.kernel.org/doc/html/latest/admin-guide/pm/intel-speed-select.html#intel-r-speed-select-technology-core-power-intel-r-sst-cp>`__
-and
-`SST-TF <https://www.kernel.org/doc/html/latest/admin-guide/pm/intel-speed-select.html#intel-r-speed-select-technology-turbo-frequency-intel-r-sst-tf>`__
-features. Using the ``isst_interface`` device driver requires the
-Linux
+The specific features supported through the GEOPM Service are the `SST-CP
+<https://www.kernel.org/doc/html/latest/admin-guide/pm/intel-speed-select.html#intel-r-speed-select-technology-core-power-intel-r-sst-cp>`__
+and `SST-TF
+<https://www.kernel.org/doc/html/latest/admin-guide/pm/intel-speed-select.html#intel-r-speed-select-technology-turbo-frequency-intel-r-sst-tf>`__
+features. Use of the ``isst_interface`` device driver necessitates the Linux
 `capability <https://man7.org/linux/man-pages/man7/capabilities.7.html>`__
-of CAP_SYS_ADMIN because changes may impact system performance for
-other users of the system. The ISST interface may also be used to
-change the hardware characteristics reported by the Linux kernel, such
-as number of cores, base frequency, and which turbo frequencies are
-achievable.
+of ``CAP_SYS_ADMIN`` because changes may influence system performance for
+other users. The ISST interface can also alter the hardware characteristics
+reported by the Linux kernel, including the number of cores, base frequency,
+and achievable turbo frequencies.
 
 
-LevelZero sysman library interface
+LevelZero Sysman Library Interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The LevelZero sysman library interface enables users to monitor and
-control Intel GPU devices. These signals and controls include
-setting bounds on GPU operating frequency and reading performance
-counters from GPU devices. Access to the LevelZero sysman interface is
-restricted because it provides ability to modify the performance of
-the system and direct access to hardware metrics that reflect user
-activity.
+The LevelZero sysman library interface allows users to monitor and control
+Intel GPU devices. These signals and controls include setting GPU operating
+frequency bounds and reading performance counters from GPU devices. Access
+to the LevelZero sysman interface is restricted as it provides the ability
+to alter system performance and direct access to hardware metrics that
+reflect user activity.
 
 
-Nvidia NVML device management library interface
+Nvidia NVML Device Management Library Interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The NVML library interface enables users to monitor and control Nvidia
-GPU devices. These controls and monitors include setting bounds on GPU
-operating frequency and reading performance counters from GPU devices.
-Access to some of the interfaces of the NVML library are restricted
-and some of those restrictions may be relaxed based on settings
-enabled by a system administrator.
+The NVML library interface allows users to monitor and control Nvidia GPU
+devices. Controls and monitors for setting GPU operating frequency bounds
+and reading performance counters from GPU devices are available. Access to
+some NVML library interfaces is restricted, but some restrictions may be
+relaxed based on settings enabled by a system administrator.
 
 
-Service user data
+User Data
 ^^^^^^^^^^^^^^^^^
 
-Interactions with the GEOPM Service by each client are private
-information and an asset that the GEOPM Service is designed to
-protect.  Unprivileged users of the system should not be able to
-observe the calls, inputs, or outputs to the GEOPM Service by other
-users of the system.
+Any interaction between each client and the GEOPM Service is considered
+private information and should be protected. Therefore, unprivileged users
+should not be able to observe the calls, inputs, or outputs made to the
+GEOPM Service by other users.
 
 
 Attack Surface
 --------------
 
-This section describes the interfaces that must be protected to ensure
-the security requirements of the GEOPM Service.
+This section outlines the interfaces that must be secure to maintain the
+security requirements of the GEOPM Service.
 
 
-System files
+System Files
 ^^^^^^^^^^^^
 
-The state used to manage access permissions, track open sessions, and
-store control settings for reset is stored in system files. The files
-controlling access permissions are located in the
-``/etc/geopm`` directory. The state required to support active
-user sessions is stored in ``/run/geopm``. Protecting
-these files is paramount to the integrity of the GEOPM Service
-security model.  In general these files have root access permissions
-only, and are modified by calling into GEOPM Service interfaces, or by
-running GEOPM Service command line tools like ``geopmaccess``.
+The state used to manage access permissions, track active sessions, and store
+control settings for reset is maintained in system files. Files controlling
+access permissions are in the ``/etc/geopm`` directory. Information necessary
+to support active user sessions is stored in ``/run/geopm``. Protecting
+these files is crucial to the GEOPM Service security model. Generally,
+these files are only accessible by root and are modified by interacting with
+GEOPM Service interfaces or running GEOPM Service command-line tools such as
+``geopmaccess``.
 
 
-Inter-process shared memory
+Inter-Process Shared Memory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The batch server interface of the GEOPM Service uses POSIX
-inter-process shared memory to communicate telemetry and
-configurations with a user processes. For each batch session opened by
-a user process there are one or two shared memory regions opened for
-communication. Protecting the integrity of these shared system
-resources is a critical part of our security model. Access to these
-shared memory regions by a user other than the client can result in
-escalation of privileges, and subversion of the administrative access
-lists.
+The batch server interface of the GEOPM Service uses POSIX inter-process
+shared memory to communicate with user processes. For every opened batch
+session by a user process, one or two shared memory regions are created
+for communication. Protecting these shared system resources is a critical
+aspect of our security model. Unauthorized access to these shared memory
+regions by a user other than the client may lead to privilege escalation
+and disruption of the administrative access lists.
 
 
-FIFO special files
+FIFO Special Files
 ^^^^^^^^^^^^^^^^^^
 
-In conjunction with the inter-process shared memory, there are FIFO
-special files created in ``/tmp``, the temporary file system, to
-support the batch server features of the GEOPM Service. Notifications
-sent between the client and server about updates to data in
-inter-process shared memory go across the FIFOs which serve as a
-synchronization mechanism.  Adversarial access to these files could
-cause deadlocks in the batch server or client process or enable
-information about the client session requests to be observed.
+To support GEOPM Service's batch server features, FIFO special files are
+created in the ``/tmp`` directory, working in tandem with inter-process
+shared memory. These FIFOs act as synchronization mechanisms, facilitating
+notifications between the client and server regarding shared memory data
+updates. Unauthorized access to these files might result in batch server or
+client process deadlocks and potential exposure of client session request
+details.
 
-
-Systemd DBus interface
+Systemd DBus Interface
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The systemd DBus implementation is a standard Linux interface for
-secure communication with Linux system services.  The
-`sd-bus(3) <https://man7.org/linux/man-pages/man3/sd-bus.3.html>`__
-DBus interface of the Linux systemd service provides the mechanism for
-users to securely exchange requests and results with the GEOPM
-Service. The DBus interface also enables the GEOPM Service to securely
-identify the source of client requests. The GEOPM implementation uses
-the
-:doc:`dasbus <dasbus:index>`
-and
-:doc:`PyGObject <pygobject:index>`
-Python modules to implement the server side of the GEOPM DBus
-interface in Python, while it uses the libsystemd.so to implement a C
-interface to the client side of the GEOPM DBus interface directly with
-the
-`sd-bus(3) <https://man7.org/linux/man-pages/man3/sd-bus.3.html>`__
-interface.  The GEOPM Service relies on these standard Linux tools to
-provide a trusted interface and a secured attack surface.
-
+GEOPM Service leverages the systemd DBus, a standardized
+Linux interface for secure service communication. The `sd-bus(3)
+<https://man7.org/linux/man-pages/man3/sd-bus.3.html>`__ interface of the
+Linux systemd service enables secure request and result exchanges with the
+GEOPM Service, as well as the identification of client request origins. On the
+server side, the GEOPM DBus interface implementation utilizes the :doc:`dasbus
+<dasbus:index>` and :doc:`PyGObject <pygobject:index>` Python modules. In
+contrast, the client side employs ``libsystemd.so`` with the `sd-bus(3)
+<https://man7.org/linux/man-pages/man3/sd-bus.3.html>`__ interface. The GEOPM
+Service trusts these standard Linux tools for a reliable and secure interface.
 
 Logging
 ^^^^^^^
 
-GEOPM's implementation ensures that GEOPM has sufficient logging to
-provide traceability to system administrators about user
-interactions. This includes logging of security critical events (e.g.
-user interactions that result in changing the system configuration),
-avoiding excessive logging, avoiding public logging of private
-information and ensuring logs are reliable.
-
-The GEOPM Service has the capability of writing to the logging service
-provided by ``dasbus``. Most commonly this is the logging capabilities
-provided by systemd, and are accessible via the journalctl command
-(e.g.  journalctl -u geopm) or through inspection of
-``/var/log/messages`` or similar ways of viewing the ``syslog`` which
-may depend on how the system is configured.
-
-The GEOPM Service will log any error conditions that arise from
-attempting to set up or use configuration files stored in a secure
-location.  See
-:ref:`security:System files`
-for more information about these secure files.
-
+GEOPM prioritizes comprehensive logging to ensure traceability for system
+administrators regarding user activities. Emphasis is placed on recording
+security-sensitive events, limiting excessive logging, protecting private
+information, and maintaining log integrity. The GEOPM Service can write logs
+via the ``dasbus`` provided service. Typically, logs are available through
+the systemd-supported journalctl command (e.g., ``journalctl -u geopm``)
+or by inspecting ``/var/log/messages``, though access might vary depending
+on system configuration. Additionally, any errors arising from the setup or
+usage of secure configuration files will be logged. More details on these
+secure files can be found at :ref:`security:System files`.
 
 Security Threats
 ----------------
 
-This section enumerates the mechanisms that an adversary may use in an
-attempt to breach the attack surface to subvert the security
-guarantees of the GEOPM Service. Each threat is split out into its own
-subsection.  The threat is described in the context of how the
-mechanism might be used against the GEOPM Service attack surface, and
-how the surface is secured against this threat.
+This section outlines potential threats to the GEOPM Service's security,
+detailing how each threat might exploit vulnerabilities and the measures
+taken to fortify against them.
 
-
-Malicious input or private output
+Malicious Input or Private Output
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each GEOPM Service interface that may be accessed by an unprivileged
-user is a threat vector.  All input received from the user is
-validated to ensure no malicious or malformed data is used in any way
-that may result in a compromised or misconfigured system. All output
-from these interfaces is vetted to ensure that the service does not
-emit private, malicious, or malformed data.
+Unprivileged user-accessible GEOPM Service interfaces represent potential
+threat vectors. All user inputs are scrutinized to prevent the use of harmful
+or incorrect data that might compromise or misconfigure the system. Similarly,
+all outputs are checked to prevent the disclosure of private or malicious
+data. Two main interfaces are available to end users: the ``io.github.geopm``
+DBus interface via systemd and the batch server interface accessible through
+inter-process shared memory and FIFO special files in ``/tmp``.
 
-The GEOPM Service provides two interfaces for end users.  One is the
-``io.github.geopm`` DBus interface published through systemd.  The
-other is the batch server interface which may be created with a
-request to the GEOPM DBus interface.  The batch server is accessed by
-the end user through inter-process shared memory, and FIFO special
-files in the temporary file system.
-
-
-File usage/configuration
+File Usage/Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-As GEOPM reads and writes configuration files to disk, it is important
-to validate that the file usage is done as securely as possible. This
-includes verifying an input file is not a symbolic link to an
-unintended resource, verifying that all temporary files are cleaned up
-properly, and that the temporary files and directories that are used
-do not have excessive permissions.
+To ensure data security as GEOPM reads/writes configuration files, several
+precautions are taken. These include confirming that input files aren't
+misleading symbolic links, ensuring all temporary files are appropriately
+managed, and verifying the security settings of used temporary files
+and directories. GEOPM uses disk files for various purposes, such as
+facilitating user/group access to privileged signals/controls, storing
+active client session data, and saving initial hardware control states for
+potential reversion. Temporary files and move operations ensure complete and
+valid data write operations to secure locations. GEOPM also takes measures
+to counter threats by extensively inspecting files/directories intended
+for input. GEOPM doesn't provide user-facing APIs that accept paths. All
+directory paths are hard-coded within the GEOPM Service. Comprehensive
+information on file and directory security can be found in `system_files.py
+<https://github.com/geopm/geopm/blob/dev/service/geopmdpy/system_files.py>`__.
 
-The GEOPM Service utilizes files on disk to support several behaviors
-including facilitating user/group access to privileged
-signals/controls, storing state information about in-progress client
-sessions, and saving the initial state of hardware controls so that
-any control changes may be reverted. GEOPM utilizes temporary files
-and move semantics to ensure that files written to the secure
-locations previously described are complete and have valid data.
-
-GEOPM mitigates threats in this space by performing several checks on
-any files/directories used for input. Note that there are no user
-facing APIs provided by the GEOPM Service that take paths as
-input. All directory paths used in the GEOPM Service are statically
-defined in the source code.
-
-A secure API for dealing with files and directories resides in
-`system_files.py <https://github.com/geopm/geopm/blob/dev/service/geopmdpy/system_files.py>`__.
-The functions that match the pattern system_files.secure_*() are the
-only interfaces called by the GEOPM Service to access files located in
-``/etc`` and ``/run``. These secure functions are used to make
-directories and any input or output to these system files.
-
-When making directories, if the path already exists checks are
-performed to ensure: the path is a regular directory, the path is not
-a link, the path is accessible by the caller, the path is owned by the
-calling process UID/GID, and the permissions on the directory are set
-to the right permissions (chosen to be as restrictive as possible). If
-the path is determined to be insecure, the existing path is renamed to
-indicate it is invalid and preserved for later auditing. In this case
-a new directory will be created at the specified path. If the path did
-not already exist, a new directory is created with the proper
-permissions.
-
-By default, directories are created with 0o700 permissions (i.e. rwx
-only for the owner). Some directories, for example
-``/run/geopm``, also require execution permissions (i.e.
-0o711). For more details on how directories are created and default
-permissions, please see the :ref:`system_files.py <geopmdpy.7:geopmdpy.system_files>`
-documentation
-
-When making files, a temporary file is first created with 0o600 or
-owner rw only permissions. The desired contents are then written to
-this temporary file. Once writing is complete, the temporary file is
-renamed to the desired path while preserving the 0o600
-permissions. This rename is atomic, so it is not possible for files to
-exist with partial/corrupt data. Any existing file at the desired
-location will be overwritten.
-
-When reading files, first the path's security is verified.  The
-implementation asserts that the path describes an existing regular
-file which is not a link nor a directory.  After the path is verified,
-a file descriptor is opened referencing the path and this file
-descriptor's security is verified.  The implementation asserts that
-the descriptor refers to a regular file owned by the calling process
-UID/GID and that the file descriptor has minimal permissions
-(i.e. 0o600 or rw for the owner only).  After these assertions have
-been made, the implementation reads the entire file contents into a
-string buffer and the file descriptor is closed.
-
-
-External dependencies
+External Dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Service utilizes shared libraries to facilitate user plugins
-of the IOGroups and Agents. The service expects the plugins to reside
-in a particular path on disk that can only be set by the system
-administrator. If valid shared objects reside in the prescribed
-location, they will be loaded at service startup and utilized if
-requested by the user. The expectation is that a system administrator
-would set the plugin path and only place vetted plugins there if
-needed.  The GEOPM Service is a systemd service unit which is
-configured through the
-`systemd.service(5) <https://man7.org/linux/man-pages/man5/systemd.service.5.html>`__
-file.  The configuration file provided with the GEOPM source code,
-`geopm.service <https://github.com/geopm/geopm/blob/dev/service/geopm.service>`__,
-does not export the ``GEOPM_PLUGIN_PATH`` environment variable before
-launching ``geopmd``, so this feature is disabled by default.
+The GEOPM Service relies on shared libraries for user plugins related to
+IOGroups and Agents. These plugins are expected to be in a specific disk
+path set by system administrators. Only validated shared objects in this
+designated location are loaded during service startup and used upon user
+request. By default, the ``GEOPM_PLUGIN_PATH`` environment variable isn't
+exported before launching ``geopmd``, disabling this feature. GEOPM also
+uses third-party JSON libraries for C/C++ runtime and multiple Python modules
+for the GEOPM Service. Nightly integration tests ensure the latest versions
+of these external Python modules function as expected, with any issues being
+promptly reported to developers. For C/C++ JSON usage, the upstream repository
+is regularly checked to confirm the GEOPM-hosted code remains current.
 
-GEOPM makes use of third-party JSON libraries in the C/C++ runtime,
-and several Python modules in the case of the GEOPM Service. Through
-the course of the nightly integration testing of GEOPM, the latest
-released versions of all external Python modules are installed via
-pip. If any issues arise, reports are automatically generated to
-detail the failure and are sent to the developers. For the C/C++ JSON
-usage, the upstream repository is periodically checked to ensure the
-code that resides in GEOPM is up-to-date.

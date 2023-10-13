@@ -1,97 +1,73 @@
+GEOPM Developer Guide
+=====================
 
-Guide for GEOPM Developers
-==========================
+If you wish to modify the source code in the GEOPM git repository, this
+guide provide instructions for the process. The GEOPM repository utilizes
+two separate autotools-based build systems, used for compiling, testing,
+and installing software components designed with C++ and Python.
 
-These are instructions for a developer that would like to modify the
-source code in the GEOPM git repository.  The GEOPM repository
-contains two independent autotools based build systems that are used
-to compile, test and install software components written in C++ and
-Python.  The ``service`` subdirectory of the GEOPM repository contains
-all files related to the GEOPM systemd service including the build
-system and all source code for the software components.  The base
-directory of the GEOPM git repository is populated with a build system
-that supports all software components not located in the ``service``
-directory.  The base build depends solely on components in the
-``service`` directory that are installed by the service build
-including: the ``libgeopmd.so`` library, the C and C++ public
-interface header files for that library, and the ``geopmdpy`` Python
-module.
+The `service` subdirectory of the GEOPM repository houses all the files
+related to the GEOPM systemd services, including the build system and all
+the source codes. In contrast, the base directory of the same repository
+supports all software components not located in the `service` directory and
+relies solely on the components within the `service` directory installed
+by the service build.
 
-Prior to following the build steps, it's recommended to get familiar with
-the build requirements for the :doc:`GEOPM service<requires>` and the
-:doc:`GEOPM HPC runtime<runtime>`.
+Before proceeding with the build steps, it's advisable to familiarize
+yourself with the build requirements for the :doc:`GEOPM service<requires>`
+and :doc:`GEOPM HPC runtime<runtime>`.
 
 Developer Build Process
 -----------------------
 
-The basic procedure for building all of the software in the GEOPM
-repository is to run the following commands within the base of the GEOPM
-repository:
+To build all the software in the GEOPM repository, run the following commands
+within the base directory of the GEOPM repository:
 
 .. code-block:: bash
 
-    # Build the geopm-service package
     cd service/
     ./autogen.sh
     ./configure
     make
-
-    # Optionally, build the GEOPM HPC runtime package
     cd ..
     ./autogen.sh
     ./configure
     make
 
-
-After the build is complete, a developer may wish to execute the unit
-tests.  Each of the two builds has a ``check`` target for their
-makefiles.  The test programs may be built separately from the
-``check`` target by specifying the ``checkprogs`` make target.
+Upon successful build completion, if you wish to execute unit tests,
+each build has a `check` target in the makefiles. Alternatively, the test
+programs can be built separately using the `checkprogs` target.
 
 .. code-block:: bash
 
-    # Run the geopm-service package unit tests
     cd service/
     make checkprogs
     make check
-
-    # Optionally run the GEOPM HPC runtime package unit tests
     cd ..
     make checkprogs
     make check
 
-
-The developer may be interested in installing the build artifacts to a
-separate directory.  In this case, the build process differs slightly:
-some extra options will be provided to configure.
+If you want to install the build artifacts into a separate directory, you'll
+need to provide some additional options to configure during the build process.
 
 .. code-block:: bash
 
-    # Define the install location
     GEOPM_INSTALL=$HOME/build/geopm
-
-    # Build the geopm-service package
     cd service/
     ./autogen.sh
     ./configure --prefix=$GEOPM_INSTALL
     make
     make install
-
-    # Optionally, build the GEOPM HPC runtime package
     cd ..
     ./autogen.sh
     ./configure --prefix=$GEOPM_INSTALL --with-geopmd=$GEOPM_INSTALL
     make
     make install
 
-
-The libraries, binaries and python tools will not be installed into
-the standard system paths if GEOPM is built from source and configured
-with the ``--prefix`` option.  In this case, it is required that the
-user augment their environment to specify the installed location.  If
-the configure option is specified as above. then the following
-modifications to the user's environment should be made prior to
-running any GEOPM tools:
+When building from source and configured with the `--prefix` option, the
+libraries, binaries, and Python tools will not install into the standard
+system paths. At this point, you must modify your environment to specify
+the installed location.
 
 .. code-block:: bash
 
@@ -99,99 +75,49 @@ running any GEOPM tools:
     export PATH=$GEOPM_INSTALL/bin:$PATH
     export PYTHONPATH=$(ls -d $GEOPM_INSTALL/lib/python*/site-packages | tail -n1):$PYTHONPATH
 
-
-Use a PYTHONPATH that points to the site-packages created by the geopm
-build.  The version created is for whichever version of python 3 was
-used in the configure step.  If a different version of python is
-desired, override the default with the --with-python option in the
-configure script.
-
+If desired, you can specify a different Python version using the
+`--with-python` option in the configure script.
 
 Configuring the Build
 ---------------------
 
-There are many options that may be passed to each of the two configure
-scripts that are part of the GEOPM repository build system.  Two
-scripts called ``autogen.sh`` are provided, one in the base of the
-GEOPM repository and the other in the service directory.  Each of
-these scripts manage the GEOPM version that is embedded in the build
-artifacts, and create the two ``configure`` scripts using the
-autotools package.
+Several options can be passed to each of the two configure scripts that
+determine the build process. The files managed by the scripts are responsible
+for GEOPM's version embedding in build artifacts and create two `configure`
+scripts using the autotools package.
 
-Running the configure scripts generates a number of output files,
-including the ``Makefile`` that is used for the rest of the build
-steps.  The ``configure`` scripts accept a large number of command line
-options, and environment variables that affect the behavior.
-Each configure script will provide user documentation through the
-``./configure --help`` command.  Some important options and
-environment variables are listed below.
+The configure scripts output several files, including the `Makefile` used
+for further build steps. These scripts also accept various command line
+options and environmental variables that customize behavior. For detailed
+user documentation, refer to the `./configure --help` command. Some notable
+options and environment variables are listed below:
 
-Both configure scripts
-^^^^^^^^^^^^^^^^^^^^^^
+- Both configure scripts
 
-* ``--prefix``
-  Path prefix for install artifacts
+* ``--prefix``: Path prefix for install artifacts
+* ``--enable-debug``: Enable verbose error and warning messaging while disabling optimization.
+* ``--enable-coverage``: Enable coverage report generation with gcov
+* ``export CC=``: Set the C compiler with environment variable
+* ``export CXX=``: Set the C++ compiler with environment variable
 
-* ``--enable-debug``
-  Create more verbose error and warning messaging and disable
-  optimization.
+- Service configure script
 
-* ``--enable-coverage``
-  Enable coverage report generation with gcov
+* ``--enable-nvml``: Adds support for the Nvidia NVML library
+* ``--enable-levelzero``: Adds support for OneAPI LevelZero
+* ``--disable-systemd``: Excludes GEOPM service access from PlatformIO
 
-* ``export CC=``
-  Set the C compiler with environment variable
+- Base configure script
 
-* ``export CXX=``
-  Set the C++ compiler with environment variable
-
-
-Service configure script
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-* ``--enable-nvml``
-  Add support for the Nvidia NVML library
-
-* ``--enable-levelzero``
-  Add support for OneAPI LevelZero
-
-* ``--disable-systemd``
-  Do not build GEOPM Service access into PlatformIO
-
-
-Base configure script
-^^^^^^^^^^^^^^^^^^^^^
-
-* ``--with-geopmd=``
-  Provide install location of the service build
-
-* ``--disable-mpi``
-  Build the base directory without MPI dependencies
-
-* ``--disable-fortran``
-  Build the base directory without fortran dependencies
-
-* ``--disable-openmp``
-  Build the base directory without OpenMP dependencies
-
-* ``export FC=``
-  Set the Fortran compiler with environment variable
-
-* ``export F77=``
-  Set the Fortran 77 compiler with environment variable
-
-* ``export MPICC=``
-  Set the MPI C compiler wrapper with environment variable
-
-* ``export MPICXX=``
-  Set the MPI C++ compiler wrapper with environment variable
-
-* ``export MPIFC=``
-  Set the Fortran compiler wrapper with environment variable
-
-* ``export MPIF77=``
-  Set the Fortran 77 compiler wrapper with environment variable
-
+* ``--with-geopmd=``: Specify the installation location of the service build
+* ``--disable-mpi``: Excludes MPI dependencies from the base directory build
+* ``--disable-fortran``: Excludes Fortran dependencies from the base directory build
+* ``--disable-openmp``: Excludes OpenMP dependencies from the base directory build
+* ``export FC=``: Set the Fortran compiler with an environment variable
+* ``export F77=``: Set the Fortran 77 compiler with an environment variable
+* ``export MPICC=``: Set the MPI C compiler wrapper with an environment variable
+* ``export MPICXX=``: Set the MPI C++ compiler wrapper with an environment variable
+* ``export MPIFC=``: Set the Fortran compiler wrapper with environmental variable
+* ``export MPIF77=``: Set the Fortran 77 compiler
 
 Intel Compiler and MPI Toolchain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
