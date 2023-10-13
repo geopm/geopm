@@ -958,7 +958,7 @@ class ActiveSessions(object):
         try:
             sess = json.loads(contents)
             jsonschema.validate(sess, schema=self._session_schema)
-        except:
+        except (jsonschema.exceptions.ValidationError, json.decoder.JSONDecodeError):
             sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore\n')
             os.rename(sess_path, renamed_path)
             return # Invalid JSON return early

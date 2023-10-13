@@ -1198,12 +1198,9 @@ class OMPIExecLauncher(Launcher):
         """
         Pass through to Launcher run.
         """
-        try:
-            super(OMPIExecLauncher, self).run(stdout, stderr)
-        except:
-            for ff in self._tmp_files:
-                os.remove(ff)
-            raise
+        super(OMPIExecLauncher, self).run(stdout, stderr)
+        for ff in self._tmp_files:
+            os.remove(ff)
 
     def launcher_command(self):
         """
