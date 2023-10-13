@@ -2,12 +2,10 @@
 Guide for Service Administrators
 ================================
 
-This documentation covers some of the aspects of the GEOPM Service
-that are important to system administrators.  These include how the
-GEOPM Service is integrated with the Linux OS, which directories are
-created and modified by the GEOPM Service, how the files in those
-directories are used, and a command line tool to configure the GEOPM
-Service.  Additional information is available on other pages:
+This guide covers GEOPM's integration with the Linux OS, directories
+influenced by GEOPM, the utilization of files within those directories, and a
+command-line tool for configuring the GEOPM Service. For further details,
+explore the subsequent sections:
 
 - :doc:`Install Guide <install>`
 - :doc:`Security Guide <security>`
@@ -16,42 +14,45 @@ Service.  Additional information is available on other pages:
 Linux Integration
 -----------------
 
-The GEOPM Service integrates with the Linux OS through Systemd as a
-unit that is installed with the geopm-service RPM.  The ``sytemctl``
-command can be used to interact with the ``geopm`` Systemd Unit.
+The GEOPM Service integrates seamlessly with the Linux OS through Systemd. It
+is packaged within the geopm-service binary package, and administrators can install it
+using their respective package management systems. Use ``systemctl``
+to interact with ``geopm`` Systemd Unit.
 
 
 GEOPM Service Files
 -------------------
 
-In addition to the files provided by the installation packages, the
-GEOPM Service may create and modify files while active.  The files
-created by the GEOPM Service are located within two directories.  The
-files in ``/etc/geopm`` hold the access control lists.  These
-files persist across reboots and restarts of the service.  The files
-in ``/run/geopm`` track information about clients that are
-actively using the service.  These files save the state of the GEOPM
-Service and if the service is stopped for any reason the files will be
-used when the service is started again.  The files in ``/run`` are
-erased upon reboot.
+Beyond the files that come with the installation packages, the GEOPM Service
+may generate and modify additional files during its active state. These files
+are housed within two primary directories:
 
-All files and directories within ``/etc/geopm`` or
-``/run/geopm`` are created by the GEOPM Service with
-restricted access permissions and root ownership.  The GEOPM Service
-will not read any file or directory if they are modified to have more
-permissive access restrictions, non-root ownership, or if they are
-replaced by a symbolic link or other non-regular file.  If these
-checks fail, the file or directory will be renamed to include a UUID
-string and a warning is printed in the syslog.  These renamed files or
-directories enable an administrator to perform an investigation into
-problem, but they will not be used by the GEOPM Service in any way.
+- ``/etc/geopm``: This directory contains configuration files, including access
+  control lists. Files here persist across both reboots and service restarts.
 
-It is recommended that these GEOPM Service system files are always
-manipulated using GEOPM tools like ``geopmaccess``, however, any
-administrator that manipulates the GEOPM system files without using a
-GEOPM interface should be aware of the permission and ownership
-requirements for these files.  For more information about the GEOPM
-security model please refer to the `Security Guide <security.html>`_.
+- ``/run/geopm``: This directory contains files that monitor data about clients
+  actively engaging the service, files that help maintain the GEOPM Service's
+  state, and files that are used by GEOPM's save/restore mechanism. Should the
+  service halt unexpectedly, these files aid in its subsequent restart. However,
+  remember that the ``/run`` directory's contents get deleted upon a system reboot.
+
+Furthermore, the GEOPM Service ensures robust security measures:
+
+- Both ``/etc/geopm`` and ``/run/geopm`` directories and their contained files
+  are established with restricted access permissions and root ownership.
+
+- The service will avoid reading any file or directory if there's a relaxation
+  in access restrictions, non-root ownership, or if they're substituted by
+  symbolic links or non-standard files. Should these conditions not be met, the
+  affected file or directory will be renamed with a UUID and a warning will be
+  dispatched to the syslog. While these renamed entities can assist an
+  administrator in investigations, they are otherwise ignored by the GEOPM Service.
+
+For seamless operation and security, it's advised to manage the GEOPM Service
+system files using GEOPM tools like ``geopmaccess``. However, administrators
+opting to handle GEOPM system files outside of a GEOPM interface should be
+vigilant of the necessary permission and ownership criteria. Delve deeper into
+the GEOPM security intricacies by referring to the `Security Guide <security.html>`_.
 
 
 Configuring Access Lists

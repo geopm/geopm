@@ -1,12 +1,13 @@
 Getting Started
 ===============
 
-The GEOPM project consists of 2 layers of software that work in tandem: the
-**GEOPM Service** and the **GEOPM Runtime**.  The **GEOPM Service** provides a
-secure userspace interface to access hardware telemetry and settings while the
-**GEOPM Runtime** allows end-users to profile their application for advanced
-data analysis and optionally employ active hardware configuration algorithms to
-enhance energy efficiency.
+The GEOPM project consists of a two-tiered software structure: the **GEOPM
+Service** and the **GEOPM Runtime**. The **GEOPM Service** stands out by offering a
+secure userspace interface, facilitating access to hardware telemetry and
+configurations. On the other hand, the **GEOPM Runtime** empowers end-users to
+delve deeper into their application profiles for refined data analysis.
+Additionally, it provides the option to implement active hardware configuration
+algorithms, paving the way for enhanced energy efficiency.
 
 For in-depth information see: :doc:`service` or :doc:`runtime`.
 
@@ -69,7 +70,7 @@ After the Service has been installed, it must be configured properly before
 non-root users will be able to leverage it.
 
 To grant permissions to **all** non-root users to be able to use **all** of the
-features provided by the Service issue the following:
+features provided by the Service, execute the following commands:
 
 .. code-block:: bash
 
@@ -91,8 +92,8 @@ configuration can be found on the following pages: :doc:`admin` and
     :alt: Topology Encapsulation Diagram
     :align: center
 
-The various layers of hardware in a system are described as *domains* in GEOPM
-terminology.  GEOPM has support for the following domains:
+We refer to the different hardware layers within a system as *domains*.  GEOPM
+has support for the following domains:
 
 * Board
 * Package
@@ -118,7 +119,7 @@ module and that ``libgeopmd`` is available in your ``LD_LIBRARY_PATH``.
 The following examples leverage :doc:`geopmread <geopmread.1>` or
 :doc:`geopmwrite <geopmwrite.1>` for command-line usage, and the
 :doc:`C <geopm_topo.3>`, :doc:`C++ <GEOPM_CXX_MAN_PlatformTopo.3>`, and
-:doc:`Python <geopmdpy.7>` APIs of ``PlatformTopo`` to query for the platform
+:doc:`Python <geopmdpy.7>` APIs of ``PlatformTopo`` for the platform
 topology.
 
 .. tabs::
@@ -144,7 +145,7 @@ topology.
 
     .. code-tab:: c
 
-        // Query for the number of physical cores in the system
+        // Query the number of physical cores in the system
 
         #include <stdio.h>
         #include <geopm_topo.h>
@@ -160,7 +161,7 @@ topology.
 
     .. code-tab:: c++
 
-        // Query for the number of physical cores in the system
+        // Query the number of physical cores in the system
 
         #include <iostream>
         #include <geopm/PlatformTopo.hpp>
@@ -175,7 +176,7 @@ topology.
 
     .. code-tab:: python
 
-        # Query for the number of physical cores in the system
+        # Query the number of physical cores in the system
 
         import geopmdpy.topo as topo
 
@@ -187,16 +188,17 @@ topology.
 |:microscope:| Read Telemetry from the Platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In GEOPM terminology, any bit of telemetry that can be read with the Service is
-referred to as a *signal*.  Each signal has a native domain where it exists.
-For example, the current operating frequency of the CPU (i.e.
-``CPU_FREQUENCY_STATUS`` / ``MSR::PERF_STATUS:FREQ``) exists at the CPU
-domain.  Any signal can be aggregated to any domain that is more coarse (e.g.
-*package* or *board* in this case).
+We refer to any bit of telemetry that can be read with the Service as a
+*signal*.  Each signal has a native domain.  For example, the native domain of
+the current operating frequency of the CPU (i.e.  ``CPU_FREQUENCY_STATUS`` or
+``MSR::PERF_STATUS:FREQ``) is the CPU domain.  Any signal can be aggregated to
+any domain that is more coarse than its native domain; in our example, CPU
+frequency can be aggregated to the *package* or *board* domains since they are
+more coarse than the CPU domain.
 
-The following examples leverage :doc:`geopmread <geopmread.1>` and the :doc:`C
-<geopm_pio.3>`, :doc:`C++ <GEOPM_CXX_MAN_PlatformIO.3>`, and :doc:`Python
-<geopmdpy.7>` APIs for ``PlatformIO`` to facilitate reading telemetry.
+The following examples make use of :doc:`geopmread <geopmread.1>` for the command-line
+and the :doc:`C <geopm_pio.3>`, :doc:`C++ <GEOPM_CXX_MAN_PlatformIO.3>`, and :doc:`Python
+<geopmdpy.7>` APIs for ``PlatformIO`` in their respective languages.
 
 Listing All Available Signals
 """""""""""""""""""""""""""""
@@ -251,6 +253,7 @@ Reading Signals
 
         // Read the current CPU frequency for cpu 0
 
+        #include <limits.h>
         #include <stdio.h>
         #include <geopm_topo.h>
         #include <geopm_pio.h>
@@ -259,7 +262,7 @@ Reading Signals
         int main (int argc, char** argv)
         {
             double curr_frequency = 0;
-            char err_msg[1024];
+            char err_msg[PATH_MAX];
 
             int err = geopm_pio_read_signal("CPU_FREQUENCY_STATUS",
                                             GEOPM_DOMAIN_CPU,
@@ -267,7 +270,7 @@ Reading Signals
                                             &curr_frequency);
 
             if (err != 0) {
-                geopm_error_message(err, err_msg, 1024);
+                geopm_error_message(err, err_msg, PATH_MAX);
                 printf("Err msg = %s\n", err_msg);
             }
             printf("Current CPU frequency for core 0 = %f\n", curr_frequency);
@@ -309,33 +312,42 @@ Reading Signals
 Understanding Aggregation
 """""""""""""""""""""""""
 
-The telemetry that is output from ``geopmread`` or the APIs will be
-automatically aggregated based on the requested domain and the aggregation
+The telemetry that is output from ``geopmread`` or the APIs will automatically
+be aggregated based on the requested domain and the aggregation
 type.
 
 Using ``CPU_FREQUENCY_STATUS`` as an example, the output  in `Listing Signal
 Information`_ shows the native domain as ``cpu`` and the aggregation type as
 ``average``.  Notice the :ref:`topology diagram <topo-diagram>` shows that CPUs
-are contained within cores, cores are contained within packages, and packages
-are contained within the board.
+are contained within cores, cores within packages, and packages within the board.
 
-If ``CPU_FREQUENCY_STATUS`` was requested at the ``core`` domain, all of the
-CPUs associated with that core will have their frequency read, and the results
-will be averaged together.  If the signal was requested at the ``package``
-domain, all of the CPUs associated with all of the cores on that package will
-have their frequency read, and the results will be averaged together.  This
-pattern continues up to the highest level domain: ``board``.  This means if
-you wanted to read the average frequency across all packages, cores, and CPUs
-in a system, you would issue a ``geopmread`` at the ``board`` domain.
+When a ``CPU_FREQUENCY_STATUS`` request is made at the ``core`` domain, GEOPM
+reads and averages the frequencies of all CPUs linked to that core. If the
+request is at the ``package`` domain, it aggregates the frequencies of all CPUs
+across every core in that package and provides the average. This methodology
+escalates up to the broadest domain, the ``board`` domain. Thus, to obtain the
+average frequency spanning all packages, cores, and CPUs in the system, one
+would issue a `geopmread` at the ``board`` domain.
+
+On the other hand, using ``CPU_ENERGY`` as an example, the output in `Listing
+Signal Information`_ shows the native domain as ``cpu`` and the aggregation
+type as ``sum``.  When a ``CPU_ENERGY`` request is made at the ``core`` domain,
+GEOPM sums the energy consumed by all CPUs linked to that core. If the request
+is at the ``package`` domain, it sums the energy consumed by all CPUs across
+every core in that package and provides the total. This methodology escalates up
+to the broadest domain, the ``board`` domain. Thus, to obtain the total energy
+consumed by all packages, cores, and CPUs in the system, one would issue a
+`geopmread` at the ``board`` domain.
 
 For more information about aggregation types, see: :doc:`GEOPM_CXX_MAN_Agg.3`.
 
 Reading Multiple Signals
 """"""""""""""""""""""""
-In order to regularly read platform telemetry for output directly to the
-console or to a file, use the ``geopmsession`` from the command-line (which takes
-input that is similar to the arguments of ``geopmread``) or the batch read API
-from code.
+To fetch platform telemetry and output it to the console or a file:
+
+- From the command-line: Use `geopmsession`. Its input arguments are similar to `geopmread`,
+  but are taken from standard input rather than the command-line.
+- From code: Utilize the batch read API.
 
 .. tabs::
 
@@ -449,7 +461,8 @@ Capturing Telemetry Over Time
 """""""""""""""""""""""""""""
 
 ``geopmsession`` can also capture data over time with the ``-p`` and ``-t``
-options.  Examples:
+options. This behavior is easily implemented in code along with the batch read
+interface.
 
 .. tabs::
 
@@ -574,22 +587,23 @@ options.  Examples:
             print(f"{pio.sample(time_idx)},{pio.sample(freq_idx)}")
             time.sleep(1)
 
-For more information on ``geopmsession`` see :doc:`geopmsession.1`.
+Again, for more information on ``geopmsession`` see :doc:`geopmsession.1`.
 
 ----
 
 |:gear:| Enact Hardware-based Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In GEOPM terminology, any hardware setting that can be manipulated through the
-Service is referred to as a *control*.  Similar to signals, each control has a
-native domain where it is applicable.  Any control can be disaggregated from a
-coarse domain (e.g. ``board``) to it's native domain.  See
-`Understanding Disaggregation`_ for more information.
+We refer to any hardware setting that can be manipulated through the Service as
+a *control*.  Like signals, each control has a native domain.  Any control can
+be disaggregated from a coarse domain (e.g., ``board``) to its native domain.
+See `Understanding Disaggregation`_ for more information.
 
-The following examples leverage :doc:`geopmwrite <geopmwrite.1>` and the
-:doc:`C <geopm_pio.3>`, :doc:`C++ <GEOPM_CXX_MAN_PlatformIO.3>`, and
-:doc:`Python <geopmdpy.7>` APIs for ``PlatformIO`` to enact hardware controls.
+The following examples make use of :doc:`geopmwrite <geopmwrite.1>` for the
+command-line and the :doc:`C <geopm_pio.3>`,
+:doc:`C++ <GEOPM_CXX_MAN_PlatformIO.3>`, and :doc:`Python <geopmdpy.7>`
+APIs for ``PlatformIO`` to enact hardware controls in their respective
+languages.
 
 Listing All Available Controls
 """"""""""""""""""""""""""""""
@@ -635,6 +649,7 @@ Writing Controls
 
         // Write the current CPU frequency for core 0 to 3.0 GHz
 
+        #include <limits.h>
         #include <stdio.h>
         #include <geopm_topo.h>
         #include <geopm_pio.h>
@@ -642,7 +657,7 @@ Writing Controls
 
         int main (int argc, char** argv)
         {
-            char err_msg[1024];
+            char err_msg[PATH_MAX];
 
             int err = geopm_pio_write_control("CPU_FREQUENCY_MAX_CONTROL",
                                               GEOPM_DOMAIN_CORE,
@@ -650,7 +665,7 @@ Writing Controls
                                               3.0e9);
 
             if (err != 0) {
-                geopm_error_message(err, err_msg, 1024);
+                geopm_error_message(err, err_msg, PATH_MAX);
                 printf("Err msg = %s\n", err_msg);
             }
 
@@ -700,21 +715,21 @@ one, controls can be disaggregated from a coarse domain to their native domain.
 This happens automatically with ``geopmwrite`` and the corresponding APIs.
 
 Using ``CPU_FREQUENCY_MAX_CONTROL`` as an example, the output in `Listing Control
-Information`_ shows the native domain as ``core``.  If the user desires to
+Information`_ shows the native domain as ``core``.  To
 write the same value to all the cores in a package, simply issue the request at
-the ``package`` domain, and all cores in that package will be written.
-Similarly, to write the same value to all cores in all packages, issue the
-request at the ``board`` domain.
+the ``package`` domain, and the ``CPU_FREQUENCY_MAX_CONTROL`` of all cores in
+that package will be written.  Likewise, to write the same value to all cores
+in all packages, issue the request at the ``board`` domain.
 
-To determine how the disaggregation will occur for a given control, you need to
-examine the aggregation type.  In this example, ``CPU_FREQUENCY_MAX_CONTROL``
-has an aggregation type of ``expect_same``.  When writing this control at a
-more coarse domain than the native one, this means that all the native domains
-will receive the same value as the coarse domain.  This behavior is in place
-for any other aggregation type *except* ``sum``.
+To understand the method of disaggregation for a specific control, you must
+examine its aggregation type.
 
-Controls that use ``sum`` aggregation will have the requested value distributed
-evenly across the native domain.  Taking
+For instance, ``CPU_FREQUENCY_MAX_CONTROL`` has an aggregation type labeled
+``expect_same``. When setting this control at a domain level coarser than its
+native domain, all native domains inherit the same value as the coarser domain.
+This consistent distribution applies to all aggregation types, with the
+exception of ``sum``; controls that use ``sum`` aggregation will have the
+requested value distributed evenly across the native domain.  Taking
 ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT`` as an example, it has the following
 information:
 
@@ -733,19 +748,21 @@ Since the ``package`` domain is contained within the ``board`` domain, writing t
 control at the ``board`` domain will evenly distribute the requested value over
 all the packages in the system.  This means that requesting a 200 W power limit
 at the ``board`` domain will result in each ``package`` receiving a limit of
-100 W.  This can be verified with ``geopmread``.
+100 W.
 
 ----
 
 |:straight_ruler:| Use the Runtime to Measure Application Performance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM Runtime can be leveraged to gather telemetry across the execution of
-an application.  If it is desired to measure a specific part of an application,
-the application code can be annotated with GEOPM markup.  In order to use the
-Runtime with an application, 2 methods can be used: launching the application
-with ``geopmlaunch`` (for use with MPI enabled applications) or manually
-setting up the necessary environment settings and directly calling ``geopmctl``.
+The GEOPM Runtime offers capabilities for collecting telemetry throughout an
+application's execution. If you're aiming to measure a particular segment of an
+application, you can annotate the application code using GEOPM markup.
+
+To integrate the Runtime with an application, you have two options:
+
+1. **geopmlaunch**: Ideal for MPI-enabled applications. Simply launch the application using this method.
+2. **Manual Setup**: This involves configuring the necessary environment settings and directly invoking `geopmctl`.
 
 ``geopmlaunch`` will bring up the Runtime alongside your application using one
 of three launch methods: ``process``, ``pthread``, or ``application``.  The
@@ -772,7 +789,7 @@ Using ``geopmlaunch`` with MPI Applications
 
 When the run has concluded, there will be an output file from the Runtime
 called ``geopm.report`` in the current working directory.  This report file
-contains the summarized hardware telemetry over the course of the run.
+contains a summary of hardware telemetry over the course of the run.
 Time-series data is also available through the use of the ``--geopm-trace``
 option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
 :doc:`geopmlaunch.1`.  For more information about the reports, see:
@@ -793,7 +810,7 @@ generate a report:
    the ``GEOPM_PROFILE`` environment variable set to the **same**
    value.
 2. The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
-   in the environment, or the application binary must be linked
+   in the environment or the application binary must be linked
    directly to ``libgeopm.so.2`` at compile time.
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
@@ -802,19 +819,26 @@ generate a report:
    generating a unique report file per host node over which the non-MPI
    application processes are launched.
 
-Beyond generating a report YAML file, we also show three of the optional
-GEOPM Runtime features.  The first is creating a CSV trace file using
-the ``GEOPM_TRACE`` environment variable.  Additionally, by using the
-``GEOPM_PERIOD`` environment variable we increase the sampling period
-of the controller to 200 milliseconds (default value is 5
-milliseconds). By using the third optional ``GEOPM_PROGRAM_FILTER`` variable,
-we can explicitly list the name of the non-MPI program invovation name
-of the non-MPI process to be profiled. These three options together will inform
-the GEOPM runtime controller (``geopmctl``) to profile the ``sleep`` utility
-and generate a CSV trace file with approximately 50 rows of samples (five
-per-second for ten seconds).  The ``awk`` command in the example selects
-the columns measuring time since application start from column 1, CPU
-energy from column 6, and CPU power from column 8.
+In addition to generating a report in YAML format, the example below
+showcases two optional features of the GEOPM Runtime:
+
+1. **CSV Trace File**: By setting the ``GEOPM_TRACE`` environment
+   variable, you can generate a trace file in CSV format.
+2. **Sampling Period Adjustment**: The ``GEOPM_PERIOD`` environment variable
+   allows you to modify the controller's sampling period. For instance, setting
+   it to 200 milliseconds, up from the default 5 milliseconds, results in
+   approximately 50 rows of samples in the trace file (calculated as five
+   samples per second over ten seconds).
+3. **Specify Invocation Name**: The optional ``GEOPM_PROGRAM_FILTER``
+   environment variable allows you to explicitly list the name of the
+   non-MPI program invovation name of the non-MPI process to be profiled.
+
+These three options together will inform the GEOPM runtime controller
+(``geopmctl``) to profile the ``sleep`` utility and generate a CSV trace
+file with approximately 50 rows of samples (five per-second for ten seconds).
+In the provided example, the ``awk`` command extracts specific columns: time
+since application start (column 1), CPU energy (column 6), and CPU power
+(column 8).
 
 .. code-block:: bash
 
@@ -831,11 +855,6 @@ energy from column 6, and CPU power from column 8.
     $ cat sleep-ten.yaml-$(hostname)
     $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv-$(hostname) | less
 
-.. note::
-
-    Support for profiling non-MPI applications with the Runtime is not
-    available in v2.0.2.  This feature is available in the ``dev``
-    branch and will be included in the next release.
 
 For the full listing of the environment variables accepted by the GEOPM
 runtime, please refer to the `GEOPM Environment Variables
@@ -853,7 +872,7 @@ The Runtime supports the automatic profiling of various application regions thro
 * OpenCL Autodetection (WIP)
 
 The :doc:`GEOPM Profiling API <geopm_prof.3>` enables users to annotate
-specific sections of the target application for profiling.  Sections that are
+specific sections of the target application for profiling.  Each section that is
 annotated will show up as a separate ``Region`` in the report output files from
 the runtime.  An example app could be annotated as follows:
 
@@ -915,16 +934,20 @@ our GitHub repository <https://github.com/geopm/geopm/tree/dev/tutorial>`__.
 Breaking Down Signal/Control Names
 """"""""""""""""""""""""""""""""""
 
-Signal and control names are separated into 2 classes: *low level* and *high
-level*.  *Low level* names have the name prefixed with the ``IOGroup`` name and
-two colons (e.g. ``MSR::PERF_CTL:FREQ``).  For commonly used names or names
-that may be supported by more than one ``IOGroup``, the *high level* name (also
-referred to as an alias) may be used.  For example, the alias
-``CPU_FREQUENCY_STATUS`` maps to ``MSR::PERF_STATUS_FREQ``, and
-``CPU_FREQUENCY_MAX_CONTROL`` maps to ``MSR::PERF_CTL_FREQ``.  When using
-``geopmread`` or ``geopmwrite`` to list all the available signals and controls,
-aliases will be listed first.  Those command-line tools can also be used to
-understand what the aliases maps to.  For example:
+Signal and control names in GEOPM are categorized into two types: low-level and high-level.
+
+- **Low-Level Names**: These are prefixed with the IOGroup name followed by two
+  colons. For instance, ``MSR::PERF_CTL:FREQ`` is a low-level name.
+- **High-Level Names (Aliases)**: These are user-friendly alternatives to
+  commonly used or multi-IOGroup-supported names. For example:
+
+  * Alias ``CPU_FREQUENCY_STATUS`` corresponds to ``MSR::PERF_STATUS_FREQ``.
+
+  * Alias ``CPU_FREQUENCY_MAX_CONTROL`` is linked to ``MSR::PERF_CTL_FREQ``.
+
+When using ``geopmread`` or ``geopmwrite`` to display available signals and
+controls, aliases are presented first. These command-line tools also help
+decipher what each alias represents. For instance:
 
 .. code-block:: bash
 
@@ -961,9 +984,9 @@ For more information about the currently supported aliases and IOGroups, see:
 Using the Programmable Counters
 """""""""""""""""""""""""""""""
 
-The programmable counters available on various CPUs can be leveraged via
-``geopmread`` for command-line usages and through the use of the
-``InitControl`` feature for Runtime usages.
+The programmable counters available on various CPUs can be read with
+``geopmread`` from the command-line and through the use of the
+``InitControl`` API using the Runtime.
 
 First, determine the event code for your desired performance metric.  E.g. for
 Skylake Server, the event names and corresponding codes are listed `here
@@ -985,7 +1008,7 @@ programs the counter to track ``LONGEST_LAT_CACHE.MISS`` on CPU 0:
     $ geopmwrite MSR::IA32_PERFEVTSEL0:EN cpu 0 1
     $ geopmwrite MSR::PERF_GLOBAL_CTRL:EN_PMC0 cpu 0 1
 
-    # Read the counter. Repeat this read operation across whatever you're measuring.
+    # Read the counter. Repeat this read operation after a test scenario.
     $ geopmread MSR::IA32_PMC0:PERFCTR cpu 0
 
 To accomplish this with the Runtime, leverage the :ref:`geopm-init-control

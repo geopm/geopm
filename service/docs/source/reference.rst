@@ -1,9 +1,8 @@
-
 Reference Manual
 ================
 
 
-This reference manual contains the GEOPM manual pages and the signal and control descriptions.
+This reference manual features the GEOPM manual pages along with detailed descriptions of signals and controls.
 
 
 GEOPM Manual Pages

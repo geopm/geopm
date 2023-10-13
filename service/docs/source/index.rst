@@ -4,27 +4,25 @@ Welcome to GEOPM
 ================
 
 
-The Global Extensible Open Power Manager (GEOPM) is a framework for exploring
-power and energy optimizations targeting heterogeneous platforms. The GEOPM
-package provides many built-in features. A simple use case is reading hardware
-counters and setting hardware controls with platform independent syntax using
-a command line tool on a particular compute node. An advanced use case is
-dynamically coordinating hardware settings across all compute nodes used by a
-distributed application in response to the application's behavior and requests
-from the resource manager.
-
+The Global Extensible Open Power Manager (GEOPM) serves as a framework for
+investigating energy and power optimizations geared towards heterogeneous
+platforms. It offers a whole range of built-in functions. A basic use case
+could be reading hardware counters and configuring hardware controls using a
+command line tool on a specific compute node with platform independent syntax.
+On the other hand, an advanced example includes dynamically synchronizing
+hardware settings across all compute nodes of a distributed application in
+response to the application's behavior and requests from the resource manager.
 
 .. image:: https://geopm.github.io/images/github-button.png
    :target: https://github.com/geopm/geopm
    :width: 200
    :alt: View on Github
 
-For access to the latest source code clone the git repo:
+To get the latest source code clone the git repository:
 
 .. code-block:: bash
 
     $ git clone https://github.com/geopm/geopm.git
-
 
 .. toctree::
    :maxdepth: 1
@@ -35,3 +33,4 @@ For access to the latest source code clone the git repo:
    contrib
    devel
    reference
+
