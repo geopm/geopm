@@ -872,14 +872,10 @@ class RawReportCollection(object):
                 except KeyError:
                     pass # No regions in cached report
                 self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
-                # temporary workaround since old format cache is missing unmarked_data
-                try:
-                    self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
-                except:
-                    self._unmarked_reports_df = self._reports_df.loc[self._reports_df['region'] == 'unmarked-region']
+                self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
                 try:
                     self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
-                except:
+                except KeyError:
                     pass
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(self._report_h5_name))
@@ -917,8 +913,6 @@ class RawReportCollection(object):
                 if verbose:
                     sys.stdout.write('Done.\n')
                     sys.stdout.flush()
-            except:
-                raise RuntimeError('<geopm> geopmpy.io: {} could not be read. Try removing and regenerating the cache file.'.format(self._report_h5_name))
 
         else:
             self.parse_reports(report_paths, verbose)
@@ -1037,7 +1031,7 @@ class RawReportCollection(object):
                         _add_column('epoch', cc)
                     epoch_row.update(epoch_data)
                     epoch_df_list.append(pandas.DataFrame(epoch_row, index=[0]))
-                except:
+                except KeyError:
                     pass
 
                 app_row = copy.deepcopy(header)
@@ -1067,7 +1061,7 @@ class RawReportCollection(object):
             epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
             epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
             self._epoch_reports_df = epoch_df
-        except:
+        except KeyError:
             pass
         app_df = pandas.concat(app_df_list, ignore_index=True)
         app_df = app_df.reindex(columns=self._columns_order['app'])
