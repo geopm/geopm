@@ -13,12 +13,12 @@ spec:
        privileged: true
      volumeMounts:
      - name: geopm-mount
-       mountPath: /run/geopm-service
+       mountPath: /run/geopm
      - name: cpu-mount
        mountPath: /dev/cpu
      - name: tmp-mount
        mountPath: /tmp
-     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
+     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm; geopmread >> /etc/geopm/0.DEFAULT_ACCESS/allowed_signals; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
    - name: geopm-client
      image: cmcantal/geopm-service:tumbleweed
      imagePullPolicy: Always
@@ -31,7 +31,7 @@ spec:
        runAsGroup: 10001
      volumeMounts:
      - name: geopm-mount
-       mountPath: /run/geopm-service
+       mountPath: /run/geopm
      - name: tmp-mount
        mountPath: /tmp
      command: ['/usr/bin/sh', '-c', 'sleep 5; for ss in $(geopmread | grep -v SERVICE::); do printf %s= $ss ; if geopmread $ss board 0 2>/dev/null; then echo $ss board 0 >> /tmp/geopmsession-requests.txt; else echo "UNAVAILABLE"; fi; done; for rr in $(cat /tmp/geopmsession-requests.txt | cut -d" " -f 1); do printf %s, $rr; done; echo; geopmsession -t100 -p1 < /tmp/geopmsession-requests.txt; rm /tmp/geopmsession-requests.txt; sleep 3600']

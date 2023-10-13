@@ -267,7 +267,7 @@ communication over gRPC.  The server container host mounts
 drivers.  Also note that both containers share their PID namespace.
 This is required to enable the GEOPM Service to track client process
 lifetime and Unix group membership.  The client container is started
-without privilege, and mounts the ``/run/geopm-service`` directory
+without privilege, and mounts the ``/run/geopm`` directory
 which is shared with the server container.  The interprocess
 communication files used by the service are located in this directory.
 These files include the gRPC Unix Domain Socket (UDS) files, and also
@@ -288,9 +288,9 @@ A human readable version of the server "command" is below:
 .. code-block:: bash
 
    # Fix permissions on shared emptyDir{}
-   chmod 711 /run/geopm-service
+   chmod 711 /run/geopm
    # Update client default read access list to permit all signals
-   geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals
+   geopmread >> /etc/geopm/0.DEFAULT_ACCESS/allowed_signals
    # Create a "client" group corresponding to the runAsGroup option
    groupadd -g 10001 client
    # Create a "client" user corresponding to the runAsUser option

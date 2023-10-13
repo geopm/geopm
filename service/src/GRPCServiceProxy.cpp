@@ -40,7 +40,7 @@ namespace geopm
     }
 
     GRPCServiceProxy::GRPCServiceProxy()
-        : m_grpc_socket("unix:///run/geopm-service/grpc.sock")
+        : m_grpc_socket("unix:///run/geopm/grpc.sock")
         , m_pidfd(-1)
         , m_client(std::make_shared<GEOPMPackage::GEOPMService::Stub>(
                    grpc::CreateChannel(m_grpc_socket,

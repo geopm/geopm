@@ -231,13 +231,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // target, and not the local host socket 50051.
     let channel = Endpoint::try_from("http://[::]:50051")?
         .connect_with_connector(service_fn(|_: Uri| {
-            UnixStream::connect("/run/geopm-service/grpc-private.sock")
+            UnixStream::connect("/run/geopm/grpc-private.sock")
         })).await?;
     let geopm_client = Arc::new(Mutex::new(GeopmServiceClient::new(channel)));
     let geopm_server = GeopmServiceImp {
         geopm_client,
     };
-    let path = "/run/geopm-service/grpc.sock";
+    let path = "/run/geopm/grpc.sock";
     match fs::remove_file(path) {
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => (),
         r => r.expect("failed to remove public socket"),
