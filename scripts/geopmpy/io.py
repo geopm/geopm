@@ -1013,13 +1013,16 @@ class RawReportCollection(object):
 
                 unmarked_row = copy.deepcopy(header)
                 unmarked_row.update(per_host_data)
-                unmarked_data = rr.raw_unmarked(host)
-                for key, val in unmarked_data.items():
-                    unmarked_data[key] = _try_float(val)
-                for cc in unmarked_data.keys():
-                    _add_column('unmarked', cc)
-                unmarked_row.update(unmarked_data)
-                unmarked_df_list.append(pandas.DataFrame(unmarked_row, index=[0]))
+                try:
+                    unmarked_data = rr.raw_unmarked(host)
+                    for key, val in unmarked_data.items():
+                        unmarked_data[key] = _try_float(val)
+                    for cc in unmarked_data.keys():
+                        _add_column('unmarked', cc)
+                    unmarked_row.update(unmarked_data)
+                    unmarked_df_list.append(pandas.DataFrame(unmarked_row, index=[0]))
+                except KeyError:
+                    pass
 
                 epoch_row = copy.deepcopy(header)
                 epoch_row.update(per_host_data)
