@@ -117,6 +117,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def RestoreControl(self, request, context):
         client_id = self._get_client_id(request, context)
         self._platform_service.restore_control(client_id)
+        return geopm_service_pb2.Empty()
 
     def StartProfile(self, request, context):
         client_id = self._get_client_id(request.session_key, context)
