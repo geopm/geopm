@@ -1,6 +1,5 @@
-
-Guide for Service Administrators
-================================
+Service Administrators
+======================
 
 This guide covers GEOPM's integration with the Linux OS, directories
 influenced by GEOPM, the utilization of files within those directories, and a

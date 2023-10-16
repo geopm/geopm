@@ -1,5 +1,5 @@
-Guide to Requirements
-=====================
+Requirements
+============
 
 The GEOPM library depend on several external dependencies for enabling
 certain features. However, most of them are readily available in standard Linux
