@@ -1,25 +1,38 @@
 GEOPM Documentation Guidelines
 ==============================
 
-This guide outline the style specifications for writing or amending reStructuredText (rst) source files for
-the GEOPM project. Please refer to the :ref:`devel:Creating Manuals` section in the :doc:`Guide for GEOPM
-Developers <devel>` for detailed instructions on properly adding new files to the build.
+This guide outlines the style specifications for writing or amending
+reStructuredText (rst) source files for the GEOPM project. Please refer to the
+:ref:`devel:Creating Manuals` section in the :doc:`Guide for GEOPM Developers
+<devel>` for detailed instructions on properly adding new files to the build.
 
 Certain rules such as :ref:`section ordering <docu:Section Ordering>` and the
-property list mentioned in :ref:`low-level signals/controls <docu:Signals/Controls (low
-level)>`, can be verified using the ``geopmlint`` Sphinx builder. Execute ``make
-docs_geopmlint`` command to perform those checks. If it's necessary to alter these checks,
-modify ``service/docs/source/_ext/geopmlint.py``.
+property list mentioned in :ref:`low-level signals/controls
+<docu:Signals/Controls (low level)>`, can be verified using the ``geopmlint``
+Sphinx builder. Execute ``make docs_geopmlint`` command to perform these checks.
+If it's necessary to alter these checks, modify
+``service/docs/source/_ext/geopmlint.py``.
 
 Whitespace
 ----------
-Strive to reduce the usage of whitespace (carriage returns, spaces, and indentation)
-present in the source file. Use only the necessary amount of whitespace required by the rs compiler for your goal.
+
+Strive to minimize the usage of whitespace (carriage returns, spaces, and
+indentation) in the source file. Use only the necessary amount of whitespace
+as required for readability or by the rs compiler for your goal.
+
+Columns in a Line
+-----------------
+
+The number of columns in a source file should not exceed 70 or 80 before
+wrapping the line.  Exceptions are allowed when it is required for compliation
+or similar.  In general, follow the style in the file you are modifying.
 
 Sections
 --------
-Adhere the `Sphinx Documentation for Sections
-<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`, explicitly:
+
+Adhere to the `Sphinx Documentation for Sections
+<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`,
+explicitly:
 
   * ``=`` for page titles
   * ``-`` for sections within a page
@@ -71,7 +84,7 @@ MSR Signals and controls
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 MSRs should be documented in their related ``msr_data_*.json`` file. Apply the
-``geopm-msr-json`` to extract the formatted documentation from a JSON
+``geopm-msr-json`` directive to extract the formatted documentation from a JSON
 definition into a ``rst`` file. See the examples below:
 
 .. code-block:: rst
@@ -97,7 +110,7 @@ revise the ``GeopmMsrJson`` class in the
 
 Aliases
 -------
-The Chapter 7 pages particular to IOGroup should describe how the high-level
+The Chapter 7 pages particular to an IOGroup should describe how the high-level
 alias corresponds to the signals or controls provided by that IOGroup.
 This is an example of a direct 1-to-1 mapping:
 
@@ -111,8 +124,9 @@ It will display as:
 ``CPU_FREQUENCY_MAX_AVAIL``
     Corresponds to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
 
-If the alias does not have a straightforward mapping, then an expanded explanation of how the alias
-is implemented should be provided in the IOGroup specific page.
+If the alias does not have a straightforward mapping, then an expanded
+explanation of how the alias is implemented should be provided in the IOGroup
+specific page.
 
 The :doc:`geopm_pio(7) <geopm_pio.7>` page should explain the high-level alias
 in full sentence descriptions. Here's an example:
