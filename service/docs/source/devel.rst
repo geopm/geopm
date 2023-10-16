@@ -103,8 +103,10 @@ options and environment variables are listed below:
 - Service configure script
 
 * ``--enable-nvml``: Adds support for the Nvidia NVML library
+* ``--enable-dcgm``: Adds support for the Nvidia DCGM library
 * ``--enable-levelzero``: Adds support for OneAPI LevelZero
 * ``--disable-systemd``: Excludes GEOPM service access from PlatformIO
+* ``--disable-io-uring``: Disable support for libiouring for batch IO operations
 
 - Base configure script
 
@@ -112,6 +114,7 @@ options and environment variables are listed below:
 * ``--disable-mpi``: Excludes MPI dependencies from the base directory build
 * ``--disable-fortran``: Excludes Fortran dependencies from the base directory build
 * ``--disable-openmp``: Excludes OpenMP dependencies from the base directory build
+* ``--disable-geopmd-local``: Use system installed geopmd package, do not use local service build
 * ``export FC=``: Set the Fortran compiler with an environment variable
 * ``export F77=``: Set the Fortran 77 compiler with an environment variable
 * ``export MPICC=``: Set the MPI C compiler wrapper with an environment variable
@@ -126,20 +129,22 @@ the following variables prior to configuring the base build of the GEOPM reposit
 
 .. code-block:: bash
 
-    export CC=icc
-    export CXX=icpc
-    export FC=ifort
-    export F77=ifort
+    export CC=icx
+    export CXX=icpx
+    export FC=ifx
+    export F77=ifx
+    export F90=ifx
     export MPICC=mpiicc
     export MPICXX=mpiicpc
+    export MPIFORT=mpiifort
     export MPIFC=mpiifort
     export MPIF77=mpiifort
+    export MPIFR90=mpiifort
 
 We recommend using the system compiler toolchain for compiling the
 GEOPM service when creating an installed RPM.  The ``make rpm`` target
 of the service directory uses the geopm-service spec file to ensure
 that the system GCC toolchain is used to create the RPM.
-
 
 Coverage Instructions
 ---------------------
@@ -172,7 +177,6 @@ which runs the corresponding unit tests and produces a coverage report in
 Note that all tests must pass in order to generate a coverage report.
 Any help in increasing code coverage levels is appreciated.
 
-
 Coding Style
 ------------
 
@@ -185,7 +189,6 @@ using astyle with the following options:
 .. code-block::
 
    astyle --style=linux --indent=spaces=4 -y -S -C -N
-
 
 Note that astyle is not perfect (in particular it is confused by C++11
 initializer lists), and some versions of astyle will format the code
@@ -202,6 +205,10 @@ statically to the compilation unit.
 Avoid preprocessor macros as much as possible (use enum not #define).
 Preprocessor usage should be reserved for expressing configure time
 options.
+
+The number of columns in a source file should not exceed 70 or 80 before
+wrapping the line.  Exceptions are allowed when it is required for compliation
+or similar.  In general, follow the style in the file you are modifying.
 
 Pre-Commit Checks
 -----------------
@@ -227,7 +234,6 @@ committing the new file to git, and rerunning the autogen.sh script.
 Files for which a license comment is not appropriate should be listed
 in copying_headers/MANIFEST.EXEMPT.  Any new installed files should
 also be added to geopm-runtime.spec.in or service/geopm-service.spec.in.
-
 
 Creating Manuals
 ----------------
