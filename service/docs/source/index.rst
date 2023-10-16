@@ -3,7 +3,6 @@
 Welcome to GEOPM
 ================
 
-
 The Global Extensible Open Power Manager (GEOPM) serves as a framework for
 investigating energy and power optimizations geared towards heterogeneous
 platforms. It offers a whole range of built-in functions. A basic use case
@@ -33,4 +32,3 @@ To get the latest source code clone the git repository:
    contrib
    devel
    reference
-

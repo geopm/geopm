@@ -1,5 +1,5 @@
-GEOPM Developer Guide
-=====================
+Guide for GEOPM Developers
+==========================
 
 If you wish to modify the source code in the GEOPM git repository, this
 guide provide instructions for the process. The GEOPM repository utilizes

@@ -1,5 +1,5 @@
-Service Installation Guide
-==========================
+Installation
+============
 
 Each time specified branches hosted on GitHub are updated, continuous
 integration generates packages for numerous Linux distributions. This

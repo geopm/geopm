@@ -1,5 +1,5 @@
-Guide to Service Security
-=========================
+Service Security
+================
 
 This document explains the objectives, mechanisms, assets and threats
 associated with the design of the GEOPM Service security architecture. It
