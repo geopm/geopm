@@ -129,6 +129,7 @@ Signals
 
 ``NVML::GPU_CORE_FREQUENCY_STEP``
     The Streaming Multiprocessor frequency step size in hertz.  The average step size is provided in the case where the step size is variable.
+
     *  **Aggregation**: expect_same
     *  **Domain**: gpu
     *  **Format**: double

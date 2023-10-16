@@ -96,7 +96,7 @@ Skylake (SKX) Signals
     of PCNT divided by the derivative of ACNT over 8 samples.
 
     *  **Aggregation**: average
-    *  **Domain**: matches MSR::PPERF:PCNT
+    *  **Domain**: cpu
     *  **Format**: double
     *  **Unit**: none
 
