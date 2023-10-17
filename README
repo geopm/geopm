@@ -4,7 +4,7 @@ GEOPM - Global Extensible Open Power Manager
 ============================================
 
 [![Build Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
-[![version](https://img.shields.io/badge/version-2.0.2-blue)](https://github.com/geopm/geopm/releases)
+[![version](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/geopm/geopm/releases)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 
@@ -116,6 +116,13 @@ the `geopm` packages.
 Status
 ------
 
+GEOPM version 3.0 enables the GEOPM Runtime to be used with any
+application.  It shifts responsibility for managing inter-process
+communication between the application and the GEOPM controller to the
+GEOPM Service.  The start up of the GEOPM runtime is done by the
+libgeopm library initialization rather than through interposition on
+MPI initialization functions.
+
 GEOPM version 2.0 provides a number of important changes since the
 previous tagged release v1.1.0.  Some of the most significant new
 features are the GEOPM Service, support for Intel and NVIDIA GPUs, and
@@ -136,7 +143,8 @@ interfaces may change before they are included in official releases.
 To enable these features in the GEOPM install location, configure
 GEOPM with the `--enable-beta` configure flag.  The features currently
 considered unfinalized are the endpoint interface, and the
-`geopmendpoint` application.
+`geopmendpoint` application.  The CPU-CA and GPU-CA agents are also
+beta features.
 
 The GEOPM developers are very interested in feedback from the
 community.  See the [contributing guide](CONTRIBUTING.md) to learn how
@@ -151,7 +159,7 @@ SEE COPYING FILE FOR LICENSE INFORMATION.
 
 Last Update
 -----------
-2022 August 23
+2023 October 17
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 Brad Geltz <brad.geltz@intel.com> <br>
