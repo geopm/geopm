@@ -4,7 +4,6 @@ User Guide for GEOPM Runtime
 The GEOPM Runtime is for software designed to enhance energy efficiency of
 applications through active hardware configuration.
 
-
 User Model
 ----------
 
@@ -17,7 +16,7 @@ challenges:
 
 For hardware tuning algorithms, the first challenge involves generating a
 durable estimate of application performance. In energy efficiency terms,
-performance measurements are power-to-performance ratios, for example,
+performance measurements are performance-to-power ratios, for example,
 "perf per watt". Therefore, any dynamic hardware power control tuning
 that aims for energy efficiency must formulate an estimate of application
 performance. Without specific application feedback on the critical path,
@@ -44,7 +43,7 @@ for data analysis. To effectively enhance energy efficiency for certain
 applications, substantial software dependencies may be required. Control
 algorithms might lean on optimization software like machine learning
 packages or other numerical packages. The application being optimized could
-include millions of lines of code, and there may be significant interlinking
+include millions of lines of code, and there may be significant coupling
 between the application and the control algorithm. Limiting the privileges
 of the process running the control algorithm significantly reduces software
 security audit requirements.
@@ -52,12 +51,12 @@ security audit requirements.
 Introduction
 ------------
 
-GEOPM Runtime creates a bridge between GEOPM’s :doc:`application
+The GEOPM Runtime creates a bridge between GEOPM’s :doc:`application
 instrumentation interfaces <geopm_prof.3>` and :doc:`platform
 monitoring/control interfaces <geopm_pio.7>`.
 
 By default, the GEOPM Runtime presents relationships between application
-instrumentation and platform-monitoring interfaces in a report. For more
+instrumentation and platform-monitoring interfaces in a *report*. For more
 complex interactions, such as dynamic control of platform settings, different
 GEOPM *agents* can be utilized.  For more information on user-facing GEOPM
 Runtime launch options, please refer to :doc:`geopmlaunch(1)<geopmlaunch.1>`
@@ -82,13 +81,13 @@ documentation.
   .. code-block:: console
     :caption: Examples using ``geopmlaunch``
 
-    $ # Launch with srun and examine the generated GEOPM report
+    # Launch with srun and examine the generated GEOPM report
     $ geopmlaunch srun -N 1 -n 20 -- ./my-app
     $ less geopm.report
-    $ # Launch with Intel mpiexec and examine the generated GEOPM report
+    # Launch with Intel mpiexec and examine the generated GEOPM report
     $ geopmlaunch impi -n 1 -ppn 20 -- ./my-app
     $ less geopm.report
-    $ # Display all options and available launchers
+    # Display all options and available launchers
     $ geopmlaunch --help
 
 .. admonition:: Quick start for Non-MPI applications
@@ -194,14 +193,16 @@ requirements, or by providing the disable flag to the configure command
 line, users may skip particular GEOPM Runtime features enabled by these
 requirements.
 
-The GEOPM Runtime requires MPI standards, Message Passing Interface,
-version 2.2 or later. Fulfilling this requirement generally depends on the
-specific HPC resource targeted based on site-specific documentation. The
-Intel MPI implementation, OpenHPC or Spack packaging systems, or OpenMPI
-binaries distributed with most major Linux distributions satisfy this
-requirement. For RHEL and SLES Linux, the requirement can be met by installing
-the ``openmpi-devel`` package version 1.7 or later, and ``libopenmpi-dev``
-on Ubuntu.
+The GEOPM Runtime provides optional support for MPI standards, Message Passing
+Interface, version 2.2 or later.  Building the Runtime with MPI support will
+add MPI related region information to the reports as well as enable Agents that
+leverage the hierarchical communications tree (just the ``power_balancer`` at
+the time of this writing).  If building for an HPC system, target the desired
+site-specific MPI implementation.  Otherwise the Intel MPI implementation,
+OpenHPC or Spack packaging systems, or OpenMPI binaries distributed with most
+major Linux distributions satisfy this requirement. For RHEL and SLES Linux,
+the requirement can be met by installing the ``openmpi-devel`` package version
+1.7 or later, and ``libopenmpi-dev`` on Ubuntu.
 
 * Install all requirements on **RHEL** or **CentOS**
 
@@ -340,7 +341,7 @@ application and the GEOPM control thread on each compute node, and manages
 all process CPU affinity requirements. This wrapper is documented in the
 :doc:`geopmlaunch(1)<geopmlaunch.1>` man page.
 
-``Geopmlaunch`` supports various underlying MPI application launchers
+``geopmlaunch`` supports various underlying MPI application launchers
 as shown in the :doc:`geopmlaunch(1)<geopmlaunch.1>` man page. If your
 system's launch mechanism is not supported, then you must enforce affinity
 requirements, and all options to the GEOPM runtime must be passed through
