@@ -10,7 +10,16 @@ interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter
 Requirements
 ^^^^^^^^^^^^
 
-To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.To compile against the oneAPI LevelZero libraries geopm must be configured using both the --enable-nvml flag and the --enable-dcgm flag.  The optional --with-dcgm flag may be used to indicate the path of the required libraries.
+To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.  
+To compile against the oneAPI LevelZero libraries geopm must be configured using both the ``--enable-nvml flag`` and the ``--enable-dcgm`` flag.  
+The optional ``--with-dcgm`` flag may be used to indicate the path of the required libraries.
+
+The DCGM IOGroup requires an instance of nv-hostengine be running on the node prior to loading the IOGroup.   
+For DCGM installation and usage information see the `DCGM Getting Started Guide <https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/getting-started.html>`
+The DCGM IOGroup will connect to a running nv-hostengine instance if it is available when the geopm service is started.  
+If the nv-hostengine is stopped the geopm DCGM Signals will throw an error of the form: "Error getting latest values for fields in read_batch: Host engine connection invalid/disconnected"
+Restarting the nv-hostengine and the geopm service are required to restore access to DCGM signals.
+
 
 Signals
 -------
