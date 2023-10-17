@@ -205,19 +205,6 @@ Please note that the packages listed above do not offer the :doc:`GEOPM Runtime
 For information on how to install the GEOPM Runtime, see :doc:`GEOPM Runtime
 <runtime>`.
 
-.. MOVE THIS ALL TO A NEW RUNTIME INSTALLATION PAGE
-.. The GEOPM HPC Runtime should be built against a specific implementation of
-.. MPI, often unique to the system running the HPC application. An exception to
-.. this rule is the OpenHPC distribution. We've packaged GEOPM version 1 with
-.. `OpenHPC releases <http://openhpc.community/downloads/>`_, and we hope to
-.. offer version 2 in the future.
-
-.. The packages above don't provide support for NVIDIA GPUs with NVML or
-.. DCGM. This support depends on libraries not included in the OpenSUSE OBS
-.. build system where the GEOPM packages are curated. To enable the use of NVML,
-.. or DCGM, you will need to source-build the GEOPM Service, which requires
-.. an environment supporting the dependency libraries and headers.
-
 For GEOPM features not included in these packages, build GEOPM from
 source. The best instructions for this process can be found in the
 :ref:`developer build process <devel:developer build process>` within the

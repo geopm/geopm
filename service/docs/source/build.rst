@@ -4,14 +4,14 @@ Source Builds
 This documentation provides build instructions for administrators who are
 interested in installing the GEOPM Service based on a checkout from the GEOPM
 git repository. Following these instructions will assist users in creating RPM
-or debian (DEB) packages compatible with various Linux distributions.
+or debian packages compatible with various Linux distributions.
 
 We have tested packages created through this process on SLES 15 SP3 and SP4,
 as well as Ubuntu jammy 22.04.  Feedback from installations on other
 distributions such as CentOS, openSUSE Leap, and Fedora would be greatly
 appreciated.
 
-GEOPM Service installation is available via both RPM and DEB packages. These
+GEOPM Service installation is available via both RPM and debian packages. These
 packages provide cross-Linux-distribution compatibility for the installation of
 the systemd service and facilitate a clean uninstallation process.
 
@@ -43,8 +43,8 @@ These commands create the GEOPM service RPM files in your rpmbuild directory:
     $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
 
-Building GEOPM Service DEBs
----------------------------
+Building GEOPM Service Debian Packages
+--------------------------------------
 
 Use the following bash commands:
 
@@ -56,7 +56,8 @@ Use the following bash commands:
     ./configure
     make deb
 
-These commands create the GEOPM service DEB files in your current working directory, e.g.:
+These commands create the GEOPM service debian packages  in your current working
+directory, e.g.:
 
 .. code-block:: bash
 

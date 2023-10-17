@@ -1,6 +1,5 @@
-
-Guide for Contributors
-======================
+GEOPM Contributor Guide
+=======================
 
 This file describes how to contribute to the GEOPM project.  All
 feedback is appreciated.

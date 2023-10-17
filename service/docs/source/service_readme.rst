@@ -12,8 +12,8 @@ Features
 
 |:microscope:| Hardware Telemetry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  User can use a vendor-agnostic interface to read telemetry from hardware
-  components on heterogeneous systems.
+  Use a vendor-agnostic interface to read telemetry from hardware components on
+  heterogeneous systems.
 
 
 |:gear:| Hardware Configuration
@@ -36,9 +36,9 @@ Features
 
 |:rocket:| Performance
 ~~~~~~~~~~~~~~~~~~~~~~
-  DBus interface can be utilized by the user for the creation of a batch
-  server. The server provides a low-latency interface with a single permissions
-  validation when the server is created.
+  A DBus interface can be utilized for the creation of a batch server. The
+  server provides a low-latency interface with a single permissions validation
+  when the server is created.
 
 
 |:electric_plug:| Extensibility
@@ -115,7 +115,35 @@ Access Management
 
 System administrators configure the access to signals and controls through the
 GEOPM Service. The administrator maintains an access list that applies to all
-users of the system. Special Unix groups can have enhanced access.
+users of the system. Special Unix groups can have enhanced access.  The default
+lists are stored in:
+
+.. code-block::
+
+   /etc/geopm/0.DEFAULT_ACCESS/allowed_signals
+   /etc/geopm/0.DEFAULT_ACCESS/allowed_controls
+
+Each Unix group name ``<GROUP>`` that has extended permissions can
+maintain one or both of the files
+
+.. code-block::
+
+   /etc/geopm/<GROUP>/allowed_signals
+   /etc/geopm/<GROUP>/allowed_controls
+
+.. note::
+
+   Before GEOPM 3.0, service configuration files were stored in
+   ``/etc/geopm-service``. Since version 3.0, they are stored in
+   ``/etc/geopm``. Version 3.0 ignores the old file location if the new
+   location exists. If the service uses a configuration from the old location,
+   then a deprecation warning is emitted.
+
+Any missing files are inferred to be empty lists, including the default access
+files.  A signal or control will not be available to non-root users through the
+GEOPM Service until a system administrator enables access through these allow
+lists.  It is recommended that all manipulation of these files should be done
+through the GEOPM Service with the ``geopmaccess`` command line tool.
 
 All control settings can be read by requesting the signal with the same name.
 Whenever a control name is added to the access list for writing, the
@@ -154,6 +182,15 @@ restored to the value they had when the session was converted,
 regardless of whether or not they were adjusted during the session
 through the service.
 
+In addition to saving the state of controls, the GEOPM Service will
+also lock access to controls for any other client until the
+controlling session ends.  When the controlling session ends the saved
+state is used to restore the values for all controls supported by the
+GEOPM Service to the values they had prior to enabling the client to
+modify a control.  The controlling session may end by an explicit
+D-Bus call by the client, or when the process that initiated the
+client session ends.  The GEOPM Service will poll procfs for the
+process ID.
 
 Batch Server
 ------------

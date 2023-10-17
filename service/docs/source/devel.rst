@@ -1,5 +1,5 @@
-Guide for GEOPM Developers
-==========================
+GEOPM Developer Guide
+=====================
 
 If you wish to modify the source code in the GEOPM git repository, this
 guide provide instructions for the process. The GEOPM repository utilizes
@@ -124,6 +124,10 @@ options and environment variables are listed below:
 
 Intel Compiler and MPI Toolchain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. TODO this section and runtime->Build Requirements need to be refactored.
+   IMO all this text belongs in the runtime.rst.
+
 To enable the use of the Intel toolchain for both the compiler and MPI support, export
 the following variables prior to configuring the base build of the GEOPM repository:
 
