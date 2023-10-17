@@ -149,30 +149,48 @@ package manager, you must specify all of the required packages at install time
 Ubuntu
 ^^^^^^
 
-Presently, there is only one configuration of GEOPM available for installation
-on Ubuntu.  It is tied to the ``dev`` branch,  built with Nvidia support only,
-and can be utilized via the following commands:
+There are 2 repostories that are maintained for GEOPM support on Ubuntu: one
+corresponding to the ``release-v3.0`` branch while the other corresponds to the
+``dev`` branch.  Both are built with Nvidia GPU support **only**.
+
+First, add the necessary upstream repository:
 
 .. code-block:: bash
 
-    # Add the upstream repo
-    $ add-apt-repository ppa:cmcantal/geopm-dev
-    $ apt update
+    # ONLY DO ONE OF THE FOLLOWING add-apt-repository COMMANDS:
+
+    # Add the release repo:
+    $ sudo add-apt-repository ppa:geopm/release
+    # OR add tre dev repo:
+    $ sudo add-apt-repository ppa:geopm/dev
+
+Then pull all the current updates, install GEOPM, start/enable the service, and
+configure the initial access lists:
+
+.. code-block:: bash
+
+    $ sudo apt update
     $ apt install geopm-service libgeopmd-dev libgeopmd2 python3-geopmdpy
     # Start and enable the service
-    $ systemctl start geopm
-    $ systemctl enable geopm
+    $ sudo systemctl start geopm
+    $ sudo systemctl enable geopm
     # Setup initial access: all users can access all signals and controls
-    $ geopmaccess -a | geopmaccess -w
-    $ geopmaccess -ac | geopmaccess -wc
+    $ sudo geopmaccess -a | sudo geopmaccess -w
+    $ sudo geopmaccess -ac | sudo geopmaccess -wc
 
-For more information see: `GEOPM repo on Launchpad
-<https://launchpad.net/~cmcantal/+archive/ubuntu/geopm-dev>`__
+For more information see:
 
-.. note::
+ * `GEOPM release repo on Launchpad
+   <https://launchpad.net/~geopm/+archive/ubuntu/release>`__
+ * `GEOPM dev repo on Launchpad
+   <https://launchpad.net/~geopm/+archive/ubuntu/dev>`__
 
-   Source builds that use ``--enable-nvml`` require the following package to be
-   installed: ``libnvidia-ml-dev``
+
+.. MOVE TO SOURCE BUILD PAGE
+.. .. note::
+
+..    Source builds that use ``--enable-nvml`` require the following package to be
+..    installed: ``libnvidia-ml-dev``
 
 ----
 
