@@ -181,8 +181,10 @@ def secure_make_file(path, contents):
     directory, and then renaming the file after it is closed.
 
     The rename operation is atomic, and will overwrite any existing
-    file located in the specified path.  The permissions on the output
-    file are mode 0o600 with uid and gid matching the process values.
+    file located in the specified path (unless it is a directory, in
+    which case an excaption will be raised).  The permissions on the
+    output file are mode 0o600 with uid and gid matching the process
+    values.
 
     The temporary file has the prefix `tmp.`. This file may persist if
     the program exits abruptly.
@@ -191,6 +193,10 @@ def secure_make_file(path, contents):
         path (str): The path where the file is created
 
         contents (str): The contents of the created file
+
+    Raises:
+        IsADirectoryError: The provided path already exists and is a
+                           directory
 
     """
     directory = os.path.dirname(os.path.abspath(path))
