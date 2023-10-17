@@ -120,7 +120,7 @@ and another (if requested) to provide the user interface control for
 writing.  The client makes requests to read, write, or quit through
 a FIFO channel, connecting them to the batch server. A second FIFO
 communicates to the client when requests are complete. These FIFOs are
-opened in ``/tmp``, which systemd sets up by default as a `tmpfs(5)
+opened in ``/run/geopm``, which systemd sets up by default as a `tmpfs(5)
 <https://man7.org/linux/man-pages/man5/tmpfs.5.html>`__.
 
 
@@ -264,7 +264,7 @@ relaxed based on settings enabled by a system administrator.
 
 
 User Data
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^
 
 Any interaction between each client and the GEOPM Service is considered
 private information and should be protected. Therefore, unprivileged users
@@ -308,7 +308,7 @@ FIFO Special Files
 ^^^^^^^^^^^^^^^^^^
 
 To support GEOPM Service's batch server features, FIFO special files are
-created in the ``/tmp`` directory, working in tandem with inter-process
+created in the ``/run/geopm`` directory, working in tandem with inter-process
 shared memory. These FIFOs act as synchronization mechanisms, facilitating
 notifications between the client and server regarding shared memory data
 updates. Unauthorized access to these files might result in batch server or
@@ -359,25 +359,75 @@ or incorrect data that might compromise or misconfigure the system. Similarly,
 all outputs are checked to prevent the disclosure of private or malicious
 data. Two main interfaces are available to end users: the ``io.github.geopm``
 DBus interface via systemd and the batch server interface accessible through
-inter-process shared memory and FIFO special files in ``/tmp``.
+inter-process shared memory and FIFO special files in ``/run/geopm``.
 
 File Usage/Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-To ensure data security as GEOPM reads/writes configuration files, several
-precautions are taken. These include confirming that input files aren't
-misleading symbolic links, ensuring all temporary files are appropriately
-managed, and verifying the security settings of used temporary files
-and directories. GEOPM uses disk files for various purposes, such as
-facilitating user/group access to privileged signals/controls, storing
-active client session data, and saving initial hardware control states for
-potential reversion. Temporary files and move operations ensure complete and
-valid data write operations to secure locations. GEOPM also takes measures
-to counter threats by extensively inspecting files/directories intended
-for input. GEOPM doesn't provide user-facing APIs that accept paths. All
-directory paths are hard-coded within the GEOPM Service. Comprehensive
-information on file and directory security can be found in `system_files.py
-<https://github.com/geopm/geopm/blob/dev/service/geopmdpy/system_files.py>`__.
+As GEOPM reads and writes configuration files to disk, it is important
+to validate that the file usage is done as securely as possible. This
+includes verifying an input file is not a symbolic link to an
+unintended resource, verifying that all temporary files are cleaned up
+properly, and that the temporary files and directories that are used
+do not have excessive permissions.
+
+The GEOPM Service utilizes files on disk to support several behaviors
+including facilitating user/group access to privileged
+signals/controls, storing state information about in-progress client
+sessions, and saving the initial state of hardware controls so that
+any control changes may be reverted. GEOPM utilizes temporary files
+and move semantics to ensure that files written to the secure
+locations previously described are complete and have valid data.
+
+GEOPM mitigates threats in this space by performing several checks on
+any files/directories used for input. Note that there are no user
+facing APIs provided by the GEOPM Service that take paths as
+input. All directory paths used in the GEOPM Service are statically
+defined in the source code.
+
+A secure API for dealing with files and directories resides in
+`system_files.py <https://github.com/geopm/geopm/blob/dev/service/geopmdpy/system_files.py>`__.
+The functions that match the pattern system_files.secure_*() are the
+only interfaces called by the GEOPM Service to access files located in
+``/etc`` and ``/run``. These secure functions are used to make
+directories and any input or output to these system files.
+
+When making directories, if the path already exists checks are
+performed to ensure: the path is a regular directory, the path is not
+a link, the path is accessible by the caller, the path is owned by the
+calling process UID/GID, and the permissions on the directory are set
+to the right permissions (chosen to be as restrictive as possible). If
+the path is determined to be insecure, the existing path is renamed to
+indicate it is invalid and preserved for later auditing. In this case
+a new directory will be created at the specified path. If the path did
+not already exist, a new directory is created with the proper
+permissions.
+
+By default, directories are created with 0o700 permissions (i.e. rwx
+only for the owner). Some directories, for example
+``/run/geopm``, also require execution permissions (i.e.
+0o711). For more details on how directories are created and default
+permissions, please see the :ref:`system_files.py <geopmdpy.7:geopmdpy.system_files>`
+documentation
+
+When making files, a temporary file is first created with 0o600 or
+owner rw only permissions. The desired contents are then written to
+this temporary file. Once writing is complete, the temporary file is
+renamed to the desired path while preserving the 0o600
+permissions. This rename is atomic, so it is not possible for files to
+exist with partial/corrupt data. Any existing file at the desired
+location will be overwritten.
+
+When reading files, first the path's security is verified.  The
+implementation asserts that the path describes an existing regular
+file which is not a link nor a directory.  After the path is verified,
+a file descriptor is opened referencing the path and this file
+descriptor's security is verified.  The implementation asserts that
+the descriptor refers to a regular file owned by the calling process
+UID/GID and that the file descriptor has minimal permissions
+(i.e. 0o600 or rw for the owner only).  After these assertions have
+been made, the implementation reads the entire file contents into a
+string buffer and the file descriptor is closed.
 
 External Dependencies
 ^^^^^^^^^^^^^^^^^^^^^
@@ -386,11 +436,20 @@ The GEOPM Service relies on shared libraries for user plugins related to
 IOGroups and Agents. These plugins are expected to be in a specific disk
 path set by system administrators. Only validated shared objects in this
 designated location are loaded during service startup and used upon user
-request. By default, the ``GEOPM_PLUGIN_PATH`` environment variable isn't
-exported before launching ``geopmd``, disabling this feature. GEOPM also
-uses third-party JSON libraries for C/C++ runtime and multiple Python modules
-for the GEOPM Service. Nightly integration tests ensure the latest versions
-of these external Python modules function as expected, with any issues being
-promptly reported to developers. For C/C++ JSON usage, the upstream repository
-is regularly checked to confirm the GEOPM-hosted code remains current.
+request.
+
+The GEOPM Service is a systemd service unit which is
+configured through the
+`systemd.service(5) <https://man7.org/linux/man-pages/man5/systemd.service.5.html>`__
+file.  The configuration file provided with the GEOPM source code,
+`geopm.service <https://github.com/geopm/geopm/blob/dev/service/geopm.service>`__,
+does not export the ``GEOPM_PLUGIN_PATH`` environment variable before
+launching ``geopmd``, so this feature is disabled by default.
+
+GEOPM also uses third-party JSON libraries for C/C++ runtime and multiple
+Python modules for the GEOPM Service. Nightly integration tests ensure the
+latest versions of these external Python modules function as expected, with any
+issues being promptly reported to developers. For C/C++ JSON usage, the
+upstream repository is regularly checked to confirm the GEOPM-hosted code
+remains current.
 

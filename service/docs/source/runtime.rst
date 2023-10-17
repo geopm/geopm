@@ -341,13 +341,13 @@ application and the GEOPM control thread on each compute node, and manages
 all process CPU affinity requirements. This wrapper is documented in the
 :doc:`geopmlaunch(1)<geopmlaunch.1>` man page.
 
-``geopmlaunch`` supports various underlying MPI application launchers
-as shown in the :doc:`geopmlaunch(1)<geopmlaunch.1>` man page. If your
-system's launch mechanism is not supported, then you must enforce affinity
+The ``geopmlaunch`` command supports various underlying MPI application
+launchers as shown in the :doc:`geopmlaunch(1)<geopmlaunch.1>` man page. If
+your system's launch mechanism is not supported, then you must enforce affinity
 requirements, and all options to the GEOPM runtime must be passed through
-environment variables. Please consult the :doc:`geopm(7)<geopm.7>` man page
-for documentation of the environment variables used by the GEOPM runtime
-that would otherwise be controlled by the wrapper script.
+environment variables. Please consult the :doc:`geopm(7)<geopm.7>` man page for
+documentation of the environment variables used by the GEOPM runtime that would
+otherwise be controlled by the wrapper script.
 
 CPU Affinity Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^

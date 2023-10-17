@@ -18,7 +18,7 @@ Whitespace
 
 Strive to minimize the usage of whitespace (carriage returns, spaces, and
 indentation) in the source file. Use only the necessary amount of whitespace
-as required for readability or by the rs compiler for your goal.
+as required for readability or by the reStructuredText compiler for your goal.
 
 Columns in a Line
 -----------------
