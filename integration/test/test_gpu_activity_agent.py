@@ -80,12 +80,24 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         )
 
         # DGEMM GPU Freq Sweep
-        launch_helper(gpu_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg)
+        if util.get_service_config_value('enable_nvml') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
+            app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
+        elif util.get_service_config_value('enable_levelzero') == '1':
+            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                                    "apps/parres/Kernels/Cxx11/dgemm-onemkl")
+            app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
+        if not os.path.exists(app_path):
+            self.fail("Neither NVIDIA or Intel dgemm variant was found")
+
+        launch_helper(gpu_frequency_sweep, experiment_args, app_conf, [])
+
         ##############
         # Parse data #
         ##############
         df_frequency_sweep = geopmpy.io.RawReportCollection('*report', dir_name=cls._aib_uncore_freq_sweep_dir).get_df()
-        gpu_config = gen_cpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep, mach, 0, True) #TODO: Consider false
+        gpu_config = gen_gpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep, mach, 0, True) #TODO: Consider false
 
         # Write config
         json_config = json.dumps(gpu_config, indent=4)
