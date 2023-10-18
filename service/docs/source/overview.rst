@@ -51,17 +51,7 @@ General Users (non-ALCF)
 """"""""""""""""""""""""
 
 For users who are running one of our supported Linux distributions, see the
-following for installation instructions: :doc:`install`.  The GEOPM Runtime
-must be built from source and installed manually if desired.  For instructions
-on that process see: :doc:`devel`.
-
-.. note::
-
-    For usage with GPUs, please use the level-zero enabled RPMs here:
-
-    * SLES 15.3 (`v2.0.2 <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-supplementary/15.3/x86_64/>`__, `latest <https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.3/x86_64/>`__)
-    * SLES 15.4 (`v2.0.2 <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-supplementary/15.4/x86_64/>`__, `latest <https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.4/x86_64/>`__)
-    * CentOS 8 (`v2.0.2 <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-supplementary/CentOS_8/x86_64/>`__, `latest <https://download.opensuse.org/repositories/home:/geopm:/supplementary/CentOS_8/x86_64/>`__)
+following for installation instructions: :doc:`install`.
 
 Admin Configuration
 """""""""""""""""""
