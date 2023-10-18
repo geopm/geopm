@@ -1,4 +1,4 @@
-* Tue Oct 17 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.0.0
+* Wed Oct 18 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.0.0
 - Official v3.0.0 release tag.
 - GEOPM Runtime support for non-MPI applications.
 - Integration with OpenPBS though plugins and launcher support.
@@ -15,7 +15,8 @@
 - GEOPM_INIT_CONTROL / --geopm-init-control to write a batch of controls at application startup.
 - GEOPM_CTL_LOCAL / --geopm-ctl-local disable controller's use of MPI.
 - GEOPM_PROGRAM_FILTER / --geopm-program-filter to select processes for profiling.
-- GEOPM_NUM_NODE sets number of nodes for controller process.
+- GEOPM_NUM_PROC sets number of process per node for controller process.
+- GEOPM_PERIOD set the sample period for controller in units of seconds.
 - geopmlaunch support for PALS.
 - geopmlaunch --geopm-preload option required for ld preloading libgeopm.so, not on by default.
 - Default for --geopm-ctl is now "application".

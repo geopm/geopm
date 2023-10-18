@@ -21,6 +21,10 @@ geopm_abi_version=2:0:0
 AC_SUBST(geopm_abi_version)
 AC_DEFINE_UNQUOTED([GEOPM_ABI_VERSION], ["$geopm_abi_version"], [GEOPM shared object version])
 
+DATE=`LANG=C date -R`
+AC_SUBST(DATE)
+AC_DEFINE_UNQUOTED([DATE], ["$DATE"], [Date string suitable for debian changelog])
+
 LT_PREREQ([2.2.6])
 
 AC_ARG_VAR([MPICC],
