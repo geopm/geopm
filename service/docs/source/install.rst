@@ -93,12 +93,6 @@ See below for download repository information for your Linux distribution.
 SLES, OpenSUSE, and CentOS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. warning::
-
-   The following links and branches need to be double checked prior to
-   publishing.  The 3.0 configurations still need to be created on OBS, and
-   need to be mapped in GH CI.
-
 When using the below links, it is preferable to click on your desired OS and
 follow the procedure for "Add repositoriy and install manually".  If you do
 this, installing the ``geopm-service`` package will automatically install the
@@ -116,16 +110,16 @@ package manager, you must specify all of the required packages at install time
    is added.
 
 - Release Packages (``release-v3.0`` branch - Intel GPU support via levelzero)
-   + geopm-service
-   + libgeopm2
-   + python3-geopmdpy
-   + geopm-service-devel
+   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service>`__
+   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=libgeopmd2>`__
+   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service-devel>`__
 
 - Release Packages (``release-v3.0`` branch - no GPU support)
-   + geopm-service
-   + libgeopm2
-   + python3-geopmdpy
-   + geopm-service-devel
+   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service>`__
+   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=libgeopmd2>`__
+   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service-devel>`__
 
 - Development Packages (``dev`` branch - Intel GPU support via levelzero)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service>`__
