@@ -211,7 +211,7 @@ Preprocessor usage should be reserved for expressing configure time
 options.
 
 The number of columns in a source file should not exceed 70 or 80 before
-wrapping the line.  Exceptions are allowed when it is required for compliation
+wrapping the line.  Exceptions are allowed when it is required for compilation
 or similar.  In general, follow the style in the file you are modifying.
 
 Pre-Commit Checks
