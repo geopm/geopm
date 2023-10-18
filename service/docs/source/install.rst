@@ -141,7 +141,7 @@ package manager, you must specify all of the required packages at install time
 
 .. warning::
 
-   Do not add more than one of the above repostories to your system package
+   Do not add more than one of the above repositories to your system package
    manager at the same time.  Only add one, and ensure all GEOPM packages are
    completely removed from the system when changing GEOPM repo configuration in
    the package manager.
@@ -149,7 +149,7 @@ package manager, you must specify all of the required packages at install time
 Ubuntu
 ^^^^^^
 
-There are 2 repostories that are maintained for GEOPM support on Ubuntu: one
+There are 2 repositories that are maintained for GEOPM support on Ubuntu: one
 corresponding to the ``release-v3.0`` branch while the other corresponds to the
 ``dev`` branch.  Both are built with Nvidia GPU support **only**.
 
@@ -161,7 +161,7 @@ First, add the necessary upstream repository:
 
     # Add the release repo:
     $ sudo add-apt-repository ppa:geopm/release
-    # OR add tre dev repo:
+    # OR add the dev repo:
     $ sudo add-apt-repository ppa:geopm/dev
 
 Then pull all the current updates, install GEOPM, start/enable the service, and
