@@ -9,13 +9,11 @@ on:
   push:
     branches:
       - dev
-      - release-v2.0-candidate
-      - release-v2.0
+      - release-v3.0
   pull_request:
     branches:
       - dev
-      - release-v2.0-candidate
-      - release-v2.0
+      - release-v3.0
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.head_ref }}
@@ -64,7 +62,7 @@ jobs:
       F77: gfortran-9
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev python3-gi python3-yaml
     - name: install base and service dir python dependencies
@@ -153,9 +151,9 @@ jobs:
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
            echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
-           if [[ "${{ github.ref_name }}" == "release-v2.0" ]] || [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
-               echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:${{ github.ref_name }}/geopm-service" >> ${GITHUB_ENV}
-               echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:${{ github.ref_name }}/geopm-runtime" >> ${GITHUB_ENV}
+           if [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
+               echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:release/geopm-service" >> ${GITHUB_ENV}
+               echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release/geopm-runtime" >> ${GITHUB_ENV}
            else
                echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}/geopm-runtime" >> ${GITHUB_ENV}
