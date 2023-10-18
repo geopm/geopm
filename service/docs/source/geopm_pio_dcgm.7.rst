@@ -13,18 +13,36 @@ Requirements
 ^^^^^^^^^^^^
 
 To use the GEOPM DCGM signals and controls GEOPM must be compiled against the
-DCGM libraries and must be run on a system with hardware supported by DCGM.  To
-compile against the oneAPI LevelZero libraries geopm must be configured using
-both the ``--enable-nvml flag`` and the ``--enable-dcgm`` flag.  The optional
-``--with-dcgm`` flag may be used to indicate the path of the required libraries.
+NVML and DCGM libraries and must be run on a system with hardware supported by
+DCGM.  To compile against the NVML and DCGM libraries GEOPM must be configured
+using both the ``--enable-nvml`` flag and the ``--enable-dcgm`` flag.  The
+optional flags ``--with-nvml`` and ``--with-dcgm`` may be used to indicate the
+path of the required libraries.  See ``configure --help`` for more information
+about these flags.
+
+When enabling the DCGM signals, a small modification should be made to the
+`geopm.service <https://github.com/geopm/geopm/blob/dev/service/geopm.service>`_
+systemd configuration file to encode the requirements on the DGCM service.  The
+three lines below should be added to the ``[Unit]`` section:
+
+.. code-block::
+
+    [Unit]
+    Wants=nvidia-dcgm.service
+    After=nvidia-dcgm.service
+    PartOf=nvidia-dcgm.service
 
 The DCGM IOGroup requires an instance of nv-hostengine be running on the node
 prior to loading the IOGroup.  For DCGM installation and usage information see
 the `DCGM Getting Started Guide <https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/getting-started.html>`_.
 The DCGM IOGroup will connect to a running nv-hostengine instance if it is
-available when the geopm service is started.  If the nv-hostengine is stopped
-the geopm DCGM Signals will throw an error of the form: "Error getting latest
-values for fields in read_batch: Host engine connection invalid/disconnected"
+available when the GEOPM service is started.  If the nv-hostengine is stopped
+the geopm DCGM Signals will throw an error of the form:
+
+.. code-block::
+
+    "Error getting latest values for fields in read_batch: Host engine connection invalid/disconnected"
+
 Restarting the nv-hostengine and the geopm service are required to restore
 access to DCGM signals.
 
