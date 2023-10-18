@@ -10,6 +10,7 @@
 - Add more signals and controls including GPU and platform features.
 - ConstConfigIOGroup for defining arbitrary constant settings/configurations as signals.
 - Increase the sample period of the monitor agent from 5 ms to 200 ms to reduce default CPU requirements of runtime.
+- GEOPM_PERIOD / --geopm-period to set the control loop period override for Agents.
 - Removal of libgeopmpolicy.so, use libgeopm.so instead.
 - Removal of geopmdpy.runtime module: no support for python based agents.
 - GEOPM_INIT_CONTROL / --geopm-init-control to write a batch of controls at application startup.
