@@ -1,5 +1,7 @@
 geopm-service (@VERSION@-1) jammy; urgency=low
 
-  * Initial Release
+  * Update to version @VERSION@
+  * ABI set to @geopm_abi_version@
+  * Latest tagged release <https://github.com/geopm/geopm/releases/tag/v3.0.0>
 
- -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  Fri, 24 Feb 2023 13:05:30 -0800
+ -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  @DATE@
