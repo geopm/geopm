@@ -395,7 +395,8 @@ namespace geopm
                               .write_value = subcommand_arg,
                               .read_value = 0,
                               .command = command,
-                              .subcommand = subcommand } }
+                              .subcommand = subcommand,
+                              .reserved = 0 } }
         };
 
         errno = 0;
@@ -424,7 +425,8 @@ namespace geopm
                               .write_value = 0,
                               .read_value = 0,
                               .command = command,
-                              .subcommand = read_subcommand } }
+                              .subcommand = read_subcommand,
+                              .reserved = 0 } }
         };
         errno = 0;
         int err = m_ioctl->mbox(&batch);

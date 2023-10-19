@@ -129,7 +129,7 @@ void printError(const char *msg)
 
 struct MinMax setRandStaticImbalance(int nranks, int *rank_iters, int minI, int maxI)
 {
-    struct MinMax m = {100000, 0};
+    struct MinMax m = {100000, 0, 0, 0};
     for (int i = 0; i < nranks; i++) {
         rank_iters[i] = (rand() % (maxI+1-minI))+minI;
         if (rank_iters[i] > m.max) {
@@ -156,7 +156,7 @@ struct MinMax setReplayStaticImbalance(int nranks, int *rank_iters, string infil
     std::ifstream file;
     string line;
     int numLines = 0;
-    struct MinMax m = {100000, 0};
+    struct MinMax m = {100000, 0, 0, 0};
 
     file.open(infile.c_str());
     if (!file.good()) {
@@ -232,7 +232,7 @@ int round_int(double d)
 
 void initStaticImbalance(int nranks)
 {
-    struct MinMax m = {100000, 0};
+    struct MinMax m = {100000, 0, 0, 0};
 
     // Generate random static imbalance.
     if (syntheticcfg.useRandomStatic() && !(syntheticcfg.useReplayStatic())) {

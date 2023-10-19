@@ -33,7 +33,7 @@ namespace geopm
 
     POSIXSignal::m_info_s POSIXSignalImp::reduce_info(const siginfo_t &info) const
     {
-        POSIXSignal::m_info_s custom_signal_info = {0};
+        POSIXSignal::m_info_s custom_signal_info = {};
         custom_signal_info.signo = info.si_signo;
         custom_signal_info.value = info.si_value.sival_int;
         custom_signal_info.pid   = info.si_pid;

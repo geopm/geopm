@@ -44,9 +44,9 @@ static inline int geopm_region_id_is_mpi(uint64_t region_id)
     return (region_id & GEOPM_REGION_ID_MPI) ? 1 : 0;
 }
 
-static inline uint64_t geopm_region_id_hint(uint64_t region_id)
+static inline geopm_region_hint_e geopm_region_id_hint(uint64_t region_id)
 {
-    uint64_t ret;
+    geopm_region_hint_e ret;
     if (GEOPM_REGION_HASH_UNMARKED == region_id) {
         ret = GEOPM_REGION_HINT_UNKNOWN;
     }
@@ -54,7 +54,7 @@ static inline uint64_t geopm_region_id_hint(uint64_t region_id)
         ret = GEOPM_REGION_HINT_NETWORK;
     }
     else {
-        ret = region_id >> 32;
+        ret = (geopm_region_hint_e)(region_id >> 32);
         if (!ret || ret >= GEOPM_NUM_REGION_HINT) {
             ret = GEOPM_REGION_HINT_UNKNOWN;
         }
@@ -284,7 +284,7 @@ namespace geopm
 
             std::shared_ptr<ApplicationStatus> m_app_status;
             std::shared_ptr<ApplicationRecordLog> m_app_record_log;
-            std::stack<uint64_t> m_hint_stack;
+            std::stack<geopm_region_hint_e> m_hint_stack;
 
             double m_overhead_time;
             double m_overhead_time_startup;
