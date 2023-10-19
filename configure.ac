@@ -204,8 +204,12 @@ fi
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
+  CFLAGS="$CFLAGS -Og -g"
+  CXXFLAGS="$CXXFLAGS -Og -g"
+else
+  CFLAGS="$CFLAGS -O2"
+  CXXFLAGS="$CXXFLAGS -O2"
+  EXTRA_CPPFLAGS="-D_FORTIFY_SOURCE=2"
 fi
 AC_SUBST([enable_debug])
 
@@ -405,7 +409,6 @@ AC_SUBST([MPI_FLIBS])
 [EXTRA_FCFLAGS="$EXTRA_FCFLAGS $OPENMP_CXXFLAGS -msse4.2"]
 [EXTRA_LDFLAGS="$EXTRA_LDFLAGS $OPENMP_CXXFLAGS"]
 
-
 [LDFLAGS_SAVE="$LDFLAGS"]
 [LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
 [CFLAGS_SAVE="$CFLAGS"]
@@ -415,7 +418,7 @@ AC_SUBST([MPI_FLIBS])
 [CPPFLAGS_SAVE="$CPPFLAGS"]
 [CPPFLAGS="$EXTRA_CPPFLAGS $MPI_CXXFLAGS $CPPFLAGS"]
 [FCFLAGS="$EXTRA_FCFLAGS $FCFLAGS"]
-
+[FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS $FC_LIBRARY_LDFLAGS"]
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
 
@@ -570,21 +573,18 @@ AC_COMPILE_IFELSE([
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security"]
-if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
-[EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
-[EXTRA_FCFLAGS="$EXTRA_FCFLAGS -fno-range-check"]
-fi
-
 m4_include([m4/ax_check_compile_flag.m4])
 AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
 AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS  $NO_FASTMATH -fPIC"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $NO_FASTMATH -fPIC"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS"]
-[EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -D_FORTIFY_SOURCE=2"]
+[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-command-line-argument -Wformat -Wformat-security $NO_FASTMATH -z noexecstack -fPIC -Wl,-z,relro,-z,now"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-command-line-argument -Wformat -Wformat-security $NO_FASTMATH -z noexecstack -fPIC -Wl,-z,relro,-z,now"]
+[EXTRA_FFLAGS="$EXTRA_FFLAGS $NO_FASTMATH -z noexecstack -fPIC -Wl,-z,relro,-z,now"]
+[EXTRA_FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS -z noexecstack -fPIC -Wl,-z,relro,-z,now"]
+if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
+[EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
+[EXTRA_FCFLAGS="$EXTRA_FCFLAGS -fno-range-check"]
+fi
 
 [AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
 [AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
@@ -592,6 +592,7 @@ AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], 
 [AM_FFLAGS="$EXTRA_FFLAGS $AM_FFLAGS"]
 [AM_FCFLAGS="$EXTRA_FCFLAGS $AM_FCFLAGS"]
 [AM_LDFLAGS="$EXTRA_LDFLAGS $AM_LDFLAGS"]
+[AM_FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS $AM_FC_LIBRARY_LDFLAGS"]
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])
@@ -600,6 +601,7 @@ AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_FFLAGS])
 AC_SUBST([AM_FCFLAGS])
+AC_SUBST([AM_FC_LIBRARY_LDFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
 AC_SUBST_FILE([CHANGELOG])
@@ -648,6 +650,7 @@ AC_MSG_RESULT([MPI_FFLAGS         : ${MPI_FFLAGS}])
 AC_MSG_RESULT([FC                 : ${FC}])
 AC_MSG_RESULT([FCFLAGS            : ${FCFLAGS}])
 AC_MSG_RESULT([AM_FCFLAGS         : ${AM_FCFLAGS}])
+AC_MSG_RESULT([AM_FC_LIBRARY_LDFLAGS : ${FC_LIBRARY_LDFLAGS}])
 AC_MSG_RESULT([MPI_FCFLAGS        : ${MPI_FCFLAGS}])
 AC_MSG_RESULT([LDFLAGS            : ${LDFLAGS}])
 AC_MSG_RESULT([AM_LDFLAGS         : ${AM_LDFLAGS}])
