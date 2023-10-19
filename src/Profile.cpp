@@ -245,7 +245,7 @@ namespace geopm
 #endif
 
         uint64_t hash = geopm_region_id_hash(region_id);
-        uint64_t hint = geopm_region_id_hint(region_id);
+        geopm_region_hint_e hint = (geopm_region_hint_e)geopm_region_id_hint(region_id);
         geopm::check_hint(hint);
 
 #ifdef GEOPM_DEBUG

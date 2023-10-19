@@ -570,8 +570,8 @@ AC_COMPILE_IFELSE([
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Werror"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Werror"]
+[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security"]
 if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
 [EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
 [EXTRA_FCFLAGS="$EXTRA_FCFLAGS -fno-range-check"]
@@ -581,8 +581,10 @@ m4_include([m4/ax_check_compile_flag.m4])
 AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
 AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS $NO_FASTMATH"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $NO_FASTMATH"]
+[EXTRA_CFLAGS="$EXTRA_CFLAGS  $NO_FASTMATH -fPIC"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $NO_FASTMATH -fPIC"]
+[EXTRA_LDFLAGS="$EXTRA_LDFLAGS"]
+[EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -D_FORTIFY_SOURCE=2"]
 
 [AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
 [AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
