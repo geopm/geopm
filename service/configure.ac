@@ -192,8 +192,12 @@ AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
+  CFLAGS="$CFLAGS -Og -g"
+  CXXFLAGS="$CXXFLAGS -Og -g"
+else
+  CFLAGS="$CFLAGS -O2"
+  CXXFLAGS="$CXXFLAGS -O2"
+  EXTRA_CPPFLAGS="-D_FORTIFY_SOURCE=2"
 fi
 AC_SUBST([enable_debug])
 
@@ -416,14 +420,12 @@ m4_include([m4/ax_check_compile_flag.m4])
 AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
 AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC"]
-[EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -D_FORTIFY_SOURCE=2"]
+[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-command-line-argument -Wformat -Wformat-security $NO_FASTMATH -z noexecstack -fPIC -flto -Wl,-z,relro,-z,now"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-command-line-argument -Wformat -Wformat-security $NO_FASTMATH -z noexecstack -fPIC -flto -Wl,-z,relro,-z,now"]
 
 [AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
 [AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
 [AM_CPPFLAGS="$EXTRA_CPPFLAGS $AM_CPPFLAGS"]
-[AM_FFLAGS="$EXTRA_FFLAGS $AM_FFLAGS"]
 [AM_FCFLAGS="$EXTRA_FCFLAGS $AM_FCFLAGS"]
 [AM_LDFLAGS="$EXTRA_LDFLAGS $AM_LDFLAGS"]
 
@@ -432,7 +434,6 @@ AC_SUBST([FASTMATH])
 AC_SUBST([NO_FASTMATH])
 AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_CPPFLAGS])
-AC_SUBST([AM_FFLAGS])
 AC_SUBST([AM_FCFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
