@@ -192,11 +192,11 @@ AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  CFLAGS="$CFLAGS -Og -g"
-  CXXFLAGS="$CXXFLAGS -Og -g"
+  EXTRA_CFLAGS="$EXTRA_CFLAGS -Og -g"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Og -g"
 else
-  CFLAGS="$CFLAGS -O2"
-  CXXFLAGS="$CXXFLAGS -O2"
+  EXTRA_CFLAGS="$EXTRA_CFLAGS -O2"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -O2"
   EXTRA_CPPFLAGS="-D_FORTIFY_SOURCE=2"
 fi
 AC_SUBST([enable_debug])
