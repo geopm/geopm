@@ -153,6 +153,12 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
             result.names.append(name)
         return result
 
+    def close_inactive_clients(self):
+        self._platform_service.close_inactive_clients()
+
+    def watch_interval(self):
+        return self._platform_service.watch_interval()
+
     def _get_client_id(self, session_key, context):
         pid_str = session_key.name.split(',')[1]
         return int(pid_str)
@@ -160,8 +166,6 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def _get_user(self, client_id):
         uid = os.stat(f'/proc/{client_id}/status').st_uid
         return pwd.getpwuid(uid).pw_name
-
-
 def run():
     grpc_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
                                     'grpc-private.sock')
@@ -173,6 +177,8 @@ def run():
     server.add_secure_port(f'unix://{grpc_socket_path}', server_credentials)
     os.umask(original_umask)
     server.start()
+
     with subprocess.Popen('geopmd-proxy') as proxy:
-        server.wait_for_termination()
+        while server.wait_for_termination(geopm_proxy.watch_interval()):
+            geopm_proxy.close_inactive_clients()
         proxy.terminate()
