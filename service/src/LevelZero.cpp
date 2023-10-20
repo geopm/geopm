@@ -108,7 +108,9 @@ namespace geopm
                             num_subdevice, //if there are no subdevices leave this as 0
                             subdevice_handle,
                             {}, //subdevice
+                            0, //num_device_power_domain
                             {}, //power domain
+                            0, // cached_energy_timestamp
                         });
                     }
 #ifdef GEOPM_DEBUG
