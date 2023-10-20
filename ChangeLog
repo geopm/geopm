@@ -1,3 +1,49 @@
+* Wed Oct 18 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.0.0
+- Official v3.0.0 release tag.
+- GEOPM Runtime support for non-MPI applications.
+- Integration with OpenPBS through plugins and launcher support.
+- Security improvements and bug fixes.
+- Additional GEOPM Service DBus APIs to support application profiling.
+- Communication between controller and application is managed by GEOPM Service.
+- Creation of topo-cache and responsibility for determining system topology is managed by GEOPM Service.
+- Update C++ standard requirement to C++17.
+- Add more signals and controls including GPU and platform features.
+- ConstConfigIOGroup uses JSON file to define constant settings/configurations as signals.
+- Increase the sample period of the monitor agent from 5 ms to 200 ms to reduce default CPU requirements of runtime.
+- Removal of libgeopmpolicy.so, use libgeopm.so instead.
+- Removal of geopmdpy.runtime module: no support for python based agents.
+- GEOPM_PERIOD / --geopm-period sets the sample period for controller in units of seconds.
+- GEOPM_INIT_CONTROL / --geopm-init-control to write a batch of controls at application startup.
+- GEOPM_CTL_LOCAL / --geopm-ctl-local disable controller's use of MPI.
+- GEOPM_PROGRAM_FILTER / --geopm-program-filter to select processes for profiling.
+- GEOPM_NUM_PROC sets number of processes per node for controller process to track.
+- geopmlaunch support for PALS.
+- geopmlaunch --geopm-preload option required for ld preloading libgeopm.so, not on by default.
+- Default for --geopm-ctl is now "application".
+- geopmlaunch does not control CPU affinity application by default (--geopm-affinity-enable now required).
+- Debian / Ubuntu packaging support.
+- Renamed runtime packages for all distros.
+- Improvements for NVML and LevelZero support for GPUs.
+- Documentation improvements including "Quick Start Guide"
+- Improved error and warning messages.
+- ABI so-version for libgeopm and libgeopmd increased to 2.0.0.
+- Added --direct option for geopmaccess.
+- Add GPU-CA agent for beta testing.
+- Add FFNet agent for beta testing.
+- Add CPU-CA agent for beta testing.
+- FrequencyMapAgent can now control GPU frequency.
+- Configuration and plugin directories for GEOPM renamed and combined.
+- Add PBS integration for power capping clusters.
+- Fuzz test integration and support for sanitizer builds.
+- The environment of controller determines output file paths, not the application environment.
+- Support for liburing for batching kernel I/O.
+- Python interface for endpoint in beta.
+- Program name is no longer the default profile name, "default" is used instead.
+- Track time spent in MPI_Init*() by the application.
+- Removed nearly all use of the /tmp directory (topo-cache still created in /tmp if GEOPM Service is not running)
+- More detailed and accurate reporting of GEOPM overhead, MPI overhead, and controller startup time.
+- Generic runner for GEOPM experiment infrastructure.
+- MSR, NVML and LevelZero IOGroups not loaded except when user has CAP_SYSADMIN or through the GEOPM Service.
 * Wed Mar 29 2023 Brad Geltz <brad.geltz@intel.com> v2.0.2
 - Hot fix 2 for release 2.0.
 - Add security.md doc for vulnerability reporting.
