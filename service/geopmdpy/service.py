@@ -871,6 +871,16 @@ class PlatformService(object):
             return False
         return True
 
+    def close_inactive_clients(self):
+        """Close all sessions with inactive clients."""
+        for pid in self._active_sessions.get_clients():
+            if not self._active_sessions.is_client_active(pid):
+                self._close_session_completely(pid)
+
+    def watch_interval(self):
+        """Return the PID polling interval, in seconds."""
+        return self._WATCH_INTERVAL_SEC
+
 
 class TopoService(object):
     """Provides the concrete implementation for all of the GEOPM DBus
