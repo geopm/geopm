@@ -194,10 +194,6 @@ if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   EXTRA_CFLAGS="$EXTRA_CFLAGS -Og -g"
   EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Og -g"
-else
-  EXTRA_CFLAGS="$EXTRA_CFLAGS -O2"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -O2"
-  EXTRA_CPPFLAGS="-D_FORTIFY_SOURCE=2"
 fi
 AC_SUBST([enable_debug])
 
