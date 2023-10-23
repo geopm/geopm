@@ -5,6 +5,7 @@
 /autoscan.log
 /build
 /CODE_OF_CONDUCT.md
+/cargo-home
 /compile
 compile_commands.json
 /config.guess
@@ -18,6 +19,14 @@ compile_commands.json
 /COPYING
 /COPYING-TPP
 /debian/changelog
+/debian/tmp
+/debian/.debhelper
+/debian/debhelper-build-stamp
+/debian/autoreconf.*
+/debian/python3-geopmdpy*
+/debian/geopm-service/
+/debian/libgeopmd-dev/
+/debian/libgeopmd2/
 /depcomp
 /dist
 /docs/build
@@ -65,7 +74,8 @@ compile_commands.json
 /VERSION
 /*geopm*.ddeb
 /*geopm*.deb
-/geopm-service*.dsc
+/geopm-service-*
+/geopm-service_*
 /geopm-service*.tar.gz
 /geopm-service*.buildinfo
 /geopm-service*.changes
