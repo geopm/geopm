@@ -579,7 +579,7 @@ AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], 
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro"]
+[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now"]
 [EXTRA_FFLAGS="$EXTRA_FFLAGS $NO_FASTMATH -fPIC"]
 [EXTRA_FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS -fPIC"]
 if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then

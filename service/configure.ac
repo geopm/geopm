@@ -418,7 +418,7 @@ AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], 
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro"]
+[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now"]
 
 [AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
 [AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
