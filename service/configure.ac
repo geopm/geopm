@@ -28,6 +28,11 @@ AC_DEFINE_UNQUOTED([DATE], ["$DATE"], [Date string suitable for debian changelog
 
 LT_PREREQ([2.2.6])
 
+m4_include([m4/ax_check_compile_flag.m4])
+AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
+AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
+AX_CHECK_COMPILE_FLAG([-fsanitize=cfi], [SANITIZE_CFI="-fsanitize=cfi"], [], [], [])
+
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug], [Build debugging code and compile with -O0 -g])],
 [if test "x$enable_debug" = "xno" ; then
@@ -207,7 +212,11 @@ AC_SUBST([enable_coverage])
 
 if test "x$enable_asan" = "x1" ; then
   EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+else
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $SANITIZE_CFI"
+  EXTRA_CFLAGS="$EXTRA_CFLAGS $SANITIZE_CFI"
 fi
+
 AC_SUBST([enable_asan])
 AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
 
@@ -411,10 +420,6 @@ AC_COMPILE_IFELSE([
 ])
 
 AC_LANG_POP([C++])
-
-m4_include([m4/ax_check_compile_flag.m4])
-AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
-AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]

@@ -27,6 +27,11 @@ AC_DEFINE_UNQUOTED([DATE], ["$DATE"], [Date string suitable for debian changelog
 
 LT_PREREQ([2.2.6])
 
+m4_include([m4/ax_check_compile_flag.m4])
+AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
+AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
+AX_CHECK_COMPILE_FLAG([-fsanitize=cfi], [SANITIZE_CFI="-fsanitize=cfi"], [], [], [])
+
 AC_ARG_VAR([MPICC],
            [MPICC the MPI C compiler wrapper used to determine flags required for inclusion of MPI for C.])
 AC_ARG_VAR([MPICXX],
@@ -220,6 +225,9 @@ AC_SUBST([enable_coverage])
 if test "x$enable_asan" = "x1" ; then
   EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
   EXTRA_CFLAGS="$EXTRA_CFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+else
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $SANITIZE_CFI"
+  EXTRA_CFLAGS="$EXTRA_CFLAGS $SANITIZE_CFI"
 fi
 
 if test "x$enable_overhead" = "x1" ; then
@@ -402,7 +410,7 @@ AC_SUBST([MPI_FLIBS])
 [EXTRA_CFLAGS="$EXTRA_CFLAGS $OPENMP_CXXFLAGS -std=c99 -msse4.2"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $OPENMP_CXXFLAGS -std=c++17 -msse4.2"]
 [EXTRA_FFLAGS="$EXTRA_FFLAGS $OPENMP_CXXFLAGS -msse4.2"]
-[EXTRA_FCFLAGS="$EXTRA_FCFLAGS $OPENMP_CXXFLAGS -msse4.2"]
+[EXTRA_FCFLAGS="$EXTRA_FCFLAGS $OPENMP_CXXFLAGS -msse4.2 -fPIC -fPIE"]
 [EXTRA_LDFLAGS="$EXTRA_LDFLAGS $OPENMP_CXXFLAGS"]
 
 [LDFLAGS_SAVE="$LDFLAGS"]
@@ -415,8 +423,6 @@ AC_SUBST([MPI_FLIBS])
 [CPPFLAGS="$EXTRA_CPPFLAGS $MPI_CXXFLAGS $CPPFLAGS"]
 [FCFLAGS_SAVE="$FCFLAGS"]
 [FCFLAGS="$EXTRA_FCFLAGS $FCFLAGS"]
-[FC_LIBRARY_LDFLAGS_SAVE="$FC_LIBRARY_LDFLAGS"]
-[FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS $FC_LIBRARY_LDFLAGS"]
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
 
@@ -571,17 +577,12 @@ AC_COMPILE_IFELSE([
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 [FCFLAGS="$FCFLAGS_SAVE"]
-[FC_LIBRARY_LDFLAGS="$FC_LIBRARY_LDFLAGS_SAVE"]
-
-m4_include([m4/ax_check_compile_flag.m4])
-AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
-AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
+[LDFLAGS_NOPIE="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack"]
+[EXTRA_LDFLAGS="$LDFLAGS_NOPIE -pie"]
 [EXTRA_FFLAGS="$EXTRA_FFLAGS $NO_FASTMATH -fPIC"]
-[EXTRA_FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS -fPIC"]
 if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
 [EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
 [EXTRA_FCFLAGS="$EXTRA_FCFLAGS -fno-range-check"]
@@ -593,7 +594,6 @@ fi
 [AM_FFLAGS="$EXTRA_FFLAGS $AM_FFLAGS"]
 [AM_FCFLAGS="$EXTRA_FCFLAGS $AM_FCFLAGS"]
 [AM_LDFLAGS="$EXTRA_LDFLAGS $AM_LDFLAGS"]
-[AM_FC_LIBRARY_LDFLAGS="$EXTRA_FC_LIBRARY_LDFLAGS $AM_FC_LIBRARY_LDFLAGS"]
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])
@@ -602,8 +602,8 @@ AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_FFLAGS])
 AC_SUBST([AM_FCFLAGS])
-AC_SUBST([AM_FC_LIBRARY_LDFLAGS])
 AC_SUBST([AM_LDFLAGS])
+AC_SUBST([LDFLAGS_NOPIE])
 
 AC_SUBST_FILE([CHANGELOG])
 CHANGELOG=ChangeLog
@@ -651,7 +651,6 @@ AC_MSG_RESULT([MPI_FFLAGS         : ${MPI_FFLAGS}])
 AC_MSG_RESULT([FC                 : ${FC}])
 AC_MSG_RESULT([FCFLAGS            : ${FCFLAGS}])
 AC_MSG_RESULT([AM_FCFLAGS         : ${AM_FCFLAGS}])
-AC_MSG_RESULT([AM_FC_LIBRARY_LDFLAGS : ${FC_LIBRARY_LDFLAGS}])
 AC_MSG_RESULT([MPI_FCFLAGS        : ${MPI_FCFLAGS}])
 AC_MSG_RESULT([LDFLAGS            : ${LDFLAGS}])
 AC_MSG_RESULT([AM_LDFLAGS         : ${AM_LDFLAGS}])
