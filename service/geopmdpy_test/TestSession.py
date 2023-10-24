@@ -158,11 +158,31 @@ class TestSession(unittest.TestCase):
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
              mock.patch('geopmdpy.session.Session.run_read') as srr:
-            self._session.run(runtime, period, None, request_stream, out_stream)
+            self._session.run(runtime, period, None, False, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, out_stream)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream)
+
+    def test_run_with_header(self):
+        """geopmsession prints signal-domain-idx header fields."""
+        period = 7
+        runtime = 42
+        period = 0
+        request_stream = [1, 2, 3, 4, 5]
+        out_stream = StringIO()
+        rrq_return_value = [('signal1', 'board', 0), ('signal2', 'package', 1)]
+        with mock.patch('geopmdpy.session.ReadRequestQueue',
+                        return_value=rrq_return_value) as srrq, \
+             mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
+             mock.patch('geopmdpy.topo.domain_name', side_effect=lambda x: x), \
+             mock.patch('geopmdpy.session.Session.run_read') as srr:
+            self._session.run(runtime, period, None, True, request_stream, out_stream)
+
+            srrq.assert_called_once_with(request_stream)
+            scra.assert_called_once_with(runtime, period)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream)
+        self.assertEqual('"signal1","signal2-package-1"\n', out_stream.getvalue())
 
 
 if __name__ == '__main__':

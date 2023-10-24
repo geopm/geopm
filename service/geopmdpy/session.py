@@ -139,7 +139,7 @@ class Session:
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
 
-    def run(self, run_time, period, pid
+    def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout):
         """"Create a GEOPM session with values parsed from the command line
 
@@ -157,6 +157,9 @@ class Session:
             pid (int or None): If not None, stop monitoring when the
                                       given process finishes.
 
+            print_header (bool): Whether to print a row of headers before printing
+                                 CSV data.
+
             request_stream (typing.IO): Input from user describing the
                                    requests to read.
 
@@ -166,6 +169,11 @@ class Session:
         """
         requests = ReadRequestQueue(request_stream)
         self.check_read_args(run_time, period)
+        if print_header:
+            header_names = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
+                            if topo.domain_name(domain) != 'board' else f'"{name}"'
+                            for name, domain, domain_idx in requests]
+            print(','.join(header_names), file=out_stream)
         self.run_read(requests, run_time, period, pid, out_stream)
 
 
@@ -329,10 +337,12 @@ def main():
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
     parser.add_argument('--pid', type=int,
                         help='Stop the session when the given process PID ends')
+    parser.add_argument('--print-header', action='store_true',
+                        help='Print a CSV header before printing any sampled values')
     args = parser.parse_args()
     try:
         sess = Session()
-        sess.run(run_time=args.time, period=args.period, pid=args.pid)
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
