@@ -11,7 +11,7 @@ EXTRA_DIST += integration/README.md \
               integration/open_pbs/generate_coefficients_from_reports.py \
               integration/open_pbs/geopm_install_pbs_power_limit.sh \
               integration/open_pbs/geopm_openpbs_test.sh \
-	      integration/open_pbs/geopm_pbs_hook_config.schema.json \
+              integration/open_pbs/geopm_pbs_hook_config.schema.json \
               integration/open_pbs/geopm_power_limit.py \
               integration/open_pbs/merge_config_files.py \
               integration/open_pbs/README.rst \
@@ -51,7 +51,7 @@ integration_test_test_batch_interface_SOURCES = integration/test/test_batch_inte
 integration_test_test_batch_interface_LDADD = libgeopmd.la
 
 integration_test_test_invalid_values_SOURCES = integration/test/test_invalid_values.cpp
-integration_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) $(FASTMATH)
+integration_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) -fPIC -fPIE $(FASTMATH)
 integration_test_test_invalid_values_LDADD = libgeopmd.la
 
 TESTS += integration/open_pbs/geopm_openpbs_test.sh
