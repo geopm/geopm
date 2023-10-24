@@ -52,6 +52,9 @@ GEOPM_SERVICE_CONFIG_PATH_PERM = 0o700
 
 """
 
+class InvalidClientError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
 
 @lru_cache(None)
 def get_config_path():
@@ -415,58 +418,6 @@ class ActiveSessions(object):
         for sess_path in glob.glob(self._get_session_path('*')):
             self._load_session_file(sess_path)
 
-    def is_client_active(self, client_pid):
-        """Query if a Linux PID currently has an active session
-
-        If the UID or GID for the PID has changed, then the session is
-        terminated and a warning message is printed.
-
-        If a session file matching the client_pid exists, but the file
-        was not parsed or created by geopmd, then a warning message is
-        printed to syslog and the file is renamed.  The warning
-        message will display the user and group permissions of the
-        file being deleted.  In this case False is returned.
-
-        Args:
-            client_pid (int): Linux PID to query
-
-        Returns:
-            bool: True if the PID has an open session, False otherwise
-
-        """
-        is_registered = client_pid in self._sessions
-        is_valid = False
-        if is_registered:
-            try:
-                uid, gid, create_time = self._pid_info(client_pid)
-                session_uid = self._sessions[client_pid]['client_uid']
-                session_gid = self._sessions[client_pid]['client_gid']
-                session_time = self._sessions[client_pid]['create_time']
-                is_valid = (session_uid == uid and session_gid == gid and session_time == create_time)
-                if not is_valid:
-                    self.remove_client(client_pid)
-                    is_registered = False
-                    warn = f'Warning: <geopm-service> Session PID {client_pid} identifying property has changed during the session:'
-                    if session_uid != uid:
-                        warn += f' uid_orig={session_uid} uid_new={uid}'
-                    if session_gid != gid:
-                        warn += f' gid_orig={session_gid} gid_new={gid}'
-                    if session_time != create_time:
-                        warn += f' PID creation time has changed'
-                    sys.stderr.write(f'{warn}\n')
-            except psutil.NoSuchProcess:
-                self.remove_client(client_pid)
-                is_registered = False
-                sys.stderr.write('Warning: <geopm-service> Session PID {client_pid} is no longer active\n')
-
-        session_path = self._get_session_path(client_pid)
-        result = (is_valid and is_registered)
-        if not result and os.path.isfile(session_path):
-            renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
-            sys.stderr.write(f'Warning: Session file exists, but client {client_pid} is not tracked: {session_path} will be moved to {renamed_path}\n')
-            os.rename(session_path, renamed_path)
-        return result
-
     def check_client_active(self, client_pid, msg=''):
         """Raise an exception if a PID does not have an active session
 
@@ -480,8 +431,55 @@ class ActiveSessions(object):
             RuntimeError: Operation not allowed without an open session
 
         """
-        if not self.is_client_active(client_pid):
+        if not client_pid in self._sessions:
             raise RuntimeError(f"Operation '{msg}' not allowed without an open session. Client PID: {client_pid}")
+
+
+    def is_client_active(self, client_pid):
+        """Query if a Linux PID currently has an active session
+
+
+        If a session file matching the client_pid exists, but the file
+        was not parsed or created by geopmd, then a warning message is
+        printed to syslog and the file is renamed.  The warning
+        message will display the user and group permissions of the
+        file being deleted.  In this case False is returned.
+
+        Args:
+            client_pid (int): Linux PID to query
+
+        Returns:
+            bool: True if the PID has an open session, False otherwise
+
+        Raises:
+            InvalidClientError: The creation time, UID, or GID for the
+                                PID has changed.
+
+        """
+        is_registered = client_pid in self._sessions
+        is_valid = False
+        if is_registered:
+            uid, gid, create_time = self._pid_info(client_pid)
+            session_uid = self._sessions[client_pid]['client_uid']
+            session_gid = self._sessions[client_pid]['client_gid']
+            session_time = self._sessions[client_pid]['create_time']
+            is_valid = (session_uid == uid and session_gid == gid and session_time == create_time)
+            if not is_valid:
+                warn = f'Session PID {client_pid} identifying property has changed during the session:'
+                if session_uid != uid:
+                    warn += f' uid_orig={session_uid} uid_new={uid}'
+                if session_gid != gid:
+                    warn += f' gid_orig={session_gid} gid_new={gid}'
+                if session_time != create_time:
+                    warn += f' PID creation time has changed'
+                raise InvalidClientError(warn)
+        else:
+            session_path = self._get_session_path(client_pid)
+            if os.path.isfile(session_path):
+                renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
+                sys.stderr.write(f'Warning: <geopm-service>: Session file exists, but client {client_pid} is not tracked: {session_path} will be moved to {renamed_path}\n')
+                os.rename(session_path, renamed_path)
+        return is_registered and is_valid
 
     def add_client(self, client_pid, signals, controls, watch_id):
         """Add a new client session to be tracked
@@ -517,7 +515,7 @@ class ActiveSessions(object):
                             tracking that the PID is active
 
         """
-        if self.is_client_active(client_pid):
+        if client_pid in self._sessions:
             return
         try:
             uid, gid, create_time = self._pid_info(client_pid)
@@ -532,7 +530,7 @@ class ActiveSessions(object):
             self._sessions[client_pid] = session_data
             self._update_session_file(client_pid)
         except psutil.NoSuchProcess:
-            sys.stderr.write('Warning: Session cannot be created for PID {client_pid}, it is no longer active')
+            sys.stderr.write('Warning: <geopm-service>: Session cannot be created for PID {client_pid}, it is no longer active')
 
     def remove_client(self, client_pid):
         """Delete the record of an active session
@@ -561,7 +559,6 @@ class ActiveSessions(object):
             self._sessions.pop(client_pid)
         except KeyError:
             pass
-        return sess
 
     def get_clients(self):
         """Get list of the client PID values for all active sessions
@@ -808,19 +805,19 @@ class ActiveSessions(object):
         write_fifo_path = os.path.join(self._RUN_PATH, write_fifo_key)
 
         if (os.path.exists(signal_shmem_path)):
-            sys.stderr.write(f'Warning: {signal_shmem_path} file was left over, deleting it now.\n')
+            sys.stderr.write(f'Warning: <geopm-service>: {signal_shmem_path} file was left over, deleting it now.\n')
             os.unlink(signal_shmem_path)
 
         if (os.path.exists(control_shmem_path)):
-            sys.stderr.write(f'Warning: {control_shmem_path} file was left over, deleting it now.\n')
+            sys.stderr.write(f'Warning: <geopm-service>: {control_shmem_path} file was left over, deleting it now.\n')
             os.unlink(control_shmem_path)
 
         if (os.path.exists(read_fifo_path)):
-            sys.stderr.write(f'Warning: {read_fifo_path} file was left over, deleting it now.\n')
+            sys.stderr.write(f'Warning: <geopm-service>: {read_fifo_path} file was left over, deleting it now.\n')
             os.unlink(read_fifo_path)
 
         if (os.path.exists(write_fifo_path)):
-            sys.stderr.write(f'Warning: {write_fifo_path} file was left over, deleting it now.\n')
+            sys.stderr.write(f'Warning: <geopm-service>: {write_fifo_path} file was left over, deleting it now.\n')
             os.unlink(write_fifo_path)
 
     def start_profile(self, client_pid, profile_name):
@@ -828,23 +825,18 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'start_profile')
         if 'profile_name' in self._sessions[client_pid]:
             raise RuntimeError(f'Client pid {client_pid} has requested profiling twice')
-        try:
-            uid, gid, _ = self._pid_info(client_pid)
-        except psutil.NoSuchProcess:
-            sys.stderr.write('Warning: Profile cannot be created for PID {client_pid}, it is no longer active')
-            self.remove_client(client_pid)
+        uid, gid, _ = self._pid_info(client_pid)
+        if len(self._profiles) == 0:
+            size = 64 * os.cpu_count()
+            shmem.create_prof('status', size, client_pid, uid, gid)
+        if profile_name in self._profiles:
+            self._profiles[profile_name].add(client_pid)
         else:
-            if len(self._profiles) == 0:
-                size = 64 * os.cpu_count()
-                shmem.create_prof('status', size, client_pid, uid, gid)
-            if profile_name in self._profiles:
-                self._profiles[profile_name].add(client_pid)
-            else:
-                self._profiles[profile_name] = {client_pid}
-            self._sessions[client_pid]['profile_name'] = profile_name
-            size = 57384
-            shmem.create_prof('record-log', size, client_pid, uid, gid)
-            self._update_session_file(client_pid)
+            self._profiles[profile_name] = {client_pid}
+        self._sessions[client_pid]['profile_name'] = profile_name
+        size = 57384
+        shmem.create_prof('record-log', size, client_pid, uid, gid)
+        self._update_session_file(client_pid)
 
     def stop_profile(self, client_pid, region_names, do_update=True):
         try:

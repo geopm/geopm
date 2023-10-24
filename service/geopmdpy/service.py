@@ -16,6 +16,7 @@ import psutil
 import uuid
 import gi
 from gi.repository import GLib
+import math
 
 from . import pio
 from . import topo
@@ -54,7 +55,7 @@ class PlatformService(object):
                 self._active_sessions.set_watch_id(client_pid, watch_id)
         with system_files.WriteLock(self._RUN_PATH) as lock:
             write_pid = lock.try_lock()
-            if write_pid is not None and not self._active_sessions.is_client_active(write_pid):
+            if write_pid is not None and not self._is_client_active(write_pid):
                 self._close_session_write(lock, write_pid)
 
     def get_group_access(self, group):
@@ -330,6 +331,34 @@ class PlatformService(object):
         """
         raise NotImplementedError('PlatformService: Implementation incomplete')
 
+    def _is_client_active(self, client_pid):
+        result = False
+        try:
+            result = self._active_sessions.is_client_active(client_pid)
+        except (system_files.InvalidClientError, psutil.NoSuchProcess) as ex:
+            sys.stderr.write(f'Warning: <geopm-service>: {ex}\n')
+            self._close_session_completely(client_pid)
+        return result
+
+    def _check_client_active(self, client_pid, func_name):
+        """Check if client is active and valid
+
+        Print a warning to log an remove any resources associated with
+        the session if the client is not active.
+
+        Args:
+            client_pid (int): Linux PID to query
+
+            func_name (str): The operation that was attempted which requires
+                             an active session.  Used in error message
+
+        """
+        result = self._is_client_active(client_pid)
+        if not result:
+            sys.stderr.write(f"Warning: <geopm-service>: Operation '{func_name}' not allowed without an open session. Client PID: {client_pid}\n")
+            self._close_session_completely(client_pid)
+        return result
+
     def open_session(self, user, client_pid):
         """Open a new session for the client thread.
 
@@ -379,7 +408,7 @@ class PlatformService(object):
                               the session.
 
         """
-        if self._active_sessions.is_client_active(client_pid):
+        if self._is_client_active(client_pid):
             self._active_sessions.increment_reference_count(client_pid)
         else:
             signals, controls = self.get_user_access(user, client_pid)
@@ -415,7 +444,8 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
-        self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
+        if not self._check_client_active(client_pid, 'PlatformCloseSession'):
+            return
         reference_count = self._active_sessions.get_reference_count(client_pid)
         if reference_count == 0:
             # The daemon died, restarted, and found a session with
@@ -460,17 +490,23 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
-        sess = self._active_sessions.remove_client(client_pid)
-        if sess is not None:
-            GLib.source_remove(sess['watch_id'])
-            batch_pid = sess.get('batch_server')
+        if client_pid in self._active_sessions.get_clients():
+            GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
+            batch_pid = self._active_sessions.get_batch_server(client_pid)
             if batch_pid is not None:
                 try:
                     self._pio.stop_batch_server(batch_pid)
                 except RuntimeError:
-                    sys.stderr.write(f"Warning: Failed to call pio.stop_batch_server({batch_pid}), sending SIGKILL\n)")
+                    sys.stderr.write(f"Warning: <geopm-service> Failed to call pio.stop_batch_server({batch_pid}), sending SIGKILL\n)")
                     if psutil.pid_exists(batch_pid):
                         os.kill(batch_pid, signal.SIGKILL)
+        try:
+            client_pid = int(client_pid)
+        except ValueError:
+            sys.stderr.write(f"Warning: <geopm-service>: StopBatchServer called with non-integer client_pid: '{client_pid}'\n")
+            pass
+        else:
+            self._active_sessions.remove_client(client_pid)
             with system_files.WriteLock(self._RUN_PATH) as lock:
                 if lock.try_lock() == client_pid:
                     self._close_session_write(lock, client_pid)
@@ -483,15 +519,15 @@ class PlatformService(object):
                 self._pio.restore_control_dir(save_dir)
                 is_restored = True
             except RuntimeError as ex:
-                sys.stderr.write(f'Failed to restore control settings for client {pid}: {ex}')
+                sys.stderr.write(f'Warning: <geopm-service>: Failed to restore control settings for client {pid}: {ex}')
             del_dir = f'{save_dir}-{pid}-{uuid.uuid4()}-del'
             os.rename(save_dir, del_dir)
             if is_restored:
                 shutil.rmtree(del_dir)
             else:
-                sys.stderr.write(f'Failed to restore controls for PID {pid}, moved to {del_dir}')
+                sys.stderr.write(f'Warning: <geopm-service>: Failed to restore controls for PID {pid}, moved to {del_dir}')
         else:
-            sys.stderr.write(f'Failed to restore controls for PID {pid}, {save_dir} is not a directory')
+            sys.stderr.write(f'Warning: <geopm-service>: Failed to restore controls for PID {pid}, {save_dir} is not a directory')
         lock.unlock(pid)
 
     def start_batch(self, client_pid, signal_config, control_config):
@@ -550,7 +586,8 @@ class PlatformService(object):
                                   inter-process shared memory.
 
         """
-        self._active_sessions.check_client_active(client_pid, 'PlatformStartBatch')
+        if not self._check_client_active(client_pid, 'PlatformStartBatch'):
+            return (-1, '')
         sig_req = {cc[2] for cc in signal_config}
         cont_req = {cc[2] for cc in control_config}
         supported_signals = self._active_sessions.get_signals(client_pid)
@@ -593,7 +630,8 @@ class PlatformService(object):
                               start_batch().
 
         """
-        self._active_sessions.check_client_active(client_pid, 'StopBatch')
+        if not self._check_client_active(client_pid, 'StopBatch'):
+            return
         actual_server_pid = self._active_sessions.get_batch_server(client_pid)
         if server_pid != actual_server_pid:
             raise RuntimeError(f'Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
@@ -630,11 +668,15 @@ class PlatformService(object):
             (float): The value of the signal in SI units.
 
         """
-        self._active_sessions.check_client_active(client_pid, 'PlatformReadSignal')
+        result = math.nan
+        if not self._check_client_active(client_pid, 'PlatformReadSignal'):
+            return result
         signal_avail = self._active_sessions.get_signals(client_pid)
         if not signal_name in signal_avail:
-            raise RuntimeError('Requested signal that is not in allowed list: {}'.format(signal_name))
-        return self._pio.read_signal(signal_name, domain, domain_idx)
+            sys.stderr.write(f"Warning: <geopm-service>: Requested signal that is not in allowed list: '{signal_name}'\n")
+        else:
+            result = self._pio.read_signal(signal_name, domain, domain_idx)
+        return result
 
     def write_control(self, client_pid, control_name, domain, domain_idx, setting):
         """Write a control value to a particular domain.
@@ -671,7 +713,8 @@ class PlatformService(object):
         """
 
 
-        self._active_sessions.check_client_active(client_pid, 'PlatformWriteControl')
+        if not self._check_client_active(client_pid, 'PlatformWriteControl'):
+            return
         control_avail = self._active_sessions.get_controls(client_pid)
         if not control_name in control_avail:
             raise RuntimeError('Requested control that is not in allowed list: {}'.format(control_name))
@@ -689,7 +732,8 @@ class PlatformService(object):
                           if a different client currently has an open
                           session in write mode
         """
-        self._active_sessions.check_client_active(client_pid, 'PlatformRestoreControl')
+        if not self._check_client_active(client_pid, 'PlatformRestoreControl'):
+            return
         self._write_mode(client_pid)
         save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
         self._pio.restore_control_dir(save_dir)
@@ -726,7 +770,8 @@ class PlatformService(object):
             region_names (list(str)): Names of all regions entered.
 
         """
-        self._active_sessions.check_client_active(client_pid, 'PlatformStopProfile')
+        if not self._check_client_active(client_pid, 'PlatformStopProfile'):
+            return
         self._active_sessions.stop_profile(client_pid, region_names)
         self.close_session(client_pid)
 

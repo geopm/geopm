@@ -7,6 +7,9 @@
 import os
 import unittest
 import re
+import psutil
+import copy
+import math
 from unittest import mock
 import tempfile
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -21,17 +24,18 @@ class TestPlatformService(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestPlatformService'
         self._RUN_PATH = tempfile.TemporaryDirectory('{}_run'.format(self._test_name))
-
+        os.chmod(self._RUN_PATH.name, 0o711)
         self._mock_active_sessions = mock.create_autospec(ActiveSessions)
         self._mock_active_sessions.get_clients.return_value = []
         self._check_client_active_err_msg = "Injected error"
         self._mock_active_sessions.check_client_active.side_effect = \
             RuntimeError(self._check_client_active_err_msg) # Until open_mock_session is called
-
+        self._mock_active_sessions.is_client_active.return_value = False
         self._mock_access_lists = mock.create_autospec(AccessLists)
         self._mock_write_lock = mock.create_autospec(WriteLock)
         self._mock_write_lock.try_lock.return_value = None
         self._mock_write_lock.unlock.return_value = None
+        self._mock_write_lock.__enter__.return_value = copy.copy(self._mock_write_lock)
 
         with mock.patch('geopmdpy.system_files.ActiveSessions', return_value=self._mock_active_sessions), \
              mock.patch('geopmdpy.system_files.AccessLists', return_value=self._mock_access_lists), \
@@ -49,11 +53,12 @@ class TestPlatformService(unittest.TestCase):
         # We already have two independent components with the session.
         client_pid = -999
         self.open_mock_session('user_name', client_pid, True, 2)  # 2
-        self._platform_service.close_session(client_pid)              # 1
-        self._platform_service.close_session(client_pid)              # 0
-        self._platform_service._active_sessions.check_client_active = mock.MagicMock(side_effect=RuntimeError)
-        with self.assertRaises(RuntimeError):
+        self._mock_active_sessions.is_client_active.return_value = False
+        with mock.patch('sys.stderr.write') as mock_stderr, \
+             mock.patch('geopmdpy.service.PlatformService._close_session_completely') as mock_close_sess:
             self._platform_service.close_session(client_pid) # error here
+            mock_stderr.assert_called_with(f"Warning: <geopm-service>: Operation 'PlatformCloseSession' not allowed without an open session. Client PID: {client_pid}\n")
+            mock_close_sess.assert_called_with(client_pid)
 
     def test_read_already_closed(self):
         # We already have two independent components with the session.
@@ -62,8 +67,11 @@ class TestPlatformService(unittest.TestCase):
         self._platform_service.close_session(client_pid)              # 1
         self._platform_service.close_session(client_pid)              # 0
         self._platform_service._active_sessions.check_client_active = mock.MagicMock(side_effect=RuntimeError)
-        with self.assertRaises(RuntimeError):
-            self._platform_service.read_signal(client_pid, 'CPU_FREQUENCY', 0, 0) # error here
+        self._platform_service._active_sessions.is_client_active = mock.MagicMock(return_value=False)
+        with mock.patch('sys.stderr.write') as mock_stderr:
+            value = self._platform_service.read_signal(client_pid, 'CPU_FREQUENCY', 0, 0) # error here
+            mock_stderr.assert_called_with(f"Warning: <geopm-service>: Operation 'PlatformReadSignal' not allowed without an open session. Client PID: {client_pid}\n")
+            self.assertTrue(math.isnan(value))
 
     def test_get_signal_info(self):
         signals = ['energy', 'frequency', 'power']
@@ -114,7 +122,7 @@ class TestPlatformService(unittest.TestCase):
             self._platform_service.unlock_control()
 
     def test_open_session_twice(self):
-        self.open_mock_session('', active=True)
+        self.open_mock_session('')
 
     def _gen_session_data_helper(self, client_pid, reference_count):
         signals_default = ['energy', 'frequency']
@@ -129,7 +137,7 @@ class TestPlatformService(unittest.TestCase):
                         'watch_id': watch_id}
         return session_data
 
-    def open_mock_session(self, session_user, client_pid=-999, active=False, reference_count=1):
+    def open_mock_session(self, session_user, client_pid=-999, active=True, reference_count=1):
 
         session_data = self._gen_session_data_helper(client_pid, reference_count)
         client_pid = session_data['client_pid']
@@ -162,6 +170,7 @@ class TestPlatformService(unittest.TestCase):
 
 
         self._mock_active_sessions.check_client_active.side_effect = None # session is now active
+        self._platform_service._active_sessions.is_client_active.return_value=True
 
         return session_data
 
@@ -170,14 +179,19 @@ class TestPlatformService(unittest.TestCase):
 
     def test_close_session_invalid(self):
         client_pid = 999
-        with self.assertRaisesRegex(RuntimeError, self._check_client_active_err_msg):
+        self._platform_service._active_sessions.is_client_active = mock.MagicMock(side_effect=psutil.NoSuchProcess(pid=client_pid, name='Mock Name', msg='Mock Message'))
+        with mock.patch('sys.stderr.write') as mock_stderr, \
+             mock.patch('geopmdpy.service.PlatformService._close_session_completely') as mock_close_sess:
             self._platform_service.close_session(client_pid)
+            mock_stderr.assert_called_with(f"Warning: <geopm-service>: Operation 'PlatformCloseSession' not allowed without an open session. Client PID: {client_pid}\n")
+            mock_close_sess.assert_called_with(client_pid)
 
     def test_close_session_read(self):
         session_data = self.open_mock_session('')
         client_pid = session_data['client_pid']
         watch_id = session_data['watch_id']
 
+        self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[client_pid])
         with mock.patch('gi.repository.GLib.source_remove', return_value=[]) as mock_source_remove, \
              mock.patch('geopmdpy.pio.restore_control_dir') as mock_restore_control_dir, \
              mock.patch('shutil.rmtree', return_value=[]) as mock_rmtree:
@@ -193,6 +207,7 @@ class TestPlatformService(unittest.TestCase):
         client_pid = session_data['client_pid']
         watch_id = session_data['watch_id']
         self._mock_write_lock.try_lock.return_value = client_pid
+        self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[client_pid])
         with mock.patch('geopmdpy.pio.save_control_dir') as mock_save_control_dir, \
              mock.patch('geopmdpy.pio.write_control') as mock_write_control, \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
@@ -208,7 +223,6 @@ class TestPlatformService(unittest.TestCase):
             save_dir = os.path.join(self._platform_service._RUN_PATH,
                                     self._platform_service._SAVE_DIR)
             mock_source_remove.assert_called_once_with(watch_id)
-            self.assertFalse(self._platform_service._active_sessions.is_client_active(client_pid))
             session_file = self._session_file_format.format(client_pid=client_pid)
             self.assertFalse(os.path.exists(session_file))
 
@@ -315,20 +329,27 @@ class TestPlatformService(unittest.TestCase):
             mock_stop_batch_server.assert_called_once_with(expected_result[0])
 
     def test_stop_batch_invalid(self):
-        with self.assertRaisesRegex(RuntimeError, self._check_client_active_err_msg):
+        with mock.patch('sys.stderr.write') as mock_stderr:
             self._platform_service.stop_batch('', '')
+            mock_stderr.assert_called_with("Warning: <geopm-service>: StopBatchServer called with non-integer client_pid: ''\n")
 
     def test_read_signal_invalid(self):
-        with self.assertRaisesRegex(RuntimeError, self._check_client_active_err_msg):
-            self._platform_service.read_signal('', '', '', '')
+        with mock.patch('sys.stderr.write') as mock_stderr, \
+             mock.patch('geopmdpy.service.PlatformService._close_session_completely') as mock_close_sess:
+            value = self._platform_service.read_signal('', '', '', '')
+            mock_stderr.assert_called_with(f"Warning: <geopm-service>: Operation 'PlatformReadSignal' not allowed without an open session. Client PID: \n")
+            mock_close_sess.assert_called_with('')
 
         session_data = self.open_mock_session('')
         client_pid = session_data['client_pid']
 
         signal_name = 'geopm'
         err_msg = 'Requested signal that is not in allowed list: {}'.format(signal_name)
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.read_signal(client_pid, signal_name, '', '')
+
+        with mock.patch('sys.stderr.write') as mock_stderr:
+            result = self._platform_service.read_signal(client_pid, signal_name, '', '')
+            mock_stderr.assert_called_with("Warning: <geopm-service>: Requested signal that is not in allowed list: 'geopm'\n")
+        self.assertTrue(math.isnan(result))
 
     def test_read_signal(self):
         session_data = self.open_mock_session('')
@@ -342,8 +363,9 @@ class TestPlatformService(unittest.TestCase):
             rs.assert_called_once_with(signal_name, domain, domain_idx)
 
     def test_write_control_invalid(self):
-        with self.assertRaisesRegex(RuntimeError, self._check_client_active_err_msg):
-            self._platform_service.write_control('', '', '', '', '')
+        with mock.patch('sys.stderr.write') as mock_stderr:
+            self._platform_service.write_control(-1, '', '', '', '')
+            mock_stderr.assert_called_with(f"Warning: <geopm-service>: Operation 'PlatformWriteControl' not allowed without an open session. Client PID: -1\n")
 
         session_data = self.open_mock_session('')
         client_pid = session_data['client_pid']
@@ -370,12 +392,15 @@ class TestPlatformService(unittest.TestCase):
 
     def test_restore_already_closed(self):
         client_pid = -999
-        session_data = self.open_mock_session('user_name', client_pid, True, 2)  # 2
+        self.open_mock_session('user_name', client_pid, True, 2)  # 2
         self._platform_service.close_session(client_pid)  # 1
         self._platform_service.close_session(client_pid)  # 0
-        self._platform_service._active_sessions.check_client_active = mock.MagicMock(side_effect=RuntimeError)
-        with self.assertRaises(RuntimeError):
+        self._platform_service._active_sessions.is_client_active = mock.MagicMock(side_effect=psutil.NoSuchProcess(pid=client_pid, name='Mock Name', msg='Mock Message'))
+        with mock.patch('sys.stderr.write') as mock_stderr, \
+             mock.patch('geopmdpy.service.PlatformService._close_session_completely') as mock_close_sess:
             self._platform_service.restore_control(client_pid)
+            mock_stderr.assert_called_with(f"Warning: <geopm-service>: Operation 'PlatformRestoreControl' not allowed without an open session. Client PID: {client_pid}\n")
+            mock_close_sess.assert_called_with(client_pid)
 
     def test_restore_write_blocked(self):
         client_pid = 999
