@@ -113,6 +113,8 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestSession.test_format_signals_invalid \
                  geopmdpy_test/pytest_links/TestSession.test_run \
                  geopmdpy_test/pytest_links/TestSession.test_run_read \
+                 geopmdpy_test/pytest_links/TestSession.test_run_read_pid_exit \
+                 geopmdpy_test/pytest_links/TestSession.test_run_read_pid_perm \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_fixed \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_infinite \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
