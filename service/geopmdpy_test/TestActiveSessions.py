@@ -17,6 +17,7 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.system_files import ActiveSessions
     from geopmdpy.system_files import ActiveSessions
     from geopmdpy.system_files import GEOPM_SERVICE_RUN_PATH_PERM
+    from geopmdpy.system_files import InvalidClientError
 
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
@@ -476,8 +477,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
              mock.patch('os.stat', return_value=session_mock) as mock_stat, \
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
-             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid, \
-             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
+             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
@@ -490,7 +490,6 @@ class TestActiveSessions(unittest.TestCase):
             mock_smf.assert_called_once_with(full_file_path, json.dumps(json_good_example))
 
             self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
-            mock_pid_info.assert_called_once_with(client_pid)
 
     def test_batch_server_bad_service_restart(self):
         """Verify batch pid is not returned
@@ -524,8 +523,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
              mock.patch('os.stat', return_value=session_mock) as mock_stat, \
              mock.patch('glob.glob', side_effect=[[], [full_file_path]]), \
-             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid, \
-             mock.patch('geopmdpy.system_files.ActiveSessions._pid_info', return_value=(client_uid, client_gid, create_time)) as mock_pid_info:
+             mock.patch('geopmdpy.system_files.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
             mock_smd.assert_called_once_with(sess_path, GEOPM_SERVICE_RUN_PATH_PERM)
             mock_srf.assert_called_once_with(full_file_path)
@@ -540,7 +538,6 @@ class TestActiveSessions(unittest.TestCase):
 
             mock_pid_valid.assert_has_calls(calls)
             self.assertIsNone(act_sess.get_batch_server(client_pid))
-            mock_pid_info.assert_called_once_with(client_pid)
 
     def test_remove_batch_server(self):
         """Assign the batch server PID to a client session
@@ -605,10 +602,10 @@ class TestActiveSessions(unittest.TestCase):
                      mock.call(write_fifo_path)]
             os_path_exists.assert_has_calls(calls)
             os_unlink.assert_has_calls(calls)
-            calls = [mock.call(f'Warning: {signal_shmem_path} file was left over, deleting it now.\n'),
-                     mock.call(f'Warning: {control_shmem_path} file was left over, deleting it now.\n'),
-                     mock.call(f'Warning: {read_fifo_path} file was left over, deleting it now.\n'),
-                     mock.call(f'Warning: {write_fifo_path} file was left over, deleting it now.\n')]
+            calls = [mock.call(f'Warning: <geopm-service>: {signal_shmem_path} file was left over, deleting it now.\n'),
+                     mock.call(f'Warning: <geopm-service>: {control_shmem_path} file was left over, deleting it now.\n'),
+                     mock.call(f'Warning: <geopm-service>: {read_fifo_path} file was left over, deleting it now.\n'),
+                     mock.call(f'Warning: <geopm-service>: {write_fifo_path} file was left over, deleting it now.\n')]
             mock_err.assert_has_calls(calls)
             batch_pid_actual = act_sess.get_batch_server(client_pid)
             self.assertEqual(None, batch_pid_actual)
@@ -751,10 +748,12 @@ class TestActiveSessions(unittest.TestCase):
             calls = [mock.call(full_file_path, json.dumps(session_json))]
             mock_smf.assert_has_calls(calls)
             self.assertTrue(act_sess.is_client_active(client_pid))
-            self.assertFalse(act_sess.is_client_active(client_pid))
+            exception_msg = f'Session PID {client_pid} identifying property has changed during the session: uid_orig={client_uid} uid_new={client_uid + 1} PID creation time has changed'
+            with self.assertRaisesRegex(InvalidClientError, exception_msg):
+                act_sess.is_client_active(client_pid)
             calls = [mock.call(client_pid), mock.call(client_pid), mock.call(client_pid)]
             mock_pid_info.assert_has_calls(calls)
-            mock_stderr.assert_called_with(f'Warning: <geopm-service> Session PID {client_pid} identifying property has changed during the session: uid_orig={client_uid} uid_new={client_uid + 1} PID creation time has changed\n')
+
 
 if __name__ == '__main__':
     unittest.main()
