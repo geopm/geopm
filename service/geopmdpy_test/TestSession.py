@@ -9,6 +9,8 @@ import unittest
 from unittest import mock
 from io import StringIO
 from dasbus.error import DBusError
+import errno
+import itertools
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -59,7 +61,7 @@ class TestSession(unittest.TestCase):
              mock.patch('geopmdpy.pio.sample', side_effect=signal_expect) as mock_sample, \
              mock.patch('geopmdpy.session.Session.format_signals', return_value=format_return_value):
             # Call tested method
-            self._session.run_read(mock_requests, duration, period, out_stream)
+            self._session.run_read(mock_requests, duration, period, pid=None, out_stream=out_stream)
             # Check mocks calls
             calls = [mock.call(*req) for req in pio_requests]
             mock_push_signal.assert_has_calls(calls)
@@ -68,6 +70,61 @@ class TestSession(unittest.TestCase):
             calls = num_period * [mock.call(idx) for idx in signal_handle]
             mock_sample.assert_has_calls(calls)
             calls = num_period * [mock.call(format_return_value)]
+            out_stream.write.assert_has_calls(calls)
+
+    def test_run_read_pid_exit(self):
+        """Geopmsession exits before all loops have finished if watching a terminated PID."""
+        duration = 10
+        period = 1
+        termination_time = 2
+        out_stream = mock.MagicMock()
+
+        requests = [('power', 0, 0), ('SERVICE::energy', 1, 1), ('frequency', 2, 2)]
+        mock_requests = mock.MagicMock()
+        mock_requests.__iter__.return_value = requests
+        format_return_value = "1.234, 2.345, 3.456"
+        mock_requests.get_formats.return_value = format_return_value
+        signal_handle = list(range(len(requests)))
+        signal_expect = itertools.cycle([1.234, 2.345, 3.456])
+
+        with mock.patch('geopmdpy.loop.TimedLoop', return_value=list(range(duration))), \
+             mock.patch('geopmdpy.pio.push_signal', side_effect=signal_handle), \
+             mock.patch('geopmdpy.pio.read_batch'), \
+             mock.patch('geopmdpy.pio.sample', side_effect=signal_expect), \
+             mock.patch('geopmdpy.session.os.kill', side_effect=[0, 0, OSError(errno.ESRCH, 'Fault Injection')]), \
+             mock.patch('geopmdpy.session.Session.format_signals', return_value=format_return_value):
+            self._session.run_read(mock_requests, duration, period, pid=12345, out_stream=out_stream)
+
+            # Output should be limited by the shorter PID termination_time
+            # instead of being limited by the longer loop duration
+            calls = termination_time * [mock.call(format_return_value)]
+            out_stream.write.assert_has_calls(calls)
+
+    def test_run_read_pid_perm(self):
+        """Geopmsession can wait for PID without kill permissions."""
+        duration = 10
+        period = 1
+        out_stream = mock.MagicMock()
+
+        requests = [('power', 0, 0), ('SERVICE::energy', 1, 1), ('frequency', 2, 2)]
+        mock_requests = mock.MagicMock()
+        mock_requests.__iter__.return_value = requests
+        format_return_value = "1.234, 2.345, 3.456"
+        mock_requests.get_formats.return_value = format_return_value
+        signal_handle = list(range(len(requests)))
+        signal_expect = itertools.cycle([1.234, 2.345, 3.456])
+
+        with mock.patch('geopmdpy.loop.TimedLoop', return_value=list(range(duration))), \
+             mock.patch('geopmdpy.pio.push_signal', side_effect=signal_handle), \
+             mock.patch('geopmdpy.pio.read_batch'), \
+             mock.patch('geopmdpy.pio.sample', side_effect=signal_expect), \
+             mock.patch('geopmdpy.session.os.kill', side_effect=itertools.repeat(OSError(errno.EPERM, 'Fault Injection'))), \
+             mock.patch('geopmdpy.session.Session.format_signals', return_value=format_return_value):
+            self._session.run_read(mock_requests, duration, period, pid=12345, out_stream=out_stream)
+
+            # Output should be limited by the loop duration since the PID
+            # exists (albeit without kill permission) the whole time.
+            calls = duration * [mock.call(format_return_value)]
             out_stream.write.assert_has_calls(calls)
 
     def test_check_read_args(self):
@@ -101,7 +158,7 @@ class TestSession(unittest.TestCase):
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
              mock.patch('geopmdpy.session.Session.run_read') as srr:
-            self._session.run(runtime, period, request_stream, out_stream)
+            self._session.run(runtime, period, None, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)
