@@ -68,7 +68,7 @@ if ENABLE_FORTRAN
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
     examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS)
     examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
-    examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
+    examples_simple_prof_f_LDFLAGS = $(LDFLAGS_NOPIE) $(MPI_LDFLAGS)
     examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS)
 endif
 endif
