@@ -8,6 +8,7 @@
 
 import sys
 import os
+import errno
 import math
 from argparse import ArgumentParser
 from . import topo
@@ -56,7 +57,7 @@ class Session:
                   zip(signals, signal_format)]
         return '{}\n'.format(','.join(result))
 
-    def run_read(self, requests, duration, period, out_stream):
+    def run_read(self, requests, duration, period, pid, out_stream):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -82,6 +83,9 @@ class Session:
             period (float): The user specified period between samples
                             in units of seconds.
 
+            pid (int or None): If not None, stop monitoring when the
+                                      given process finishes.
+
             out_stream (typing.IO): Object with write() method where output
                                will be printed (typically sys.stdout).
 
@@ -98,6 +102,20 @@ class Session:
             signals = [pio.sample(handle) for handle in signal_handles]
             line = self.format_signals(signals, requests.get_formats())
             out_stream.write(line)
+            if pid is not None:
+                try:
+                    os.kill(pid, 0)
+                except OSError as e:
+                    if e.errno == errno.ESRCH:
+                        # No such process. Stop watching.
+                        break
+                    elif e.errno == errno.EPERM:
+                        # There's a still a process, but we aren't allowed to
+                        # signal it. Since there's still a process, keep going.
+                        pass
+                    else:
+                        # Any other error. Bubble up the exception.
+                        raise
 
     def check_read_args(self, run_time, period):
         """Check that the run time and period are valid for a read session
@@ -121,7 +139,7 @@ class Session:
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
 
-    def run(self, run_time, period,
+    def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout):
         """"Create a GEOPM session with values parsed from the command line
 
@@ -136,6 +154,12 @@ class Session:
                             Value must be zero for a write mode
                             session.
 
+            pid (int or None): If not None, stop monitoring when the
+                                      given process finishes.
+
+            print_header (bool): Whether to print a row of headers before printing
+                                 CSV data.
+
             request_stream (typing.IO): Input from user describing the
                                    requests to read.
 
@@ -145,7 +169,11 @@ class Session:
         """
         requests = ReadRequestQueue(request_stream)
         self.check_read_args(run_time, period)
-        self.run_read(requests, run_time, period, out_stream)
+        if print_header:
+            header_names = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
+                            for name, domain, domain_idx in requests]
+            print(','.join(header_names), file=out_stream)
+        self.run_read(requests, run_time, period, pid, out_stream)
 
 
 class RequestQueue:
@@ -306,10 +334,14 @@ def main():
                         help='Total run time of the session to be opened in seconds')
     parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
+    parser.add_argument('--pid', type=int,
+                        help='Stop the session when the given process PID ends')
+    parser.add_argument('--print-header', action='store_true',
+                        help='Print a CSV header before printing any sampled values')
     args = parser.parse_args()
     try:
         sess = Session()
-        sess.run(args.time, args.period)
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
