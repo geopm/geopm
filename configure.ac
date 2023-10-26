@@ -580,8 +580,9 @@ AC_COMPILE_IFELSE([
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
 [EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
-[LDFLAGS_NOPIE="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack"]
-[EXTRA_LDFLAGS="$LDFLAGS_NOPIE -pie"]
+[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack"]
+[LDFLAGS_NOPIE="$EXTRA_LDFLAGS $AM_LDFLAGS"]
+[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -pie"]
 [EXTRA_FFLAGS="$EXTRA_FFLAGS $NO_FASTMATH -fPIC"]
 if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
 [EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
