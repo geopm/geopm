@@ -451,9 +451,11 @@ class ActiveSessions(object):
         Returns:
             bool: True if the PID has an open session, False otherwise
 
-        Raises:
+        Exceptions:
             InvalidClientError: The creation time, UID, or GID for the
                                 PID has changed.
+
+            psutil.NoSuchProcess: The PID is no longer active.
 
         """
         is_registered = client_pid in self._sessions
