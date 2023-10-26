@@ -21,7 +21,7 @@ if ENABLE_OPENMP
                                   # end
 
     integration_apps_nasft_nasft_nas_ft_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
-    integration_apps_nasft_nasft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
+    integration_apps_nasft_nasft_nas_ft_LDFLAGS = $(LDFLAGS_NOPIE) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
     integration_apps_nasft_nasft_nas_ft_FCFLAGS = -std=legacy -fopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
     integration_apps_nasft_nasft_nas_ft_FFLAGS =  -fopenmp -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3
 if HAVE_IFX
