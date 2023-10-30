@@ -727,7 +727,7 @@ class PlatformService(object):
         For the session associated to the given process, restore the state
         of all controls, which is recorded at the beginning of the session.
 
-        Raises
+        Raises:
             RuntimeError: If client_pid does not have an open session or
                           if a different client currently has an open
                           session in write mode

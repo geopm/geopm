@@ -109,6 +109,7 @@ intersphinx_mapping = {
     'pygobject': ('https://pygobject.readthedocs.io/en/latest', None),
     'cffi': ('https://cffi.readthedocs.io/en/latest', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),
+    'psutil': ('https://psutil.readthedocs.io/en/latest', None),
 }
 
 # List of patterns, relative to source directory, that match files and
