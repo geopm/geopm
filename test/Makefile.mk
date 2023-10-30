@@ -632,10 +632,14 @@ $(GTEST_TESTS): test/gtest_links/%:
 	rm -f $@
 	ln -s $(abs_builddir)/test/geopm_test.sh $@
 
-init-coverage:
+init-coverage: all
 	lcov --no-external --capture --initial --directory src --output-file coverage-base-initial.info
 
-coverage: | init-coverage check
+if ENABLE_COVERAGE
+check: init-coverage
+endif
+
+coverage: init-coverage check
 	lcov --no-external --capture --directory src --output-file coverage-base.info
 	lcov -a coverage-base-initial.info -a coverage-base.info --output-file coverage-base-combined.info
 	lcov --remove coverage-base-combined.info "$$(realpath $$(pwd))/src/geopm_pmpi_fortran.c" --output-file coverage-base-combined-filtered.info
