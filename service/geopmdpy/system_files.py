@@ -451,7 +451,7 @@ class ActiveSessions(object):
         Returns:
             bool: True if the PID has an open session, False otherwise
 
-        Exceptions:
+        Raises:
             InvalidClientError: The creation time, UID, or GID for the
                                 PID has changed.
 
