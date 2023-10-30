@@ -505,10 +505,14 @@ $(GTEST_TESTS): test/gtest_links/%:
 	rm -f $@
 	ln -s $(abs_srcdir)/test/geopm_test.sh $@
 
-init-coverage:
+init-coverage: all
 	lcov --no-external --capture --initial --directory src --output-file coverage-service-initial.info
 
-coverage: | init-coverage check
+if ENABLE_COVERAGE
+check: init-coverage
+endif
+
+coverage: init-coverage check
 	lcov --no-external --capture --directory src --output-file coverage-service.info
 	lcov -a coverage-service-initial.info -a coverage-service.info --output-file coverage-service-combined.info
 	genhtml coverage-service-combined.info --output-directory coverage-service --legend -t $(VERSION) -f

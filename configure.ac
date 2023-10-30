@@ -221,6 +221,7 @@ if test "x$enable_coverage" = "x1" ; then
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
+AM_CONDITIONAL([ENABLE_COVERAGE], [test "x$enable_coverage" = "x1"])
 
 if test "x$enable_asan" = "x1" ; then
   EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
