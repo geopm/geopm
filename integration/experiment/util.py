@@ -214,3 +214,43 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
                              'Consider using the energy-margin options.\n'.format(nearby_energy_count, freq_col_name, energy_reading_cov))
 
     return energy_efficient_frequency
+
+
+def create_init_control_file(name, contents, suffix=1):
+    file_name = ''
+    created = False
+    n = suffix
+    while not created:
+        try:
+            file_name, n = _generate_unique_name(name, n)
+            with open(file_name, 'x') as f:
+                f.write(contents)
+            created = True
+        except FileExistsError:
+            n += 1
+    return file_name
+
+
+def create_output_dir(name, suffix=1):
+    dir_name = ''
+    created = False
+    n = suffix
+    while not created:
+        try:
+            dir_name, n = _generate_unique_name(name, n)
+            os.mkdir(dir_name)
+            created = True
+        except FileExistsError:
+            n += 1
+    return dir_name
+
+
+def _generate_unique_name(name, start=1):
+    n = start - 1
+    exists = True
+    file_name = ''
+    while exists:
+        n += 1
+        file_name = f'{name}-{n}'
+        exists = os.path.exists(file_name)
+    return file_name, n
