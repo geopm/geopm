@@ -14,6 +14,7 @@ import subprocess
 import io
 import yaml
 import shlex
+import shutil
 
 import geopmpy.launcher
 
@@ -243,6 +244,11 @@ def create_output_dir(name, suffix=1):
         except FileExistsError:
             n += 1
     return dir_name
+
+
+def prep_experiment_output_dir(output_dir):
+    if output_dir.exists() and output_dir.is_dir():
+        shutil.rmtree(output_dir)
 
 
 def _generate_unique_name(name, start=1):

@@ -54,6 +54,7 @@ class CPUCACharacterization(object):
 
         # Uncore frequency sweep
         uncore_freq_sweep_dir = Path(self._base_dir, 'uncore_frequency_sweep')
+        util.prep_experiment_output_dir(uncore_freq_sweep_dir)
         aib_app_conf = self.get_aib_conf()
         experiment_args = self.get_experiment_args(uncore_freq_sweep_dir)
         experiment_args.init_control = os.path.realpath(init_control_file)

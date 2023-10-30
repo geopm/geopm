@@ -14,13 +14,12 @@ import sys
 import unittest
 import os
 from pathlib import Path
-import shutil
 
 import geopmpy.agent
 import geopmpy.io
 
 from integration.test import util as test_util
-from experiment import util
+from experiment import util as exp_util
 from experiment.energy_efficiency import cpu_activity
 from experiment.monitor import monitor
 from experiment.cpu_ca_characterization import CPUCACharacterization
@@ -47,14 +46,11 @@ class TestIntegration_cpu_activity(unittest.TestCase):
                           add_init_cfg):
             if not cls._skip_launch:
                 init_control_cfg = cls._cpu_ca_characterization.get_init_control_config(add_init_cfg)
-                init_control_path = util.create_init_control_file('init_control', init_control_cfg)
+                init_control_path = exp_util.create_init_control_file('init_control', init_control_cfg)
                 experiment_args.init_control = os.path.realpath(init_control_path)
                 experiment_cli_args.append('--geopm-ctl=process')
 
-                output_dir = experiment_args.output_dir
-                if output_dir.exists() and output_dir.is_dir():
-                    shutil.rmtree(output_dir)
-
+                exp_util.prep_experiment_output_dir(experiment_args.output_dir)
                 experiment_type.launch(app_conf=app_conf, args=experiment_args,
                                        experiment_cli_args=experiment_cli_args)
 

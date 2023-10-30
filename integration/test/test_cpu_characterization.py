@@ -26,6 +26,8 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         """
         Setup applications, execute, and set up class variables.
         """
+        cls._skip_launch = not util.do_launch()
+
         base_dir = 'test_cpu_characterization_output'
         cls._cpu_ca_characterization = CPUCACharacterization(full_characterization=False,
                                                              base_dir=base_dir)
@@ -46,7 +48,9 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {}
         """.format(cls._cpu_max_freq, cls._uncore_max_freq, cls._uncore_min_freq)
 
-        cpu_ca_config = cls._cpu_ca_characterization.do_characterization(freq_cfg)
+        cpu_ca_config = {}
+        if not cls._skip_launch:
+            cpu_ca_config = cls._cpu_ca_characterization.do_characterization(freq_cfg)
 
         json_config = json.dumps(cpu_ca_config, indent=4)
         cc_file_name = 'const_config_io-characterization.json'
