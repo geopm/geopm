@@ -26,6 +26,7 @@
 #include "CombinedControl.hpp"
 #include "CombinedSignal.hpp"
 #include "ServiceIOGroup.hpp"
+#include "BatchStatus.hpp"
 
 namespace geopm
 {
@@ -992,35 +993,22 @@ namespace geopm
                                            int &server_pid,
                                            std::string &server_key)
     {
-        if (signal_config.empty() && control_config.empty()) {
-            throw Exception("PlatformIOImp::start_batch_server(): Requested a batch server, but no signals or controls were specified",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::shared_ptr<BatchServer> batch_server =
-            BatchServer::make_unique(client_pid, signal_config, control_config);
-        server_pid = batch_server->server_pid();
-        server_key = batch_server->server_key();
-        if (m_batch_server.find(server_pid) != m_batch_server.end()) {
-            throw Exception("PlatformIOImp::start_batch_server(): Created a server with PID of existing server: " + std::to_string(server_pid),
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        m_batch_server[server_pid] = std::move(batch_server);
+        throw Exception("PlatformIOImp::start_batch_server(): Deprecated, use geopmbatch(1) instead",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void PlatformIOImp::stop_batch_server(int server_pid)
     {
-        auto it = m_batch_server.find(server_pid);
-        if (it == m_batch_server.end()) {
-            throw Exception("PlatformIO::stop_batch_server(): Unknown batch server PID: " + std::to_string(server_pid),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        try {
+            // TODO: Use member m_posix_signal to enable mocking
+            auto posix_signal = POSIXSignal::make_unique();
+            posix_signal->sig_queue(server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE);
         }
-#ifdef GEOPM_DEBUG
-        if (!it->second->is_active()) {
-            std::cerr << "Warning: <geopm> PlatformIO::stop_batch_server(): Batch server was inactive when it was stopped\n";
+        catch (const Exception &ex) {
+            if (ex.err_value() != ESRCH) {
+                throw;
+            }
         }
-#endif
-        it->second->stop_batch();
-        m_batch_server.erase(it);
     }
 
     bool PlatformIO::is_valid_value(double value)

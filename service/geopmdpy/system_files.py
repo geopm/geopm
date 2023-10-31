@@ -777,7 +777,8 @@ class ActiveSessions(object):
         if 'batch_server' in self._sessions[client_pid]:
             current_server = self._sessions[client_pid]['batch_server']
             raise RuntimeError(f'Client {client_pid} has already started a batch server: {current_server}')
-        self._sessions[client_pid]['batch_server'] = int(batch_pid)
+        batch_pid = int(batch_pid)
+        self._sessions[client_pid]['batch_server'] = batch_pid
         self._update_session_file(client_pid)
 
     def remove_batch_server(self, client_pid):
@@ -793,8 +794,7 @@ class ActiveSessions(object):
             RuntimeError: Client does not have an open session
 
         """
-        batch_pid = self._sessions[client_pid]['batch_server']
-        self._sessions[client_pid].pop('batch_server')
+        batch_pid = self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
 
         signal_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-signal"

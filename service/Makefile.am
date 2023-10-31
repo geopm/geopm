@@ -13,6 +13,7 @@ lib_LTLIBRARIES = libgeopmd.la
 
 bin_PROGRAMS = geopmread \
                geopmwrite \
+               geopmbatch \
                # end
 
 include_HEADERS = src/geopm_debug.hpp \
@@ -177,6 +178,9 @@ geopmread_LDADD = libgeopmd.la
 geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmwrite_LDADD = libgeopmd.la
+geopmbatch_SOURCES = src/geopmbatch_main.cpp
+geopmbatch_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
+geopmbatch_LDADD = libgeopmd.la
 
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
@@ -421,9 +425,9 @@ geopmdrs_sources = geopmdrs/Cargo.toml.in \
 EXTRA_DIST += $(geopmdrs_sources)
 
 install-rust: $(geopmdrs_sources)
-	export CARGO_HOME=$(abs_builddir)/cargo-home; if [ ! -d $(abs_srcdir)/geopmdrs/vendor ]; then cd $(abs_srcdir)/geopmdrs && cargo vendor; fi
-	export CARGO_HOME=$(abs_builddir)/cargo-home; cd $(abs_srcdir)/geopmdrs && cargo build --release --bin geopmd-proxy
-	export CARGO_HOME=$(abs_builddir)/cargo-home; cargo install --path=$(abs_srcdir)/geopmdrs --bin geopmd-proxy --root=$(DESTDIR)/$(prefix)
+	if [ ! -d $(abs_srcdir)/geopmdrs/vendor ]; then cd $(abs_srcdir)/geopmdrs && cargo vendor; fi
+	cd $(abs_srcdir)/geopmdrs && cargo build --release --bin geopmd-proxy
+	cargo install --path=$(abs_srcdir)/geopmdrs --bin geopmd-proxy --root=$(DESTDIR)/$(prefix)
 
 
 # RPM TARGET

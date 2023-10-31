@@ -13,6 +13,9 @@
 #include <unistd.h>
 #include <wait.h>
 #include <iostream>
+#include <string>
+#include <cstring>
+#include <stdexcept>
 
 #include "geopm_error.h"
 #include "geopm_sched.h"
@@ -29,30 +32,12 @@
 #endif
 
 volatile static sig_atomic_t g_sigterm_count = 0;
-volatile static sig_atomic_t g_sigchld_count = 0;
-volatile static sig_atomic_t g_sigchld_status = 0;
-volatile static sig_atomic_t g_wait_status = 0;
 
 static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
 {
     if (siginfo->si_value.sival_int == geopm::BatchStatus::M_MESSAGE_TERMINATE) {
         ++g_sigterm_count;
     }
-}
-
-static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
-{
-    int child_status = 0;
-    int child_pid = 0;
-    child_pid = wait(&child_status);
-    if (child_pid == -1) {
-        g_wait_status = errno ? errno : GEOPM_ERROR_RUNTIME;
-        g_sigchld_status = GEOPM_ERROR_RUNTIME;
-    }
-    else if (child_status != 0) {
-        g_sigchld_status = child_status;
-    }
-    ++g_sigchld_count;
 }
 
 namespace geopm
@@ -85,30 +70,7 @@ namespace geopm
         : BatchServerImp(client_pid, signal_config, control_config, "", "",
                          platform_io(), nullptr, nullptr, nullptr, nullptr, 0)
     {
-        // Fork the server when calling real constructor.
-        auto setup = [this]() {
-#ifdef GEOPM_ENABLE_NVML
-            try {
-                // NVML requires reinitialization after fork
-                // TODO: Switch to fork()/excecv() model to
-                //       avoid this issue
-                nvml_device_pool(geopm_sched_num_cpu()).reset();
-            }
-            catch (const Exception &ex) {
-                if (std::string(ex.what()).find("NVML failed to initialize.") == std::string::npos) {
-                    throw ex;
-                }
-            }
-#endif
-            this->child_register_handler();
-            this->create_shmem();
-            return BatchStatus::M_MESSAGE_CONTINUE;
-        };
-        auto run = [this]() {
-            this->run_batch();
-        };
-        parent_register_handler();
-        m_server_pid = fork_with_setup(setup, run);
+
     }
 
     BatchServerImp::BatchServerImp(
@@ -153,17 +115,6 @@ namespace geopm
 
     BatchServerImp::~BatchServerImp()
     {
-        if (m_server_pid != 0 && m_is_active) {
-            try {
-                stop_batch();
-            }
-            catch (const Exception &ex) {
-                std::cerr << "Warning: <geopm> BatchServerImp::~BatchServerImp(): Exception thrown in destructor: " <<  ex.what() << "\n";
-            }
-            catch (...) {
-                std::cerr << "Warning: <geopm> BatchServerImp::~BatchServerImp(): Non-GEOPM exception thrown in destructor\n";
-            }
-        }
         if (m_signal_shmem != nullptr) {
             m_signal_shmem->unlink();
         }
@@ -181,25 +132,6 @@ namespace geopm
     std::string BatchServerImp::server_key(void) const
     {
         return m_server_key;
-    }
-
-    void BatchServerImp::stop_batch(void)
-    {
-        if (m_server_pid == 0) {
-            throw Exception("BatchServerImp::stop_batch(): must be called from parent process, not child process",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        if (is_active()) {
-            try {
-                m_posix_signal->sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE);
-            }
-            catch (const Exception &ex) {
-                if (ex.err_value() != ESRCH) {
-                    throw;
-                }
-            }
-            m_is_active = false;
-        }
     }
 
     char BatchServerImp::read_message(void)
@@ -305,25 +237,6 @@ namespace geopm
 
     bool BatchServerImp::is_active(void)
     {
-        if (g_sigchld_count != 0) {
-            m_is_active = false;
-            --g_sigchld_count;
-            if (g_wait_status != 0) {
-                char err_msg[PATH_MAX];
-                geopm_error_message(g_wait_status, err_msg, PATH_MAX);
-                std::cerr << "Warning: <geopm> " << __FILE__ << ":" << __LINE__
-                          << " :  Received SIGCHLD but wait() failed: "
-                          << g_wait_status << " : \"" << err_msg << "\"\n";
-                g_wait_status = 0;
-                g_sigchld_status = 0;
-            }
-            else if (g_sigchld_status != 0) {
-                std::cerr << "Warning: <geopm> " << __FILE__ << ":" << __LINE__
-                          << " :  The batch server child process ended with non-zero status: "
-                          << g_sigchld_status << "\n";
-                g_sigchld_status = 0;
-            }
-        }
         return m_is_active;
     }
 
@@ -390,7 +303,7 @@ namespace geopm
         }
     }
 
-    void BatchServerImp::child_register_handler(void)
+    void BatchServerImp::register_handler(void)
     {
         int signo = SIGTERM;
         g_sigterm_count = 0;
@@ -401,61 +314,102 @@ namespace geopm
         m_posix_signal->sig_action(signo, &action, nullptr);
     }
 
-    void BatchServerImp::parent_register_handler(void)
+    int BatchServer::main(int argc, char **argv)
     {
-        int signo = SIGCHLD;
-        g_sigchld_count = 0;
-        struct sigaction action = {};
-        action.sa_mask = m_posix_signal->make_sigset({signo});
-        action.sa_flags = SA_SIGINFO;
-        action.sa_sigaction = &action_sigchld;
-        m_posix_signal->sig_action(signo, &action, nullptr);
+        int client_pid = -1;
+        if (argc != 2)
+        {
+            std::cerr << "Usage: " + std::string(argv[0]) + " CLIENT_PID" << std::endl;
+            return -1;
+        }
+        else if (std::string(argv[1]) == "--help") {
+            std::cerr << "Usage: " + std::string(argv[0]) + " CLIENT_PID" << std::endl;
+            return 0;
+        }
+        try {
+            client_pid = std::stoi(argv[1]);
+        }
+        catch(const std::invalid_argument &ex) {
+            std::cerr << "Error: <geopmbatch>: Invalid PID: " << argv[1] << std::endl;
+            return -1;
+        }
+        catch(const std::out_of_range &ex) {
+            std::cerr << "Error: <geopmbatch>: Out of range PID: " << argv[1] << std::endl;
+            return -1;
+        }
+        try {
+            main(client_pid, std::cin);
+        }
+        catch (const std::runtime_error &ex) {
+            std::cerr << "Error: <geopmbatch>: Batch server was terminated with exception: "
+                      << ex.what() << std::endl;
+            return -1;
+        }
+        catch (...) {
+            std::cerr << "Error: <geopmbatch>: Batch server was terminated with unknown exception"
+                      << std::endl;
+            return -1;
+        }
+        return 0;
     }
 
-    int BatchServerImp::fork_with_setup(std::function<char(void)> setup,
-                                        std::function<void(void)> run)
+    void BatchServer::main(int client_pid, std::istream &input_stream)
     {
-        int pipe_fd[2];
-        check_return(pipe(pipe_fd), "pipe(2)");
-        int forked_pid = fork();
-        check_return(forked_pid, "fork(2)");
-        if (forked_pid == 0) {
+        std::string input_line;
+        std::vector<geopm_request_s> signal_config;
+        std::vector<geopm_request_s> control_config;
+        while(getline(input_stream, input_line)) {
+            std::string err_str = "BatchServerImp::main(): Error parsing input stream line: \"" + input_line + "\"";
+            if (input_line == "") {
+                break;
+            }
+            std::vector<std::string> split_line = geopm::string_split(input_line, " ");
+            if (split_line.size() != 4) {
+                throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            bool is_read = split_line[0] == "read";
+            if (!is_read && split_line[0] != "write") {
+                throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            geopm_request_s request;
             try {
-                check_return(close(pipe_fd[0]), "close(2)");
-                char msg = setup();  // BatchStatus::M_MESSAGE_CONTINUE
-                check_return(write(pipe_fd[1], &msg, 1), "write(2)");
-                check_return(close(pipe_fd[1]), "close(2)");
-                run();
-                m_signal_shmem.reset();
-                m_control_shmem.reset();
+                request.domain_type = stoi(split_line[2]);
+                request.domain_idx = stoi(split_line[3]);
             }
-            catch (const std::runtime_error &ex) {
-                std::cerr << "Warning: <geopm>: " << __FILE__ << ":" << __LINE__
-                          << " Batch server was terminated with exception: "
-                          << ex.what() << "\n";
+            catch(const std::invalid_argument &ex) {
+                throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            catch (...) {
-                std::cerr << "Warning: <geopm>: " << __FILE__ << ":" << __LINE__
-                          << " Batch server was terminated with unknown exception\n";
+	    catch(const std::out_of_range &ex) {
+                throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            // Calling _Exit() avoids destroying resources associated
-            // with the parent process, however any resources created
-            // after fork() will not be automatically destroyed
-            // TODO: Switch to fork()/execv() to avoid this issue,
-            //       execv() does not return.
-            _Exit(0);
+            if (is_read) {
+                signal_config.push_back(request);
+                size_t name_max = sizeof(request.name);
+                signal_config.back().name[name_max - 1] = '\0';
+                std::strncpy(signal_config.back().name, split_line[1].c_str(), name_max - 1);
+                if (signal_config.back().name[name_max - 1] != '\0') {
+                    throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+            }
+            else {
+                control_config.push_back(request);
+                size_t name_max = sizeof(request.name);
+                control_config.back().name[name_max - 1] = '\0';
+                std::strncpy(control_config.back().name, split_line[1].c_str(), name_max - 1);
+                if (control_config.back().name[name_max - 1] != '\0') {
+                    throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+            }
         }
-        check_return(close(pipe_fd[1]), "close(2)");
-        char msg = '\0';
-        check_return(read(pipe_fd[0], &msg, 1), "read(2)");
-        if (msg != BatchStatus::M_MESSAGE_CONTINUE) {
-            std::ostringstream err_msg;
-            err_msg << "BatchServerImp: Receivied unexpected message from batch server at startup: \""
-                    << msg << "\"";
-            throw Exception(err_msg.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        if (input_stream.bad()) {
+            throw Exception("BatchServerImp::main(): Error reading from input stream",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        check_return(close(pipe_fd[0]), "close(2)");
-        return forked_pid;
+        std::shared_ptr<BatchServer> server = BatchServer::make_unique(client_pid, signal_config, control_config);
+        server->register_handler();
+        server->create_shmem();
+        std::cout << client_pid << std::endl;
+        server->run_batch();
     }
 
     void BatchServerImp::check_return(int ret, const std::string &func_name) const
