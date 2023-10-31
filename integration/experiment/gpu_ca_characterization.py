@@ -13,11 +13,11 @@ import geopmpy.io
 
 from apps.parres import parres
 from experiment import machine
-from experiment import util
+from experiment import util as exp_util
 from experiment.gpu_frequency_sweep import gpu_frequency_sweep
 from experiment.gpu_frequency_sweep import gen_gpu_activity_constconfig_recommendation
 
-from integration.test import test_util
+from integration.test import util as test_util
 
 
 class GPUCACharacterization(object):
@@ -25,13 +25,13 @@ class GPUCACharacterization(object):
         self._mach = machine.init_output_dir('.')
         self._base_dir = base_dir
 
-        self._cpu_max_freq = util.geopmread('CPU_FREQUENCY_MAX_AVAIL board 0')
-        self._uncore_max_freq = util.geopmread('CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0')
-        self._uncore_min_freq = util.geopmread('CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0')
+        self._cpu_max_freq = exp_util.geopmread('CPU_FREQUENCY_MAX_AVAIL board 0')
+        self._uncore_max_freq = exp_util.geopmread('CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0')
+        self._uncore_min_freq = exp_util.geopmread('CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0')
 
     def do_characterization(self):
         dgemm_freq_sweep_dir = Path(self._base_dir, 'dgemm_gpu_freq_sweep')
-        util.prep_experiment_output_dir(dgemm_freq_sweep_dir)
+        exp_util.prep_experiment_output_dir(dgemm_freq_sweep_dir)
         app_conf, experiment_args = self.get_app_conf(dgemm_freq_sweep_dir)
         experiment_cli_args = ['--geopm-ctl-local']
         gpu_frequency_sweep.launch(app_conf=app_conf, args=experiment_args,

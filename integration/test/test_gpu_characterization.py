@@ -14,19 +14,19 @@ import os
 import json
 from pathlib import Path
 
-from integration.test import util
-
+from integration.test import util as test_util
 from experiment.gpu_ca_characterization import GPUCACharacterization
+from experiment import util as exp_util
 
-@util.skip_unless_gpu()
-@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
+@test_util.skip_unless_gpu()
+@test_util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
 class TestIntegration_gpu_characterization(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
         Setup DGEMM & STREAM applications, setup agent config, and execute.
         """
-        cls._skip_launch = not util.do_launch()
+        cls._skip_launch = not test_util.do_launch()
 
         base_dir = 'test_gpu_characterization_output'
         cls._gpu_ca_characterization = GPUCACharacterization(base_dir=base_dir)
@@ -39,23 +39,26 @@ class TestIntegration_gpu_characterization(unittest.TestCase):
         with open("const_config_io-ca.json", "w") as outfile:
             outfile.write(json_config)
 
-        const_path = Path('const_config_io-ca.json').resolve()
-        os.environ["GEOPM_CONST_CONFIG_PATH"] = str(const_path)
+        cls._const_path = Path('const_config_io-ca.json').resolve()
+        os.environ["GEOPM_CONST_CONFIG_PATH"] = str(cls._const_path)
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
             TestIntegration_gpu_characterization._keep_files = True
 
-    def test_gpu_characterization(self):
-        """
-        Fge is readable via geopmread
-        Fge <= Fmax
-        Fge >= Fmin
-        """
-        pass
+    def test_const_config_file_exists(self):
+        self.assertTrue(self._const_path.exists())
+
+    def test_const_config_signals(self):
+        gpu_fe = exp_util.geopmread('CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY board 0')
+        gpu_max_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MAX_AVAIL gpu 0')
+        gpu_min_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MIN_AVAIL gpu 0')
+
+        self.assertGreaterEqual(gpu_fe, gpu_min_freq)
+        self.assertLessEqual(gpu_fe, gpu_max_freq)
 
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
-    util.do_launch()
+    test_util.do_launch()
     unittest.main()
