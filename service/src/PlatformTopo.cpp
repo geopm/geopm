@@ -119,6 +119,10 @@ namespace geopm
     std::unique_ptr<ServiceProxy> PlatformTopoImp::try_service_proxy(void)
     {
         std::unique_ptr<ServiceProxy> result;
+        if (getuid() == 0) {
+            // Disable use of service proxy when user is root
+            return result;
+        }
         try {
             result = ServiceProxy::make_unique();
         }
