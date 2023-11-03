@@ -246,6 +246,11 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/plugin_load/bob/BobIOGroup.cpp \
                 tutorial/plugin_load/bob/BobIOGroup.hpp \
                 tutorial/plugin_load/README.md \
+                tutorial/pytorch_agent/Makefile \
+                tutorial/pytorch_agent/README.md \
+                tutorial/pytorch_agent/GPUTorchAgent.cpp \
+                tutorial/pytorch_agent/GPUTorchAgent.hpp \
+                tutorial/pytorch_agent/train_gpu_model-pytorch.py \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
