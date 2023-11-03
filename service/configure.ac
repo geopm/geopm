@@ -202,6 +202,11 @@ if test "x$enable_debug" = "x1" ; then
 fi
 AC_SUBST([enable_debug])
 
+if test "x$enable_msr_safe" = "x1" ; then
+  AC_DEFINE([GEOPM_ENABLE_MSR_SAFE], [ ], [Enables usr of the msr-safe driver interfaces])
+fi
+AC_SUBST([enable_msr_safe])
+
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
   EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
