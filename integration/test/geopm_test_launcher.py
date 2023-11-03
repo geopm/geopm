@@ -51,7 +51,7 @@ def get_platform():
 
 
 class TestLauncher(object):
-    def __init__(self, app_conf, agent_conf, report_path=None,
+    def __init__(self, app_conf, agent_conf=None, report_path=None,
                  trace_path=None, host_file=None, time_limit=600,
                  performance=False, fatal_test=False,
                  trace_profile_path=None, report_signals=None, trace_signals=None,
@@ -121,16 +121,18 @@ class TestLauncher(object):
             return
 
         self._app_conf.write()
-        self._agent_conf.write()
+        if self._agent_conf:
+            self._agent_conf.write()
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(datetime.datetime.now()) + '\n')
             outfile.flush()
             argv = ['dummy', detect_launcher(), '--geopm-ctl', self._pmpi_ctl,
-                                                '--geopm-agent', self._agent_conf.get_agent(),
                                                 '--geopm-profile', test_name]
 
-            if include_geopm_policy:
-                argv.extend(['--geopm-policy', self._agent_conf.get_path()])
+            if self._agent_conf:
+                argv.extend(['--geopm-agent', self._agent_conf.get_agent()])
+                if include_geopm_policy:
+                    argv.extend(['--geopm-policy', self._agent_conf.get_path()])
 
             if self._report_path is not None:
                 argv.extend(['--geopm-report', self._report_path])
