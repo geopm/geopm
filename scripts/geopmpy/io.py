@@ -800,6 +800,49 @@ class RawReport(object):
         return copy.deepcopy(raw_data[match])
 
 
+def RawTraceIterator(file_pointer):
+    """Low level, low memory overhead trace iterator."""
+    fp = file_pointer
+    if type(file_pointer) == str:
+        fp = open(file_pointer)
+
+    headers = None
+    last = {}
+    for line in fp:
+        if line[0] == '#':
+            continue
+
+        if headers is None:
+            headers = line.lower().strip().split("|")
+            continue
+
+        ll = dict(zip(headers, line.strip().split("|")))
+        # old format
+        if 'region_id' in ll:
+            ll['region_hash'] = ll['region_id']
+
+        rval = {}
+        rval.update(ll)
+        for k in ll:
+            try:
+                rval[k + "_f"] = float(ll[k])
+            except ValueError:
+                pass
+
+        for k in last:
+            rval[k + "_prev"] = last[k]
+            try:
+                rval[k + "_prev_f"] = float(last[k])
+                rval[k + "_delta"] = float(rval[k]) - float(last[k])
+            except ValueError:
+                pass
+
+        yield(rval)
+        last = ll
+
+    fp.close()
+
+
 class RawReportCollection(object):
     '''
     Used to group together a collection of related :py:class:`geopmpy.io.RawReport`\ s.
