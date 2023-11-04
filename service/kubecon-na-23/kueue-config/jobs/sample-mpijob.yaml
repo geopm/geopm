@@ -1,0 +1,86 @@
+apiVersion: kubeflow.org/v2beta1
+kind: MPIJob
+metadata:
+  name: pi1
+  labels:
+    kueue.x-k8s.io/queue-name: user-queue
+spec:
+  slotsPerWorker: 1
+  #powerLimit: 200
+  runPolicy:
+    cleanPodPolicy: Running
+    ttlSecondsAfterFinished: 60
+    suspend: true
+  sshAuthMountPath: /home/mpiuser/.ssh
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - image: mpioperator/mpi-pi:openmpi
+            name: mpi-launcher
+            securityContext:
+              runAsUser: 1000
+            command:
+            - mpirun
+            args:
+            - -n
+            - "2"
+            - /home/mpiuser/pi
+            resources:
+              limits:
+                cpu: 1
+                memory: 1Gi
+                #example.com/resource: 1
+
+    Worker:
+      replicas: 2
+      template:
+        spec:
+          #restartPolicy: Always
+          initContainers:
+          - image: dannosliwcd/geopm-service:0.0.7
+            name: mpi-prefix
+            #command: ['/usr/bin/sh', 'sleep', '60']
+            command: ['/usr/bin/sh', '-c', 'for ss in $(geopmread | grep -v "::"); do if geopmread $ss board 0 >/dev/null; then echo $ss board 0 >> /tmp/geopmsession-requests.txt; fi; done; for rr in $(cat /tmp/geopmsession-requests.txt | cut -d" " -f 1); do printf %s, $rr; done; echo; geopmsession -t1e9 -p1 < /tmp/geopmsession-requests.txt; rm /tmp/geopmsession-requests.txt']
+            resources:
+              limits:
+                #cpu: 1
+                #memory: 1Gi
+                intel.com/power: 500
+            restartPolicy: Always
+            securityContext:
+              privileged: false
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: 10001
+              runAsGroup: 10001
+            volumeMounts:
+            - name: geopm-mount
+              mountPath: /run/geopm
+            - name: tmp-mount
+              mountPath: /tmp
+          volumes:
+          - name: geopm-mount
+            hostPath:
+              path: /tmp/run-geopm
+          - name: tmp-mount
+            emptyDir: {}
+          containers:
+          - image: mpioperator/mpi-pi:openmpi
+            name: mpi-worker
+            securityContext:
+              runAsUser: 1000
+            command:
+            - /usr/sbin/sshd
+            args:
+            - -De
+            - -f
+            - /home/mpiuser/.sshd_config
+            resources:
+              limits:
+                cpu: 1
+                memory: 1Gi
+                #example.com/resource: 500
