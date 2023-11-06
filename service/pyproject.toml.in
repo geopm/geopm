@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geopmdpy"
-version = "3.0.0"
+version = "@VERSION@"
 description = "GEOPM - Global Extensible Open Power Manager Daemon"
 readme = "README.rst"
 requires-python = ">=3.6"

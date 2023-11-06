@@ -35,6 +35,7 @@ compile_commands.json
 /geopmwrite
 /googletest-release-*/
 /googletest-release-*.tar.gz
+/install-python
 /install-sh
 /integration/test/test_batch_interface
 /integration/test/test_batch_perf
