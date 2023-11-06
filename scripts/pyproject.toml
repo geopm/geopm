@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geopmpy"
+version = "3.0.0"
+description = "GEOPM - Global Extensible Open Power Manager Runtime Tools"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {file = "COPYING"}
+keywords = ["runtime", "hardware", "telemetry", "configuration"]
+authors = [
+    {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
+    {name = "Brad Geltz", email = "brad.geltz@intel.com"},
+]
+maintainers = [
+    {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
+    {name = "Brad Geltz", email = "brad.geltz@intel.com"},
+]
+classifiers = ["Development Status :: 5 - Production/Stable",
+               "License :: OSI Approved :: BSD License",
+               "Operating System :: POSIX :: Linux",
+               "Natural Language :: English",
+               "Topic :: Scientific/Engineering",
+               "Topic :: Software Development :: Libraries :: Application Frameworks",
+               "Topic :: System :: Hardware :: Symmetric Multi-processing",
+               "Topic :: System :: Power (UPS)",
+               "Programming Language :: Python :: 3",
+               "Programming Language :: Python :: 3.6",
+               "Programming Language :: Python :: 3.7",
+               "Programming Language :: Python :: 3.8",
+               "Programming Language :: Python :: 3.9",
+               "Programming Language :: Python :: 3.10",
+               "Programming Language :: Python :: 3.11",
+               "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = ['cffi>=1.14.5',
+                'cycler>=0.11.0',
+                'natsort>=8.1.0',
+                'numpy>=1.19.5',
+                'pandas>=1.1.5',
+                'psutil>=5.8.0',
+                'pyyaml>=6.0.0',
+                'setuptools>=53.0.0',
+                'tables>=3.7.0',
+                'geopmdpy',
+]
+
+[project.scripts]
+geopmlaunch = "geopmpy.launcher:main"
+
+[project.urls]
+"Homepage" = "https://geopm.github.io"
+"Source" = "https://github.com/geopm/geopm/"
+"Documentation" = "https://geopm.github.io/geopmpy.7.html"

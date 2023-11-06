@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geopmdpy"
+version = "3.0.0"
+description = "GEOPM - Global Extensible Open Power Manager Daemon"
+readme = "README.rst"
+requires-python = ">=3.6"
+license = {file = "COPYING"}
+keywords = ["service", "hardware", "telemetry", "configuration"]
+authors = [
+    {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
+    {name = "Brad Geltz", email = "brad.geltz@intel.com"},
+]
+maintainers = [
+    {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
+    {name = "Brad Geltz", email = "brad.geltz@intel.com"},
+]
+classifiers = ["Development Status :: 5 - Production/Stable",
+               "License :: OSI Approved :: BSD License",
+               "Operating System :: POSIX :: Linux",
+               "Natural Language :: English",
+               "Topic :: Scientific/Engineering",
+               "Topic :: Software Development :: Libraries :: Application Frameworks",
+               "Topic :: System :: Hardware :: Symmetric Multi-processing",
+               "Topic :: System :: Power (UPS)",
+               "Programming Language :: Python :: 3",
+               "Programming Language :: Python :: 3.6",
+               "Programming Language :: Python :: 3.7",
+               "Programming Language :: Python :: 3.8",
+               "Programming Language :: Python :: 3.9",
+               "Programming Language :: Python :: 3.10",
+               "Programming Language :: Python :: 3.11",
+               "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = ["cffi>=1.14.5",
+                "setuptools>=53.0.0",
+                "psutil>=5.8.0",
+                "dasbus>=1.6.0",
+                "jsonschema>=3.2.0",
+]
+
+[project.scripts]
+geopmd = "geopmdpy.__main__:main"
+geopmaccess = "geopmdpy.access:main"
+geopmsession = "geopmdpy.session:main"
+
+[project.urls]
+"Homepage" = "https://geopm.github.io"
+"Source" = "https://github.com/geopm/geopm/"
+"Documentation" = "https://geopm.github.io/geopmdpy.7.html"
