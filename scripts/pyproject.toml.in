@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geopmpy"
-version = "3.0.0"
+version = "@VERSION@"
 description = "GEOPM - Global Extensible Open Power Manager Runtime Tools"
 readme = "README.md"
 requires-python = ">=3.6"

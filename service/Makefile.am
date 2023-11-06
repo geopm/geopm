@@ -159,7 +159,8 @@ EXTRA_DIST = .gitignore \
              docs/json_schemas/regionhintrecommender_fmap.schema.json \
              docs/json_schemas/sysfs_attributes.schema.json \
              requirements.txt \
-             setup.py \
+             pyproject.toml \
+             pyproject.toml.in \
              src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
@@ -424,8 +425,12 @@ $(abs_srcdir)/geopmdpy/version.py:
 # Move version.py into source for out of place builds
 	cp geopmdpy/version.py $@
 
-install-python: setup.py $(abs_srcdir)/geopmdpy/version.py
-	cd $(abs_srcdir) && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
+install-python: pyproject.toml $(abs_srcdir)/geopmdpy/version.py
+	rm -rf install-python && mkdir -p install-python
+	cp pyproject.toml $(abs_srcdir)/COPYING $(abs_srcdir)/AUTHORS $(abs_srcdir)/README.rst $(abs_srcdir)/VERSION install-python
+	cp -rp $(abs_srcdir)/geopmdpy install-python
+	cd install-python && $(PYTHON) -m build
+	cd install-python  && $(PYTHON) -m pip install --ignore-installed --no-dependencies --root $(DESTDIR)/ --prefix $(prefix) dist/geopmdpy-$(VERSION)*.whl
 
 clean-local-python: setup.py
 	$(PYTHON) ./setup.py clean --all
@@ -462,7 +467,7 @@ endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = clean-local-python doxygen rpm deb
+PHONY_TARGETS = clean-local-python install-python doxygen rpm deb
 
 # INCLUDES
 check_PROGRAMS =

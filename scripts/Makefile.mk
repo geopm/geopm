@@ -18,7 +18,8 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/policy_store.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
-              scripts/setup.py \
+              scripts/pyproject.toml.in \
+              scripts/pyproject.toml \
               scripts/test/TestAffinity.py \
               scripts/test/TestAgent.py \
               scripts/test/TestEndpoint.py \
@@ -125,9 +126,14 @@ clean-local-python: scripts/setup.py
 CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links \
                        clean-local-python
 
-install-python: scripts/setup.py
+$(abs_srcdir)/scripts/geopmpy/version.py:
 # Move version.py into source for out of place builds
-	if [ ! -f $(abs_srcdir)/scripts/geopmpy/version.py ]; then \
-	    cp scripts/geopmpy/version.py $(abs_srcdir)/scripts/geopmpy/version.py; \
-	fi
-	cd $(abs_srcdir)/scripts && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
+	cp scripts/geopmpy/version.py $@
+
+$(abs_srcdir)/scripts/pyproject.toml:
+# Move version.py into source for out of place builds
+	cp scripts/pyproject.toml $@
+
+install-python: $(abs_srcdir)/scripts/pyproject.toml $(abs_srcdir)/scripts/geopmpy/version.py
+	cd $(abs_srcdir)/scripts && $(PYTHON) -m build
+	cd $(abs_srcdir)/scripts && $(PYTHON) -m pip install --no-dependencies --ignore-installed --root $(DESTDIR)/ --prefix $(prefix) dist/geopmpy-$(VERSION)*.whl
