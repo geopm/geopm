@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+   name: geopm-service
+spec:
+  selector:
+    matchLabels:
+      name: geopm-service
+  template:
+    metadata:
+      labels:
+        name: geopm-service
+    spec:
+      hostPID: true
+      tolerations:
+      containers:
+      - name: geopm-service
+        # from Dockerhub, or build with geopm/service/Dockerfile
+        image: dannosliwcd/geopm-service:0.0.9
+        env:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        - name: cpu-mount
+          mountPath: /dev/cpu
+        - name: tmp-mount
+          mountPath: /tmp
+        # Use geopmaccess to assign permission to read all top-level signals and controls
+        # (you can filter the geopmread/geopmwrite output to modify which ones are permitted)
+        command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm; geopmread | geopmaccess --direct --default --write; geopmwrite | geopmaccess --controls --direct --default --write; geopmd --grpc']
+      volumes:
+      # geopm-mount lets clients talk to the geopmd service daemonset
+      - name: geopm-mount
+        hostPath:
+          path: /tmp/run-geopm
+      # cpu-mount lets geopmd use MSRs
+      - name: cpu-mount
+        hostPath:
+          path: /dev/cpu
+      - name: tmp-mount
+        emptyDir: {}

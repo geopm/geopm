@@ -12,14 +12,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       python3-protobuf \
     && rm -rf /var/lib/apt/lists/*
 
-ARG GEOPM_COMMIT_HASH=f302e437e0e122c0b5f46ae72194f38f7383916b
-RUN wget https://github.com/dannosliwcd/geopm/archive/${GEOPM_COMMIT_HASH}.tar.gz \
+ARG GEOPM_COMMIT_HASH=a9f85959eb3bd65efc16402fc65429cac03840ba
+RUN wget https://github.com/geopm/geopm/archive/${GEOPM_COMMIT_HASH}.tar.gz \
     && tar -xf ${GEOPM_COMMIT_HASH}.tar.gz && rm ${GEOPM_COMMIT_HASH}.tar.gz \
     && cd geopm-${GEOPM_COMMIT_HASH}/service \
     && pip install --no-cache-dir -r requirements.txt \
     # TODO: add grpcio to requirements.txt \
     && pip install --no-cache-dir grpcio==1.47.5 \
-    && echo "3.0.0+dannosliwcd.${GEOPM_COMMIT_HASH}" > VERSION \
+    && echo "3.0.0+geopm.${GEOPM_COMMIT_HASH}" > VERSION \
     && ./autogen.sh \
     && ./configure && sed -i 's/make -j/make/' debian/rules && make deb
 
