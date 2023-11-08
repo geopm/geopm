@@ -1,0 +1,132 @@
+---
+# Usage:
+# 1) Run this app under a power sweep:
+#        mkdir -p jobs; for powercap in {600..1200..100}; do sed -e "s/\$POWERCAP/$powercap/g" ./cosmic-tagger-power-sweep.yaml > ./jobs/cosmic-powercap-$powercap.yaml; done
+#        kubectl apply -f jobs
+#        kubectl get jobs -l jobgroup=cosmic-tagger
+# 2) Extract app logs and geopm-client traces from kubernetes
+#        mkdir -p power_sweep; for pod in $(kubectl get pods -ljobgroup=cosmic-tagger -o name); do kubectl logs $pod --container geopm-client > power_sweep/${pod#*/}.csv; kubectl logs $pod > power_sweep/${pod#*/}.log; done
+# 3) Use the power sweep to select a power cap (e.g, for 5% tolerable slowdown)
+#        ./model_sweep.py power_sweep/*csv --power-at-slowdown 0.05
+#        (optionally specify a --plot-path directory inside which will be saved a plot of the power sweep)
+# 4) Clean up the jobs
+#        kubectl delete job -l jobgroup=cosmic-tagger
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cosmic-tagger-throughput-powercap-$POWERCAP
+  labels:
+    jobgroup: cosmic-tagger
+spec:
+  template:
+    metadata:
+      name: cosmic-tagger
+      labels:
+        jobgroup: cosmic-tagger
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
+      shareProcessNamespace: true
+      containers:
+      - name: cosmic-tagger
+        image: PATH/TO/IMAGE/FROM/geopm/integration/apps/cosmictagger/Dockerfile
+        workingDir: "/cosmic-data/powercap-$POWERCAP"
+        imagePullPolicy: Never
+        resources:
+          limits:
+            nvidia.com/gpu: 4
+        # Small-scale test run (~7 minutes)
+        # command: ["mpirun", "-n", "2", "-ppn", "2", "python3",
+        #           "/CosmicTagger-1.1.0/bin/exec.py", "mode=train",
+        #           "run.distributed=true", "run.minibatch_size=2",
+        #           "data.data_directory=/CosmicTagger-1.1.0/example_data/",
+        #           "data.file=cosmic_tagging_light.h5", "data.aux_file=cosmic_tagging_light.h5",
+        #           "run.id=test-run"]
+        #
+	# Full-size run (download the full-size input files as described in the
+	# cosmic tagger project readme: https://github.com/coreyjadams/CosmicTagger)
+        env:
+         - name: TF_GPU_THREAD_MODE
+           value: gpu_private
+         - name: TF_XLA_FLAGS
+           value: --tf_xla_auto_jit=2
+        command: ["mpirun", "-n", "4", "-ppn", "4", "python3",
+                  "/CosmicTagger-1.1.0/bin/exec.py",
+                  "run.distributed=true", "run.minibatch_size=16",
+                  "run.precision=mixed",
+                  "data.data_directory=/cosmic-data/",
+                  "mode=train", "data.file=cosmic_tagging_train.h5", "data.aux_file=cosmic_tagging_val.h5",
+                  # "mode=inference", "data.file=cosmic_tagging_test.h5",
+                  "run.id=test-run-$POWERCAP"]
+        volumeMounts:
+        - name: cosmic-data
+          mountPath: /cosmic-data
+      - name: geopm-client
+        # from Dockerhub, or build with geopm/service/Dockerfile
+        image: dannosliwcd/geopm-service:0.0.12
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        - name: tmp-mount
+          mountPath: /tmp
+	# If this gets moved to an sidecar-style init container, you can
+	# remove the 'sleep 5' and --pid/pgrep parts of this command and you
+	# can clear the shareProcessNamespace property from the pod.
+        # Note: $USER_POWER_CAP in the command's environment is provided by
+        #       the geopm-dp power device plugin, forwarding the requested power.
+        resources:
+          limits:
+            intel.com/power: $POWERCAP
+        command: ['/usr/bin/sh', '-c', 'geopmwrite GPU_POWER_LIMIT_CONTROL board 0 $USER_POWER_CAP || (sleep 1 && geopmwrite GPU_POWER_LIMIT_CONTROL board 0 $USER_POWER_CAP); for ss in $(geopmread | grep -v "::"); do if geopmread $ss board 0 >/dev/null; then echo $ss board 0 >> /tmp/geopmsession-requests.txt; fi; done; sleep 5; LD_PRELOAD=libgrpc++.so.1 python3 /usr/bin/geopmsession -t1e9 -p1 --print-header --pid "$(pgrep mpirun)" < /tmp/geopmsession-requests.txt; rm /tmp/geopmsession-requests.txt']
+      volumes:
+      # geopm-mount lets our client talk to the geopmd service daemonset
+      - name: geopm-mount
+        hostPath:
+          path: /tmp/run-geopm
+      # cosmic-data exposes input/output files to the cosmic tagger app
+      - name: cosmic-data
+        persistentVolumeClaim:
+          claimName: cosmic-pvc
+      - name: tmp-mount
+        emptyDir: {}
+...
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cosmic-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: local-storage
+  selector:
+    matchLabels:
+      app: cosmic-tagger
+...
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cosmic-volume
+  labels:
+    type: local
+    app: cosmic-tagger
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  hostPath:
+    path: TODO/SPECIFY/THE/PATH/WHERE/INPUT/H5/FILES/ARE
+...

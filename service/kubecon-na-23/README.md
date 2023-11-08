@@ -13,6 +13,7 @@ kubectl kustomize base | kubectl apply -f -
 VERSION=v0.4.1
 kubectl apply -f https://github.com/kubernetes-sigs/kueue/releases/download/$VERSION/manifests.yaml
 ```
+
 ## Configure Kueue Cluster Queue
 * Set the queue power limit by changing the "intel.com/power" Watt value in  "kueue-config/admin/single-clusterqueue-setup.yaml" :
 ```
@@ -20,14 +21,21 @@ kubectl apply -f https://github.com/kubernetes-sigs/kueue/releases/download/$VER
         nominalQuota: 10000
 ```
 * Apply the configuration by running "kubectl apply -f kueue-config/admin/single-clusterqueue-setup.yaml"
-## Build and Start the power capping device plugin
+
+## Build and Start the power capping device plugin.
+First edit the `plugin.NewDevicePluginStub(generateDevices(1000)` line in
+`main.go` to indicate the maximum requestable Watts per node you want to make
+available. Then build and run:
 ```
 cd geopm-dp
 make
 export PLUGIN_SOCK_DIR=/var/lib/kubelet/device-plugins/
 ./bin/geopm-dp
 ```
-## Deploy GEOPM DeamonSet
+
+## Deploy GEOPM DaemonSet
+kubectl apply -f ../k8-service.yaml
+
 ## Run mpi jobs with kueue:
 * Build mnist image for kueue from "mpi-operator/examples/v2beta1/horovod" by running:
 ```
@@ -40,11 +48,36 @@ export PLUGIN_SOCK_DIR=/var/lib/kubelet/device-plugins/
 kubectl apply -f kueue-config/jobs/sample-mpijob-mnist.yaml
 ```
 
+## Evaluate a power sweep on the Cosmic Tagger app
+1. Run the app under multiple power caps
+```
+mkdir -p jobs; for powercap in {600..1200..100}; do sed -e "s/\$POWERCAP/$powercap/g" ./cosmic-tagger-power-sweep.yaml > ./jobs/cosmic-powercap-$powercap.yaml; done
+kubectl apply -f jobs
+```
+
+2. Extract app logs and geopm-client traces from kubernetes
+```
+mkdir -p power_sweep
+for pod in $(kubectl get pods -ljobgroup=cosmic-tagger -o name)
+do
+  kubectl logs $pod --container geopm-client > power_sweep/${pod#*/}.csv
+  kubectl logs $pod > power_sweep/${pod#*/}.log
+done
+```
+
+3. Use the power sweep to select a power cap (e.g, for 5% tolerable slowdown).
+Optionally specify a --plot-path directory inside which will be saved a plot of
+the power sweep)
+```
+./model_sweep.py power_sweep/*csv --power-at-slowdown 0.05
+```
+
 ## Uninstall Kueue
 ```
 VERSION=v0.4.1
 kubectl delete -f https://github.com/kubernetes-sigs/kueue/releases/download/$VERSION/manifests.yaml
 ```
+
 ## Uninstall mpi-operator
 ```
 kubectl delete -k manifests/overlays/kubeflow
