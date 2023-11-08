@@ -14,6 +14,6 @@ support is a proof-of-concept, and should not be considered production ready.
 ## The Monitor Agent
 
 The first example manifest ``k8-monitor.yaml`` launches the monitor agent and
-any application that links to ``libgeopmload.so`` and has
+any application that links to ``libgeopm.so`` and has
 ``GEOPM_PROFILE=monitor`` set in their environment will run with GEOPM
 monitoring.  The resulting report is output to the ``geopm-ctl`` container log.
