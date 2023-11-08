@@ -22,12 +22,12 @@ kubectl apply -f https://github.com/kubernetes-sigs/kueue/releases/download/$VER
 * Apply the configuration by running "kubectl apply -f kueue-config/admin/single-clusterqueue-setup.yaml"
 ## Build and Start the power capping device plugin
 ```
-cd geppm-dp
+cd geopm-dp
 make
 export PLUGIN_SOCK_DIR=/var/lib/kubelet/device-plugins/
 ./bin/geopm-dp
 ```
-## Deploy Geopm DeamonSet
+## Deploy GEOPM DeamonSet
 ## Run mpi jobs with kueue:
 * Build mnist image for kueue from "mpi-operator/examples/v2beta1/horovod" by running:
 ```
