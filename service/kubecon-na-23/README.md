@@ -1,13 +1,49 @@
 # Getting Started
 
+* Clone the GEOPM cloud branch, and set the env variable that points to the code:
+```
+git clone https://github.com/geopm/geopm.git -b cloud
+cd geopm
+export GEOPM_CLOUD_BRANCH=$PWD
+```
+
 ## Install custom mpi-operator for k8s v.1.28.2 with sidecar support
-* Build a customer image by running "make RELEASE_VERSION=test2 IMAGE_NAME=localhost:5000/mpi-operator images"
-* Change images to your local images in "mpi-operator/manifest/deployment.yaml"
-* deploy the mpi operation by running within the mpi-operator folder:
+* cd out of the GEOPM directory to clone the other repos
+* Clone the repo at the v0.4.0 release (https://github.com/kubeflow/mpi-operator):
 ```
+git clone git@github.com:kubeflow/mpi-operator.git -b v0.4.0
+```
+* Apply the GEOPM enabling patch:
+```
+cd mpi-operator
+git am $GEOPM_CLOUD_BRANCH/service/kubecon-na-23/mpi-operator/0001-feat-k8s-infra-to-support-geopm-batch.patch
+```
+* Setup the common module:
+```
+git clone git@github.com:kubeflow/common.git
+cd common
+git am $GEOPM_CLOUD_BRANCH/service/kubecon-na-23/common/0001-Update-versions-of-common-module-dependencies.patch
+cd ..
+```
+* Build a custom image by running:
+```
+make RELEASE_VERSION=test10 IMAGE_NAME=localhost:5000/mpi-operator images
+```
+* Start a local docker container registry if you don't already have one:
+```
+docker run -d -p 5000:5000 --restart always --name registry registry:2
+```
+* Add the image:
+```
+docker push localhost:5000/mpi-operator:test10
+```
+* Deploy the mpi operator by running the following:
+```
+kubectl create namespace kubeflow
 kubectl apply -k manifests/overlays/kubeflow
-kubectl kustomize base | kubectl apply -f -
+kubectl kustomize manifests/base | kubectl apply -f -
 ```
+
 ## Install Kueue
 ```
 VERSION=v0.4.1
@@ -15,12 +51,16 @@ kubectl apply -f https://github.com/kubernetes-sigs/kueue/releases/download/$VER
 ```
 
 ## Configure Kueue Cluster Queue
-* Set the queue power limit by changing the "intel.com/power" Watt value in  "kueue-config/admin/single-clusterqueue-setup.yaml" :
+* Set the queue power limit by changing the "intel.com/power" Watt value in
+  "$GEOPM_CLOUD_BRANCH/service/kubecon-na-23/kueue-config/admin/single-clusterqueue-setup.yaml" :
 ```
     - name: "intel.com/power"
         nominalQuota: 10000
 ```
-* Apply the configuration by running "kubectl apply -f kueue-config/admin/single-clusterqueue-setup.yaml"
+* Apply the configuration by running:
+```
+kubectl apply -f kueue-config/admin/single-clusterqueue-setup.yaml
+```
 
 ## Build and Start the power capping device plugin.
 First edit the `plugin.NewDevicePluginStub(generateDevices(1000)` line in
@@ -80,6 +120,7 @@ kubectl delete -f https://github.com/kubernetes-sigs/kueue/releases/download/$VE
 
 ## Uninstall mpi-operator
 ```
+cd mpi-operator
 kubectl delete -k manifests/overlays/kubeflow
-kubectl kustomize base | kubectl delete -f -
+kubectl kustomize manifests/base | kubectl delete -f -
 ```
