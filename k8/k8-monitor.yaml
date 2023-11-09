@@ -46,7 +46,7 @@ spec:
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm
-     command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; export GEOPM_PROFILE=monitor; LD_PRELOAD=libgeopm.so.2.0.0 sleep 20; sleep 3600']
+     command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; export GEOPM_PROFILE=monitor; LD_PRELOAD=libgeopmload.so.1.0.0 sleep 20; sleep 3600']
    volumes:
    - name: geopm-mount
      emptyDir: {}
