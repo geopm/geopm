@@ -19,7 +19,8 @@ from apps.arithmetic_intensity import arithmetic_intensity
 
 
 class CPUCACharacterization(object):
-    def __init__(self, full_characterization=True, base_dir='cpu_characterization'):
+    def __init__(self, full_characterization=True, base_dir='cpu_characterization',
+                 enable_traces=False):
         self._mach = machine.init_output_dir('.')
         self._base_dir = base_dir
 
@@ -28,7 +29,7 @@ class CPUCACharacterization(object):
             self.get_experiment_args = self._get_experiment_args_full
             self._step_frequency = self._mach.frequency_step() * 2
             self._cpu_max_freq = util.geopmread('CPU_FREQUENCY_MAX_AVAIL board 0')
-        else: # quick characterization
+        else:  # quick characterization
             self.get_aib_conf = self._get_aib_conf_quick
             self.get_experiment_args = self._get_experiment_args_quick
             self._step_frequency = self._mach.frequency_step()
@@ -43,6 +44,14 @@ class CPUCACharacterization(object):
         # guaranteed to be correct after a system reset, but could have been modified by the administrator
         self._uncore_max_freq = util.geopmread('CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0')
         self._uncore_min_freq = util.geopmread('CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0')
+        self._report_signals = \
+            "MSR::QM_CTR_SCALED_RATE@package," \
+            "CPU_UNCORE_FREQUENCY_STATUS@package," \
+            "MSR::CPU_SCALABILITY_RATIO@package," \
+            "CPU_FREQUENCY_MAX_CONTROL@package," \
+            "CPU_UNCORE_FREQUENCY_MIN_CONTROL@package," \
+            "CPU_UNCORE_FREQUENCY_MAX_CONTROL@package"
+        self._enable_traces = enable_traces
 
     def do_characterization(self, add_init_cfg=''):
         mem_bw_cfg = self.get_init_control_config(add_init_cfg)
@@ -66,14 +75,9 @@ class CPUCACharacterization(object):
         experiment_args.max_uncore_frequency = self._uncore_max_freq
         experiment_args.step_uncore_frequency = self._step_frequency
         experiment_args.run_max_turbo = False
-        report_signals = \
-            "MSR::QM_CTR_SCALED_RATE@package," \
-            "CPU_UNCORE_FREQUENCY_STATUS@package," \
-            "MSR::CPU_SCALABILITY_RATIO@package," \
-            "CPU_FREQUENCY_MAX_CONTROL@package," \
-            "CPU_UNCORE_FREQUENCY_MIN_CONTROL@package," \
-            "CPU_UNCORE_FREQUENCY_MAX_CONTROL@package"
-        experiment_cli_args = ['--geopm-report-signals={}'.format(report_signals)]
+        experiment_cli_args = [f'--geopm-report-signals={self._report_signals}']
+        if self._enable_traces:
+            experiment_cli_args.append(f'--geopm-trace-signals={self._report_signals}')
 
         uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
                                       experiment_cli_args=experiment_cli_args)
@@ -115,6 +119,9 @@ class CPUCACharacterization(object):
 
     def get_base_dir(self):
         return self._base_dir
+
+    def get_report_signals(self):
+        return self._report_signals
 
     def get_aib_conf(self):
         pass
@@ -175,7 +182,7 @@ class CPUCACharacterization(object):
             node_count=1,
             trial_count=3,
             cool_off_time=3,
-            enable_traces=False,
+            enable_traces=self._enable_traces,
             enable_profile_traces=False,
             verbose=False)
         return experiment_args
@@ -187,7 +194,7 @@ class CPUCACharacterization(object):
             ['--slowdown=1',
              '--base-internal-iterations=10',
              '--iterations=5',
-             f'--floats={1<<21}', # quick characterization, use 26 for slower & more accurate
+             f'--floats={1<<21}',  # quick characterization, use 26 for slower & more accurate
              '--benchmarks=1 16'],
             self._mach,
             run_type='sse',
@@ -201,7 +208,7 @@ class CPUCACharacterization(object):
             node_count=1,
             trial_count=3,
             cool_off_time=3,
-            enable_traces=False,
+            enable_traces=self._enable_traces,
             enable_profile_traces=False,
             verbose=False)
         return experiment_args
