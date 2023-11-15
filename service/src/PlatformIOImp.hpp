@@ -8,6 +8,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 
 #include "geopm/PlatformIO.hpp"
 #include "geopm_pio.h"
@@ -145,6 +146,7 @@ namespace geopm
                                     std::unique_ptr<CombinedControl> > > m_combined_control;
             bool m_do_restore;
             std::map<int, std::shared_ptr<BatchServer> > m_batch_server;
+            std::set<std::string> m_pushed_signal_names;
             static const std::map<const std::string, const std::string> m_signal_descriptions;
             static const std::map<const std::string, const std::string> m_control_descriptions;
     };

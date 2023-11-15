@@ -422,8 +422,12 @@ namespace geopm
                 if (domain_type == ii->signal_domain_type(signal_name)) {
                     bool do_push_signal = false;
                     try {
-                        // Attempt to read before pushing to ensure batch reads will succeed
-                        (void)ii->read_signal(signal_name, domain_type, domain_idx);
+                        if (m_pushed_signal_names.find(signal_name) == m_pushed_signal_names.end()) {
+                            // Attempt to read before pushing to ensure batch reads will succeed
+                            (void)ii->read_signal(signal_name, domain_type, domain_idx);
+                        } // else: as an optimization, avoid reading the signal if it has been
+                          // successfully read before for some domain-domain_idx combination
+
                         do_push_signal = true;
                     }
                     catch (const geopm::Exception &ex) {
@@ -440,6 +444,7 @@ namespace geopm
                         result = m_active_signal.size();
                         m_existing_signal[sig_tup] = result;
                         m_active_signal.emplace_back(ii, group_signal_idx);
+                        m_pushed_signal_names.insert(signal_name);
                     }
                 }
                 else {
