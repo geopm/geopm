@@ -36,6 +36,7 @@ using ::testing::_;
 using ::testing::Return;
 using ::testing::SetArgReferee;
 using ::testing::AtLeast;
+using ::testing::AtMost;
 using ::testing::Throw;
 using ::testing::Not;
 using ::testing::IsEmpty;
@@ -273,13 +274,13 @@ TEST_F(PlatformIOTest, push_signal)
 TEST_F(PlatformIOTest, push_signal_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
+                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
 
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, _)).Times(AtMost(1));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
-        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
         .WillOnce(Return(geopm::Agg::average));
@@ -489,15 +490,15 @@ TEST_F(PlatformIOTest, sample_not_active)
 TEST_F(PlatformIOTest, sample_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
+                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
         .WillOnce(Return(geopm::Agg::average));
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, _)).Times(AtMost(1));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", GEOPM_DOMAIN_CPU, cpu))
             .WillOnce(Return(cpu));
-        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     int freq_idx = m_platio->push_signal("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
 
