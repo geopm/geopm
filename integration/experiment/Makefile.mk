@@ -16,6 +16,7 @@ EXTRA_DIST += integration/experiment/common_args.py \
               integration/experiment/outlier/README.md \
               integration/experiment/outlier/outlier_detection.py \
               integration/experiment/outlier/theta_nodelist_broken.txt \
+              integration/experiment/system_characterization/host_config.py \
               # end
 
 include integration/experiment/energy_efficiency/Makefile.mk
