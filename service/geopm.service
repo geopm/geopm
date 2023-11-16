@@ -6,6 +6,8 @@
 Description=Global Extensible Open Power Manager Service
 StartLimitIntervalSec=0
 StartLimitBurst=3
+Wants=msr-safe.service
+After=msr-safe.service
 
 [Service]
 Environment=PYTHONUNBUFFERED=true
