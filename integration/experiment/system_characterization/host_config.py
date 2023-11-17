@@ -22,18 +22,22 @@ def combine(directory, append_file):
     host_files = glob.glob(f'{directory}/*')
     for host_file in host_files:
         host_name = os.path.basename(host_file).split('.json')[0]
-        with open(host_file) as fid:
-            host_data = json.load(fid)
+        try:
+            with open(host_file) as fid:
+                host_data = json.load(fid)
+        except json.decoder.JSONDecodeError:
+            sys.stderr.write(f'Warning: File {host_file} is not a JSON file, it will be ignored\n')
+            host_data = dict()
         if type(host_data) is not dict:
-            sys.stderr.write(f'Warning: File {host_file} is not a JSON object, it will be ignored')
-        else:
-            for key, value in host_data.items():
-                output[f'{key}@{host_name}'] = value
-    return output
+            sys.stderr.write(f'Warning: File {host_file} is not a JSON object, it will be ignored\n')
+            host_data = dict()
+        for key, value in host_data.items():
+            output[f'{key}@{host_name}'] = value
+    return json.dumps(output, sort_keys=True, indent=4)
 
 def run(directory, append_file):
     output = combine(directory, append_file)
-    sys.stdout.write(json.dumps(output, sort_keys=True, indent=4))
+    sys.stdout.write(output)
 
 def main():
     """Convert ConstConfig input files into host specific parameters.
