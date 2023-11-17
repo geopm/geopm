@@ -33,15 +33,15 @@ install_error() {
 }
 
 # Support both yum and zypper
-if ! wget -O /dev/null www.google.com >& /dev/null; then
-    PKG_INSTALL="rpm --install"
-    PKG_REMOVE="rpm --erase"
-elif which zypper >& /dev/null; then
-    PKG_INSTALL="zypper install -y --allow-unsigned-rpm"
-    PKG_REMOVE="zypper remove -y"
-else
+if which zypper >& /dev/null; then
+    PKG_INSTALL="zypper --no-remote --non-interactive install --allow-unsigned-rpm"
+    PKG_REMOVE="zypper --non-interactive remove"
+elif which yum >& /dev/null; then
     PKG_INSTALL="yum install -y"
     PKG_REMOVE="yum remove -y"
+else
+    PKG_INSTALL="rpm --install"
+    PKG_REMOVE="rpm --erase"
 fi
 
 install_packages() {
