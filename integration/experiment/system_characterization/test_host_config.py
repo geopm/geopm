@@ -9,8 +9,11 @@ import host_config
 import os
 import sys
 class TestCombine(unittest.TestCase):
-
+    """Test the host_config module combine method
+    """
     def setUp(self):
+        """Create an example directory structure
+        """
         test_name = 'test_host_config'
         self.test_dir = test_name
         self.global_config_path = f'{test_name}_global.json'
@@ -92,12 +95,15 @@ These files are populated for testing the host_config.py
             fid.write(readme)
 
     def tearDown(self):
+        """Delete the example directory structure"""
         os.unlink(self.readme_path)
         for path in self.all_paths:
             os.unlink(path)
         os.rmdir(self.test_dir)
 
     def test_combine(self):
+        """Check that the combined output is as expected
+        """
         result = host_config.combine(self.test_dir, self.global_config_path)
         self.assertEqual(self.expected, result)
 
