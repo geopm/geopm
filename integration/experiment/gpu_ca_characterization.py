@@ -29,6 +29,9 @@ class GPUCACharacterization(object):
         self._uncore_max_freq = exp_util.geopmread('CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0')
         self._uncore_min_freq = exp_util.geopmread('CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0')
 
+        self._gpu_max_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MAX_AVAIL board 0')
+        self._gpu_min_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MIN_AVAIL board 0')
+
     def do_characterization(self):
         dgemm_freq_sweep_dir = Path(self._base_dir, 'dgemm_gpu_freq_sweep')
         exp_util.prep_experiment_output_dir(dgemm_freq_sweep_dir)
@@ -83,5 +86,10 @@ class GPUCACharacterization(object):
             max_frequency = self._cpu_max_freq,
             min_uncore_frequency = self._uncore_min_freq,
             max_uncore_frequency = self._uncore_max_freq,
+            step_frequency = 1e8,
+            step_uncore_frequency = 1e8,
+            run_max_turbo = True,
+            min_gpu_frequency = self._gpu_max_freq,
+            max_gpu_frequency = self._gpu_max_freq,
             step_gpu_frequency = 1e8)
         return experiment_args
