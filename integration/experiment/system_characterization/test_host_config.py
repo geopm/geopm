@@ -8,6 +8,8 @@ import unittest
 import host_config
 import os
 import sys
+import shutil
+
 class TestCombine(unittest.TestCase):
     """Test the host_config module combine method
     """
@@ -84,7 +86,7 @@ class TestCombine(unittest.TestCase):
     }
 }\
 """
-        readme = """
+        self.readme = """
 These files are populated for testing the host_config.py
 """
         os.mkdir(self.test_dir)
@@ -92,10 +94,11 @@ These files are populated for testing the host_config.py
             with open(path, 'w') as fid:
                 fid.write(single_config)
         with open(self.readme_path, 'w') as fid:
-            fid.write(readme)
+            fid.write(self.readme)
 
     def tearDown(self):
-        """Delete the example directory structure"""
+        """Delete the example directory structure
+        """
         os.unlink(self.readme_path)
         for path in self.all_paths:
             os.unlink(path)
@@ -107,6 +110,19 @@ These files are populated for testing the host_config.py
         result = host_config.combine(self.test_dir, self.global_config_path)
         self.assertEqual(self.expected, result)
 
+    def test_combine_bad_json(self):
+        bad_path = f'{self.readme_path}.json'
+        shutil.copy(self.readme_path, bad_path)
+        self.all_paths.append(bad_path)
+        with open(bad_path, 'w') as fid:
+            fid.write(self.readme)
+        with self.assertRaises(RuntimeError):
+            host_config.combine(self.test_dir, self.global_config_path)
+
+    def test_combine_bad_append(self):
+        shutil.copy(self.readme_path, self.global_config_path)
+        with self.assertRaises(RuntimeError):
+            host_config.combine(self.test_dir, self.global_config_path)
 
 if __name__ == '__main__':
     unittest.main()

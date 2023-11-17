@@ -1,44 +1,44 @@
-{
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "https://geopm.github.io/const_config_io.schema.json",
-    "title": "ConstConfigIOGroup config file specification",
-    "definitions": {
-        "signal_info": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "units": {
-                    "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]
-                },
-                "domain": {
-                    "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
-                },
-                "aggregation": {
-                    "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"]
-                },
-                "values": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
+    {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://geopm.github.io/const_config_io.schema.json",
+        "title": "ConstConfigIOGroup config file specification",
+        "definitions": {
+            "signal_info": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
                     },
-                    "minItems": 1
+                    "units": {
+                        "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]
+                    },
+                    "domain": {
+                        "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
+                    },
+                    "aggregation": {
+                        "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"]
+                    },
+                    "values": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "common_value": {
+                        "type": "number"
+                    }
                 },
-                "common_value": {
-                    "type": "number"
-                }
-            },
-            "required": ["description", "units", "domain", "aggregation"],
-            "oneOf": [
-                {"required": ["values"]},
-                {"required": ["common_value"]}
-            ],
-            "additionalProperties": false
+                "required": ["description", "units", "domain", "aggregation"],
+                "oneOf": [
+                    {"required": ["values"]},
+                    {"required": ["common_value"]}
+                ],
+                "additionalProperties": false
+            }
+        },
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/signal_info"
         }
-    },
-    "type": "object",
-    "additionalProperties": {
-        "$ref": "#/definitions/signal_info"
     }
-}
