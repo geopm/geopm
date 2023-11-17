@@ -11,7 +11,20 @@ import os
 from argparse import ArgumentParser
 
 
-def combine(directory, append_file):
+def combine(directory, append_file=None):
+    """Combine a set of host specific parameter configuration files
+
+    Args:
+
+        directory (str): Directory containing host specific files,
+                         where each file is named after the hostname.
+                         Optionally files may contain the ".json"
+                         suffix.
+
+        append_file (str): Path to a configuration file that is not
+                           host specific which should also be combined.
+
+    """
     if append_file:
         with open(append_file) as fid:
             output = json.load(fid)
@@ -36,6 +49,19 @@ def combine(directory, append_file):
     return json.dumps(output, sort_keys=True, indent=4)
 
 def run(directory, append_file):
+    """Write the results of combine() to standard output
+
+    Args:
+
+        directory (str): Directory containing host specific files,
+                         where each file is named after the hostname.
+                         Optionally files may contain the ".json"
+                         suffix.
+
+        append_file (str): Path to a configuration file that is not
+                           host specific which should also be combined.
+
+    """
     output = combine(directory, append_file)
     sys.stdout.write(output)
 
