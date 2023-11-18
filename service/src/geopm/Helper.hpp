@@ -150,6 +150,15 @@ namespace geopm
     ///         the deleter.
     std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
         make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled);
+
+    /// @brief Check if the caller has effective capability CAP_SYS_ADMIN
+    /// @return True if the PID has CAP_SYS_ADMIN
+    bool has_cap_sys_admin(void);
+
+    /// @brief Check if the pid has effective capability CAP_SYS_ADMIN
+    /// @param [in] pid Linux PID to check
+    /// @return True if the PID has CAP_SYS_ADMIN
+    bool has_cap_sys_admin(int pid);
 }
 
 #endif

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "geopm/Helper.hpp"
 
 #include <unistd.h>
@@ -12,6 +14,12 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#ifdef ENABLE_LIBCAP
+#include <sys/capability.h>
+#else
+#include <linux/capability.h>
+#include <sys/syscall.h>
+#endif
 
 #include <cmath>
 #include <climits>
@@ -20,9 +28,10 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <string>
 #include "geopm_field.h"
 #include "geopm/Exception.hpp"
-#include "config.h"
+
 
 namespace geopm
 {
@@ -295,4 +304,62 @@ namespace geopm
         }
         return result;
     }
+
+#ifdef ENABLE_LIBCAP
+
+    bool has_cap_sys_admin(void)
+    {
+        int has_cap = cap_get_bound(CAP_SYS_ADMIN);
+        if (has_cap < 0) {
+            throw Exception("geopm::has_cap_sysadmin(): cap_get_bound(3) failed",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return (bool)has_cap;
+    }
+
+    bool has_cap_sys_admin(int pid)
+    {
+        cap_t cap = cap_get_pid(pid);
+        if (cap == nullptr) {
+            throw Exception("geopm::has_cap_sysadmin(): cap_get_pid(3) failed, pid = " + std::to_string(pid),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        int has_cap = cap_get_flag(cap, CAP_SYS_ADMIN);
+        int err = cap_free(cap);
+        if (err != 0) {
+            throw Exception("geopm::has_cap_sysadmin(): cap_free(3) failed",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if (has_cap < 0) {
+            throw Exception("geopm::has_cap_sysadmin(): cap_get_flag(3) failed",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return (bool)has_cap;
+    }
+
+#else
+
+    bool has_cap_sys_admin(void)
+    {
+        return has_cap_sys_admin(getpid());
+    }
+
+    bool has_cap_sys_admin(int pid)
+    {
+        struct __user_cap_header_struct header {
+            _LINUX_CAPABILITY_VERSION_3,
+            pid
+        };
+        struct __user_cap_data_struct data[2];
+        int err = syscall(SYS_capget, &header, &data);
+        if (err != 0) {
+            throw Exception("geopm::has_cap_sysadmin(): syscall(2) to capget(2) failed",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        uint32_t cap_sysadmin = 0x200000;
+        return (data[0].effective & cap_sysadmin) != 0;
+    }
+
+#endif
+
 }

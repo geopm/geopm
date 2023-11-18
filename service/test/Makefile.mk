@@ -2,7 +2,12 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-check_PROGRAMS += test/geopm_test
+check_PROGRAMS += test/geopm_test \
+                  test/isadmin \
+                  # end
+
+test_isadmin_SOURCES = test/isadmin.cpp
+test_isadmin_LDADD = libgeopmd.la
 
 GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/AggTest.agg_function \
@@ -130,6 +135,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/HelperTest.string_join \
               test/gtest_links/HelperTest.string_split \
               test/gtest_links/HelperTest.pid_to \
+              test/gtest_links/HelperTest.has_cap_sys_admin \
               test/gtest_links/IOGroupTest.control_names_are_valid \
               test/gtest_links/IOGroupTest.controls_have_descriptions \
               test/gtest_links/IOGroupTest.signal_names_are_valid \

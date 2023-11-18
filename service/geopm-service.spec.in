@@ -38,6 +38,7 @@ Prefix: %{_prefix}
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
+BuildRequires: libcap-devel
 BuildRequires: systemd-devel >= 221
 BuildRequires: python3
 BuildRequires: python3-devel
