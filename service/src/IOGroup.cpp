@@ -88,7 +88,7 @@ namespace geopm
         // service enabling save/restore by geopmd.  If the geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
-        if (getuid() == 0) {
+        if (geopm::has_cap_sys_admin()) {
             register_plugin(MSRIOGroup::plugin_name(),
                             MSRIOGroup::make_plugin);
             register_plugin(SSTIOGroup::plugin_name(),

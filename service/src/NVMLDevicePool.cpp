@@ -374,6 +374,6 @@ namespace geopm
 
     bool NVMLDevicePoolImp::is_privileged_access(void) const
     {
-        return (geteuid() == 0);
+        return (geopm::has_cap_sys_admin());
     }
 }

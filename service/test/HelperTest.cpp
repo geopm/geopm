@@ -85,3 +85,17 @@ TEST(HelperTest, pid_to)
     EXPECT_EQ(uid, geopm::pid_to_uid(pid));
     EXPECT_EQ(gid, geopm::pid_to_gid(pid));
 }
+
+
+TEST(HelperTest, has_cap_sys_admin)
+{
+    if (getuid() != 0) {
+        EXPECT_FALSE(geopm::has_cap_sys_admin());
+        EXPECT_FALSE(geopm::has_cap_sys_admin(getpid()));
+    }
+    else {
+        std::cerr << "Warning: running unit tests as \"root\" user is not advised\n";
+        EXPECT_TRUE(geopm::has_cap_sys_admin());
+        EXPECT_TRUE(geopm::has_cap_sys_admin(getpid()));
+    }
+}
