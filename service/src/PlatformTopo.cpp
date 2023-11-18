@@ -119,7 +119,7 @@ namespace geopm
     std::unique_ptr<ServiceProxy> PlatformTopoImp::try_service_proxy(void)
     {
         std::unique_ptr<ServiceProxy> result;
-        if (getuid() == 0) {
+        if (geopm::has_cap_sys_admin()) {
             // Disable use of service proxy when user is root
             return result;
         }
@@ -448,7 +448,7 @@ namespace geopm
 
     void PlatformTopoImp::create_cache(void)
     {
-        if (getuid() == 0) {
+        if (geopm::has_cap_sys_admin()) {
             PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
         }
         else {
@@ -695,7 +695,7 @@ namespace geopm
     {
         std::string result;
         // Early return for root user
-        if (getuid() == 0) {
+        if (geopm::has_cap_sys_admin()) {
             create_cache(M_SERVICE_CACHE_FILE_NAME);
             return geopm::read_file(M_SERVICE_CACHE_FILE_NAME);
         }

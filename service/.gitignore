@@ -52,6 +52,7 @@ src/msr_data_*.cpp
 /stamp-h1
 /test/geopm_test
 /test/gtest_links/
+/test/isadmin
 /VERSION
 /*geopm*.ddeb
 /*geopm*.deb

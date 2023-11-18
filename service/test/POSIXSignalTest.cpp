@@ -5,7 +5,7 @@
 #include "config.h"
 
 #include <memory>
-#include <unistd.h>     // for getpid(), geteuid()
+#include <unistd.h>     // for getpid()
 #include <sys/types.h>  // for pid_t, uid_t
 #include <signal.h>     // for sigprocmask() from Linux API
 #include <string>       // for std::string, std::to_string()
@@ -237,7 +237,7 @@ TEST_F(POSIXSignalTest, sig_queue_ESRCH)
  */
 TEST_F(POSIXSignalTest, sig_queue_EPERM)
 {
-    if (geteuid() == 0) {  // the root user
+    if (geopm::has_cap_sys_admin()) {  // the root user
         std::cerr << "Warning: <geopm> Skipping POSIXSignalTest.sig_queue_EPERM cannot be run by user \"root\"\n";
     }
     else if (has_cap_kill()) {  // the non root user with elevated permissions

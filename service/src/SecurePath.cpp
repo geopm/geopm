@@ -25,7 +25,7 @@ namespace geopm
     SecurePath::SecurePath(const std::string &orig_path)
         : SecurePath(orig_path,
                      (S_IWGRP | S_IWOTH), // 0o022
-                     (getuid() == 0))
+                     (geopm::has_cap_sys_admin()))
     {
 
     }

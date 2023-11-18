@@ -118,6 +118,27 @@ else
   ENABLE_SYSTEMD=False
 fi
 
+AC_ARG_ENABLE([libcap],
+  [AS_HELP_STRING([--disable-libcap], [Disable the use of libcap and use syscall instead])],
+[if test "x$enable_libcap" = "xno" ; then
+  enable_libcap="0"
+else
+  enable_libcap="1"
+fi
+],
+[enable_libcap="1"]
+)
+
+AC_SUBST([enable_libcap])
+AM_CONDITIONAL([ENABLE_LIBCAP], [test "x$enable_libcap" = "x1"])
+
+if test "x$enable_libcap" = "x1" ; then
+  ENABLE_LIBCAP=True
+  AC_DEFINE([GEOPM_ENABLE_LIBCAP], [ ], [Enables the use of libcap to do capabilities checks, otherwise direct syscall is used])
+else
+  ENABLE_LIBCAP=False
+fi
+
 AC_ARG_WITH([bash-completion-dir], [AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
             [Install the bash auto-completion script in this directory. @<:@default=yes@:>@])])
 if test "x$with_bash_completion_dir" = "x"; then
@@ -342,6 +363,15 @@ if test "x$enable_systemd" = "x1" ; then
         exit -1])
 fi
 
+if test "x$enable_libcap" = "x1" ; then
+    AC_CHECK_LIB([cap], [cap_get_bound], [], [
+        echo "missing libcap, to disable configure with --disable-libcap"
+        exit -1])
+    AC_CHECK_HEADER([sys/capability.h], [], [
+        echo "missing sys/capability.h: libcap development package is required"
+        exit -1])
+fi
+
 if test "x$enable_dcgm" = "x1" ; then
     AC_SEARCH_LIBS([dcgmInit], [dcgm])
     AC_CHECK_LIB([dcgm], [dcgmInit], [], [
@@ -487,4 +517,5 @@ AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
 AC_MSG_RESULT([io_uring           : ${enable_io_uring}])
 AC_MSG_RESULT([asan               : ${enable_asan}])
 AC_MSG_RESULT([fuzz               : ${enable_fuzz}])
+AC_MSG_RESULT([libcap             : ${enable_libcap}])
 AC_MSG_RESULT([===============================================================================])
