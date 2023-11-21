@@ -113,7 +113,8 @@ class ArithmeticIntensityAppConf(apps.AppConf):
 
     def get_custom_geopm_args(self):
         args = ['--geopm-hyperthreads-disable',
-                '--geopm-ctl=process']
+                '--geopm-ctl=process',
+                '--geopm-affinity-enable']
         if self._distribute_slow_ranks:
             args.extend([
                 '--distribution=cyclic:cyclic',

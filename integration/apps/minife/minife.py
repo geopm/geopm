@@ -50,7 +50,7 @@ class MinifeAppConf(apps.AppConf):
         return self.app_params + ' -name=' + self.get_run_id()
 
     def get_custom_geopm_args(self):
-        return ['--geopm-ctl=process']
+        return ['--geopm-ctl=process', '--geopm-affinity-enable']
 
     def parse_fom(self, log_path):
         # log path is ignored; use unique_name from init

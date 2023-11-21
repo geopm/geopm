@@ -51,8 +51,8 @@ class TestIntegration_gpu_characterization(unittest.TestCase):
 
     def test_const_config_signals(self):
         gpu_fe = exp_util.geopmread('CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY board 0')
-        gpu_max_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MAX_AVAIL gpu 0')
-        gpu_min_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MIN_AVAIL gpu 0')
+        gpu_max_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MAX_AVAIL board 0')
+        gpu_min_freq = exp_util.geopmread('GPU_CORE_FREQUENCY_MIN_AVAIL board 0')
 
         self.assertGreaterEqual(gpu_fe, gpu_min_freq)
         self.assertLessEqual(gpu_fe, gpu_max_freq)

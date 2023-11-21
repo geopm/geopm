@@ -26,7 +26,7 @@ from experiment.cpu_ca_characterization import CPUCACharacterization
 from apps.minife import minife
 
 @test_util.skip_unless_config_enable('beta')
-@unittest.skip('Disabled pending resolution of issue #3015.')
+#@unittest.skip('Disabled pending resolution of issue #3015.')
 @test_util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 @test_util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_avx2")
 @test_util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_avx512")

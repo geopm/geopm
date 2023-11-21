@@ -194,7 +194,7 @@ class CPUCACharacterization(object):
             ['--slowdown=1',
              '--base-internal-iterations=10',
              '--iterations=5',
-             f'--floats={1<<21}',  # quick characterization, use 26 for slower & more accurate
+             f'--floats={1<<24}',  # quick characterization, use 26 for slower & more accurate
              '--benchmarks=1 16'],
             self._mach,
             run_type='sse',
