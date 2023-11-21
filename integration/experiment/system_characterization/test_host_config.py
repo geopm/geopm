@@ -86,6 +86,43 @@ class TestCombine(unittest.TestCase):
     }
 }\
 """
+        self.expected_no_global = """\
+{
+    "GPU_CORE_FREQUENCY_MAX@mcfly1": {
+        "aggregation": "average",
+        "description": "Defines the max core frequency to use for available GPUs",
+        "domain": "gpu",
+        "units": "hertz",
+        "values": [
+            1200,
+            1300,
+            1500
+        ]
+    },
+    "GPU_CORE_FREQUENCY_MAX@mcfly2": {
+        "aggregation": "average",
+        "description": "Defines the max core frequency to use for available GPUs",
+        "domain": "gpu",
+        "units": "hertz",
+        "values": [
+            1200,
+            1300,
+            1500
+        ]
+    },
+    "GPU_CORE_FREQUENCY_MAX@mcfly3": {
+        "aggregation": "average",
+        "description": "Defines the max core frequency to use for available GPUs",
+        "domain": "gpu",
+        "units": "hertz",
+        "values": [
+            1200,
+            1300,
+            1500
+        ]
+    }
+}\
+"""
         self.readme = """
 These files are populated for testing the host_config.py
 """
@@ -110,7 +147,15 @@ These files are populated for testing the host_config.py
         result = host_config.combine(self.test_dir, self.global_config_path)
         self.assertEqual(self.expected, result)
 
+    def test_combine_no_global(self):
+        """Check that the combined output is as expected without global
+        """
+        result = host_config.combine(self.test_dir, None)
+        self.assertEqual(self.expected_no_global, result)
+
     def test_combine_bad_json(self):
+        """Check that invalid JSON results in exception
+        """
         bad_path = f'{self.readme_path}.json'
         shutil.copy(self.readme_path, bad_path)
         self.all_paths.append(bad_path)
@@ -120,6 +165,8 @@ These files are populated for testing the host_config.py
             host_config.combine(self.test_dir, self.global_config_path)
 
     def test_combine_bad_append(self):
+        """Check that appending an invalid JSON results in exception
+        """
         shutil.copy(self.readme_path, self.global_config_path)
         with self.assertRaises(RuntimeError):
             host_config.combine(self.test_dir, self.global_config_path)
