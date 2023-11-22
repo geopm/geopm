@@ -86,6 +86,10 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
         fom = app_conf.parse_fom(log_path)
         total_runtime = datetime.timedelta(seconds=end_time-start_time).total_seconds()
         # Append to report
+
+        if not os.path.isfile(report_path):
+            report_path = report_path + "-" + os.uname().nodename
+
         with open(report_path, 'a') as report:
             report.write('\nFigure of Merit: {}\n'.format(fom))
             report.write('Total Runtime: {}\n'.format(total_runtime))
