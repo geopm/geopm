@@ -112,7 +112,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     try:
-        df = geopmpy.io.RawReportCollection('*report', dir_name=args.path).get_app_df()
+        df = geopmpy.io.RawReportCollection('*report*', dir_name=args.path).get_app_df()
     except RuntimeError:
         sys.stderr.write('Error: <geopm> gen_gpu_activity_constconfig_recommendation.py: No report data found in ' + path + \
                          '; run a frequency sweep before using this analysis.\n')

@@ -1064,7 +1064,7 @@ class RawReportCollection(object):
             epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
             epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
             self._epoch_reports_df = epoch_df
-        except KeyError:
+        except (KeyError, ValueError):
             pass
         app_df = pandas.concat(app_df_list, ignore_index=True)
         app_df = app_df.reindex(columns=self._columns_order['app'])

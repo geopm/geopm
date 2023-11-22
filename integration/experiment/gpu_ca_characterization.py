@@ -45,7 +45,6 @@ class GPUCACharacterization(object):
                                                             dir_name=dgemm_freq_sweep_dir).get_df()
         gpu_config = gen_gpu_activity_constconfig_recommendation \
                         .get_config_from_frequency_sweep(df_frequency_sweep, self._mach, 0, True)
-        # TODO: consider False
 
         return gpu_config
 
