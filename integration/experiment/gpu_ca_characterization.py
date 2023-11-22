@@ -42,10 +42,9 @@ class GPUCACharacterization(object):
                                    experiment_cli_args=experiment_cli_args)
         # Parse data
         df_frequency_sweep = geopmpy.io.RawReportCollection('*report*',
-                                                            dir_name=dgemm_freq_sweep_dir).get_df()
+                                                            dir_name=dgemm_freq_sweep_dir).get_app_df()
         gpu_config = gen_gpu_activity_constconfig_recommendation \
                         .get_config_from_frequency_sweep(df_frequency_sweep, self._mach, 0, True)
-
         return gpu_config
 
     def get_app_conf(self, output_dir):
