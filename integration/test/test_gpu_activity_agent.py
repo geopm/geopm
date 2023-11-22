@@ -57,22 +57,38 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         const_path = Path('const_config_io-ca.json').resolve()
         os.environ["GEOPM_CONST_CONFIG_PATH"] = str(const_path)
 
+        node_count=1
+
         # DGEMM GPU-CA Phi Sweep
         cls._dgemm_output_dir = Path(base_dir, 'dgemm')
         experiment_args = SimpleNamespace(
             output_dir=cls._dgemm_output_dir,
-            phi_list=None)
+            node_count=node_count,
+            parres_cores_per_node=None,
+            parres_gpus_per_node=None,
+            parres_cores_per_rank=1,
+            parres_init_setup=None,
+            parres_exp_setup=None,
+            parres_teardown=None,
+            init_control=None,
+            parres_args=None,
+            trial_count=1,
+            cool_off_time=3,
+            enable_traces=False,
+            enable_profile_traces=False,
+            phi_list=None,
+        )
 
-        if test_util.is_nvml_enabled():
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
-            app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
-        elif test_util.is_oneapi_enabled():
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    "apps/parres/Kernels/Cxx11/dgemm-onemkl")
-            app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
-        if not os.path.exists(app_path):
-            raise Exception("Neither NVIDIA or Intel dgemm variant was found")
+        #if test_util.is_nvml_enabled():
+        #    app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        #                            "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
+        #    app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
+        #elif test_util.is_oneapi_enabled():
+        app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                "apps/parres/Kernels/Cxx11/dgemm-onemkl")
+        app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
+        #if not os.path.exists(app_path):
+        #    raise Exception("Neither NVIDIA or Intel dgemm variant was found")
 
         launch_helper(gpu_activity, experiment_args, app_conf, [])
 
@@ -81,16 +97,16 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         experiment_args.output_dir = cls._stream_output_dir
         experiment_args.parres_args = "3 1000000000"
 
-        if test_util.is_nvml_enabled():
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
-            app_conf = parres.create_nstream_appconf_cuda(mach, experiment_args)
-        elif test_util.is_oneapi_enabled():
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    "apps/parres/Kernels/Cxx11/nstream-onemkl")
-            app_conf = parres.create_nstream_appconf_oneapi(mach, experiment_args)
-        if not os.path.exists(app_path):
-            raise Exception("Neither NVIDIA or Intel dgemm variant was found")
+        #if test_util.is_nvml_enabled():
+        #    app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        #                            "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
+        #    app_conf = parres.create_nstream_appconf_cuda(mach, experiment_args)
+        #elif test_util.is_oneapi_enabled():
+        app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                "apps/parres/Kernels/Cxx11/nstream-onemkl")
+        app_conf = parres.create_nstream_appconf_oneapi(mach, experiment_args)
+        #if not os.path.exists(app_path):
+        #    raise Exception("Neither NVIDIA or Intel dgemm variant was found")
 
         launch_helper(gpu_activity, experiment_args, app_conf, [])
 

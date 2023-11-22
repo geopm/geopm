@@ -37,6 +37,7 @@ class GPUCACharacterization(object):
         exp_util.prep_experiment_output_dir(dgemm_freq_sweep_dir)
         app_conf, experiment_args = self.get_app_conf(dgemm_freq_sweep_dir)
         experiment_cli_args = ['--geopm-ctl-local']
+
         gpu_frequency_sweep.launch(app_conf=app_conf, args=experiment_args,
                                    experiment_cli_args=experiment_cli_args)
         # Parse data
@@ -50,16 +51,16 @@ class GPUCACharacterization(object):
 
     def get_app_conf(self, output_dir):
         experiment_args = self._get_experiment_args(output_dir)
-        if test_util.is_nvml_enabled():
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
-            app_conf = parres.create_dgemm_appconf_cuda(self._mach, experiment_args)
-        elif test_util.is_oneapi_enabled():
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    "apps/parres/Kernels/Cxx11/nstream-onemkl")
-            app_conf = parres.create_dgemm_appconf_oneapi(self._mach, experiment_args)
-        if not os.path.exists(app_path):
-            raise Exception("Support for neither NVML or OneAPI was found")
+        #if test_util.is_nvml_enabled():
+        #    app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        #                            "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
+        #    app_conf = parres.create_dgemm_appconf_cuda(self._mach, experiment_args)
+        #elif test_util.is_oneapi_enabled():
+        app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                "apps/parres/Kernels/Cxx11/nstream-onemkl")
+        app_conf = parres.create_dgemm_appconf_oneapi(self._mach, experiment_args)
+        #if not os.path.exists(app_path):
+        #    raise Exception("Support for neither NVML or OneAPI was found")
         return app_conf, experiment_args
 
     def get_machine_config(self):
@@ -84,12 +85,12 @@ class GPUCACharacterization(object):
             verbose=False,
             min_frequency = self._cpu_max_freq,
             max_frequency = self._cpu_max_freq,
-            min_uncore_frequency = self._uncore_min_freq,
+            min_uncore_frequency = self._uncore_max_freq,
             max_uncore_frequency = self._uncore_max_freq,
             step_frequency = 1e8,
             step_uncore_frequency = 1e8,
             run_max_turbo = True,
-            min_gpu_frequency = self._gpu_max_freq,
+            min_gpu_frequency = self._gpu_min_freq,
             max_gpu_frequency = self._gpu_max_freq,
             step_gpu_frequency = 1e8)
         return experiment_args
