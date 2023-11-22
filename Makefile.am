@@ -29,7 +29,7 @@ endif
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
-install-exec-hook: install-python install-fortran
+install-exec-hook: install-fortran
 dist: dist-googletest
 
 

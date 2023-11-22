@@ -47,7 +47,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        src/geopm/SharedMemoryScopedLock.hpp \
                        # end
 
-install-exec-hook: install-python install-plugin-dir
+install-exec-hook: install-plugin-dir
 dist: dist-googletest base_man
 
 install-plugin-dir:
@@ -425,15 +425,6 @@ $(abs_srcdir)/geopmdpy/version.py:
 # Move version.py into source for out of place builds
 	cp geopmdpy/version.py $@
 
-install-python: pyproject.toml $(abs_srcdir)/geopmdpy/version.py
-	rm -rf install-python && mkdir -p install-python
-	cp pyproject.toml $(abs_srcdir)/COPYING $(abs_srcdir)/AUTHORS $(abs_srcdir)/README.rst $(abs_srcdir)/VERSION install-python
-	cp -rp $(abs_srcdir)/geopmdpy install-python
-	cd install-python && $(PYTHON) -m build
-	cd install-python  && $(PYTHON) -m pip install --ignore-installed --no-dependencies --root $(DESTDIR)/ --prefix $(prefix) dist/geopmdpy-$(VERSION)*.whl
-
-clean-local-python: setup.py
-	$(PYTHON) ./setup.py clean --all
 
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
@@ -460,14 +451,14 @@ all-local: $(all_local)
 
 all_local =
 
-CLEAN_LOCAL_TARGETS = clean-local-python
+CLEAN_LOCAL_TARGETS =
 if ENABLE_FUZZTESTS
 CLEAN_LOCAL_TARGETS += clean-local-fuzztest
 endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = clean-local-python install-python doxygen rpm deb
+PHONY_TARGETS = doxygen rpm deb
 
 # INCLUDES
 check_PROGRAMS =

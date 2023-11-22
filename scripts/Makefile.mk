@@ -120,20 +120,4 @@ $(PYTEST_TESTS): scripts/test/pytest_links/%:
 clean-local-pytest-script-links:
 	rm -f scripts/test/pytest_links/*
 
-clean-local-python: scripts/setup.py
-	cd $(abs_srcdir)/scripts && $(PYTHON) ./setup.py clean --all
-
-CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links \
-                       clean-local-python
-
-$(abs_srcdir)/scripts/geopmpy/version.py:
-# Move version.py into source for out of place builds
-	cp scripts/geopmpy/version.py $@
-
-$(abs_srcdir)/scripts/pyproject.toml:
-# Move version.py into source for out of place builds
-	cp scripts/pyproject.toml $@
-
-install-python: $(abs_srcdir)/scripts/pyproject.toml $(abs_srcdir)/scripts/geopmpy/version.py
-	cd $(abs_srcdir)/scripts && $(PYTHON) -m build
-	cd $(abs_srcdir)/scripts && $(PYTHON) -m pip install --no-dependencies --ignore-installed --root $(DESTDIR)/ --prefix $(prefix) dist/geopmpy-$(VERSION)*.whl
+CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links

@@ -167,6 +167,9 @@ configuring the service.
 %prep
 %setup
 
+%generate_buildrequires
+%pyproject_buildrequires
+
 %build
 
 %if %{defined with_level_zero}
@@ -195,10 +198,13 @@ CC=gcc CXX=g++ \
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
 %{__make} %{?_smp_mflags}
 
+%pyproject_wheel
+
 %install
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
+%pyproject_install
 
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
@@ -209,6 +215,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %if 0%{?suse_version}
 %python_expand %fdupes %{buildroot}%{python3_sitelib}
 %endif
+%pyproject_save_files %{srcname}
 
 %clean
 
@@ -281,15 +288,11 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_libdir}/libgeopmd.so.2
 %dir %{_libdir}/geopm
 
-%files -n python%{python3_pkgversion}-geopmdpy
+%files -n python%{python3_pkgversion}-geopmdpy -f %{pyproject_files}
 %defattr(-,root,root,-)
-%{expand:%{python%{python_major_version}_sitelib}}/*
 %doc %{_mandir}/man1/geopmaccess.1.gz
 %doc %{_mandir}/man1/geopmsession.1.gz
 %doc %{_mandir}/man7/geopmdpy.7.gz
-%{_bindir}/geopmd
-%{_bindir}/geopmaccess
-%{_bindir}/geopmsession
 
 %files devel
 %defattr(-,root,root,-)
