@@ -110,7 +110,12 @@ By default, this test is setup to run on a single compute node.  After
    - `geopmbench` contains region markup for the `dgemm` and `stream`
      regions.  This leads to distinct sections in the report denoted
      by those names.  Notice that the count of these regions is 1, not
-     0.5.  This is because...
+     0.5.  This is because the `geopmbench` configuration in
+     `test_multi_app.sh` specifies that the `stream` and `dgemm`
+     regions will have a loop count of 2.  While the process that
+     executes `geopmbench` does call each region twice, when that data
+     is summarized in the report for the 2 processes, 2 loops / 2
+     processes = 1 call.
    - `stress-ng` contains no region markup.  All of the data
      associated with this application will be accumulated in the
      `Unmarked Totals` section.
