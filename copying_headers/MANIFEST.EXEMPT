@@ -80,6 +80,7 @@ integration/experiment/uncore_frequency_sweep/README.md
 integration/README.md
 integration/requirements.txt
 integration/test/README.md
+integration/test/plan/README.md
 MANIFEST
 .pre-commit-config.yaml
 pull_request_template.md
