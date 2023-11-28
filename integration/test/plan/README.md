@@ -84,15 +84,15 @@ By default, this test is setup to run on a single compute node.  After
    - Notice that `MPI_Init_thread` is still listed as an expected
      region even though the application does not use MPI.  This is
      because the GEOPM Runtime is still built with MPI support by
-     default, and thus will initialize MPI even if the application
-     will not use it.  In this case, `geopmbench` *is* being invoked
-     in it's default configuration which enables MPI support.
-     However, the JSON configuration for `geopmbench` specifies no MPI
-     regions.  This means `geopmbench` will call `MPI_Init` and
-     `MPI_Finalize` but will not otherwise use MPI.
+     default, and will track calls to `MPI_Init_thread` by any
+     application process that calls it.  In this case, `geopmbench`
+     *is* being invoked in it's default configuration which enables
+     MPI support.  However, the JSON configuration for `geopmbench`
+     specifies no MPI regions.  This means `geopmbench` will call
+     `MPI_Init` and `MPI_Finalize` but will not otherwise use MPI.
    - If the Runtime was built *without* MPI support, the
      `MPI_Init_thread`  region would not be present in the output
-     files and `geopmbench` can be invoked with the GEOPMBENCH_NO_MPI
+     files.  `geopmbench` can be invoked with the GEOPMBENCH_NO_MPI
      environment variable to avoid any MPI calls. For more information
      about the environment configuration of `geopmbench`, see
      [here](https://geopm.github.io/geopmbench.1.html#environment).

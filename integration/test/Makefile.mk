@@ -16,6 +16,7 @@ EXTRA_DIST += integration/test/check_trace.py \
               integration/test/test_application_totals_pinning.py \
               integration/test/test_init_control.py \
               integration/test/test_time.py \
+              integration/test/plan/README.md \
               # end
 
 include integration/test/test_enforce_policy.mk
