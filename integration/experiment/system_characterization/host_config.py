@@ -33,7 +33,7 @@ def combine(directory, append_file=None):
         output = dict()
     host_files = glob.glob(f'{directory}/*.json')
     for host_file in host_files:
-        host_name,_ = os.path.splitext(os.path.basename(host_file))
+        host_name, _ = os.path.splitext(os.path.basename(host_file))
         host_data = _load_json(host_file, json_schema)
         for key, value in host_data.items():
             output[f'{key}@{host_name}'] = value
