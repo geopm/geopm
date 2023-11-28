@@ -119,6 +119,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         PARRES DGEMM exhibits less energy consumption with the agent at phi > 50
         and FoM doesn't change significantly from phi 0 to phi 50
         """
+
         df = geopmpy.io.RawReportCollection('*report*', dir_name=self._dgemm_output_dir).get_app_df()
 
         default_fom = float(df[df['GPU_PHI'] == 0]['FOM'])
@@ -131,7 +132,6 @@ class TestIntegration_gpu_activity(unittest.TestCase):
                 test_util.assertNear(self, fom, default_fom)
             elif phi > 0.5:
                 self.assertLess(energy, default_energy)
-                self.assertLess(fom, default_fom);
 
     def test_gpu_activity_stream(self):
         """

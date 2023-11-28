@@ -77,7 +77,7 @@ class GPUCACharacterization(object):
             parres_exp_setup=None,
             parres_teardown=None,
             init_control=None,
-            parres_args=None,
+            parres_args="20 16000",
             enable_traces=False,
             enable_profile_traces=False,
             verbose=False,
