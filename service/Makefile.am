@@ -235,7 +235,9 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Cpuid.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
-		       src/CpufreqIOGroup.cpp \
+                       src/CpufreqIOGroup.cpp \
+                       src/CpufreqSysfsIO.cpp \
+                       src/CpufreqSysfsIO.hpp \
                        src/DCGMDevicePool.hpp \
                        src/DCGMIOGroup.hpp \
                        src/DCGMIOGroup.cpp \
@@ -317,6 +319,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/SSTIOGroup.hpp \
                        src/SSTSignal.cpp \
                        src/SSTSignal.hpp \
+                       src/SysfsIO.hpp \
                        src/TimeIOGroup.cpp \
                        src/TimeIOGroup.hpp \
                        src/TimeSignal.cpp \
