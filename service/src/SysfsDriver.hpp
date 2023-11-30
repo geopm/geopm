@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <functional>
+
 
 namespace geopm
 {
@@ -30,9 +32,9 @@ namespace geopm
                 double scaling_factor; // SI unit conversion factor
                 int domain; // native domain geopm_domain_e
                 int units; // IOGroup::m_units_e
-                std::string aggregation; // Agg class name
+                std::function<double(const std::vector<double> &)> aggregation_function;
                 int behavior; // IOGroup::m_signal_behavior_e
-                std::string format; // format function name
+                std::function<std::string(double)> format_function;
                 std::string alias; // Either empty string or name of high level alias
             };
             SysfsDriver() = default;
