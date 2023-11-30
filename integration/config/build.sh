@@ -127,7 +127,8 @@ build(){
 
 # Run the service build
 cd service
-CFLAGS= CXXFLAGS= CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}" ${GEOPM_SKIP_SERVICE_INSTALL}
+unset CFLAGS CXXFLAGS
+CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}" ${GEOPM_SKIP_SERVICE_INSTALL}
 
 # Run the base build
 cd ${GEOPM_SOURCE}
