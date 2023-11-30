@@ -9,13 +9,13 @@ License: BSD-3-Clause
 Group: System Environment/Libraries
 Vendor: Intel Corporation
 URL: https://geopm.github.io
-Source0: geopm-runtime.tar.gz
+Source0: geopm-runtime-%{version}.tar.gz
 BuildRoot: %{_tmppath}/geopm-runtime-%{version}-%{release}-root
+Prefix: %{_prefix}
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: geopm-service-devel
-
 %if 0%{?suse_version}
 BuildRequires: libelf-devel
 BuildRequires: bash-completion-devel
@@ -23,14 +23,10 @@ BuildRequires: bash-completion-devel
 BuildRequires: elfutils-libelf-devel
 BuildRequires: bash-completion
 %endif
-
 %if 0%{?rhel} >= 8
 # Needed to generate debuginfo packages
 BuildRequires: gdb-headless
 %endif
-
-%define python_major_version 3
-
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
@@ -38,14 +34,6 @@ BuildRequires: python3-setuptools
 BuildRequires: systemd-rpm-macros
 BuildRequires: python-rpm-macros
 %endif
-
-%define python_bin %{__python3}
-
-%if 0%{?suse_version} >= 1320
-BuildRequires: openssh
-%endif
-
-Prefix: %{_prefix}
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm
@@ -58,8 +46,22 @@ Prefix: %{_prefix}
 %define compdir "%{_sysconfdir}/bash_completion.d"
 %endif
 
+%define python_bin %{__python3}
+
+%{!?python3_pkgversion:%global python3_pkgversion 3}
+
+%define python_major_version 3
+
+Requires: python%{python3_pkgversion}-geopmpy = %{version}
+Requires: libgeopm2 = %{version}
+ExclusiveArch: x86_64
+
 %description
-@BLURB@
+
+The GEOPM Runtime is software designed to enhance energy efficiency of
+applications through active hardware configuration.  The architecture is
+designed to provide a secure infrastructure to support a wide range of tuning
+algorithms.
 
 %prep
 
@@ -100,7 +102,6 @@ Python %{python_major_version} package for GEOPM.
 %build
 test -f configure || ./autogen.sh
 
-%if %{defined suse_version}
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
@@ -110,17 +111,6 @@ test -f configure || ./autogen.sh
             --with-bash-completion-dir=%{compdir} \
             --disable-geopmd-local \
             || ( cat config.log && false )
-%else
-./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
-            --includedir=%{_includedir} --sbindir=%{_sbindir} \
-            --mandir=%{_mandir} --docdir=%{docdir} \
-            --disable-mpi --disable-openmp \
-            --disable-fortran \
-            --with-python=%{python_bin} \
-            --with-bash-completion-dir=%{compdir} \
-            --disable-geopmd-local \
-            || ( cat config.log && false )
-%endif
 
 %{__make} %{?_smp_mflags}
 
@@ -146,7 +136,6 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 %{_bindir}/geopmadmin
 %{_bindir}/geopmagent
 %{_bindir}/geopmctl
-%{_bindir}/geopmlaunch
 %{compdir}
 
 %files -n libgeopm2
@@ -192,5 +181,4 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 %defattr(-,root,root,-)
 %{expand:%{python%{python_major_version}_sitelib}}/*
 %doc %{_mandir}/man7/geopmpy.7.gz
-%changelog
-@CHANGELOG@
+%{_bindir}/geopmlaunch
