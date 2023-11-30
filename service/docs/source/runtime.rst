@@ -1,7 +1,7 @@
 User Guide for GEOPM Runtime
 ============================
 
-The GEOPM Runtime is for software designed to enhance energy efficiency of
+The GEOPM Runtime is software designed to enhance energy efficiency of
 applications through active hardware configuration.
 
 User Model

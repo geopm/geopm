@@ -281,7 +281,7 @@ AC_ARG_WITH([levelzero], [AS_HELP_STRING([--with-levelzero=PATH],
 if test "x$with_levelzero" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_levelzero/include"
   LD_LIBRARY_PATH="$with_levelzero/lib64:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_levelzero/lib64"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_levelzero/lib64 -Wl,-rpath=$with_levelzero/lib64"
 fi
 
 AC_ARG_WITH([liburing], [AS_HELP_STRING([--with-liburing=PATH],

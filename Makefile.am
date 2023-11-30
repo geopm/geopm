@@ -168,7 +168,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .github/ISSUE_TEMPLATE/tech_debt.md \
              .gitignore \
              .pre-commit-config.yaml \
-             BLURB \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
              ChangeLog \
@@ -588,8 +587,8 @@ rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-runtime-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm-runtime.tar.gz
-	cp geopm-runtime.spec $(rpm_topdir)/SPECS/geopm-runtime.spec
+	cp geopm-runtime-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
+	cp geopm-runtime.spec $(rpm_topdir)/SPECS
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-runtime.spec
 
 deb: dist
