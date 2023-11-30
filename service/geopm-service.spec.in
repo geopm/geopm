@@ -177,7 +177,8 @@ configuring the service.
 %endif
 
 ./autogen.sh
-CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
+unset CFLAGS CXXFLAGS
+CC=gcc CXX=g++ \
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
