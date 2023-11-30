@@ -57,24 +57,24 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu()
 
             int cpu_map_fd = open(cpu_map_path.c_str(), O_RDONLY);
             if (cpu_map_fd == -1) {
-                throw geopm::Exception("CpufreqIOGroup failed to open " + cpu_map_path,
+                throw geopm::Exception("SysfsIOGroup failed to open " + cpu_map_path,
                                        errno, __FILE__, __LINE__);
             }
             int read_bytes = pread(cpu_map_fd, cpu_buf, sizeof cpu_buf - 1, 0);
             close(cpu_map_fd);
             if (read_bytes < 0) {
-                throw geopm::Exception("CpufreqIOGroup failed to read " + cpu_map_path,
+                throw geopm::Exception("SysfsIOGroup failed to read " + cpu_map_path,
                                        errno, __FILE__, __LINE__);
             }
             if (read_bytes == sizeof cpu_buf - 1) {
-                throw geopm::Exception("CpufreqIOGroup truncated read from " + cpu_map_path,
+                throw geopm::Exception("SysfsIOGroup truncated read from " + cpu_map_path,
                                        errno, __FILE__, __LINE__);
             }
             result.emplace(std::stoi(cpu_buf), dir->d_name);
         }
     }
     else {
-        throw geopm::Exception("CpufreqIOGroup failed to open " + CPUFREQ_DIRECTORY,
+        throw geopm::Exception("SysfsIOGroup failed to open " + CPUFREQ_DIRECTORY,
                                errno, __FILE__, __LINE__);
     }
 
@@ -102,11 +102,11 @@ static double read_resource_attribute_fd(int fd)
     char buf[IO_BUFFER_SIZE] = {0};
     int read_bytes = read(fd, buf, sizeof buf - 1);
     if (read_bytes < 0) {
-        throw geopm::Exception("CpufreqIOGroup failed to read signal",
+        throw geopm::Exception("SysfsIOGroup failed to read signal",
                                errno, __FILE__, __LINE__);
     }
     if (static_cast<size_t>(read_bytes) >= sizeof buf) {
-        throw geopm::Exception("CpufreqIOGroup truncated read signal",
+        throw geopm::Exception("SysfsIOGroup truncated read signal",
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
     buf[read_bytes] = '\0';
@@ -121,21 +121,21 @@ static void write_resource_attribute_fd(int fd, double value)
     int string_length = snprintf(buf, sizeof buf, "%lld\n",
                                  static_cast<long long int>(value));
     if (string_length < 0) {
-        throw geopm::Exception("CpufreqIOGroup failed to convert signal to string",
+        throw geopm::Exception("SysfsIOGroup failed to convert signal to string",
                                errno, __FILE__, __LINE__);
     }
     if (static_cast<size_t>(string_length) >= sizeof buf) {
-        throw geopm::Exception("CpufreqIOGroup truncated write control",
+        throw geopm::Exception("SysfsIOGroup truncated write control",
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 
     int write_bytes = pwrite(fd, buf, string_length, 0);
     if (write_bytes < 0) {
-        throw geopm::Exception("CpufreqIOGroup failed to write control",
+        throw geopm::Exception("SysfsIOGroup failed to write control",
                                errno, __FILE__, __LINE__);
     }
     if (write_bytes < string_length) {
-        throw geopm::Exception("CpufreqIOGroup truncated write control",
+        throw geopm::Exception("SysfsIOGroup truncated write control",
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 }
@@ -144,115 +144,24 @@ namespace geopm
 {
     const std::string cpufreq_sysfs_json(void);
 
-/// @brief IOGroup that provides a signals for user and idle CPU time, and
-///        a control for writing to standard output.
-class CpufreqIOGroup : public geopm::IOGroup
-{
-    public:
-        CpufreqIOGroup();
-        CpufreqIOGroup(const PlatformTopo &topo,
-                       std::shared_ptr<SaveControl> control_saver,
-                       std::shared_ptr<IOUring> batch_reader,
-                       std::shared_ptr<IOUring> batch_writer);
-        virtual ~CpufreqIOGroup();
-        std::set<std::string> signal_names(void) const override;
-        std::set<std::string> control_names(void) const override;
-        bool is_valid_signal(const std::string &signal_name) const override;
-        bool is_valid_control(const std::string &control_name) const override;
-        int signal_domain_type(const std::string &signal_name) const override;
-        int control_domain_type(const std::string &control_name) const override;
-        int push_signal(const std::string &signal_name, int domain_type, int domain_idx)  override;
-        int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
-        void read_batch(void) override;
-        void write_batch(void) override;
-        double sample(int batch_idx) override;
-        void adjust(int batch_idx, double setting) override;
-        double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
-        void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
-        void save_control(void) override;
-        void save_control(const std::string &save_path) override;
-        void restore_control(void) override;
-        void restore_control(const std::string &save_path) override;
-        std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
-        std::function<std::string(double)> format_function(const std::string &signal_name) const override;
-        std::string signal_description(const std::string &signal_name) const override;
-        std::string control_description(const std::string &control_name) const override;
-        int signal_behavior(const std::string &signal_name) const override;
-        std::string name(void) const override;
-        static std::string plugin_name(void);
-        static std::unique_ptr<geopm::IOGroup> make_plugin(void);
-    private:
-        const geopm::PlatformTopo &m_platform_topo;
-        /// Whether any signal has been pushed
-        bool m_do_batch_read;
-        /// Whether read_batch() has been called at least once
-        bool m_is_batch_read;
-        bool m_is_batch_write;
-        std::vector<double> m_control_value;
-
-        // Information about a type of signal
-        // TODO: merge signal and control structures, and add a "writable" field, like in MSRIO
-        struct m_signal_type_info_s {
-            // Sysfs attribute name
-            std::string attribute;
-            double scaling_factor;
-            std::string description;
-            std::function<double(const std::vector<double> &)> aggregation_function;
-            std::function<std::string(double)> format_function;
-            int behavior;
-            m_units_e units;
-            bool is_writable;
-        };
-
-        static std::vector<CpufreqIOGroup::m_signal_type_info_s> parse_json(
-                const std::string& json_text);
-
-        const std::vector<struct m_signal_type_info_s> m_signal_type_info;
-
-        // Maps names to indices into m_signal_type_info
-        std::map<std::string, unsigned> m_signal_type_by_name;
-
-        // Map of (cpu)->(cpufreq resource)
-        std::map<int, std::string> m_cpufreq_resource_by_cpu;
-
-        std::vector<bool> m_do_write;
-
-        // Information about a single pushed signal index
-        struct m_signal_info_s {
-            int fd;
-            unsigned signal_type;
-            int cpu;
-            double last_value;
-            std::shared_ptr<int> last_io_return;
-            std::array<char, IO_BUFFER_SIZE> buf;
-        };
-
-        // Pushed signals
-        std::vector<m_signal_info_s> m_pushed_signal_info;
-        std::vector<m_signal_info_s> m_pushed_control_info;
-        std::shared_ptr<SaveControl> m_control_saver;
-        std::shared_ptr<IOUring> m_batch_reader;
-        std::shared_ptr<IOUring> m_batch_writer;
-};
-
-std::vector<CpufreqIOGroup::m_signal_type_info_s> CpufreqIOGroup::parse_json(
+std::vector<SysfsIOGroup::m_signal_type_info_s> SysfsIOGroup::parse_json(
         const std::string& json_text)
 {
     std::string err;
     Json root = Json::parse(json_text, err);
     if (!err.empty() || !root.is_object()) {
-        throw Exception("CpufreqIOGroup::" + std::string(__func__) +
+        throw Exception("SysfsIOGroup::" + std::string(__func__) +
                             "(): detected a malformed json string: " + err,
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     if (!root.has_shape({{"attributes", Json::OBJECT}}, err)) {
-        throw Exception("CpufreqIOGroup::" + std::string(__func__) +
+        throw Exception("SysfsIOGroup::" + std::string(__func__) +
                             "(): root of json string is malformed: " + err,
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    std::vector<CpufreqIOGroup::m_signal_type_info_s> signals;
+    std::vector<SysfsIOGroup::m_signal_type_info_s> signals;
 
     const auto& attribute_object = root["attributes"].object_items();
     for (const auto &signal_json : attribute_object) {
@@ -267,7 +176,7 @@ std::vector<CpufreqIOGroup::m_signal_type_info_s> CpufreqIOGroup::parse_json(
                     {"behavior", Json::STRING},
                     {"units", Json::STRING},
                     {"writeable", Json::BOOL}}, err)) {
-            throw Exception("CpufreqIOGroup::" + std::string(__func__) +
+            throw Exception("SysfsIOGroup::" + std::string(__func__) +
                                 "(): " + signal_name +
                                 " json properties are malformed: " + err,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -287,13 +196,13 @@ std::vector<CpufreqIOGroup::m_signal_type_info_s> CpufreqIOGroup::parse_json(
     return signals;
 }
 
-CpufreqIOGroup::CpufreqIOGroup()
-    : CpufreqIOGroup(platform_topo(), nullptr, nullptr, nullptr)
+SysfsIOGroup::SysfsIOGroup(std::shared_ptr<SysfsDriver> driver)
+    : SysfsIOGroup(platform_topo(), nullptr, nullptr, nullptr)
 {
 }
 
 // Set up mapping between signal and control names and corresponding indices
-CpufreqIOGroup::CpufreqIOGroup(
+SysfsIOGroup::SysfsIOGroup(
         const PlatformTopo &topo,
         std::shared_ptr<SaveControl> control_saver,
         std::shared_ptr<IOUring> batch_reader,
@@ -322,7 +231,7 @@ CpufreqIOGroup::CpufreqIOGroup(
     }
 }
 
-CpufreqIOGroup::~CpufreqIOGroup()
+SysfsIOGroup::~SysfsIOGroup()
 {
     for (const auto &info : m_pushed_signal_info) {
         close(info.fd);
@@ -333,7 +242,7 @@ CpufreqIOGroup::~CpufreqIOGroup()
 }
 
 // Extract the set of all signal names from the index map
-std::set<std::string> CpufreqIOGroup::signal_names(void) const
+std::set<std::string> SysfsIOGroup::signal_names(void) const
 {
     std::set<std::string> result;
     for (const auto &sv : m_signal_type_by_name) {
@@ -343,7 +252,7 @@ std::set<std::string> CpufreqIOGroup::signal_names(void) const
 }
 
 // Extract the set of all control names from the index map
-std::set<std::string> CpufreqIOGroup::control_names(void) const
+std::set<std::string> SysfsIOGroup::control_names(void) const
 {
     std::set<std::string> result;
     for (const auto &sv : m_signal_type_by_name) {
@@ -356,13 +265,13 @@ std::set<std::string> CpufreqIOGroup::control_names(void) const
 }
 
 // Check signal name using index map
-bool CpufreqIOGroup::is_valid_signal(const std::string &signal_name) const
+bool SysfsIOGroup::is_valid_signal(const std::string &signal_name) const
 {
     return m_signal_type_by_name.find(signal_name) != m_signal_type_by_name.end();
 }
 
 // Check control name using index map
-bool CpufreqIOGroup::is_valid_control(const std::string &control_name) const
+bool SysfsIOGroup::is_valid_control(const std::string &control_name) const
 {
     bool is_valid = false;
     auto control_it = m_signal_type_by_name.find(control_name);
@@ -374,7 +283,7 @@ bool CpufreqIOGroup::is_valid_control(const std::string &control_name) const
 }
 
 // Return domain for all valid signals
-int CpufreqIOGroup::signal_domain_type(const std::string &signal_name) const
+int SysfsIOGroup::signal_domain_type(const std::string &signal_name) const
 {
     int result = GEOPM_DOMAIN_INVALID;
     if (is_valid_signal(signal_name)) {
@@ -384,7 +293,7 @@ int CpufreqIOGroup::signal_domain_type(const std::string &signal_name) const
 }
 
 // Return domain for all valid controls
-int CpufreqIOGroup::control_domain_type(const std::string &control_name) const
+int SysfsIOGroup::control_domain_type(const std::string &control_name) const
 {
     int result = GEOPM_DOMAIN_INVALID;
     if (is_valid_control(control_name)) {
@@ -394,23 +303,23 @@ int CpufreqIOGroup::control_domain_type(const std::string &control_name) const
 }
 
 // Mark the given signal to be read by read_batch()
-int CpufreqIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
+int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
 {
     if (!is_valid_signal(signal_name)) {
-        throw Exception("CpufreqIOGroup::push_signal(): signal_name " + signal_name +
-                        " not valid for CpufreqIOGroup.",
+        throw Exception("SysfsIOGroup::push_signal(): signal_name " + signal_name +
+                        " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("CpufreqIOGroup::push_signal(): domain_type must be GEOPM_DOMAIN_CPU.",
+        throw Exception("SysfsIOGroup::push_signal(): domain_type must be GEOPM_DOMAIN_CPU.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-        throw Exception("CpufreqIOGroup::push_signal(): domain_idx out of range.",
+        throw Exception("SysfsIOGroup::push_signal(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (m_is_batch_read) {
-        throw Exception("CpufreqIOGroup::push_signal(): cannot push signal after call to read_batch().",
+        throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     unsigned signal_type = m_signal_type_by_name.at(signal_name);
@@ -429,7 +338,7 @@ int CpufreqIOGroup::push_signal(const std::string &signal_name, int domain_type,
     else {
         auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
         if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-            throw Exception("CpufreqIOGroup::push_signal(): Cannot push CPU "
+            throw Exception("SysfsIOGroup::push_signal(): Cannot push CPU "
                             + std::to_string(domain_idx)
                             + " because it does not have a cpufreq entry.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -446,24 +355,24 @@ int CpufreqIOGroup::push_signal(const std::string &signal_name, int domain_type,
 }
 
 // Mark the given control to be written by write_batch()
-int CpufreqIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
+int SysfsIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
 {
     if (m_is_batch_write) {
-        throw Exception("CpufreqIOGroup::push_control(): Cannot push control " + control_name +
+        throw Exception("SysfsIOGroup::push_control(): Cannot push control " + control_name +
                         "because batch writes have already been triggered.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (!is_valid_control(control_name)) {
-        throw Exception("CpufreqIOGroup::push_control(): control_name " + control_name +
-                        " not valid for CpufreqIOGroup",
+        throw Exception("SysfsIOGroup::push_control(): control_name " + control_name +
+                        " not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("CpufreqIOGroup::push_control(): domain_type must be GEOPM_DOMAIN_CPU.",
+        throw Exception("SysfsIOGroup::push_control(): domain_type must be GEOPM_DOMAIN_CPU.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-        throw Exception("CpufreqIOGroup::push_control(): domain_idx out of range.",
+        throw Exception("SysfsIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
@@ -483,7 +392,7 @@ int CpufreqIOGroup::push_control(const std::string &control_name, int domain_typ
     else {
         auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
         if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-            throw Exception("CpufreqIOGroup::push_control(): Cannot push CPU "
+            throw Exception("SysfsIOGroup::push_control(): Cannot push CPU "
                             + std::to_string(domain_idx)
                             + " because it does not have a cpufreq entry.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -497,7 +406,7 @@ int CpufreqIOGroup::push_control(const std::string &control_name, int domain_typ
     return control_idx;
 }
 
-void CpufreqIOGroup::read_batch(void)
+void SysfsIOGroup::read_batch(void)
 {
     m_is_batch_read = true;
     if (m_do_batch_read) {
@@ -511,12 +420,12 @@ void CpufreqIOGroup::read_batch(void)
         m_batch_reader->submit();
         for (auto &info : m_pushed_signal_info) {
             if (*info.last_io_return < 0) {
-                throw geopm::Exception("CpufreqIOGroup failed to read signal",
+                throw geopm::Exception("SysfsIOGroup failed to read signal",
                                        errno, __FILE__, __LINE__);
             }
             size_t bytes_read = static_cast<size_t>(*info.last_io_return);
             if (bytes_read >= info.buf.size()) {
-                throw geopm::Exception("CpufreqIOGroup truncated read signal",
+                throw geopm::Exception("SysfsIOGroup truncated read signal",
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             info.buf[bytes_read] = '\0';
@@ -527,7 +436,7 @@ void CpufreqIOGroup::read_batch(void)
     }
 }
 
-void CpufreqIOGroup::write_batch(void)
+void SysfsIOGroup::write_batch(void)
 {
     m_is_batch_write = true;
     if (!m_batch_writer) {
@@ -541,11 +450,11 @@ void CpufreqIOGroup::write_batch(void)
             int string_length = snprintf(info.buf.data(), info.buf.size(), "%lld\n",
                                          static_cast<long long int>(scaled_value));
             if (string_length < 0) {
-                throw geopm::Exception("CpufreqIOGroup failed to convert signal to string",
+                throw geopm::Exception("SysfsIOGroup failed to convert signal to string",
                                        errno, __FILE__, __LINE__);
             }
             if (static_cast<size_t>(string_length) >= info.buf.size()) {
-                throw geopm::Exception("CpufreqIOGroup truncated write control",
+                throw geopm::Exception("SysfsIOGroup truncated write control",
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_batch_writer->prep_write(
@@ -558,31 +467,31 @@ void CpufreqIOGroup::write_batch(void)
         auto &info = m_pushed_control_info[i];
         if (m_do_write[i] && !std::isnan(info.last_value)) {
             if (*info.last_io_return < 0) {
-                throw geopm::Exception("CpufreqIOGroup failed to write control",
+                throw geopm::Exception("SysfsIOGroup failed to write control",
                                        errno, __FILE__, __LINE__);
             }
         }
     }
 }
 
-double CpufreqIOGroup::sample(int batch_idx)
+double SysfsIOGroup::sample(int batch_idx)
 {
     if (batch_idx < 0 || static_cast<size_t>(batch_idx) >= m_pushed_signal_info.size()) {
-        throw Exception("CpufreqIOGroup::sample(): batch_idx out of range.",
+        throw Exception("SysfsIOGroup::sample(): batch_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (!m_is_batch_read) {
-        throw Exception("CpufreqIOGroup::sample(): signal has not been read.",
+        throw Exception("SysfsIOGroup::sample(): signal has not been read.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     return m_pushed_signal_info[static_cast<size_t>(batch_idx)].last_value;
 }
 
 // Save a setting to be written by a future write_batch()
-void CpufreqIOGroup::adjust(int batch_idx, double setting)
+void SysfsIOGroup::adjust(int batch_idx, double setting)
 {
     if (batch_idx < 0 || static_cast<size_t>(batch_idx) >= m_pushed_control_info.size()) {
-        throw Exception("CpufreqIOGroup::adjust(): batch_idx out of range.",
+        throw Exception("SysfsIOGroup::adjust(): batch_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (m_pushed_control_info[static_cast<size_t>(batch_idx)].last_value != setting) {
@@ -591,25 +500,25 @@ void CpufreqIOGroup::adjust(int batch_idx, double setting)
     }
 }
 
-double CpufreqIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
+double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
 {
     if (!is_valid_signal(signal_name)) {
-        throw Exception("CpufreqIOGroup:read_signal(): " + signal_name +
-                        "not valid for CpufreqIOGroup",
+        throw Exception("SysfsIOGroup:read_signal(): " + signal_name +
+                        "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("CpufreqIOGroup::push_signal(): domain_type must be GEOPM_DOMAIN_CPU.",
+        throw Exception("SysfsIOGroup::push_signal(): domain_type must be GEOPM_DOMAIN_CPU.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-        throw Exception("CpufreqIOGroup::push_signal(): domain_idx out of range.",
+        throw Exception("SysfsIOGroup::push_signal(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
     if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-        throw Exception("CpufreqIOGroup::read_signal(): Cannot push CPU "
+        throw Exception("SysfsIOGroup::read_signal(): Cannot push CPU "
                         + std::to_string(domain_idx)
                         + " because it does not have a cpufreq entry.",
                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -622,25 +531,25 @@ double CpufreqIOGroup::read_signal(const std::string &signal_name, int domain_ty
 }
 
 // Write to the control immediately, bypassing write_batch()
-void CpufreqIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
+void SysfsIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
 {
     if (!is_valid_control(control_name)) {
-        throw Exception("CpufreqIOGroup:write_control(): " + control_name +
-                        "not valid for CpufreqIOGroup",
+        throw Exception("SysfsIOGroup:write_control(): " + control_name +
+                        "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("CpufreqIOGroup::push_control(): domain_type must be GEOPM_DOMAIN_CPU.",
+        throw Exception("SysfsIOGroup::push_control(): domain_type must be GEOPM_DOMAIN_CPU.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-        throw Exception("CpufreqIOGroup::push_control(): domain_idx out of range.",
+        throw Exception("SysfsIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
     if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-        throw Exception("CpufreqIOGroup::write_control(): Cannot push CPU "
+        throw Exception("SysfsIOGroup::write_control(): Cannot push CPU "
                         + std::to_string(domain_idx)
                         + " because it does not have a cpufreq entry.",
                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -652,14 +561,14 @@ void CpufreqIOGroup::write_control(const std::string &control_name, int domain_t
     write_resource_attribute_fd(fd, setting / writable_signal_type_info.scaling_factor);
 }
 
-void CpufreqIOGroup::save_control(void)
+void SysfsIOGroup::save_control(void)
 {
     if (!m_control_saver) {
         m_control_saver = SaveControl::make_unique(*this);
     }
 }
 
-void CpufreqIOGroup::save_control(const std::string &save_path)
+void SysfsIOGroup::save_control(const std::string &save_path)
 {
     if (!m_control_saver) {
         m_control_saver = SaveControl::make_unique(*this);
@@ -667,14 +576,14 @@ void CpufreqIOGroup::save_control(const std::string &save_path)
     m_control_saver->write_json(save_path);
 }
 
-void CpufreqIOGroup::restore_control(void)
+void SysfsIOGroup::restore_control(void)
 {
     if (m_control_saver) {
         m_control_saver->restore(*this);
     }
 }
 
-void CpufreqIOGroup::restore_control(const std::string &save_path)
+void SysfsIOGroup::restore_control(const std::string &save_path)
 {
     if (!m_control_saver) {
         m_control_saver = SaveControl::make_unique(geopm::read_file(save_path));
@@ -682,12 +591,12 @@ void CpufreqIOGroup::restore_control(const std::string &save_path)
     m_control_saver->restore(*this);
 }
 
-std::function<double(const std::vector<double> &)> CpufreqIOGroup::agg_function(
+std::function<double(const std::vector<double> &)> SysfsIOGroup::agg_function(
         const std::string &signal_name) const
 {
     if (!is_valid_signal(signal_name)) {
-        throw Exception("CpufreqIOGroup:agg_function(): " + signal_name +
-                        "not valid for CpufreqIOGroup",
+        throw Exception("SysfsIOGroup:agg_function(): " + signal_name +
+                        "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     unsigned signal_type = m_signal_type_by_name.at(signal_name);
@@ -695,10 +604,10 @@ std::function<double(const std::vector<double> &)> CpufreqIOGroup::agg_function(
     return info.aggregation_function;
 }
 
-std::function<std::string(double)> CpufreqIOGroup::format_function(const std::string &signal_name) const
+std::function<std::string(double)> SysfsIOGroup::format_function(const std::string &signal_name) const
 {
     if (!is_valid_signal(signal_name)) {
-        throw Exception("CpufreqIOGroup::format_function(): " + signal_name +
+        throw Exception("SysfsIOGroup::format_function(): " + signal_name +
                         "not valid for TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
@@ -708,11 +617,11 @@ std::function<std::string(double)> CpufreqIOGroup::format_function(const std::st
 }
 
 // A user-friendly description of each signal
-std::string CpufreqIOGroup::signal_description(const std::string &signal_name) const
+std::string SysfsIOGroup::signal_description(const std::string &signal_name) const
 {
     if (!is_valid_signal(signal_name)) {
-        throw Exception("CpufreqIOGroup::signal_description(): signal_name " + signal_name +
-                        " not valid for CpufreqIOGroup.",
+        throw Exception("SysfsIOGroup::signal_description(): signal_name " + signal_name +
+                        " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     unsigned signal_type = m_signal_type_by_name.at(signal_name);
@@ -727,21 +636,21 @@ std::string CpufreqIOGroup::signal_description(const std::string &signal_name) c
     return result.str();
 }
 
-std::string CpufreqIOGroup::control_description(const std::string &control_name) const
+std::string SysfsIOGroup::control_description(const std::string &control_name) const
 {
     if (!is_valid_control(control_name)) {
-        throw Exception("CpufreqIOGroup::control_description(): " + control_name +
-                        "not valid for CpufreqIOGroup",
+        throw Exception("SysfsIOGroup::control_description(): " + control_name +
+                        "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     return signal_description(control_name);
 }
 
-int CpufreqIOGroup::signal_behavior(const std::string &signal_name) const
+int SysfsIOGroup::signal_behavior(const std::string &signal_name) const
 {
     if (!is_valid_signal(signal_name)) {
-        throw Exception("CpufreqIOGroup::signal_behavior(): signal_name " + signal_name +
-                        " not valid for CpufreqIOGroup.",
+        throw Exception("SysfsIOGroup::signal_behavior(): signal_name " + signal_name +
+                        " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     unsigned signal_type = m_signal_type_by_name.at(signal_name);
@@ -749,36 +658,15 @@ int CpufreqIOGroup::signal_behavior(const std::string &signal_name) const
     return info.behavior;
 }
 
-std::string CpufreqIOGroup::name(void) const
+std::string SysfsIOGroup::name(void) const
 {
     return plugin_name();
 }
 
 // Name used for registration with the IOGroup factory
-std::string CpufreqIOGroup::plugin_name(void)
+std::string SysfsIOGroup::plugin_name(void)
 {
     return "cpufreq";
 }
 
-// Function used by the factory to create objects of this type
-std::unique_ptr<geopm::IOGroup> CpufreqIOGroup::make_plugin(void)
-{
-    return std::unique_ptr<geopm::IOGroup>(new CpufreqIOGroup);
-}
-
-// Registers this IOGroup with the IOGroup factory, making it visible
-// to PlatformIO when the plugin is first loaded.
-static void __attribute__((constructor)) load_iogroup(void)
-{
-    try {
-        geopm::iogroup_factory().register_plugin(CpufreqIOGroup::plugin_name(),
-                                                 CpufreqIOGroup::make_plugin);
-    }
-    catch (const std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
-    catch (...) {
-        std::cerr << "Error: unknown cause" << std::endl;
-    }
-}
 }

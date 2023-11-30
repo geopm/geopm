@@ -41,7 +41,7 @@ namespace geopm
             struct SysfsDriver::properties_s properties(const std::string &name) const override;
             std::string properties_json(void) const override;
             static std::string plugin_name(void);
-            static std::shared_ptr<IOGroup> make_plugin(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
         private:
             enum m_properties_index_e {
                 M_BIOS_LIMIT,
