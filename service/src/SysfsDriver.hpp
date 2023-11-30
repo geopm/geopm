@@ -24,13 +24,13 @@ namespace geopm
             /// @brief The properties about a signal or control
             struct properties_s {
                 std::string name; // The full low level PlatformIO name
-                bool writable; // Is control property?
+                bool is_writable; // Is control property?
                 std::string attribute; // sysfs attribute name
-                std::string descrption; // Long description for documentation
-                double scalar; // SI unit conversion factor
+                std::string description; // Long description for documentation
+                double scaling_factor; // SI unit conversion factor
                 int domain; // native domain geopm_domain_e
                 int units; // IOGroup::m_units_e
-                int aggregation; // Agg::m_type_e
+                std::string aggregation; // Agg class name
                 int behavior; // IOGroup::m_signal_behavior_e
                 std::string format; // format function name
                 std::string alias; // Either empty string or name of high level alias
@@ -133,7 +133,7 @@ namespace geopm
             virtual struct properties_s properties(const std::string &name) const = 0;
             /// Get all of the meta data in JSON format.
             virtual std::string properties_json(void) const = 0;
-            static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(std::string properties_json);
+            static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(const std::string &properties_json);
     };
 }
 
