@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include "CpufreqSysfsDriver.hpp"
+#include "SysfsIOGroup.hpp"
 
 namespace geopm
 {
@@ -96,7 +97,7 @@ namespace geopm
         return "CPUFREQ";
     }
 
-    std::unique_ptr<IOGroup> make_plugin(void)
+    std::unique_ptr<IOGroup> CpufreqSysfsDriver::make_plugin(void)
     {
         return std::make_unique<SysfsIOGroup>(std::make_shared<CpufreqSysfsDriver>());
     }
