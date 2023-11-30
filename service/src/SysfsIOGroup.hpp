@@ -55,8 +55,6 @@ class SysfsIOGroup : public IOGroup
         std::string control_description(const std::string &control_name) const override;
         int signal_behavior(const std::string &signal_name) const override;
         std::string name(void) const override;
-        static std::string plugin_name(void);
-        static std::unique_ptr<geopm::IOGroup> make_plugin(void);
     private:
         const geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed

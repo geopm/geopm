@@ -660,12 +660,6 @@ int SysfsIOGroup::signal_behavior(const std::string &signal_name) const
 
 std::string SysfsIOGroup::name(void) const
 {
-    return plugin_name();
-}
-
-// Name used for registration with the IOGroup factory
-std::string SysfsIOGroup::plugin_name(void)
-{
     return "cpufreq";
 }
 

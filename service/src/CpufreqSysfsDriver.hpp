@@ -54,10 +54,8 @@ namespace geopm
             std::string properties_json(void) const override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
-            static std::map<parse_json(std::string properties_json)
         private:
             const std::map<std::string, SysfsDriver::properties_s> m_properties;
-            const std::vector<SysfsDriver::properties_s&> m_properties_vec;
   };
 }
 
