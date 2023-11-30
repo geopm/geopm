@@ -93,11 +93,11 @@ namespace geopm
 
     std::string CpufreqSysfsDriver::plugin_name(void)
     {
-        return "cpufreq";
+        return "CPUFREQ";
     }
 
-    std::shared_ptr<IOGroup> make_plugin(void)
+    std::unique_ptr<IOGroup> make_plugin(void)
     {
-        return std::make_shared<SysfsIOGroup>(std::make_shared<CpufreqSysfsDriver>());
+        return std::make_unique<SysfsIOGroup>(std::make_shared<CpufreqSysfsDriver>());
     }
 }

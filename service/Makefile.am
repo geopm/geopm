@@ -235,7 +235,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Cpuid.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
-                       src/CpufreqIOGroup.cpp \
+                       src/SysfsIOGroup.cpp \
+                       src/SysfsIOGroup.hpp \
                        src/CpufreqSysfsDriver.cpp \
                        src/CpufreqSysfsDriver.hpp \
                        src/DCGMDevicePool.hpp \
