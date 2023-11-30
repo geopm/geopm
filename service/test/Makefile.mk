@@ -89,6 +89,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ConstConfigIOGroupTest.valid_json_negative \
               test/gtest_links/ConstConfigIOGroupTest.valid_json_with_common_value_negative \
               test/gtest_links/ConstConfigIOGroupTest.loads_default_config \
+              test/gtest_links/ConstConfigIOGroupTest.loads_only_host_signals \
               test/gtest_links/ConstConfigIOGroupTest.no_default_config \
               test/gtest_links/CpuinfoIOGroupTest.bad_min_max \
               test/gtest_links/CpuinfoIOGroupTest.bad_sticker \

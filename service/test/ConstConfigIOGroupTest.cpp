@@ -925,3 +925,29 @@ TEST_F(ConstConfigIOGroupTest, no_default_config)
                                ENOENT,
                                "file \"" + file_path + "\" could not be opened");
 }
+
+TEST_F(ConstConfigIOGroupTest, loads_only_host_signals)
+{
+    set_up_topo_expect_exactly({GEOPM_DOMAIN_CPU});
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY@some_fake_host\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    },"
+    "    \"CPU_CORE_FREQUENCY@" + M_THIS_HOST + "\": {"
+    "        \"domain\": \"cpu\","
+    "        \"description\": \"Provides CPU core frequency\","
+    "        \"units\": \"watts\","
+    "        \"aggregation\": \"average\","
+    "        \"values\": [ 1050, 1060, 1070 ]"
+    "    }"
+    "}";
+    create_config_file(json_string);
+    ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, "", M_THIS_HOST);
+
+    EXPECT_EQ(iogroup.signal_names(), (std::set<std::string>{
+        "CONST_CONFIG::CPU_CORE_FREQUENCY"}));
+}
