@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SYSFSIO_HPP_INCLUDE
-#define SYSFSIO_HPP_INCLUDE
+#ifndef SYSFSDRIVER_HPP_INCLUDE
+#define SYSFSDRIVER_HPP_INCLUDE
 
 #include <string>
 #include <memory>
@@ -16,13 +16,13 @@ namespace geopm
     /// This virtual interface can be adapted for each Linux device
     /// driver.  A concrete implementation can be used to construct a
     /// SysfsIOGroup object.
-    class SysfsIO
+    class SysfsDriver
     {
         public:
             /// @brief The properties about a signal or control
             struct properties_s {
                 std::string name; // The full low level PlatformIO name
-                int index; // Enum defined by SysfsIO derived class
+                int index; // Enum defined by SysfsDriver derived class
                 bool writable; // Is control properties
                 std::string attribute; // sysfs attribute name
                 std::string descrption; // Long description for documentation
@@ -34,8 +34,8 @@ namespace geopm
                 std::string format; // format function name
                 std::string alias; // Either empty string or name of high level alias
             };
-            SysfsIO() = default;
-            virtual ~SysfsIO() = default;
+            SysfsDriver() = default;
+            virtual ~SysfsDriver() = default;
             /// @brief Get supported signal names.
             ///
             /// @return Vector of all supported signals
