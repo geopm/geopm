@@ -22,8 +22,7 @@ namespace geopm
             /// @brief The properties about a signal or control
             struct properties_s {
                 std::string name; // The full low level PlatformIO name
-                int index; // Enum defined by SysfsDriver derived class
-                bool writable; // Is control properties
+                bool writable; // Is control property?
                 std::string attribute; // sysfs attribute name
                 std::string descrption; // Long description for documentation
                 double scalar; // SI unit conversion factor
