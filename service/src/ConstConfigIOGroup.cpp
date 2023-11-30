@@ -40,14 +40,17 @@ namespace geopm
         GEOPM_CONFIG_PATH "/const_config_io.json";
 
     ConstConfigIOGroup::ConstConfigIOGroup()
-        : ConstConfigIOGroup(platform_topo(), geopm::get_env(M_CONFIG_PATH_ENV), M_DEFAULT_CONFIG_FILE_PATH)
+        : ConstConfigIOGroup(platform_topo(), geopm::get_env(M_CONFIG_PATH_ENV),
+                             M_DEFAULT_CONFIG_FILE_PATH, hostname())
     {
     }
 
     ConstConfigIOGroup::ConstConfigIOGroup(const PlatformTopo &topo,
                                            const std::string &user_file_path,
-                                           const std::string &default_file_path)
+                                           const std::string &default_file_path,
+                                           const std::string &hostname)
         : m_platform_topo(topo)
+        , M_THIS_HOST(hostname)
     {
         std::string config_json;
         bool load_default = true;
@@ -334,9 +337,17 @@ namespace geopm
 
         auto signals = root.object_items();
         for (const auto &signal : signals) {
+            std::string name = signal.first;
+            size_t at_idx = name.find('@');
+            if (at_idx != std::string::npos) {
+                std::string hostname = name.substr(at_idx + 1);
+                if (hostname != M_THIS_HOST)
+                    continue;
+                name = name.substr(0, at_idx);
+            }
+
             check_json_signal(signal);
-            const std::string &NAME = signal.first;
-            const std::string FULL_NAME = M_SIGNAL_PREFIX + NAME;
+            const std::string full_name = M_SIGNAL_PREFIX + name;
 
             auto properties = signal.second.object_items();
             int units = IOGroup::string_to_units(
@@ -353,14 +364,14 @@ namespace geopm
                 // Only one field is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
                                 "\"values\" and \"common_value\" provided for "
-                                "signal \"" + NAME + "\"", GEOPM_ERROR_INVALID,
+                                "signal \"" + name + "\"", GEOPM_ERROR_INVALID,
                                  __FILE__, __LINE__);
             }
             else if (!values_provided && !is_common_value_provided) {
                 // One of the two fields is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
                                 "missing \"values\" and \"common_value\" for "
-                                "signal \"" + NAME + "\"", GEOPM_ERROR_INVALID,
+                                "signal \"" + name + "\"", GEOPM_ERROR_INVALID,
                                  __FILE__, __LINE__);
             }
 
@@ -369,12 +380,12 @@ namespace geopm
                 if (json_values.empty()) {
                     throw Exception("ConstConfigIOGroup::parse_config_json(): "
                                     "empty array of values provided for "
-                                    "signal \"" + NAME + "\"", GEOPM_ERROR_INVALID,
+                                    "signal \"" + name + "\"", GEOPM_ERROR_INVALID,
                                     __FILE__, __LINE__);
                 }
                 if (static_cast<int>(json_values.size()) != m_platform_topo.num_domain(domain_type)) {
                     throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                                    "number of values for signal \"" + NAME +
+                                    "number of values for signal \"" + name +
                                     "\" does not match domain size",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
@@ -382,7 +393,7 @@ namespace geopm
                 for (const auto &val : json_values) {
                     if (!val.is_number()) {
                         throw Exception("ConstConfigIOGroup::parse_config_json():"
-                                        " for signal \"" + NAME + "\", incorrect "
+                                        " for signal \"" + name + "\", incorrect "
                                         "type for property: \"values\"",
                                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                     }
@@ -397,13 +408,13 @@ namespace geopm
             if (description.empty()) {
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
                                 "empty description provided for signal \"" +
-                                NAME + "\"", GEOPM_ERROR_INVALID,
+                                name + "\"", GEOPM_ERROR_INVALID,
                                 __FILE__, __LINE__);
             }
             // TODO: check for duplicate signals. At the moment, we're using
             // json11 to parse JSON strings, which handles duplicate entries
             // by taking the latest entry encountered.
-            m_signal_available[FULL_NAME] =
+            m_signal_available[full_name] =
                 std::make_shared<m_signal_info_s>(
                     m_signal_info_s {
                         .units = units,
