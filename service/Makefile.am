@@ -403,8 +403,8 @@ rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-service-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm-service.tar.gz
-	cp geopm-service.spec $(rpm_topdir)/SPECS/geopm-service.spec
+	cp geopm-service-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
+	cp geopm-service.spec $(rpm_topdir)/SPECS
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
 
 deb: dist
