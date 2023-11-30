@@ -320,6 +320,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/SSTIOGroup.hpp \
                        src/SSTSignal.cpp \
                        src/SSTSignal.hpp \
+                       src/SysfsDriver.cpp \
                        src/SysfsDriver.hpp \
                        src/TimeIOGroup.cpp \
                        src/TimeIOGroup.hpp \

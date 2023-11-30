@@ -11,8 +11,7 @@
 namespace geopm
 {
     CpufreqSysfsDriver::CpufreqSysfsDriver()
-        : m_properties {}
-        , m_name_map {}
+        : m_properties {SysfsDriver::parse_properties_json(properties_json())}
     {
 
     }

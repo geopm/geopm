@@ -8,6 +8,8 @@
 
 #include <string>
 #include <memory>
+#include <vector>
+#include <map>
 
 namespace geopm
 {
@@ -131,6 +133,7 @@ namespace geopm
             virtual struct properties_s properties(const std::string &name) const = 0;
             /// Get all of the meta data in JSON format.
             virtual std::string properties_json(void) const = 0;
+            static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(std::string properties_json);
     };
 }
 
