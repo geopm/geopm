@@ -5,30 +5,30 @@
 
 #include "config.h"
 
-#include "CpufreqSysfsIO.hpp"
+#include "CpufreqSysfsDriver.hpp"
 
 namespace geopm
 {
-    CpufreqSysfsIO::CpufreqSysfsIO()
+    CpufreqSysfsDriver::CpufreqSysfsDriver()
         : m_properties {}
         , m_name_map {}
     {
 
     }
 
-    std::vector<std::string> CpufreqSysfsIO::signal_names(void) const
+    std::vector<std::string> CpufreqSysfsDriver::signal_names(void) const
     {
         std::vector<std::string> result;
         return result;
     }
 
-    std::vector<std::string> CpufreqSysfsIO::control_names(void) const
+    std::vector<std::string> CpufreqSysfsDriver::control_names(void) const
     {
         std::vector<std::string> result;
         return result;
     }
 
-    std::string CpufreqSysfsIO::signal_path(const std::string &signal_name,
+    std::string CpufreqSysfsDriver::signal_path(const std::string &signal_name,
                                             int domain_type,
                                             int domain_idx)
     {
@@ -36,7 +36,7 @@ namespace geopm
         return result;
     }
 
-    std::string CpufreqSysfsIO::control_path(const std::string &control_name,
+    std::string CpufreqSysfsDriver::control_path(const std::string &control_name,
                              int domain_type,
                              int domain_idx) const
     {
@@ -44,14 +44,14 @@ namespace geopm
         return result;
     }
 
-    double CpufreqSysfsIO::signal_parse(const std::string &signal_name,
+    double CpufreqSysfsDriver::signal_parse(const std::string &signal_name,
                                         const std::string &content) const
     {
         double result = 0.0;
         return result;
     }
 
-    std::string CpufreqSysfsIO::control_gen(const std::string &control_name,
+    std::string CpufreqSysfsDriver::control_gen(const std::string &control_name,
                                             double setting) const
     {
         std::string result;
@@ -59,35 +59,45 @@ namespace geopm
     }
 
 
-    double CpufreqSysfsIO::signal_parse(int properties_id,
+    double CpufreqSysfsDriver::signal_parse(int properties_id,
                                         const std::string &content) const
     {
         double result = 0.0;
         return result;
     }
 
-    std::string CpufreqSysfsIO::control_gen(int properties_id,
+    std::string CpufreqSysfsDriver::control_gen(int properties_id,
                                             double setting) const
     {
         std::string result;
         return result;
     }
 
-    std::string CpufreqSysfsIO::driver(void) const
+    std::string CpufreqSysfsDriver::driver(void) const
     {
         std::string result;
         return result;
     }
 
-    struct SysfsIO::properties_s CpufreqSysfsIO::properties(const std::string &name) const
+    struct SysfsDriver::properties_s CpufreqSysfsDriver::properties(const std::string &name) const
     {
-        struct SysfsIO::properties_s result {};
+        struct SysfsDriver::properties_s result {};
         return result;
     }
 
-    std::string CpufreqSysfsIO::properties_json(void) const
+    std::string CpufreqSysfsDriver::properties_json(void) const
     {
         std::string result;
         return result;
+    }
+
+    std::string CpufreqSysfsDriver::plugin_name(void)
+    {
+        return "cpufreq";
+    }
+
+    std::shared_ptr<IOGroup> make_plugin(void)
+    {
+        return std::make_shared<SysfsIOGroup>(std::make_shared<CpufreqSysfsDriver>());
     }
 }

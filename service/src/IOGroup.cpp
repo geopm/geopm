@@ -18,6 +18,7 @@
 #include "TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
 #include "geopm/Helper.hpp"
+#include "CpufreqSysfsDriver.hpp"
 #ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"
 #endif
@@ -142,6 +143,8 @@ namespace geopm
 #endif
         register_plugin(ConstConfigIOGroup::plugin_name(),
                         ConstConfigIOGroup::make_plugin);
+	register_plugin(CpufreqSysfsDriver::plugin_name(),
+			CpufreqSysfsDriver::make_plugin);
     }
 
     IOGroupFactory &iogroup_factory(void)

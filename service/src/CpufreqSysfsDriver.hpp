@@ -9,16 +9,18 @@
 #include <vector>
 #include <map>
 
-#include "SysfsIO.hpp"
+#include "SysfsDriver.hpp"
 
 namespace geopm
 {
-    /// @brief Class used to implement the CpufreqSysfsIOGroup
-    class CpufreqSysfsIO: public SysfsIO
+    class IOGroup;
+
+    /// @brief Class used to implement the CpufreqSysfsDriverGroup
+    class CpufreqSysfsDriver: public SysfsDriver
     {
         public:
-            CpufreqSysfsIO();
-            virtual ~CpufreqSysfsIO() = default;
+            CpufreqSysfsDriver();
+            virtual ~CpufreqSysfsDriver() = default;
             std::vector<std::string> signal_names(void) const override;
             std::vector<std::string> control_names(void) const override;
             std::string signal_path(const std::string &signal_name,
@@ -36,8 +38,10 @@ namespace geopm
             std::string control_gen(int properties_id,
                                     double setting) const override;
             std::string driver(void) const override;
-            struct SysfsIO::properties_s properties(const std::string &name) const override;
+            struct SysfsDriver::properties_s properties(const std::string &name) const override;
             std::string properties_json(void) const override;
+            static std::string plugin_name(void);
+            static std::shared_ptr<IOGroup> make_plugin(void);
         private:
             enum m_properties_index_e {
                 M_BIOS_LIMIT,
@@ -51,8 +55,8 @@ namespace geopm
                 M_SCALING_SETSPEED,
                 M_NUM_PROPERTIES
             };
-            const std::vector<SysfsIO::properties_s> m_properties;
-            const std::map<std::string, SysfsIO::properties_s&> m_name_map;
+            const std::vector<SysfsDriver::properties_s> m_properties;
+            const std::map<std::string, SysfsDriver::properties_s&> m_name_map;
     };
 }
 
