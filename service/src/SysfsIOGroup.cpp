@@ -3,6 +3,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
+#include "SysfsIOGroup.hpp"
+
 #include <cmath>
 
 #include <cstdio>
@@ -31,12 +35,10 @@ using geopm::Exception;
 using geopm::PlatformTopo;
 using json11::Json;
 
-static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
+namespace geopm
+{
 
-// Arbitrary buffer size. We're generally looking at integer values much shorter
-// than 100 digits in length. The IOGroup performs string truncation checks in
-// case that ever changes.
-static const size_t IO_BUFFER_SIZE = 128;
+static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
 static std::map<int, std::string> load_cpufreq_resources_by_cpu()
 {
@@ -140,8 +142,6 @@ static void write_resource_attribute_fd(int fd, double value)
     }
 }
 
-namespace geopm
-{
     const std::string cpufreq_sysfs_json(void);
 
 std::vector<SysfsIOGroup::m_signal_type_info_s> SysfsIOGroup::parse_json(

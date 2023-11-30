@@ -6,12 +6,20 @@
 #ifndef SYSFSIOGROUP_HPP_INCLUDE
 #define SYSFSIOGROUP_HPP_INCLUDE
 
-#inclue "geopm/IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 namespace geopm
 {
 
 class SysfsDriver;
+class SaveControl;
+class IOUring;
+
+// Arbitrary buffer size. We're generally looking at integer values much shorter
+// than 100 digits in length. The IOGroup performs string truncation checks in
+// case that ever changes.
+static const size_t IO_BUFFER_SIZE = 128;
 
 class SysfsIOGroup : public IOGroup
 {
