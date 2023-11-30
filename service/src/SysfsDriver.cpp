@@ -6,12 +6,70 @@
 #include "config.h"
 
 #include "SysfsDriver.hpp"
+#include "geopm/json11.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/IOGroup.hpp"
+
+using json11::Json;
 
 namespace geopm
 {
-    std::map<std::string, SysfsDriver::properties_s> SysfsDriver::parse_properties_json(std::string properties_json)
+    std::map<std::string, SysfsDriver::properties_s> SysfsDriver::parse_properties_json(const std::string &properties_json)
     {
         std::map<std::string, SysfsDriver::properties_s> result;
+        std::string err;
+        Json root = Json::parse(properties_json, err);
+        if (!err.empty() || !root.is_object()) {
+            throw Exception("SysfsDriver::" + std::string(__func__) +
+                            "(): detected a malformed json string: " + err,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (!root.has_shape({{"attributes", Json::OBJECT}}, err)) {
+            throw Exception("SysfsDriver::" + std::string(__func__) +
+                            "(): root of json string is malformed: " + err,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        const auto& attribute_object = root["attributes"].object_items();
+        for (const auto &property_json : attribute_object) {
+            const auto &property_name = property_json.first;
+            const auto &properties = property_json.second;
+
+            if (!properties.has_shape({
+                        {"name", Json::STRING},
+                        {"writeable", Json::BOOL},
+                        {"attribute", Json::STRING},
+                        {"description", Json::STRING},
+                        {"scalar", Json::NUMBER},
+                        {"domain", Json::STRING},
+                        {"units", Json::STRING},
+                        {"aggregation", Json::STRING},
+                        {"behavior", Json::STRING},
+                        {"format", Json::STRING},
+                        {"alias", Json::STRING},
+                        }, err)) {
+                throw Exception("SysfsDriver::" + std::string(__func__) +
+                                "(): " + property_name +
+                                " json properties are malformed: " + err,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+
+            result[property_name] = properties_s {
+                    .name = properties["name"].string_value(),
+                    .is_writable = properties["writeable"].bool_value(),
+                    .attribute = properties["attribute"].string_value(),
+                    .description = properties["description"].string_value(),
+                    .scaling_factor = properties["scalar"].number_value(),
+                    .domain = platform_topo().domain_name_to_type(properties["domain"].string_value()),
+                    .units = IOGroup::string_to_units(properties["units"].string_value()),
+                    .aggregation = properties["aggregation"].string_value(), // FIXME store std::function
+                    .behavior = IOGroup::string_to_behavior(properties["behavior"].string_value()),
+                    .format = "double", // FIXME convert and store std::function
+                    .alias = properties["alias"].string_value()
+                    };
+        }
         return result;
     }
 }
