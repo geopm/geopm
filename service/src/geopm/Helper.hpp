@@ -85,6 +85,8 @@ namespace geopm
     };
     /// @brief Convert a format type enum string_format_e to a format function
     std::function<std::string(double)> string_format_type_to_function(int format_type);
+    /// @brief Convert a format function to a format name to a format function
+    std::function<std::string(double)> string_format_name_to_function(const std::string &format_name);
     /// @brief Convert a format function to a format type enum string_format_e
     int string_format_function_to_type(std::function<std::string(double)> format_function);
     /// @brief Format a string to best represent a signal encoding a

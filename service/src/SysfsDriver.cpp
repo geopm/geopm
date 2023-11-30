@@ -10,6 +10,8 @@
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/IOGroup.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 
 using json11::Json;
 
@@ -64,9 +66,9 @@ namespace geopm
                     .scaling_factor = properties["scalar"].number_value(),
                     .domain = platform_topo().domain_name_to_type(properties["domain"].string_value()),
                     .units = IOGroup::string_to_units(properties["units"].string_value()),
-                    .aggregation = properties["aggregation"].string_value(), // FIXME store std::function
+                    .aggregation_function = Agg::name_to_function(properties["aggregation"].string_value()),
                     .behavior = IOGroup::string_to_behavior(properties["behavior"].string_value()),
-                    .format = "double", // FIXME convert and store std::function
+                    .format_function = geopm::string_format_name_to_function(properties["format"].string_value()),
                     .alias = properties["alias"].string_value()
                     };
         }

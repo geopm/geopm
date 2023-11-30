@@ -229,6 +229,22 @@ namespace geopm
         return it->second;
     }
 
+    std::function<std::string(double)> string_format_name_to_function(const std::string &format_name)
+    {
+        static const std::map<std::string, std::function<std::string(double)> > function_map {
+            {"double", string_format_double},
+            {"integer", string_format_integer},
+            {"hex", string_format_hex},
+            {"raw64", string_format_raw64},
+        };
+        auto it = function_map.find(format_name);
+        if (it == function_map.end()) {
+            throw Exception("geopm::string_format_function(): format_name unknown: " + format_name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
     int string_format_function_to_type(std::function<std::string(double)> format_function)
     {
         std::map<decltype(&string_format_double), int> function_map = {
