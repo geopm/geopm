@@ -28,11 +28,6 @@ AC_DEFINE_UNQUOTED([DATE], ["$DATE"], [Date string suitable for debian changelog
 
 LT_PREREQ([2.2.6])
 
-m4_include([m4/ax_check_compile_flag.m4])
-AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
-AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
-AX_CHECK_COMPILE_FLAG([-fsanitize=cfi], [SANITIZE_CFI="-fsanitize=cfi"], [], [], [])
-
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug], [Build debugging code and compile with -O0 -g])],
 [if test "x$enable_debug" = "xno" ; then
@@ -218,8 +213,8 @@ AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
-  EXTRA_CFLAGS="$EXTRA_CFLAGS -Og -g"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Og -g"
+  CFLAGS="$CFLAGS -Og -g"
+  CXXFLAGS="$CXXFLAGS -Og -g"
 fi
 AC_SUBST([enable_debug])
 
@@ -346,6 +341,11 @@ m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 AM_PROG_CC_C_O
 LT_INIT
+
+m4_include([m4/ax_check_compile_flag.m4])
+AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
+AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
+AX_CHECK_COMPILE_FLAG([-fsanitize=cfi], [SANITIZE_CFI="-fsanitize=cfi"], [], [], [])
 
 AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
     echo "missing libpthread: POSIX thread interface is required"
