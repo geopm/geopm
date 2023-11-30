@@ -24,7 +24,8 @@ namespace geopm
             ConstConfigIOGroup();
             ConstConfigIOGroup(const PlatformTopo& topo,
                                const std::string &user_file_path,
-                               const std::string &default_file_path);
+                               const std::string &default_file_path,
+                               const std::string &hostname);
             std::set<std::string> signal_names(void) const override;
             /// @return empty set; this IOGroup does not provide any controls.
             std::set<std::string> control_names(void) const override;
@@ -108,6 +109,7 @@ namespace geopm
             static const std::string M_DEFAULT_CONFIG_FILE_PATH;
 
             const PlatformTopo &m_platform_topo;
+            const std::string M_THIS_HOST;
             std::map<std::string, std::shared_ptr<m_signal_info_s> > m_signal_available;
             std::vector<m_signal_ref_s> m_pushed_signals;
     };
