@@ -19,6 +19,18 @@ namespace geopm
     class CpufreqSysfsDriver: public SysfsDriver
     {
         public:
+            enum m_properties_index_e {
+                M_BIOS_LIMIT,
+                M_CUR_FREQ,
+                M_MAX_FREQ,
+                M_MIN_FREQ,
+                M_TRANSITION_LATENCY,
+                M_SCALING_CUR_FREQ,
+                M_SCALING_MAX_FREQ,
+                M_SCALING_MIN_FREQ,
+                M_SCALING_SETSPEED,
+                M_NUM_PROPERTIES
+            };
             CpufreqSysfsDriver();
             virtual ~CpufreqSysfsDriver() = default;
             std::vector<std::string> signal_names(void) const override;
@@ -33,31 +45,20 @@ namespace geopm
                                 const std::string &content) const override;
             std::string control_gen(const std::string &control_name,
                                     double setting) const override;
-            double signal_parse(int properties_id,
+            double signal_parse(int properties_idx,
                                 const std::string &content) const override;
-            std::string control_gen(int properties_id,
+            std::string control_gen(int properties_idx,
                                     double setting) const override;
             std::string driver(void) const override;
             struct SysfsDriver::properties_s properties(const std::string &name) const override;
             std::string properties_json(void) const override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
+            static std::map<parse_json(std::string properties_json)
         private:
-            enum m_properties_index_e {
-                M_BIOS_LIMIT,
-                M_CUR_FREQ,
-                M_MAX_FREQ,
-                M_MIN_FREQ,
-                M_TRANSITION_LATENCY,
-                M_SCALING_CUR_FREQ,
-                M_SCALING_MAX_FREQ,
-                M_SCALING_MIN_FREQ,
-                M_SCALING_SETSPEED,
-                M_NUM_PROPERTIES
-            };
-            const std::vector<SysfsDriver::properties_s> m_properties;
-            const std::map<std::string, SysfsDriver::properties_s&> m_name_map;
-    };
+            const std::map<std::string, SysfsDriver::properties_s> m_properties;
+            const std::vector<SysfsDriver::properties_s&> m_properties_vec;
+  };
 }
 
 #endif
