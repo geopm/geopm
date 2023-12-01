@@ -26,10 +26,11 @@ class SysfsIOGroup : public IOGroup
     public:
         SysfsIOGroup() = delete;
         SysfsIOGroup(std::shared_ptr<SysfsDriver> driver);
-        SysfsIOGroup(const PlatformTopo &topo,
-                       std::shared_ptr<SaveControl> control_saver,
-                       std::shared_ptr<IOUring> batch_reader,
-                       std::shared_ptr<IOUring> batch_writer);
+        SysfsIOGroup(std::shared_ptr<SysfsDriver> driver,
+                     const PlatformTopo &topo,
+                     std::shared_ptr<SaveControl> control_saver,
+                     std::shared_ptr<IOUring> batch_reader,
+                     std::shared_ptr<IOUring> batch_writer);
         virtual ~SysfsIOGroup();
         std::set<std::string> signal_names(void) const override;
         std::set<std::string> control_names(void) const override;
@@ -56,6 +57,7 @@ class SysfsIOGroup : public IOGroup
         int signal_behavior(const std::string &signal_name) const override;
         std::string name(void) const override;
     private:
+        std::shared_Ptr<SysfsDriver> m_driver;
         const geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed
         bool m_do_batch_read;
@@ -63,47 +65,28 @@ class SysfsIOGroup : public IOGroup
         bool m_is_batch_read;
         bool m_is_batch_write;
         std::vector<double> m_control_value;
+        const std::map<std::string, SysfsIO::properties_s> m_properties;
+        const std::vector<SysfsIO::properties_s &> m_properties_vec;
+        std::map<std::string, SysfsIO::properties_s&> m_signals;
+        std::map<std::string, SysfsIO::properties_s&> m_controls;
 
-        // Information about a type of signal
-        // TODO: merge signal and control structures, and add a "writable" field, like in MSRIO
-        struct m_signal_type_info_s {
-            // Sysfs attribute name
-            std::string attribute;
-            double scaling_factor;
-            std::string description;
-            std::function<double(const std::vector<double> &)> aggregation_function;
-            std::function<std::string(double)> format_function;
-            int behavior;
-            m_units_e units;
-            bool is_writable;
-        };
-
-        static std::vector<SysfsIOGroup::m_signal_type_info_s> parse_json(
-                const std::string& json_text);
-
-        const std::vector<struct m_signal_type_info_s> m_signal_type_info;
-
-        // Maps names to indices into m_signal_type_info
-        std::map<std::string, unsigned> m_signal_type_by_name;
-
-        // Map of (cpu)->(cpufreq resource)
-        std::map<int, std::string> m_cpufreq_resource_by_cpu;
-
-        std::vector<bool> m_do_write;
-
-        // Information about a single pushed signal index
-        struct m_signal_info_s {
+        // Information about a single pushed signal or control
+        struct m_pushed_info_s {
             int fd;
             unsigned signal_type;
-            int cpu;
+            int domain_type;
+            int domain_idx;
             double last_value;
+            bool do_write;
             std::shared_ptr<int> last_io_return;
             std::array<char, IO_BUFFER_SIZE> buf;
+            std::function<double(const std::string&)> parse;
+            std::function<std::string(double)> gen;
         };
 
         // Pushed signals
-        std::vector<m_signal_info_s> m_pushed_signal_info;
-        std::vector<m_signal_info_s> m_pushed_control_info;
+        std::vector<m_pushed_info_s> m_pushed_info_signal;
+        std::vector<m_pushed_info_s> m_pushed_info_control;
         std::shared_ptr<SaveControl> m_control_saver;
         std::shared_ptr<IOUring> m_batch_reader;
         std::shared_ptr<IOUring> m_batch_writer;

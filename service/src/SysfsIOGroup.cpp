@@ -142,92 +142,44 @@ static void write_resource_attribute_fd(int fd, double value)
     }
 }
 
-    const std::string cpufreq_sysfs_json(void);
-
-std::vector<SysfsIOGroup::m_signal_type_info_s> SysfsIOGroup::parse_json(
-        const std::string& json_text)
-{
-    std::string err;
-    Json root = Json::parse(json_text, err);
-    if (!err.empty() || !root.is_object()) {
-        throw Exception("SysfsIOGroup::" + std::string(__func__) +
-                            "(): detected a malformed json string: " + err,
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    if (!root.has_shape({{"attributes", Json::OBJECT}}, err)) {
-        throw Exception("SysfsIOGroup::" + std::string(__func__) +
-                            "(): root of json string is malformed: " + err,
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    std::vector<SysfsIOGroup::m_signal_type_info_s> signals;
-
-    const auto& attribute_object = root["attributes"].object_items();
-    for (const auto &signal_json : attribute_object) {
-        const auto &signal_name = signal_json.first;
-        const auto &signal_properties = signal_json.second;
-
-        if (!signal_properties.has_shape({
-                    {"attribute", Json::STRING},
-                    {"scalar", Json::NUMBER},
-                    {"description", Json::STRING},
-                    {"aggregation", Json::STRING},
-                    {"behavior", Json::STRING},
-                    {"units", Json::STRING},
-                    {"writeable", Json::BOOL}}, err)) {
-            throw Exception("SysfsIOGroup::" + std::string(__func__) +
-                                "(): " + signal_name +
-                                " json properties are malformed: " + err,
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        signals.push_back({
-                .attribute = signal_properties["attribute"].string_value(),
-                .scaling_factor = signal_properties["scalar"].number_value(),
-                .description = signal_properties["description"].string_value(),
-                .aggregation_function = Agg::name_to_function(signal_properties["aggregation"].string_value()),
-                .format_function = geopm::string_format_double,
-                .behavior = IOGroup::string_to_behavior(signal_properties["behavior"].string_value()),
-                .units = IOGroup::string_to_units(signal_properties["units"].string_value()),
-                .is_writable = signal_properties["writeable"].bool_value()});
-    }
-
-    return signals;
-}
 
 SysfsIOGroup::SysfsIOGroup(std::shared_ptr<SysfsDriver> driver)
-    : SysfsIOGroup(platform_topo(), nullptr, nullptr, nullptr)
+    : SysfsIOGroup(driver, platform_topo(), nullptr, nullptr, nullptr)
 {
 }
 
 // Set up mapping between signal and control names and corresponding indices
 SysfsIOGroup::SysfsIOGroup(
+        std::shared_ptr<SysfsDriver> driver,
         const PlatformTopo &topo,
         std::shared_ptr<SaveControl> control_saver,
         std::shared_ptr<IOUring> batch_reader,
         std::shared_ptr<IOUring> batch_writer)
-    : m_platform_topo(topo)
+    : m_driver(driver)
+    , m_platform_topo(topo)
     , m_do_batch_read(false)
     , m_is_batch_read(false)
     , m_is_batch_write(false)
     , m_control_value{}
-    , m_signal_type_info(parse_json(cpufreq_sysfs_json()))
-    , m_signal_type_by_name()
-    , m_cpufreq_resource_by_cpu(load_cpufreq_resources_by_cpu())
-    , m_do_write(m_signal_type_info.size(), false)
-    , m_pushed_signal_info{}
-    , m_pushed_control_info{}
+    , m_properties(m_driver->properties())
+    , m_signal_properties_vec(m_properties)
+    , m_pushed_info_signal{}
+    , m_pushed_info_control{}
     , m_control_saver(control_saver)
     , m_batch_reader(batch_reader)
     , m_batch_writer(batch_writer)
 {
-    for (size_t signal_type_index = 0; signal_type_index < m_signal_type_info.size(); ++signal_type_index) {
-        std::string signal_name = "CPUFREQ::" + m_signal_type_info[signal_type_index].attribute;
-        std::transform(signal_name.begin(), signal_name.end(),
-                       signal_name.begin(),
-                       [](unsigned char c){ return std::toupper(c); });
-        m_signal_type_by_name.emplace(signal_name, signal_type_index);
+    for (const auto &it : m_properties) {
+        m_signals[it.first] = it.second;
+        if (it.second.is_writable) {
+            m_controls[it.first] = it.second;
+            if (it.second.alias != "") {
+                m_controls[it.second.alias] = it.second;
+            }
+        }
+        if (it.second.alias != "") {
+            m_signals[it.second.alias] = it.second;
+        }
     }
 }
 
@@ -245,8 +197,8 @@ SysfsIOGroup::~SysfsIOGroup()
 std::set<std::string> SysfsIOGroup::signal_names(void) const
 {
     std::set<std::string> result;
-    for (const auto &sv : m_signal_type_by_name) {
-        result.insert(sv.first);
+    for (const auto &it : m_properties) {
+        result.insert(it.first);
     }
     return result;
 }
@@ -255,11 +207,8 @@ std::set<std::string> SysfsIOGroup::signal_names(void) const
 std::set<std::string> SysfsIOGroup::control_names(void) const
 {
     std::set<std::string> result;
-    for (const auto &sv : m_signal_type_by_name) {
-        auto &control_type_info = m_signal_type_info.at(sv.second);
-        if (control_type_info.is_writable) {
-            result.insert(sv.first);
-        }
+    for (const auto &it : m_controls) {
+        result.insert(it.first);
     }
     return result;
 }
@@ -267,27 +216,22 @@ std::set<std::string> SysfsIOGroup::control_names(void) const
 // Check signal name using index map
 bool SysfsIOGroup::is_valid_signal(const std::string &signal_name) const
 {
-    return m_signal_type_by_name.find(signal_name) != m_signal_type_by_name.end();
+    bool result = m_signals.find(signal_name) != m_signals.end();
 }
 
 // Check control name using index map
 bool SysfsIOGroup::is_valid_control(const std::string &control_name) const
 {
-    bool is_valid = false;
-    auto control_it = m_signal_type_by_name.find(control_name);
-    if (control_it != m_signal_type_by_name.end()) {
-        auto &control_type_info = m_signal_type_info.at(control_it->second);
-        is_valid = control_type_info.is_writable;
-    }
-    return is_valid;
+    bool is_valid = m_controls.find(control_name) != m_controls.end();
 }
 
 // Return domain for all valid signals
 int SysfsIOGroup::signal_domain_type(const std::string &signal_name) const
 {
     int result = GEOPM_DOMAIN_INVALID;
-    if (is_valid_signal(signal_name)) {
-        result = GEOPM_DOMAIN_CPU;
+    const auto it = m_signals.find(signal_name);
+    if (it != m_signals.end()) {
+        result = m_driver->domain(it->second.name);
     }
     return result;
 }
@@ -296,8 +240,9 @@ int SysfsIOGroup::signal_domain_type(const std::string &signal_name) const
 int SysfsIOGroup::control_domain_type(const std::string &control_name) const
 {
     int result = GEOPM_DOMAIN_INVALID;
-    if (is_valid_control(control_name)) {
-        result = GEOPM_DOMAIN_CPU;
+    const auto it = m_controls.find(control_name);
+    if (it != m_controls.end()) {
+        result = m_driver->domain(it->second.name);
     }
     return result;
 }
@@ -322,10 +267,9 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
         throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_signal_type_by_name.at(signal_name);
-    auto &signal_type_info = m_signal_type_info.at(signal_type);
-    auto pushed_it = std::find_if(m_pushed_signal_info.begin(),
-                                  m_pushed_signal_info.end(),
+    auto &property = m_signals.at(signal_name);
+    auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
+                                  m_pushed_info_signal.end(),
                                   [signal_type, domain_idx] (const m_signal_info_s &info) {
                                       return info.signal_type == signal_type && info.cpu == domain_idx;
                                   });
@@ -376,7 +320,7 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    unsigned writable_signal_type = m_signal_type_by_name.at(control_name);
+    unsigned writable_signal_type = m_properties.at(control_name);
     auto &writable_signal_type_info = m_signal_type_info.at(writable_signal_type);
     auto pushed_it = std::find_if(m_pushed_control_info.begin(),
                                   m_pushed_control_info.end(),
@@ -523,7 +467,7 @@ double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type
                         + " because it does not have a cpufreq entry.",
                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_signal_type_by_name.at(signal_name);
+    unsigned signal_type = m_properties.at(signal_name);
     auto &signal_type_info = m_signal_type_info.at(signal_type);
 
     int fd = open_resource_attribute(resource_it->second, signal_type_info.attribute, false);
@@ -554,7 +498,7 @@ void SysfsIOGroup::write_control(const std::string &control_name, int domain_typ
                         + " because it does not have a cpufreq entry.",
                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
-    int writable_signal_type = m_signal_type_by_name.at(control_name);
+    int writable_signal_type = m_properties.at(control_name);
     auto &writable_signal_type_info = m_signal_type_info.at(writable_signal_type);
 
     int fd = open_resource_attribute(resource_it->second, writable_signal_type_info.attribute, true);
@@ -599,7 +543,7 @@ std::function<double(const std::vector<double> &)> SysfsIOGroup::agg_function(
                         "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_signal_type_by_name.at(signal_name);
+    unsigned signal_type = m_properties.at(signal_name);
     auto &info = m_signal_type_info.at(signal_type);
     return info.aggregation_function;
 }
@@ -611,7 +555,7 @@ std::function<std::string(double)> SysfsIOGroup::format_function(const std::stri
                         "not valid for TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_signal_type_by_name.at(signal_name);
+    unsigned signal_type = m_properties.at(signal_name);
     auto &info = m_signal_type_info.at(signal_type);
     return info.format_function;
 }
@@ -624,7 +568,7 @@ std::string SysfsIOGroup::signal_description(const std::string &signal_name) con
                         " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_signal_type_by_name.at(signal_name);
+    unsigned signal_type = m_properties.at(signal_name);
     auto &info = m_signal_type_info.at(signal_type);
     std::ostringstream result;
     result << "    description: " << info.description << "\n"
@@ -653,8 +597,7 @@ int SysfsIOGroup::signal_behavior(const std::string &signal_name) const
                         " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_signal_type_by_name.at(signal_name);
-    auto &info = m_signal_type_info.at(signal_type);
+    auto &info = m_properties.at(signal_name);
     return info.behavior;
 }
 
