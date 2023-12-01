@@ -45,7 +45,8 @@ namespace geopm
                 M_SCALING_SETSPEED,
                 M_NUM_PROPERTIES
             };
-            const std::map<std::string, SysfsDriver::properties_s> m_properties;
+            const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
+            const std::map<int, std::string> M_CPUFREQ_RESOURCE_BY_CPU;
   };
 }
 

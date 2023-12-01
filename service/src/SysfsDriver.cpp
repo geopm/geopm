@@ -40,7 +40,6 @@ namespace geopm
             const auto &properties = property_json.second;
 
             if (!properties.has_shape({
-                        {"name", Json::STRING},
                         {"writeable", Json::BOOL},
                         {"attribute", Json::STRING},
                         {"description", Json::STRING},
