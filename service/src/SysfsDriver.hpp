@@ -30,7 +30,6 @@ namespace geopm
                 std::string attribute; // sysfs attribute name
                 std::string description; // Long description for documentation
                 double scaling_factor; // SI unit conversion factor
-                int domain; // native domain geopm_domain_e
                 int units; // IOGroup::m_units_e
                 std::function<double(const std::vector<double> &)> aggregation_function;
                 int behavior; // IOGroup::m_signal_behavior_e
@@ -47,6 +46,12 @@ namespace geopm
             ///
             /// @return Vector of all supported controls
             virtual std::vector<std::string> control_names(void) const = 0;
+            /// @brief Get the PlatformTopo domain type for an named attribute
+            ///
+            /// @param [in] name The name of the signal or control
+            ///
+            /// @return geopm_domain_e domain type
+            virtual int domain_type(const std::string &name) const = 0;
             /// @brief Get the path to the sysfs entry for signal.
             ///
             /// @param [in] signal_name The name of the signal
@@ -102,7 +107,7 @@ namespace geopm
             /// @return String content to be written to sysfs file.
             virtual std::string control_gen(const std::string &control_name,
                                             double setting) const = 0;
-            /// @brief Convert contents of sysfs file into signal
+            /// @brief Get function to convert contents of sysfs file into signal
             ///
             /// This parsing includes the conversion of the numerical
             /// data into SI units.
@@ -113,20 +118,16 @@ namespace geopm
             ///        sysfs file.
             ///
             /// @return The parsed signal value in SI units.
-            virtual double signal_parse(int properties_id,
-                                        const std::string &content) const = 0;
-            /// @brief Convert a control into a sysfs string
+            virtual std::function<double(const std::string&)> signal_parse(const std::string &signal_name) const = 0;
+            /// @brief Get a function to convert a control into a sysfs string
             ///
             /// Converts from the SI unit control into the text
             /// representation required by the device driver.
             ///
-            /// @param [in] properties_id The unique identifier of the control.
+            /// @param [in] signal_name The name of the signal.
             ///
-            /// @param [in] setting The control setting in SI units.
-            ///
-            /// @return String content to be written to sysfs file.
-            virtual std::string control_gen(int properties_id,
-                                            double setting) const = 0;
+            /// @return Function returning string content to be written to sysfs file.
+            virtual std::function<std::string(double)> control_gen(const std::string &control_name) const = 0;
             /// Name of the Linux kernel device driver
             ///
             /// @return Name of device driver

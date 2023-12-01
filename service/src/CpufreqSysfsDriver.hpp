@@ -19,6 +19,29 @@ namespace geopm
     class CpufreqSysfsDriver: public SysfsDriver
     {
         public:
+            CpufreqSysfsDriver();
+            virtual ~CpufreqSysfsDriver() = default;
+            std::vector<std::string> signal_names(void) const override;
+            std::vector<std::string> control_names(void) const override;
+            int domain_type(const std::string &name) const override;
+            std::string signal_path(const std::string &signal_name,
+                                    int domain_type,
+                                    int domain_idx) override;
+            std::string control_path(const std::string &control_name,
+                                     int domain_type,
+                                     int domain_idx) const override;
+            double signal_parse(const std::string &signal_name,
+                                const std::string &content) const override;
+            std::string control_gen(const std::string &control_name,
+                                    double setting) const override;
+            std::function<double(const std::string&)> signal_parse(const std::string &signal_name) const override;
+            std::function<std::string(double)> control_gen(const std::string &control_name) const override;
+            std::string driver(void) const override;
+            struct SysfsDriver::properties_s properties(const std::string &name) const override;
+            std::string properties_json(void) const override;
+            static std::string plugin_name(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
+        private:
             enum m_properties_index_e {
                 M_BIOS_LIMIT,
                 M_CUR_FREQ,
@@ -31,30 +54,6 @@ namespace geopm
                 M_SCALING_SETSPEED,
                 M_NUM_PROPERTIES
             };
-            CpufreqSysfsDriver();
-            virtual ~CpufreqSysfsDriver() = default;
-            std::vector<std::string> signal_names(void) const override;
-            std::vector<std::string> control_names(void) const override;
-            std::string signal_path(const std::string &signal_name,
-                                    int domain_type,
-                                    int domain_idx) override;
-            std::string control_path(const std::string &control_name,
-                                     int domain_type,
-                                     int domain_idx) const override;
-            double signal_parse(const std::string &signal_name,
-                                const std::string &content) const override;
-            std::string control_gen(const std::string &control_name,
-                                    double setting) const override;
-            double signal_parse(int properties_idx,
-                                const std::string &content) const override;
-            std::string control_gen(int properties_idx,
-                                    double setting) const override;
-            std::string driver(void) const override;
-            struct SysfsDriver::properties_s properties(const std::string &name) const override;
-            std::string properties_json(void) const override;
-            static std::string plugin_name(void);
-            static std::unique_ptr<IOGroup> make_plugin(void);
-        private:
             const std::map<std::string, SysfsDriver::properties_s> m_properties;
   };
 }

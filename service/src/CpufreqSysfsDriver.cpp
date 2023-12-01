@@ -28,49 +28,55 @@ namespace geopm
         return result;
     }
 
+    int CpufreqSysfsDriver::domain_type(const std::string &name) const
+    {
+        return 0;
+    }
+
     std::string CpufreqSysfsDriver::signal_path(const std::string &signal_name,
-                                            int domain_type,
-                                            int domain_idx)
+                                                int domain_type,
+                                                int domain_idx)
     {
         std::string result;
         return result;
     }
 
     std::string CpufreqSysfsDriver::control_path(const std::string &control_name,
-                             int domain_type,
-                             int domain_idx) const
+                                                 int domain_type,
+                                                 int domain_idx) const
     {
         std::string result;
         return result;
     }
 
     double CpufreqSysfsDriver::signal_parse(const std::string &signal_name,
-                                        const std::string &content) const
+                                            const std::string &content) const
     {
         double result = 0.0;
         return result;
     }
 
     std::string CpufreqSysfsDriver::control_gen(const std::string &control_name,
-                                            double setting) const
+                                                double setting) const
     {
         std::string result;
         return result;
     }
 
-
-    double CpufreqSysfsDriver::signal_parse(int properties_id,
-                                        const std::string &content) const
+    std::function<double(const std::string&)> CpufreqSysfsDriver::signal_parse(const std::string &signal_name) const
     {
-        double result = 0.0;
-        return result;
+        return [] (const std::string &content)
+        {
+            return std::stod(content);
+        };
     }
 
-    std::string CpufreqSysfsDriver::control_gen(int properties_id,
-                                            double setting) const
+    std::function<std::string(double)> CpufreqSysfsDriver::control_gen(const std::string &control_name) const
     {
-        std::string result;
-        return result;
+        return [] (double value)
+        {
+            return std::to_string(value);
+        };
     }
 
     std::string CpufreqSysfsDriver::driver(void) const
