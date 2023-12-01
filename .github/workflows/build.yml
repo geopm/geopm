@@ -26,8 +26,8 @@ jobs:
     # particular configuration of the build matrix.
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
-    - uses: codespell-project/actions-codespell@v1.0
+    - uses: actions/checkout@v4
+    - uses: codespell-project/actions-codespell@v2
   build_and_test:
     name: "build: ${{ matrix.config.name }} ${{ matrix.debug-flag }} service:${{ matrix.service-asan-flag }} base:${{ matrix.base-asan-flag  }}"
     runs-on: ubuntu-22.04
@@ -62,7 +62,7 @@ jobs:
       F77: gfortran-9
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev python3-gi python3-yaml libcap-dev
     - name: install base and service dir python dependencies
@@ -124,7 +124,7 @@ jobs:
       CC: "gcc-12"
       CXX: "g++-12"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: install system dependencies
@@ -162,14 +162,20 @@ jobs:
       working-directory: service
       run: |
            osc co ${SERVICE_PACKAGE}
+           rm ${SERVICE_PACKAGE}/geopm-service*.tar.gz
            cp geopm-service.spec ${SERVICE_PACKAGE}
-           cp geopm-service*.tar.gz ${SERVICE_PACKAGE}/geopm-service.tar.gz
-           osc add ${SERVICE_PACKAGE}/geopm-service.spec ${SERVICE_PACKAGE}/geopm-service.tar.gz
+           cp geopm-service*.tar.gz ${SERVICE_PACKAGE}
+           cd ${SERVICE_PACKAGE}
+           osc addremove
+           cd -
            osc ci -m "geopm service ${{ github.sha }}" ${SERVICE_PACKAGE}
     - name: publish runtime
       run: |
            osc co ${RUNTIME_PACKAGE}
+           rm ${RUNTIME_PACKAGE}/geopm-runtime*.tar.gz
            cp geopm-runtime.spec ${RUNTIME_PACKAGE}
-           cp geopm-runtime*.tar.gz ${RUNTIME_PACKAGE}/geopm-runtime.tar.gz
-           osc add ${RUNTIME_PACKAGE}/geopm-runtime.spec ${RUNTIME_PACKAGE}/geopm-runtime.tar.gz
+           cp geopm-runtime*.tar.gz ${RUNTIME_PACKAGE}
+           cd ${RUNTIME_PACKAGE}
+           osc addremove
+           cd -
            osc ci -m "geopm runtime ${{ github.sha }}" ${RUNTIME_PACKAGE}
