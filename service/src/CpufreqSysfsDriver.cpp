@@ -11,21 +11,9 @@
 namespace geopm
 {
     CpufreqSysfsDriver::CpufreqSysfsDriver()
-        : m_properties {SysfsDriver::parse_properties_json(properties_json())}
+        : m_properties {SysfsDriver::parse_properties_json("{}")}
     {
 
-    }
-
-    std::vector<std::string> CpufreqSysfsDriver::signal_names(void) const
-    {
-        std::vector<std::string> result;
-        return result;
-    }
-
-    std::vector<std::string> CpufreqSysfsDriver::control_names(void) const
-    {
-        std::vector<std::string> result;
-        return result;
     }
 
     int CpufreqSysfsDriver::domain_type(const std::string &name) const
@@ -34,7 +22,6 @@ namespace geopm
     }
 
     std::string CpufreqSysfsDriver::signal_path(const std::string &signal_name,
-                                                int domain_type,
                                                 int domain_idx)
     {
         std::string result;
@@ -42,22 +29,7 @@ namespace geopm
     }
 
     std::string CpufreqSysfsDriver::control_path(const std::string &control_name,
-                                                 int domain_type,
                                                  int domain_idx) const
-    {
-        std::string result;
-        return result;
-    }
-
-    double CpufreqSysfsDriver::signal_parse(const std::string &signal_name,
-                                            const std::string &content) const
-    {
-        double result = 0.0;
-        return result;
-    }
-
-    std::string CpufreqSysfsDriver::control_gen(const std::string &control_name,
-                                                double setting) const
     {
         std::string result;
         return result;
@@ -85,15 +57,9 @@ namespace geopm
         return result;
     }
 
-    struct SysfsDriver::properties_s CpufreqSysfsDriver::properties(const std::string &name) const
+    std::map<std::string, SysfsDriver::properties_s> CpufreqSysfsDriver::properties(void) const
     {
-        struct SysfsDriver::properties_s result {};
-        return result;
-    }
-
-    std::string CpufreqSysfsDriver::properties_json(void) const
-    {
-        std::string result;
+        std::map<std::string, SysfsDriver::properties_s> result;
         return result;
     }
 
