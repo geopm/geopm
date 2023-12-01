@@ -38,14 +38,6 @@ namespace geopm
             };
             SysfsDriver() = default;
             virtual ~SysfsDriver() = default;
-            /// @brief Get supported signal names.
-            ///
-            /// @return Vector of all supported signals
-            virtual std::vector<std::string> signal_names(void) const = 0;
-            /// @brief Get supported control names.
-            ///
-            /// @return Vector of all supported controls
-            virtual std::vector<std::string> control_names(void) const = 0;
             /// @brief Get the PlatformTopo domain type for an named attribute
             ///
             /// @param [in] name The name of the signal or control
@@ -56,23 +48,16 @@ namespace geopm
             ///
             /// @param [in] signal_name The name of the signal
             ///
-            /// @param [in] domain_type One of the values from the
-            ///        geopm_domain_e enum described in geopm_topo.h
-            ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
             ///
             /// @return File path to the sysfs entry to be read.
             virtual std::string signal_path(const std::string &signal_name,
-                                            int domain_type,
                                             int domain_idx) = 0;
             /// @brief Get the path to the sysfs entry for control.
             ///
             /// @param [in] control_name The name of the control.
-            ///
-            /// @param [in] domain_type One of the values from the
-            ///        geopm_domain_e enum described in geopm_topo.h
             ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
@@ -80,33 +65,7 @@ namespace geopm
             ///
             /// @return File path to the sysfs entry to be written.
             virtual std::string control_path(const std::string &control_name,
-                                             int domain_type,
                                              int domain_idx) const = 0;
-            /// @brief Convert contents of sysfs file into signal
-            ///
-            /// This parsing includes the conversion of the numerical
-            /// data into SI units.
-            ///
-            /// @param [in] signal_name The name of the signal.
-            ///
-            /// @param [in] content The string content read from the
-            ///        sysfs file.
-            ///
-            /// @return The parsed signal value in SI units.
-            virtual double signal_parse(const std::string &signal_name,
-                                        const std::string &content) const = 0;
-            /// @brief Convert a control into a sysfs string
-            ///
-            /// Converts from the SI unit control into the text
-            /// representation required by the device driver.
-            ///
-            /// @param [in] control_name The name of the control.
-            ///
-            /// @param [in] setting The control setting in SI units.
-            ///
-            /// @return String content to be written to sysfs file.
-            virtual std::string control_gen(const std::string &control_name,
-                                            double setting) const = 0;
             /// @brief Get function to convert contents of sysfs file into signal
             ///
             /// This parsing includes the conversion of the numerical
@@ -133,9 +92,7 @@ namespace geopm
             /// @return Name of device driver
             virtual std::string driver(void) const = 0;
             /// Query the meta data about a signal or control
-            virtual struct properties_s properties(const std::string &name) const = 0;
-            /// Get all of the meta data in JSON format.
-            virtual std::string properties_json(void) const = 0;
+            virtual std::map<std::string, SysfsDriver::properties_s> properties(void) const = 0;
             static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(const std::string &properties_json);
     };
 }
