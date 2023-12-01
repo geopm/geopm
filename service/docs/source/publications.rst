@@ -2,8 +2,12 @@
 Community-Maintained Publications
 =================================
 
-Publications - Conference & Workshop
+Conferences & Workshops
 ------------------------------------
+
+* `An End-to-End HPC Framework for Dynamic Power Objectives <https://dl.acm.org/doi/abs/10.1145/3624062.3624262>`_. In Proceedings of the SC '23 Workshops of The International Conference on High Performance Computing, Network, Storage, and Analysis (SC-W '23), Nov. 2023.
+
+* `Environmentally Sustainable AI via Power-Aware Batch Scheduling <https://youtu.be/2GQnzZhmGRc?si=qn4eZ6w56KP9qmZ3>`_ (Video, 37:51). At KubeCon, Nov. 2023.
 
 * `Guiding Hardware-Driven Turbo with Application Performance Awareness <https://ieeexplore.ieee.org/abstract/document/9969356>`_. In Proceedings of IEEE 13th International Green and Sustainable Computing Conference (IGSC) Energy Efficient HPC State of the Practice Workshop (EE HPC SOP), Sept. 2022.
 
@@ -29,9 +33,9 @@ HPC Lab Resources
 Media Posts
 -----------
 
-* `Top Considerations for HPC AI and Sustainability, HPCWire Article, 2023, <https://www.hpcwire.com/2023/06/26/top-considerations-for-hpc-ai-and-sustainability/>`
+* `Top Considerations for HPC AI and Sustainability, HPCWire Article, 2023, <https://www.hpcwire.com/2023/06/26/top-considerations-for-hpc-ai-and-sustainability/>`_
 
-* `Four Principles for Writing Energy and Carbon Efficient Software, Intel Community Blog Article, 2023 <https://community.intel.com/t5/Blogs/Thought-Leadership/Big-Ideas/Four-principles-for-writing-energy-and-carbon-efficient-software/post/1478842>`
+* `Four Principles for Writing Energy and Carbon Efficient Software, Intel Community Blog Article, 2023 <https://community.intel.com/t5/Blogs/Thought-Leadership/Big-Ideas/Four-principles-for-writing-energy-and-carbon-efficient-software/post/1478842>`_
 
 * `PowerStack: A global response to the power management problem for exascale, HIPEAC Blog Article, 2019 <https://www.hipeac.net/news/6895/powerstack-a-global-response-to-the-power-management-problem-for-exascale/>`_
 
