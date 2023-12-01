@@ -6,8 +6,10 @@
             "description": "Maximum CPU frequency, limited by BIOS settings.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         },
         "CUR_FREQ": {
             "attribute": "cpuinfo_cur_freq",
@@ -15,8 +17,10 @@
             "description": "The current operating frequency reported by the CPU.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         },
         "MAX_FREQ": {
             "attribute": "cpuinfo_max_freq",
@@ -24,8 +28,10 @@
             "description": "The maximum configured frequency of the CPU.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         },
         "MIN_FREQ": {
             "attribute": "cpuinfo_min_freq",
@@ -33,8 +39,10 @@
             "description": "The minimum configured frequency of the CPU.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         },
         "TRANSITION_LATENCY": {
             "attribute": "cpuinfo_transition_latency",
@@ -42,8 +50,10 @@
             "description": "The time delay to switch from one P-State to another.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "seconds",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         },
         "SCALING_CUR_FREQ": {
             "attribute": "scaling_cur_freq",
@@ -51,8 +61,10 @@
             "description": "The current requested CPU frequency by the cpufreq scaling driver.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         },
         "SCALING_MAX_FREQ": {
             "attribute": "scaling_max_freq",
@@ -60,8 +72,10 @@
             "description": "The maximum frequency allowed by the cpufreq scaling driver.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": true
+            "writeable": true,
+            "alias": ""
         },
         "SCALING_MIN_FREQ": {
             "attribute": "scaling_min_freq",
@@ -69,8 +83,10 @@
             "description": "The minimum frequency allowed by the cpufreq scaling driver.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": true
+            "writeable": true,
+            "alias": ""
         },
         "SCALING_SETSPEED": {
             "attribute": "scaling_setspeed",
@@ -78,8 +94,10 @@
             "description": "The latest frequency request sent to the userspace scaling governor.",
             "aggregation": "average",
             "behavior": "variable",
+            "format": "double",
             "units": "hertz",
-            "writeable": false
+            "writeable": false,
+            "alias": ""
         }
     }
 }
