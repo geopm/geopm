@@ -220,18 +220,18 @@ AC_SUBST([enable_debug])
 
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
+  AM_CFLAGS="$AM_CFLAGS --coverage"
+  AM_CXXFLAGS="$AM_CXXFLAGS --coverage"
+  AM_LDFLAGS="$AM_LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
 AM_CONDITIONAL([ENABLE_COVERAGE], [test "x$enable_coverage" = "x1"])
 
 if test "x$enable_asan" = "x1" ; then
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+  AM_CXXFLAGS="$AM_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
 else
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $SANITIZE_CFI"
-  EXTRA_CFLAGS="$EXTRA_CFLAGS $SANITIZE_CFI"
+  AM_CXXFLAGS="$AM_CXXFLAGS $SANITIZE_CFI"
+  AM_CFLAGS="$AM_CFLAGS $SANITIZE_CFI"
 fi
 
 AC_SUBST([enable_asan])
@@ -263,44 +263,44 @@ AC_SUBST([enable_cnl_iogroup])
 AC_ARG_WITH([nvml], [AS_HELP_STRING([--with-nvml=PATH],
             [specify directory for installed nvml package.])])
 if test "x$with_nvml" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_nvml/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_nvml/include"
   LD_LIBRARY_PATH="$with_nvml/lib64:$with_nvml/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_nvml/lib -L$with_nvml/lib64"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_nvml/lib -L$with_nvml/lib64"
 fi
 
 AC_ARG_WITH([dcgm], [AS_HELP_STRING([--with-dcgm=PATH],
             [specify directory for installed dcgm package.])])
 if test "x$with_dcgm" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_dcgm/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_dcgm/include"
   LD_LIBRARY_PATH="$with_dcgm/lib64:$with_dcgm/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_dcgm/lib -L$with_dcgm/lib64"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_dcgm/lib -L$with_dcgm/lib64"
 fi
 
 AC_ARG_WITH([levelzero], [AS_HELP_STRING([--with-levelzero=PATH],
             [specify directory for installed levelzero package.])])
 if test "x$with_levelzero" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_levelzero/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_levelzero/include"
   LD_LIBRARY_PATH="$with_levelzero/lib64:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_levelzero/lib64 -Wl,-rpath=$with_levelzero/lib64"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_levelzero/lib64 -Wl,-rpath=$with_levelzero/lib64"
 fi
 
 AC_ARG_WITH([liburing], [AS_HELP_STRING([--with-liburing=PATH],
             [specify directory for the installed liburing package.])])
 if test "x$with_liburing" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liburing/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_liburing/include"
   LD_LIBRARY_PATH="$with_liburing/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liburing/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_liburing/lib"
 fi
 AC_ARG_WITH([liburing-include], [AS_HELP_STRING([--with-liburing-include=PATH],
             [specify directory for the installed liburing include files.])])
 if test "x$with_liburing_include" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liburing_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_liburing_include"
 fi
 AC_ARG_WITH([liburing-lib], [AS_HELP_STRING([--with-liburing-lib=PATH],
             [specify directory for the installed liburing library.])])
 if test "x$with_liburing_lib" != x; then
   LD_LIBRARY_PATH="$with_liburing_lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liburing_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_liburing_lib"
 fi
 
 AC_CHECK_HEADER([nmmintrin.h], [AC_DEFINE([GEOPM_HAS_SSE42], [1], [nmmintrin.h is available])], [])
@@ -325,17 +325,20 @@ AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
           ["${GEOPM_CONFIG_PATH}"],
           [The prefix to the path where GEOPM config files are stored])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -std=c99 -msse4.2"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -std=c++17 -msse4.2"]
+[AM_CFLAGS="$AM_CFLAGS -std=c99 -msse4.2"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -std=c++17 -msse4.2"]
 
+# LDFLAGS must be set properly for the below AC_CHECK_LIB calls
 [LDFLAGS_SAVE="$LDFLAGS"]
-[LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
+[LDFLAGS="$AM_LDFLAGS"]
+
+# FLAGS must be set properly for the below AC_CHECK_HEADER calls
 [CFLAGS_SAVE="$CFLAGS"]
-[CFLAGS="$EXTRA_CFLAGS $CFLAGS"]
 [CXXFLAGS_SAVE="$CXXFLAGS"]
-[CXXFLAGS="$EXTRA_CXXFLAGS $CXXFLAGS"]
 [CPPFLAGS_SAVE="$CPPFLAGS"]
-[CPPFLAGS="$EXTRA_CPPFLAGS $CPPFLAGS"]
+[CFLAGS="$AM_CFLAGS"]
+[CXXFLAGS="$AM_CXXFLAGS"]
+[CPPFLAGS="$AM_CPPFLAGS"]
 
 AC_SEARCH_LIBS([shm_open], [rt])
 AC_SEARCH_LIBS([shm_unlink], [rt])
@@ -461,27 +464,20 @@ AC_COMPILE_IFELSE([
 
 AC_LANG_POP([C++])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
-
-[AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
-[AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
-[AM_CPPFLAGS="$EXTRA_CPPFLAGS $AM_CPPFLAGS"]
-[AM_FCFLAGS="$EXTRA_FCFLAGS $AM_FCFLAGS"]
-[AM_LDFLAGS="$EXTRA_LDFLAGS $AM_LDFLAGS"]
-
 [LDFLAGS="$LDFLAGS_SAVE"]
 [CFLAGS="$CFLAGS_SAVE"]
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
+
+[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
+[AM_LDFLAGS="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])
 AC_SUBST([NO_FASTMATH])
 AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_CPPFLAGS])
-AC_SUBST([AM_FCFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
 AC_SUBST_FILE([JSON_SCHEMA_ACTIVE_SESSIONS])
