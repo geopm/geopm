@@ -100,20 +100,20 @@ AM_CONDITIONAL([ENABLE_DOCS], [test "x$enable_docs" = "x1"])
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
 if test "x$with_sqlite3" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_sqlite3/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_sqlite3/include"
   LD_LIBRARY_PATH="$with_sqlite3/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_sqlite3/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_sqlite3/lib"
 fi
 AC_ARG_WITH([sqlite3-include], [AS_HELP_STRING([--with-sqlite3-include=PATH],
             [specify directory for the installed sqlite3 include files.])])
 if test "x$with_sqlite3_include" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_sqlite3_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_sqlite3_include"
 fi
 AC_ARG_WITH([sqlite3-lib], [AS_HELP_STRING([--with-sqlite3-lib=PATH],
             [specify directory for installed sqlite3 library])])
 if test "x$with_sqlite3_lib" != x; then
   LD_LIBRARY_PATH="$with_sqlite3_lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_sqlite3_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_sqlite3_lib"
 fi
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
@@ -211,19 +211,19 @@ AC_SUBST([enable_debug])
 
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
+  AM_CFLAGS="$AM_CFLAGS --coverage"
+  AM_CXXFLAGS="$AM_CXXFLAGS --coverage"
+  AM_LDFLAGS="$AM_LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])
 AM_CONDITIONAL([ENABLE_COVERAGE], [test "x$enable_coverage" = "x1"])
 
 if test "x$enable_asan" = "x1" ; then
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
-  EXTRA_CFLAGS="$EXTRA_CFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+  AM_CXXFLAGS="$AM_CXXFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
+  AM_CFLAGS="$AM_CFLAGS -fsanitize=address -fno-omit-frame-pointer -mllvm -asan-use-private-alias=1"
 else
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $SANITIZE_CFI"
-  EXTRA_CFLAGS="$EXTRA_CFLAGS $SANITIZE_CFI"
+  AM_CXXFLAGS="$AM_CXXFLAGS $SANITIZE_CFI"
+  AM_CFLAGS="$AM_CFLAGS $SANITIZE_CFI"
 fi
 
 if test "x$enable_overhead" = "x1" ; then
@@ -256,9 +256,9 @@ fi
 if test "x$enable_geopmd_local" = "x1"; then
   GEOPMD_INCLUDE="$srcdir/service/src"
   GEOPMD_LIBDIR="$srcdir/service/.libs"
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$GEOPMD_INCLUDE"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPMD_INCLUDE"
   LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
+  AM_LDFLAGS="$AM_LDFLAGS -L$GEOPMD_LIBDIR"
   AC_SUBST([GEOPMD_LIBDIR])
   AC_SUBST([GEOPMD_INCLUDE])
 fi
@@ -269,9 +269,9 @@ AC_ARG_WITH([geopmd], [AS_HELP_STRING([--with-geopmd=PATH],
 if test "x$with_geopmd" != x; then
   GEOPMD_INCLUDE=$with_geopmd/include
   GEOPMD_LIBDIR=$with_geopmd/lib
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$GEOPMD_INCLUDE"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPMD_INCLUDE"
   LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
+  AM_LDFLAGS="$AM_LDFLAGS -L$GEOPMD_LIBDIR"
   AC_SUBST([GEOPMD_LIBDIR])
   AC_SUBST([GEOPMD_INCLUDE])
 fi
@@ -279,7 +279,7 @@ AC_ARG_WITH([geopmd-include], [AS_HELP_STRING([--with-geopmd-include=PATH],
             [specify directory for the installed geopmd include files.])])
 if test "x$with_geopmd_include" != x; then
   GEOPMD_INCLUDE=$with_geopmd_include
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$GEOPMD_INCLUDE"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPMD_INCLUDE"
   AC_SUBST([GEOPMD_INCLUDE])
 fi
 AC_ARG_WITH([geopmd-lib], [AS_HELP_STRING([--with-geopmd-lib=PATH],
@@ -287,27 +287,27 @@ AC_ARG_WITH([geopmd-lib], [AS_HELP_STRING([--with-geopmd-lib=PATH],
 if test "x$with_geopmd_lib" != x; then
   GEOPMD_LIBDIR=$with_geopmd_lib
   LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
+  AM_LDFLAGS="$AM_LDFLAGS -L$GEOPMD_LIBDIR"
   AC_SUBST([GEOPMD_LIBDIR])
 fi
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
 if test "x$with_libelf" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libelf/include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_libelf/include"
   LD_LIBRARY_PATH="$with_libelf/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libelf/lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_libelf/lib"
 fi
 AC_ARG_WITH([libelf-include], [AS_HELP_STRING([--with-libelf-include=PATH],
             [specify directory for the installed libelf include files.])])
 if test "x$with_libelf_include" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libelf_include"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_libelf_include"
 fi
 AC_ARG_WITH([libelf-lib], [AS_HELP_STRING([--with-libelf-lib=PATH],
             [specify directory for installed libelf library.])])
 if test "x$with_libelf_lib" != x; then
   LD_LIBRARY_PATH="$with_libelf_lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libelf_lib"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_libelf_lib"
 fi
 
 AC_ARG_VAR([PYTHON],
@@ -375,11 +375,11 @@ AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 if test "x$enable_mpi" = "x1"; then
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS $MPI_CLDFLAGS"
-  EXTRA_CFLAGS="$EXTRA_CFLAGS $MPI_CFLAGS"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $MPI_CFLAGS"
-  EXTRA_FCFLAGS="$EXTRA_FCFLAGS $MPI_FCFLAGS"
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS $MPI_CFLAGS"
+  AM_LDFLAGS="$AM_LDFLAGS $MPI_CLDFLAGS"
+  AM_CFLAGS="$AM_CFLAGS $MPI_CFLAGS"
+  AM_CXXFLAGS="$AM_CXXFLAGS $MPI_CFLAGS"
+  AM_FCFLAGS="$AM_FCFLAGS $MPI_FCFLAGS"
+  AM_CPPFLAGS="$AM_CPPFLAGS $MPI_CFLAGS"
 fi
 
 
@@ -403,22 +403,27 @@ AC_SUBST([MPI_FFLAGS])
 AC_SUBST([MPI_FCLIBS])
 AC_SUBST([MPI_FLIBS])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS $OPENMP_CXXFLAGS -std=c99 -msse4.2"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $OPENMP_CXXFLAGS -std=c++17 -msse4.2"]
-[EXTRA_FFLAGS="$EXTRA_FFLAGS $OPENMP_CXXFLAGS -msse4.2"]
-[EXTRA_FCFLAGS="$EXTRA_FCFLAGS $OPENMP_CXXFLAGS -msse4.2 -fPIC -fPIE"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS $OPENMP_CXXFLAGS"]
+[AM_CFLAGS="$AM_CFLAGS $OPENMP_CXXFLAGS -std=c99 -msse4.2"]
+[AM_CXXFLAGS="$AM_CXXFLAGS $OPENMP_CXXFLAGS -std=c++17 -msse4.2"]
+[AM_FFLAGS="$AM_FFLAGS $OPENMP_CXXFLAGS -msse4.2"]
+[AM_FCFLAGS="$AM_FCFLAGS $OPENMP_CXXFLAGS -msse4.2 -fPIC -fPIE"]
+[AM_LDFLAGS="$AM_LDFLAGS $OPENMP_CXXFLAGS"]
+[AM_CPPFLAGS="$AM_CPPFLAGS $MPI_CXXFLAGS"]
 
+# LDFLAGS must be set properly for the below AC_CHECK_LIB calls
 [LDFLAGS_SAVE="$LDFLAGS"]
-[LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
+[LDFLAGS="$AM_LDFLAGS"]
+
+# FLAGS must be set properly for the below AC_CHECK_HEADER calls
 [CFLAGS_SAVE="$CFLAGS"]
-[CFLAGS="$EXTRA_CFLAGS $CFLAGS"]
 [CXXFLAGS_SAVE="$CXXFLAGS"]
-[CXXFLAGS="$EXTRA_CXXFLAGS $CXXFLAGS"]
 [CPPFLAGS_SAVE="$CPPFLAGS"]
-[CPPFLAGS="$EXTRA_CPPFLAGS $MPI_CXXFLAGS $CPPFLAGS"]
 [FCFLAGS_SAVE="$FCFLAGS"]
-[FCFLAGS="$EXTRA_FCFLAGS $FCFLAGS"]
+[CFLAGS="$AM_CFLAGS"]
+[CXXFLAGS="$AM_CXXFLAGS"]
+[CPPFLAGS="$AM_CPPFLAGS"]
+[FCFLAGS="$AM_FCFLAGS"]
+
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
 
@@ -579,23 +584,15 @@ AC_COMPILE_IFELSE([
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 [FCFLAGS="$FCFLAGS_SAVE"]
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack"]
-[LDFLAGS_NOPIE="$EXTRA_LDFLAGS $AM_LDFLAGS"]
-[EXTRA_LDFLAGS="$EXTRA_LDFLAGS -pie"]
-[EXTRA_FFLAGS="$EXTRA_FFLAGS $NO_FASTMATH -fPIC"]
+[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
+[LDFLAGS_NOPIE="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack"]
+[AM_LDFLAGS="$LDFLAGS_NOPIE -pie"]
+[AM_FFLAGS="$AM_FFLAGS $NO_FASTMATH -fPIC"]
 if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
-[EXTRA_FFLAGS="$EXTRA_FFLAGS -fno-range-check"]
-[EXTRA_FCFLAGS="$EXTRA_FCFLAGS -fno-range-check"]
+[AM_FFLAGS="$AM_FFLAGS -fno-range-check"]
+[AM_FCFLAGS="$AM_FCFLAGS -fno-range-check"]
 fi
-
-[AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
-[AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
-[AM_CPPFLAGS="$EXTRA_CPPFLAGS $AM_CPPFLAGS"]
-[AM_FFLAGS="$EXTRA_FFLAGS $AM_FFLAGS"]
-[AM_FCFLAGS="$EXTRA_FCFLAGS $AM_FCFLAGS"]
-[AM_LDFLAGS="$EXTRA_LDFLAGS $AM_LDFLAGS"]
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])
