@@ -85,14 +85,11 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu()
 
 // Open a cpufreq attribute file for a given cpufreq resource. Return the opened
 // fd. Caller takes ownership of closing the fd.
-static int open_resource_attribute(const std::string& resource, const std::string &attribute, bool do_write)
+static int open_resource_attribute(const std::string& path, bool do_write)
 {
-    std::ostringstream oss;
-    oss << CPUFREQ_DIRECTORY << "/" << resource << "/" << attribute;
-    auto cpu_freq_path = oss.str();
-    int fd = open(cpu_freq_path.c_str(), do_write ? O_WRONLY : O_RDONLY);
+    int fd = open(path.c_str(), do_write ? O_WRONLY : O_RDONLY);
     if (fd == -1) {
-        throw geopm::Exception("open_resource_attribute() failed to open " + cpu_freq_path,
+        throw geopm::Exception("open_resource_attribute() failed to open " + path,
                                errno, __FILE__, __LINE__);
     }
     return fd;
@@ -162,7 +159,7 @@ SysfsIOGroup::SysfsIOGroup(
     , m_is_batch_write(false)
     , m_control_value{}
     , m_properties(m_driver->properties())
-    , m_signal_properties_vec(m_properties)
+    , m_properties_vec(m_properties)
     , m_pushed_info_signal{}
     , m_pushed_info_control{}
     , m_control_saver(control_saver)
@@ -185,10 +182,10 @@ SysfsIOGroup::SysfsIOGroup(
 
 SysfsIOGroup::~SysfsIOGroup()
 {
-    for (const auto &info : m_pushed_signal_info) {
+    for (const auto &info : m_pushed_info_signal) {
         close(info.fd);
     }
-    for (const auto &info : m_pushed_control_info) {
+    for (const auto &info : m_pushed_info_control) {
         close(info.fd);
     }
 }
@@ -231,7 +228,7 @@ int SysfsIOGroup::signal_domain_type(const std::string &signal_name) const
     int result = GEOPM_DOMAIN_INVALID;
     const auto it = m_signals.find(signal_name);
     if (it != m_signals.end()) {
-        result = m_driver->domain(it->second.name);
+        result = m_driver->domain_type(it->second.name);
     }
     return result;
 }
@@ -242,7 +239,7 @@ int SysfsIOGroup::control_domain_type(const std::string &control_name) const
     int result = GEOPM_DOMAIN_INVALID;
     const auto it = m_controls.find(control_name);
     if (it != m_controls.end()) {
-        result = m_driver->domain(it->second.name);
+        result = m_driver->domain_type(it->second.name);
     }
     return result;
 }
@@ -270,28 +267,22 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
     auto &property = m_signals.at(signal_name);
     auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
                                   m_pushed_info_signal.end(),
-                                  [signal_type, domain_idx] (const m_signal_info_s &info) {
+                                  [signal_type, domain_idx] (const m_pushed_info_s &info) {
                                       return info.signal_type == signal_type && info.cpu == domain_idx;
                                   });
     int signal_idx = -1;
 
-    if (pushed_it != m_pushed_signal_info.end()) {
+    if (pushed_it != m_pushed_info_signal.end()) {
         // This has already been pushed. Return the same index as before.
-        signal_idx = std::distance(m_pushed_signal_info.begin(), pushed_it);
+        signal_idx = std::distance(m_pushed_info_signal.begin(), pushed_it);
     }
     else {
-        auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
-        if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-            throw Exception("SysfsIOGroup::push_signal(): Cannot push CPU "
-                            + std::to_string(domain_idx)
-                            + " because it does not have a cpufreq entry.",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        int fd = open_resource_attribute(resource_it->second, signal_type_info.attribute, false);
+        auto path = m_driver->signal_path(signal_name, domain_idx);
+        int fd = open_resource_attribute(path, false);
 
         // This is a newly-pushed signal. Give it a new index.
-        m_pushed_signal_info.push_back(m_signal_info_s{fd, signal_type, domain_idx, NAN, std::make_shared<int>(0), {0}});
-        signal_idx = m_pushed_signal_info.size() - 1;
+        m_pushed_info_signal.push_back(m_pushed_info_s{fd, signal_type, domain_idx, NAN, std::make_shared<int>(0), {0}});
+        signal_idx = m_pushed_info_signal.size() - 1;
     }
 
     m_do_batch_read = true;
@@ -322,30 +313,24 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
 
     unsigned writable_signal_type = m_properties.at(control_name);
     auto &writable_signal_type_info = m_signal_type_info.at(writable_signal_type);
-    auto pushed_it = std::find_if(m_pushed_control_info.begin(),
-                                  m_pushed_control_info.end(),
-                                  [writable_signal_type, domain_idx] (const m_signal_info_s &info) {
+    auto pushed_it = std::find_if(m_pushed_info_control.begin(),
+                                  m_pushed_info_control.end(),
+                                  [writable_signal_type, domain_idx] (const m_pushed_info_s &info) {
                                       return info.signal_type == writable_signal_type && info.cpu == domain_idx;
                                   });
     int control_idx = -1;
 
-    if (pushed_it != m_pushed_control_info.end()) {
+    if (pushed_it != m_pushed_info_control.end()) {
         // This has already been pushed. Return the same index as before.
-        control_idx = std::distance(m_pushed_control_info.begin(), pushed_it);
+        control_idx = std::distance(m_pushed_info_control.begin(), pushed_it);
     }
     else {
-        auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
-        if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-            throw Exception("SysfsIOGroup::push_control(): Cannot push CPU "
-                            + std::to_string(domain_idx)
-                            + " because it does not have a cpufreq entry.",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        int fd = open_resource_attribute(resource_it->second, writable_signal_type_info.attribute, true);
+        auto path = m_driver->signal_path(control_name, domain_idx);
+        int fd = open_resource_attribute(path, true);
 
         // This is a newly-pushed control. Give it a new index.
-        m_pushed_control_info.push_back(m_signal_info_s{fd, writable_signal_type, domain_idx, NAN, std::make_shared<int>(0), {0}});
-        control_idx = m_pushed_control_info.size() - 1;
+        m_pushed_info_control.push_back(m_pushed_info_s{fd, writable_signal_type, domain_idx, NAN, std::make_shared<int>(0), {0}});
+        control_idx = m_pushed_info_control.size() - 1;
     }
     return control_idx;
 }
@@ -355,14 +340,14 @@ void SysfsIOGroup::read_batch(void)
     m_is_batch_read = true;
     if (m_do_batch_read) {
         if (!m_batch_reader) {
-            m_batch_reader = IOUring::make_unique(m_pushed_signal_info.size());
+            m_batch_reader = IOUring::make_unique(m_pushed_info_signal.size());
         }
-        for (auto &info : m_pushed_signal_info) {
+        for (auto &info : m_pushed_info_signal) {
             m_batch_reader->prep_read(
                 info.last_io_return, info.fd, info.buf.data(), info.buf.size(), 0);
         }
         m_batch_reader->submit();
-        for (auto &info : m_pushed_signal_info) {
+        for (auto &info : m_pushed_info_signal) {
             if (*info.last_io_return < 0) {
                 throw geopm::Exception("SysfsIOGroup failed to read signal",
                                        errno, __FILE__, __LINE__);
@@ -374,6 +359,7 @@ void SysfsIOGroup::read_batch(void)
             }
             info.buf[bytes_read] = '\0';
 
+            // TODO m_properties.at(signal_name).;
             info.last_value = std::stoi(info.buf.data()) *
                 m_signal_type_info.at(info.signal_type).scaling_factor;
         }
@@ -384,7 +370,7 @@ void SysfsIOGroup::write_batch(void)
 {
     m_is_batch_write = true;
     if (!m_batch_writer) {
-        m_batch_writer = IOUring::make_unique(m_pushed_signal_info.size());
+        m_batch_writer = IOUring::make_unique(m_pushed_info_signal.size());
     }
 
     for (size_t i = 0; i < m_pushed_control_info.size(); ++i) {
@@ -420,7 +406,7 @@ void SysfsIOGroup::write_batch(void)
 
 double SysfsIOGroup::sample(int batch_idx)
 {
-    if (batch_idx < 0 || static_cast<size_t>(batch_idx) >= m_pushed_signal_info.size()) {
+    if (batch_idx < 0 || static_cast<size_t>(batch_idx) >= m_pushed_info_signal.size()) {
         throw Exception("SysfsIOGroup::sample(): batch_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
@@ -428,7 +414,7 @@ double SysfsIOGroup::sample(int batch_idx)
         throw Exception("SysfsIOGroup::sample(): signal has not been read.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    return m_pushed_signal_info[static_cast<size_t>(batch_idx)].last_value;
+    return m_pushed_info_signal[static_cast<size_t>(batch_idx)].last_value;
 }
 
 // Save a setting to be written by a future write_batch()
