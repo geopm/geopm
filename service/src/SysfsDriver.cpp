@@ -17,7 +17,7 @@ using json11::Json;
 
 namespace geopm
 {
-    std::map<std::string, SysfsDriver::properties_s> SysfsDriver::parse_properties_json(const std::string &properties_json)
+    std::map<std::string, SysfsDriver::properties_s> SysfsDriver::parse_properties_json(const std::string &iogroup_name, const std::string &properties_json)
     {
         std::map<std::string, SysfsDriver::properties_s> result;
         std::string err;
@@ -36,7 +36,7 @@ namespace geopm
 
         const auto& attribute_object = root["attributes"].object_items();
         for (const auto &property_json : attribute_object) {
-            const auto &property_name = property_json.first;
+            const auto &property_name = iogroup_name + "::" + property_json.first;
             const auto &properties = property_json.second;
 
             if (!properties.has_shape({
