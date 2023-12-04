@@ -227,7 +227,7 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
         signal_idx = std::distance(m_pushed_info_signal.begin(), pushed_it);
     }
     else {
-        auto path = m_driver->signal_path(signal_name, domain_idx);
+        auto path = m_driver->signal_path(m_signals.at(signal_name).get().name, domain_idx);
         int fd = open_resource_attribute(path, false);
 
         // This is a newly-pushed signal. Give it a new index.
@@ -273,7 +273,8 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
         control_idx = std::distance(m_pushed_info_control.begin(), pushed_it);
     }
     else {
-        auto path = m_driver->signal_path(control_name, domain_idx);
+        // TODO: make this obvious: why get(name).name? Because of aliases
+        auto path = m_driver->control_path(m_controls.at(control_name).get().name, domain_idx);
         int fd = open_resource_attribute(path, true);
 
         // This is a newly-pushed control. Give it a new index.
@@ -389,8 +390,10 @@ double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    int fd = open_resource_attribute(m_driver->signal_path(signal_name, domain_idx), false);
-    double read_value = m_driver->signal_parse(signal_name)(read_resource_attribute_fd(fd));
+    // TODO: make this into a helper function, use EVERY time we interact w/signal or control names
+    std::string canonical_name = m_signals.at(signal_name).get().name;
+    int fd = open_resource_attribute(m_driver->signal_path(canonical_name, domain_idx), false);
+    double read_value = m_driver->signal_parse(canonical_name)(read_resource_attribute_fd(fd));
     // TODO (dcw): wrap in auto-cleanup for throws
     close(fd);
     return read_value;
@@ -414,7 +417,7 @@ void SysfsIOGroup::write_control(const std::string &control_name, int domain_typ
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    int fd = open_resource_attribute(m_driver->control_path(control_name, domain_idx), true);
+    int fd = open_resource_attribute(m_driver->control_path(m_controls.at(control_name).get().name, domain_idx), true);
     write_resource_attribute_fd(fd, m_driver->control_gen(control_name)(setting));
     // TODO (dcw): wrap in auto-cleanup for throws
     close(fd);
