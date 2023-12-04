@@ -9,6 +9,7 @@
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "SysfsDriver.hpp"
+#include <functional>
 
 namespace geopm
 {
@@ -19,7 +20,7 @@ class IOUring;
 // Arbitrary buffer size. We're generally looking at integer values much shorter
 // than 100 digits in length. The IOGroup performs string truncation checks in
 // case that ever changes.
-static const size_t IO_BUFFER_SIZE = 128;
+static const size_t IO_BUFFER_SIZE = 128; // TODO (dcw): move to sysfsiogroup member
 
 class SysfsIOGroup : public IOGroup
 {
@@ -66,17 +67,16 @@ class SysfsIOGroup : public IOGroup
         bool m_is_batch_write;
         std::vector<double> m_control_value;
         const std::map<std::string, SysfsDriver::properties_s> m_properties;
-        const std::vector<SysfsDriver::properties_s &> m_properties_vec;
-        std::map<std::string, SysfsDriver::properties_s&> m_signals;
-        std::map<std::string, SysfsDriver::properties_s&> m_controls;
+        std::map<std::string, std::reference_wrapper<const SysfsDriver::properties_s> > m_signals;
+        std::map<std::string, std::reference_wrapper<const SysfsDriver::properties_s> > m_controls;
 
         // Information about a single pushed signal or control
         struct m_pushed_info_s {
             int fd;
-            unsigned signal_type;
+            std::string name;
             int domain_type;
             int domain_idx;
-            double last_value;
+            double last_value; //TODO (dcw): Rename to 'value'. 
             bool do_write;
             std::shared_ptr<int> last_io_return;
             std::array<char, IO_BUFFER_SIZE> buf;
