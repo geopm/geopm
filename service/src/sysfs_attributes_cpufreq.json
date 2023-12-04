@@ -11,10 +11,10 @@
             "writeable": false,
             "alias": ""
         },
-        "CUR_FREQ": {
+        "CPUINFO_CUR_FREQ": {
             "attribute": "cpuinfo_cur_freq",
             "scalar": 1e3,
-            "description": "The current operating frequency reported by the CPU.",
+            "description": "The current operating frequency reported by the CPU hardware.",
             "aggregation": "average",
             "behavior": "variable",
             "format": "double",
