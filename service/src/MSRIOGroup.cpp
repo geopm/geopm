@@ -1261,16 +1261,10 @@ namespace geopm
         else if (cpu_id == MSRIOGroup::M_CPUID_SPR) {
             platform_msrs = spr_msr_json();
         }
-        else if (cpu_id >= MSRIOGroup::M_CPUID_SPR) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> New/Untested CPUID detected; Defaulting to SPR MSRs"
-                      << std::endl;
-#endif
-            platform_msrs = spr_msr_json();
-        }
         else {
-            throw Exception("MSRIOGroup: Unsupported CPUID",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::cerr << "Warning: <geopm> CPUID is not recognized, assuming Sky Lake Architecture Model Specific Register definitions.  These definitions may not be aligned with the features of this platform.  Read signals may return 0.0 in all cases, and failures may occur when attempting to write to control registers that are not supported."
+                      << std::endl;
+            platform_msrs = skx_msr_json();
         }
         return platform_msrs;
     }
