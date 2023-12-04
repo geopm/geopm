@@ -137,22 +137,24 @@ namespace geopm
         return oss.str();
     }
 
-    std::function<double(const std::string&)> CpufreqSysfsDriver::signal_parse(const std::string &) const
+    std::function<double(const std::string &)> CpufreqSysfsDriver::signal_parse(const std::string &signal_name) const
     {
-        return [](const std::string &content) {
+        double scaling_factor = M_PROPERTIES.at(signal_name).scaling_factor;
+        return [scaling_factor](const std::string &content) {
             if (content.find("<unsupported>") != content.npos) {
                 return static_cast<double>(NAN);
             }
             else {
-                return static_cast<double>(std::stoi(content));
+                return static_cast<double>(std::stoi(content) * scaling_factor);
             }
         };
     }
 
-    std::function<std::string(double)> CpufreqSysfsDriver::control_gen(const std::string &) const
+    std::function<std::string(double)> CpufreqSysfsDriver::control_gen(const std::string &control_name) const
     {
-        return [](double value) {
-            return std::to_string(static_cast<long long int>(value));
+        double scaling_factor = M_PROPERTIES.at(control_name).scaling_factor;
+        return [scaling_factor](double value) {
+            return std::to_string(static_cast<long long int>(value / scaling_factor));
         };
     }
 
