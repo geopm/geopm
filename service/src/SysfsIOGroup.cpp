@@ -40,49 +40,6 @@ namespace geopm
 
 static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
-static std::map<int, std::string> load_cpufreq_resources_by_cpu()
-{
-    struct dirent *dir;
-    char cpu_buf[IO_BUFFER_SIZE] = {0};
-    static std::map<int, std::string> result;
-    std::unique_ptr<DIR, int (*)(DIR *)> cpufreq_directory_object(opendir(CPUFREQ_DIRECTORY.c_str()), &closedir);
-
-    if (cpufreq_directory_object) {
-        while ((dir = readdir(cpufreq_directory_object.get())) != NULL) {
-            if (strncmp(dir->d_name, "policy", sizeof "policy" - 1) != 0) {
-                continue;
-            }
-
-            std::ostringstream oss;
-            oss << CPUFREQ_DIRECTORY << "/" << dir->d_name << "/affected_cpus";
-            auto cpu_map_path = oss.str();
-
-            int cpu_map_fd = open(cpu_map_path.c_str(), O_RDONLY);
-            if (cpu_map_fd == -1) {
-                throw geopm::Exception("SysfsIOGroup failed to open " + cpu_map_path,
-                                       errno, __FILE__, __LINE__);
-            }
-            int read_bytes = pread(cpu_map_fd, cpu_buf, sizeof cpu_buf - 1, 0);
-            close(cpu_map_fd);
-            if (read_bytes < 0) {
-                throw geopm::Exception("SysfsIOGroup failed to read " + cpu_map_path,
-                                       errno, __FILE__, __LINE__);
-            }
-            if (read_bytes == sizeof cpu_buf - 1) {
-                throw geopm::Exception("SysfsIOGroup truncated read from " + cpu_map_path,
-                                       errno, __FILE__, __LINE__);
-            }
-            result.emplace(std::stoi(cpu_buf), dir->d_name);
-        }
-    }
-    else {
-        throw geopm::Exception("SysfsIOGroup failed to open " + CPUFREQ_DIRECTORY,
-                               errno, __FILE__, __LINE__);
-    }
-
-    return result;
-}
-
 // Open a cpufreq attribute file for a given cpufreq resource. Return the opened
 // fd. Caller takes ownership of closing the fd.
 static int open_resource_attribute(const std::string& path, bool do_write)
@@ -96,7 +53,7 @@ static int open_resource_attribute(const std::string& path, bool do_write)
 }
 
 // Read a double from a cpufreq resource's opened sysfs attribute file.
-static double read_resource_attribute_fd(int fd)
+static std::string read_resource_attribute_fd(int fd)
 {
     char buf[IO_BUFFER_SIZE] = {0};
     int read_bytes = read(fd, buf, sizeof buf - 1);
@@ -110,30 +67,24 @@ static double read_resource_attribute_fd(int fd)
     }
     buf[read_bytes] = '\0';
 
-    return std::stoi(buf);
+    return std::string(buf);
 }
 
 // Write a double to a cpufreq resource's opened sysfs attribute file.
-static void write_resource_attribute_fd(int fd, double value)
+static void write_resource_attribute_fd(int fd, const std::string &value)
 {
     char buf[IO_BUFFER_SIZE] = {0};
-    int string_length = snprintf(buf, sizeof buf, "%lld\n",
-                                 static_cast<long long int>(value));
-    if (string_length < 0) {
-        throw geopm::Exception("SysfsIOGroup failed to convert signal to string",
-                               errno, __FILE__, __LINE__);
-    }
-    if (static_cast<size_t>(string_length) >= sizeof buf) {
+    if (value.length() >= sizeof buf) {
         throw geopm::Exception("SysfsIOGroup truncated write control",
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 
-    int write_bytes = pwrite(fd, buf, string_length, 0);
+    int write_bytes = pwrite(fd, buf, value.length() + 1, 0);
     if (write_bytes < 0) {
         throw geopm::Exception("SysfsIOGroup failed to write control",
                                errno, __FILE__, __LINE__);
     }
-    if (write_bytes < string_length) {
+    if (static_cast<size_t>(write_bytes) < value.length() + 1) {
         throw geopm::Exception("SysfsIOGroup truncated write control",
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
@@ -159,7 +110,6 @@ SysfsIOGroup::SysfsIOGroup(
     , m_is_batch_write(false)
     , m_control_value{}
     , m_properties(m_driver->properties())
-    , m_properties_vec(m_properties)
     , m_pushed_info_signal{}
     , m_pushed_info_control{}
     , m_control_saver(control_saver)
@@ -167,15 +117,15 @@ SysfsIOGroup::SysfsIOGroup(
     , m_batch_writer(batch_writer)
 {
     for (const auto &it : m_properties) {
-        m_signals[it.first] = it.second;
+        m_signals.try_emplace(it.first, std::cref(it.second));
         if (it.second.is_writable) {
-            m_controls[it.first] = it.second;
+            m_controls.try_emplace(it.first, std::cref(it.second));
             if (it.second.alias != "") {
-                m_controls[it.second.alias] = it.second;
+                m_controls.try_emplace(it.second.alias, std::cref(it.second));
             }
         }
         if (it.second.alias != "") {
-            m_signals[it.second.alias] = it.second;
+            m_signals.try_emplace(it.second.alias, std::cref(it.second));
         }
     }
 }
@@ -213,13 +163,13 @@ std::set<std::string> SysfsIOGroup::control_names(void) const
 // Check signal name using index map
 bool SysfsIOGroup::is_valid_signal(const std::string &signal_name) const
 {
-    bool result = m_signals.find(signal_name) != m_signals.end();
+    return m_signals.find(signal_name) != m_signals.end();
 }
 
 // Check control name using index map
 bool SysfsIOGroup::is_valid_control(const std::string &control_name) const
 {
-    bool is_valid = m_controls.find(control_name) != m_controls.end();
+    return m_controls.find(control_name) != m_controls.end();
 }
 
 // Return domain for all valid signals
@@ -228,7 +178,7 @@ int SysfsIOGroup::signal_domain_type(const std::string &signal_name) const
     int result = GEOPM_DOMAIN_INVALID;
     const auto it = m_signals.find(signal_name);
     if (it != m_signals.end()) {
-        result = m_driver->domain_type(it->second.name);
+        result = m_driver->domain_type(it->second.get().name);
     }
     return result;
 }
@@ -239,7 +189,7 @@ int SysfsIOGroup::control_domain_type(const std::string &control_name) const
     int result = GEOPM_DOMAIN_INVALID;
     const auto it = m_controls.find(control_name);
     if (it != m_controls.end()) {
-        result = m_driver->domain_type(it->second.name);
+        result = m_driver->domain_type(it->second.get().name);
     }
     return result;
 }
@@ -264,11 +214,10 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
         throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    auto &property = m_signals.at(signal_name);
     auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
                                   m_pushed_info_signal.end(),
-                                  [signal_type, domain_idx] (const m_pushed_info_s &info) {
-                                      return info.signal_type == signal_type && info.cpu == domain_idx;
+                                  [signal_name, domain_idx] (const m_pushed_info_s &info) {
+                                      return info.name == signal_name && info.domain_idx == domain_idx;
                                   });
     int signal_idx = -1;
 
@@ -281,7 +230,7 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
         int fd = open_resource_attribute(path, false);
 
         // This is a newly-pushed signal. Give it a new index.
-        m_pushed_info_signal.push_back(m_pushed_info_s{fd, signal_type, domain_idx, NAN, std::make_shared<int>(0), {0}});
+        m_pushed_info_signal.push_back(m_pushed_info_s{fd, signal_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(signal_name), m_driver->control_gen(signal_name)});
         signal_idx = m_pushed_info_signal.size() - 1;
     }
 
@@ -311,12 +260,10 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    unsigned writable_signal_type = m_properties.at(control_name);
-    auto &writable_signal_type_info = m_signal_type_info.at(writable_signal_type);
     auto pushed_it = std::find_if(m_pushed_info_control.begin(),
                                   m_pushed_info_control.end(),
-                                  [writable_signal_type, domain_idx] (const m_pushed_info_s &info) {
-                                      return info.signal_type == writable_signal_type && info.cpu == domain_idx;
+                                  [control_name, domain_idx](const m_pushed_info_s &info) {
+                                      return info.name == control_name && info.domain_idx == domain_idx;
                                   });
     int control_idx = -1;
 
@@ -329,7 +276,7 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
         int fd = open_resource_attribute(path, true);
 
         // This is a newly-pushed control. Give it a new index.
-        m_pushed_info_control.push_back(m_pushed_info_s{fd, writable_signal_type, domain_idx, NAN, std::make_shared<int>(0), {0}});
+        m_pushed_info_control.push_back(m_pushed_info_s{fd, control_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(control_name), m_driver->control_gen(control_name)});
         control_idx = m_pushed_info_control.size() - 1;
     }
     return control_idx;
@@ -359,9 +306,8 @@ void SysfsIOGroup::read_batch(void)
             }
             info.buf[bytes_read] = '\0';
 
-            // TODO m_properties.at(signal_name).;
-            info.last_value = std::stoi(info.buf.data()) *
-                m_signal_type_info.at(info.signal_type).scaling_factor;
+            // TODO (dcw): Make sure parser is scaling for us
+            info.last_value = info.parse(std::string(info.buf.data()));
         }
     }
 }
@@ -373,31 +319,25 @@ void SysfsIOGroup::write_batch(void)
         m_batch_writer = IOUring::make_unique(m_pushed_info_signal.size());
     }
 
-    for (size_t i = 0; i < m_pushed_control_info.size(); ++i) {
-        auto &info = m_pushed_control_info[i];
-        if (m_do_write[i] && !std::isnan(info.last_value)) {
-            auto scaled_value = info.last_value / m_signal_type_info.at(info.signal_type).scaling_factor;
-            int string_length = snprintf(info.buf.data(), info.buf.size(), "%lld\n",
-                                         static_cast<long long int>(scaled_value));
-            if (string_length < 0) {
-                throw geopm::Exception("SysfsIOGroup failed to convert signal to string",
-                                       errno, __FILE__, __LINE__);
-            }
-            if (static_cast<size_t>(string_length) >= info.buf.size()) {
-                throw geopm::Exception("SysfsIOGroup truncated write control",
+    for (auto &info : m_pushed_info_control) {
+        if (info.do_write && !std::isnan(info.last_value)) {
+            std::string setting = info.gen(info.last_value);
+            if (setting.length() >= info.buf.size()) {
+                throw geopm::Exception("SysfsIOGroup control value is too long",
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
+            std::strncpy(info.buf.data(), setting.c_str(), info.buf.size());
             m_batch_writer->prep_write(
                 info.last_io_return, info.fd, info.buf.data(),
-                static_cast<unsigned>(string_length), 0);
+                static_cast<unsigned>(setting.length() + 1), 0);
         }
     }
     m_batch_writer->submit();
-    for (size_t i = 0; i < m_pushed_control_info.size(); ++i) {
-        auto &info = m_pushed_control_info[i];
-        if (m_do_write[i] && !std::isnan(info.last_value)) {
+    for (auto &info : m_pushed_info_control) {
+        if (info.do_write && !std::isnan(info.last_value)) {
             if (*info.last_io_return < 0) {
-                throw geopm::Exception("SysfsIOGroup failed to write control",
+                throw geopm::Exception("SysfsIOGroup failed to write control \"" +
+                                       info.name + "\"",
                                        errno, __FILE__, __LINE__);
             }
         }
@@ -420,13 +360,14 @@ double SysfsIOGroup::sample(int batch_idx)
 // Save a setting to be written by a future write_batch()
 void SysfsIOGroup::adjust(int batch_idx, double setting)
 {
-    if (batch_idx < 0 || static_cast<size_t>(batch_idx) >= m_pushed_control_info.size()) {
+    if (batch_idx < 0 || static_cast<size_t>(batch_idx) >= m_pushed_info_control.size()) {
         throw Exception("SysfsIOGroup::adjust(): batch_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (m_pushed_control_info[static_cast<size_t>(batch_idx)].last_value != setting) {
-        m_do_write[static_cast<size_t>(batch_idx)] = true;
-        m_pushed_control_info[static_cast<size_t>(batch_idx)].last_value = setting;
+    auto &info = m_pushed_info_control[static_cast<size_t>(batch_idx)];
+    if (info.last_value != setting) {
+        info.do_write = true;
+        info.last_value = setting;
     }
 }
 
@@ -437,27 +378,21 @@ double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type
                         "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("SysfsIOGroup::push_signal(): domain_type must be GEOPM_DOMAIN_CPU.",
+    if (domain_type != m_driver->domain_type(signal_name)) {
+        throw Exception("SysfsIOGroup::push_signal(): domain_type must be " +
+                        m_platform_topo.domain_type_to_name(m_driver->domain_type(signal_name)) + ".",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
         throw Exception("SysfsIOGroup::push_signal(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
-    if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-        throw Exception("SysfsIOGroup::read_signal(): Cannot push CPU "
-                        + std::to_string(domain_idx)
-                        + " because it does not have a cpufreq entry.",
-                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-    }
-    unsigned signal_type = m_properties.at(signal_name);
-    auto &signal_type_info = m_signal_type_info.at(signal_type);
-
-    int fd = open_resource_attribute(resource_it->second, signal_type_info.attribute, false);
-    return read_resource_attribute_fd(fd) * signal_type_info.scaling_factor;
+    int fd = open_resource_attribute(m_driver->signal_path(signal_name, domain_idx), false);
+    double read_value = m_driver->signal_parse(signal_name)(read_resource_attribute_fd(fd));
+    // TODO (dcw): wrap in auto-cleanup for throws
+    close(fd);
+    return read_value;
 }
 
 // Write to the control immediately, bypassing write_batch()
@@ -468,27 +403,20 @@ void SysfsIOGroup::write_control(const std::string &control_name, int domain_typ
                         "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("SysfsIOGroup::push_control(): domain_type must be GEOPM_DOMAIN_CPU.",
+    if (domain_type !=  m_driver->domain_type(control_name)) {
+        throw Exception("SysfsIOGroup::push_control(): domain_type must be " +
+                        m_platform_topo.domain_type_to_name(m_driver->domain_type(control_name)) + ".",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
         throw Exception("SysfsIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    auto resource_it = m_cpufreq_resource_by_cpu.find(domain_idx);
-    if (resource_it == m_cpufreq_resource_by_cpu.end()) {
-        throw Exception("SysfsIOGroup::write_control(): Cannot push CPU "
-                        + std::to_string(domain_idx)
-                        + " because it does not have a cpufreq entry.",
-                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-    }
-    int writable_signal_type = m_properties.at(control_name);
-    auto &writable_signal_type_info = m_signal_type_info.at(writable_signal_type);
-
-    int fd = open_resource_attribute(resource_it->second, writable_signal_type_info.attribute, true);
-    write_resource_attribute_fd(fd, setting / writable_signal_type_info.scaling_factor);
+    int fd = open_resource_attribute(m_driver->control_path(control_name, domain_idx), true);
+    write_resource_attribute_fd(fd, m_driver->control_gen(control_name)(setting));
+    // TODO (dcw): wrap in auto-cleanup for throws
+    close(fd);
 }
 
 void SysfsIOGroup::save_control(void)
@@ -529,9 +457,8 @@ std::function<double(const std::vector<double> &)> SysfsIOGroup::agg_function(
                         "not valid for SysfsIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_properties.at(signal_name);
-    auto &info = m_signal_type_info.at(signal_type);
-    return info.aggregation_function;
+    const auto &property = m_signals.at(signal_name);
+    return property.get().aggregation_function;
 }
 
 std::function<std::string(double)> SysfsIOGroup::format_function(const std::string &signal_name) const
@@ -541,9 +468,8 @@ std::function<std::string(double)> SysfsIOGroup::format_function(const std::stri
                         "not valid for TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_properties.at(signal_name);
-    auto &info = m_signal_type_info.at(signal_type);
-    return info.format_function;
+    const auto &property = m_signals.at(signal_name);
+    return property.get().format_function;
 }
 
 // A user-friendly description of each signal
@@ -554,14 +480,13 @@ std::string SysfsIOGroup::signal_description(const std::string &signal_name) con
                         " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    unsigned signal_type = m_properties.at(signal_name);
-    auto &info = m_signal_type_info.at(signal_type);
+    const auto &property = m_signals.at(signal_name);
     std::ostringstream result;
-    result << "    description: " << info.description << "\n"
-           << "    units: " << IOGroup::units_to_string(M_UNITS_SECONDS) << '\n'
-           << "    aggregation: " << geopm::Agg::function_to_name(info.aggregation_function) << '\n'
-           << "    domain: " << m_platform_topo.domain_type_to_name(GEOPM_DOMAIN_CPU) << '\n'
-           << "    iogroup: " << name();
+    result << "    description: " << property.get().description << "\n"
+           << "    units: " << IOGroup::units_to_string(property.get().units) << '\n'
+           << "    aggregation: " << geopm::Agg::function_to_name(property.get().aggregation_function) << '\n'
+           << "    domain: " << m_platform_topo.domain_type_to_name(m_driver->domain_type(signal_name)) << '\n'
+           << "    iogroup: " << m_driver->driver();
 
     return result.str();
 }
@@ -583,7 +508,7 @@ int SysfsIOGroup::signal_behavior(const std::string &signal_name) const
                         " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    auto &info = m_properties.at(signal_name);
+    const auto &info = m_properties.at(signal_name);
     return info.behavior;
 }
 
