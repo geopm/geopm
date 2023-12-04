@@ -57,7 +57,7 @@ namespace geopm
             }
 
             result[property_name] = properties_s {
-                    .name = properties["name"].string_value(),
+                    .name = property_name,
                     .is_writable = properties["writeable"].bool_value(),
                     .attribute = properties["attribute"].string_value(),
                     .description = properties["description"].string_value(),
