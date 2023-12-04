@@ -8,11 +8,11 @@
 
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "SysfsDriver.hpp"
 
 namespace geopm
 {
 
-class SysfsDriver;
 class SaveControl;
 class IOUring;
 
@@ -57,7 +57,7 @@ class SysfsIOGroup : public IOGroup
         int signal_behavior(const std::string &signal_name) const override;
         std::string name(void) const override;
     private:
-        std::shared_Ptr<SysfsDriver> m_driver;
+        std::shared_ptr<SysfsDriver> m_driver;
         const geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed
         bool m_do_batch_read;
@@ -65,10 +65,10 @@ class SysfsIOGroup : public IOGroup
         bool m_is_batch_read;
         bool m_is_batch_write;
         std::vector<double> m_control_value;
-        const std::map<std::string, SysfsIO::properties_s> m_properties;
-        const std::vector<SysfsIO::properties_s &> m_properties_vec;
-        std::map<std::string, SysfsIO::properties_s&> m_signals;
-        std::map<std::string, SysfsIO::properties_s&> m_controls;
+        const std::map<std::string, SysfsDriver::properties_s> m_properties;
+        const std::vector<SysfsDriver::properties_s &> m_properties_vec;
+        std::map<std::string, SysfsDriver::properties_s&> m_signals;
+        std::map<std::string, SysfsDriver::properties_s&> m_controls;
 
         // Information about a single pushed signal or control
         struct m_pushed_info_s {
