@@ -93,7 +93,7 @@ namespace geopm
             virtual std::string driver(void) const = 0;
             /// Query the meta data about a signal or control
             virtual std::map<std::string, SysfsDriver::properties_s> properties(void) const = 0;
-            static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(const std::string &properties_json);
+            static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(const std::string &iogroup_name, const std::string &properties_json);
     };
 }
 

@@ -116,6 +116,7 @@ SysfsIOGroup::SysfsIOGroup(
     , m_batch_reader(batch_reader)
     , m_batch_writer(batch_writer)
 {
+    std::string iogroup_name = m_driver->driver();
     for (const auto &it : m_properties) {
         m_signals.try_emplace(it.first, std::cref(it.second));
         if (it.second.is_writable) {
@@ -144,7 +145,7 @@ SysfsIOGroup::~SysfsIOGroup()
 std::set<std::string> SysfsIOGroup::signal_names(void) const
 {
     std::set<std::string> result;
-    for (const auto &it : m_properties) {
+    for (const auto &it : m_signals) {
         result.insert(it.first);
     }
     return result;

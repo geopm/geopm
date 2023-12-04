@@ -72,7 +72,7 @@ namespace geopm
 {
     const std::string cpufreq_sysfs_json(void);
     CpufreqSysfsDriver::CpufreqSysfsDriver()
-        : M_PROPERTIES {SysfsDriver::parse_properties_json(cpufreq_sysfs_json())}
+        : M_PROPERTIES {SysfsDriver::parse_properties_json(plugin_name(), cpufreq_sysfs_json())}
         , M_CPUFREQ_RESOURCE_BY_CPU(load_cpufreq_resources_by_cpu(CPUFREQ_DIRECTORY))
     {
 
