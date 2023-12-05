@@ -31,18 +31,6 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
-            enum m_properties_index_e {
-                M_BIOS_LIMIT,
-                M_CUR_FREQ,
-                M_MAX_FREQ,
-                M_MIN_FREQ,
-                M_TRANSITION_LATENCY,
-                M_SCALING_CUR_FREQ,
-                M_SCALING_MAX_FREQ,
-                M_SCALING_MIN_FREQ,
-                M_SCALING_SETSPEED,
-                M_NUM_PROPERTIES
-            };
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
             const std::map<int, std::string> M_CPUFREQ_RESOURCE_BY_CPU;
   };
