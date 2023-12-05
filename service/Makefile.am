@@ -204,7 +204,7 @@ sysfs_cpp_files = \
 		  src/sysfs_attributes_cpufreq.cpp \
 		  #
 EXTRA_DIST += \
-	      src/sysfs_attributes_cpufreq.json \
+	      docs/json_data/sysfs_attributes_cpufreq.json \
 	      #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
@@ -408,7 +408,7 @@ $(msr_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
 	src/json_data.cpp.in > $@
 
-$(sysfs_cpp_files): %.cpp: %.json src/json_data.cpp.in
+$(sysfs_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
