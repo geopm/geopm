@@ -20,7 +20,6 @@ class IOUring;
 // Arbitrary buffer size. We're generally looking at integer values much shorter
 // than 100 digits in length. The IOGroup performs string truncation checks in
 // case that ever changes.
-static const size_t IO_BUFFER_SIZE = 128; // TODO (dcw): move to sysfsiogroup member
 
 class SysfsIOGroup : public IOGroup
 {
@@ -85,7 +84,7 @@ class SysfsIOGroup : public IOGroup
             double last_value; //TODO (dcw): Rename to 'value'. 
             bool do_write;
             std::shared_ptr<int> last_io_return;
-            std::array<char, IO_BUFFER_SIZE> buf;
+            std::array<char, SysfsDriver::M_IO_BUFFER_SIZE> buf;
             std::function<double(const std::string&)> parse;
             std::function<std::string(double)> gen;
         };

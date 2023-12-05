@@ -53,7 +53,7 @@ static int open_resource_attribute(const std::string& path, bool do_write)
 // Read a double from a cpufreq resource's opened sysfs attribute file.
 static std::string read_resource_attribute_fd(int fd)
 {
-    char buf[IO_BUFFER_SIZE] = {0};
+    char buf[SysfsDriver::M_IO_BUFFER_SIZE] = {0};
     int read_bytes = read(fd, buf, sizeof buf - 1);
     if (read_bytes < 0) {
         throw geopm::Exception("SysfsIOGroup failed to read signal",
@@ -71,7 +71,7 @@ static std::string read_resource_attribute_fd(int fd)
 // Write a double to a cpufreq resource's opened sysfs attribute file.
 static void write_resource_attribute_fd(int fd, const std::string &value)
 {
-    char buf[IO_BUFFER_SIZE] = {0};
+    char buf[SysfsDriver::M_IO_BUFFER_SIZE] = {0};
     if (value.length() >= sizeof buf) {
         throw geopm::Exception("SysfsIOGroup truncated write control",
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);

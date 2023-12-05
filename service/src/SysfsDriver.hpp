@@ -23,6 +23,7 @@ namespace geopm
     class SysfsDriver
     {
         public:
+            static constexpr size_t M_IO_BUFFER_SIZE = 128;
             /// @brief The properties about a signal or control
             struct properties_s {
                 std::string name; // The full low level PlatformIO name

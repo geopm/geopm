@@ -20,13 +20,12 @@
 // Arbitrary buffer size. We're generally looking at integer values much shorter
 // than 100 digits in length. The IOGroup performs string truncation checks in
 // case that ever changes.
-static const size_t IO_BUFFER_SIZE = 128;
 static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
 static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::string &cpufreq_directory)
 {
     struct dirent *dir;
-    char cpu_buf[IO_BUFFER_SIZE] = {0};
+    char cpu_buf[geopm::SysfsDriver::M_IO_BUFFER_SIZE] = {0};
     static std::map<int, std::string> result;
     std::unique_ptr<DIR, int (*)(DIR *)> cpufreq_directory_object(opendir(cpufreq_directory.c_str()), &closedir);
     if (!cpufreq_directory_object) {
