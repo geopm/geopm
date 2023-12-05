@@ -284,7 +284,7 @@ void SysfsIOGroup::read_batch(void)
             info.buf[bytes_read] = '\0';
 
             // TODO (dcw): Make sure parser is scaling for us
-            info.last_value = info.parse(std::string(info.buf.data()));
+            info.value = info.parse(std::string(info.buf.data()));
         }
     }
 }
@@ -297,8 +297,8 @@ void SysfsIOGroup::write_batch(void)
     }
 
     for (auto &info : m_pushed_info_control) {
-        if (info.do_write && !std::isnan(info.last_value)) {
-            std::string setting = info.gen(info.last_value);
+        if (info.do_write && !std::isnan(info.value)) {
+            std::string setting = info.gen(info.value);
             if (setting.length() >= info.buf.size()) {
                 throw geopm::Exception("SysfsIOGroup control value is too long",
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -311,7 +311,7 @@ void SysfsIOGroup::write_batch(void)
     }
     m_batch_writer->submit();
     for (auto &info : m_pushed_info_control) {
-        if (info.do_write && !std::isnan(info.last_value)) {
+        if (info.do_write && !std::isnan(info.value)) {
             if (*info.last_io_return < 0) {
                 throw geopm::Exception("SysfsIOGroup failed to write control \"" +
                                        info.name + "\"",
@@ -331,7 +331,7 @@ double SysfsIOGroup::sample(int batch_idx)
         throw Exception("SysfsIOGroup::sample(): signal has not been read.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    return m_pushed_info_signal[static_cast<size_t>(batch_idx)].last_value;
+    return m_pushed_info_signal[static_cast<size_t>(batch_idx)].value;
 }
 
 // Save a setting to be written by a future write_batch()
@@ -342,9 +342,9 @@ void SysfsIOGroup::adjust(int batch_idx, double setting)
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     auto &info = m_pushed_info_control[static_cast<size_t>(batch_idx)];
-    if (info.last_value != setting) {
+    if (info.value != setting) {
         info.do_write = true;
-        info.last_value = setting;
+        info.value = setting;
     }
 }
 

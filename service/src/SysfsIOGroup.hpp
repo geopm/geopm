@@ -81,7 +81,7 @@ class SysfsIOGroup : public IOGroup
             std::string name;
             int domain_type;
             int domain_idx;
-            double last_value; //TODO (dcw): Rename to 'value'. 
+            double value;
             bool do_write;
             std::shared_ptr<int> last_io_return;
             std::array<char, SysfsDriver::M_IO_BUFFER_SIZE> buf;
