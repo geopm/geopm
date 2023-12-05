@@ -215,7 +215,7 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
         signal_idx = std::distance(m_pushed_info_signal.begin(), pushed_it);
     }
     else {
-        auto path = m_driver->signal_path(cname, domain_idx);
+        auto path = m_driver->attribute_path(cname, domain_idx);
         int fd = open_resource_attribute(path, false);
 
         // This is a newly-pushed signal. Give it a new index.
@@ -249,7 +249,7 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
     }
     else {
         // TODO: make this obvious: why get(name).name? Because of aliases
-        auto path = m_driver->control_path(cname, domain_idx);
+        auto path = m_driver->attribute_path(cname, domain_idx);
         int fd = open_resource_attribute(path, true);
 
         // This is a newly-pushed control. Give it a new index.
@@ -351,7 +351,7 @@ void SysfsIOGroup::adjust(int batch_idx, double setting)
 double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
 {
     std::string cname = check_request(__FUNCTION__, signal_name, "", domain_type, domain_idx);
-    int fd = open_resource_attribute(m_driver->signal_path(cname, domain_idx), false);
+    int fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), false);
     double read_value = m_driver->signal_parse(cname)(read_resource_attribute_fd(fd));
     // TODO (dcw): wrap in auto-cleanup for throws
     close(fd);
@@ -362,7 +362,7 @@ double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type
 void SysfsIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
 {
     std::string cname = check_request(__FUNCTION__, "", control_name, domain_type, domain_idx);
-    int fd = open_resource_attribute(m_driver->control_path(cname, domain_idx), true);
+    int fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), true);
     write_resource_attribute_fd(fd, m_driver->control_gen(cname)(setting));
     // TODO (dcw): wrap in auto-cleanup for throws
     close(fd);

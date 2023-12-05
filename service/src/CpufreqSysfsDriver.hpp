@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef CPUFREQSYSFSIO_HPP_INCLUDE
-#define CPUFREQSYSFSIO_HPP_INCLUDE
+#ifndef CPUFREQSYSFSDRIVER_HPP_INCLUDE
+#define CPUFREQSYSFSDRIVER_HPP_INCLUDE
 
 #include <vector>
 #include <map>
@@ -22,10 +22,8 @@ namespace geopm
             CpufreqSysfsDriver();
             virtual ~CpufreqSysfsDriver() = default;
             int domain_type(const std::string &name) const override;
-            std::string signal_path(const std::string &signal_name,
+            std::string attribute_path(const std::string &name,
                                     int domain_idx) override;
-            std::string control_path(const std::string &control_name,
-                                     int domain_idx) const override;
             std::function<double(const std::string&)> signal_parse(const std::string &signal_name) const override;
             std::function<std::string(double)> control_gen(const std::string &control_name) const override;
             std::string driver(void) const override;

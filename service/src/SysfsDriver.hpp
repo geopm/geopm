@@ -46,26 +46,15 @@ namespace geopm
             virtual int domain_type(const std::string &name) const = 0;
             /// @brief Get the path to the sysfs entry for signal.
             ///
-            /// @param [in] signal_name The name of the signal
+            /// @param [in] name The name of the signal or control
             ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
             ///
             /// @return File path to the sysfs entry to be read.
-            virtual std::string signal_path(const std::string &signal_name,
-                                            int domain_idx) = 0;
-            /// @brief Get the path to the sysfs entry for control.
-            ///
-            /// @param [in] control_name The name of the control.
-            ///
-            /// @param [in] domain_idx The index of the domain within
-            ///        the set of domains of the same type on the
-            ///        platform.
-            ///
-            /// @return File path to the sysfs entry to be written.
-            virtual std::string control_path(const std::string &control_name,
-                                             int domain_idx) const = 0;
+            virtual std::string attribute_path(const std::string &name,
+                                               int domain_idx) = 0;
             /// @brief Get function to convert contents of sysfs file into signal
             ///
             /// This parsing includes the conversion of the numerical

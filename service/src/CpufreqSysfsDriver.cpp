@@ -83,8 +83,8 @@ namespace geopm
         return GEOPM_DOMAIN_CPU;
     }
 
-    std::string CpufreqSysfsDriver::signal_path(const std::string &signal_name,
-                                                int domain_idx)
+    std::string CpufreqSysfsDriver::attribute_path(const std::string &name,
+                                                   int domain_idx)
     {
         auto resource_it = M_CPUFREQ_RESOURCE_BY_CPU.find(domain_idx);
         if (resource_it == M_CPUFREQ_RESOURCE_BY_CPU.end()) {
@@ -94,40 +94,10 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
-        auto property_it = M_PROPERTIES.find(signal_name);
+        auto property_it = M_PROPERTIES.find(name);
         if (property_it == M_PROPERTIES.end()) {
             throw Exception("CpufreqSysfsDriver::signal_path(): No such signal "
-                            + signal_name,
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        
-        std::ostringstream oss;
-        oss << resource_it->second
-            << "/" << property_it->second.attribute;
-        return oss.str();
-    }
-
-    std::string CpufreqSysfsDriver::control_path(const std::string &control_name,
-                                                 int domain_idx) const
-    {
-        auto resource_it = M_CPUFREQ_RESOURCE_BY_CPU.find(domain_idx);
-        if (resource_it == M_CPUFREQ_RESOURCE_BY_CPU.end()) {
-            throw Exception("CpufreqSysfsDriver::control_path(): domain_idx "
-                            + std::to_string(domain_idx)
-                            + " does not have a cpufreq entry.",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-
-        auto property_it = M_PROPERTIES.find(control_name);
-        if (property_it == M_PROPERTIES.end()) {
-            throw Exception("CpufreqSysfsDriver::control_path(): No such control "
-                            + control_name,
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-
-        if (!property_it->second.is_writable) {
-            throw Exception("CpufreqSysfsDriver::control_path(): "
-                            + control_name + " is not a control",
+                            + name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         
