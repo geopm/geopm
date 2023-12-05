@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/sysfs_attributes.schema.json",
+    "title": "SysfsIOGroup attributes specification",
+    "type": "object",
+    "properties": {
+      "attributes": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/definitions/sysfsAttributeDescription"
+        }
+      }
+    },
+    "definitions" : {
+      "sysfsAttributeDescription": {
+        "type": "object",
+        "required": ["attribute", "scalar", "description", "aggregation", "behavior", "format", "units", "writeable", "alias"],
+        "properties": {
+          "attribute": { "description": "Name of the sysfs attribute", "type": "string" },
+          "scalar": { "description": "Scaling factor to multiply after reads and divide before writes to sysfs", "type": "number" },
+          "description": { "description": "Description of what the attribute represents", "type": "string" },
+          "aggregation": { "description": "How to aggregate sampled values across domains",
+                           "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"] },
+          "behavior": { "description": "How to interpret differences between read values",
+                        "enum": ["constant", "monotone", "variable", "label"] },
+          "format": { "description": "How to present read values",
+                      "enum": ["double", "integer", "hex", "raw64"] },
+          "units": { "description": "Which units are represented by the attribute's read values",
+                      "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"] },
+          "writeable": { "description": "True if the attribute is also writeable as a control",
+                         "type": "boolean" },
+          "alias": { "description": "An alias signal/control to create for this attribute. An empty string if no alias is desired.",
+                     "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+}
