@@ -29,40 +29,37 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::strin
     char cpu_buf[IO_BUFFER_SIZE] = {0};
     static std::map<int, std::string> result;
     std::unique_ptr<DIR, int (*)(DIR *)> cpufreq_directory_object(opendir(cpufreq_directory.c_str()), &closedir);
-
-    if (cpufreq_directory_object) {
-        while ((dir = readdir(cpufreq_directory_object.get())) != NULL) {
-            if (strncmp(dir->d_name, "policy", sizeof "policy" - 1) != 0) {
-                continue;
-            }
-
-            std::ostringstream oss;
-            oss << cpufreq_directory << "/" << dir->d_name;
-            auto resource_path = oss.str();
-            oss << "/affected_cpus";
-            auto cpu_map_path = oss.str();
-
-            int cpu_map_fd = open(cpu_map_path.c_str(), O_RDONLY);
-            if (cpu_map_fd == -1) {
-                throw geopm::Exception("SysfsIOGroup failed to open " + cpu_map_path,
-                                       errno, __FILE__, __LINE__);
-            }
-            int read_bytes = pread(cpu_map_fd, cpu_buf, sizeof cpu_buf - 1, 0);
-            close(cpu_map_fd);
-            if (read_bytes < 0) {
-                throw geopm::Exception("SysfsIOGroup failed to read " + cpu_map_path,
-                                       errno, __FILE__, __LINE__);
-            }
-            if (read_bytes == sizeof cpu_buf - 1) {
-                throw geopm::Exception("SysfsIOGroup truncated read from " + cpu_map_path,
-                                       errno, __FILE__, __LINE__);
-            }
-            result.emplace(std::stoi(cpu_buf), resource_path);
-        }
-    }
-    else {
+    if (!cpufreq_directory_object) {
         throw geopm::Exception("SysfsIOGroup failed to open " + cpufreq_directory,
                                errno, __FILE__, __LINE__);
+    }
+    while ((dir = readdir(cpufreq_directory_object.get())) != NULL) {
+        if (strncmp(dir->d_name, "policy", sizeof "policy" - 1) != 0) {
+            continue;
+        }
+
+        std::ostringstream oss;
+        oss << cpufreq_directory << "/" << dir->d_name;
+        auto resource_path = oss.str();
+        oss << "/affected_cpus";
+        auto cpu_map_path = oss.str();
+
+        int cpu_map_fd = open(cpu_map_path.c_str(), O_RDONLY);
+        if (cpu_map_fd == -1) {
+            throw geopm::Exception("SysfsIOGroup failed to open " + cpu_map_path,
+                                   errno, __FILE__, __LINE__);
+        }
+        int read_bytes = pread(cpu_map_fd, cpu_buf, sizeof cpu_buf - 1, 0);
+        close(cpu_map_fd);
+        if (read_bytes < 0) {
+            throw geopm::Exception("SysfsIOGroup failed to read " + cpu_map_path,
+                                   errno, __FILE__, __LINE__);
+        }
+        if (read_bytes == sizeof cpu_buf - 1) {
+            throw geopm::Exception("SysfsIOGroup truncated read from " + cpu_map_path,
+                                   errno, __FILE__, __LINE__);
+        }
+        result.emplace(std::stoi(cpu_buf), resource_path);
     }
 
     return result;
