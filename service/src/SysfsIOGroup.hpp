@@ -58,6 +58,12 @@ class SysfsIOGroup : public IOGroup
         int signal_behavior(const std::string &signal_name) const override;
         std::string name(void) const override;
     private:
+        std::string canonical_name(const std::string &name) const;
+        std::string check_request(const std::string &method_name,
+                                  const std::string &signal_name,
+                                  const std::string &control_name,
+                                  int domain_type,
+                                  int domain_idx) const;
         std::shared_ptr<SysfsDriver> m_driver;
         const geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed

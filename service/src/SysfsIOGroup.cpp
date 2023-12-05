@@ -29,11 +29,9 @@
 #include "geopm/Helper.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "geopm/json11.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;
-using json11::Json;
 
 namespace geopm
 {
@@ -198,27 +196,17 @@ int SysfsIOGroup::control_domain_type(const std::string &control_name) const
 // Mark the given signal to be read by read_batch()
 int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
 {
-    if (!is_valid_signal(signal_name)) {
-        throw Exception("SysfsIOGroup::push_signal(): signal_name " + signal_name +
-                        " not valid for SysfsIOGroup.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("SysfsIOGroup::push_signal(): domain_type must be GEOPM_DOMAIN_CPU.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-        throw Exception("SysfsIOGroup::push_signal(): domain_idx out of range.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
     if (m_is_batch_read) {
         throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
+    std::string cname = check_request(__FUNCTION__, signal_name, "", domain_type, domain_idx);
     auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
                                   m_pushed_info_signal.end(),
                                   [signal_name, domain_idx] (const m_pushed_info_s &info) {
-                                      return info.name == signal_name && info.domain_idx == domain_idx;
+                                      return info.name == signal_name &&
+                                             info.domain_idx == domain_idx;
+
                                   });
     int signal_idx = -1;
 
@@ -227,11 +215,11 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
         signal_idx = std::distance(m_pushed_info_signal.begin(), pushed_it);
     }
     else {
-        auto path = m_driver->signal_path(m_signals.at(signal_name).get().name, domain_idx);
+        auto path = m_driver->signal_path(cname, domain_idx);
         int fd = open_resource_attribute(path, false);
 
         // This is a newly-pushed signal. Give it a new index.
-        m_pushed_info_signal.push_back(m_pushed_info_s{fd, signal_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(signal_name), m_driver->control_gen(signal_name)});
+        m_pushed_info_signal.push_back(m_pushed_info_s{fd, signal_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(cname), m_driver->control_gen(cname)});
         signal_idx = m_pushed_info_signal.size() - 1;
     }
 
@@ -247,20 +235,7 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
                         "because batch writes have already been triggered.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (!is_valid_control(control_name)) {
-        throw Exception("SysfsIOGroup::push_control(): control_name " + control_name +
-                        " not valid for SysfsIOGroup",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_type != GEOPM_DOMAIN_CPU) {
-        throw Exception("SysfsIOGroup::push_control(): domain_type must be GEOPM_DOMAIN_CPU.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-        throw Exception("SysfsIOGroup::push_control(): domain_idx out of range.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
+    std::string cname = check_request(__FUNCTION__, "", control_name, domain_type, domain_idx);
     auto pushed_it = std::find_if(m_pushed_info_control.begin(),
                                   m_pushed_info_control.end(),
                                   [control_name, domain_idx](const m_pushed_info_s &info) {
@@ -274,7 +249,7 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
     }
     else {
         // TODO: make this obvious: why get(name).name? Because of aliases
-        auto path = m_driver->control_path(m_controls.at(control_name).get().name, domain_idx);
+        auto path = m_driver->control_path(cname, domain_idx);
         int fd = open_resource_attribute(path, true);
 
         // This is a newly-pushed control. Give it a new index.
@@ -375,25 +350,9 @@ void SysfsIOGroup::adjust(int batch_idx, double setting)
 
 double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
 {
-    if (!is_valid_signal(signal_name)) {
-        throw Exception("SysfsIOGroup:read_signal(): " + signal_name +
-                        "not valid for SysfsIOGroup",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_type != m_driver->domain_type(signal_name)) {
-        throw Exception("SysfsIOGroup::push_signal(): domain_type must be " +
-                        m_platform_topo.domain_type_to_name(m_driver->domain_type(signal_name)) + ".",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
-        throw Exception("SysfsIOGroup::push_signal(): domain_idx out of range.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    // TODO: make this into a helper function, use EVERY time we interact w/signal or control names
-    std::string canonical_name = m_signals.at(signal_name).get().name;
-    int fd = open_resource_attribute(m_driver->signal_path(canonical_name, domain_idx), false);
-    double read_value = m_driver->signal_parse(canonical_name)(read_resource_attribute_fd(fd));
+    std::string cname = check_request(__FUNCTION__, signal_name, "", domain_type, domain_idx);
+    int fd = open_resource_attribute(m_driver->signal_path(cname, domain_idx), false);
+    double read_value = m_driver->signal_parse(cname)(read_resource_attribute_fd(fd));
     // TODO (dcw): wrap in auto-cleanup for throws
     close(fd);
     return read_value;
@@ -402,23 +361,9 @@ double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type
 // Write to the control immediately, bypassing write_batch()
 void SysfsIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
 {
-    if (!is_valid_control(control_name)) {
-        throw Exception("SysfsIOGroup:write_control(): " + control_name +
-                        "not valid for SysfsIOGroup",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_type !=  m_driver->domain_type(control_name)) {
-        throw Exception("SysfsIOGroup::push_control(): domain_type must be " +
-                        m_platform_topo.domain_type_to_name(m_driver->domain_type(control_name)) + ".",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
-        throw Exception("SysfsIOGroup::push_control(): domain_idx out of range.",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    int fd = open_resource_attribute(m_driver->control_path(m_controls.at(control_name).get().name, domain_idx), true);
-    write_resource_attribute_fd(fd, m_driver->control_gen(control_name)(setting));
+    std::string cname = check_request(__FUNCTION__, "", control_name, domain_type, domain_idx);
+    int fd = open_resource_attribute(m_driver->control_path(cname, domain_idx), true);
+    write_resource_attribute_fd(fd, m_driver->control_gen(cname)(setting));
     // TODO (dcw): wrap in auto-cleanup for throws
     close(fd);
 }
@@ -486,10 +431,11 @@ std::string SysfsIOGroup::signal_description(const std::string &signal_name) con
     }
     const auto &property = m_signals.at(signal_name);
     std::ostringstream result;
+    std::string cname = canonical_name(signal_name);
     result << "    description: " << property.get().description << "\n"
            << "    units: " << IOGroup::units_to_string(property.get().units) << '\n'
            << "    aggregation: " << geopm::Agg::function_to_name(property.get().aggregation_function) << '\n'
-           << "    domain: " << m_platform_topo.domain_type_to_name(m_driver->domain_type(signal_name)) << '\n'
+           << "    domain: " << m_platform_topo.domain_type_to_name(m_driver->domain_type(cname)) << '\n'
            << "    iogroup: " << m_driver->driver();
 
     return result.str();
@@ -512,13 +458,55 @@ int SysfsIOGroup::signal_behavior(const std::string &signal_name) const
                         " not valid for SysfsIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    const auto &info = m_properties.at(signal_name);
-    return info.behavior;
+    const auto &info = m_signals.at(signal_name);
+    return info.get().behavior;
 }
 
 std::string SysfsIOGroup::name(void) const
 {
     return "cpufreq";
+}
+
+std::string SysfsIOGroup::canonical_name(const std::string &name) const
+{
+    /// Note: all controls are also signals
+    return m_signals.at(name).get().name;
+}
+
+std::string SysfsIOGroup::check_request(const std::string &method_name,
+                                        const std::string &signal_name,
+                                        const std::string &control_name,
+                                        int domain_type,
+                                        int domain_idx) const
+{
+    std::string cname;
+    if (signal_name != "") {
+        cname = signal_name;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("SysfsIOGroup::" + method_name + "(): \"" + signal_name +
+                            "\"not valid for ",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+    else {
+        cname = control_name;
+        if (!is_valid_control(control_name)) {
+            throw Exception("SysfsIOGroup::" + method_name + "(): \"" + control_name +
+                            "\" not valid for " + name(),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+    cname = canonical_name(cname);
+    if (domain_type != m_driver->domain_type(cname)) {
+        throw Exception("SysfsIOGroup::" + method_name + "(): domain_type must be " +
+                        m_platform_topo.domain_type_to_name(m_driver->domain_type(cname)) + ".",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        throw Exception("SysfsIOGroup::" + method_name + "(): domain_idx out of range.",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    return cname;
 }
 
 }
