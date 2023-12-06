@@ -1,3 +1,16 @@
+* Wed Dec 06 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.0.1
+- Hotfix for v3.0.0 release.
+- Fix missing systemd dependency on the msr-safe systemd service.  This bug could cause MSRs to be unavailable from the GEOPM Service if load order is incorrect.
+- Fix systemd unit definition to maintain same model for GPUs/chip topology when linked against versions of libze_loader.so where "COMPOSITE" is not the default.
+- Fix security issue where UID 0 was being used to indicate privilege, switched to using libcap for capabilities checks instead.
+- Fix bug in startup that was causing long delays when initializing batch interface of PlatformIO
+- Fix potential lock when creating PlatformTopo object as user with CAP_SYS_ADMIN.
+- Fix several build and packaging issues that could cause problems when dependency packages are not installed to standard locations.
+- Fix "make coverage" build target dependency
+- Fix issue with sphinx documentation generation
+- Fix regression in support for client Intel platforms.
+- Fix install failures on some SLES systems by modifying helper install script to prefer the zypper command to the rpm command.
+- Add documentation for non-MPI application integration test for GEOPM Runtime.
 * Wed Oct 25 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.0.0
 - Official v3.0.0 release tag.
 - GEOPM Runtime support for non-MPI applications.
