@@ -99,6 +99,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_pio_profile.7.rst \
               docs/source/geopm_pio_service.7.rst \
               docs/source/geopm_pio_sst.7.rst \
+              docs/source/geopm_pio_sysfs.7.rst \
               docs/source/geopm_pio_time.7.rst \
               docs/source/geopm_policystore.3.rst \
               docs/source/geopm_prof.3.rst \

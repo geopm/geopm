@@ -274,6 +274,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man7/geopm_pio_profile.7.gz
 %doc %{_mandir}/man7/geopm_pio_service.7.gz
 %doc %{_mandir}/man7/geopm_pio_sst.7.gz
+%doc %{_mandir}/man7/geopm_pio_sysfs.7.gz
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
 
