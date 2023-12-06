@@ -20,29 +20,29 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "CPU_FREQUENCY_STATUS"
         },
         "MAX_FREQ": {
             "attribute": "cpuinfo_max_freq",
             "scalar": 1e3,
-            "description": "The maximum configured frequency of the CPU.",
+            "description": "The maximum allowed frequency to set on the CPU.",
             "aggregation": "average",
             "behavior": "variable",
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "CPU_FREQUENCY_MAX_AVAIL"
         },
         "MIN_FREQ": {
             "attribute": "cpuinfo_min_freq",
             "scalar": 1e3,
-            "description": "The minimum configured frequency of the CPU.",
+            "description": "The minimum allowed frequency to set on the CPU.",
             "aggregation": "average",
             "behavior": "variable",
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "CPU_FREQUENCY_MIN_AVAIL"
         },
         "TRANSITION_LATENCY": {
             "attribute": "cpuinfo_transition_latency",
@@ -75,7 +75,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": ""
+            "alias": "CPU_FREQUENCY_MAX_CONTROL"
         },
         "SCALING_MIN_FREQ": {
             "attribute": "scaling_min_freq",
@@ -86,7 +86,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": ""
+            "alias": "CPU_FREQUENCY_MIN_CONTROL"
         },
         "SCALING_SETSPEED": {
             "attribute": "scaling_setspeed",
@@ -96,8 +96,8 @@
             "behavior": "variable",
             "format": "double",
             "units": "hertz",
-            "writeable": false,
-            "alias": ""
+            "writeable": true,
+            "alias": "CPU_FREQUENCY_MAX_CONTROL"
         }
     }
 }
