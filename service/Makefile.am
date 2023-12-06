@@ -90,6 +90,7 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopm_pio_sst.7 \
                 docs/build/man/geopm_pio_time.7 \
                 docs/build/man/geopm_pio_msr.7 \
+                docs/build/man/geopm_pio_sysfs.7 \
                 docs/build/man/geopmread.1 \
                 docs/build/man/geopm_report.7 \
                 docs/build/man/geopm_sched.3 \

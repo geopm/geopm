@@ -197,6 +197,7 @@ rst_files = [
     "geopm_pio_sst.7",
     "geopm_pio_time.7",
     "geopm_pio_msr.7",
+    "geopm_pio_sysfs.7",
     "geopm_policystore.3",
     "geopm_prof.3",
     "geopmpy.7",
