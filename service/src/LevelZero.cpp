@@ -113,6 +113,7 @@ namespace geopm
                             {}, //subdevice
                             0, //num_device_power_domain
                             {}, //power domain
+                            0, // cached_energy_timestamp
                         });
                     }
 #ifdef GEOPM_DEBUG

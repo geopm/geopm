@@ -183,8 +183,9 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_EQ(temp_value_chip_compute[sub_idx], m_device_pool.temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_EQ(temp_value_chip_mem[sub_idx], m_device_pool.temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
 
-        double expected = (double) std::reduce(metric_value_chip[sub_idx].begin(),
-                                               metric_value_chip[sub_idx].end(), 0) /  metric_value_chip[sub_idx].size();
+        double expected = (double)std::accumulate(metric_value_chip[sub_idx].begin(),
+                                                  metric_value_chip[sub_idx].end(), 0) /
+                                                      metric_value_chip[sub_idx].size();
         EXPECT_EQ(expected,
                   m_device_pool.metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS"));
         EXPECT_NO_THROW(m_device_pool.metric_read(GEOPM_DOMAIN_GPU_CHIP, sub_idx));
