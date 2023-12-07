@@ -779,12 +779,12 @@ namespace geopm
         uint32_t num_metric = m_devices.at(l0_device_idx).subdevice.num_metric.at(l0_domain_idx);
         unsigned int num_reports = num_metric_values / num_metric;
 
-        // If num_metric_values is not evenly divisble by num_metrics
+        // If num_metric_values is not evenly divisible by num_metrics
         // skip the metric and report processing for this sample
         if (num_metric_values % num_metric != 0) {
 #ifdef GEOPM_DEBUG
             std::cerr << "LevelZero::" << std::string(__func__)  <<
-                         ": ZET metric_calc call retunred a number of metric values "
+                         ": ZET metric_calc call returned a number of metric values "
                          "that is not evenly divisible by the number of metrics.  This "
                          "may indicate a ZET report erroor, skipping data processing." << std::endl;
 #endif
