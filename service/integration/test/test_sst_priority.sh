@@ -40,7 +40,15 @@ CPU_FREQUENCY_STATUS core 6
 CPU_FREQUENCY_STATUS core 7' > ${READ_REQUEST}
 
 # Input for geopmsession to configure SST
-echo 'SST::COREPRIORITY_ENABLE:ENABLE board 0 1
+echo 'MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_2 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_3 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_4 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_5 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_6 board 0 255e8
+MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7 board 0 255e8
+SST::COREPRIORITY_ENABLE:ENABLE board 0 1
 SST::TURBO_ENABLE:ENABLE board 0 1
 SST::COREPRIORITY:ASSOCIATION board 0 3
 SST::COREPRIORITY:ASSOCIATION core 0 0
@@ -61,9 +69,9 @@ sleep 1
 cat ${READ_REQUEST} | geopmsession > ${SESSION_LOG}
 
 # Open a write session with the GEOPM service configuring SST
-for req in $(cat ${WRITE_REQUEST}); do
+while read req; do
     geopmwrite ${req}
-done
+done <${WRITE_REQUEST}
 
 # Read the CPU frequencies again and note different values
 cat ${READ_REQUEST} | geopmsession >> ${SESSION_LOG}
