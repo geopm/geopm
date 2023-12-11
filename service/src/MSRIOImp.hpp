@@ -19,7 +19,8 @@ namespace geopm
     class MSRIOImp : public MSRIO
     {
         public:
-            MSRIOImp();
+            MSRIOImp() = delete;
+            MSRIOImp(std::shared_ptr<MSRPath> path);
             MSRIOImp(int num_cpu, std::shared_ptr<MSRPath> path,
                      std::shared_ptr<IOUring> batch_reader,
                      std::shared_ptr<IOUring> batch_writer);
