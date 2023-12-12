@@ -106,7 +106,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
         """
         policy = {'FREQ_CPU_DEFAULT': default_freq, 'FREQ_CPU_UNCORE': float('nan'), 'FREQ_GPU_DEFAULT': float('nan')}
         for i, (region_name, frequency) in enumerate(frequency_map.items()):
-            policy['HASH_{}'.format(i)] = geopmpy.hash.crc32_str(region_name)
+            policy['HASH_{}'.format(i)] = geopmpy.hash.hash_str(region_name)
             policy['FREQ_{}'.format(i)] = frequency
 
         return policy

@@ -54,7 +54,6 @@ BuildRequires: python-rpm-macros
 
 Requires: python%{python3_pkgversion}-geopmpy = %{version}
 Requires: libgeopm2 = %{version}
-ExclusiveArch: x86_64
 
 %description
 

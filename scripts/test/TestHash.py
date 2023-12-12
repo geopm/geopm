@@ -20,10 +20,10 @@ class TestHash(unittest.TestCase):
         reload(geopmpy.hash)
 
     def test_hash(self):
-        hash = geopmpy.hash.crc32_str('abcdefg')
-        self.assertEqual(0x6da35890, hash)
-        hash = geopmpy.hash.crc32_str('MPI_Bcast')
-        self.assertEqual(0xc5d73e1d, hash)
+        hash = geopmpy.hash.hash_str('abcdefg')
+        self.assertEqual(0xa3af82af, hash)
+        hash = geopmpy.hash.hash_str('MPI_Bcast')
+        self.assertEqual(0xfdf518f8, hash)
 
 if __name__ == '__main__':
     unittest.main()

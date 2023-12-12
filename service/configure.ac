@@ -303,8 +303,6 @@ if test "x$with_liburing_lib" != x; then
   AM_LDFLAGS="$AM_LDFLAGS -L$with_liburing_lib"
 fi
 
-AC_CHECK_HEADER([nmmintrin.h], [AC_DEFINE([GEOPM_HAS_SSE42], [1], [nmmintrin.h is available])], [])
-
 AC_ARG_VAR([PYTHON],
            [PYTHON the Python interpreter used to build Python modules])
 
@@ -325,8 +323,8 @@ AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
           ["${GEOPM_CONFIG_PATH}"],
           [The prefix to the path where GEOPM config files are stored])
 
-[AM_CFLAGS="$AM_CFLAGS -std=c99 -msse4.2"]
-[AM_CXXFLAGS="$AM_CXXFLAGS -std=c++17 -msse4.2"]
+[AM_CFLAGS="$AM_CFLAGS -std=c99"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -std=c++17"]
 
 # LDFLAGS must be set properly for the below AC_CHECK_LIB calls
 [LDFLAGS_SAVE="$LDFLAGS"]

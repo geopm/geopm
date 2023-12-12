@@ -261,7 +261,7 @@ namespace geopm
                            m_proc_region_agg != nullptr,
                            "ReporterImp::create_report(): region set is not empty, but region aggregator pointer is null");
         for (const auto &region : region_name_set) {
-            uint64_t region_hash = geopm_crc32_str(region.c_str());
+            uint64_t region_hash = geopm::hash(region);
             double count = m_proc_region_agg->get_count_average(region_hash);
             if (count > 0) {
                 region_ordered.push_back({region,
@@ -338,7 +338,7 @@ namespace geopm
         auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
         // Controller overhead
-        uint64_t mpi_init_thread_hash = 0xb178041c;
+        uint64_t mpi_init_thread_hash = geopm::hash("MPI_Init_thread");
         double mpi_startup = m_proc_region_agg->get_runtime_average(mpi_init_thread_hash);
 
         std::vector<std::pair<std::string, double> > overhead {

@@ -122,9 +122,8 @@ The fields in each of these sections are described below:
   information.
 
 ``hash``
-  The CRC32 hash of the region name.  This value is used by agents to
-  distinguish regions using the ``REGION_HASH`` signal and also appears in the
-  trace.
+  The hash of the region name.  This value is used by agents to distinguish
+  regions using the ``REGION_HASH`` signal and also appears in the trace.
 
 ``runtime (s)``
   The average across all processes of the total runtime spent in the region.

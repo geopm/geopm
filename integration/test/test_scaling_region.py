@@ -63,7 +63,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         cls._agent_conf_path = test_name + '-agent-config.json'
         # region_hash() of the sequence:
         # scaling_region_0, scaling_region_1, ... , scaling_region_30
-        cls._region_hash = [geopmpy.hash.crc32_str('scaling_region_{}'.format(idx))
+        cls._region_hash = [geopmpy.hash.hash_str('scaling_region_{}'.format(idx))
                             for idx in range(31)]
         if not cls._skip_launch:
             num_node = util.get_num_node()

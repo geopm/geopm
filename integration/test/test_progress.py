@@ -266,7 +266,7 @@ class TestIntegration_progress(unittest.TestCase):
         post_region_names = [aa for aa in self._report.region_names(self._report.host_names()[0])
                              if 'with_post' in aa]
         hashes_to_exclude = [self.get_hash(aa) for aa in post_region_names]
-        hashes_to_exclude.append(hex(geopmpy.hash.crc32_str('GEOPM_REGION_HASH_UNMARKED')))
+        hashes_to_exclude.append('0x725e8066') # GEOPM_REGION_HASH_UNMARKED
         hashes_to_exclude.append('NAN')
 
         other_groups = [gg for gg in list(grouped_df.groups)
