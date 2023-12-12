@@ -3,7 +3,7 @@ Community-Maintained Publications
 =================================
 
 Conferences & Workshops
-------------------------------------
+-----------------------
 
 * `An End-to-End HPC Framework for Dynamic Power Objectives <https://dl.acm.org/doi/abs/10.1145/3624062.3624262>`_. In Proceedings of the SC '23 Workshops of The International Conference on High Performance Computing, Network, Storage, and Analysis (SC-W '23), Nov. 2023.
 
