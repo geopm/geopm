@@ -89,8 +89,10 @@ namespace geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
         if (geopm::has_cap_sys_admin()) {
+#ifdef GEOPM_ENABLE_RAWMSR
             register_plugin(MSRIOGroup::plugin_name(),
                             MSRIOGroup::make_plugin);
+#endif
             register_plugin(SSTIOGroup::plugin_name(),
                             SSTIOGroup::make_plugin);
 #ifdef GEOPM_ENABLE_LEVELZERO
