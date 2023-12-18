@@ -140,10 +140,8 @@ namespace geopm
         return msr_config_paths;
     }
 
-    MSRIOGroup::MSRIOGroup(bool use_msr_safe)
-        : MSRIOGroup(platform_topo(),
-                     MSRIO::make_unique(use_msr_safe ? MSRIO::M_DRIVER_MSRSAFE : MSRIO::M_DRIVER_MSR),
-                     cpuid(), geopm_sched_num_cpu(), nullptr)
+    MSRIOGroup::MSRIOGroup()
+        : MSRIOGroup(platform_topo(), std::make_shared<MSRIOImp>(), cpuid(), geopm_sched_num_cpu(), nullptr)
     {
 
     }
@@ -1086,12 +1084,7 @@ namespace geopm
 
     std::unique_ptr<IOGroup> MSRIOGroup::make_plugin(void)
     {
-        return geopm::make_unique<MSRIOGroup>(false);
-    }
-
-    std::unique_ptr<IOGroup> MSRIOGroup::make_plugin_safe(void)
-    {
-        return geopm::make_unique<MSRIOGroup>(true);
+        return geopm::make_unique<MSRIOGroup>();
     }
 
     void MSRIOGroup::enable_fixed_counters(void)

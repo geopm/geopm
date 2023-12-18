@@ -15,12 +15,6 @@ namespace geopm
     class MSRIO
     {
         public:
-            enum m_driver_e {
-                M_DRIVER_MSRSAFE,
-                M_DRIVER_MSR,
-                M_NUM_DRIVER,
-            };
-
             MSRIO() = default;
             virtual ~MSRIO() = default;
             /// @brief Read from a single MSR on a CPU.
@@ -133,7 +127,10 @@ namespace geopm
             virtual void write_batch(int batch_ctx) = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::unique_ptr<MSRIO> make_unique(int driver_type);
+            static std::unique_ptr<MSRIO> make_unique(void);
+            /// @brief Returns a shared_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::shared_ptr<MSRIO> make_shared(void);
     };
 }
 
