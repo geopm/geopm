@@ -56,8 +56,8 @@ class MSRIOMockFiles
 class MockMSRPath : public MSRPath
 {
     public:
-        MOCK_METHOD(std::string, msr_path, (int cpu_idx), (const, override));
-        MOCK_METHOD(std::string, msr_batch_path, (), (const, override));
+        MOCK_METHOD(std::string, msr_path, (int cpu_idx, int fallback_idx), (override));
+        MOCK_METHOD(std::string, msr_batch_path, (), (override));
 };
 
 MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
@@ -651,7 +651,7 @@ void MSRIOTest::SetUp(void)
     m_path = std::make_shared<MockMSRPath>();
     m_batch_io = std::make_shared<MockIOUring>();
     for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-        EXPECT_CALL(*m_path, msr_path(cpu_idx))
+        EXPECT_CALL(*m_path, msr_path(cpu_idx, 0))
             .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
     }
     EXPECT_CALL(*m_path, msr_batch_path()).WillOnce(Return("NO_FILE_HERE"));

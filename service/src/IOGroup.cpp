@@ -105,8 +105,6 @@ namespace geopm
             register_plugin(NVMLIOGroup::plugin_name(),
                             NVMLIOGroup::make_plugin);
 #endif
-            register_plugin(MSRIOGroup::plugin_name(),
-                            MSRIOGroup::make_plugin_safe);
         }
 #ifdef GEOPM_ENABLE_SYSTEMD
         else { // not UID 0

@@ -13,13 +13,17 @@ namespace geopm
     class MSRPath
     {
         public:
-            MSRPath();
-            MSRPath(int driver_type);
+            enum m_fallback_e {
+                M_FALLBACK_MSRSAFE,
+                M_FALLBACK_MSR,
+                M_NUM_FALLBACK,
+            };
+
+            MSRPath() = default;
             virtual ~MSRPath() = default;
-            virtual std::string msr_path(int cpu_idx) const;
-            virtual std::string msr_batch_path(void) const;
-        private:
-            const int m_driver_type;
+            virtual std::string msr_path(int cpu_idx,
+                                         int fallback_idx);
+            virtual std::string msr_batch_path(void);
     };
 }
 

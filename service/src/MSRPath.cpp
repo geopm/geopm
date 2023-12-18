@@ -8,33 +8,20 @@
 #include <sstream>
 
 #include "MSRPath.hpp"
-#include "MSRIO.hpp"
 #include "geopm/Exception.hpp"
 
 namespace geopm
 {
-
-    MSRPath::MSRPath()
-        : MSRPath(MSRIO::M_DRIVER_MSRSAFE)
-    {
-
-    }
-
-    MSRPath::MSRPath(int driver_type)
-        : m_driver_type(driver_type)
-    {
-
-    }
-
-    std::string MSRPath::msr_path(int cpu_idx) const
+    std::string MSRPath::msr_path(int cpu_idx,
+                                  int fallback_idx)
     {
         std::ostringstream path_ss;
         path_ss << "/dev/cpu/" << cpu_idx;
-        switch (m_driver_type) {
-            case MSRIO::M_DRIVER_MSRSAFE:
+        switch (fallback_idx) {
+            case M_FALLBACK_MSRSAFE:
                 path_ss << "/msr_safe";
                 break;
-            case MSRIO::M_DRIVER_MSR:
+            case M_FALLBACK_MSR:
                 path_ss << "/msr";
                 break;
             default:
@@ -45,7 +32,7 @@ namespace geopm
         return path_ss.str();
     }
 
-    std::string MSRPath::msr_batch_path(void) const
+    std::string MSRPath::msr_batch_path(void)
     {
         return "/dev/cpu/msr_batch";
     }
