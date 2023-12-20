@@ -41,7 +41,8 @@ namespace geopm
                 M_CPUID_SPR = 0x68F,
             };
 
-            MSRIOGroup();
+            MSRIOGroup() = delete;
+            MSRIOGroup(bool use_msr_safe);
             MSRIOGroup(const PlatformTopo &platform_topo,
                        std::shared_ptr<MSRIO> msrio,
                        int cpuid,
@@ -97,6 +98,7 @@ namespace geopm
             static int cpuid(void);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
+            static std::unique_ptr<IOGroup> make_plugin_safe(void);
         private:
             /// @brief Parse the given JSON string and update the
             ///        allowlist data map.

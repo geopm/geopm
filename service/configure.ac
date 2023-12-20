@@ -134,6 +134,27 @@ else
   ENABLE_LIBCAP=False
 fi
 
+AC_ARG_ENABLE([rawmsr],
+  [AS_HELP_STRING([--disable-rawmsr], [Disable direct use of standard msr(4) device driver])],
+[if test "x$enable_rawmsr" = "xno" ; then
+  enable_rawmsr="0"
+else
+  enable_rawmsr="1"
+fi
+],
+[enable_rawmsr="1"]
+)
+
+AC_SUBST([enable_rawmsr])
+AM_CONDITIONAL([ENABLE_RAWMSR], [test "x$enable_rawmsr" = "x1"])
+
+if test "x$enable_rawmsr" = "x1" ; then
+  ENABLE_RAWMSR=True
+  AC_DEFINE([GEOPM_ENABLE_RAWMSR], [ ], [Enable direct use of standard msr(4) device driver])
+else
+  ENABLE_RAWMSR=False
+fi
+
 AC_ARG_WITH([bash-completion-dir], [AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
             [Install the bash auto-completion script in this directory. @<:@default=yes@:>@])])
 if test "x$with_bash_completion_dir" = "x"; then
@@ -530,4 +551,5 @@ AC_MSG_RESULT([io_uring           : ${enable_io_uring}])
 AC_MSG_RESULT([asan               : ${enable_asan}])
 AC_MSG_RESULT([fuzz               : ${enable_fuzz}])
 AC_MSG_RESULT([libcap             : ${enable_libcap}])
+AC_MSG_RESULT([rawmsr             : ${enable_rawmsr}])
 AC_MSG_RESULT([===============================================================================])
