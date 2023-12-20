@@ -28,18 +28,13 @@
 
 namespace geopm
 {
-    std::unique_ptr<MSRIO> MSRIO::make_unique(void)
+    std::unique_ptr<MSRIO> MSRIO::make_unique(int driver_type)
     {
-        return geopm::make_unique<MSRIOImp>();
+        return std::make_unique<MSRIOImp>(std::make_unique<MSRPath>(driver_type));
     }
 
-    std::shared_ptr<MSRIO> MSRIO::make_shared(void)
-    {
-        return std::make_shared<MSRIOImp>();
-    }
-
-    MSRIOImp::MSRIOImp()
-        : MSRIOImp(platform_topo().num_domain(GEOPM_DOMAIN_CPU), std::make_shared<MSRPath>(), nullptr, nullptr)
+    MSRIOImp::MSRIOImp(std::shared_ptr<MSRPath> path)
+        : MSRIOImp(platform_topo().num_domain(GEOPM_DOMAIN_CPU), path, nullptr, nullptr)
     {
 
     }
@@ -493,10 +488,8 @@ namespace geopm
 
     void MSRIOImp::open_msr(int cpu_idx)
     {
-        for (int fallback_idx = 0;
-             m_file_desc[cpu_idx] == -1;
-             ++fallback_idx) {
-            std::string path = m_path->msr_path(cpu_idx, fallback_idx);
+        if (m_file_desc[cpu_idx] == -1) {
+            std::string path = m_path->msr_path(cpu_idx);
             m_file_desc[cpu_idx] = open(path.c_str(), O_RDWR);
         }
         struct stat stat_buffer;

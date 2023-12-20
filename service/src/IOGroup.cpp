@@ -89,8 +89,15 @@ namespace geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
         if (geopm::has_cap_sys_admin()) {
-            register_plugin(MSRIOGroup::plugin_name(),
-                            MSRIOGroup::make_plugin);
+#ifdef GEOPM_ENABLE_RAWMSR
+            // Only use /dev/cpu/*/msr if configured with
+            // --enable-rawmsr and msr-safe driver is not available.
+            bool use_msr_safe = (access("/dev/cpu/msr_batch", R_OK | W_OK) == 0);
+            if (!use_msr_safe) {
+                register_plugin(MSRIOGroup::plugin_name(),
+                                MSRIOGroup::make_plugin);
+            }
+#endif
             register_plugin(SSTIOGroup::plugin_name(),
                             SSTIOGroup::make_plugin);
 #ifdef GEOPM_ENABLE_LEVELZERO
@@ -105,6 +112,15 @@ namespace geopm
             register_plugin(NVMLIOGroup::plugin_name(),
                             NVMLIOGroup::make_plugin);
 #endif
+#ifdef GEOPM_ENABLE_RAWMSR
+            // Always try to load msr-safe version of IOGroup unless
+            // raw msr access has already been selected.
+            if (use_msr_safe)
+#endif
+            {
+                register_plugin(MSRIOGroup::plugin_name(),
+                                MSRIOGroup::make_plugin_safe);
+            }
         }
 #ifdef GEOPM_ENABLE_SYSTEMD
         else { // not UID 0
