@@ -36,6 +36,7 @@ BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: libcap-devel
 BuildRequires: systemd-devel >= 221
+BuildRequires: zlib-devel
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools

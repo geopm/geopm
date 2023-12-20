@@ -25,7 +25,6 @@ debian/control
 debian/geopm-runtime.dirs
 debian/libgeopm-dev.dirs
 debian/geopm-runtime.install
-debian/changelog
 debian/libgeopm-dev.install
 debian/changelog.in
 debian/libgeopm2.install

@@ -12,6 +12,7 @@
 #include "record.hpp"
 #include "MockApplicationSampler.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm_hash.h"
 
 using geopm::record_s;
 using geopm::ProxyEpochRecordFilter;
@@ -206,7 +207,7 @@ TEST_F(ProxyEpochRecordFilterTest, parse_name)
     EXPECT_EQ(1000, startup_count);
     ProxyEpochRecordFilter::parse_name("proxy_epoch,MPI_Barrier,1000,10000",
         region_hash, calls_per_epoch, startup_count);
-    EXPECT_EQ(0x7b561f45ULL, region_hash);
+    EXPECT_EQ(geopm_hash_str("MPI_Barrier"), region_hash);
     EXPECT_EQ(1000, calls_per_epoch);
     EXPECT_EQ(10000, startup_count);
 

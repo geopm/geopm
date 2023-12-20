@@ -81,7 +81,7 @@ namespace geopm
             region_hash = std::stoull(split_name[1], nullptr, 0);
         }
         catch (const std::exception &) {
-            region_hash = geopm_crc32_str(split_name[1].c_str());
+            region_hash = geopm::hash(split_name[1]);
         }
         calls_per_epoch = 1;
         startup_count = 0;
@@ -112,7 +112,7 @@ namespace geopm
         , m_num_per_epoch(calls_per_epoch)
         , m_count(-startup_count)
     {
-        // Hash is a CRC32, so check that it is 32 bits
+        // Check that it is 32 bits
         if (m_proxy_hash > UINT32_MAX) {
             throw Exception("ProxyEpochRecordFilter(): Parameter region_hash is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);

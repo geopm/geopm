@@ -17,10 +17,6 @@ check_PROGRAMS += examples/geopm_print_error
 examples_geopm_print_error_SOURCES = examples/geopm_print_error.c
 examples_geopm_print_error_LDADD = libgeopm.la
 
-check_PROGRAMS += examples/geopm_platform_supported
-examples_geopm_platform_supported_SOURCES = examples/geopm_platform_supported.cpp
-examples_geopm_platform_supported_LDADD = libgeopm.la
-
 check_PROGRAMS += examples/geopmhash
 examples_geopmhash_SOURCES = examples/geopmhash.c
 examples_geopmhash_LDADD = libgeopm.la

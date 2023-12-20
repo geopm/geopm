@@ -143,7 +143,7 @@ class License(object):
 
         # Check search length
         if not self.search_length > 2*lic_text.count('\n'):
-            raise LicenseHeaderFormatError('search_length {0} too short'.format(self.serch_length), header_path)
+            raise LicenseHeaderFormatError('search_length {0} too short'.format(self.search_length), header_path)
 
         # Create filtered license
         self.lic = Filter().filter(lic_text)
