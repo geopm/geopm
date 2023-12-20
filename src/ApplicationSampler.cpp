@@ -88,7 +88,7 @@ namespace geopm
                                              "MPI_Sendrecv_replace",
                                              "MPI_Ssend"};
         for (auto const &func_name : network_funcs) {
-            ret.insert(geopm_crc32_str(func_name.c_str()));
+            ret.insert(geopm::hash(func_name));
         }
         return ret;
     }

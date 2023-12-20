@@ -202,7 +202,7 @@ namespace geopm
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
-        uint64_t profile_hash = geopm_crc32_str(profile_name.c_str());
+        uint64_t profile_hash = geopm::hash(profile_name);
         record_s profile_start_record = {
            .time = time,
            .process = m_process,
@@ -217,7 +217,7 @@ namespace geopm
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
-        uint64_t profile_hash = geopm_crc32_str(profile_name.c_str());
+        uint64_t profile_hash = geopm::hash(profile_name);
         record_s profile_stop_record = {
            .time = time,
            .process = m_process,

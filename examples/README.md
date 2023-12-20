@@ -58,17 +58,10 @@ Prints all GEOPM defined error codes and a brief explanation of what
 they mean.  This is used to generate documentation for these error
 codes based on the string that is printed by the library.
 
-geopm_platform_supported
-------------------------
-Checks if the current hardware platform supports the GEOPM runtime
-requirements.  In particular it verifies the crc32 instruction output,
-checks that the CPUID is one that is supported by a GEOPM platform
-implementation, and verifies that the msr-safe driver is installed.
-
 geopmhash
 ---------
-Will hash any string given on the command line using the GEOPM crc32
-based hashing function.  This hash function is used to create a region
+Will hash any string given on the command line using the GEOPM
+hashing function.  This hash function is used to create a region
 ID from a region name.
 
 print_affinity

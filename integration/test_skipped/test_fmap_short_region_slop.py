@@ -145,9 +145,9 @@ class TestIntegration_fmap_short_region_slop(unittest.TestCase):
         """Create agent configuration objects for the fixed and dynamic cases
 
         """
-        scaling_hash = [geopmpy.hash.crc32_str('scaling_{}'.format(idx))
+        scaling_hash = [geopmpy.hash.hash_str('scaling_{}'.format(idx))
                        for idx in range(cls._num_duration)]
-        timed_hash = [geopmpy.hash.crc32_str('timed_{}'.format(idx))
+        timed_hash = [geopmpy.hash.hash_str('timed_{}'.format(idx))
                      for idx in range(cls._num_duration)]
         # Configure the agent
         # Query for the min and sticker frequency and run the
@@ -196,9 +196,9 @@ class TestIntegration_fmap_short_region_slop(unittest.TestCase):
         """
         for region_idx in range(self._num_duration):
             scaling_region_name = 'scaling_{}'.format(region_idx)
-            begin_region_hash = geopmpy.hash.crc32_str(scaling_region_name)
+            begin_region_hash = geopmpy.hash.hash_str(scaling_region_name)
             timed_region_name = 'timed_{}'.format(region_idx)
-            end_region_hash = geopmpy.hash.crc32_str(timed_region_name)
+            end_region_hash = geopmpy.hash.hash_str(timed_region_name)
             region_count = range(10)
             for policy in ('dynamic', 'fixed'):
                 in_path = 'test_{}_{}.trace-*'.format(self._test_name, policy)
@@ -404,7 +404,7 @@ def select_region(trace, region_prefix, extension=''):
     region_hash = []
     for ext in extension:
         region_name = '{}{}'.format(region_prefix, ext)
-        region_hash.append(geopmpy.hash.crc32_str(region_name))
+        region_hash.append(geopmpy.hash.hash_str(region_name))
     return trace.loc[trace['REGION_HASH'].isin(region_hash)]
 
 

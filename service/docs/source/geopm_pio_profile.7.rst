@@ -31,7 +31,7 @@ Signals
     * **Aggregation**: region_hash
     * **Domain**: cpu
     * **Format**: hex
-    * **Unit**: crc32 hash of region name
+    * **Unit**: hash of region name
 
 ``PROFILE::REGION_HINT``
     The region hint (see :doc:`geopm_prof(3) <geopm_prof.3>`) associated
