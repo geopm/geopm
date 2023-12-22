@@ -101,6 +101,8 @@ namespace geopm
             }
 #endif
 #endif
+            register_plugin(CpufreqSysfsDriver::plugin_name(),
+                            CpufreqSysfsDriver::make_plugin);
             register_plugin(SSTIOGroup::plugin_name(),
                             SSTIOGroup::make_plugin);
 #ifdef GEOPM_ENABLE_LEVELZERO
@@ -143,8 +145,6 @@ namespace geopm
 #endif
         register_plugin(ConstConfigIOGroup::plugin_name(),
                         ConstConfigIOGroup::make_plugin);
-        register_plugin(CpufreqSysfsDriver::plugin_name(),
-                        CpufreqSysfsDriver::make_plugin);
     }
 
     IOGroupFactory &iogroup_factory(void)
