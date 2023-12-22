@@ -86,6 +86,17 @@ static void write_resource_attribute_fd(int fd, const std::string &value)
     }
 }
 
+// Return true if this process has read access to the given path
+static bool do_have_read_access(const std::string &path)
+{
+    return access(path.c_str(), R_OK) == 0;
+}
+
+// Return true if this process has write access to the given path
+static bool do_have_write_access(const std::string &path)
+{
+    return access(path.c_str(), W_OK) == 0;
+}
 
 SysfsIOGroup::SysfsIOGroup(std::shared_ptr<SysfsDriver> driver)
     : SysfsIOGroup(driver, platform_topo(), nullptr, nullptr, nullptr)
@@ -136,7 +147,9 @@ std::set<std::string> SysfsIOGroup::signal_names(void) const
 {
     std::set<std::string> result;
     for (const auto &it : m_signals) {
-        result.insert(it.first);
+        if (do_have_read_access(m_driver->attribute_path(it.second.get().name, 0))) {
+            result.insert(it.first);
+        }
     }
     return result;
 }
@@ -146,21 +159,35 @@ std::set<std::string> SysfsIOGroup::control_names(void) const
 {
     std::set<std::string> result;
     for (const auto &it : m_controls) {
-        result.insert(it.first);
+        if (do_have_write_access(m_driver->attribute_path(it.second.get().name, 0))) {
+            result.insert(it.first);
+        }
     }
     return result;
 }
 
-// Check signal name using index map
 bool SysfsIOGroup::is_valid_signal(const std::string &signal_name) const
 {
-    return m_signals.find(signal_name) != m_signals.end();
+    auto it = m_signals.find(signal_name);
+    if (it == m_signals.end()) {
+        // The IOGroup is not aware of this signal.
+        return false;
+    } else {
+        // The IOGroup is aware of this signal. But is the signal readable right now?
+        return do_have_read_access(m_driver->attribute_path(it->second.get().name, 0));
+    }
 }
 
-// Check control name using index map
 bool SysfsIOGroup::is_valid_control(const std::string &control_name) const
 {
-    return m_controls.find(control_name) != m_controls.end();
+    auto it = m_controls.find(control_name);
+    if (it == m_controls.end()) {
+        // The IOGroup is not aware of this control.
+        return false;
+    } else {
+        // The IOGroup is aware of this control. But is the control writable right now?
+        return do_have_write_access(m_driver->attribute_path(it->second.get().name, 0));
+    }
 }
 
 // Return domain for all valid signals
