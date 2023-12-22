@@ -35,15 +35,13 @@ using geopm::PlatformTopo;
 
 namespace geopm
 {
-
 static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
-// Open a cpufreq attribute file for a given cpufreq resource. Return the opened
-// fd. Caller takes ownership of closing the fd.
-static int open_resource_attribute(const std::string& path, bool do_write)
+// Open a cpufreq attribute file for a given cpufreq resource. Return the opened fd.
+static UniqueFd open_resource_attribute(const std::string& path, bool do_write)
 {
-    int fd = open(path.c_str(), do_write ? O_WRONLY : O_RDONLY);
-    if (fd == -1) {
+    UniqueFd fd = open(path.c_str(), do_write ? O_WRONLY : O_RDONLY);
+    if (fd.get() == -1) {
         throw geopm::Exception("open_resource_attribute() failed to open " + path,
                                errno, __FILE__, __LINE__);
     }
@@ -131,12 +129,6 @@ SysfsIOGroup::SysfsIOGroup(
 
 SysfsIOGroup::~SysfsIOGroup()
 {
-    for (const auto &info : m_pushed_info_signal) {
-        close(info.fd);
-    }
-    for (const auto &info : m_pushed_info_control) {
-        close(info.fd);
-    }
 }
 
 // Extract the set of all signal names from the index map
@@ -216,10 +208,10 @@ int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, i
     }
     else {
         auto path = m_driver->attribute_path(cname, domain_idx);
-        int fd = open_resource_attribute(path, false);
+        UniqueFd fd = open_resource_attribute(path, false);
 
         // This is a newly-pushed signal. Give it a new index.
-        m_pushed_info_signal.push_back(m_pushed_info_s{fd, signal_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(cname), m_driver->control_gen(cname)});
+        m_pushed_info_signal.push_back(m_pushed_info_s{std::move(fd), signal_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(cname), m_driver->control_gen(cname)});
         signal_idx = m_pushed_info_signal.size() - 1;
     }
 
@@ -250,10 +242,10 @@ int SysfsIOGroup::push_control(const std::string &control_name, int domain_type,
     else {
         // TODO: make this obvious: why get(name).name? Because of aliases
         auto path = m_driver->attribute_path(cname, domain_idx);
-        int fd = open_resource_attribute(path, true);
+        UniqueFd fd = open_resource_attribute(path, true);
 
         // This is a newly-pushed control. Give it a new index.
-        m_pushed_info_control.push_back(m_pushed_info_s{fd, control_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(control_name), m_driver->control_gen(control_name)});
+        m_pushed_info_control.push_back(m_pushed_info_s{std::move(fd), control_name, domain_type, domain_idx, NAN, false, std::make_shared<int>(0), {}, m_driver->signal_parse(control_name), m_driver->control_gen(control_name)});
         control_idx = m_pushed_info_control.size() - 1;
     }
     return control_idx;
@@ -268,7 +260,7 @@ void SysfsIOGroup::read_batch(void)
         }
         for (auto &info : m_pushed_info_signal) {
             m_batch_reader->prep_read(
-                info.last_io_return, info.fd, info.buf.data(), info.buf.size(), 0);
+                info.last_io_return, info.fd.get(), info.buf.data(), info.buf.size(), 0);
         }
         m_batch_reader->submit();
         for (auto &info : m_pushed_info_signal) {
@@ -305,7 +297,7 @@ void SysfsIOGroup::write_batch(void)
             }
             std::strncpy(info.buf.data(), setting.c_str(), info.buf.size());
             m_batch_writer->prep_write(
-                info.last_io_return, info.fd, info.buf.data(),
+                info.last_io_return, info.fd.get(), info.buf.data(),
                 static_cast<unsigned>(setting.length() + 1), 0);
         }
     }
@@ -351,10 +343,8 @@ void SysfsIOGroup::adjust(int batch_idx, double setting)
 double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
 {
     std::string cname = check_request(__FUNCTION__, signal_name, "", domain_type, domain_idx);
-    int fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), false);
-    double read_value = m_driver->signal_parse(cname)(read_resource_attribute_fd(fd));
-    // TODO (dcw): wrap in auto-cleanup for throws
-    close(fd);
+    UniqueFd fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), false);
+    double read_value = m_driver->signal_parse(cname)(read_resource_attribute_fd(fd.get()));
     return read_value;
 }
 
@@ -362,10 +352,8 @@ double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type
 void SysfsIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
 {
     std::string cname = check_request(__FUNCTION__, "", control_name, domain_type, domain_idx);
-    int fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), true);
-    write_resource_attribute_fd(fd, m_driver->control_gen(cname)(setting));
-    // TODO (dcw): wrap in auto-cleanup for throws
-    close(fd);
+    UniqueFd fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), true);
+    write_resource_attribute_fd(fd.get(), m_driver->control_gen(cname)(setting));
 }
 
 void SysfsIOGroup::save_control(void)
@@ -508,5 +496,4 @@ std::string SysfsIOGroup::check_request(const std::string &method_name,
     }
     return cname;
 }
-
-}
+    }
