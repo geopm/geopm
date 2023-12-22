@@ -84,7 +84,7 @@ namespace geopm
     {
         auto resource_it = M_CPUFREQ_RESOURCE_BY_CPU.find(domain_idx);
         if (resource_it == M_CPUFREQ_RESOURCE_BY_CPU.end()) {
-            throw Exception("CpufreqSysfsDriver::signal_path(): domain_idx "
+            throw Exception("CpufreqSysfsDriver::attribute_path(): domain_idx "
                             + std::to_string(domain_idx)
                             + " does not have a cpufreq entry.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -92,7 +92,7 @@ namespace geopm
 
         auto property_it = M_PROPERTIES.find(name);
         if (property_it == M_PROPERTIES.end()) {
-            throw Exception("CpufreqSysfsDriver::signal_path(): No such signal "
+            throw Exception("CpufreqSysfsDriver::attribute_path(): No such signal "
                             + name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
