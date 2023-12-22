@@ -6,9 +6,11 @@
 #ifndef SYSFSIOGROUP_HPP_INCLUDE
 #define SYSFSIOGROUP_HPP_INCLUDE
 
+#include "SysfsDriver.hpp"
+#include "UniqueFd.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "SysfsDriver.hpp"
+
 #include <functional>
 
 namespace geopm
@@ -77,7 +79,7 @@ class SysfsIOGroup : public IOGroup
 
         // Information about a single pushed signal or control
         struct m_pushed_info_s {
-            int fd;
+            UniqueFd fd;
             std::string name;
             int domain_type;
             int domain_idx;
