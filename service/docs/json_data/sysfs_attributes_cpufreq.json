@@ -64,7 +64,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": "CPU_FREQUENCY_STATUS"
+            "alias": ""
         },
         "SCALING_MAX_FREQ": {
             "attribute": "scaling_max_freq",
@@ -97,7 +97,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": "CPU_FREQUENCY_MAX_CONTROL"
+            "alias": "CPU_FREQUENCY_DESIRED_CONTROL"
         }
     }
 }
