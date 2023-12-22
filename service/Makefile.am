@@ -328,6 +328,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/TimeSignal.cpp \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \
+                       src/UniqueFd.cpp \
+                       src/UniqueFd.hpp \
                        src/geopm_hash.cpp \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \

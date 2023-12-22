@@ -412,6 +412,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/TimeIOGroupTest.read_signal \
               test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
               test/gtest_links/TimeIOGroupTest.sample \
+              test/gtest_links/UniqueFdTest.closes_when_out_of_scope \
+              test/gtest_links/UniqueFdTest.transfers_close_responsibility_on_move \
               # end
 
 TESTS_ENVIRONMENT = PYTHON='$(PYTHON)'
@@ -493,6 +495,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/SSTSignalTest.cpp \
                           test/SSTIOTest.cpp \
                           test/TimeIOGroupTest.cpp \
+                          test/UniqueFdTest.cpp \
                           # end
 
 test_geopm_test_LDADD = libgeopmd.la \
