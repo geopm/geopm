@@ -12,13 +12,11 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
-#ifndef GEOPM_TEST
-#include <cpuid.h>
-#endif
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
+#include "Cpuid.hpp"
 #include "config.h"
 
 #define GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME "CPUINFO"
@@ -50,17 +48,7 @@ namespace geopm
 
     static double read_cpuid_freq_sticker(void)
     {
-        double result = NAN;
-        uint32_t leaf = 0x16; //processor frequency info
-        uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
-        const uint32_t sticker_mask = 0xFFFF;
-        const uint32_t unit_factor = 1e6;
-
-        __get_cpuid(leaf, &eax, &ebx, &ecx, &edx);
-
-        result = (eax & sticker_mask) * unit_factor;
-
-        return result;
+        return Cpuid::make_unique()->freq_sticker();
     }
 
     static double read_cpu_freq_sticker(void)
@@ -75,20 +63,22 @@ namespace geopm
 
     CpuinfoIOGroup::CpuinfoIOGroup()
         :CpuinfoIOGroup("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
-                        "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+                        "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq",
+                        read_cpu_freq_sticker())
     {
 
     }
 
     CpuinfoIOGroup::CpuinfoIOGroup(const std::string &cpu_freq_min_path,
-                                   const std::string &cpu_freq_max_path)
+                                   const std::string &cpu_freq_max_path,
+                                   double cpu_freq_sticker)
         : m_signal_available({{"CPUINFO::FREQ_MIN", {
                                    read_cpu_freq(cpu_freq_min_path),
                                    M_UNITS_HERTZ,
                                    Agg::expect_same,
                                    "Minimum processor frequency"}},
                               {"CPUINFO::FREQ_STICKER", {
-                                   read_cpu_freq_sticker(),
+                                   cpu_freq_sticker,
                                    M_UNITS_HERTZ,
                                    Agg::expect_same,
                                    "Processor base frequency"}},

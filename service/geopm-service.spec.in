@@ -63,7 +63,7 @@ BuildRequires: python-rpm-macros
 %endif
 
 %define compdir %(pkg-config --variable=completionsdir bash-completion)
-%if "x%{compdir}" == "x"
+%if "x%{?compdir}" == "x"
 %define compdir "%{_sysconfdir}/bash_completion.d"
 %endif
 
@@ -75,7 +75,6 @@ BuildRequires: python-rpm-macros
 
 Requires: python%{python3_pkgversion}-geopmdpy = %{version}
 Requires: libgeopmd2 = %{version}
-ExclusiveArch: x86_64
 
 %description
 
@@ -122,6 +121,10 @@ Group: System/Libraries
 %define io_uring_option --disable-io-uring
 %else
 BuildRequires: liburing-devel
+%endif
+
+%if "%{_arch}" != "x86_64"
+%define cpuid_option --disable-cpuid
 %endif
 
 %description -n libgeopmd2
@@ -185,6 +188,7 @@ CC=gcc CXX=g++ \
             --with-bash-completion-dir=%{compdir} \
             %{?level_zero_option} \
             %{?io_uring_option} \
+            %{?cpuid_option} \
             || ( cat config.log && false )
 
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \

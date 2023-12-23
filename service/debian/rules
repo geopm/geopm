@@ -4,14 +4,17 @@ DESTDIR = $(CURDIR)/debian/tmp
 prefix = /usr
 SOURCES_DIR = $(CURDIR)/../SOURCES
 
+DPKG_EXPORT_BUILDFLAGS := 1
 include /usr/share/dpkg/default.mk
 include /usr/share/dpkg/buildtools.mk
+include /usr/share/dpkg/architecture.mk
 
 %:
 	dh $@ --with  python3 --buildsystem=pybuild
 
 override_dh_auto_configure:
 	test -f configure || ./autogen.sh
+	if [ "$(DEB_BUILD_ARCH)" != "amd64" ]; then CPUID_OPTION="--disable-cpuid"; fi; \
 	./configure \
           --prefix=$(prefix) \
           --includedir=$(prefix)/include \
@@ -19,7 +22,9 @@ override_dh_auto_configure:
           --mandir=$(prefix)/share/man \
           --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
           --with-bash-completion-dir=/etc/bash_completion.d \
-          --enable-nvml
+          --enable-nvml \
+          $(CPUID_OPTION)
+
 
 override_dh_auto_test:
 	# make check # TODO Fix issue #2999

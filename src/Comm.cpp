@@ -8,7 +8,6 @@
 #include "Comm.hpp"
 
 #include <inttypes.h>
-#include <cpuid.h>
 #include <string>
 #include <sstream>
 #include <dlfcn.h>

@@ -452,6 +452,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRFieldControlTest.cpp \
                           test/MSRFieldSignalTest.cpp \
+                          test/MockCpuid.hpp \
                           test/MockGPUTopo.hpp \
                           test/MockBatchClient.hpp \
                           test/MockBatchStatus.hpp \

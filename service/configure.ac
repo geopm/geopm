@@ -155,6 +155,28 @@ else
   ENABLE_RAWMSR=False
 fi
 
+AC_ARG_ENABLE([cpuid],
+  [AS_HELP_STRING([--disable-cpuid], [Disable direct use of standard msr(4) device driver])],
+[if test "x$enable_cpuid" = "xno" ; then
+  enable_cpuid="0"
+else
+  enable_cpuid="1"
+fi
+],
+[enable_cpuid="1"]
+)
+
+AC_SUBST([enable_cpuid])
+AM_CONDITIONAL([ENABLE_CPUID], [test "x$enable_cpuid" = "x1"])
+
+if test "x$enable_cpuid" = "x1" ; then
+  ENABLE_CPUID=True
+  AC_DEFINE([GEOPM_ENABLE_CPUID], [ ], [Enable use of the cpuid.h interfaces])
+else
+  ENABLE_CPUID=False
+fi
+
+
 AC_ARG_WITH([bash-completion-dir], [AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
             [Install the bash auto-completion script in this directory. @<:@default=yes@:>@])])
 if test "x$with_bash_completion_dir" = "x"; then
@@ -391,6 +413,12 @@ AC_CHECK_LIB([z], [crc32], [], [
 AC_CHECK_HEADER([zlib.h], [], [
     echo "missing zlib.h: Required for crc32 interface"
     exit -1])
+
+if test "x$enable_cpuid" = "x1" ; then
+    AC_CHECK_HEADER([cpuid.h], [], [
+        echo "missing cpuid.h: cpuid interface may be disabled with the --disable-cpuid option"
+        exit -1])
+fi
 
 if test "x$enable_systemd" = "x1" ; then
     AC_CHECK_LIB([systemd], [sd_bus_open_system], [], [

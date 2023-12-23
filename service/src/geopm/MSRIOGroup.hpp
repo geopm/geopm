@@ -17,6 +17,7 @@
 
 #include "IOGroup.hpp"
 #include "geopm_time.h"
+#include "Cpuid.hpp"
 
 namespace geopm
 {
@@ -25,6 +26,7 @@ namespace geopm
     class Signal;
     class Control;
     class SaveControl;
+    class Cpuid;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
@@ -45,7 +47,7 @@ namespace geopm
             MSRIOGroup(bool use_msr_safe);
             MSRIOGroup(const PlatformTopo &platform_topo,
                        std::shared_ptr<MSRIO> msrio,
-                       int cpuid,
+                       std::shared_ptr<Cpuid> cpuid,
                        int num_cpu,
                        std::shared_ptr<SaveControl> save_control);
             virtual ~MSRIOGroup() = default;
@@ -94,8 +96,6 @@ namespace geopm
             /// @return String formatted to be written to an msr-safe
             ///         allowlist file.
             static std::string msr_allowlist(int cpuid);
-            /// @brief Get the cpuid of the current platform.
-            static int cpuid(void);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
             static std::unique_ptr<IOGroup> make_plugin_safe(void);
@@ -208,7 +208,7 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<MSRIO> m_msrio;
             int m_save_restore_ctx;
-            int m_cpuid;
+            std::shared_ptr<Cpuid> m_cpuid;
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
@@ -219,31 +219,14 @@ namespace geopm
             std::shared_ptr<geopm_time_s> m_time_zero;
             std::shared_ptr<double> m_time_batch;
 
-            /// @brief Return the Intel Hardware P-States
-            ///        enabled information
-            bool get_hwp_enabled(void);
             bool m_is_hwp_enabled;
 
-            struct rdt_info
-            {
-                bool rdt_support;
-                uint32_t rmid_bit_width;
-                uint32_t mbm_scalar;
-            };
-            rdt_info m_rdt_info;
+            Cpuid::rdt_info_s m_rdt_info;
 
             uint32_t m_pmc_bit_width;
 
             int m_derivative_window;
             double m_sleep_time;
-
-            /// @brief Return the Intel Resource Director Technology
-            ///        support information
-            static rdt_info get_rdt_info(void);
-
-            /// @brief Return the Intel Performance Monitoring Counter
-            ///        support information
-            static uint32_t get_pmc_bit_width(void);
 
             // All available signals: map from name to signal_info.
             // The signals vector is over the indices for the domain.
