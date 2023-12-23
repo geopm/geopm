@@ -220,6 +220,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/ConstConfigIOGroup.cpp \
                        src/ConstConfigIOGroup.hpp \
                        src/Control.hpp \
+                       src/Cpuid.cpp \
+                       src/Cpuid.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
                        src/DCGMDevicePool.hpp \

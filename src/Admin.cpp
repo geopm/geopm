@@ -6,7 +6,6 @@
 #include "config.h"
 
 #include <cmath>
-#include <cpuid.h>
 #include <memory>
 #include <sstream>
 
@@ -18,6 +17,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm/MSRIOGroup.hpp"
 #include "OptionParser.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 
 namespace geopm
@@ -25,7 +25,7 @@ namespace geopm
     Admin::Admin()
         : Admin(geopm::environment().default_config_path(),
                 geopm::environment().override_config_path(),
-                MSRIOGroup::cpuid())
+                geopm_read_cpuid())
     {
 
     }

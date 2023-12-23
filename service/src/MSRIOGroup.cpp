@@ -8,7 +8,6 @@
 #include "geopm/MSRIOGroup.hpp"
 
 #include <stdlib.h>
-#include <cpuid.h>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
@@ -40,6 +39,7 @@
 #include "geopm_debug.hpp"
 #include "SaveControl.hpp"
 #include "SecurePath.hpp"
+#include "Cpuid.hpp"
 
 using json11::Json;
 
@@ -143,12 +143,12 @@ namespace geopm
     MSRIOGroup::MSRIOGroup(bool use_msr_safe)
         : MSRIOGroup(platform_topo(),
                      MSRIO::make_unique(use_msr_safe ? MSRIO::M_DRIVER_MSRSAFE : MSRIO::M_DRIVER_MSR),
-                     cpuid(), geopm_sched_num_cpu(), nullptr)
+                     Cpuid::make_unique(), geopm_sched_num_cpu(), nullptr)
     {
 
     }
 
-    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, int cpuid, int num_cpu, std::shared_ptr<SaveControl> save_control)
+    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, std::shared_ptr<Cpuid> cpuid, int num_cpu, std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(topo)
         , m_msrio(std::move(msrio))
         , m_save_restore_ctx(m_msrio->create_batch_context())
@@ -159,8 +159,9 @@ namespace geopm
         , m_is_fixed_enabled(false)
         , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
-        , m_rdt_info(get_rdt_info())
-        , m_pmc_bit_width(get_pmc_bit_width())
+        , m_is_hwp_enabled(false)
+        , m_rdt_info(m_cpuid->rdt_info())
+        , m_pmc_bit_width(m_cpuid->pmc_bit_width())
         , m_derivative_window(8)
         , m_sleep_time(0.005)  // 5000 us
         , m_mock_save_ctl(std::move(save_control))
@@ -169,7 +170,7 @@ namespace geopm
         parse_json_msrs(arch_msr_json());
         try {
             // Try to extend list of MSRs if CPUID is recognized
-            parse_json_msrs(platform_data(m_cpuid));
+            parse_json_msrs(platform_data(m_cpuid->cpuid()));
         }
         catch (const Exception &ex) {
             // Only load architectural MSRs
@@ -193,8 +194,35 @@ namespace geopm
 
         // HWP enable is checked via an MSR, so we cannot do this as part of
         // the initializer if we want to use read_signal to determine capabilities
-        m_is_hwp_enabled = get_hwp_enabled();
         // If HWP is not enabled, prune all related signals/controls
+        if (m_cpuid->is_hwp_supported()) {
+            std::string signal_name = "MSR::PM_ENABLE:HWP_ENABLE";
+            int domain = signal_domain_type(signal_name);
+            int num_domain = m_platform_topo.num_domain(domain);
+            double pkg_enable = 0.0;
+            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+                try {
+                    pkg_enable += read_signal(signal_name, domain, dom_idx);
+                }
+                catch (const geopm::Exception &ex) {
+                    if (ex.err_value() != GEOPM_ERROR_MSR_READ) {
+                        throw;
+                    }
+                    break;
+                }
+            }
+            if (pkg_enable == 1.0 * num_domain) {
+                m_is_hwp_enabled = true;
+            }
+            else {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: <geopm> CpuidImp::" << std::string(__func__)
+                          << "(): Intel Hardware Performance states are not supported.  "
+                          << "Using legacy P-States for signal and control aliases." << std::endl;
+#endif
+            }
+        }
+
         if (!m_is_hwp_enabled) {
             auto all_signal_names = signal_names();
             for(const auto &name : all_signal_names) {
@@ -266,16 +294,16 @@ namespace geopm
             max_turbo_name = "MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE";
         }
         else {
-            if (m_cpuid == MSRIOGroup::M_CPUID_KNL) {
+            if (m_cpuid->cpuid() == MSRIOGroup::M_CPUID_KNL) {
                 max_turbo_name = "MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT";
             }
-            else if (m_cpuid == MSRIOGroup::M_CPUID_SNB ||
-                     m_cpuid == MSRIOGroup::M_CPUID_IVT ||
-                     m_cpuid == MSRIOGroup::M_CPUID_HSX ||
-                     m_cpuid == MSRIOGroup::M_CPUID_BDX) {
+            else if (m_cpuid->cpuid() == MSRIOGroup::M_CPUID_SNB ||
+                     m_cpuid->cpuid() == MSRIOGroup::M_CPUID_IVT ||
+                     m_cpuid->cpuid() == MSRIOGroup::M_CPUID_HSX ||
+                     m_cpuid->cpuid() == MSRIOGroup::M_CPUID_BDX) {
                 max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
             }
-            else if (m_cpuid >= MSRIOGroup::M_CPUID_SKX) {
+            else if (m_cpuid->cpuid() >= MSRIOGroup::M_CPUID_SKX) {
                 max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
             }
         }
@@ -913,127 +941,6 @@ namespace geopm
             }
         }
         m_msrio->write_batch(m_save_restore_ctx);
-    }
-
-    int MSRIOGroup::cpuid(void)
-    {
-        uint32_t key = 1; //processor features
-        uint32_t proc_info = 0;
-        uint32_t model;
-        uint32_t family;
-        uint32_t ext_model;
-        uint32_t ext_family;
-        uint32_t ebx, ecx, edx;
-        const uint32_t model_mask = 0xF0;
-        const uint32_t family_mask = 0xF00;
-        const uint32_t extended_model_mask = 0xF0000;
-        const uint32_t extended_family_mask = 0xFF00000;
-
-        __get_cpuid(key, &proc_info, &ebx, &ecx, &edx);
-
-        model = (proc_info & model_mask) >> 4;
-        family = (proc_info & family_mask) >> 8;
-        ext_model = (proc_info & extended_model_mask) >> 16;
-        ext_family = (proc_info & extended_family_mask) >> 20;
-
-        if (family == 6) {
-            model+=(ext_model << 4);
-        }
-        else if (family == 15) {
-            model+=(ext_model << 4);
-            family+=ext_family;
-        }
-
-        return ((family << 8) + model);
-    }
-
-    bool MSRIOGroup::get_hwp_enabled(void)
-    {
-        uint32_t leaf = 6; //thermal and power management features
-        uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
-        const uint32_t hwp_mask = 0x80;
-        bool supported, enabled = false;
-        __get_cpuid(leaf, &eax, &ebx, &ecx, &edx);
-
-        supported = (bool)((eax & hwp_mask) >> 7);
-
-        if (supported) {
-            std::string signal_name = "MSR::PM_ENABLE:HWP_ENABLE";
-            int domain = signal_domain_type(signal_name);
-            int num_domain = m_platform_topo.num_domain(domain);
-            double pkg_enable = 0.0;
-            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
-                try {
-                    pkg_enable += read_signal(signal_name, domain, dom_idx);
-                }
-                catch (const geopm::Exception &ex) {
-                    if (ex.err_value() != GEOPM_ERROR_MSR_READ) {
-                        throw;
-                    }
-                    break;
-                }
-            }
-            if (pkg_enable == 1.0 * num_domain) {
-                enabled = true;
-            }
-            else {
-#ifdef GEOPM_DEBUG
-                std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
-                          << "(): Intel Hardware Performance states are not supported.  "
-                          << "Using legacy P-States for signal and control aliases." << std::endl;
-#endif
-            }
-        }
-
-        return enabled;
-    }
-
-    MSRIOGroup::rdt_info MSRIOGroup::get_rdt_info(void)
-    {
-        uint32_t leaf, subleaf = 0;
-        uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
-        bool supported = false;
-        uint32_t max, scale = 0;
-
-        leaf = 0x0F;
-        subleaf = 0;
-
-        __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
-        supported = (bool)((edx >> 1) & 1);
-        max = ebx;
-
-        if (supported == true) {
-            subleaf = 1;
-            eax = 0;
-            ebx = 0;
-            ecx = 0;
-            edx = 0;
-            __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
-            scale = ebx;
-        }
-
-        rdt_info rdt = {
-            .rdt_support = supported,
-            .rmid_bit_width = (uint32_t)ceil(log2((double)max + 1)),
-            .mbm_scalar = scale
-        };
-
-        return rdt;
-    }
-
-    uint32_t MSRIOGroup::get_pmc_bit_width(void)
-    {
-        uint32_t leaf, subleaf = 0;
-        uint32_t eax, ebx, ecx, edx = 0;
-
-        leaf = 0x0A;
-        subleaf = 0;
-
-        __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
-
-        // SDM vol 3b, section 18 specifies where to find how many PMC bits are
-        // available
-        return (eax >> 16) & 0xff;
     }
 
     void MSRIOGroup::register_signal_alias(const std::string &signal_name,
