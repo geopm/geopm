@@ -405,6 +405,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/SSTIOTest.write_mbox_once \
               test/gtest_links/SSTIOTest.write_mmio_once \
               test/gtest_links/SSTIOTest.get_punit_from_cpu \
+              test/gtest_links/SysfsIOGroupTest.valid_signal_names \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.is_valid \
               test/gtest_links/TimeIOGroupTest.push \
@@ -478,6 +479,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/MockSignal.hpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
+                          test/MockSysfsDriver.hpp \
                           test/MockPOSIXSignal.hpp \
                           test/NVMLGPUTopoTest.cpp \
                           test/NVMLIOGroupTest.cpp \
@@ -494,6 +496,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/SSTIOGroupTest.cpp \
                           test/SSTSignalTest.cpp \
                           test/SSTIOTest.cpp \
+                          test/SysfsIOGroupTest.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/UniqueFdTest.cpp \
                           # end
