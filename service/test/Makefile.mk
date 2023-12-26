@@ -406,6 +406,11 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/SSTIOTest.write_mmio_once \
               test/gtest_links/SSTIOTest.get_punit_from_cpu \
               test/gtest_links/SysfsIOGroupTest.valid_signal_names \
+              test/gtest_links/SysfsIOGroupTest.valid_control_names \
+              test/gtest_links/SysfsIOGroupTest.signal_domain_type \
+              test/gtest_links/SysfsIOGroupTest.control_domain_type \
+              test/gtest_links/SysfsIOGroupTest.batch_reads \
+              test/gtest_links/SysfsIOGroupTest.batch_writes \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.is_valid \
               test/gtest_links/TimeIOGroupTest.push \
