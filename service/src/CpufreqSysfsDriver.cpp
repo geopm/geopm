@@ -7,10 +7,10 @@
 
 #include "CpufreqSysfsDriver.hpp"
 
-#include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "geopm/Helper.hpp"
 #include "SysfsIOGroup.hpp"
 
 #include <cmath>
@@ -24,21 +24,15 @@ static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
 static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::string &cpufreq_directory)
 {
-    struct dirent *dir;
     char cpu_buf[geopm::SysfsDriver::M_IO_BUFFER_SIZE] = {0};
-    static std::map<int, std::string> result;
-    std::unique_ptr<DIR, int (*)(DIR *)> cpufreq_directory_object(opendir(cpufreq_directory.c_str()), &closedir);
-    if (!cpufreq_directory_object) {
-        throw geopm::Exception("SysfsIOGroup failed to open " + cpufreq_directory,
-                               errno, __FILE__, __LINE__);
-    }
-    while ((dir = readdir(cpufreq_directory_object.get())) != NULL) {
-        if (strncmp(dir->d_name, "policy", sizeof "policy" - 1) != 0) {
+    std::map<int, std::string> result;
+    for (const auto &policy_file : geopm::list_directory_files(cpufreq_directory)) {
+        if (policy_file.find("policy") != 0) {
             continue;
         }
 
         std::ostringstream oss;
-        oss << cpufreq_directory << "/" << dir->d_name;
+        oss << cpufreq_directory << "/" << policy_file;
         auto resource_path = oss.str();
         oss << "/affected_cpus";
         auto cpu_map_path = oss.str();
@@ -67,9 +61,15 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::strin
 namespace geopm
 {
     const std::string cpufreq_sysfs_json(void);
+
     CpufreqSysfsDriver::CpufreqSysfsDriver()
-        : M_PROPERTIES {SysfsDriver::parse_properties_json(plugin_name(), cpufreq_sysfs_json())}
-        , M_CPUFREQ_RESOURCE_BY_CPU(load_cpufreq_resources_by_cpu(CPUFREQ_DIRECTORY))
+        : CpufreqSysfsDriver(CPUFREQ_DIRECTORY)
+    {
+    }
+
+    CpufreqSysfsDriver::CpufreqSysfsDriver(const std::string &cpufreq_directory)
+        : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), cpufreq_sysfs_json())}
+        , M_CPUFREQ_RESOURCE_BY_CPU(load_cpufreq_resources_by_cpu(cpufreq_directory))
     {
 
     }
@@ -120,7 +120,7 @@ namespace geopm
     {
         double scaling_factor = M_PROPERTIES.at(control_name).scaling_factor;
         return [scaling_factor](double value) {
-            return std::to_string(static_cast<long long int>(value / scaling_factor));
+            return std::to_string(std::llround(value / scaling_factor));
         };
     }
 

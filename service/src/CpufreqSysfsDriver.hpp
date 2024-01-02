@@ -20,6 +20,7 @@ namespace geopm
     {
         public:
             CpufreqSysfsDriver();
+            CpufreqSysfsDriver(const std::string &cpufreq_directory);
             virtual ~CpufreqSysfsDriver() = default;
             int domain_type(const std::string &name) const override;
             std::string attribute_path(const std::string &name,
