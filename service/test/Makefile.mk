@@ -91,6 +91,11 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ConstConfigIOGroupTest.loads_default_config \
               test/gtest_links/ConstConfigIOGroupTest.loads_only_host_signals \
               test/gtest_links/ConstConfigIOGroupTest.no_default_config \
+              test/gtest_links/CpufreqSysfsDriverTest.iogroup_plugin_name_matches_driver_name \
+              test/gtest_links/CpufreqSysfsDriverTest.domain_type_is_cpu \
+              test/gtest_links/CpufreqSysfsDriverTest.attribute_path \
+              test/gtest_links/CpufreqSysfsDriverTest.signal_parse \
+              test/gtest_links/CpufreqSysfsDriverTest.control_gen \
               test/gtest_links/CpuinfoIOGroupTest.bad_min_max \
               test/gtest_links/CpuinfoIOGroupTest.bad_sticker \
               test/gtest_links/CpuinfoIOGroupTest.cpuid_sticker_not_supported \
@@ -440,6 +445,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
                           test/ConstConfigIOGroupTest.cpp \
+                          test/CpufreqSysfsDriverTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/DCGMIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \

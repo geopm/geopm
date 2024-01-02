@@ -479,7 +479,7 @@ int SysfsIOGroup::signal_behavior(const std::string &signal_name) const
 
 std::string SysfsIOGroup::name(void) const
 {
-    return "cpufreq";
+    return m_driver->driver();
 }
 
 std::string SysfsIOGroup::canonical_name(const std::string &name) const
