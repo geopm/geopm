@@ -5,19 +5,20 @@
 
 #include "CpufreqSysfsDriver.hpp"
 
-#include <array>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "geopm/IOGroup.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/IOGroup.hpp"
 #include "geopm_topo.h"
+#include "test/MockPlatformTopo.hpp"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <memory>
 
@@ -92,6 +93,7 @@ class CpufreqSysfsDriverTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        std::shared_ptr<MockPlatformTopo> m_topo;
         std::unique_ptr<CpufreqFakeDirManager> m_dir_manager;
         std::unique_ptr<SysfsDriver> m_driver;
         std::map<std::string, SysfsDriver::properties_s> m_driver_properties;
@@ -100,10 +102,11 @@ class CpufreqSysfsDriverTest : public ::testing::Test
 
 void CpufreqSysfsDriverTest::SetUp()
 {
-    m_exposed_cpu = 10;
+    m_topo = make_topo(2 /*packages*/, 4 /*cores*/, 8 /*cpus*/);
+    m_exposed_cpu = 2;
     m_dir_manager = std::make_unique<CpufreqFakeDirManager>("/tmp/CpufreqsysfsDriverTest_XXXXXX");
     m_dir_manager->write_file_in_policy("affected_cpus", std::to_string(m_exposed_cpu));
-    m_driver = std::make_unique<CpufreqSysfsDriver>(m_dir_manager->get_driver_dir());
+    m_driver = std::make_unique<CpufreqSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
     m_driver_properties = m_driver->properties();
 }
 
@@ -113,10 +116,31 @@ TEST_F(CpufreqSysfsDriverTest, iogroup_plugin_name_matches_driver_name)
     EXPECT_EQ("CPUFREQ", CpufreqSysfsDriver::plugin_name());
 }
 
-TEST_F(CpufreqSysfsDriverTest, domain_type_is_cpu)
+TEST_F(CpufreqSysfsDriverTest, domain_type_is_detected_from_driver)
 {
-    for (const auto &attribute_properties : m_driver_properties) {
+    m_dir_manager->write_file_in_policy("affected_cpus", "0");
+    m_driver = std::make_unique<CpufreqSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
+    m_driver_properties = m_driver->properties();
+    for (const auto &attribute_properties : m_driver->properties()) {
         EXPECT_EQ(GEOPM_DOMAIN_CPU, m_driver->domain_type(attribute_properties.first));
+    }
+
+    m_dir_manager->write_file_in_policy("affected_cpus", "0 4" /* both in core 0 */);
+    m_driver = std::make_unique<CpufreqSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
+    for (const auto &attribute_properties : m_driver->properties()) {
+        EXPECT_EQ(GEOPM_DOMAIN_CORE, m_driver->domain_type(attribute_properties.first));
+    }
+
+    m_dir_manager->write_file_in_policy("affected_cpus", "0 1 4 5" /* all in package 0 */);
+    m_driver = std::make_unique<CpufreqSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
+    for (const auto &attribute_properties : m_driver->properties()) {
+        EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_driver->domain_type(attribute_properties.first));
+    }
+
+    m_dir_manager->write_file_in_policy("affected_cpus", "0 1 2 3 4 5 6 7");
+    m_driver = std::make_unique<CpufreqSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
+    for (const auto &attribute_properties : m_driver->properties()) {
+        EXPECT_EQ(GEOPM_DOMAIN_BOARD, m_driver->domain_type(attribute_properties.first));
     }
 }
 

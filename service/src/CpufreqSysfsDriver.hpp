@@ -6,21 +6,24 @@
 #ifndef CPUFREQSYSFSDRIVER_HPP_INCLUDE
 #define CPUFREQSYSFSDRIVER_HPP_INCLUDE
 
-#include <vector>
-#include <map>
-
 #include "SysfsDriver.hpp"
+#include "geopm_topo.h"
+
+#include <map>
+#include <vector>
 
 namespace geopm
 {
     class IOGroup;
+    class PlatformTopo;
 
     /// @brief Class used to implement the CpufreqSysfsDriverGroup
     class CpufreqSysfsDriver: public SysfsDriver
     {
         public:
             CpufreqSysfsDriver();
-            CpufreqSysfsDriver(const std::string &cpufreq_directory);
+            CpufreqSysfsDriver(const PlatformTopo &topo,
+                               const std::string &cpufreq_directory);
             virtual ~CpufreqSysfsDriver() = default;
             int domain_type(const std::string &name) const override;
             std::string attribute_path(const std::string &name,
@@ -34,6 +37,8 @@ namespace geopm
         private:
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
             const std::map<int, std::string> M_CPUFREQ_RESOURCE_BY_CPU;
+            geopm_domain_e m_domain;
+            const geopm::PlatformTopo &m_topo;
   };
 }
 

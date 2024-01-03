@@ -8,6 +8,8 @@
 #include "geopm/Exception.hpp"
 
 using geopm::Exception;
+using ::testing::_;
+using ::testing::Invoke;
 using ::testing::Return;
 
 std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int num_cpu)
@@ -40,13 +42,23 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
         .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE))
         .WillByDefault(Return(true));
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU))
+        .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(true));
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_CORE))
+        .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(true));
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_PACKAGE))
+        .WillByDefault(Return(true));
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_BOARD))
+        .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_BOARD))
+        .WillByDefault(Return(true));
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_MEMORY))
         .WillByDefault(Return(true));
 
     // expectations for domain_nested
@@ -95,6 +107,17 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
         ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, cpu_idx))
             .WillByDefault(Return(std::set<int>{cpu_idx}));
     }
+
+    // expectations for domain_idx
+    ON_CALL(*topo, domain_idx(GEOPM_DOMAIN_CPU, _))
+        .WillByDefault(Invoke([](int, int cpu_idx){ return cpu_idx; }));
+    ON_CALL(*topo, domain_idx(GEOPM_DOMAIN_CORE, _))
+        .WillByDefault(Invoke([num_core](int, int cpu_idx){ return cpu_idx % num_core; }));
+    ON_CALL(*topo, domain_idx(GEOPM_DOMAIN_PACKAGE, _))
+        .WillByDefault(Invoke([num_core, core_per_package](int, int cpu_idx){
+                              return (cpu_idx % num_core) / core_per_package; }));
+    ON_CALL(*topo, domain_idx(GEOPM_DOMAIN_BOARD, _))
+        .WillByDefault(Return(0));
 
     return topo;
 }
