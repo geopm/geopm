@@ -92,7 +92,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ConstConfigIOGroupTest.loads_only_host_signals \
               test/gtest_links/ConstConfigIOGroupTest.no_default_config \
               test/gtest_links/CpufreqSysfsDriverTest.iogroup_plugin_name_matches_driver_name \
-              test/gtest_links/CpufreqSysfsDriverTest.domain_type_is_cpu \
+              test/gtest_links/CpufreqSysfsDriverTest.domain_type_is_detected_from_driver \
               test/gtest_links/CpufreqSysfsDriverTest.attribute_path \
               test/gtest_links/CpufreqSysfsDriverTest.signal_parse \
               test/gtest_links/CpufreqSysfsDriverTest.control_gen \

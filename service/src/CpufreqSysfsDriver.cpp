@@ -10,8 +10,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "geopm/Helper.hpp"
 #include "SysfsIOGroup.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm_topo.h"
 
 #include <cmath>
 #include <cstring>
@@ -26,6 +28,7 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::strin
 {
     char cpu_buf[geopm::SysfsDriver::M_IO_BUFFER_SIZE] = {0};
     std::map<int, std::string> result;
+
     for (const auto &policy_file : geopm::list_directory_files(cpufreq_directory)) {
         if (policy_file.find("policy") != 0) {
             continue;
@@ -52,7 +55,10 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::strin
             throw geopm::Exception("SysfsIOGroup truncated read from " + cpu_map_path,
                                    errno, __FILE__, __LINE__);
         }
-        result.emplace(std::stoi(cpu_buf), resource_path);
+
+        for (const auto &cpu_string : geopm::string_split(cpu_buf, " ")) {
+            result.emplace(std::stoi(cpu_string), resource_path);
+        }
     }
 
     return result;
@@ -63,30 +69,64 @@ namespace geopm
     const std::string cpufreq_sysfs_json(void);
 
     CpufreqSysfsDriver::CpufreqSysfsDriver()
-        : CpufreqSysfsDriver(CPUFREQ_DIRECTORY)
+        : CpufreqSysfsDriver(platform_topo(), CPUFREQ_DIRECTORY)
     {
     }
 
-    CpufreqSysfsDriver::CpufreqSysfsDriver(const std::string &cpufreq_directory)
+    CpufreqSysfsDriver::CpufreqSysfsDriver(
+            const PlatformTopo &topo,
+            const std::string &cpufreq_directory)
         : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), cpufreq_sysfs_json())}
         , M_CPUFREQ_RESOURCE_BY_CPU(load_cpufreq_resources_by_cpu(cpufreq_directory))
+        , m_domain(GEOPM_DOMAIN_CPU)
+        , m_topo(topo)
     {
-
+        std::vector<geopm_domain_e> cpu_nested_domains = {
+            GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD};
+        for (auto outer_domain : cpu_nested_domains) {
+            std::set<int> affected_domain_indices;
+            bool is_correct_domain = true;
+            for (const auto &cpu_resource : M_CPUFREQ_RESOURCE_BY_CPU) {
+                auto affected_cpu = cpu_resource.first;
+                affected_domain_indices.insert(m_topo.domain_idx(outer_domain, affected_cpu));
+                if (affected_domain_indices.size() > 1) {
+                    // The CPUs in this group span across multiple
+                    // indices in the current topology domain, so their
+                    // minimal common domain is at a more coarse level.
+                    is_correct_domain = false;
+                    break;
+                }
+            }
+            if (is_correct_domain && m_topo.is_nested_domain(m_domain, outer_domain)) {
+                // This cpufreq policy spans a domain that is more coarse
+                // than the most-coarse scope observed so far.
+                m_domain = outer_domain;
+                break;
+            }
+        }
     }
 
     int CpufreqSysfsDriver::domain_type(const std::string &) const
     {
-        return GEOPM_DOMAIN_CPU;
+        return m_domain;
     }
 
     std::string CpufreqSysfsDriver::attribute_path(const std::string &name,
                                                    int domain_idx)
     {
-        auto resource_it = M_CPUFREQ_RESOURCE_BY_CPU.find(domain_idx);
+        auto cpus_in_domain_idx = m_topo.domain_nested(GEOPM_DOMAIN_CPU, m_domain, domain_idx);
+
+        auto resource_it = M_CPUFREQ_RESOURCE_BY_CPU.end();
+        for (auto cpu_idx : cpus_in_domain_idx) {
+            resource_it = M_CPUFREQ_RESOURCE_BY_CPU.find(cpu_idx);
+            if (resource_it != M_CPUFREQ_RESOURCE_BY_CPU.end()) {
+                // Multiple CPUs may map to this domain_idx, but we only
+                // need to use the first mapping discovered.
+                break;
+            }
+        }
         if (resource_it == M_CPUFREQ_RESOURCE_BY_CPU.end()) {
-            throw Exception("CpufreqSysfsDriver::attribute_path(): domain_idx "
-                            + std::to_string(domain_idx)
-                            + " does not have a cpufreq entry.",
+            throw Exception("CpufreqSysfsDriver::attribute_path(): domain_idx " + std::to_string(domain_idx) + " does not have a cpufreq entry.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
