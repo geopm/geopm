@@ -523,6 +523,11 @@ namespace geopm
 
         for (size_t i = 0; i < values.size(); ++i) {
             auto it = lscpu_map.find(keys[i]);
+            if (it == lscpu_map.end() && keys[i] == "Core(s) per socket") {
+                keys[i] = "Core(s) per cluster";
+                keys[i+1] = "Cluster(s)";
+                it = lscpu_map.find(keys[i]);
+            }
             if (it == lscpu_map.end()) {
                 throw Exception("PlatformTopoImp: parsing lscpu output, key not found: \"" + keys[i] + "\"",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
