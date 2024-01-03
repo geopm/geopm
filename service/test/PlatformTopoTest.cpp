@@ -50,6 +50,7 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_no0x_lscpu_str;
         std::string m_no_numa_lscpu_str;
         std::string m_spr_lscpu_str;
+        std::string m_arm_lscpu_str;
         std::string m_gpu_str;
         std::string m_gpu_lscpu_str;
         std::string m_lscpu_str;
@@ -299,6 +300,37 @@ void PlatformTopoTest::SetUp()
         "GPU chip10 CPU(s): 170,172,174,176,178,180,182,184,186,188,190,192,194,196,198,200,202\n"
         "GPU chip11 CPU(s): 171,173,175,177,179,181,183,185,187,189,191,193,195,197,199,201,203\n";
     m_gpu_lscpu_str = m_spr_lscpu_str + m_gpu_str;
+    m_arm_lscpu_str =
+        "Architecture:                       aarch64\n"
+        "CPU op-mode(s):                     32-bit, 64-bit\n"
+        "Byte Order:                         Little Endian\n"
+        "CPU(s):                             8\n"
+        "On-line CPU(s) mask:                ff\n"
+        "Vendor ID:                          ARM\n"
+        "Model name:                         Neoverse-N1\n"
+        "Model:                              1\n"
+        "Thread(s) per core:                 1\n"
+        "Core(s) per cluster:                8\n"
+        "Socket(s):                          -\n"
+        "Cluster(s):                         1\n"
+        "Stepping:                           r3p1\n"
+        "BogoMIPS:                           50.08\n"
+        "Flags:                              fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp ssbs\n"
+        "NUMA node(s):                       1\n"
+        "NUMA node0 CPU(s):                  ff\n"
+        "Vulnerability Gather data sampling: Not affected\n"
+        "Vulnerability Itlb multihit:        Not affected\n"
+        "Vulnerability L1tf:                 Not affected\n"
+        "Vulnerability Mds:                  Not affected\n"
+        "Vulnerability Meltdown:             Not affected\n"
+        "Vulnerability Mmio stale data:      Not affected\n"
+        "Vulnerability Retbleed:             Not affected\n"
+        "Vulnerability Spec rstack overflow: Not affected\n"
+        "Vulnerability Spec store bypass:    Vulnerable\n"
+        "Vulnerability Spectre v1:           Mitigation; __user pointer sanitization\n"
+        "Vulnerability Spectre v2:           Mitigation; CSV2, but not BHB\n"
+        "Vulnerability Srbds:                Not affected\n"
+        "Vulnerability Tsx async abort:      Not affected\n";
     m_do_unlink = false;
 }
 
@@ -387,6 +419,23 @@ TEST_F(PlatformTopoTest, gpu_num_domain)
     EXPECT_EQ(12, topo.num_domain(GEOPM_DOMAIN_GPU_CHIP));
 
     EXPECT_THROW(topo.num_domain(GEOPM_DOMAIN_INVALID), geopm::Exception);
+}
+
+TEST_F(PlatformTopoTest, arm_num_domain)
+{
+    write_lscpu(m_arm_lscpu_str);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
+    EXPECT_EQ(8, topo.num_domain(GEOPM_DOMAIN_CORE));
+    EXPECT_EQ(8, topo.num_domain(GEOPM_DOMAIN_CPU));
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_NIC));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_GPU));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_GPU_CHIP));
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
