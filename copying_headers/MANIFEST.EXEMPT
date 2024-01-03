@@ -173,6 +173,7 @@ service/docs/source/geopm_pio_nvml.7.rst
 service/docs/source/geopm_pio_profile.7.rst
 service/docs/source/geopm_pio_service.7.rst
 service/docs/source/geopm_pio_sst.7.rst
+service/docs/source/geopm_pio_sysfs.7.rst
 service/docs/source/geopm_pio_time.7.rst
 service/docs/source/geopm_policystore.3.rst
 service/docs/source/geopm_prof.3.rst
@@ -204,7 +205,7 @@ service/docs/json_data/msr_data_arch.json
 service/docs/json_data/msr_data_skx.json
 service/docs/json_data/msr_data_snb.json
 service/docs/json_data/msr_data_spr.json
-service/src/sysfs_attributes_cpufreq.json
+service/docs/json_data/sysfs_attributes_cpufreq.json
 service/.gitignore
 service/io.github.geopm.conf
 service/io.github.geopm.xml
@@ -222,6 +223,7 @@ service/docs/json_schemas/geopmagent_policy.schema.json
 service/docs/json_schemas/msrs.schema.json
 service/docs/json_schemas/regionhintrecommender_fmap.schema.json
 service/docs/json_schemas/saved_controls.schema.json
+service/docs/json_schemas/sysfs_attributes.schema.json
 service/shell_completion/README.md
 shell_completion/README.md
 test/EditDistPeriodicityDetectorTest.0_pattern_a.trace

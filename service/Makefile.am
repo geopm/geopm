@@ -156,6 +156,7 @@ EXTRA_DIST = .gitignore \
              docs/json_schemas/geopmagent_policy.schema.json \
              docs/json_schemas/geopmbench_config.schema.json \
              docs/json_schemas/regionhintrecommender_fmap.schema.json \
+             docs/json_schemas/sysfs_attributes.schema.json \
              requirements.txt \
              setup.py \
              src/geopm/json11.hpp \
@@ -188,13 +189,14 @@ msr_cpp_files = \
                 src/msr_data_spr.cpp \
                 # end
 EXTRA_DIST += \
-	      docs/json_data/msr_data_arch.json \
-	      docs/json_data/msr_data_hsx.json \
-	      docs/json_data/msr_data_knl.json \
-	      docs/json_data/msr_data_skx.json \
-	      docs/json_data/msr_data_snb.json \
-	      docs/json_data/msr_data_spr.json \
-	      src/json_data.cpp.in \
+              docs/json_data/msr_data_arch.json \
+              docs/json_data/msr_data_hsx.json \
+              docs/json_data/msr_data_knl.json \
+              docs/json_data/msr_data_skx.json \
+              docs/json_data/msr_data_snb.json \
+              docs/json_data/msr_data_spr.json \
+              docs/json_data/sysfs_attributes_cpufreq.json \
+              src/json_data.cpp.in \
 	      # end
 
 # Sysfs json definitions. From each json file, generate a same-prefixed cpp file,
