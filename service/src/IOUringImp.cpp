@@ -2,13 +2,16 @@
  * Copyright (c) 2015 - 2022, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include "config.h"
+
 #include "IOUringImp.hpp"
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "liburing.h"
 
 #include <memory>
+#include <liburing.h>
 
 namespace geopm
 {
@@ -101,7 +104,11 @@ namespace geopm
 
     bool IOUringImp::is_supported()
     {
+#ifdef GEOPM_IO_URING_HAS_FREE
+        std::unique_ptr<io_uring_probe, decltype(&io_uring_free_probe)> probe(io_uring_get_probe(), io_uring_free_probe);
+#else
         std::unique_ptr<io_uring_probe, decltype(&free)> probe(io_uring_get_probe(), free);
+#endif
         if (!probe) {
             return false;
         }

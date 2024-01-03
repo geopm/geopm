@@ -482,6 +482,10 @@ if test "x$enable_io_uring" = "x1" ; then
         [#define _DEFAULT_SOURCE
          #define _POSIX_C_SOURCE 200809L
          #include <liburing.h>])
+    AC_CHECK_LIB([uring], [io_uring_free_probe], [liburing_has_free=1], [liburing_has_free=0])
+    if test "x$liburing_has_free" = "x1"; then
+        AC_DEFINE([GEOPM_IO_URING_HAS_FREE], [ ], [Use io_uring_free_probe instead of free])
+    fi
 fi
 
 AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
