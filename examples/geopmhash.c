@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "geopm_hash.h"
-#include "geopm_time.h"
 
 int main(int argc, char **argv)
 {
