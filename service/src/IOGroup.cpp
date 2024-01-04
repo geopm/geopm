@@ -94,6 +94,7 @@ namespace geopm
             // msr driver once it is considered more stable.
             register_plugin(CpufreqSysfsDriver::plugin_name(),
                             CpufreqSysfsDriver::make_plugin);
+
 #ifdef GEOPM_ENABLE_CPUID
 #ifdef GEOPM_ENABLE_RAWMSR
             // Only use /dev/cpu/*/msr if configured with
@@ -131,12 +132,16 @@ namespace geopm
             }
 #endif
         }
-#ifdef GEOPM_ENABLE_SYSTEMD
         else { // not UID 0
+#ifdef GEOPM_ENABLE_SYSTEMD
             register_plugin(ServiceIOGroup::plugin_name(),
                             ServiceIOGroup::make_plugin);
-        }
 #endif
+            // May want to give this higher priority than the non-safe
+            // msr driver once it is considered more stable.
+            register_plugin(CpufreqSysfsDriver::plugin_name(),
+                            CpufreqSysfsDriver::make_plugin);
+        }
         register_plugin(TimeIOGroup::plugin_name(),
                         TimeIOGroup::make_plugin);
         register_plugin(CpuinfoIOGroup::plugin_name(),
