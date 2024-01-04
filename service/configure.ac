@@ -482,6 +482,11 @@ if test "x$enable_io_uring" = "x1" ; then
         [#define _DEFAULT_SOURCE
          #define _POSIX_C_SOURCE 200809L
          #include <liburing.h>])
+
+    # Newer versions of liburing provide an function to release probe
+    # resources, but with older versions the user must call free(3) to
+    # release the resources.  This check sets a preprocessor define
+    # to identify which is required.
     AC_CHECK_LIB([uring], [io_uring_free_probe], [liburing_has_free=1], [liburing_has_free=0])
     if test "x$liburing_has_free" = "x1"; then
         AC_DEFINE([GEOPM_IO_URING_HAS_FREE], [ ], [Use io_uring_free_probe instead of free])

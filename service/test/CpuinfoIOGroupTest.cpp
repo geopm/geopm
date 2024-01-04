@@ -10,8 +10,7 @@
 #include <memory>
 #include <cmath>
 
-#define GEOPM_TEST
-#include "src/CpuinfoIOGroup.cpp"
+#include "CpuinfoIOGroup.hpp"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
