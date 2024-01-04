@@ -27,7 +27,7 @@ namespace geopm
             virtual ~CpufreqSysfsDriver() = default;
             int domain_type(const std::string &name) const override;
             std::string attribute_path(const std::string &name,
-                                    int domain_idx) override;
+                                       int domain_idx) override;
             std::function<double(const std::string&)> signal_parse(const std::string &signal_name) const override;
             std::function<std::string(double)> control_gen(const std::string &control_name) const override;
             std::string driver(void) const override;
@@ -39,7 +39,7 @@ namespace geopm
             const std::map<int, std::string> M_CPUFREQ_RESOURCE_BY_CPU;
             geopm_domain_e m_domain;
             const geopm::PlatformTopo &m_topo;
-  };
+    };
 }
 
 #endif

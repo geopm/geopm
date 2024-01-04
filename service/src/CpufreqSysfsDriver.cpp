@@ -82,7 +82,8 @@ namespace geopm
         , m_topo(topo)
     {
         std::vector<geopm_domain_e> cpu_nested_domains = {
-            GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD};
+            GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD
+        };
         for (auto outer_domain : cpu_nested_domains) {
             std::set<int> affected_domain_indices;
             bool is_correct_domain = true;
@@ -111,8 +112,9 @@ namespace geopm
         return m_domain;
     }
 
-    std::string CpufreqSysfsDriver::attribute_path(const std::string &name,
-                                                   int domain_idx)
+    std::string CpufreqSysfsDriver::attribute_path(
+            const std::string &name,
+            int domain_idx)
     {
         auto cpus_in_domain_idx = m_topo.domain_nested(GEOPM_DOMAIN_CPU, m_domain, domain_idx);
 
@@ -136,7 +138,7 @@ namespace geopm
                             + name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        
+
         std::ostringstream oss;
         oss << resource_it->second
             << "/" << property_it->second.attribute;
