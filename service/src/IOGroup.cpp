@@ -90,6 +90,10 @@ namespace geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
         if (geopm::has_cap_sys_admin()) {
+            // May want to give this higher priority than the non-safe
+            // msr driver once it is considered more stable.
+            register_plugin(CpufreqSysfsDriver::plugin_name(),
+                            CpufreqSysfsDriver::make_plugin);
 #ifdef GEOPM_ENABLE_CPUID
 #ifdef GEOPM_ENABLE_RAWMSR
             // Only use /dev/cpu/*/msr if configured with
@@ -101,8 +105,6 @@ namespace geopm
             }
 #endif
 #endif
-            register_plugin(CpufreqSysfsDriver::plugin_name(),
-                            CpufreqSysfsDriver::make_plugin);
             register_plugin(SSTIOGroup::plugin_name(),
                             SSTIOGroup::make_plugin);
 #ifdef GEOPM_ENABLE_LEVELZERO
