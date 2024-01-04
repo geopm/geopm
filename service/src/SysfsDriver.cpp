@@ -49,7 +49,7 @@ namespace geopm
                         {"behavior", Json::STRING},
                         {"format", Json::STRING},
                         {"alias", Json::STRING},
-                        }, err)) {
+                    }, err)) {
                 throw Exception("SysfsDriver::" + std::string(__func__) +
                                 "(): " + property_name +
                                 " json properties are malformed: " + err,
@@ -67,7 +67,7 @@ namespace geopm
                     .behavior = IOGroup::string_to_behavior(properties["behavior"].string_value()),
                     .format_function = geopm::string_format_name_to_function(properties["format"].string_value()),
                     .alias = properties["alias"].string_value()
-                    };
+                };
         }
         return result;
     }
