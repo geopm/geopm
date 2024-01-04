@@ -19,10 +19,6 @@ namespace geopm
 class SaveControl;
 class IOUring;
 
-// Arbitrary buffer size. We're generally looking at integer values much shorter
-// than 100 digits in length. The IOGroup performs string truncation checks in
-// case that ever changes.
-
 class SysfsIOGroup : public IOGroup
 {
     public:
