@@ -281,7 +281,6 @@ namespace geopm
             control_idx = std::distance(m_pushed_info_control.begin(), pushed_it);
         }
         else {
-            // TODO: make this obvious: why get(name).name? Because of aliases
             auto path = m_driver->attribute_path(cname, domain_idx);
             UniqueFd fd = open_resource_attribute(path, true);
 
@@ -327,7 +326,6 @@ namespace geopm
                 }
                 info.buf[bytes_read] = '\0';
 
-                // TODO (dcw): Make sure parser is scaling for us
                 info.value = info.parse(std::string(info.buf.data()));
             }
         }
