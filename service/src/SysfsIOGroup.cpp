@@ -104,12 +104,11 @@ namespace geopm
     }
 
     // Set up mapping between signal and control names and corresponding indices
-    SysfsIOGroup::SysfsIOGroup(
-            std::shared_ptr<SysfsDriver> driver,
-            const PlatformTopo &topo,
-            std::shared_ptr<SaveControl> control_saver,
-            std::shared_ptr<IOUring> batch_reader,
-            std::shared_ptr<IOUring> batch_writer)
+    SysfsIOGroup::SysfsIOGroup(std::shared_ptr<SysfsDriver> driver,
+                               const PlatformTopo &topo,
+                               std::shared_ptr<SaveControl> control_saver,
+                               std::shared_ptr<IOUring> batch_reader,
+                               std::shared_ptr<IOUring> batch_writer)
         : m_driver(driver)
         , m_platform_topo(topo)
         , m_do_batch_read(false)

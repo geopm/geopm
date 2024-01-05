@@ -86,9 +86,8 @@ namespace geopm
     {
     }
 
-    CpufreqSysfsDriver::CpufreqSysfsDriver(
-            const PlatformTopo &topo,
-            const std::string &cpufreq_directory)
+    CpufreqSysfsDriver::CpufreqSysfsDriver(const PlatformTopo &topo,
+                                           const std::string &cpufreq_directory)
         : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), cpufreq_sysfs_json())}
         , M_CPUFREQ_CPUS_BY_RESOURCE(load_cpufreq_cpus_by_resource(cpufreq_directory))
         , M_CPUFREQ_RESOURCE_BY_CPU(resources_by_cpu_from_cpus_by_resource(M_CPUFREQ_CPUS_BY_RESOURCE))
@@ -128,9 +127,8 @@ namespace geopm
         return m_domain;
     }
 
-    std::string CpufreqSysfsDriver::attribute_path(
-            const std::string &name,
-            int domain_idx)
+    std::string CpufreqSysfsDriver::attribute_path(const std::string &name,
+                                                   int domain_idx)
     {
         auto cpus_in_domain_idx = m_topo.domain_nested(GEOPM_DOMAIN_CPU, m_domain, domain_idx);
 
