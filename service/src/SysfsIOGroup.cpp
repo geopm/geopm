@@ -223,7 +223,7 @@ namespace geopm
             throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string cname = check_request(__FUNCTION__, signal_name, "", domain_type, domain_idx);
+        std::string cname = check_request(__func__, signal_name, "", domain_type, domain_idx);
         auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
                                       m_pushed_info_signal.end(),
         [signal_name, domain_idx] (const m_pushed_info_s &info) {
@@ -268,7 +268,7 @@ namespace geopm
                             "because batch writes have already been triggered.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string cname = check_request(__FUNCTION__, "", control_name, domain_type, domain_idx);
+        std::string cname = check_request(__func__, "", control_name, domain_type, domain_idx);
         auto pushed_it = std::find_if(m_pushed_info_control.begin(),
                                       m_pushed_info_control.end(),
         [control_name, domain_idx](const m_pushed_info_s &info) {
@@ -392,7 +392,7 @@ namespace geopm
 
     double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
-        std::string cname = check_request(__FUNCTION__, signal_name, "", domain_type, domain_idx);
+        std::string cname = check_request(__func__, signal_name, "", domain_type, domain_idx);
         UniqueFd fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), false);
         double read_value = m_driver->signal_parse(cname)(read_resource_attribute_fd(fd.get()));
         return read_value;
@@ -401,7 +401,7 @@ namespace geopm
     // Write to the control immediately, bypassing write_batch()
     void SysfsIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
     {
-        std::string cname = check_request(__FUNCTION__, "", control_name, domain_type, domain_idx);
+        std::string cname = check_request(__func__, "", control_name, domain_type, domain_idx);
         UniqueFd fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), true);
         write_resource_attribute_fd(fd.get(), m_driver->control_gen(cname)(setting));
     }
