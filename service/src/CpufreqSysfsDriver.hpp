@@ -6,11 +6,12 @@
 #ifndef CPUFREQSYSFSDRIVER_HPP_INCLUDE
 #define CPUFREQSYSFSDRIVER_HPP_INCLUDE
 
-#include "SysfsDriver.hpp"
-#include "geopm_topo.h"
-
 #include <map>
 #include <vector>
+
+#include "geopm_topo.h"
+
+#include "SysfsDriver.hpp"
 
 namespace geopm
 {

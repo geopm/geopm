@@ -10,14 +10,15 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "SysfsIOGroup.hpp"
-#include "geopm/Helper.hpp"
-#include "geopm/PlatformTopo.hpp"
-#include "geopm_topo.h"
-
 #include <cmath>
 #include <cstring>
 #include <sstream>
+
+#include "geopm_topo.h"
+
+#include "SysfsIOGroup.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 // Arbitrary buffer size. We're generally looking at integer values much shorter
 // than 100 digits in length. The IOGroup performs string truncation checks in

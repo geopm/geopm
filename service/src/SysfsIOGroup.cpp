@@ -7,17 +7,17 @@
 
 #include "SysfsIOGroup.hpp"
 
-#include <cmath>
-
-#include <cstdio>
 #include <dirent.h>
 #include <fcntl.h>
-#include <iterator>
 #include <unistd.h>
+
 #include <algorithm>
+#include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <set>
 #include <sstream>
 #include <string>

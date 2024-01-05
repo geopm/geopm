@@ -5,20 +5,20 @@
 
 #include "SysfsIOGroup.hpp"
 
+#include <algorithm>
+#include <cstring>
+#include <memory>
+
+#include "geopm_topo.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include "MockIOUring.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockSaveControl.hpp"
 #include "MockSysfsDriver.hpp"
 #include "SysfsDriver.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm_topo.h"
-#include <cstring>
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
-#include <memory>
-#include <algorithm>
 
 using geopm::IOGroup;
 using geopm::SysfsIOGroup;
