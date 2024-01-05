@@ -6,12 +6,11 @@
 #ifndef SYSFSDRIVER_HPP_INCLUDE
 #define SYSFSDRIVER_HPP_INCLUDE
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <map>
 #include <functional>
-
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace geopm
 {

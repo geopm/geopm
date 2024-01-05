@@ -9,18 +9,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "geopm/Helper.hpp"
-#include "geopm/IOGroup.hpp"
-#include "geopm_topo.h"
-#include "test/MockPlatformTopo.hpp"
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include <algorithm>
 #include <array>
 #include <cstring>
 #include <memory>
+
+#include "geopm_topo.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "geopm/Helper.hpp"
+#include "geopm/IOGroup.hpp"
+#include "test/MockPlatformTopo.hpp"
 
 using geopm::CpufreqSysfsDriver;
 using geopm::IOGroup;

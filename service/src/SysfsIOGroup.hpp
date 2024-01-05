@@ -6,12 +6,12 @@
 #ifndef SYSFSIOGROUP_HPP_INCLUDE
 #define SYSFSIOGROUP_HPP_INCLUDE
 
+#include <functional>
+
 #include "SysfsDriver.hpp"
 #include "UniqueFd.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
-
-#include <functional>
 
 namespace geopm
 {

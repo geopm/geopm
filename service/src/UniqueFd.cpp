@@ -9,8 +9,8 @@
 
 #include <unistd.h>
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 namespace geopm
 {

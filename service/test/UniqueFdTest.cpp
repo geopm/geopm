@@ -9,9 +9,9 @@
 
 #include <fcntl.h>
 
-#include "gtest/gtest.h"
-
 #include <vector>
+
+#include "gtest/gtest.h"
 
 using geopm::UniqueFd;
 
