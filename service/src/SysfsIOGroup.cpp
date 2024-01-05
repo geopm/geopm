@@ -409,32 +409,36 @@ namespace geopm
 
     void SysfsIOGroup::save_control(void)
     {
-        if (!m_control_saver) {
+        if (!control_names().empty() && m_control_saver == nullptr) {
             m_control_saver = SaveControl::make_unique(*this);
         }
     }
 
     void SysfsIOGroup::save_control(const std::string &save_path)
     {
-        if (!m_control_saver) {
-            m_control_saver = SaveControl::make_unique(*this);
+        if (!control_names().empty()) {
+            if (m_control_saver == nullptr) {
+                m_control_saver = SaveControl::make_unique(*this);
+            }
+            m_control_saver->write_json(save_path);
         }
-        m_control_saver->write_json(save_path);
     }
 
     void SysfsIOGroup::restore_control(void)
     {
-        if (m_control_saver) {
+        if (m_control_saver != nullptr) {
             m_control_saver->restore(*this);
         }
     }
 
     void SysfsIOGroup::restore_control(const std::string &save_path)
     {
-        if (!m_control_saver) {
+        if (!control_names().empty() && m_control_saver == nullptr) {
             m_control_saver = SaveControl::make_unique(geopm::read_file(save_path));
         }
-        m_control_saver->restore(*this);
+        if (m_control_saver != nullptr) {
+            m_control_saver->restore(*this);
+        }
     }
 
     std::function<double(const std::vector<double> &)> SysfsIOGroup::agg_function(
