@@ -8,10 +8,11 @@
 
 #include <functional>
 
-#include "SysfsDriver.hpp"
-#include "UniqueFd.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
+
+#include "SysfsDriver.hpp"
+#include "UniqueFd.hpp"
 
 namespace geopm
 {

@@ -22,13 +22,14 @@
 #include <sstream>
 #include <string>
 
-#include "IOUring.hpp"
-#include "SaveControl.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
+
+#include "IOUring.hpp"
+#include "SaveControl.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;
