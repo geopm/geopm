@@ -31,7 +31,7 @@ namespace geopm
             /// @brief The properties about a signal or control
             struct properties_s {
                 std::string name; // The full low level PlatformIO name
-                bool is_writable; // Is control property?
+                bool is_writable; // True if this is a control property
                 std::string attribute; // sysfs attribute name
                 std::string description; // Long description for documentation
                 double scaling_factor; // SI unit conversion factor
