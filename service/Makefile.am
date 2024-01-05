@@ -176,10 +176,10 @@ geopmwrite_LDADD = libgeopmd.la
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 
-# MSR json definitions. From each json file, generate a same-prefixed cpp file,
+# MSR JSON definitions. From each JSON file, generate a same-prefixed cpp file,
 # and use {arch}_msr_json as the variable identifier
 # E.g., src/msr_data_skx.cpp is made from src/msr_data_skx.json and names the
-# json variable skx_msr_json
+# JSON variable skx_msr_json
 msr_cpp_files = \
                 src/msr_data_arch.cpp \
                 src/msr_data_hsx.cpp \
@@ -199,10 +199,10 @@ EXTRA_DIST += \
               src/json_data.cpp.in \
 	      # end
 
-# Sysfs json definitions. From each json file, generate a same-prefixed cpp file,
+# Sysfs JSON definitions. From each JSON file, generate a same-prefixed cpp file,
 # and use {driver}_sysfs_json as the variable identifier
 # E.g., src/sysfs_attributes_cpufreq.cpp is made from
-# src/sysfs_attributes_cpufreq.json and names the json variable cpufreq_sysfs_json.
+# src/sysfs_attributes_cpufreq.json and names the JSON variable cpufreq_sysfs_json.
 sysfs_cpp_files = \
 		  src/sysfs_attributes_cpufreq.cpp \
 		  #

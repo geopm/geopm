@@ -25,13 +25,13 @@ namespace geopm
         Json root = Json::parse(properties_json, err);
         if (!err.empty() || !root.is_object()) {
             throw Exception("SysfsDriver::" + std::string(__func__) +
-                            "(): detected a malformed json string: " + err,
+                            "(): detected a malformed JSON string: " + err,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (!root.has_shape({{"attributes", Json::OBJECT}}, err)) {
             throw Exception("SysfsDriver::" + std::string(__func__) +
-                            "(): root of json string is malformed: " + err,
+                            "(): root of JSON string is malformed: " + err,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -53,7 +53,7 @@ namespace geopm
                     }, err)) {
                 throw Exception("SysfsDriver::" + std::string(__func__) +
                                 "(): " + property_name +
-                                " json properties are malformed: " + err,
+                                " JSON properties are malformed: " + err,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 

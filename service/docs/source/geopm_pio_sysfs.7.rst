@@ -9,11 +9,11 @@ The SysfsIOGroup implements the
 hardware signals and controls for sysfs attribute files.
 
 The set of signals and controls supported by an instance of SysfsIOGroup is
-configurable through a json file used by the IOGroup. The json file informs the
+configurable through a JSON file used by the IOGroup. The JSON file informs the
 IOGroup about which sysfs attributes to expose through GEOPM, and how to
 interpret those attributes.
 
-The json files must follow this schema:
+The JSON files must follow this schema:
 
 .. literalinclude:: ../json_schemas/sysfs_attributes.schema.json
     :language: json
