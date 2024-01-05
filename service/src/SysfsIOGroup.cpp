@@ -136,6 +136,9 @@ namespace geopm
                 m_signals.try_emplace(it.second.alias, std::cref(it.second));
             }
         }
+        // Check that all of the attributes are populated in sysfs
+        signal_names();
+        control_names();
     }
 
     SysfsIOGroup::~SysfsIOGroup()
