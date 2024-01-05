@@ -24,10 +24,10 @@
 // case that ever changes.
 static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
-static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::string &cpufreq_directory)
+static std::map<std::string, std::vector<int>> load_cpufreq_cpus_by_resource(const std::string &cpufreq_directory)
 {
     char cpu_buf[geopm::SysfsDriver::M_IO_BUFFER_SIZE] = {0};
-    std::map<int, std::string> result;
+    std::map<std::string, std::vector<int>> result;
 
     for (const auto &policy_file : geopm::list_directory_files(cpufreq_directory)) {
         if (policy_file.find("policy") != 0) {
@@ -56,12 +56,27 @@ static std::map<int, std::string> load_cpufreq_resources_by_cpu(const std::strin
                                    errno, __FILE__, __LINE__);
         }
 
+        std::vector<int> affected_cpus;
         for (const auto &cpu_string : geopm::string_split(cpu_buf, " ")) {
-            result.emplace(std::stoi(cpu_string), resource_path);
+            affected_cpus.push_back(std::stoi(cpu_string));
         }
+        result.emplace(resource_path, affected_cpus);
     }
 
     return result;
+}
+
+// Given a map of (resource)->(vector of CPUs), produce a map of (cpu)->(resource)
+static std::map<int, std::string> resources_by_cpu_from_cpus_by_resource(
+    const std::map<std::string, std::vector<int> > &cpus_by_resource)
+{
+    std::map<int, std::string> resources_by_cpu;
+    for (const auto &[resource, cpus] : cpus_by_resource) {
+        for (auto cpu : cpus) {
+            resources_by_cpu.emplace(cpu, resource);
+        }
+    }
+    return resources_by_cpu;
 }
 
 namespace geopm
@@ -77,7 +92,8 @@ namespace geopm
             const PlatformTopo &topo,
             const std::string &cpufreq_directory)
         : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), cpufreq_sysfs_json())}
-        , M_CPUFREQ_RESOURCE_BY_CPU(load_cpufreq_resources_by_cpu(cpufreq_directory))
+        , M_CPUFREQ_CPUS_BY_RESOURCE(load_cpufreq_cpus_by_resource(cpufreq_directory))
+        , M_CPUFREQ_RESOURCE_BY_CPU(resources_by_cpu_from_cpus_by_resource(M_CPUFREQ_CPUS_BY_RESOURCE))
         , m_domain(GEOPM_DOMAIN_CPU)
         , m_topo(topo)
     {
@@ -85,13 +101,15 @@ namespace geopm
             GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD
         };
         for (auto outer_domain : cpu_nested_domains) {
-            std::set<int> affected_domain_indices;
             bool is_correct_domain = true;
-            for (const auto &cpu_resource : M_CPUFREQ_RESOURCE_BY_CPU) {
-                auto affected_cpu = cpu_resource.first;
-                affected_domain_indices.insert(m_topo.domain_idx(outer_domain, affected_cpu));
+            for (const auto &resource_cpus : M_CPUFREQ_CPUS_BY_RESOURCE) {
+                auto affected_cpus = resource_cpus.second;
+                std::set<int> affected_domain_indices;
+                for (auto affected_cpu : affected_cpus) {
+                    affected_domain_indices.insert(m_topo.domain_idx(outer_domain, affected_cpu));
+                }
                 if (affected_domain_indices.size() > 1) {
-                    // The CPUs in this group span across multiple
+                    // The CPUs in this resource group span across multiple
                     // indices in the current topology domain, so their
                     // minimal common domain is at a more coarse level.
                     is_correct_domain = false;
