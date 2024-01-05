@@ -36,6 +36,7 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
+            const std::map<std::string, std::vector<int> > M_CPUFREQ_CPUS_BY_RESOURCE;
             const std::map<int, std::string> M_CPUFREQ_RESOURCE_BY_CPU;
             geopm_domain_e m_domain;
             const geopm::PlatformTopo &m_topo;
