@@ -20,9 +20,6 @@
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 
-// Arbitrary buffer size. We're generally looking at integer values much shorter
-// than 100 digits in length. The IOGroup performs string truncation checks in
-// case that ever changes.
 static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
 static std::map<std::string, std::vector<int>> load_cpufreq_cpus_by_resource(const std::string &cpufreq_directory)
