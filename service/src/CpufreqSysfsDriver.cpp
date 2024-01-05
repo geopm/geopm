@@ -40,17 +40,17 @@ static std::map<std::string, std::vector<int>> load_cpufreq_cpus_by_resource(con
 
         int cpu_map_fd = open(cpu_map_path.c_str(), O_RDONLY);
         if (cpu_map_fd == -1) {
-            throw geopm::Exception("SysfsIOGroup failed to open " + cpu_map_path,
+            throw geopm::Exception("CpufreqSysfsDriver failed to open " + cpu_map_path,
                                    errno, __FILE__, __LINE__);
         }
         int read_bytes = pread(cpu_map_fd, cpu_buf, sizeof cpu_buf - 1, 0);
         close(cpu_map_fd);
         if (read_bytes < 0) {
-            throw geopm::Exception("SysfsIOGroup failed to read " + cpu_map_path,
+            throw geopm::Exception("CpufreqSysfsDriver failed to read " + cpu_map_path,
                                    errno, __FILE__, __LINE__);
         }
         if (read_bytes == sizeof cpu_buf - 1) {
-            throw geopm::Exception("SysfsIOGroup truncated read from " + cpu_map_path,
+            throw geopm::Exception("CpufreqSysfsDriver truncated read from " + cpu_map_path,
                                    errno, __FILE__, __LINE__);
         }
 
