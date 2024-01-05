@@ -27,8 +27,8 @@ a subset of these signals and controls (e.g., if a driver is not loaded, or if
 it is loaded but in a state that does not expose all of the attributes), or
 may expose additional signals and controls (e.g., if you have configured
 additional instances of SysfsIOGroup that are not bundled with GEOPM). Use
-geopmread and geopmwrite to query the full set of signals and controls that are
-available on a particular system.
+``geopmread`` and ``geopmwrite`` to query the full set of signals and controls
+that are available on a particular system.
 
 Signals
 -------
@@ -64,7 +64,7 @@ Aliases
 This IOGroup provides the following high-level aliases. Note that some aliases
 may map to multiple potential sysfs attributes. Your system will map only one
 attribute to a given alias, depending on the driver's configuration. Use
-geopmread and geopmwrite to query information about each alias on your system.
+``geopmread`` and ``geopmwrite`` to query information about each alias on your system.
 
 Signal Aliases
 ^^^^^^^^^^^^^^
@@ -80,7 +80,7 @@ Control Aliases
 
 Example
 -------
-The following example uses geopmread and geopmwrite command-line tools.
+The following example uses ``geopmread`` and ``geopmwrite`` command-line tools.
 These steps can also be followed within an agent.
 
 Setting Frequency
