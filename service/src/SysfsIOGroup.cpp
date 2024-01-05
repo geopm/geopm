@@ -229,7 +229,6 @@ namespace geopm
         [signal_name, domain_idx] (const m_pushed_info_s &info) {
             return info.name == signal_name &&
                    info.domain_idx == domain_idx;
-
         });
         int signal_idx = -1;
 
