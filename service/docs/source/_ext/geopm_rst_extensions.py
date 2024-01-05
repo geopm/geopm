@@ -31,7 +31,7 @@ def create_signal_description_paragraph(text, signal_regex):
             # Sphinx will automatically check for broken references.
 
             # This does not emit a very helpful error message (it just says
-            # undefined label at the line where we are loading the json file).
+            # undefined label at the line where we are loading the JSON file).
             # We can implement our own context-aware xref checking and error
             # messaging if we create a set of sphinx roles/directives/domains,
             # e.g., to define and xref arbitrary signals/controls. Maybe
@@ -48,11 +48,11 @@ def create_signal_description_paragraph(text, signal_regex):
     return msr_definition_paragraph
 
 class GeopmMsrJson(SphinxDirective):
-    """Add a Sphinx directive to import a json definition of MSR descriptions.
+    """Add a Sphinx directive to import a JSON definition of MSR descriptions.
     
     Examples:
     
-    * Render all MSRs in a json file
+    * Render all MSRs in a JSON file
         .. geopm-msr-json:: ../json_data/msr_data_arch.json
     * Render only signals
         .. geopm-msr-json:: ../json_data/msr_data_arch.json
@@ -79,7 +79,7 @@ class GeopmMsrJson(SphinxDirective):
             logger.error('Requested MSR information, but asked for neither signals nor controls.',
                          location=self.get_location())
 
-        # Notify Sphinx that changes to the json file should cause a rebuild
+        # Notify Sphinx that changes to the JSON file should cause a rebuild
         # of any docs that point this directive to that file.
         self.env.note_dependency(json_path)
 
@@ -164,11 +164,11 @@ class GeopmMsrJson(SphinxDirective):
 
 
 class GeopmSysfsJson(SphinxDirective):
-    """Add a Sphinx directive to import a json definition of SysfsIOGroup descriptions.
+    """Add a Sphinx directive to import a JSON definition of SysfsIOGroup descriptions.
     
     Examples:
     
-    * Render all attributes in a json file
+    * Render all attributes in a JSON file
         .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
     * Render only signals
         .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
@@ -202,7 +202,7 @@ class GeopmSysfsJson(SphinxDirective):
             logger.error('Requested SysfsIOGroup information, but asked for neither signals nor controls.',
                          location=self.get_location())
 
-        # Notify Sphinx that changes to the json file should cause a rebuild
+        # Notify Sphinx that changes to the JSON file should cause a rebuild
         # of any docs that point this directive to that file.
         self.env.note_dependency(json_path)
 
