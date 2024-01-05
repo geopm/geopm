@@ -14,11 +14,11 @@
 #include <cstring>
 #include <sstream>
 
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_topo.h"
 
 #include "SysfsIOGroup.hpp"
-#include "geopm/Helper.hpp"
-#include "geopm/PlatformTopo.hpp"
 
 static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 

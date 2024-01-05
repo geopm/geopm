@@ -7,12 +7,13 @@
 
 #include "SysfsDriver.hpp"
 
+#include "geopm/json11.hpp"
+
 #include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "geopm/json11.hpp"
 
 using json11::Json;
 

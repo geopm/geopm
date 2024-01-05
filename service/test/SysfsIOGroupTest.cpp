@@ -9,16 +9,17 @@
 #include <cstring>
 #include <memory>
 
-#include "geopm_topo.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "geopm/Helper.hpp"
+#include "geopm_topo.h"
 
 #include "MockIOUring.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockSaveControl.hpp"
 #include "MockSysfsDriver.hpp"
 #include "SysfsDriver.hpp"
-#include "geopm/Helper.hpp"
 
 using geopm::IOGroup;
 using geopm::SysfsIOGroup;
