@@ -171,6 +171,11 @@ namespace geopm
 
     bool SysfsIOGroup::is_valid_signal(const std::string &signal_name) const
     {
+        return is_valid_signal_domain(signal_name, 0);
+    }
+
+    bool SysfsIOGroup::is_valid_signal_domain(const std::string &signal_name, int domain_idx) const
+    {
         auto it = m_signals.find(signal_name);
         if (it == m_signals.end()) {
             // The IOGroup is not aware of this signal.
@@ -178,11 +183,16 @@ namespace geopm
         }
         else {
             // The IOGroup is aware of this signal. But is the signal readable right now?
-            return do_have_read_access(m_driver->attribute_path(it->second.get().name, 0));
+            return do_have_read_access(m_driver->attribute_path(it->second.get().name, domain_idx));
         }
     }
 
     bool SysfsIOGroup::is_valid_control(const std::string &control_name) const
+    {
+        return is_valid_control_domain(control_name, 0);
+    }
+
+    bool SysfsIOGroup::is_valid_control_domain(const std::string &control_name, int domain_idx) const
     {
         auto it = m_controls.find(control_name);
         if (it == m_controls.end()) {
@@ -191,7 +201,7 @@ namespace geopm
         }
         else {
             // The IOGroup is aware of this control. But is the control writable right now?
-            return do_have_write_access(m_driver->attribute_path(it->second.get().name, 0));
+            return do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
         }
     }
 
@@ -525,7 +535,7 @@ namespace geopm
         std::string cname;
         if (signal_name != "") {
             cname = signal_name;
-            if (!is_valid_signal(signal_name)) {
+            if (!is_valid_signal_domain(signal_name, domain_idx)) {
                 throw Exception("SysfsIOGroup::" + method_name + "(): \"" + signal_name +
                                 "\"not valid for ",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -533,7 +543,7 @@ namespace geopm
         }
         else {
             cname = control_name;
-            if (!is_valid_control(control_name)) {
+            if (!is_valid_control_domain(control_name, domain_idx)) {
                 throw Exception("SysfsIOGroup::" + method_name + "(): \"" + control_name +
                                 "\" not valid for " + name(),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
