@@ -54,9 +54,19 @@ static std::map<std::string, std::vector<int>> load_cpufreq_cpus_by_resource(con
                                    errno, __FILE__, __LINE__);
         }
 
+        geopm::Exception parse_ex("CpufreqSysfsDriver: Failed to parse cpu resource map",
+                                  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         std::vector<int> affected_cpus;
-        for (const auto &cpu_string : geopm::string_split(cpu_buf, " ")) {
-            affected_cpus.push_back(std::stoi(cpu_string));
+        try {
+            for (const auto &cpu_string : geopm::string_split(cpu_buf, " ")) {
+                affected_cpus.push_back(std::stoi(cpu_string));
+            }
+        }
+        catch (const std::invalid_argument &ex) {
+             throw parse_ex;
+        }
+        catch (const std::out_of_range &ex) {
+             throw parse_ex;
         }
         result.emplace(resource_path, affected_cpus);
     }
