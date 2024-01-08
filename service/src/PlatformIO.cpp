@@ -84,12 +84,12 @@ namespace geopm
          "    alias_for: MSR::PKG_ENERGY_STATUS:ENERGY"},
         {"CPU_FREQUENCY_MIN_AVAIL",
          "    description: Minimum processor frequency.\n"
-         "    iogroup: Cpuinfo\n"
-         "    alias_for: CPUINFO::FREQ_MIN"},
+         "    iogroup: Cpuinfo, Cpufreq\n"
+         "    alias_for: CPUINFO::FREQ_MIN, CPUFREQ::CPUINFO_MIN_FREQ"},
         {"CPU_FREQUENCY_MAX_AVAIL",
          "    description: Maximum processor frequency.\n"
-         "    iogroup: MSR\n"
-         "    alias_for: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 or if HWP is enabled MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE"},
+         "    iogroup: MSR, Cpufreq\n"
+         "    alias_for: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 or if HWP is enabled MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE, or CPUFREQ::CPUINFO_MAX_FREQ"},
         {"CPU_FREQUENCY_STICKER",
          "    description: Processor base frequency.\n"
          "    iogroup: Cpuinfo\n"
@@ -100,8 +100,8 @@ namespace geopm
          "    alias_for: CPUINFO::FREQ_STEP"},
         {"CPU_FREQUENCY_STATUS",
          "    description: The current operating frequency of the CPU.\n"
-         "    iogroup: MSR\n"
-         "    alias_for: MSR::PERF_STATUS:FREQ"},
+         "    iogroup: MSR, Cpufreq\n"
+         "    alias_for: MSR::PERF_STATUS:FREQ, CPUFREQ::SCALING_CUR_FREQ"},
         {"CPU_INSTRUCTIONS_RETIRED",
          "    description: The count of the number of instructions executed.\n"
          "    iogroup: MSR\n"
