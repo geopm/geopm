@@ -168,12 +168,13 @@ namespace geopm
         }
         double scaling_factor = prop_it->second.scaling_factor;
         return [scaling_factor](const std::string &content) {
-            if (content.find("<unsupported>") != content.npos) {
-                return static_cast<double>(NAN);
+            double result = static_cast<double>(NAN);
+            try {
+                result = static_cast<double>(std::stoi(content) * scaling_factor);
             }
-            else {
-                return static_cast<double>(std::stoi(content) * scaling_factor);
-            }
+            catch (const std::invalid_argument &ex) {}
+            catch (const std::out_of_range &ex) {}
+            return result;
         };
     }
 
