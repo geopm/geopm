@@ -158,13 +158,17 @@ TEST_F(CpufreqSysfsDriverTest, attribute_path)
 
 TEST_F(CpufreqSysfsDriverTest, signal_parse)
 {
+    EXPECT_THROW(m_driver->signal_parse("CPUFREQ::A_MADE_UP_ATTRIBUTE_NAME"), geopm::Exception)
+        << "Should fail to parse a signal that does not exist";
     EXPECT_DOUBLE_EQ(1.1e9, m_driver->signal_parse("CPUFREQ::SCALING_CUR_FREQ")("1100000" /* in kHz */));
-    EXPECT_DOUBLE_EQ(100e-9, m_driver->signal_parse("CPUFREQ::TRANSITION_LATENCY")("100" /* in ns */));
+    EXPECT_DOUBLE_EQ(100e-9, m_driver->signal_parse("CPUFREQ::CPUINFO_TRANSITION_LATENCY")("100" /* in ns */));
     EXPECT_TRUE(std::isnan(m_driver->signal_parse("CPUFREQ::SCALING_SETSPEED")("<unsupported>")));
 }
 
 TEST_F(CpufreqSysfsDriverTest, control_gen)
 {
+    EXPECT_THROW(m_driver->control_gen("CPUFREQ::A_MADE_UP_ATTRIBUTE_NAME"), geopm::Exception)
+        << "Should fail to generate a control that does not exist";
     EXPECT_EQ("1100000", m_driver->control_gen("CPUFREQ::SCALING_CUR_FREQ")(1.1e9));
-    EXPECT_EQ("100", m_driver->control_gen("CPUFREQ::TRANSITION_LATENCY")(100e-9));
+    EXPECT_EQ("100", m_driver->control_gen("CPUFREQ::CPUINFO_TRANSITION_LATENCY")(100e-9));
 }

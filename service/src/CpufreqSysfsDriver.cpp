@@ -161,7 +161,12 @@ namespace geopm
 
     std::function<double(const std::string &)> CpufreqSysfsDriver::signal_parse(const std::string &signal_name) const
     {
-        double scaling_factor = M_PROPERTIES.at(signal_name).scaling_factor;
+        auto prop_it = M_PROPERTIES.find(signal_name);
+        if (prop_it == M_PROPERTIES.end()) {
+            throw Exception("CpufreqSysfsDriver::signal_parse(): Unknown signal name: " + signal_name,
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        double scaling_factor = prop_it->second.scaling_factor;
         return [scaling_factor](const std::string &content) {
             if (content.find("<unsupported>") != content.npos) {
                 return static_cast<double>(NAN);
@@ -174,7 +179,12 @@ namespace geopm
 
     std::function<std::string(double)> CpufreqSysfsDriver::control_gen(const std::string &control_name) const
     {
-        double scaling_factor = M_PROPERTIES.at(control_name).scaling_factor;
+        auto prop_it = M_PROPERTIES.find(control_name);
+        if (prop_it == M_PROPERTIES.end()) {
+            throw Exception("CpufreqSysfsDriver::control_gen(): Unknown control name: " + control_name,
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        double scaling_factor = prop_it->second.scaling_factor;
         return [scaling_factor](double value) {
             return std::to_string(std::llround(value / scaling_factor));
         };
