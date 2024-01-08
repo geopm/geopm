@@ -20,9 +20,9 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": "CPU_FREQUENCY_STATUS"
+            "alias": ""
         },
-        "MAX_FREQ": {
+        "CPUINFO_MAX_FREQ": {
             "attribute": "cpuinfo_max_freq",
             "scalar": 1e3,
             "description": "The maximum allowed frequency to set on the CPU.",
@@ -33,7 +33,7 @@
             "writeable": false,
             "alias": "CPU_FREQUENCY_MAX_AVAIL"
         },
-        "MIN_FREQ": {
+        "CPUINFO_MIN_FREQ": {
             "attribute": "cpuinfo_min_freq",
             "scalar": 1e3,
             "description": "The minimum allowed frequency to set on the CPU.",
@@ -44,7 +44,7 @@
             "writeable": false,
             "alias": "CPU_FREQUENCY_MIN_AVAIL"
         },
-        "TRANSITION_LATENCY": {
+        "CPUINFO_TRANSITION_LATENCY": {
             "attribute": "cpuinfo_transition_latency",
             "scalar": 1e-9,
             "description": "The time delay to switch from one P-State to another.",
@@ -64,7 +64,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "CPU_FREQUENCY_STATUS"
         },
         "SCALING_MAX_FREQ": {
             "attribute": "scaling_max_freq",
