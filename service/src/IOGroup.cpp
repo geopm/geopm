@@ -133,14 +133,19 @@ namespace geopm
 #endif
         }
         else { // not UID 0
+            // Prefer the Service provided signals to the Cpufreq
+            // provided signals in case MSR access is available from
+            // the service.  MSR values for aliases are both more
+            // accurate and can be read faster.  Note this means even
+            // low level signals like CPUFREQ::SCALING_CUR_FREQ will
+            // be read through the service if the ServiceIOGroup is
+            // loaded.
+            register_plugin(CpufreqSysfsDriver::plugin_name(),
+                            CpufreqSysfsDriver::make_plugin);
 #ifdef GEOPM_ENABLE_SYSTEMD
             register_plugin(ServiceIOGroup::plugin_name(),
                             ServiceIOGroup::make_plugin);
 #endif
-            // May want to give this higher priority than the non-safe
-            // msr driver once it is considered more stable.
-            register_plugin(CpufreqSysfsDriver::plugin_name(),
-                            CpufreqSysfsDriver::make_plugin);
         }
         register_plugin(TimeIOGroup::plugin_name(),
                         TimeIOGroup::make_plugin);
