@@ -163,6 +163,8 @@ TEST_F(CpufreqSysfsDriverTest, signal_parse)
     EXPECT_DOUBLE_EQ(1.1e9, m_driver->signal_parse("CPUFREQ::SCALING_CUR_FREQ")("1100000" /* in kHz */));
     EXPECT_DOUBLE_EQ(100e-9, m_driver->signal_parse("CPUFREQ::CPUINFO_TRANSITION_LATENCY")("100" /* in ns */));
     EXPECT_TRUE(std::isnan(m_driver->signal_parse("CPUFREQ::SCALING_SETSPEED")("<unsupported>")));
+    EXPECT_TRUE(std::isnan(m_driver->signal_parse("CPUFREQ::SCALING_SETSPEED")("")));
+    EXPECT_TRUE(std::isnan(m_driver->signal_parse("CPUFREQ::SCALING_SETSPEED")("BADDAD")));
 }
 
 TEST_F(CpufreqSysfsDriverTest, control_gen)
