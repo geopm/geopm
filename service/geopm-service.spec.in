@@ -224,8 +224,6 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %service_add_post geopm.service
 %endif
 
-%post -n libgeopmd2 -p /sbin/ldconfig
-
 %preun -n geopm-service
 %if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
 %systemd_preun geopm.service
@@ -239,8 +237,6 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %else
 %service_del_postun geopm.service
 %endif
-
-%postun -n libgeopmd2 -p /sbin/ldconfig
 
 # Installed files
 
