@@ -70,15 +70,9 @@ namespace geopm
     // Write a double to a cpufreq resource's opened sysfs attribute file.
     static void write_resource_attribute_fd(int fd, const std::string &value)
     {
-        char buf[SysfsDriver::M_IO_BUFFER_SIZE] = {0};
-        if (value.length() >= sizeof buf) {
-            throw geopm::Exception("SysfsIOGroup truncated write control",
-                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-
-        int write_bytes = pwrite(fd, buf, value.length() + 1, 0);
+        int write_bytes = pwrite(fd, value.c_str(), value.length() + 1, 0);
         if (write_bytes < 0) {
-            throw geopm::Exception("SysfsIOGroup failed to write control",
+            throw geopm::Exception("SysfsIOGroup failed to write control, value: " + value,
                                    errno, __FILE__, __LINE__);
         }
         if (static_cast<size_t>(write_bytes) < value.length() + 1) {
@@ -96,7 +90,7 @@ namespace geopm
     // Return true if this process has write access to the given path
     static bool do_have_write_access(const std::string &path)
     {
-        return access(path.c_str(), W_OK) == 0;
+        return access(path.c_str(), R_OK|W_OK) == 0;
     }
 
     SysfsIOGroup::SysfsIOGroup(std::shared_ptr<SysfsDriver> driver)
@@ -123,7 +117,6 @@ namespace geopm
         , m_batch_reader(batch_reader)
         , m_batch_writer(batch_writer)
     {
-        std::string iogroup_name = m_driver->driver();
         for (const auto &it : m_properties) {
             m_signals.try_emplace(it.first, std::cref(it.second));
             if (it.second.is_writable) {

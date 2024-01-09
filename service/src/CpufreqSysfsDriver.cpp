@@ -203,7 +203,7 @@ namespace geopm
 
     std::string CpufreqSysfsDriver::driver(void) const
     {
-        return "cpufreq";
+        return plugin_name();
     }
 
     std::map<std::string, SysfsDriver::properties_s> CpufreqSysfsDriver::properties(void) const

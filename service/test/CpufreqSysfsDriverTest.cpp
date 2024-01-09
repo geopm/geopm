@@ -113,7 +113,7 @@ void CpufreqSysfsDriverTest::SetUp()
 
 TEST_F(CpufreqSysfsDriverTest, iogroup_plugin_name_matches_driver_name)
 {
-    EXPECT_EQ("cpufreq", m_driver->driver());
+    EXPECT_EQ("CPUFREQ", m_driver->driver());
     EXPECT_EQ("CPUFREQ", CpufreqSysfsDriver::plugin_name());
 }
 
