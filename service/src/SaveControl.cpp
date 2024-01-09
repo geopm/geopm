@@ -7,6 +7,8 @@
 
 #include "SaveControl.hpp"
 
+#include <cmath>
+
 #include "geopm/json11.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
@@ -131,10 +133,12 @@ namespace geopm
     void SaveControlImp::restore(IOGroup &io_group) const
     {
         for (const auto &ss : settings()) {
-            io_group.write_control(ss.name,
-                                   ss.domain_type,
-                                   ss.domain_idx,
-                                   ss.setting);
+            if (std::isfinite(ss.setting)) {
+                io_group.write_control(ss.name,
+                                       ss.domain_type,
+                                       ss.domain_idx,
+                                       ss.setting);
+            }
         }
     }
 
