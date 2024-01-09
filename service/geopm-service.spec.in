@@ -163,6 +163,7 @@ the implementation for the geopmd service daemon and interfaces for
 configuring the service.
 
 # Steps for all packages
+%global debug_package %{nil}
 %prep
 %setup
 
