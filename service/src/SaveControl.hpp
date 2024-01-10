@@ -118,7 +118,7 @@ namespace geopm
             ///
             /// @param io_group [in] An IOGroup that implements controls
             virtual void restore(IOGroup &io_group) const = 0;
-            virtual std::set<std::string> unsaved_controls(void) const = 0;
+            virtual std::set<std::string> unsaved_controls(const std::set<std::string> &all_controls) const = 0;
     };
 
     class SaveControlImp : public SaveControl
@@ -132,7 +132,7 @@ namespace geopm
             std::vector<m_setting_s> settings(void) const override;
             void write_json(const std::string &save_path) const override;
             void restore(IOGroup &io_group) const override;
-            std::set<std::string> unsaved_controls(void) const override;
+            std::set<std::string> unsaved_controls(const std::set<std::string> &all_controls) const override;
 
             static std::string json(const std::vector<m_setting_s> &settings);
             static std::vector<m_setting_s> settings(const std::string &json_string);
