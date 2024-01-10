@@ -21,7 +21,7 @@ Name: geopm-service
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 # Deprecated for RHEL and CentOS
 Group: System Environment/Daemons
 %else
@@ -52,9 +52,9 @@ Requires: level-zero >= 1.8.1
 %endif
 %if 0%{?suse_version} || 0%{?rocky_ver}
 BuildRequires: fdupes
+%endif
 BuildRequires: systemd-rpm-macros
 BuildRequires: python-rpm-macros
-%endif
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm-service
@@ -90,7 +90,7 @@ is installed with this package.
 %package devel
 
 Summary: Global Extensible Open Power Manager Service - development
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 # Deprecated for RHEL and CentOS
 Group: Development/Libraries
 %else
@@ -108,7 +108,7 @@ libgeopmd.so shared object symbolic link.
 %package -n libgeopmd2
 
 Summary: Provides libgeopmd shared object library
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 # Deprecated for RHEL and CentOS
 Group: System Environment/Libraries
 %else
@@ -135,7 +135,7 @@ library which provides C and C++ interfaces.
 %package -n python%{python3_pkgversion}-geopmdpy
 
 Summary: The geopmdpy Python package for the GEOPM Service
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 # Deprecated for RHEL and CentOS
 Group: System Environment/Libraries
 %else
@@ -218,21 +218,21 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %endif
 
 %post -n geopm-service
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 %systemd_post geopm.service
 %else
 %service_add_post geopm.service
 %endif
 
 %preun -n geopm-service
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 %systemd_preun geopm.service
 %else
 %service_del_preun geopm.service
 %endif
 
 %postun -n geopm-service
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver}
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
 %systemd_postun_with_restart geopm.service
 %else
 %service_del_postun geopm.service
