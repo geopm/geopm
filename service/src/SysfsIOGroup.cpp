@@ -155,8 +155,7 @@ namespace geopm
     {
         std::set<std::string> result;
         for (const auto &it : m_controls) {
-            if (m_unsaved_controls.count(it.first) == 0 &&
-                do_have_write_access(m_driver->attribute_path(it.second.get().name, 0))) {
+            if (do_have_write_access(m_driver->attribute_path(it.second.get().name, 0))) {
                 result.insert(it.first);
             }
         }
@@ -195,8 +194,7 @@ namespace geopm
         }
         else {
             // The IOGroup is aware of this control. But is the control writable right now?
-            return m_unsaved_controls.count(control_name) == 0 &&
-                   do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+            return do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
         }
     }
 
@@ -557,7 +555,8 @@ namespace geopm
             throw Exception("SysfsIOGroup::" + method_name + "(): domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (control_name != "" && m_unsaved_controls.count(cname) != 0) {
+        if ((method_name == "write_control" || method_name == "push_control") &&
+            m_unsaved_controls.count(cname) != 0) {
             throw Exception("SysfsIOGroup::" + method_name + "(): Cannot write control setting which could not be read.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
