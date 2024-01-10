@@ -412,18 +412,20 @@ namespace geopm
 
     void SysfsIOGroup::save_control(void)
     {
-        if (!control_names().empty() && m_control_saver == nullptr) {
+        auto cnames = control_names();
+        if (!cnames.empty() && m_control_saver == nullptr) {
             m_control_saver = SaveControl::make_unique(*this);
-            m_unsaved_controls = m_control_saver->unsaved_controls();
+            m_unsaved_controls = m_control_saver->unsaved_controls(cnames);
         }
     }
 
     void SysfsIOGroup::save_control(const std::string &save_path)
     {
-        if (!control_names().empty()) {
+        auto cnames = control_names();
+        if (!cnames.empty()) {
             if (m_control_saver == nullptr) {
                 m_control_saver = SaveControl::make_unique(*this);
-                m_unsaved_controls = m_control_saver->unsaved_controls();
+                m_unsaved_controls = m_control_saver->unsaved_controls(cnames);
             }
             m_control_saver->write_json(save_path);
         }
@@ -438,9 +440,10 @@ namespace geopm
 
     void SysfsIOGroup::restore_control(const std::string &save_path)
     {
-        if (!control_names().empty() && m_control_saver == nullptr) {
+        auto cnames = control_names();
+        if (!cnames.empty() && m_control_saver == nullptr) {
             m_control_saver = SaveControl::make_unique(geopm::read_file(save_path));
-            m_unsaved_controls = m_control_saver->unsaved_controls();
+            m_unsaved_controls = m_control_saver->unsaved_controls(cnames);
         }
         if (m_control_saver != nullptr) {
             m_control_saver->restore(*this);

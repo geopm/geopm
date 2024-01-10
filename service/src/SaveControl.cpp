@@ -78,10 +78,12 @@ namespace geopm
     {
         std::vector<std::map<std::string, Json> > json_settings;
         for (const auto &ss : settings) {
-            json_settings.push_back({{"name", ss.name},
-                                     {"domain_type", ss.domain_type},
-                                     {"domain_idx", ss.domain_idx},
-                                     {"setting", ss.setting}});
+            if (std::isfinite(ss.setting)) {
+                json_settings.push_back({{"name", ss.name},
+                                         {"domain_type", ss.domain_type},
+                                         {"domain_idx", ss.domain_idx},
+                                         {"setting", ss.setting}});
+            }
         }
         Json json_obj(json_settings);
         return json_obj.dump();
@@ -142,12 +144,12 @@ namespace geopm
          }
     }
 
-    std::set<std::string> SaveControlImp::unsaved_controls(void) const
+    std::set<std::string> SaveControlImp::unsaved_controls(const std::set<std::string> &all_controls) const
     {
-        std::set<std::string> result;
+        std::set<std::string> result = all_controls;
         for (const auto &ss : settings()) {
-            if (!std::isfinite(ss.setting)) {
-                result.insert(ss.name);
+            if (std::isfinite(ss.setting)) {
+                result.erase(ss.name);
             }
         }
         return result;
