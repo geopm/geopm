@@ -96,6 +96,7 @@ namespace geopm
             std::shared_ptr<SaveControl> m_control_saver;
             std::shared_ptr<IOUring> m_batch_reader;
             std::shared_ptr<IOUring> m_batch_writer;
+            std::set<std::string> m_unsaved_controls;
     };
 
 }

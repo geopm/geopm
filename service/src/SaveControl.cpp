@@ -139,8 +139,20 @@ namespace geopm
                                        ss.domain_idx,
                                        ss.setting);
             }
-        }
+         }
     }
+
+    std::set<std::string> SaveControlImp::unsaved_controls(void) const
+    {
+        std::set<std::string> result;
+        for (const auto &ss : settings()) {
+            if (!std::isfinite(ss.setting)) {
+                result.insert(ss.name);
+            }
+        }
+        return result;
+    }
+
 
     std::vector<SaveControl::m_setting_s>
     SaveControlImp::settings(IOGroup &io_group,
