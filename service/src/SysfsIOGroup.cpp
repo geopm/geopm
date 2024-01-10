@@ -155,7 +155,8 @@ namespace geopm
     {
         std::set<std::string> result;
         for (const auto &it : m_controls) {
-            if (do_have_write_access(m_driver->attribute_path(it.second.get().name, 0))) {
+            if (m_unsaved_controls.count(it.first) == 0 &&
+                do_have_write_access(m_driver->attribute_path(it.second.get().name, 0))) {
                 result.insert(it.first);
             }
         }
@@ -194,7 +195,8 @@ namespace geopm
         }
         else {
             // The IOGroup is aware of this control. But is the control writable right now?
-            return do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+            return m_unsaved_controls.count(control_name) == 0 &&
+                   do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
         }
     }
 
@@ -414,6 +416,7 @@ namespace geopm
     {
         if (!control_names().empty() && m_control_saver == nullptr) {
             m_control_saver = SaveControl::make_unique(*this);
+            m_unsaved_controls = m_control_saver->unsaved_controls();
         }
     }
 
@@ -422,6 +425,7 @@ namespace geopm
         if (!control_names().empty()) {
             if (m_control_saver == nullptr) {
                 m_control_saver = SaveControl::make_unique(*this);
+                m_unsaved_controls = m_control_saver->unsaved_controls();
             }
             m_control_saver->write_json(save_path);
         }
@@ -438,6 +442,7 @@ namespace geopm
     {
         if (!control_names().empty() && m_control_saver == nullptr) {
             m_control_saver = SaveControl::make_unique(geopm::read_file(save_path));
+            m_unsaved_controls = m_control_saver->unsaved_controls();
         }
         if (m_control_saver != nullptr) {
             m_control_saver->restore(*this);
@@ -551,6 +556,10 @@ namespace geopm
         if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
             throw Exception("SysfsIOGroup::" + method_name + "(): domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (control_name != "" && m_unsaved_controls.count(cname) != 0) {
+            throw Exception("SysfsIOGroup::" + method_name + "(): Cannot write control setting which could not be read.",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return cname;
     }
