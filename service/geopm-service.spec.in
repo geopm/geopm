@@ -50,7 +50,7 @@ BuildRequires: level-zero
 BuildRequires: level-zero-devel
 Requires: level-zero >= 1.8.1
 %endif
-%if 0%{?suse_version} || 0%{?rocky_ver}
+%if 0%{?suse_version}
 BuildRequires: fdupes
 %endif
 BuildRequires: systemd-rpm-macros
