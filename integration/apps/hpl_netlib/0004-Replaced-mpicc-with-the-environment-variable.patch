@@ -23,7 +23,7 @@ index 87d7191..36403d4 100644
 -CC       = mpiicc
 +CC       = $(MPICC)
  CCNOOPT  = $(HPL_DEFS)
- OMP_DEFS = -qopenmp
+ OMP_DEFS = -fiopenmp
  CCFLAGS  = $(HPL_DEFS) -O3 -w -ansi-alias -i-static -z noexecstack -z relro -z now -nocompchk -Wall
 -- 
 1.8.3.1

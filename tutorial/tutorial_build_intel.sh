@@ -8,7 +8,7 @@
 
 # OMP_FLAGS: Flags for enabling OpenMP
 if [ ! "$OMP_FLAGS" ]; then
-    OMP_FLAGS="-qopenmp"
+    OMP_FLAGS="-fiopenmp"
 fi
 
 export CC=${CC:-icx}
