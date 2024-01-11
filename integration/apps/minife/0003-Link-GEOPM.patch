@@ -21,8 +21,8 @@ index df085d9..1f1a964 100644
  
  #-----------------------------------------------------------------------
  
--CFLAGS = -O3 -fopenmp
-+CFLAGS = -O3 -fopenmp $(GEOPM_CFLAGS)
+-CFLAGS = -O3 -fiopenmp
++CFLAGS = -O3 -fiopenmp $(GEOPM_CFLAGS)
  CXXFLAGS = $(CFLAGS)
  
  CPPFLAGS = -I. -I../utils -I../fem $(MINIFE_TYPES) $(MINIFE_MATRIX_TYPE) -DHAVE_MPI

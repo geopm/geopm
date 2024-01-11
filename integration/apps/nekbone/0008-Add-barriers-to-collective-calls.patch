@@ -56,7 +56,7 @@ index e8ba84e..eb80bf5 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
 @@ -32,7 +32,10 @@ PPLIST="TIMERS CGTIMERS NITER=2000"
- USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
+ USR_LFLAGS="-fiopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
  
  # generic compiler flags
 -G="-DGEOPM -I${GEOPM_ROOT}/include"
@@ -66,7 +66,7 @@ index e8ba84e..eb80bf5 100755
 +fi
  
  # optimization flags
- OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
+ OPT_FLAGS_STD="-fiopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
 -- 
 2.23.0
 

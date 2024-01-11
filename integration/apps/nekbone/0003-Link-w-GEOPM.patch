@@ -35,15 +35,15 @@ index a5cce80..82ec388 100755
  #USR="foo.o"
  
  # linking flags
--USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel"
-+USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
+-USR_LFLAGS="-fiopenmp -mcmodel=medium -shared-intel"
++USR_LFLAGS="-fiopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
  
  # generic compiler flags
 -#G="-g"
 +G="-DGEOPM -I${GEOPM_ROOT}/include"
  
  # optimization flags
- OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
+ OPT_FLAGS_STD="-fiopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
 -- 
 2.23.0
 
