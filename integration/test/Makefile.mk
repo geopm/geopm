@@ -31,6 +31,7 @@ include integration/test/test_profile_overflow.mk
 include integration/test/test_trace.mk
 include integration/test/test_monitor.mk
 include integration/test/test_ompt.mk
+include integration/test/test_ompt_gpu.mk
 include integration/test/test_geopmio.mk
 include integration/test/test_launch_application.mk
 include integration/test/test_launch_pthread.mk
