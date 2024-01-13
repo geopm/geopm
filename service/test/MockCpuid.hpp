@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "Cpuid.hpp"
+#include "geopm/Cpuid.hpp"
 
 
 class MockCpuid : public geopm::Cpuid {

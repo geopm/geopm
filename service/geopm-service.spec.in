@@ -295,6 +295,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %defattr(-,root,root,-)
 %dir %{_includedir}/geopm
 %{_includedir}/geopm/Agg.hpp
+%{_includedir}/geopm/Cpuid.hpp
 %{_includedir}/geopm/CircularBuffer.hpp
 %{_includedir}/geopm/Exception.hpp
 %{_includedir}/geopm/Helper.hpp

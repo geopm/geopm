@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "Cpuid.hpp"
+#include "geopm/Cpuid.hpp"
 
 #ifdef GEOPM_ENABLE_CPUID
 #include <cpuid.h>

@@ -33,6 +33,7 @@ geopmincludedir = $(includedir)/geopm
 
 geopminclude_HEADERS = contrib/json11/json11.hpp \
                        src/geopm/Agg.hpp \
+                       src/geopm/Cpuid.hpp \
                        src/geopm/CircularBuffer.hpp \
                        src/geopm/Exception.hpp \
                        src/geopm/Helper.hpp \
@@ -235,7 +236,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/ConstConfigIOGroup.hpp \
                        src/Control.hpp \
                        src/Cpuid.cpp \
-                       src/Cpuid.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
                        src/SysfsIOGroup.cpp \
