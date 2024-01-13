@@ -820,8 +820,12 @@ showcases two optional features of the GEOPM Runtime:
    approximately 50 rows of samples in the trace file (calculated as five
    samples per second over ten seconds).
 3. **Specify Invocation Name**: The optional ``GEOPM_PROGRAM_FILTER``
-   environment variable allows you to explicitly list the name of the
-   non-MPI program invovation name of the non-MPI process to be profiled.
+   environment variable allows you to explicitly list program
+   invovation names that will request profiling, other programs will
+   not be affected by ``LD_PRELOAD`` of ``libgeopm.so``.  For this
+   reason a user will typically set these two environment variables
+   together.  This is especially important when profiling programs
+   within a bash script.
 
 These three options together will inform the GEOPM runtime controller
 (``geopmctl``) to profile the ``sleep`` utility and generate a CSV trace
@@ -837,9 +841,9 @@ since application start (column 1), CPU energy (column 6), and CPU power
       GEOPM_CTL_LOCAL=true \
       GEOPM_TRACE=sleep-ten.csv \
       GEOPM_PERIOD=0.2 \
-      GEOPM_PROGRAM_FILTER=sleep \
       geopmctl &
     $ GEOPM_PROFILE=sleep-ten \
+      GEOPM_PROGRAM_FILTER=sleep \
       LD_PRELOAD=libgeopm.so.2 \
       sleep 10
     $ cat sleep-ten.yaml-$(hostname)
