@@ -38,7 +38,7 @@
 #include "MockSaveControl.hpp"
 #include "MockCpuid.hpp"
 #include "geopm_test.hpp"
-#include "Cpuid.hpp"
+#include "geopm/Cpuid.hpp"
 
 using geopm::MSRIOGroup;
 using geopm::PlatformTopo;

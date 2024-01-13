@@ -17,7 +17,7 @@
 
 #include "IOGroup.hpp"
 #include "geopm_time.h"
-#include "Cpuid.hpp"
+#include "geopm/Cpuid.hpp"
 
 namespace geopm
 {
@@ -26,7 +26,6 @@ namespace geopm
     class Signal;
     class Control;
     class SaveControl;
-    class Cpuid;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup

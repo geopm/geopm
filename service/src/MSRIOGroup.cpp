@@ -39,7 +39,7 @@
 #include "geopm_debug.hpp"
 #include "SaveControl.hpp"
 #include "SecurePath.hpp"
-#include "Cpuid.hpp"
+#include "geopm/Cpuid.hpp"
 
 using json11::Json;
 
