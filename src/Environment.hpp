@@ -42,8 +42,8 @@ namespace geopm
             virtual std::string profile(void) const = 0;
             virtual std::string frequency_map(void) const = 0;
             virtual std::string agent(void) const = 0;
-            virtual std::vector<std::pair<std::string, int> > trace_signals(void) const = 0;
-            virtual std::vector<std::pair<std::string, int> > report_signals(void) const = 0;
+            virtual std::string trace_signals(void) const = 0;
+            virtual std::string report_signals(void) const = 0;
             virtual int max_fan_out(void) const = 0;
             virtual int pmpi_ctl(void) const = 0;
             virtual bool do_policy(void) const = 0;
@@ -69,15 +69,12 @@ namespace geopm
             static std::map<std::string, std::string> parse_environment_file(const std::string &env_file_path);
     };
 
-    class PlatformIO;
-
     class EnvironmentImp : public Environment
     {
         public:
             EnvironmentImp();
             EnvironmentImp(const std::string &default_settings_path,
-                           const std::string &override_settings_path,
-                           const PlatformIO *platform_io);
+                           const std::string &override_settings_path);
             virtual ~EnvironmentImp() = default;
             std::string report(void) const override;
             std::string comm(void) const override;
@@ -89,9 +86,8 @@ namespace geopm
             std::string profile(void) const override;
             std::string frequency_map(void) const override;
             std::string agent(void) const override;
-            std::vector<std::pair<std::string, int> > trace_signals(void) const override;
-            std::vector<std::pair<std::string, int> > report_signals(void) const override;
-            std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const;
+            std::string trace_signals(void) const override;
+            std::string report_signals(void) const override;
             int max_fan_out(void) const override;
             int pmpi_ctl(void) const override;
             bool do_policy(void) const override;
@@ -128,10 +124,6 @@ namespace geopm
             std::map<std::string, std::string> m_name_value_map;
             const std::string m_default_config_path;
             const std::string m_override_config_path;
-            // Pointer used here to avoid calling the singleton too
-            // early as the Environment is used in the top of
-            // geopm_pmpi_init(). Do *NOT* delete this pointer.
-            mutable const PlatformIO *m_platform_io;
     };
 
     const Environment &environment(void);

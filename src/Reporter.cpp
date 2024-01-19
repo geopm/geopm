@@ -33,6 +33,7 @@
 #include "geopm_version.h"
 #include "geopm_debug.hpp"
 #include "Environment.hpp"
+#include "EnvironmentParser.hpp"
 #include "PlatformIOProf.hpp"
 #include "geopm_time.h"
 
@@ -49,7 +50,7 @@ namespace geopm
                       SampleAggregator::make_unique(),
                       nullptr,
                       environment().report(),
-                      environment().report_signals(),
+                      environment_signal_parser(platform_io.signal_names(), environment().report_signals()),
                       environment().policy(),
                       environment().do_endpoint(),
                       environment().profile(),
