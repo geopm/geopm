@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iostream>
 #include <mutex>
+#include <limits.h>
 
 #include "geopm_agent.h"
 #include "geopm_plugin.hpp"
@@ -381,7 +382,7 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                                     char *json_string)
 {
     std::stringstream output_str;
-    char policy_name[json_string_max];
+    char policy_name[PATH_MAX];
     std::string policy_value;
     int num_policy = 0;
     int err = geopm_agent_num_policy(agent_name, &num_policy);
@@ -395,7 +396,7 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                 if (i > 0) {
                     output_str << ", ";
                 }
-                err = geopm_agent_policy_name(agent_name, i, json_string_max, policy_name);
+                err = geopm_agent_policy_name(agent_name, i, PATH_MAX, policy_name);
                 if (std::isnan(policy_array[i])) {
                     policy_value = "\"NAN\"";
                 }

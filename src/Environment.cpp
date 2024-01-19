@@ -19,11 +19,8 @@
 
 #include "geopm/json11.hpp"
 
-#include "geopm/PlatformIO.hpp"
-#include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "PlatformIOProf.hpp"
 #include "geopm_prof.h"
 
 #include "config.h"
@@ -65,14 +62,13 @@ namespace geopm
     }
 
     EnvironmentImp::EnvironmentImp()
-        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH, nullptr)
+        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH)
     {
 
     }
 
     EnvironmentImp::EnvironmentImp(const std::string &default_config_path,
-                                   const std::string &override_config_path,
-                                   const PlatformIO *platform_io)
+                                   const std::string &override_config_path)
         : m_all_names(get_all_vars())
         , m_name_value_map ({{"GEOPM_AGENT", "monitor"},
 #ifdef GEOPM_ENABLE_MPI
@@ -86,7 +82,6 @@ namespace geopm
                              {"GEOPM_NUM_PROC", "1"}})
         , m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
-        , m_platform_io(platform_io)
     {
         parse_environment_file(m_default_config_path, m_all_names, m_user_defined_names, m_name_value_map);
         // Special handling for GEOPM_POLICY and
@@ -300,50 +295,14 @@ namespace geopm
         return lookup("GEOPM_FREQUENCY_MAP");
     }
 
-    std::vector<std::pair<std::string, int> > EnvironmentImp::trace_signals(void) const
+    std::string EnvironmentImp::trace_signals(void) const
     {
-        return signal_parser(lookup("GEOPM_TRACE_SIGNALS"));
+        return lookup("GEOPM_TRACE_SIGNALS");
     }
 
-    std::vector<std::pair<std::string, int> > EnvironmentImp::report_signals(void) const
+    std::string EnvironmentImp::report_signals(void) const
     {
-        return signal_parser(lookup("GEOPM_REPORT_SIGNALS"));
-    }
-
-    std::vector<std::pair<std::string, int> > EnvironmentImp::signal_parser(std::string environment_variable_contents) const
-    {
-        // Lazy init must be done here since the Environment singleton is used in MPI_Init
-        if (m_platform_io == nullptr) {
-            m_platform_io = &PlatformIOProf::platform_io();
-        }
-
-        std::vector<std::pair<std::string, int> > result_data_structure;
-
-        auto signals_avail = m_platform_io->signal_names();
-        auto individual_signals = geopm::string_split(environment_variable_contents, ",");
-        for (const auto &signal : individual_signals) {
-            auto signal_domain = geopm::string_split(signal, "@");
-            if (signals_avail.find(signal_domain[0]) == signals_avail.end()) {
-                throw Exception("Invalid signal : " + signal_domain[0],
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-
-            if (signal_domain.size() == 2) {
-                result_data_structure.push_back(std::make_pair(
-                    signal_domain[0],
-                    geopm::PlatformTopo::domain_name_to_type(signal_domain[1])
-                ));
-            }
-            else if (signal_domain.size() == 1) {
-                result_data_structure.push_back(std::make_pair(signal_domain[0], GEOPM_DOMAIN_BOARD));
-            }
-            else {
-                throw Exception("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
-
-        return result_data_structure;
+        return lookup("GEOPM_REPORT_SIGNALS");
     }
 
     int EnvironmentImp::max_fan_out(void) const

@@ -345,6 +345,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/EndpointUser.hpp \
                       src/Environment.cpp \
                       src/Environment.hpp \
+                      src/EnvironmentParser.cpp \
+                      src/EnvironmentParser.hpp \
                       src/EpochIOGroup.cpp \
                       src/EpochIOGroup.hpp \
                       src/FilePolicy.cpp \
