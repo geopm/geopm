@@ -276,7 +276,7 @@ namespace geopm
     {
         std::string env_profile = lookup("GEOPM_PROFILE");
         std::string ret = env_profile;
-        if (do_profile() && ret.empty()) {
+        if (ret.empty()) {
             ret = "default";
         }
         else if (!ret.empty()) {
@@ -412,7 +412,7 @@ namespace geopm
 
     bool EnvironmentImp::do_profile(void) const
     {
-        bool result = true;
+        bool result = false;
         if (is_set("GEOPM_PROGRAM_FILTER")) {
             auto valid_names = geopm::string_split(lookup("GEOPM_PROGRAM_FILTER"), ",");
             result = std::any_of(valid_names.begin(), valid_names.end(),
