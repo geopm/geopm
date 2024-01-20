@@ -24,6 +24,7 @@ HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
+    GEOPM_PROGRAM_FILTER=tutorial_5 \
     LD_DYNAMIC_WEAK=true \
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_5_report_${HOSTNAME} \
@@ -39,6 +40,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
+                --geopm-program-filter=tutorial_5 \
                 -- ./tutorial_5
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
@@ -49,6 +51,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
+                --geopm-program-filter=tutorial_5 \
                 -- ./tutorial_5
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -59,6 +62,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
+                --geopm-program-filter=tutorial_5 \
                 -- ./tutorial_5
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -70,6 +74,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
+                --geopm-program-filter=tutorial_5 \
                 -- ./tutorial_5
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
@@ -80,6 +85,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
+                --geopm-program-filter=tutorial_5 \
                 -- ./tutorial_5
     err=$?
 else

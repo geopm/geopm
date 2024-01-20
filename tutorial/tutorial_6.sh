@@ -24,6 +24,7 @@ HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
+    GEOPM_PROGRAM_FILTER=tutorial_6 \
     LD_DYNAMIC_WEAK=true \
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_6_report_${HOSTNAME} \
@@ -39,6 +40,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report_${HOSTNAME} \
                 --geopm-trace=tutorial_6_trace \
+                --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
@@ -49,6 +51,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report_${HOSTNAME} \
                 --geopm-trace=tutorial_6_trace \
+                --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -59,6 +62,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report_${HOSTNAME} \
                 --geopm-trace=tutorial_6_trace \
+                --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -70,6 +74,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report_${HOSTNAME} \
                 --geopm-trace=tutorial_6_trace \
+                --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
@@ -80,6 +85,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report_${HOSTNAME} \
                 --geopm-trace=tutorial_6_trace \
+                --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
     err=$?
 else
