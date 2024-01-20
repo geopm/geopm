@@ -32,6 +32,7 @@ HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
     GEOPM_AGENT="power_governor" \
+    GEOPM_PROGRAM_FILTER=tutorial_4 \
     LD_DYNAMIC_WEAK=true \
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_4_governed_report_${HOSTNAME} \
@@ -40,6 +41,7 @@ if [ "$MPIEXEC" ]; then
     $MPIEXEC ./tutorial_4 \
     && \
     GEOPM_AGENT="power_balancer" \
+    GEOPM_PROGRAM_FILTER=tutorial_4 \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
     GEOPM_REPORT=tutorial_4_balanced_report_${HOSTNAME} \
@@ -57,6 +59,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4 \
     && \
     geopmlaunch srun \
@@ -67,6 +70,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
@@ -79,6 +83,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4 \
     && \
     geopmlaunch aprun \
@@ -89,6 +94,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -101,6 +107,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4 \
     && \
     geopmlaunch impi \
@@ -111,6 +118,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -124,6 +132,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4 \
     && \
     geopmlaunch ompi \
@@ -135,6 +144,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
@@ -147,6 +157,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4 \
     && \
     geopmlaunch pals \
@@ -157,6 +168,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
+                --geopm-program-filter=tutorial_4 \
                 -- ./tutorial_4
     err=$?
 else

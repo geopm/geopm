@@ -148,7 +148,7 @@ class Config(object):
         parser.add_argument('--geopm-launch-script', dest='launch_script', type=str)
         parser.add_argument('--geopm-init-control', dest='init_control', type=str)
         parser.add_argument('--geopm-period', dest='period', type=str)
-        parser.add_argument('--geopm-program-filter', dest='program_filter', type=str, default=argv[0])
+        parser.add_argument('--geopm-program-filter', dest='program_filter', type=str, required=True)
         parser.add_argument('--geopm-ctl-local', dest='ctl_local', action='store_true', default=False)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
