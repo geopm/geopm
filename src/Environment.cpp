@@ -448,10 +448,12 @@ namespace geopm
 
     bool EnvironmentImp::do_ctl_local(void) const
     {
-        bool result = false;
-        if (is_set("GEOPM_CTL_LOCAL")) {
-            result = true;
+        bool result = true;
+#ifdef GEOPM_ENABLE_MPI
+        if (!is_set("GEOPM_CTL_LOCAL")) {
+            result = false;
         }
+#endif
         return result;
     }
 
