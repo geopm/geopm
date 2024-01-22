@@ -30,11 +30,9 @@ namespace geopm
         , m_buffer_limit(buffer_size)
         , m_is_active(false)
     {
-#ifdef GEOPM_ENABLE_MPI
         if (host_name.size()) {
             m_file_path += "-" + host_name;
         }
-#endif
         m_stream.open(m_file_path);
         if (!m_stream.good()) {
             throw Exception("Unable to open CSV file '" + m_file_path + "'",
