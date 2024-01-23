@@ -20,35 +20,46 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 NUM_NODES=2
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
-HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
+    export GEOPM_PROGRAM_FILTER=tutorial_3
+    # Use MPIEXEC to launch the Controller process on all nodes
     GEOPM_AGENT="power_governor" \
-    GEOPM_PROGRAM_FILTER=tutorial_3 \
-    LD_DYNAMIC_WEAK=true \
-    GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_3_governed_report_${HOSTNAME} \
+    GEOPM_POLICY=tutorial_power_policy.json \
+    GEOPM_REPORT=tutorial_3_governed_report \
     GEOPM_TRACE=tutorial_3_governed_trace \
-    GEOPM_POLICY=tutorial_power_policy.json \
-    $MPIEXEC ./tutorial_3 \
-    && \
-    GEOPM_AGENT="power_balancer" \
-    GEOPM_PROGRAM_FILTER=tutorial_3 \
-    LD_DYNAMIC_WEAK=true \
-    GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_3_balanced_report_${HOSTNAME} \
-    GEOPM_TRACE=tutorial_3_balanced_trace \
-    GEOPM_POLICY=tutorial_power_policy.json \
-    $MPIEXEC ./tutorial_3
+    GEOPM_NUM_PROC=${RANKS_PER_NODE} \
+    $MPIEXEC -n ${NUM_NODES} -ppn 1 geopmctl &
+
+    # Use MPIEXEC and set GEOPM environment variables to launch the job
+    # Note: LD_PRELOAD is not needed as this app links against libgeopm
+    $MPIEXEC -n ${TOTAL_RANKS} -ppn ${RANKS_PER_NODE} \
+    ./tutorial_3
     err=$?
+    sleep 10 # Give the service a moment to release the CONTROL_LOCK
+    if [ $err -eq 0 ]; then
+        # Use MPIEXEC to launch the Controller process on all nodes
+        GEOPM_AGENT="power_balancer" \
+        GEOPM_POLICY=tutorial_power_policy.json \
+        GEOPM_REPORT=tutorial_3_balanced_report \
+        GEOPM_TRACE=tutorial_3_balanced_trace \
+        GEOPM_NUM_PROC=${RANKS_PER_NODE} \
+        $MPIEXEC -n ${NUM_NODES} -ppn 1 geopmctl &
+
+        # Use MPIEXEC and set GEOPM environment variables to launch the job
+        # Note: LD_PRELOAD is not needed as this app links against libgeopm
+        $MPIEXEC -n ${TOTAL_RANKS} -ppn ${RANKS_PER_NODE} \
+        ./tutorial_3
+        err=$?
+    fi
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmlaunch srun \
                 -N ${NUM_NODES} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_3_governed_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -57,9 +68,9 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     geopmlaunch srun \
                 -N ${NUM_NODES} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_3_balanced_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -71,9 +82,9 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     geopmlaunch aprun \
                 -N ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_3_governed_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -82,9 +93,9 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     geopmlaunch aprun \
                 -N ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_3_balanced_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -95,9 +106,9 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_3_governed_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -106,9 +117,9 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_3_balanced_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -120,9 +131,9 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --npernode ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --hostfile tutorial_hosts \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_3_governed_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -132,9 +143,9 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --npernode ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --hostfile tutorial_hosts \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_3_balanced_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -145,9 +156,9 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
     geopmlaunch pals \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_3_governed_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
@@ -156,9 +167,9 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
     geopmlaunch pals \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
+                --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_3_balanced_report_${HOSTNAME} \
+                --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \

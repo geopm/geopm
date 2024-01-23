@@ -1,45 +1,22 @@
 GEOPM TUTORIAL
 ==============
 This directory contains a step by step tutorial on how to use the
-GEOPM package.  Each step has an associated source and script file.
+GEOPM runtime.  Each step has an associated source and script file.
 The script file will run the associated program and demonstrate a
-GEOPM feature.  There is a script called "tutorial_env.sh" which is
-sourced by all other tutorial scripts, and defines variables which
-describe the install location of GEOPM.  The environment script may
-have to be modified to describe the installed locations on your
-system.  Each step in the tutorial is documented below in this README.
+GEOPM feature.  Each step in the tutorial is documented below in this
+README.
 
 Building the tutorials
 ----------------------
 A simple Makefile which is not part of the GEOPM autotools build
 system compiles the tutorial code.  There are two build scripts, one
-that compiles with the GNU toolchain: "tutorial_build_gnu.sh", and one
-that compiles with the Intel toolchain: "tutorial_build_intel.sh".
+that compiles with the GNU toolchain: `tutorial_build_gnu.sh`, and one
+that compiles with the Intel toolchain: `tutorial_build_intel.sh`.
 The build scripts use the GEOPM install location defined in
-"tutorial_env.sh".  If "mpicc" is not in the user's PATH, the
-environment variable "MPICC" must be set to the path of the user's MPI
-C compiler wrapper.
-
-Running the tutorials with Intel(R) MPI Library
------------------------------------------------
-When launching the tutorials with Intel(R) MPI Library but without SLURM, the
-desired hosts must be specified in the ./tutorial_hosts file.  This will be
-used with the '-f <hosts_file>' option to mpiexec.hydra.
-
-For certain configurations of SLURM, it may be necessary to populate the
-tutorial_hosts file and and use it with your "geopmlaunch impi ..." call.
-This can be accomplished by issuing:
-    scontrol show hostnames > tutorial_hosts
-Then add "-f tutorial_hosts" to your geopmlaunch call.
-
-To determine if tutorial_hosts is necessary, try the following:
-  1. Allocate 2 nodes:  salloc -N2
-  2. Issue the following: mpiexec.hydra -n 10 -ppn 10 hostname
-    a. You should observe the same hostname is printed 10 times.
-  3. Next issue: mpiexec.hydra -n 10 -ppn 5 hostname
-    a. You should observe 5 occurrences of hostname A and 5 of B.
-If either 2.a or 3.a is not observed properly, you'll need to utilize
-the tutorial_hosts file.
+`tutorial_env.sh`.  The required compilers will be enforced through the
+usage of that script, and will rely on the configuration specified in
+~/.geopmrc.  For more information see the [integration
+README](../integration/README.md#prerequisites).
 
 0. Profiling and Tracing an Unmodified Application
 --------------------------------------------------
@@ -48,8 +25,8 @@ integrating their application with the GEOPM runtime is to analyze
 performance of the application without modifying its source code.
 This can be enabled by using the GEOPM launcher script or by setting a
 few environment variables before launching the application.  The
-tutorial_0.sh shows three different methods for launching the GEOPM
-runtime.  The first method uses the geopmlaunch wrapper script for the
+`tutorial_0.sh` shows the various  methods for launching the GEOPM
+runtime.  The first geopmlaunch method using the wrapper script for the
 SLURM srun job launcher:
 
     geopmlaunch srun \
@@ -60,7 +37,7 @@ SLURM srun job launcher:
                 --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
 
-The second method uses the geopmlaunch wrapper script for the ALPS
+The second geopmlaunch method uses the wrapper script for the ALPS
 aprun job launcher:
 
     geopmlaunch aprun \
@@ -71,8 +48,9 @@ aprun job launcher:
                 --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
 
-If your system does not support srun or aprun launch, the third option
-is to set a few environment variables for GEOPM as follows:
+If your system does not support srun or aprun launch, the third
+non-geopmlaunch option is to set a few environment variables for GEOPM
+as follows:
 
     LD_PRELOAD=$GEOPM_LIB/libgeopm.so
     LD_DYNAMIC_WEAK=true
@@ -80,28 +58,20 @@ is to set a few environment variables for GEOPM as follows:
     GEOPM_REPORT=tutorial_0_report
     GEOPM_TRACE=tutorial_0_trace
 
-The environment variable MPIEXEC must also be set to a command and
-options that will launch a job on your system using two compute nodes
-and ten MPI ranks (e.g. MPIEXEC='srun -N 2 -n 10').
+The environment variable `MPIEXEC` must also be set to a command and
+options that will launch a job on your system.
 
-The LD_PRELOAD environment variable enables the GEOPM library to
+The `LD_PRELOAD` environment variable enables the GEOPM library to
 interpose on MPI using the PMPI interface.  Linking directly to
-libgeopm has the same effect, but this is not done in the Makefile for
-tutorial_0 or tutorial_1.  See the geopm.7 man page for a detailed
-description of the other environment variables.
+`libgeopm` has the same effect, but this is not done in the `Makefile`
+for `tutorial_0` or `tutorial_1`.  See the geopm.7 man page for a
+detailed description of the other environment variables.
 
-The tutorial_0.c application is an extremely simple MPI application.
+The `tutorial_0.c` application is an extremely simple MPI application.
 It queries the size of the world communicator, prints it out from rank
 0 and sleeps for 5 seconds.
 
-Since this script uses the command line option to the launcher
-"--geopm-ctl=process" or sets the environment variable
-"GEOPM_PMPI_CTL" to "process" you will notice that the MPI world
-communicator is reported to have one fewer rank per compute node than
-the was requested when the job was launched.  This is because the
-GEOPM controller is using one rank per compute node to execute the
-runtime and has removed this rank from the world communicator.  This
-is important to understand when launching the controller in this way.
+WIP BELOW HERE
 
 The summary report will be created in the file named
 
