@@ -13,6 +13,7 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 
 # Run on 2 nodes
 # with 8 total application MPI ranks
+# load geopm runtime with LD_PRELOAD
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
@@ -20,16 +21,18 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 NUM_NODES=2
 RANKS_PER_NODE=2
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
-HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
-    # Use MPIEXEC and set GEOPM environment variables to launch the job
-    GEOPM_PROGRAM_FILTER=tutorial_6 \
-    LD_DYNAMIC_WEAK=true \
-    GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_6_report_${HOSTNAME} \
+    export GEOPM_PROGRAM_FILTER=tutorial_6
+    # Use MPIEXEC to launch the Controller process on all nodes
+    GEOPM_REPORT=tutorial_6_report \
     GEOPM_TRACE=tutorial_6_trace \
-    $MPIEXEC \
+    GEOPM_NUM_PROC=${RANKS_PER_NODE} \
+    $MPIEXEC -n ${NUM_NODES} -ppn 1 geopmctl &
+
+    # Use MPIEXEC to launch the job
+    # Note: LD_PRELOAD is not needed as this app links against libgeopm
+    $MPIEXEC -n ${TOTAL_RANKS} -ppn ${RANKS_PER_NODE} \
     geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
@@ -37,8 +40,8 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     geopmlaunch srun \
                 -N ${NUM_NODES} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
-                --geopm-report=tutorial_6_report_${HOSTNAME} \
+                --geopm-ctl=application \
+                --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
@@ -48,8 +51,8 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     geopmlaunch aprun \
                 -N ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
-                --geopm-report=tutorial_6_report_${HOSTNAME} \
+                --geopm-ctl=application \
+                --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
@@ -59,8 +62,8 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
-                --geopm-report=tutorial_6_report_${HOSTNAME} \
+                --geopm-ctl=application \
+                --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
@@ -71,8 +74,8 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --npernode ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --hostfile tutorial_hosts \
-                --geopm-ctl=process \
-                --geopm-report=tutorial_6_report_${HOSTNAME} \
+                --geopm-ctl=application \
+                --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
@@ -82,8 +85,8 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
     geopmlaunch pals \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-ctl=process \
-                --geopm-report=tutorial_6_report_${HOSTNAME} \
+                --geopm-ctl=application \
+                --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=tutorial_6 \
                 -- geopmbench tutorial_6_config.json
