@@ -368,8 +368,9 @@ namespace geopm
     {
         int ret = Environment::M_CTL_NONE;
         auto it = m_name_value_map.find("GEOPM_CTL");
-        if (it != m_name_value_map.end()) {
-            std::string pmpi_ctl_str = it->second;
+        if (it != m_name_value_map.end() &&
+            it->second != "application") {
+            std::string pmpi_ctl_str f= it->second;
             if (pmpi_ctl_str == "process") {
                 ret = Environment::M_CTL_PROCESS;
             }
@@ -382,6 +383,13 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
+#ifndef GEOPM_ENABLE_MPI
+        if (ret == Environment::M_CTL_PROCESS ||
+            ret == Environment::M_CTL_PTHREAD) {
+            throw Exception("Environment: libgeopm.so was compiled without MPI support, setting GEOPM_CTL to a value other than \"application\" (the default) is invalid",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+#endif
         return ret;
     }
 
