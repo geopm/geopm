@@ -21,35 +21,35 @@ NUM_NODES=2
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
 
-if [ "$MPIEXEC" ]; then
+if [ "$MPIEXEC_CTL" -a "$MPIEXEC_APP" ]; then
     export GEOPM_PROGRAM_FILTER=tutorial_3
-    # Use MPIEXEC to launch the Controller process on all nodes
+    # Use MPIEXEC_CTL to launch the Controller process on all nodes
     GEOPM_AGENT="power_governor" \
     GEOPM_POLICY=tutorial_power_policy.json \
     GEOPM_REPORT=tutorial_3_governed_report \
     GEOPM_TRACE=tutorial_3_governed_trace \
     GEOPM_NUM_PROC=${RANKS_PER_NODE} \
-    $MPIEXEC -n ${NUM_NODES} -ppn 1 geopmctl &
+    $MPIEXEC_CTL geopmctl &
 
-    # Use MPIEXEC and set GEOPM environment variables to launch the job
+    # Use MPIEXEC_APP to launch the job
     # Note: LD_PRELOAD is not needed as this app links against libgeopm
-    $MPIEXEC -n ${TOTAL_RANKS} -ppn ${RANKS_PER_NODE} \
-    ./tutorial_3
+    $MPIEXEC_APP ./tutorial_3
     err=$?
+
     sleep 10 # Give the service a moment to release the CONTROL_LOCK
+
     if [ $err -eq 0 ]; then
-        # Use MPIEXEC to launch the Controller process on all nodes
+        # Use MPIEXEC_CTL to launch the Controller process on all nodes
         GEOPM_AGENT="power_balancer" \
         GEOPM_POLICY=tutorial_power_policy.json \
         GEOPM_REPORT=tutorial_3_balanced_report \
         GEOPM_TRACE=tutorial_3_balanced_trace \
         GEOPM_NUM_PROC=${RANKS_PER_NODE} \
-        $MPIEXEC -n ${NUM_NODES} -ppn 1 geopmctl &
+        $MPIEXEC_CTL geopmctl &
 
-        # Use MPIEXEC and set GEOPM environment variables to launch the job
+        # Use MPIEXEC_APP to launch the job
         # Note: LD_PRELOAD is not needed as this app links against libgeopm
-        $MPIEXEC -n ${TOTAL_RANKS} -ppn ${RANKS_PER_NODE} \
-        ./tutorial_3
+        $MPIEXEC_APP ./tutorial_3
         err=$?
     fi
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
@@ -176,10 +176,13 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 -- ./tutorial_3
     err=$?
 else
-    echo "Error: tutorial_3.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
-    echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
-    echo "       a command that will launch an MPI job on your system" 2>&1
-    echo "       using 2 nodes and 10 processes." 2>&1
+    echo "Error: $0: Set either GEOPM_LAUNCHER or MPIEXEC_CTL/MPIEXEC_APP in your environment." 2>&1
+    echo "       If no resource manager is available, set the MPIEXEC_* variables as follows:" 2>&1
+    echo "       MPIEXEC_CTL: Run on 2 nodes, 1 process per node (2 total processes)" 2>&1
+    echo "       MPIEXEC_APP: Run on 2 nodes, 4 processes per node (8 total processes)" 2>&1
+    echo "" 2>&1
+    echo "       E.g.:" 2>&1
+    echo "       MPIEXEC_CTL=\"mpiexec -n 2 -ppn 1\" MPIEXEC_APP=\"mpiexec -n 8 -ppn 4\" $0" 2>&1
     err=1
 fi
 
