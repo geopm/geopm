@@ -288,9 +288,14 @@ geopmbench_CXXFLAGS = $(AM_CXXFLAGS) -D_GNU_SOURCE -std=c++17 $(MATH_CFLAGS)
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmagent_LDADD = libgeopm.la
 geopmadmin_LDADD = libgeopm.la
-geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
-geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+geopmctl_LDADD = libgeopm.la
+geopmbench_LDADD = libgeopm.la $(MATH_LIB)
+if ENABLE_MPI
+geopmctl_LDADD += $(MPI_CLIBS)
+geopmbench_LDADD += $(MPI_CLIBS)
 libgeopm_la_LIBADD = $(MPI_CLIBS)
+endif
+
 
 libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 libgeopm_la_CFLAGS = $(AM_CFLAGS)
