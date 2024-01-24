@@ -1073,9 +1073,6 @@ class SrunLauncher(Launcher):
             else:
                 result.append('v,mask_cpu:' + ','.join(mask_list))
 
-            if self.config.get_ctl() == 'application':
-                result.append('--overlap')
-
         return result
 
     def timeout_option(self):
@@ -1152,6 +1149,18 @@ class SrunLauncher(Launcher):
                               (self.lib_name, os.getenv('LD_PRELOAD'))
                               if ll is not None))
             result = ["--export=LD_PRELOAD={},ALL".format(value)]
+        return result
+
+    def launcher_argv(self, is_geopmctl):
+        """
+        Returns a list of command line options for underlying job launch
+        application that reflect the state of the Launcher object.
+        """
+        result = super(SrunLauncher, self).launcher_argv(is_geopmctl)
+
+        if self.config is not None and \
+           self.config.get_ctl() == 'application':
+            result.extend(['--overlap'])
         return result
 
 class SrunTOSSLauncher(SrunLauncher):
