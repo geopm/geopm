@@ -21,6 +21,12 @@ NUM_NODES=2
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
 
+# Determine the power policy for this system
+MIN_POWER=$(geopmread CPU_POWER_MIN_AVAIL board 0)
+MAX_POWER=$(geopmread CPU_POWER_MAX_AVAIL board 0)
+AVG_POWER="$(( ( ${MAX_POWER} + ${MIN_POWER} ) / 2 ))"
+geopmagent -a power_governor -p ${AVG_POWER} > tutorial_power_policy.json
+
 if [ "$MPIEXEC_CTL" -a "$MPIEXEC_APP" ]; then
     export GEOPM_PROGRAM_FILTER=tutorial_3
     # Use MPIEXEC_CTL to launch the Controller process on all nodes
