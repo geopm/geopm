@@ -83,7 +83,11 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     EXPECT_EQ(exp_vars.find("GEOPM_TRACE") != exp_vars.end(), m_env->do_trace());
     EXPECT_EQ(exp_vars.find("GEOPM_TRACE_PROFILE") != exp_vars.end(), m_env->do_trace_profile());
     EXPECT_EQ(exp_vars["GEOPM_REPORT"], m_env->report());
+#ifdef GEOPM_ENABLE_MPI
     EXPECT_EQ(exp_vars["GEOPM_COMM"], m_env->comm());
+#else
+    EXPECT_EQ("NullComm", m_env->comm());
+#endif
     EXPECT_EQ(exp_vars["GEOPM_POLICY"], m_env->policy());
     EXPECT_EQ(exp_vars["GEOPM_AGENT"], m_env->agent());
     EXPECT_EQ(exp_vars["GEOPM_TRACE"], m_env->trace());
@@ -206,11 +210,7 @@ void EnvironmentTest::TearDown()
 TEST_F(EnvironmentTest, internal_defaults)
 {
     std::map<std::string, std::string> internal_default_vars = {
-#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_COMM", "MPIComm"},
-#else
-              {"GEOPM_COMM", "NullComm"},
-#endif
               {"GEOPM_AGENT", "monitor"},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
@@ -320,7 +320,11 @@ TEST_F(EnvironmentTest, default_only)
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
               {"GEOPM_PROFILE", "default-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
+#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_CTL", "pthread"},
+#else
+              {"GEOPM_CTL", "application"},
+#endif
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "0"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -357,7 +361,11 @@ TEST_F(EnvironmentTest, override_only)
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
               {"GEOPM_PROFILE", "override-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
+#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_CTL", "process"},
+#else
+              {"GEOPM_CTL", "application"},
+#endif
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "15"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -394,7 +402,11 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
               {"GEOPM_PROFILE", "default-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
+#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_CTL", "pthread"},
+#else
+              {"GEOPM_CTL", "application"},
+#endif
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "0"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -410,7 +422,11 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
               {"GEOPM_PROFILE", "override-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
+#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_CTL", "process"},
+#else
+              {"GEOPM_CTL", "application"},
+#endif
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "15"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -457,7 +473,11 @@ TEST_F(EnvironmentTest, user_default_and_override)
     std::map<std::string, std::string> override_vars = {
               {"GEOPM_COMM", "override-comm-test_value"},
               {"GEOPM_AGENT", "override-agent-test_value"},
+#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_CTL", "process"},
+#else
+              {"GEOPM_CTL", "application"},
+#endif
     };
     for (const auto &kv : m_user) {
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
@@ -497,6 +517,20 @@ TEST_F(EnvironmentTest, invalid_ctl)
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
 
     EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
+
+#ifndef GEOPM_ENABLE_MPI
+    setenv("GEOPM_CTL", "process", 1);
+
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
+
+    EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
+
+    setenv("GEOPM_CTL", "pthread", 1);
+
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
+
+    EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
+#endif
 }
 
 TEST_F(EnvironmentTest, default_endpoint_user_policy)
