@@ -45,11 +45,7 @@ class TracerTest : public ::testing::Test
         MockPlatformTopo m_platform_topo;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
-#ifdef GEOPM_ENABLE_MPI
         std::string m_file_path = m_path + "-" + m_hostname;
-#else
-        std::string m_file_path = m_path;
-#endif
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
         std::vector<struct m_request_s> m_default_cols;
         const int m_num_extra_cols = 3;

@@ -370,7 +370,7 @@ namespace geopm
         auto it = m_name_value_map.find("GEOPM_CTL");
         if (it != m_name_value_map.end() &&
             it->second != "application") {
-            std::string pmpi_ctl_str f= it->second;
+            std::string pmpi_ctl_str = it->second;
             if (pmpi_ctl_str == "process") {
                 ret = Environment::M_CTL_PROCESS;
             }

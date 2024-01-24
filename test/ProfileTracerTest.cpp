@@ -28,11 +28,7 @@ class ProfileTracerTest : public ::testing::Test
         std::string m_start_time = "Mon Sep 14 19:00:25 2020";
         std::string m_path = "test.profiletrace";
         std::string m_host_name = "myhost";
-#ifdef GEOPM_ENABLE_MPI
         std::string m_output_path = m_path + "-" + m_host_name;
-#else
-        std::string m_output_path = m_path;
-#endif
         std::vector<record_s> m_data;
         MockApplicationSampler m_application_sampler;
 };

@@ -56,9 +56,9 @@ class TestAffinity(unittest.TestCase):
     '''
     def setUp(self):
         self.maxDiff = 4096
-        self.process_argv = ['--geopm-ctl', 'process']
-        self.pthread_argv = ['--geopm-ctl', 'pthread']
-        self.application_argv = ['--geopm-ctl', 'application']
+        self.process_argv = ['--geopm-ctl', 'process', '--geopm-program-filter', 'test']
+        self.pthread_argv = ['--geopm-ctl', 'pthread', '--geopm-program-filter', 'test']
+        self.application_argv = ['--geopm-ctl', 'application', '--geopm-program-filter', 'test']
         self.default_topo = Topo(hthread_per_core=2, core_per_socket=4, num_socket=2)
         self.quartz_topo = Topo(num_socket=2, core_per_socket=18, hthread_per_core=2)
         self.xeon_topo = Topo(num_socket=2, core_per_socket=22, hthread_per_core=2)
