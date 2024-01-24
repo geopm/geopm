@@ -19,14 +19,12 @@ bin_PROGRAMS = geopmadmin \
                geopmctl \
                #end
 
-if ENABLE_MPI
 if ENABLE_OPENMP
     bin_PROGRAMS += geopmbench
 endif
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
 endif
-endif # ENABLE_MPI
 
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
