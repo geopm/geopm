@@ -6,7 +6,9 @@
 #include "config.h"
 #include "All2allModelRegion.hpp"
 
+#ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
+#endif
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -38,6 +40,7 @@ namespace geopm
         m_do_unmarked = do_unmarked;
         const GEOPMBenchConfig &config = geopmbench_config();
         m_is_mpi_enabled = config.is_mpi_enabled();
+#ifdef GEOPM_ENABLE_MPI
         int err = 0;
         if (m_is_mpi_enabled) {
             err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
@@ -46,7 +49,9 @@ namespace geopm
                                 err, __FILE__, __LINE__);
             }
         }
+#endif
         ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
+#ifdef GEOPM_ENABLE_MPI
         if (m_is_mpi_enabled) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
@@ -54,6 +59,7 @@ namespace geopm
             throw Exception("All2allModelRegion::All2allModelRegion()",
                             err, __FILE__, __LINE__);
         }
+#endif
 
         big_o(big_o_in);
     }
@@ -110,6 +116,7 @@ namespace geopm
                 std::cout << "Executing " << m_num_send << " byte buffer all2all "
                           << m_num_progress_updates << " times."  << std::endl << std::flush;
             }
+#ifdef GEOPM_ENABLE_MPI
             if (m_is_mpi_enabled) {
                 MPI_Barrier(MPI_COMM_WORLD);
                 ModelRegion::region_enter();
@@ -147,7 +154,9 @@ namespace geopm
                 }
                 ModelRegion::region_exit();
             }
-            else {
+            else
+#endif
+            {
                 ModelRegion::region_enter();
                 for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                     ModelRegion::loop_enter(i);
