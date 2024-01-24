@@ -6,7 +6,9 @@
 #include "config.h"
 #include "BarrierModelRegion.hpp"
 
+#ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
+#endif
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -34,6 +36,7 @@ namespace geopm
 
     void BarrierModelRegion::run(void)
     {
+#ifdef GEOPM_ENABLE_MPI
         if (m_is_mpi_enabled) {
             if (m_verbosity != 0) {
                 std::cout << "Executing barrier\n";
@@ -43,7 +46,9 @@ namespace geopm
                 throw Exception("MPI_Barrier", err, __FILE__, __LINE__);
             }
         }
-        else {
+        else
+#endif
+        {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
     }

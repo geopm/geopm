@@ -6,7 +6,9 @@
 #include "config.h"
 #include "ReduceModelRegion.hpp"
 
+#ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
+#endif
 #include <iostream>
 #include <vector>
 #include <thread>
@@ -40,6 +42,7 @@ namespace geopm
 
     void ReduceModelRegion::run(void)
     {
+#ifdef GEOPM_ENABLE_MPI
         if (m_is_mpi_enabled) {
             int num_rank = 0;
             int err = 0;
@@ -56,7 +59,9 @@ namespace geopm
                 throw Exception("MPI_Allreduce", err, __FILE__, __LINE__);
             }
         }
-        else {
+        else
+#endif
+        {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
     }

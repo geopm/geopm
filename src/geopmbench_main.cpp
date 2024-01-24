@@ -3,12 +3,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <cstdint>
 #include <string.h>
+#ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
+#endif
 #include <limits.h>
 #include <unistd.h>
 #include <algorithm>
@@ -20,7 +24,6 @@
 #include "GEOPMBenchConfig.hpp"
 #include "ModelApplication.hpp"
 #include "ModelParse.hpp"
-#include "config.h"
 
 static int main_imp(int argc, char **argv);
 
@@ -108,13 +111,12 @@ static int main_imp(int argc, char **argv)
 "\n";
 
     const int ERROR_HELP = -4096;
-    const geopm::GEOPMBenchConfig &config = geopm::geopmbench_config();
-    if (config.is_mpi_enabled()) {
-        err = MPI_Init(&argc, &argv);
-        if (!err) {
-            err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        }
+#ifdef GEOPM_ENABLE_MPI
+    err = MPI_Init(&argc, &argv);
+    if (!err) {
+        err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     }
+#endif
 
     if (!err && argc > 1) {
         if (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
@@ -189,10 +191,10 @@ static int main_imp(int argc, char **argv)
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
 
-    if (config.is_mpi_enabled()) {
-        int err_fin = MPI_Finalize();
-        err = err ? err : err_fin;
-    }
+#ifdef GEOPM_ENABLE_MPI
+    int err_fin = MPI_Finalize();
+    err = err ? err : err_fin;
+#endif
 
     return err;
 }
