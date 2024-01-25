@@ -788,6 +788,13 @@ option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
 Profiling Non-MPI Applications
 """"""""""""""""""""""""""""""
 
+The ``geopmlaunch(1)`` command may not be best suited for your needs
+if you are running a non-MPI application, or if you are running an MPI
+application but the launch command is embedded in scripts that are
+difficult to modify.  Alternately to using ``geopmlaunch(1)``, the
+user may use the ``geopmctl(1)`` application in conjunction with
+environment variables that control the GEOPM Runtime behavior.
+
 In this simple example we run the ``sleep(1)`` command for 10 seconds
 and monitor the system during its execution.  Rather than using the
 ``geopmlaunch`` tool as in the above example, we will run the
@@ -798,16 +805,18 @@ generate a report:
 
 1. Both the ``geopmctl`` process and the application process must have
    the ``GEOPM_PROFILE`` environment variable set to the **same**
-   value.
+   value or both environments may leave this variable unset.
 2. The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
    in the environment or the application binary must be linked
    directly to ``libgeopm.so.2`` at compile time.
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
-4. The ``GEOPM_CTL_LOCAL`` environment variable must be set which disables
-   all intra-node MPI communication between the controllers on each node, thereby
-   generating a unique report file per host node over which the non-MPI
-   application processes are launched.
+4. The ``GEOPM_PROGRAM_FILTER`` environment variable is required and
+   explicitly lists the program invovation names of any process to be
+   profiled. All other programs will not be affected by ``LD_PRELOAD``
+   of ``libgeopm.so``.  For this reason a user will typically set
+   these two environment variables together.  This is especially
+   important when profiling programs within a bash script.
 
 In addition to generating a report in YAML format, the example below
 showcases two optional features of the GEOPM Runtime:
@@ -819,13 +828,11 @@ showcases two optional features of the GEOPM Runtime:
    it to 200 milliseconds, up from the default 5 milliseconds, results in
    approximately 50 rows of samples in the trace file (calculated as five
    samples per second over ten seconds).
-3. **Specify Invocation Name**: The optional ``GEOPM_PROGRAM_FILTER``
-   environment variable allows you to explicitly list program
-   invovation names that will request profiling, other programs will
-   not be affected by ``LD_PRELOAD`` of ``libgeopm.so``.  For this
-   reason a user will typically set these two environment variables
-   together.  This is especially important when profiling programs
-   within a bash script.
+3. **Disable Network Use** The ``GEOPM_CTL_LOCAL`` environment
+   variable may be set which disables all intra-node communication
+   between the controllers on each node, thereby generating a unique
+   report file per host node over which the application processes are
+   launched.
 
 These three options together will inform the GEOPM runtime controller
 (``geopmctl``) to profile the ``sleep`` utility and generate a CSV trace

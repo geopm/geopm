@@ -277,6 +277,12 @@ GEOPM Environment Variables
   application without :doc:`geopmlaunch(1) <geopmlaunch.1>` and in the
   case where there is more than one process to be profiled.  The
   default value for GEOPM_NUM_PROC is one.
+``GEOPM_PROGRAM_FILTER``
+  Required comma separated list of program invocation names of
+  processes which are intended to be profiled and tracked by the
+  controller.  See the ``--geopm-program-filter``
+  :ref:`option description <geopm-program-filter option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
 ``GEOPM_REPORT``
   The path to which a GEOPM report file is saved. See the
   ``--geopm-report`` :ref:`option description <geopm-report option>` in
@@ -353,10 +359,6 @@ GEOPM Environment Variables
   The control loop period in seconds, if not specified this is determined by
   the Agent. See the ``--geopm-period`` :ref:`option description <geopm-period option>`
   in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
-``GEOPM_PROGRAM_FILTER``
-  Optional comma separated list of program invocation names of non-MPI processes which
-  need to be profiled. See the ``--geopm-program-filter`` :ref:`option description
-  <geopm-program-filter option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
 ``GEOPM_MSR_CONFIG_PATH``
   The colon-separated list of search paths for additional MSR definitions. See
   :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` for more details.
