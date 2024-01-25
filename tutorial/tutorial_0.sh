@@ -46,6 +46,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
                 --geopm-program-filter=tutorial_0 \
+                --geopm-affinity-enable \
                 -- ./tutorial_0
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
@@ -58,6 +59,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
                 --geopm-program-filter=tutorial_0 \
+                --geopm-affinity-enable \
                 -- ./tutorial_0
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -70,6 +72,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
                 --geopm-program-filter=tutorial_0 \
+                --geopm-affinity-enable \
                 -- ./tutorial_0
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -83,6 +86,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
                 --geopm-program-filter=tutorial_0 \
+                --geopm-affinity-enable \
                 -- ./tutorial_0
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
@@ -95,6 +99,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-report=tutorial_0_report \
                 --geopm-trace=tutorial_0_trace \
                 --geopm-program-filter=tutorial_0 \
+                --geopm-affinity-enable \
                 -- ./tutorial_0
     err=$?
 else

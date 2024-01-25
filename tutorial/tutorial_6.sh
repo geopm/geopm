@@ -44,6 +44,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=geopmbench \
+                --geopm-affinity-enable \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
@@ -55,6 +56,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=geopmbench \
+                --geopm-affinity-enable \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -66,6 +68,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=geopmbench \
+                --geopm-affinity-enable \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -78,6 +81,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=geopmbench \
+                --geopm-affinity-enable \
                 -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
@@ -89,6 +93,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
                 --geopm-program-filter=geopmbench \
+                --geopm-affinity-enable \
                 -- geopmbench tutorial_6_config.json
     err=$?
 else
