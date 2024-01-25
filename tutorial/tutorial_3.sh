@@ -69,6 +69,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3 \
     && \
     geopmlaunch srun \
@@ -80,6 +81,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3
     err=$?
 
@@ -94,6 +96,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3 \
     && \
     geopmlaunch aprun \
@@ -105,6 +108,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -118,6 +122,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3 \
     && \
     geopmlaunch impi \
@@ -129,6 +134,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -143,6 +149,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3 \
     && \
     geopmlaunch ompi \
@@ -155,6 +162,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
@@ -168,6 +176,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-trace=tutorial_3_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3 \
     && \
     geopmlaunch pals \
@@ -179,6 +188,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_3 \
+                --geopm-affinity-enable \
                 -- ./tutorial_3
     err=$?
 else
