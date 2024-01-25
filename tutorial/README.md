@@ -30,7 +30,7 @@ runtime.  The first geopmlaunch method using the wrapper script for the
 SLURM srun job launcher:
 
     geopmlaunch srun \
-                -N 2 -n 8 \
+                -N 4 -n 16 \
                 --geopm-preload \
                 --geopm-ctl=application \
                 --geopm-report=tutorial_0_report \
@@ -42,7 +42,7 @@ The second geopmlaunch method uses the wrapper script for the ALPS
 aprun job launcher:
 
     geopmlaunch aprun \
-                -N 4 -n 8 \
+                -N 4 -n 16 \
                 --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_0_report \
@@ -68,6 +68,13 @@ the Controller and the app with `$MPIEXEC_*`:
 
 The environment variables `MPIEXEC_CTL` and `MPIEXEC_APP` must also be
 set to a command and options that will launch a job on your system.
+
+`MPIEXEC_CTL` must be set to launch 1 process on each compute node.
+This will launch the GEOPM Controller on each node which is required
+for profiling.
+
+`MPIEXEC_APP` must be set to the desired parameters for your
+application with the appropriate number of nodes and ranks.
 
 The `LD_PRELOAD` environment variable enables the GEOPM Runtime
 library (i.e. `libgeopm`) to connect with the application at
