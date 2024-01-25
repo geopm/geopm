@@ -17,6 +17,7 @@
 #include "geopm_agent.h"
 #include "geopm_plugin.hpp"
 #include "MonitorAgent.hpp"
+#include "NodePowerGovernorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "FrequencyMapAgent.hpp"
@@ -51,6 +52,10 @@ namespace geopm
                         PowerGovernorAgent::make_plugin,
                         Agent::make_dictionary(PowerGovernorAgent::policy_names(),
                                                PowerGovernorAgent::sample_names()));
+        register_plugin(NodePowerGovernorAgent::plugin_name(),
+                        NodePowerGovernorAgent::make_plugin,
+                        Agent::make_dictionary(NodePowerGovernorAgent::policy_names(),
+                                               NodePowerGovernorAgent::sample_names()));
         register_plugin(FrequencyMapAgent::plugin_name(),
                         FrequencyMapAgent::make_plugin,
                         Agent::make_dictionary(FrequencyMapAgent::policy_names(),

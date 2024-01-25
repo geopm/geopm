@@ -45,6 +45,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_agent_frequency_map.7.rst \
               docs/source/geopm_agent_gpu_activity.7.rst \
               docs/source/geopm_agent_monitor.7.rst \
+              docs/source/geopm_agent_node_power_governor.7.rst \
               docs/source/geopm_agent_power_balancer.7.rst \
               docs/source/geopm_agent_power_governor.7.rst \
               docs/source/geopmbench.1.rst \
@@ -67,6 +68,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/GEOPM_CXX_MAN_MPIComm.3.rst \
               docs/source/GEOPM_CXX_MAN_MSRIO.3.rst \
               docs/source/GEOPM_CXX_MAN_MSRIOGroup.3.rst \
+              docs/source/GEOPM_CXX_MAN_NodePowerGovernorAgent.3.rst \
               docs/source/GEOPM_CXX_MAN_PlatformIO.3.rst \
               docs/source/GEOPM_CXX_MAN_PlatformTopo.3.rst \
               docs/source/GEOPM_CXX_MAN_PluginFactory.3.rst \
@@ -122,6 +124,7 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopm_agent_frequency_map.7 \
            docs/build/man/geopm_agent_gpu_activity.7 \
            docs/build/man/geopm_agent_monitor.7 \
+           docs/build/man/geopm_agent_node_power_governor.7 \
            docs/build/man/geopm_agent_power_balancer.7 \
            docs/build/man/geopm_agent_power_governor.7 \
            docs/build/man/geopmbench.1 \
@@ -135,6 +138,7 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/GEOPM_CXX_MAN_GPUActivityAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_MonitorAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_MPIComm.3 \
+           docs/build/man/GEOPM_CXX_MAN_NodePowerGovernorAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_PowerBalancer.3 \
            docs/build/man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_PowerGovernor.3 \

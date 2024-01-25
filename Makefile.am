@@ -372,6 +372,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/NNFactory.cpp \
                       src/NNFactory.hpp \
                       src/NNFactoryImp.hpp \
+                      src/NodePowerGovernorAgent.cpp \
+                      src/NodePowerGovernorAgent.hpp \
                       src/OptionParser.cpp \
                       src/OptionParser.hpp \
                       src/PowerBalancer.cpp \
