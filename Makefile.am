@@ -481,9 +481,6 @@ ompt_source_files = src/OMPT.cpp \
                     src/OMPT.hpp \
                     src/ompt_callback.cpp \
                     # end
-fortran_source_files = src/geopm_prof.f90 \
-                       src/geopm_pmpi_fortran.c \
-                       # end
 
 geopmctl_SOURCES = src/geopmctl_main.c
 
@@ -507,20 +504,21 @@ else
     EXTRA_DIST += $(ompt_source_files)
 endif
 
-if ENABLE_MPI
 if ENABLE_FORTRAN
-    libgeopmfort_la_SOURCES = $(fortran_source_files)
+    libgeopmfort_la_SOURCES = src/geopm_prof.f90
+if ENABLE_MPI
+    libgeopmfort_la_SOURCES += src/geopm_pmpi_fortran.c
     libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
+endif
     libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
     libgeopmfort_la_CFLAGS = $(AM_CFLAGS)
     libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS)
     libgeopmfort_la_CXXFLAGS = $(AM_CXXFLAGS)
 else
-    EXTRA_DIST += $(fortran_source_files)
+    EXTRA_DIST += src/geopm_prof.f90 \
+                  src/geopm_pmpi_fortran.c \
+                  # end
 endif
-else
-    EXTRA_DIST += $(fortran_source_files)
-endif # ENABLE_MPI
 
 model_source_files = src/All2allModelRegion.cpp \
                      src/All2allModelRegion.hpp \
