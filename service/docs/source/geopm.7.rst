@@ -364,7 +364,8 @@ GEOPM Environment Variables
   :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` for more details.
 ``GEOPM_CTL_LOCAL``
   Disable communication between controllers running on different
-  compute nodes and produce one report file per host. See the
+  compute nodes and produce one report file per host.  Enabled by
+  default when MPI is not compiled into the GEOPM Runtime.  See the
   ``--geopm-ctl-local`` :ref:`option description <geopm-ctl-local option>`
   in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
 

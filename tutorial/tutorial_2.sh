@@ -11,15 +11,16 @@ export PATH=$GEOPM_BIN:$PATH
 export PYTHONPATH=$GEOPMPY_PKGDIR:$PYTHONPATH
 export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 
-# Run on 2 nodes
+# Run on 4 nodes
 # with 8 total application MPI ranks
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
 
-NUM_NODES=2
+NUM_NODES=4
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
+HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC_CTL" -a "$MPIEXEC_APP" ]; then
     export LD_PRELOAD=$GEOPM_LIB/libgeopm.so
@@ -27,7 +28,7 @@ if [ "$MPIEXEC_CTL" -a "$MPIEXEC_APP" ]; then
     export LD_DYNAMIC_WEAK=true
 
     # Use MPIEXEC_CTL to launch the Controller process on all nodes
-    GEOPM_REPORT=tutorial_2_report \
+    GEOPM_REPORT=tutorial_2_report_${HOSTNAME} \
     GEOPM_TRACE=tutorial_2_trace \
     GEOPM_NUM_PROC=${RANKS_PER_NODE} \
     $MPIEXEC_CTL geopmctl &
@@ -41,7 +42,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -N ${NUM_NODES} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
-                --geopm-report=tutorial_2_report \
+                --geopm-report=tutorial_2_report_${HOSTNAME} \
                 --geopm-trace=tutorial_2_trace \
                 --geopm-program-filter=tutorial_2 \
                 --geopm-affinity-enable \
@@ -53,7 +54,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -N ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
-                --geopm-report=tutorial_2_report \
+                --geopm-report=tutorial_2_report_${HOSTNAME} \
                 --geopm-trace=tutorial_2_trace \
                 --geopm-program-filter=tutorial_2 \
                 --geopm-affinity-enable \
@@ -65,7 +66,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
-                --geopm-report=tutorial_2_report \
+                --geopm-report=tutorial_2_report_${HOSTNAME} \
                 --geopm-trace=tutorial_2_trace \
                 --geopm-program-filter=tutorial_2 \
                 --geopm-affinity-enable \
@@ -78,7 +79,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 -n ${TOTAL_RANKS} \
                 --hostfile tutorial_hosts \
                 --geopm-ctl=application \
-                --geopm-report=tutorial_2_report \
+                --geopm-report=tutorial_2_report_${HOSTNAME} \
                 --geopm-trace=tutorial_2_trace \
                 --geopm-program-filter=tutorial_2 \
                 --geopm-affinity-enable \
@@ -90,7 +91,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
-                --geopm-report=tutorial_2_report \
+                --geopm-report=tutorial_2_report_${HOSTNAME} \
                 --geopm-trace=tutorial_2_trace \
                 --geopm-program-filter=tutorial_2 \
                 --geopm-affinity-enable \

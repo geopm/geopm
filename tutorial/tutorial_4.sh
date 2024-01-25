@@ -19,13 +19,14 @@ if [ ! -e $IMBALANCER_CONFIG ]; then
     echo $(hostname) 0.1 > $IMBALANCER_CONFIG
 fi
 
-# Run on 2 nodes
+# Run on 4 nodes
 # with 8 total application MPI ranks
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
+HOSTNAME=$(hostname)
 
-NUM_NODES=2
+NUM_NODES=4
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
 
@@ -40,7 +41,7 @@ if [ "$MPIEXEC_CTL" -a "$MPIEXEC_APP" ]; then
     # Use MPIEXEC_CTL to launch the Controller process on all nodes
     GEOPM_AGENT="power_governor" \
     GEOPM_POLICY=tutorial_power_policy.json \
-    GEOPM_REPORT=tutorial_4_governed_report \
+    GEOPM_REPORT=tutorial_4_governed_report_${HOSTNAME} \
     GEOPM_TRACE=tutorial_4_governed_trace \
     GEOPM_NUM_PROC=${RANKS_PER_NODE} \
     $MPIEXEC_CTL geopmctl &
@@ -56,7 +57,7 @@ if [ "$MPIEXEC_CTL" -a "$MPIEXEC_APP" ]; then
         # Use MPIEXEC_CTL to launch the Controller process on all nodes
         GEOPM_AGENT="power_balancer" \
         GEOPM_POLICY=tutorial_power_policy.json \
-        GEOPM_REPORT=tutorial_4_balanced_report \
+        GEOPM_REPORT=tutorial_4_balanced_report_${HOSTNAME} \
         GEOPM_TRACE=tutorial_4_balanced_trace \
         GEOPM_NUM_PROC=${RANKS_PER_NODE} \
         $MPIEXEC_CTL geopmctl &
@@ -73,7 +74,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -85,7 +86,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -99,7 +100,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -111,7 +112,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -125,7 +126,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -137,7 +138,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -152,7 +153,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --hostfile tutorial_hosts \
                 --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -165,7 +166,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --hostfile tutorial_hosts \
                 --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -179,7 +180,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \
@@ -191,7 +192,7 @@ elif [ "$GEOPM_LAUNCHER" = "pals" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=application \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 --geopm-program-filter=tutorial_4 \

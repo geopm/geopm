@@ -791,7 +791,7 @@ Profiling Non-MPI Applications
 The ``geopmlaunch(1)`` command may not be best suited for your needs
 if you are running a non-MPI application, or if you are running an MPI
 application but the launch command is embedded in scripts that are
-difficult to modify.  Alternately to using ``geopmlaunch(1)``, the
+difficult to modify.  Instead of using ``geopmlaunch(1)``, the
 user may use the ``geopmctl(1)`` application in conjunction with
 environment variables that control the GEOPM Runtime behavior.
 

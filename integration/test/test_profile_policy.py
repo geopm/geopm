@@ -61,6 +61,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
                       '--geopm-ctl=process',
                       '--geopm-endpoint', endpoint_prefix,
                       '--geopm-agent', agent,
+                      '--geopm-program-filter', self._app_conf.get_exec_path(),
                       '--geopm-timeout', "5"]
 
         # this must be launched on the same node as the root controller
