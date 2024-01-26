@@ -80,7 +80,7 @@ def report_signals():
 def trace_signals():
     return [ "GPU_CORE_FREQUENCY_STATUS@gpu" ]
 
-def launch_configs(output_dir, app_conf, core_freq_range, uncore_freq_range, gpu_freq_range):
+def launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range):
     agent = 'frequency_map'
     targets = []
     for freq in core_freq_range:
@@ -90,7 +90,7 @@ def launch_configs(output_dir, app_conf, core_freq_range, uncore_freq_range, gpu
                 options = {'FREQ_CPU_DEFAULT': freq,
                            'FREQ_CPU_UNCORE': uncore_freq,
                            'FREQ_GPU_DEFAULT': gpu_freq}
-                file_name = os.path.join(output_dir, f'{agent}_agent_{name}.config')
+                file_name = f'{agent}_agent_{name}.config'
                 agent_conf = geopmpy.agent.AgentConf(file_name, agent, options)
                 targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                         agent_conf=agent_conf,
@@ -119,7 +119,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                 args.max_gpu_frequency,
                                                 args.step_gpu_frequency)
 
-    targets = launch_configs(args.output_dir, app_conf, core_freq_range, uncore_freq_range, gpu_freq_range)
+    targets = launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range)
 
     extra_cli_args = launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())

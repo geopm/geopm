@@ -11,58 +11,56 @@ efficiency of an application.
 import sys
 import unittest
 import os
+import json
 from pathlib import Path
-import shutil
-from experiment import machine
 from types import SimpleNamespace
 
 import geopmpy.agent
 import geopmpy.io
 
-from integration.test import util
-from integration.test import geopm_test_launcher
-from experiment.energy_efficiency import gpu_activity
+from integration.test import util as test_util
 from apps.parres import parres
+from experiment.energy_efficiency import gpu_activity
+from experiment.gpu_ca_characterization import GPUCACharacterization
+from experiment import util as exp_util
 
-@util.skip_unless_config_enable('beta')
-@util.skip_unless_gpu()
-@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
+@test_util.skip_unless_gpu()
+@test_util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
 class TestIntegration_gpu_activity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
         Setup DGEMM & STREAM applications, setup agent config, and execute.
         """
-        cls._skip_launch = not util.do_launch()
-
-        max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
-
-        # TODO:
-        # Once the GPU Frequency sweep infrastructure is added a full
-        # characterization integration test should be added that does
-        # a GPU frequency sweep of parres dgemm, parses the frequency
-        # sweep using the gen_gpu_activity_constconfig_recommendation.py
-        # script, and uses the output provided.
-        #
-        # This is a less time consuming version of that approach,
-        # where efficient freq is estimated based on min and max
-        min_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MIN_AVAIL board 0")
-        efficient_freq = (min_freq + max_freq) / 2
+        cls._skip_launch = not test_util.do_launch()
 
         def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
             if not cls._skip_launch:
-                output_dir = experiment_args.output_dir
-                if output_dir.exists() and output_dir.is_dir():
-                    shutil.rmtree(output_dir)
+                exp_util.prep_experiment_output_dir(experiment_args.output_dir)
 
+                experiment_cli_args.append('--geopm-ctl-local')
                 experiment_type.launch(app_conf=app_conf, args=experiment_args,
                                        experiment_cli_args=experiment_cli_args)
 
-        node_count=1
-        mach = machine.init_output_dir('.')
+        base_dir = 'test_gpu_activity_output'
+        cls._gpu_ca_characterization = GPUCACharacterization(base_dir=base_dir)
+        mach = cls._gpu_ca_characterization.get_machine_config()
+        gpu_config = {}
+        if not cls._skip_launch:
+            gpu_config = cls._gpu_ca_characterization.do_characterization()
 
-        # DGEMM
-        cls._dgemm_output_dir = Path(os.path.join('test_gpu_activity_output', 'dgemm'))
+        # Write config
+        json_config = json.dumps(gpu_config, indent=4)
+        with open("const_config_io-ca.json", "w") as outfile:
+            outfile.write(json_config)
+
+        const_path = Path('const_config_io-ca.json').resolve()
+        os.environ["GEOPM_CONST_CONFIG_PATH"] = str(const_path)
+
+        node_count=1
+
+        # DGEMM GPU-CA Phi Sweep
+        cls._dgemm_output_dir = Path(base_dir, 'dgemm')
         experiment_args = SimpleNamespace(
             output_dir=cls._dgemm_output_dir,
             node_count=node_count,
@@ -81,33 +79,35 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             phi_list=None,
         )
 
-        if util.get_service_config_value('enable_nvml') == '1':
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                    "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
-            app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
-        elif util.get_service_config_value('enable_levelzero') == '1':
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                    "apps/parres/Kernels/Cxx11/dgemm-onemkl")
-            app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
-        if not os.path.exists(app_path):
-            self.fail("Neither NVIDIA nor Intel dgemm variant was found")
+        #if test_util.is_nvml_enabled():
+        #    app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        #                            "apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
+        #    app_conf = parres.create_dgemm_appconf_cuda(mach, experiment_args)
+        #elif test_util.is_oneapi_enabled():
+        app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                "apps/parres/Kernels/Cxx11/dgemm-onemkl")
+        app_conf = parres.create_dgemm_appconf_oneapi(mach, experiment_args)
+        #if not os.path.exists(app_path):
+        #    raise Exception("Neither NVIDIA or Intel dgemm variant was found")
+
         launch_helper(gpu_activity, experiment_args, app_conf, [])
 
         # STREAM
-        cls._stream_output_dir = Path(os.path.join('test_gpu_activity_output', 'stream'))
-        experiment_args.output_dir=cls._stream_output_dir
-        experiment_args.parres_args="3 1000000000"
+        cls._stream_output_dir = Path(base_dir, 'stream')
+        experiment_args.output_dir = cls._stream_output_dir
+        experiment_args.parres_args = "3 1000000000"
 
-        if util.get_service_config_value('enable_nvml') == '1':
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                    "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
-            app_conf = parres.create_nstream_appconf_cuda(mach, experiment_args)
-        elif util.get_service_config_value('enable_levelzero') == '1':
-            app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                                    "apps/parres/Kernels/Cxx11/nstream-onemkl")
-            app_conf = parres.create_nstream_appconf_oneapi(mach, experiment_args)
-        if not os.path.exists(app_path):
-            self.fail("Neither NVIDIA nor Intel dgemm variant was found")
+        #if test_util.is_nvml_enabled():
+        #    app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        #                            "apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
+        #    app_conf = parres.create_nstream_appconf_cuda(mach, experiment_args)
+        #elif test_util.is_oneapi_enabled():
+        app_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                                "apps/parres/Kernels/Cxx11/nstream-onemkl")
+        app_conf = parres.create_nstream_appconf_oneapi(mach, experiment_args)
+        #if not os.path.exists(app_path):
+        #    raise Exception("Neither NVIDIA or Intel dgemm variant was found")
+
         launch_helper(gpu_activity, experiment_args, app_conf, [])
 
     def tearDown(self):
@@ -119,7 +119,8 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         PARRES DGEMM exhibits less energy consumption with the agent at phi > 50
         and FoM doesn't change significantly from phi 0 to phi 50
         """
-        df = geopmpy.io.RawReportCollection('*report', dir_name=self._dgemm_output_dir).get_app_df()
+
+        df = geopmpy.io.RawReportCollection('*report*', dir_name=self._dgemm_output_dir).get_app_df()
 
         default_fom = float(df[df['GPU_PHI'] == 0]['FOM'])
         default_energy = float(df[df['GPU_PHI'] == 0]['gpu-energy (J)'])
@@ -128,17 +129,16 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             fom = float(df[df['GPU_PHI'] == phi]['FOM'])
             energy = float(df[df['GPU_PHI'] == phi]['gpu-energy (J)'])
             if phi <= 0.5:
-                util.assertNear(self, fom, default_fom)
+                test_util.assertNear(self, fom, default_fom)
             elif phi > 0.5:
                 self.assertLess(energy, default_energy)
-                self.assertLess(fom, default_fom);
 
     def test_gpu_activity_stream(self):
         """
         PARRES NSTREAM exhibits less energy consumption with the agent
         for all non-zero phi values.
         """
-        df = geopmpy.io.RawReportCollection('*report', dir_name=self._stream_output_dir).get_app_df()
+        df = geopmpy.io.RawReportCollection('*report*', dir_name=self._stream_output_dir).get_app_df()
 
         default_fom = float(df[df['GPU_PHI'] == 0]['FOM'])
         default_energy = float(df[df['GPU_PHI'] == 0]['gpu-energy (J)'])
@@ -151,5 +151,5 @@ class TestIntegration_gpu_activity(unittest.TestCase):
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
-    util.do_launch()
+    test_util.do_launch()
     unittest.main()

@@ -19,6 +19,7 @@ from docutils.nodes import literal_block
 from docutils.core import publish_doctree
 
 from integration.test import geopm_test_launcher
+from experiment import util as experiment_util
 
 
 # the global singleton
@@ -400,3 +401,9 @@ def get_scripts_from_readme(rst_readme_path):
 
 def get_num_node():
     return int(os.environ.get("GEOPM_NUM_NODE", os.environ.get("SLURM_NNODES", 4)))
+
+def is_nvml_enabled():
+    return experiment_util.get_service_config_value('enable_nvml') == '1'
+
+def is_oneapi_enabled():
+    return experiment_util.get_service_config_value('enable_levelzero') == '1'

@@ -49,6 +49,9 @@ class MinifeAppConf(apps.AppConf):
     def get_bash_exec_args(self):
         return self.app_params + ' -name=' + self.get_run_id()
 
+    def get_custom_geopm_args(self):
+        return ['--geopm-ctl=process', '--geopm-affinity-enable']
+
     def parse_fom(self, log_path):
         # log path is ignored; use unique_name from init
         matching_files = glob.glob('*' + self.get_run_id() + '*.yaml')
