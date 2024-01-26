@@ -171,6 +171,7 @@ namespace geopm
 
             std::shared_ptr<InitControl> m_init_control;
             bool m_do_init_control;
+            bool m_do_restore;
     };
 }
 #endif

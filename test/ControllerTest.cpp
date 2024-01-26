@@ -170,9 +170,6 @@ void ControllerTest::SetUp()
     m_policy_tracer_ptr = m_policy_tracer.get();
     m_profile_tracer = std::make_shared<MockProfileTracer>();
     m_init_control = std::make_shared<MockInitControl>();
-
-    // called during clean up
-    EXPECT_CALL(m_platform_io, restore_control());
 }
 
 void ControllerTest::TearDown()

@@ -57,11 +57,6 @@ namespace geopm
         if (m_is_connected) {
             return result;
         }
-        double timeout = m_timeout;
-        // TODO: This is a temporary work around until issue #2987 is resolved
-        if (timeout < 0.0) {
-            timeout = 60.0;
-        }
         struct geopm_time_s time_zero;
         struct geopm_time_s time_curr;
         geopm_time(&time_zero);
@@ -80,13 +75,14 @@ namespace geopm
             }
             clock_nanosleep(CLOCK_REALTIME, 0, &delay, NULL);
             geopm_time(&time_curr);
-        } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
+        } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < m_timeout);
 
         if (!m_is_connected) {
-            std::cerr << "Warning: <geopm> Timeout while trying to detect the application. "
-                      << "This can happen if the application has a very short duration." << std::endl;
+            std::cerr << "Warning: <geopm> Timeout while trying to detect the application. Possible causes:\n"
+                      << "         1. Application processes have a very short duration\n"
+                      << "         2. GEOPM_PROGRAM_FILTER is not set correctly in the application environment (does not match program invocation name)\n"
+                      << "         3. GEOPM_NUM_PROC is set to more processes than are created with matching program invocation names." << std::endl;
         }
-
 #ifdef GEOPM_DEBUG
         std::cout << "Info: <geopm> Controller will profile PIDs: ";
         for (auto pid : m_profile_pids) {
