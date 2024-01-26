@@ -16,11 +16,6 @@
 
 #include "LevelZeroImp.hpp"
 
-static void __attribute__((constructor)) geopm_levelzero_init(void)
-{
-    setenv("ZES_ENABLE_SYSMAN", "1", 1);
-}
-
 namespace geopm
 {
     const LevelZero &levelzero()
