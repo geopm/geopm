@@ -45,7 +45,9 @@ def main():
         try:
             if not os.path.exists('/dev/cpu/msr_batch'):
                 writer.backup_and_try_update('on\n')
-            _bus.publish_object("/io/github/geopm", service.GEOPMService())
+            geopm_service = service.GEOPMService()
+            geopm_service.topo_rm_cache()
+            _bus.publish_object("/io/github/geopm", geopm_service)
             _bus.register_service("io.github.geopm")
             _loop.run()
         finally:
