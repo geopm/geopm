@@ -522,13 +522,13 @@ TEST_F(EnvironmentTest, invalid_ctl)
 #ifndef GEOPM_ENABLE_MPI
     setenv("GEOPM_CTL", "process", 1);
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
 
     EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
 
     setenv("GEOPM_CTL", "pthread", 1);
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
 
     EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
 #endif
