@@ -884,6 +884,7 @@ class TopoService(object):
 
         """
         self._topo = topo
+        self._topo_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'geopm-topo-cache')
 
     def get_cache(self):
         """Return the contents of the PlatformTopo cache file.
@@ -899,10 +900,18 @@ class TopoService(object):
 
         """
         self._topo.create_cache()
-        with open(os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'geopm-topo-cache')) as fid:
+        with open(self._topo_path) as fid:
             result = fid.read()
         return result
 
+    def rm_cache(self):
+        """Remove an existing cache file if it exists
+
+        """
+        try:
+            os.unlink(self._topo_path)
+        except FileNotFoundError:
+            pass
 
 class GEOPMService(object):
     """The dasbus service object that is published.
@@ -1025,6 +1034,12 @@ class GEOPMService(object):
     # TODO: This method should check credentials
     def PlatformPopProfileRegionNames(self, profile_name):
         return self._platform.pop_profile_region_names(profile_name)
+
+    def topo_rm_cache(self):
+        """Remove an existing topo cache file if it exists
+
+        """
+        self._topo.rm_cache()
 
     def _get_user(self, call_info):
         """Use DBus proxy object to derive the user name that owns the client
