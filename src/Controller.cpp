@@ -259,6 +259,7 @@ namespace geopm
         , m_do_policy(do_policy)
         , m_init_control(std::move(init_control))
         , m_do_init_control(do_init_control)
+        , m_do_restore(false)
     {
         if (m_num_send_down > 0 && !(m_do_policy || m_do_endpoint)) {
             throw Exception("Controller(): at least one of policy or endpoint path"
@@ -292,7 +293,9 @@ namespace geopm
 
     Controller::~Controller()
     {
-        m_platform_io.restore_control();
+        if (m_do_restore) {
+            m_platform_io.restore_control();
+        }
     }
 
     void Controller::create_agents(void)
@@ -365,6 +368,7 @@ namespace geopm
         m_application_sampler.update(curr_time);
         create_agents();
         m_platform_io.save_control();
+        m_do_restore = true;
         m_init_control->write_controls();
         init_agents();
         m_reporter->init();
