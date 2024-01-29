@@ -118,6 +118,34 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         if(gpu_max_frequency_limit > 0): #Negative value indicates max was not supported
             self.assertLessEqual(frequency_gpu, gpu_max_frequency_limit)
 
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_RESET_COUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_PROGRAMMING_ERRCOUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_DRIVER_ERRCOUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_COMPUTE_ERRCOUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_NONCOMPUTE_ERRCOUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_CACHE_ERRCOUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_DISPLAY_ERRCOUNT gpu 0")
+    def test_ras(self):
+        sys.stdout.write("Running LevelZero RAS Test\n");
+        #Query
+        gpu_ras_reset_count = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_RESET_COUNT gpu 0")
+        gpu_ras_programming_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_PROGRAMMING_ERRCOUNT gpu 0")
+        gpu_ras_driver_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_DRIVER_ERRCOUNT gpu 0")
+        gpu_ras_compute_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_COMPUTE_ERRCOUNT gpu 0")
+        gpu_ras_noncompute_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_NONCOMPUTE_ERRCOUNT gpu 0")
+        gpu_ras_cache_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_CACHE_ERRCOUNT gpu 0")
+        gpu_ras_display_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_DISPLAY_ERRCOUNT gpu 0")
+
+        #Info
+        sys.stdout.write("RAS:\n");
+        sys.stdout.write("\tGPU RAS Reset Count: {}\n".format(gpu_ras_reset_count));
+        sys.stdout.write("\tGPU RAS Programming Errcount: {}\n".format(gpu_ras_programming_errcount));
+        sys.stdout.write("\tGPU RAS Driver Errcount: {}\n".format(gpu_ras_driver_errcount));
+        sys.stdout.write("\tGPU RAS Compute Errcount: {}\n".format(gpu_ras_compute_errcount));
+        sys.stdout.write("\tGPU RAS NonCompute Errcount: {}\n".format(gpu_ras_noncompute_errcount));
+        sys.stdout.write("\tGPU RAS Cache Errcount: {}\n".format(gpu_ras_cache_errcount));
+        sys.stdout.write("\tGPU RAS Display Errcount: {}\n".format(gpu_ras_display_errcount));
+
 
 if __name__ == '__main__':
     unittest.main()

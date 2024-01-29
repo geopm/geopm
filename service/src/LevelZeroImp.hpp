@@ -24,7 +24,22 @@ namespace geopm
             virtual ~LevelZeroImp() = default;
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
-
+            int ras_domain_count(unsigned int l0_device_idx,
+                                 int l0_domain) const override;
+            double ras_reset_count(unsigned int l0_device_idx,
+                                   int l0_domain, int l0_domain_idx) const override;
+            double ras_programming_errcount(unsigned int l0_device_idx,
+                                            int l0_domain, int l0_domain_idx) const override;
+            double ras_driver_errcount(unsigned int l0_device_idx,
+                                       int l0_domain, int l0_domain_idx) const override;
+            double ras_compute_errcount(unsigned int l0_device_idx,
+                                        int l0_domain, int l0_domain_idx) const override;
+            double ras_noncompute_errcount(unsigned int l0_device_idx,
+                                           int l0_domain, int l0_domain_idx) const override;
+            double ras_cache_errcount(unsigned int l0_device_idx,
+                                      int l0_domain, int l0_domain_idx) const override;
+            double ras_display_errcount(unsigned int l0_device_idx,
+                                        int l0_domain, int l0_domain_idx) const override;
             int frequency_domain_count(unsigned int l0_device_idx,
                                        int domain) const override;
             double frequency_status(unsigned int l0_device_idx,
@@ -43,20 +58,17 @@ namespace geopm
             std::pair<double, double> frequency_range(unsigned int l0_device_idx,
                                                       int l0_domain,
                                                       int l0_domain_idx) const override;
-
             int temperature_domain_count(unsigned int l0_device_idx,
                                          int l0_domain) const override;
             double temperature_max(unsigned int l0_device_idx, int l0_domain,
                                    int l0_domain_idx) const override;
-
             int engine_domain_count(unsigned int l0_device_idx, int domain) const override;
             std::pair<uint64_t, uint64_t> active_time_pair(unsigned int l0_device_idx,
                                                            int l0_domain, int l0_domain_idx) const override;
             uint64_t active_time(unsigned int l0_device_idx, int l0_domain,
                                  int l0_domain_idx) const override;
             uint64_t active_time_timestamp(unsigned int l0_device_idx,
-                                          int l0_domain, int l0_domain_idx) const override;
-
+                                           int l0_domain, int l0_domain_idx) const override;
             int power_domain_count(int geopm_domain, unsigned int l0_device_idx,
                                    int l0_domain) const override;
             std::pair<uint64_t, uint64_t> energy_pair(int geopm_domain, unsigned int l0_device_idx,
@@ -102,6 +114,7 @@ namespace geopm
 
             struct m_subdevice_s {
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
+                std::vector<std::vector<zes_ras_handle_t> > ras_domain;
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_temp_handle_t> > temp_domain_max;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
@@ -134,7 +147,7 @@ namespace geopm
                 mutable uint64_t cached_energy_timestamp;
             };
 
-
+            void ras_domain_cache(unsigned int l0_device_idx);
             void frequency_domain_cache(unsigned int l0_device_idx);
             void power_domain_cache(unsigned int l0_device_idx);
             void perf_domain_cache(unsigned int l0_device_idx);
@@ -147,6 +160,9 @@ namespace geopm
                                                         int l0_domain, int l0_domain_idx) const;
 
             m_power_limit_s power_limit_default(unsigned int l0_device_idx) const;
+            std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> ras_status_helper(unsigned int l0_device_idx,
+                                                                                     int l0_domain,
+                                                                                     int l0_domain_idx) const;
             m_frequency_s frequency_status_helper(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const;
 

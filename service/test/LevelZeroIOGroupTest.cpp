@@ -185,6 +185,20 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                     temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_CALL(*m_device_pool, // GPU_MEMORY_TEMPERATURE_MAXIMUM
                     temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_RESET_COUNT
+                    ras_reset_count(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_PROGRAMMING_ERRCOUNT
+                    ras_programming_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_DRIVER_ERRCOUNT
+                    ras_driver_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_COMPUTE_ERRCOUNT
+                    ras_compute_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_NONCOMPUTE_ERRCOUNT
+                    ras_noncompute_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_CACHE_ERRCOUNT
+                    ras_cache_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_DISPLAY_ERRCOUNT
+                    ras_display_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
 
         // control pruning expectations
         // GPU_CORE_FREQUENCY_MAX_CONTROL, GPU_CORE_FREQUENCY_MIN_CONTROL, and the restore_control() direct call.
@@ -193,7 +207,6 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                                       0, 0)).Times(3);
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
                     performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
-
     }
 
     // Expectations for signal pruning code in the constructor
@@ -853,6 +866,20 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
 
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
                     performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_RESET_COUNT
+                    ras_reset_count(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_PROGRAMMING_ERRCOUNT
+                    ras_programming_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_DRIVER_ERRCOUNT
+                    ras_driver_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_COMPUTE_ERRCOUNT
+                    ras_compute_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_NONCOMPUTE_ERRCOUNT
+                    ras_noncompute_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_CACHE_ERRCOUNT
+                    ras_cache_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_RAS_DISPLAY_ERRCOUNT
+                    ras_display_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
     }
 
     // Expectations for signal pruning code in the constructor

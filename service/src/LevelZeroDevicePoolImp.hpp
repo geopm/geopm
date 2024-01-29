@@ -23,7 +23,20 @@ namespace geopm
             LevelZeroDevicePoolImp(const LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
             int num_gpu(int domain_type) const override;
-
+            double ras_reset_count(int domain, unsigned int domain_idx,
+                                   int l0_domain) const override;
+            double ras_programming_errcount(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            double ras_driver_errcount(int domain, unsigned int domain_idx,
+                                       int l0_domain) const override;
+            double ras_compute_errcount(int domain, unsigned int domain_idx,
+                                        int l0_domain) const override;
+            double ras_noncompute_errcount(int domain, unsigned int domain_idx,
+                                           int l0_domain) const override;
+            double ras_cache_errcount(int domain, unsigned int domain_idx,
+                                      int l0_domain) const override;
+            double ras_display_errcount(int domain, unsigned int domain_idx,
+                                        int l0_domain) const override;
             double frequency_status(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;
             double frequency_efficient(int domain, unsigned int domain_idx,
@@ -39,10 +52,8 @@ namespace geopm
             std::pair <double, double> frequency_range(int domain,
                                                        unsigned int domain_idx,
                                                        int l0_domain) const override;
-
             double temperature_max(int domain, unsigned int domain_idx,
                                    int l0_domain) const override;
-
             std::pair<uint64_t, uint64_t> active_time_pair(int domain,
                                                            unsigned int device_idx,
                                                            int l0_domain) const override;
@@ -56,8 +67,7 @@ namespace geopm
                                     int l0_domain) const override;
             int32_t power_limit_max(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;
-            std::pair<uint64_t, uint64_t> energy_pair(int domain,
-                                                      unsigned int domain_idx,
+            std::pair<uint64_t, uint64_t> energy_pair(int domain, unsigned int domain_idx,
                                                       int l0_domain) const override;
             uint64_t energy(int domain, unsigned int domain_idx, int l0_domain) const override;
             uint64_t energy_timestamp(int domain, unsigned int domain_idx,
@@ -65,7 +75,6 @@ namespace geopm
             double performance_factor(int domain,
                                       unsigned int domain_idx,
                                       int l0_domain) const override;
-
             void frequency_control(int domain, unsigned int domain_idx,
                                    int l0_domain, double range_min,
                                    double range_max) const override;

@@ -24,7 +24,6 @@ namespace geopm
             /// @return Number of LevelZero GPUs.
             /// @param [in] domain The GEOPM domain type being targeted
             virtual int num_gpu(int domain_type) const = 0;
-
             // FREQUENCY SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device actual frequency in MHz
             /// @param [in] domain The GEOPM domain type being targeted
@@ -77,7 +76,6 @@ namespace geopm
             virtual std::pair<double, double> frequency_range(int domain,
                                                               unsigned int domain_idx,
                                                               int l0_domain) const = 0;
-
             /// @brief Get the LevelZero domain maximum temperature in Celsius
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
@@ -86,7 +84,6 @@ namespace geopm
             /// @return GPU domain maximum temperature in Celsius.
             virtual double temperature_max(int domain, unsigned int domain_idx,
                                            int l0_domain) const = 0;
-
             // UTILIZATION SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device active time and timestamp in microseconds
             /// @param [in] domain The GEOPM domain type being targeted
@@ -94,8 +91,7 @@ namespace geopm
             ///             (i.e. GPU being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @return GPU active time and timestamp in microseconds.
-            virtual std::pair<uint64_t, uint64_t> active_time_pair(int domain,
-                                                                   unsigned int domain_idx,
+            virtual std::pair<uint64_t, uint64_t> active_time_pair(int domain, unsigned int domain_idx,
                                                                    int l0_domain) const = 0;
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
             /// @brief Get the LevelZero device active time in microseconds
@@ -110,7 +106,6 @@ namespace geopm
             /// @return GPU device timestamp for the active time value in microseconds.
             virtual uint64_t active_time_timestamp(int domain, unsigned int domain_idx,
                                                    int l0_domain) const = 0;
-
             // POWER SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device default power limit in milliwatts
             /// @param [in] domain The GEOPM domain type being targeted
@@ -136,7 +131,6 @@ namespace geopm
             /// @return GPU maximum power limit in milliwatts
             virtual int32_t power_limit_max(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
-
             // ENERGY SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device energy in microjoules and timestamp in microseconds.
             /// @param [in] domain The GEOPM domain type being targeted
@@ -162,7 +156,6 @@ namespace geopm
             /// @return GPU energy timestamp in microseconds
             virtual uint64_t energy_timestamp(int domain, unsigned int domain_idx,
                                               int l0_domain) const = 0;
-
             /// @brief Get the LevelZero device performance factor
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
@@ -172,7 +165,6 @@ namespace geopm
             virtual double performance_factor(int domain,
                                               unsigned int domain_idx,
                                               int l0_domain) const = 0;
-
             // FREQUENCY CONTROL FUNCTIONS
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] domain The GEOPM domain type being targeted
@@ -184,7 +176,6 @@ namespace geopm
             virtual void frequency_control(int domain, unsigned int domain_idx,
                                            int l0_domain, double range_min,
                                            double range_max) const = 0;
-
             /// @brief Set performance factor for LevelZero device.
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
@@ -194,6 +185,70 @@ namespace geopm
             virtual void performance_factor_control(int domain, unsigned int domain_idx,
                                                     int l0_domain,
                                                     double setting) const = 0;
+            // RAS SIGNAL FUNCTIONS
+            /// @brief Get the LevelZero count of number of accelerator engine
+            /// resets attempted by the driver.
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Accelerator Engine Reset count
+            virtual double ras_reset_count(int domain, unsigned int domain_idx,
+                                           int l0_domain) const = 0;
+            /// @brief Get the LevelZero count of number of hardware exceptions
+            /// generated by the way workloads have programmed the hardware
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Programming Error Count
+            virtual double ras_programming_errcount(int domain, unsigned int domain_idx,
+                                                    int l0_domain) const = 0;
+            /// @brief Get the LevelZero count of number of low level driver
+            /// communication errors have occurred.
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Programming Error Count
+            virtual double ras_driver_errcount(int domain, unsigned int domain_idx,
+                                               int l0_domain) const = 0;
+            /// @brief Get the LevelZero count of number of errors that have
+            /// occurred in the compute accelerator hardware
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Compute Error Count
+            virtual double ras_compute_errcount(int domain, unsigned int domain_idx,
+                                                int l0_domain) const = 0;
+            /// @brief Get the LevelZero count of number of errors that have
+            /// occurred in the fixed-function accelerator hardware
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Non Compute Error Count
+            virtual double ras_noncompute_errcount(int domain, unsigned int domain_idx,
+                                                   int l0_domain) const = 0;
+            /// @brief Get the LevelZero count of number of errors that have
+            /// occurred in caches (L1/L3/register file/shared local memory/sampler)
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Cache Error Count
+            virtual double ras_cache_errcount(int domain, unsigned int domain_idx,
+                                              int l0_domain) const = 0;
+            /// @brief Get the LevelZero count of number of errors that have
+            ///        occurred in the display.
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Display Error Count
+            virtual double ras_display_errcount(int domain, unsigned int domain_idx,
+                                                int l0_domain) const = 0;
         private:
     };
 

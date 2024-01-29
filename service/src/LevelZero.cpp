@@ -82,8 +82,8 @@ namespace geopm
                 if (num_subdevice == 0) {
                     std::cerr << "LevelZero::" << std::string(__func__)
                               << ": GEOPM Requires at least one subdevice. "
-                                 "Please check ZE_AFFINITY_MASK environment variable "
-                                 "setting.  Forcing device to act as sub-device" << std::endl;
+                              << "Please check ZE_AFFINITY_MASK environment variable "
+                              << "setting.  Forcing device to act as sub-device" << std::endl;
                 }
 #endif
                 if (property.type == ZE_DEVICE_TYPE_GPU) {
@@ -111,7 +111,7 @@ namespace geopm
 #ifdef GEOPM_DEBUG
                     else {
                         std::cerr << "Warning: <geopm> LevelZero: Integrated "
-                                     "GPU access is not currently supported by GEOPM.\n";
+                                  << "GPU access is not currently supported by GEOPM.\n";
                     }
 #endif
                 }
@@ -119,19 +119,19 @@ namespace geopm
                 else if (property.type == ZE_DEVICE_TYPE_CPU) {
                     // All CPU functionality is handled by GEOPM & MSR Safe currently
                     std::cerr << "Warning: <geopm> LevelZero: CPU access "
-                                 "via LevelZero is not currently supported by GEOPM.\n";
+                              << "via LevelZero is not currently supported by GEOPM.\n";
                 }
                 else if (property.type == ZE_DEVICE_TYPE_FPGA) {
                     // FPGA functionality is not currently supported by GEOPM, but should not cause
                     // an error if the devices are present
                     std::cerr << "Warning: <geopm> LevelZero: Field Programmable "
-                                 "Gate Arrays are not currently supported by GEOPM.\n";
+                              << "Gate Arrays are not currently supported by GEOPM.\n";
                 }
                 else if (property.type == ZE_DEVICE_TYPE_MCA) {
                     // MCA functionality is not currently supported by GEOPM, but should not cause
                     // an error if the devices are present
                     std::cerr << "Warning: <geopm> LevelZero: Memory Copy GPUs "
-                                 "are not currently supported by GEOPM.\n";
+                              << "are not currently supported by GEOPM.\n";
                 }
 #endif
             }
@@ -160,15 +160,17 @@ namespace geopm
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
         // This should be changed to a more general loop iterating over type and caching appropriately
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; gpu_idx++) {
+            ras_domain_cache(gpu_idx);
             frequency_domain_cache(gpu_idx);
             power_domain_cache(gpu_idx);
             perf_domain_cache(gpu_idx);
             engine_domain_cache(gpu_idx);
             temperature_domain_cache(gpu_idx);
-       }
+        }
     }
 
-    void LevelZeroImp::frequency_domain_cache(unsigned int device_idx) {
+    void LevelZeroImp::frequency_domain_cache(unsigned int device_idx)
+    {
         //Cache frequency domains
         uint32_t num_domain = 0;
         ze_result_t ze_result = zesDeviceEnumFrequencyDomains(m_devices.at(device_idx).device_handle,
@@ -176,7 +178,7 @@ namespace geopm
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZero: Frequency domain detection is "
-                         "not supported.\n";
+                      << "not supported.\n";
 #endif
         }
         else {
@@ -201,7 +203,7 @@ namespace geopm
                 if (property.onSubdevice == 0 && m_devices.at(device_idx).m_num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
-                                 "frequency domain was found but is not currently supported.\n";
+                              << "frequency domain was found but is not currently supported.\n";
 #endif
                 }
                 else {
@@ -218,7 +220,8 @@ namespace geopm
         }
     }
 
-    void LevelZeroImp::power_domain_cache(unsigned int device_idx) {
+    void LevelZeroImp::power_domain_cache(unsigned int device_idx)
+    {
         //Cache power domains
         uint32_t num_domain = 0;
         ze_result_t ze_result = zesDeviceEnumPowerDomains(m_devices.at(device_idx).device_handle,
@@ -226,7 +229,7 @@ namespace geopm
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZero: Power domain detection is "
-                         "not supported.\n";
+                      << "not supported.\n";
 #endif
         }
         else {
@@ -290,7 +293,8 @@ namespace geopm
 
     }
 
-    void LevelZeroImp::perf_domain_cache(unsigned int device_idx) {
+    void LevelZeroImp::perf_domain_cache(unsigned int device_idx)
+    {
         //Cache performance domains
         uint32_t num_domain = 0;
         ze_result_t ze_result = zesDeviceEnumPerformanceFactorDomains(m_devices.at(device_idx).device_handle,
@@ -322,9 +326,9 @@ namespace geopm
                     }
 #ifdef GEOPM_DEBUG
                     else {
-                         std::cerr << "Warning: <geopm> LevelZero:"
-                                   << " Unsupported sub-device level performance factor domain ("
-                                   << std::to_string(property.engines) << ") detected." << std::endl;
+                        std::cerr << "Warning: <geopm> LevelZero:"
+                                  << " Unsupported sub-device level performance factor domain ("
+                                  << std::to_string(property.engines) << ") detected." << std::endl;
                     }
 #endif
                 }
@@ -333,12 +337,13 @@ namespace geopm
 #ifdef GEOPM_DEBUG
         else {
             std::cerr << "Warning: <geopm> LevelZero: Performance domain detection is "
-                         "not supported.\n";
+                      << "not supported.\n";
         }
 #endif
     }
 
-    void LevelZeroImp::engine_domain_cache(unsigned int device_idx) {
+    void LevelZeroImp::engine_domain_cache(unsigned int device_idx)
+    {
         //Cache engine domains
         uint32_t num_domain = 0;
         ze_result_t ze_result = zesDeviceEnumEngineGroups(m_devices.at(device_idx).device_handle,
@@ -347,7 +352,7 @@ namespace geopm
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZero: Engine domain detection is "
-                         "not supported.\n";
+                      << "not supported.\n";
 #endif
         }
         else {
@@ -373,7 +378,7 @@ namespace geopm
                 if (property.onSubdevice == 0 && m_devices.at(device_idx).m_num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
-                                 "engine domain was found but is not currently supported.\n";
+                              << "engine domain was found but is not currently supported.\n";
 #endif
                 }
                 else {
@@ -408,28 +413,28 @@ namespace geopm
                 m_devices.at(device_idx).
                     subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE).size() == 0) {
                 std::cerr << "Warning: <geopm> LevelZero: Engine domain detection "
-                             "did not find ZES_ENGINE_GROUP_COMPUTE_ALL.\n";
+                          << "did not find ZES_ENGINE_GROUP_COMPUTE_ALL.\n";
             }
             if (num_domain != 0 &&
                 m_devices.at(device_idx).
                     subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY).size() == 0) {
                 std::cerr << "Warning: <geopm> LevelZero: Engine domain detection "
-                             "did not find ZES_ENGINE_GROUP_COPY_ALL.\n";
+                          << "did not find ZES_ENGINE_GROUP_COPY_ALL.\n";
             }
 #endif
         }
     }
 
-    void LevelZeroImp::temperature_domain_cache(unsigned int device_idx) {
+    void LevelZeroImp::temperature_domain_cache(unsigned int device_idx)
+    {
         //Cache frequency domains
         uint32_t num_domain = 0;
-        ze_result_t ze_result = zesDeviceEnumTemperatureSensors(m_devices.at(
-                                                                device_idx).device_handle,
+        ze_result_t ze_result = zesDeviceEnumTemperatureSensors(m_devices.at(device_idx).device_handle,
                                                                 &num_domain, nullptr);
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZero: Temperature domain detection is "
-                         "not supported.\n";
+                      << "not supported.\n";
 #endif
         }
         else {
@@ -454,7 +459,7 @@ namespace geopm
                 if (property.onSubdevice == 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
-                                 "temperature domain was found but is not currently supported.\n";
+                              << "temperature domain was found but is not currently supported.\n";
 #endif
                 }
                 else {
@@ -475,6 +480,57 @@ namespace geopm
         }
     }
 
+    void LevelZeroImp::ras_domain_cache(unsigned int device_idx)
+    {
+        // Find number of RAS error sets for the GPU
+        uint32_t num_errset = 0;
+        ze_result_t ze_result = zesDeviceEnumRasErrorSets(m_devices.at(device_idx).device_handle,
+                                                          &num_errset, nullptr);
+
+        if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE || num_errset == 0) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> LevelZero: RAS Error set detection is "
+                      << "not supported.\n";
+#endif
+        }
+        else {
+            // Get handle of all RAS error sets
+            std::vector<zes_ras_handle_t> error_set(num_errset);
+
+            check_ze_result(zesDeviceEnumRasErrorSets(m_devices.at(device_idx).device_handle,
+                                                      &num_errset, error_set.data()),
+                            GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                            ": Sysman failed to get error set handle(s).", __LINE__);
+
+            // Note: As of LevelZero ver 1.9, there are no counters that can be clearly
+            //       labeled as being either "compute" or "memory". So all the counters 
+            //       for now have been assigned L0_domain_type = M_DOMAIN_ALL 
+            m_devices.at(device_idx).subdevice.ras_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+
+            // Iterate over error set handles
+            for (auto handle : error_set) {
+                // Get properties corresponding to each error set handle
+                zes_ras_properties_t property;
+                ze_result = zesRasGetProperties(handle, &property);
+                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                                "LevelZero::" + std::string(__func__) +
+                                ": Sysman failed to get RAS properties",
+                                __LINE__);
+
+                if (property.onSubdevice == 0) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: <geopm> LevelZero: A device level "
+                              << "RAS domain was found but is not currently supported.\n";
+#endif
+                }
+                else {
+                    m_devices.at(device_idx).
+                        subdevice.ras_domain.at(geopm::LevelZero::M_DOMAIN_ALL).push_back(handle);
+                }
+            }
+        }
+    }
+
     int LevelZeroImp::num_gpu() const
     {
         //  TODO: this should be expanded to return all supported GPU types.
@@ -484,8 +540,6 @@ namespace geopm
 
     int LevelZeroImp::num_gpu(int domain_type) const
     {
-        //  TODO: this should be expanded to return all supported GPU types.
-        //  Right now that is only GPUs
         int result = -1;
         switch(domain_type) {
             case GEOPM_DOMAIN_GPU:
@@ -498,7 +552,7 @@ namespace geopm
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": domain type " + std::to_string(domain_type) +
                                 " is not supported.", GEOPM_ERROR_INVALID,
-                                 __FILE__, __LINE__);
+                                __FILE__, __LINE__);
                 break;
         }
         return result;
@@ -552,6 +606,73 @@ namespace geopm
         return result;
     }
 
+    int LevelZeroImp::ras_domain_count(unsigned int l0_device_idx,
+                                       int l0_domain) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.ras_domain.at(l0_domain).size();
+    }
+
+    double LevelZeroImp::ras_reset_count(unsigned int l0_device_idx,
+                                         int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_RESET];
+    }
+
+    double LevelZeroImp::ras_programming_errcount(unsigned int l0_device_idx,
+                                                  int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS];
+    }
+
+    double LevelZeroImp::ras_driver_errcount(unsigned int l0_device_idx,
+                                             int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DRIVER_ERRORS];
+    }
+
+    double LevelZeroImp::ras_compute_errcount(unsigned int l0_device_idx,
+                                              int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_COMPUTE_ERRORS];
+    }
+
+    double LevelZeroImp::ras_noncompute_errcount(unsigned int l0_device_idx,
+                                                 int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS];
+    }
+
+    double LevelZeroImp::ras_cache_errcount(unsigned int l0_device_idx,
+                                            int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_CACHE_ERRORS];
+    }
+
+    double LevelZeroImp::ras_display_errcount(unsigned int l0_device_idx,
+                                              int l0_domain, int l0_domain_idx) const
+    {
+        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DISPLAY_ERRORS];
+    }
+
+    std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
+                                                                                           int l0_domain,
+                                                                                           int l0_domain_idx) const
+    {
+        zes_ras_state_t pState;
+        zes_ras_handle_t handle = m_devices.at(l0_device_idx).
+                                      subdevice.ras_domain.at(l0_domain).at(l0_domain_idx);
+        check_ze_result(zesRasGetState(handle, 0, &pState),
+                        GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": Sysman failed to get RAS counters",
+                        __LINE__);
+
+        std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> temp;
+        for (unsigned int err_idx = 0; err_idx < ZES_MAX_RAS_ERROR_CATEGORY_COUNT; err_idx++)
+            temp[err_idx] = pState.category[err_idx];
+        return temp;
+    }
+
     double LevelZeroImp::frequency_status(unsigned int l0_device_idx,
                                           int l0_domain, int l0_domain_idx) const
     {
@@ -603,8 +724,7 @@ namespace geopm
     }
 
     std::pair<double, double> LevelZeroImp::frequency_min_max(unsigned int l0_device_idx,
-                                                              int l0_domain,
-                                                              int l0_domain_idx) const
+                                                              int l0_domain, int l0_domain_idx) const
     {
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).
                                        subdevice.freq_domain.at(l0_domain).at(l0_domain_idx);
@@ -616,8 +736,7 @@ namespace geopm
     }
 
     std::vector<double> LevelZeroImp::frequency_supported(unsigned int l0_device_idx,
-                                                          int l0_domain,
-                                                          int l0_domain_idx) const
+                                                          int l0_domain, int l0_domain_idx) const
     {
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).
                                        subdevice.freq_domain.at(l0_domain).at(l0_domain_idx);
@@ -635,8 +754,7 @@ namespace geopm
 
 
     std::pair<double, double> LevelZeroImp::frequency_range(unsigned int l0_device_idx,
-                                                            int l0_domain,
-                                                            int l0_domain_idx) const
+                                                            int l0_domain, int l0_domain_idx) const
     {
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).
                                        subdevice.freq_domain.at(l0_domain).at(l0_domain_idx);
@@ -672,8 +790,7 @@ namespace geopm
     }
 
     std::pair<uint64_t,uint64_t> LevelZeroImp::active_time_pair(unsigned int l0_device_idx,
-                                                                int l0_domain,
-                                                                int l0_domain_idx) const
+                                                                int l0_domain, int l0_domain_idx) const
     {
         uint64_t result_active = 0;
         uint64_t result_timestamp = 0;
@@ -690,10 +807,8 @@ namespace geopm
         return {result_active, result_timestamp};
     }
 
-    uint64_t LevelZeroImp::energy_timestamp(int geopm_domain,
-                                            unsigned int l0_device_idx,
-                                            int l0_domain,
-                                            int l0_domain_idx) const
+    uint64_t LevelZeroImp::energy_timestamp(int geopm_domain, unsigned int l0_device_idx,
+                                            int l0_domain, int l0_domain_idx) const
     {
         uint64_t timestamp = 0;
         //PACKAGE
@@ -721,7 +836,7 @@ namespace geopm
         uint64_t result_timestamp = 0;
 
         if (geopm_domain == GEOPM_DOMAIN_GPU &&
-                            power_domain_count(GEOPM_DOMAIN_GPU, l0_device_idx, M_DOMAIN_ALL) == 1) {
+            power_domain_count(GEOPM_DOMAIN_GPU, l0_device_idx, M_DOMAIN_ALL) == 1) {
             //DEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
             zes_power_energy_counter_t energy_counter = {};
@@ -733,8 +848,7 @@ namespace geopm
             m_devices.at(l0_device_idx).cached_energy_timestamp = result_timestamp;
         }
         else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP &&
-                                 power_domain_count(GEOPM_DOMAIN_GPU_CHIP, l0_device_idx,
-                                                    M_DOMAIN_ALL) >= l0_domain_idx) {
+                 power_domain_count(GEOPM_DOMAIN_GPU_CHIP, l0_device_idx, M_DOMAIN_ALL) >= l0_domain_idx) {
             //SUBDEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
             zes_power_energy_counter_t energy_counter = {};
@@ -761,7 +875,7 @@ namespace geopm
     {
         int32_t min = 0;
         if (m_devices.at(l0_device_idx).num_device_power_domain == 1) {
-            return power_limit_default(l0_device_idx).min;
+            min = power_limit_default(l0_device_idx).min;
         }
         return min;
     }
@@ -815,10 +929,8 @@ namespace geopm
                         ": Sysman failed to set frequency.", __LINE__);
     }
 
-    void LevelZeroImp::performance_factor_control(unsigned int l0_device_idx,
-                                                  int l0_domain,
-                                                  int l0_domain_idx,
-                                                  double setting) const
+    void LevelZeroImp::performance_factor_control(unsigned int l0_device_idx, int l0_domain,
+                                                  int l0_domain_idx, double setting) const
     {
         zes_perf_handle_t handle = m_devices.at(l0_device_idx).
                                        subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
@@ -830,8 +942,8 @@ namespace geopm
     void LevelZeroImp::check_ze_result(ze_result_t ze_result, int error,
                                        std::string message, int line) const
     {
-        std::map<ze_result_t, std::string> error_mapping =
-            {{ZE_RESULT_SUCCESS,
+        std::map<ze_result_t, std::string> error_mapping = {
+              {ZE_RESULT_SUCCESS,
               "ZE_RESULT_SUCCESS"},
               {ZE_RESULT_NOT_READY,
                "ZE_RESULT_NOT_READY"},
@@ -854,8 +966,8 @@ namespace geopm
               {ZE_RESULT_ERROR_INVALID_NULL_POINTER,
                "ZE_RESULT_ERROR_INVALID_NULL_POINTER"},
               {ZE_RESULT_ERROR_UNKNOWN,
-               "ZE_RESULT_ERROR_UNKNOWN"},
-            };
+               "ZE_RESULT_ERROR_UNKNOWN"}
+        };
 
         std::string error_string = std::to_string(ze_result);
         if (error_mapping.find(ze_result) != error_mapping.end()) {
