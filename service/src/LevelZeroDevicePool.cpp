@@ -88,6 +88,132 @@ namespace geopm
         return {device_idx, subdevice_idx};
     }
 
+    double LevelZeroDevicePoolImp::ras_reset_count(int domain, unsigned int domain_idx,
+                                                   int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_reset_count(dev_subdev_idx_pair.first, l0_domain,
+                                           dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_programming_errcount(int domain, unsigned int domain_idx,
+                                                            int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_programming_errcount(dev_subdev_idx_pair.first, l0_domain,
+                                                    dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_driver_errcount(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_driver_errcount(dev_subdev_idx_pair.first, l0_domain,
+                                               dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_compute_errcount(int domain, unsigned int domain_idx,
+                                                        int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_compute_errcount(dev_subdev_idx_pair.first, l0_domain,
+                                                dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_noncompute_errcount(int domain, unsigned int domain_idx,
+                                                           int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_noncompute_errcount(dev_subdev_idx_pair.first, l0_domain,
+                                                   dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_cache_errcount(int domain, unsigned int domain_idx,
+                                                      int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_cache_errcount(dev_subdev_idx_pair.first, l0_domain,
+                                              dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_display_errcount(int domain, unsigned int domain_idx,
+                                                        int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_display_errcount(dev_subdev_idx_pair.first, l0_domain,
+                                                dev_subdev_idx_pair.second);
+    }
+
     double LevelZeroDevicePoolImp::frequency_status(int domain, unsigned int domain_idx,
                                                     int l0_domain) const
     {
@@ -99,9 +225,8 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.frequency_status(dev_subdev_idx_pair.first, l0_domain,
                                             dev_subdev_idx_pair.second);
@@ -118,9 +243,8 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.frequency_efficient(dev_subdev_idx_pair.first, l0_domain,
                                                dev_subdev_idx_pair.second);
@@ -137,9 +261,8 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain), __func__,
-                                                               __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.frequency_min(dev_subdev_idx_pair.first,
                                          l0_domain, dev_subdev_idx_pair.second);
@@ -150,16 +273,14 @@ namespace geopm
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                             ": domain " + std::to_string(domain) +
+                            ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain), __func__,
-                                                               __LINE__);
-
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.frequency_max(dev_subdev_idx_pair.first, l0_domain,
                                          dev_subdev_idx_pair.second);
@@ -171,15 +292,14 @@ namespace geopm
         double frequency_step_mhz = NAN;
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                             ": domain " + std::to_string(domain) +
+                            ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain), __func__,
-                                                               __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         std::vector<double> supported_frequency = m_levelzero.frequency_supported(dev_subdev_idx_pair.first,
                                                                                   l0_domain,
@@ -195,20 +315,18 @@ namespace geopm
     }
 
     uint32_t LevelZeroDevicePoolImp::frequency_throttle_reasons(int domain, unsigned int domain_idx,
-                                                              int l0_domain) const
+                                                                int l0_domain) const
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                             ": domain " + std::to_string(domain) +
+                            ": domain " + std::to_string(domain) +
                             " is not supported for reading the \"frequency throttle reason\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
-
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.frequency_throttle_reasons(dev_subdev_idx_pair.first, l0_domain,
                                                       dev_subdev_idx_pair.second);
@@ -226,8 +344,8 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.frequency_range(dev_subdev_idx_pair.first, l0_domain,
                                            dev_subdev_idx_pair.second);
@@ -239,15 +357,14 @@ namespace geopm
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                             ": domain " + std::to_string(domain) +
+                            ": domain " + std::to_string(domain) +
                             " is not supported for the temperature domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.temperature_domain_count(dev_subdev_idx_pair.first,
-                                                                 l0_domain), __func__,
-                                                                 __LINE__);
+        check_domain_exists(m_levelzero.temperature_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.temperature_max(dev_subdev_idx_pair.first, l0_domain,
                                            dev_subdev_idx_pair.second);
@@ -268,9 +385,8 @@ namespace geopm
         //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first,
-                                                            l0_domain),
-                                                            __func__, __LINE__);
+        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.active_time_pair(dev_subdev_idx_pair.first, l0_domain,
                                             dev_subdev_idx_pair.second);
@@ -282,7 +398,7 @@ namespace geopm
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                             ": domain " + std::to_string(domain) +
+                            ": domain " + std::to_string(domain) +
                             " is not supported for the engine domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -290,9 +406,8 @@ namespace geopm
         //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first,
-                                                            l0_domain),
-                                                            __func__, __LINE__);
+        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         return m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
                                                  dev_subdev_idx_pair.second);
@@ -311,9 +426,8 @@ namespace geopm
         //      device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first,
-                                                            l0_domain),
-                                                            __func__, __LINE__);
+        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
         return m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
                                        dev_subdev_idx_pair.second);
     }
@@ -367,19 +481,16 @@ namespace geopm
 
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
-            check_domain_exists(m_levelzero.power_domain_count(domain,
-                                                               domain_idx, l0_domain),
-                                                               __func__, __LINE__);
+            check_domain_exists(m_levelzero.power_domain_count(domain, domain_idx, l0_domain),
+                                __func__, __LINE__);
 
             result = m_levelzero.energy_pair(domain, domain_idx, -1);
         }
-        else if (domain == GEOPM_DOMAIN_GPU_CHIP){
+        else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-            check_domain_exists(m_levelzero.power_domain_count(domain,
-                                                               dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
+            check_domain_exists(m_levelzero.power_domain_count(domain, dev_subdev_idx_pair.first, l0_domain),
+                                __func__, __LINE__);
             result = m_levelzero.energy_pair(domain, dev_subdev_idx_pair.first,
                                              dev_subdev_idx_pair.second);
         }
@@ -392,32 +503,25 @@ namespace geopm
         return result;
     }
 
-    uint64_t LevelZeroDevicePoolImp::energy_timestamp(int domain,
-                                                      unsigned int domain_idx,
+    uint64_t LevelZeroDevicePoolImp::energy_timestamp(int domain, unsigned int domain_idx,
                                                       int l0_domain) const
     {
         uint64_t energy_timestamp = 0;
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
-            check_domain_exists(m_levelzero.power_domain_count(domain,
-                                                               domain_idx, l0_domain),
-                                                               __func__, __LINE__);
+            check_domain_exists(m_levelzero.power_domain_count(domain, domain_idx, l0_domain),
+                                __func__, __LINE__);
 
-            energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx,
-                                                            l0_domain, 0);
+            energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx, l0_domain, 0);
         }
         else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-            check_domain_exists(m_levelzero.power_domain_count(domain,
-                                                               dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
+            check_domain_exists(m_levelzero.power_domain_count(domain, dev_subdev_idx_pair.first, l0_domain),
+                                __func__, __LINE__);
 
-            energy_timestamp = m_levelzero.energy_timestamp(domain,
-                                                            dev_subdev_idx_pair.first,
-                                                            l0_domain,
+            energy_timestamp = m_levelzero.energy_timestamp(domain, dev_subdev_idx_pair.first, l0_domain,
                                                             dev_subdev_idx_pair.second);
         }
         else {
@@ -442,13 +546,10 @@ namespace geopm
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-            check_domain_exists(m_levelzero.power_domain_count(domain,
-                                                               dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
+            check_domain_exists(m_levelzero.power_domain_count(domain, dev_subdev_idx_pair.first, l0_domain),
+                                __func__, __LINE__);
 
-            energy = m_levelzero.energy(domain, dev_subdev_idx_pair.first,
-                                        l0_domain,
+            energy = m_levelzero.energy(domain, dev_subdev_idx_pair.first, l0_domain,
                                         dev_subdev_idx_pair.second);
         }
         else {
@@ -460,8 +561,7 @@ namespace geopm
         return energy;
     }
 
-    double LevelZeroDevicePoolImp::performance_factor(int domain,
-                                                      unsigned int domain_idx,
+    double LevelZeroDevicePoolImp::performance_factor(int domain, unsigned int domain_idx,
                                                       int l0_domain) const
     {
         double result = NAN;
@@ -476,7 +576,7 @@ namespace geopm
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
         check_domain_exists(m_levelzero.performance_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                                                                 __func__, __LINE__);
+                            __func__, __LINE__);
 
         result = m_levelzero.performance_factor(dev_subdev_idx_pair.first,
                                                 l0_domain, dev_subdev_idx_pair.second);
@@ -495,9 +595,8 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                                               l0_domain),
-                                                               __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
 
         m_levelzero.frequency_control(dev_subdev_idx_pair.first, l0_domain,
                                       dev_subdev_idx_pair.second, range_min,
@@ -517,7 +616,7 @@ namespace geopm
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
         check_domain_exists(m_levelzero.performance_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                                                                 __func__, __LINE__);
+                            __func__, __LINE__);
 
         m_levelzero.performance_factor_control(dev_subdev_idx_pair.first,
                                                l0_domain, dev_subdev_idx_pair.second, setting);

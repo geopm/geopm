@@ -17,6 +17,23 @@ class MockLevelZero : public geopm::LevelZero
 
         MOCK_METHOD(int, num_gpu, (int), (const, override));
 
+        MOCK_METHOD(int, ras_domain_count, (unsigned int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_reset_count, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_programming_errcount, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_driver_errcount, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_compute_errcount, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_noncompute_errcount, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_cache_errcount, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, ras_display_errcount, (unsigned int, int, int),
+                    (const, override));
+
         MOCK_METHOD(int, frequency_domain_count, (unsigned int, int),
                     (const, override));
         MOCK_METHOD(double, frequency_status, (unsigned int, int, int),

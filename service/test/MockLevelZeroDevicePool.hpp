@@ -16,6 +16,21 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
         MOCK_METHOD(int, num_gpu,
                     (int), (const, override));
 
+        MOCK_METHOD(double, ras_reset_count,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_programming_errcount,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_driver_errcount,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_compute_errcount,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_noncompute_errcount,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_cache_errcount,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_display_errcount,
+                    (int, unsigned int, int), (const, override));
+
         MOCK_METHOD(double, frequency_status,
                     (int, unsigned int, int), (const, override));
         MOCK_METHOD(double, frequency_efficient,
