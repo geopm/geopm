@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2023, Intel Corporation
+ * Copyright (c) 2015 - 2024, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -16,7 +16,7 @@
 
 namespace geopm
 {
-    const std::string OptionParser::M_COPYRIGHT_TEXT = "\nCopyright (c) 2015 - 2023, Intel Corporation. All rights reserved.\n\n";
+    const std::string OptionParser::M_COPYRIGHT_TEXT = "\nCopyright (c) 2015 - 2024, Intel Corporation. All rights reserved.\n\n";
 
     OptionParser::OptionParser(const std::string &prog_name,
                                std::ostream &std_out,
