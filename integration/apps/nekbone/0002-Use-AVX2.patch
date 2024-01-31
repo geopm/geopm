@@ -3,7 +3,7 @@ From: Brad Geltz <brad.geltz@intel.com>
 Date: Mon, 24 Aug 2020 15:53:59 -0700
 Subject: [PATCH 2/8] Use AVX2
 #
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2023, Intel Corporation
+ * Copyright (c) 2015 - 2024, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -65,7 +65,7 @@ static int main_imp(int argc, char **argv)
                         "  -v, --version                    print version of GEOPM to standard output,\n"
                         "                                   then exit\n"
                         "\n"
-                        "Copyright (c) 2015 - 2023, Intel Corporation. All rights reserved.\n"
+                        "Copyright (c) 2015 - 2024, Intel Corporation. All rights reserved.\n"
                         "\n";
 
     static struct option long_options[] = {
@@ -103,7 +103,7 @@ static int main_imp(int argc, char **argv)
                 return 0;
             case 'v':
                 printf("%s\n", geopm_version());
-                printf("\n\nCopyright (c) 2015 - 2023, Intel Corporation. All rights reserved.\n\n");
+                printf("\n\nCopyright (c) 2015 - 2024, Intel Corporation. All rights reserved.\n\n");
                 return 0;
             case '?': // opt is ? when an option required an arg but it was missing
                 fprintf(stderr, usage, argv[0]);

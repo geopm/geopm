@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2023, Intel Corporation
+ * Copyright (c) 2015 - 2024, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -260,7 +260,7 @@ TEST_F(OptionParserTest, format_help)
                         "  -V, --version             print version of GEOPM to standard output, then\n"
                         "                            exit\n"
                         "\n"
-                        "Copyright (c) 2015 - 2023, Intel Corporation. All rights reserved.\n"
+                        "Copyright (c) 2015 - 2024, Intel Corporation. All rights reserved.\n"
                         "\n";
 
     std::string result = m_opt.format_help();

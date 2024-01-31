@@ -3,7 +3,7 @@ From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 10 Feb 2021 10:16:00 -0800
 Subject: [PATCH 6/7] Changed markup to separate MPI heavy regions.
 
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>

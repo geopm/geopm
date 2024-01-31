@@ -3,7 +3,7 @@ From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Sat, 24 Oct 2020 15:04:43 -0700
 Subject: [PATCH 1/7] Fixed Makefile to GEOPM and Intel conventions.
 
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

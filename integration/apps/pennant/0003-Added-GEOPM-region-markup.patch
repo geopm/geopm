@@ -3,7 +3,7 @@ From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 1 Dec 2020 17:44:13 -0800
 Subject: [PATCH 3/7] Added GEOPM region markup
 
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

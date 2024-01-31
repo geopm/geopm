@@ -7,7 +7,7 @@ Subject: [PATCH 2/3] Increase iteration count for PCG solve
 - Decrease error tolerence to zero to avoid
   leaving loop because of error convergence.
 
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

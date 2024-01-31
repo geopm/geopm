@@ -3,7 +3,7 @@ From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 7 Oct 2020 11:24:14 -0700
 Subject: [PATCH 2/2] Use build environment vars
 #
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
