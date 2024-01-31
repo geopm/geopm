@@ -19,7 +19,6 @@ EXTRA_DIST += integration/README.md \
               integration/test/__init__.py \
               integration/test/test_bash_examples.py \
               integration/test/check_write_session.sh \
-              integration/test/test_batch_performance.py \
               integration/test/test_pio_reset.py \
               integration/test/test_sst_priority.sh \
               integration/test/test_su_give_access.sh \
@@ -37,11 +36,14 @@ EXTRA_DIST += integration/README.md \
               integration/test/serial_write_client_helper.py \
               integration/test/serial_write_client_helper.sh \
               integration/test/do_write.sh \
+              integration/test/test_batch_perf.sh \
+              integration/test/test_batch_perf.py \
               # end
 
 check_PROGRAMS += integration/test/test_batch_server \
                   integration/test/test_batch_interface \
                   integration/test/test_invalid_values \
+                  integration/test/test_batch_perf \
                   #end
 
 integration_test_test_batch_server_SOURCES = integration/test/test_batch_server.cpp
@@ -53,5 +55,8 @@ integration_test_test_batch_interface_LDADD = libgeopmd.la
 integration_test_test_invalid_values_SOURCES = integration/test/test_invalid_values.cpp
 integration_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) -fPIC -fPIE $(FASTMATH)
 integration_test_test_invalid_values_LDADD = libgeopmd.la
+
+integration_test_test_batch_perf_SOURCES = integration/test/test_batch_perf.cpp
+integration_test_test_batch_perf_LDADD = libgeopmd.la
 
 TESTS += integration/open_pbs/geopm_openpbs_test.sh
