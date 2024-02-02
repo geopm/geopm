@@ -76,7 +76,7 @@ static int geopm_topo_popen(const char *cmd, FILE **fid)
 namespace geopm
 {
     const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache-" + std::to_string(getuid());
-    const std::string PlatformTopoImp::M_SERVICE_CACHE_FILE_NAME = "/run/geopm/geopm-topo-cache";
+    const std::string PlatformTopoImp::M_SERVICE_CACHE_FILE_NAME = "/tmp/rungeopm/geopm-topo-cache";
 
     const PlatformTopo &platform_topo(void)
     {
@@ -424,7 +424,8 @@ namespace geopm
 
     void PlatformTopoImp::create_cache(void)
     {
-        if (geopm::has_cap_sys_admin()) {
+        // TODO: Make the user say which to use.
+        if (true/*geopm::has_cap_sys_admin()*/) {
             PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
         }
         else {

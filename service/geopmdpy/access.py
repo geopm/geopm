@@ -11,7 +11,7 @@ import os
 import tempfile
 import subprocess # nosec
 from argparse import ArgumentParser
-from dasbus.connection import SystemMessageBus
+from dasbus.connection import SystemMessageBus,SessionMessageBus
 from dasbus.error import DBusError
 from geopmdpy import system_files
 
@@ -432,7 +432,7 @@ def main():
 
     try:
         geopm_proxy = (DirectAccessProxy() if args.direct
-                       else SystemMessageBus().get_proxy('io.github.geopm', '/io/github/geopm'))
+                       else SessionMessageBus().get_proxy('io.github.geopm', '/io/github/geopm'))
         acc = Access(geopm_proxy)
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,

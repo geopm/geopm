@@ -3,7 +3,7 @@
 #
 
 from dasbus.loop import EventLoop
-from dasbus.connection import SystemMessageBus
+from dasbus.connection import SessionMessageBus,SystemMessageBus
 from signal import signal
 from signal import SIGTERM
 import sys
@@ -37,7 +37,7 @@ def main():
     system_files.secure_make_dirs(system_files.GEOPM_SERVICE_RUN_PATH,
                                   perm_mode=system_files.GEOPM_SERVICE_RUN_PATH_PERM)
     _loop = EventLoop()
-    _bus = SystemMessageBus()
+    _bus = SessionMessageBus()
     with RestorableFileWriter(
         ALLOW_WRITES_PATH, ALLOW_WRITES_BACKUP_PATH,
         warning_handler=lambda warning: print('Warning <geopm-service>', warning,
@@ -48,6 +48,8 @@ def main():
             geopm_service = service.GEOPMService()
             geopm_service.topo_rm_cache()
             _bus.publish_object("/io/github/geopm", geopm_service)
+            ## see gi.repository.GLib.Error: g-io-error-quark: Could not connect: No such file or directory (1)
+            ## on the below line? Don't forget to start a session bus. E.g., `export $(dbus-launch)`
             _bus.register_service("io.github.geopm")
             _loop.run()
         finally:
