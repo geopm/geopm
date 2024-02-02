@@ -47,7 +47,11 @@ namespace geopm
 
     std::string MSRPath::msr_batch_path(void) const
     {
-        return "/dev/cpu/msr_batch";
+        std::string result;
+        if (m_driver_type == MSRIO::M_DRIVER_MSRSAFE) {
+            result = "/dev/cpu/msr_batch";
+        }
+        return result;
     }
 }
 
