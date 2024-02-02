@@ -101,7 +101,9 @@ namespace geopm
             result = ServiceProxy::make_unique();
         }
         catch (const Exception &ex) {
-            if (std::string(ex.what()).find("Failed to open system bus") == std::string::npos) {
+            std::string err_msg(ex.what());
+            if (err_msg.find("Failed to open system bus") == std::string::npos &&
+                err_msg.find("SDBus is not enabled in this build") == std::string::npos) {
                 throw;
             }
         }
