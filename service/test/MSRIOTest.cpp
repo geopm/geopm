@@ -654,7 +654,7 @@ void MSRIOTest::SetUp(void)
         EXPECT_CALL(*m_path, msr_path(cpu_idx))
             .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
     }
-    EXPECT_CALL(*m_path, msr_batch_path()).WillOnce(Return("NO_FILE_HERE"));
+    EXPECT_CALL(*m_path, msr_batch_path()).WillRepeatedly(Return("NO_FILE_HERE"));
 
     // MSRIO creates a new batch IO once it knows the necessary queue size
     m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path, m_batch_io, m_batch_io);

@@ -6,6 +6,8 @@
 
 #include "IOUring.hpp"
 
+#include <cstdlib>
+
 #include "IOUringFallback.hpp"
 
 #include <iostream>
@@ -34,7 +36,8 @@ namespace geopm
     std::unique_ptr<IOUring> IOUring::make_unique(unsigned entries)
     {
 #ifdef GEOPM_HAS_IO_URING
-        if (IOUringImp::is_supported()) {
+        if (IOUringImp::is_supported() &&
+            std::getenv("GEOPM_DISABLE_IO_URING") == nullptr) {
             return IOUringImp::make_unique(entries);
         }
         emit_missing_support_warning();

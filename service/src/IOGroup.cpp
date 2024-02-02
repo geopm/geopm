@@ -5,7 +5,7 @@
 #include "config.h"
 
 #include <unistd.h>
-
+#include <cstdlib>
 #include <functional>
 #include <mutex>
 
@@ -99,7 +99,8 @@ namespace geopm
 #ifdef GEOPM_ENABLE_RAWMSR
             // Only use /dev/cpu/*/msr if configured with
             // --enable-rawmsr and msr-safe driver is not available.
-            bool use_msr_safe = (access("/dev/cpu/msr_batch", R_OK | W_OK) == 0);
+            bool use_msr_safe = (access("/dev/cpu/msr_batch", R_OK | W_OK) == 0 &&
+                                 std::getenv("GEOPM_DISABLE_MSR_SAFE") == nullptr);
             if (!use_msr_safe) {
                 register_plugin(MSRIOGroup::plugin_name(),
                                 MSRIOGroup::make_plugin);
