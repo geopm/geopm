@@ -44,7 +44,7 @@ namespace geopm
                        std::shared_ptr<IOUring> batch_writer)
         : m_num_cpu(num_cpu)
         , m_file_desc(m_num_cpu + 1, -1) // Last file descriptor is for the batch file
-        , m_is_batch_enabled(true)
+        , m_is_batch_enabled(path->msr_batch_path() != "")
         , m_is_open(false)
         , m_path(std::move(path))
         , m_batch_reader(std::move(batch_reader))
