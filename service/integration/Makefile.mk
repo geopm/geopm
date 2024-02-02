@@ -37,7 +37,7 @@ EXTRA_DIST += integration/README.md \
               integration/test/serial_write_client_helper.sh \
               integration/test/do_write.sh \
               integration/test/test_batch_perf.sh \
-              integration/test/test_batch_perf.py \
+              integration/test/plot_batch_perf.py \
               # end
 
 check_PROGRAMS += integration/test/test_batch_server \
