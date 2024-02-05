@@ -44,6 +44,19 @@ to the ``cpufreq`` driver. For more information, see the
 .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
    :no-controls:
 
+i915 DRM Signals
+^^^^^^^^^^^^^^^^
+The following signals are made available to GEOPM through the sysfs interface
+to the ``i915 DRM`` (Direct Rendering Manager) driver. For more information, see the
+`i915 documentation <https://www.kernel.org/doc/html/next/gpu/i915.html>`_ and the
+`oneAPI GPU Optimization Guide <https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/2024-0/configuring-gpu-device.html>`_.
+The i915 driver is available in `upstream Linux <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915>`_.
+Additional features are available in the `out-of-tree version of the driver <https://github.com/intel-gpu/intel-gpu-i915-backports>`_. This
+IOGroup is intended for use with either version of the driver.
+
+.. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
+   :no-controls:
+
 Controls
 --------
 .. contents:: Categories of SYSFS controls:
@@ -56,6 +69,19 @@ to the ``cpufreq`` driver. For more information, see the
 `cpufreq documentation <https://docs.kernel.org/admin-guide/pm/cpufreq.html>`_.
 
 .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
+   :no-signals:
+
+i915 DRM Controls
+^^^^^^^^^^^^^^^^^
+The following controls are made available to GEOPM through the sysfs interface
+to the ``i915 DRM`` driver.  For more information, see the
+`i915 documentation <https://www.kernel.org/doc/html/next/gpu/i915.html>`_ and the
+`oneAPI GPU Optimization Guide <https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/2024-0/configuring-gpu-device.html>`_.
+The i915 driver is available in `upstream Linux <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915>`_.
+Additional features are available in the `out-of-tree version of the driver <https://github.com/intel-gpu/intel-gpu-i915-backports>`_. This
+IOGroup is intended for use with either version of the driver.
+
+.. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
    :no-signals:
 
 
@@ -72,9 +98,17 @@ Signal Aliases
    :no-controls:
    :aliases:
 
+.. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
+   :no-controls:
+   :aliases:
+
 Control Aliases
 ^^^^^^^^^^^^^^^
 .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
+   :no-signals:
+   :aliases:
+
+.. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
    :no-signals:
    :aliases:
 

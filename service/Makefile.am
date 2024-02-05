@@ -196,7 +196,6 @@ EXTRA_DIST += \
               docs/json_data/msr_data_skx.json \
               docs/json_data/msr_data_snb.json \
               docs/json_data/msr_data_spr.json \
-              docs/json_data/sysfs_attributes_cpufreq.json \
               src/json_data.cpp.in \
 	      # end
 
@@ -206,9 +205,11 @@ EXTRA_DIST += \
 # src/sysfs_attributes_cpufreq.json and names the JSON variable cpufreq_sysfs_json.
 sysfs_cpp_files = \
 		  src/sysfs_attributes_cpufreq.cpp \
+		  src/sysfs_attributes_drm.cpp \
 		  #
 EXTRA_DIST += \
 	      docs/json_data/sysfs_attributes_cpufreq.json \
+	      docs/json_data/sysfs_attributes_drm.json \
 	      #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
@@ -249,6 +250,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
                        src/DifferenceSignal.hpp \
+                       src/DrmSysfsDriver.cpp \
+                       src/DrmSysfsDriver.hpp \
                        src/RatioSignal.cpp \
                        src/RatioSignal.hpp \
                        src/DomainControl.cpp \

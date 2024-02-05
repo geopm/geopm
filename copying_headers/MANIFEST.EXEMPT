@@ -208,6 +208,7 @@ service/docs/json_data/msr_data_skx.json
 service/docs/json_data/msr_data_snb.json
 service/docs/json_data/msr_data_spr.json
 service/docs/json_data/sysfs_attributes_cpufreq.json
+service/docs/json_data/sysfs_attributes_drm.json
 service/.gitignore
 service/io.github.geopm.conf
 service/io.github.geopm.xml
