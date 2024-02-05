@@ -19,6 +19,8 @@
           "attribute": { "description": "Name of the sysfs attribute", "type": "string" },
           "scalar": { "description": "Scaling factor to multiply after reads and divide before writes to sysfs", "type": "number" },
           "description": { "description": "Description of what the attribute represents", "type": "string" },
+          "doc_domain": { "description": "Which GEOPM domain to note as the expected domain for this attribute in the documentation. The actual domain may differ based on platform interrogation at execution time.",
+                          "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"] },
           "aggregation": { "description": "How to aggregate sampled values across domains",
                            "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"] },
           "behavior": { "description": "How to interpret differences between read values",
