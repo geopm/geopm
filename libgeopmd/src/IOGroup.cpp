@@ -19,6 +19,7 @@
 #include "SSTIOGroup.hpp"
 #include "geopm/Helper.hpp"
 #include "CpufreqSysfsDriver.hpp"
+#include "DrmSysfsDriver.hpp"
 #ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"
 #endif
@@ -158,6 +159,8 @@ namespace geopm
 #endif
         register_plugin(ConstConfigIOGroup::plugin_name(),
                         ConstConfigIOGroup::make_plugin);
+        register_plugin(DrmSysfsDriver::plugin_name(),
+                        DrmSysfsDriver::make_plugin);
     }
 
     IOGroupFactory &iogroup_factory(void)

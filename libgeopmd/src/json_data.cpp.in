@@ -11,9 +11,9 @@ namespace geopm
 {
     const std::string @JSON_IDENTIFIER@(void)
     {
-        static const std::string result = R"(
+        static const std::string result = R"-(
 @JSON_CONTENTS@
-        )";
+        )-";
         return result;
     }
 }

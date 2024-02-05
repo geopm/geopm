@@ -254,12 +254,16 @@ class GeopmSysfsJson(SphinxDirective):
                              json_path)
             attribute_definition_body += create_signal_description_paragraph(description_text, attribute_regex)
 
+            domain = 'Determined by GEOPM at time of query'
+            if 'doc_domain' in attribute_properties:
+                domain += f' (Expected: {attribute_properties["doc_domain"]})'
+
             # The signal description is followed by a list of properties.
             signal_property_list = nodes.bullet_list()
             description_items = [
                 ('Maps to attribute', attribute_properties['attribute']),
                 ('Aggregation', attribute_properties['aggregation']),
-                ('Domain', 'Determined by GEOPM at time of query'),
+                ('Domain', domain),
                 ('Format', attribute_properties['format']),
                 ('Unit', attribute_properties['units'])
             ]
