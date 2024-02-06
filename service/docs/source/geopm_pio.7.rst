@@ -273,6 +273,21 @@ To learn about these low level signals and controls please consult the chapter
 - :doc:`geopm_pio_sst(7) <geopm_pio_sst.7>`
 - :doc:`geopm_pio_time(7) <geopm_pio_time.7>`
 
+Environment
+-----------
+
+There are environment variables that can be used to disable performance features
+of GEOPM.  The main purpose of these environment variables is to enable easy
+measurement of the impact of these features in performance testing.
+
+``GEOPM_DISABLE_MSR_SAFE``
+   When this environment variable is set, the msr-safe driver interfaces will
+   not be used even if they are present and accessible.
+
+``GEOPM_DISABLE_IO_URING``
+   When this environment variable is set, the io-uring asynchronous kernel file
+   I/O will not be used even if the kernel supports this feature and the
+   io-uring feature is enabled in the build of libgeopmd.so.
 
 See Also
 --------
