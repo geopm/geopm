@@ -114,6 +114,7 @@ namespace geopm
                             0, //num_device_power_domain
                             {}, //power domain
                             0, // cached_energy_timestamp
+                            0, // metric_sampling_period_ns
                         });
                     }
 #ifdef GEOPM_DEBUG
@@ -179,7 +180,7 @@ namespace geopm
 
     LevelZeroImp::~LevelZeroImp() {
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
-            for (int subdevice_idx = 0;
+            for (unsigned int subdevice_idx = 0;
              subdevice_idx < m_devices.at(gpu_idx).num_subdevice;
              ++subdevice_idx) {
                 metric_destroy(gpu_idx, subdevice_idx);
@@ -501,7 +502,7 @@ namespace geopm
     //      - sampling period
     //      - data storage for the ComputeBasics metric group
     void LevelZeroImp::metric_group_init(unsigned int device_idx) {
-        for (int subdevice_idx = 0;
+        for (unsigned int subdevice_idx = 0;
              subdevice_idx < m_devices.at(device_idx).num_subdevice;
              ++subdevice_idx) {
             // Setup tracking of the caching and initialization steps
@@ -1269,17 +1270,12 @@ namespace geopm
 
     uint32_t LevelZeroImp::metric_update_rate(unsigned int l0_device_idx) const
     {
-        return m_devices.at(l0_device_idx).metric_sampling_period;
+        return m_devices.at(l0_device_idx).metric_sampling_period_ns;
     }
 
     void LevelZeroImp::metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting)
     {
-        m_devices.at(l0_device_idx).metric_sampling_period = setting;
-    }
-
-    uint32_t LevelZeroImp::metric_update_rate(unsigned int l0_device_idx) const
-    {
-        return m_devices.at(l0_device_idx).metric_sampling_period_ns;
+        m_devices.at(l0_device_idx).metric_sampling_period_ns = setting;
     }
 
     void LevelZeroImp::check_ze_result(ze_result_t ze_result, int error,

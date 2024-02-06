@@ -90,6 +90,7 @@ namespace geopm
                                               unsigned int l0_domain_idx,
                                               std::string metric_name) const override;
             uint32_t metric_update_rate(unsigned int l0_device_idx) const override;
+            void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) override;
 
             void metric_read(unsigned int l0_device_idx,
                              unsigned int l0_domain_idx) override;
