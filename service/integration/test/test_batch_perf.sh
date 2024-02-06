@@ -3,7 +3,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-export SCRIPT_DIR=$(dirname $(realpath $0))
+SCRIPT_DIR=$(dirname $(realpath $0))
 
 set -x
 set -e
