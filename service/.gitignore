@@ -37,6 +37,7 @@ compile_commands.json
 /googletest-release-*.tar.gz
 /install-sh
 /integration/test/test_batch_interface
+/integration/test/test_batch_perf
 /integration/test/test_batch_server
 /integration/test/test_invalid_values
 /libgeopmd.la

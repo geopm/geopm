@@ -76,10 +76,11 @@ at the end, then the test has succeeded.
 A limited set of root privileges may be used by non-root users by
 installing the helper scripts
 
-    geopm/integration/check_session_clean.sh
-    geopm/integration/get_batch_server.py
-    geopm/integration/install_service.sh
-    geopm/integration/kill_geopmd.sh
+    geopm/service/integration/check_session_clean.sh
+    geopm/service/integration/get_batch_server.py
+    geopm/service/integration/install_service.sh
+    geopm/service/integration/kill_geopmd.sh
+    geopm/service/integration/test/.libs/test_batch_perf (only available after `make checkprogs`)
 
 into `/usr/sbin` and adding these and the `geopmaccess` command line
 tool to the sudoers file.  This enables the user that executes the
@@ -107,7 +108,16 @@ privilege specification" section, add the following:
             /usr/bin/geopmaccess, \
             /usr/bin/systemctl stop geopm, \
             /usr/bin/systemctl start geopm, \
-            /usr/bin/systemctl restart geopm
+            /usr/bin/systemctl restart geopm, \
+            /usr/bin/systemctl unset-environment GEOPM_DISABLE_IO_URING GEOPM_DISABLE_MSR_SAFE, \
+            /usr/bin/systemctl set-environment GEOPM_DISABLE_MSR_SAFE=TRUE, \
+            /usr/bin/systemctl set-environment GEOPM_DISABLE_IO_URING=TRUE, \
+            /usr/sbin/test_batch_perf, \
+            /usr/bin/env GEOPM_DISABLE_MSR_SAFE=TRUE /usr/sbin/test_batch_perf * *, \
+            /usr/bin/env GEOPM_DISABLE_MSR_SAFE=TRUE GEOPM_DISABLE_IO_URING=TRUE /usr/sbin/test_batch_perf * *, \
+            /usr/bin/chown * test-batch-perf-msr-*-root-*.csv, \
+            /usr/sbin/modprobe msr, \
+            /usr/sbin/modprobe -r msr
 ```
 
 ### Running the suite
