@@ -484,7 +484,7 @@ ompt_source_files = src/OMPT.cpp \
                     src/ompt_callback.cpp \
                     # end
 
-geopmctl_SOURCES = src/geopmctl_main.c
+geopmctl_SOURCES = src/geopmctl_main.cpp
 
 if ENABLE_MPI
     libgeopm_la_SOURCES +=$(mpi_source_files)

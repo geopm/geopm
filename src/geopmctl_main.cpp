@@ -22,7 +22,10 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(int argc, char **argv);
+extern "C"
+{
+    int geopmctl_main(int argc, char **argv);
+}
 
 int main(int argc, char **argv)
 {
