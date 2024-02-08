@@ -249,8 +249,18 @@ namespace geopm
                                                     int l0_domain,
                                                     int l0_domain_idx,
                                                     double setting) const = 0;
+
+            //Level Zero Tools/ZET
+            virtual std::vector<double> metric_sample(unsigned int l0_device_idx,
+                                                      unsigned int l0_domain_idx,
+                                                      std::string metric_name) const = 0;
+            virtual uint32_t metric_update_rate(unsigned int l0_device_idx) const = 0;
+            virtual void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) = 0;
+
+            virtual void metric_read(unsigned int l0_device_idx,
+                                     unsigned int l0_domain_idx) = 0;
     };
 
-    const LevelZero &levelzero();
+    LevelZero &levelzero();
 }
 #endif

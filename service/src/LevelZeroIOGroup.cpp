@@ -40,7 +40,7 @@ namespace geopm
 
     // Set up mapping between signal and control names and corresponding indices
     LevelZeroIOGroup::LevelZeroIOGroup(const PlatformTopo &platform_topo,
-                                       const LevelZeroDevicePool &device_pool,
+                                       LevelZeroDevicePool &device_pool,
                                        std::shared_ptr<SaveControl> save_control_test)
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
@@ -496,6 +496,57 @@ namespace geopm
                                   },
                                   1
                                   }},
+                              {M_NAME_PREFIX + "METRIC:XVE_ACTIVE", {
+                                  //TODO: pull from L0 metrics programmatically
+                                  "Percentage of time in which at least one pipe is active in XVE",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_sample(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   "XVE_ACTIVE");
+                                  },
+                                  .01
+                                  }},
+                              {M_NAME_PREFIX + "METRIC:XVE_STALL", {
+                                  //TODO: pull from L0 metrics programmatically
+                                  "Percentage of time in which any threads are loaded but not even a single pipe is active in XVE",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_sample(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   "XVE_STALL");
+                                  },
+                                  .01
+                                  }},
+                              {M_NAME_PREFIX + "METRIC:NUM_REPORTS", {
+                                  //TODO: pull from L0 metrics programmatically
+                                  "Number of Level Zero Tools reports processed this sample",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_sample(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   "NUM_REPORTS");
+                                  },
+                                  1
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                     "Sets the minimum frequency request for the GPU Compute Hardware.",
@@ -628,6 +679,12 @@ namespace geopm
         // Used for control trimming and save/restore.  See man page for more info.
         register_signal_alias(M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR_CONTROL",
                               M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR");
+
+        // popluate tracking structure for L0 metrics
+        for (int domain_idx = 0; domain_idx <
+             m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
+            m_metric_signal_pushed.push_back(false);
+        }
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -814,6 +871,13 @@ namespace geopm
         int result = -1;
         bool is_found = false;
 
+        if ((signal_name.find(":METRIC:") != std::string::npos ) && //||
+            //m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
+            domain_type == GEOPM_DOMAIN_GPU_CHIP) {
+
+            m_metric_signal_pushed.at(domain_idx) = true;
+        }
+
         // Guarantee base signal was pushed before any timestamp signals
         if (string_ends_with(signal_name, "_TIMESTAMP")) {
             std::string base_signal_name =
@@ -923,6 +987,14 @@ namespace geopm
     void LevelZeroIOGroup::read_batch(void)
     {
         m_is_batch_read = true;
+
+        for (int domain_idx = 0; domain_idx <
+             m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
+            if (m_metric_signal_pushed.at(domain_idx)) {
+                m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_GPU_CHIP, domain_idx);
+            }
+        }
+
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
             // If the current signal index (ii) is in the derivative_signal_pushed_set do not read().
             // Derivative signals are comprised of base signals, and thus cannot be read directly.
@@ -1031,10 +1103,16 @@ namespace geopm
                             ": TIMESTAMP Signals are for batch use only.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-            result = (it->second.m_signals.at(domain_idx))->read();
+            if (signal_name.find(":METRIC:") == std::string::npos) {
+                // PlatformIO will try and read a METRIC signal in some instances before
+                // allowing a push_signal & read batch to occur, so we can't just error
+                // on METRIC signals.  We can skip them though.
+                result = (it->second.m_signals.at(domain_idx))->read();
+            } // else: skip "METRIC" signals for now
         }
         else {
     #ifdef GEOPM_DEBUG

@@ -10,6 +10,7 @@
 
 #include <level_zero/ze_api.h>
 #include <level_zero/zes_api.h>
+#include <level_zero/zet_api.h>
 
 #include "LevelZero.hpp"
 
@@ -21,7 +22,7 @@ namespace geopm
     {
         public:
             LevelZeroImp();
-            virtual ~LevelZeroImp() = default;
+            virtual ~LevelZeroImp();
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
 
@@ -85,6 +86,15 @@ namespace geopm
                                             int l0_domain_idx,
                                             double setting) const override;
 
+            std::vector<double> metric_sample(unsigned int l0_device_idx,
+                                              unsigned int l0_domain_idx,
+                                              std::string metric_name) const override;
+            uint32_t metric_update_rate(unsigned int l0_device_idx) const override;
+            void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) override;
+
+            void metric_read(unsigned int l0_device_idx,
+                             unsigned int l0_domain_idx) override;
+
         private:
             struct m_frequency_s {
                 double voltage = 0;
@@ -114,12 +124,30 @@ namespace geopm
                 std::vector<zes_pwr_handle_t> power_domain;
                 mutable std::vector<uint64_t> cached_energy_timestamp;
 
+                //ZE Context used for ZET data collection.  Chip indexed
+                std::vector<ze_context_handle_t> context;
+
+                // required for L0 metric querying.  Chip indexed
+                std::vector<uint32_t> num_metric;
+                std::vector<uint32_t> num_reports;
+                std::vector<bool> metric_domain_cached;
+                std::vector<ze_event_pool_handle_t> event_pool;
+                std::vector<ze_event_handle_t> metric_notifcation_event;
+                std::vector<zet_metric_streamer_handle_t> metric_streamer;
+                std::vector<zet_metric_group_handle_t> metric_group_handle; //ComputeBasic only
+                std::vector<size_t> zet_data_size;
+                std::vector<std::vector<uint8_t>> zet_data;
+
+                // required for L0 metric result tracking.  Chip indexed
+                std::vector<std::map<std::string, std::vector<double>>> metric_data;
+                mutable std::vector<bool> metrics_initialized;
             };
 
             struct m_device_info_s {
+                ze_driver_handle_t driver;
                 zes_device_handle_t device_handle;
                 ze_device_properties_t property;
-                uint32_t m_num_subdevice;
+                uint32_t num_subdevice;
                 std::vector<zes_device_handle_t> subdevice_handle;
 
                 // Sub-Device domain tracking.  Because levelzero returns ALL handles for a
@@ -129,11 +157,16 @@ namespace geopm
                 m_subdevice_s subdevice;
 
                 // Device/Package domains
-                uint32_t num_device_power_domain;
                 zes_pwr_handle_t power_domain;
+
+                uint32_t num_device_power_domain;
                 mutable uint64_t cached_energy_timestamp;
+
+                uint32_t metric_sampling_period_ns;
             };
 
+            //size_t zet_temp_data_size;
+            //std::vector<uint8_t> zet_temp_data;
 
             void frequency_domain_cache(unsigned int l0_device_idx);
             void power_domain_cache(unsigned int l0_device_idx);
@@ -155,6 +188,17 @@ namespace geopm
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
+
+            void metric_group_init(unsigned int l0_device_idx);
+            void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
+                             size_t data_size, std::vector<uint8_t> data);
+
+            void metric_execute(unsigned int l0_device_idx,
+                                unsigned int l0_domain_idx);
+            void metric_destroy(unsigned int l0_device_idx,
+                                unsigned int l0_domain_idx);
+
+            double metric_data_convert(zet_typed_value_t data) const;
     };
 }
 #endif

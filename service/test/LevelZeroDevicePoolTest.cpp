@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <string>
+#include <numeric>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -126,6 +127,8 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     std::vector<double> temp_value_chip_compute = {99, 12, 25, 356, 58, 79, 76, 21};
     std::vector<double> temp_value_chip_mem = {42, 59, 66, 78, 92, 88, 1, 16};
 
+    std::vector<std::vector<double> > metric_value_chip = {{41, 41}, {51, 53}, {16}, {71}, {12, 13, 14}, {18}, {11}, {1,6,1}};
+
     int offset = 0;
     int domain_count = 1; //any non-zero number to ensure we don't throw
     for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
@@ -152,6 +155,9 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 
             EXPECT_CALL(*m_levelzero, temperature_max(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(temp_value_chip_compute[offset]));
             EXPECT_CALL(*m_levelzero, temperature_max(dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(temp_value_chip_mem[offset]));
+
+            EXPECT_CALL(*m_levelzero, metric_sample(dev_idx, sub_idx, "NUM_REPORTS")).WillOnce(Return(metric_value_chip[offset]));
+            EXPECT_CALL(*m_levelzero, metric_read(dev_idx, sub_idx));
             ++offset;
         }
     }
@@ -176,6 +182,13 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 
         EXPECT_EQ(temp_value_chip_compute[sub_idx], m_device_pool.temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_EQ(temp_value_chip_mem[sub_idx], m_device_pool.temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
+
+        double expected = (double)std::accumulate(metric_value_chip[sub_idx].begin(),
+                                                  metric_value_chip[sub_idx].end(), 0) /
+                                                      metric_value_chip[sub_idx].size();
+        EXPECT_EQ(expected,
+                  m_device_pool.metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS"));
+        EXPECT_NO_THROW(m_device_pool.metric_read(GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 }
 
@@ -230,6 +243,10 @@ TEST_F(LevelZeroDevicePoolTest, domain_error)
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_tdp(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU_CHIP) + " is not supported for the power domain");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_min(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU_CHIP) + " is not supported for the power domain");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_max(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU_CHIP) + " is not supported for the power domain");
+
+    //ZET
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.metric_read(GEOPM_DOMAIN_GPU, dev_idx), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for metrics");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.metric_sample(GEOPM_DOMAIN_GPU, dev_idx, "NUM_REPORTS"), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for metrics");
 }
 
 TEST_F(LevelZeroDevicePoolTest, subdevice_range_check)
