@@ -14,6 +14,12 @@
 #include <map>
 #include <set>
 
+
+extern "C"
+{
+    int geopmctl_main(int argc, char **argv);
+}
+
 namespace geopm
 {
     class Comm;

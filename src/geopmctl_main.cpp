@@ -17,15 +17,11 @@
 
 #include "geopm_version.h"
 #include "geopm_error.h"
+#include "Controller.hpp"
 
 enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
-
-extern "C"
-{
-    int geopmctl_main(int argc, char **argv);
-}
 
 int main(int argc, char **argv)
 {
