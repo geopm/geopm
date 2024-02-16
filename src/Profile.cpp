@@ -91,7 +91,12 @@ namespace geopm
 
     void ProfileImp::connect(void)
     {
-        if (m_pid_registered == (int)getpid()) {
+        if (m_pid_registered != M_PID_INIT) {
+            if (m_is_enabled &&
+                m_pid_registered != (int)getpid()) {
+                // Disable profiling for forked processes
+                m_is_enabled = false;
+            }
             return;
         }
         try {
