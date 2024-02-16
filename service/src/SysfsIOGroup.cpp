@@ -104,7 +104,7 @@ namespace geopm
                                std::shared_ptr<SaveControl> control_saver,
                                std::shared_ptr<IOUring> batch_reader,
                                std::shared_ptr<IOUring> batch_writer)
-        : m_driver(driver)
+        : m_driver(std::move(driver))
         , m_platform_topo(topo)
         , m_do_batch_read(false)
         , m_is_batch_read(false)
@@ -113,9 +113,9 @@ namespace geopm
         , m_properties(m_driver->properties())
         , m_pushed_info_signal{}
         , m_pushed_info_control{}
-        , m_control_saver(control_saver)
-        , m_batch_reader(batch_reader)
-        , m_batch_writer(batch_writer)
+        , m_control_saver(std::move(control_saver))
+        , m_batch_reader(std::move(batch_reader))
+        , m_batch_writer(std::move(batch_writer))
     {
         for (const auto &it : m_properties) {
             m_signals.try_emplace(it.first, std::cref(it.second));
