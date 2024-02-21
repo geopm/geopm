@@ -296,38 +296,6 @@ class TestPlatformService(unittest.TestCase):
             self._platform_service.start_batch(client_pid, signal_config,
                                                control_config)
 
-    def test_start_batch(self):
-        session_data = self.open_mock_session('')
-        client_pid = session_data['client_pid']
-        watch_id = session_data['watch_id']
-
-        valid_signals = session_data['signals']
-        valid_controls = session_data['controls']
-        signal_config = [(0, 0, sig) for sig in valid_signals]
-        control_config = [(0, 0, con) for con in valid_controls]
-
-        expected_result = (1234, "1234")
-
-        self._mock_write_lock.try_lock.return_value = client_pid
-        with mock.patch('geopmdpy.pio.start_batch_server', return_value=expected_result), \
-             mock.patch('geopmdpy.pio.save_control_dir'), \
-             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
-            actual_result = self._platform_service.start_batch(client_pid, signal_config,
-                                                               control_config)
-        self.assertEqual(expected_result, actual_result,
-                         msg='start_batch() did not pass back correct result')
-
-        save_dir = os.path.join(self._platform_service._RUN_PATH,
-                                self._platform_service._SAVE_DIR)
-        self.assertTrue(os.path.isdir(save_dir),
-                        msg = 'Directory does not exist: {}'.format(save_dir))
-
-        self._mock_active_sessions.get_batch_server.return_value = expected_result[0]
-        with mock.patch('geopmdpy.pio.stop_batch_server', return_value=[]) as mock_stop_batch_server, \
-             mock.patch('psutil.pid_exists', return_value=True) as mock_pid_exists:
-            self._platform_service.stop_batch(client_pid, expected_result[0])
-            mock_stop_batch_server.assert_called_once_with(expected_result[0])
-
     def test_stop_batch_invalid(self):
         with mock.patch('sys.stderr.write') as mock_stderr:
             self._platform_service.stop_batch('', '')

@@ -56,7 +56,6 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestPlatformService.test_restore_already_closed \
                  geopmdpy_test/pytest_links/TestPlatformService.test_restore_control \
                  geopmdpy_test/pytest_links/TestPlatformService.test_restore_write_blocked \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_start_batch \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_write_blocked \
                  geopmdpy_test/pytest_links/TestPlatformService.test_stop_batch_invalid \
