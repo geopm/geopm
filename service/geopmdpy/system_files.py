@@ -777,8 +777,7 @@ class ActiveSessions(object):
         if 'batch_server' in self._sessions[client_pid]:
             current_server = self._sessions[client_pid]['batch_server']
             raise RuntimeError(f'Client {client_pid} has already started a batch server: {current_server}')
-        batch_pid = int(batch_pid)
-        self._sessions[client_pid]['batch_server'] = batch_pid
+        self._sessions[client_pid]['batch_server'] = int(batch_pid)
         self._update_session_file(client_pid)
 
     def remove_batch_server(self, client_pid):
@@ -794,7 +793,8 @@ class ActiveSessions(object):
             RuntimeError: Client does not have an open session
 
         """
-        batch_pid = self._sessions[client_pid].pop('batch_server')
+        batch_pid = self._sessions[client_pid]['batch_server']
+        self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
 
         signal_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-signal"
@@ -983,6 +983,33 @@ class ActiveSessions(object):
         else:
            os.rename(sess_path, renamed_path)
 
+def _get_names(exec_name, quiet=True):
+    try:
+        stdout_encoding = sys.stdout.encoding
+        stderr_encoding = sys.stderr.encoding
+    except AttributeError:
+        stdout_encoding = None
+        stderr_encoding = None
+    if stdout_encoding is None:
+        stdout_encoding = locale.getpreferredencoding()
+    if stderr_encoding is None:
+        stderr_encoding = locale.getpreferredencoding()
+
+    try:
+        stderr_encoding = sys.stderr.encoding
+    except AttributeError:
+        stderr_encoding = None
+    if stderr_encoding is None:
+        stderr_encoding = locale.getpreferredencoding()
+    signals_pid = subprocess.Popen(exec_name,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+    stdout_bytes, stderr_bytes = signals_pid.communicate()
+    if not quiet:
+        sys.stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
+    return stdout_bytes.decode(encoding=stdout_encoding).split()
+
+
 class AccessLists(object):
     """Class that manages the access list files
 
@@ -991,8 +1018,8 @@ class AccessLists(object):
         self._CONFIG_PATH = config_path
         secure_make_dirs(self._CONFIG_PATH)
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
-        self._signal_names = pio.signal_names()
-        self._control_names = pio.control_names()
+        self._signal_names = _get_names('/usr/bin/geopmread', quiet=False)
+        self._control_names = _get_names('/usr/bin/geopmwrite')
 
     def _validate_group(self, group):
         if group is None or group == '':
