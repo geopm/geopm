@@ -302,7 +302,7 @@ class Access:
         return [ll.strip() for ll in fid.readlines() if ll.strip()]
 
     def run(self, is_write, is_all, is_control, group, is_default, is_delete,
-            is_dry_run, is_force, is_edit):
+            is_dry_run, is_force, is_edit, is_least_privilege=False):
         """Execute geopmaccess command line interface
 
         The inputs to this method are parsed from the command line
@@ -335,6 +335,7 @@ class Access:
             is_dry_run (bool): True to run error checking without file
                                modification
             is_force (bool): True if error checking is disabled
+            is_least_privilege (bool): True if access list should be restricted to used values
 
         """
         output = None
@@ -355,12 +356,17 @@ class Access:
         if is_group and (is_default or is_all):
             raise RuntimeError('Option -g/--group is not valid with -u/--default or -a/--all')
         if not (is_edit or is_write or is_delete) and (is_dry_run or is_force):
-            raise RuntimeError('-n/--dry-run, and -F/--force not valid when reading')
+            raise RuntimeError('-n/--dry-run, -F/--force, and -p/--least-privilege not valid when reading')
+        if is_least_privilege and not is_write:
+            raise RuntimeError('-p/--least-privilege must be specified with -w')
 
 
         names = None
         if is_edit:
             names = self.edited_names(is_control, group)
+        elif is_least_privilege:
+            names = ['~LEAST_PRIVILEGE~']
+            is_force = True
         elif is_write:
             names = self.read_names(sys.stdin)
         elif is_delete:
@@ -422,6 +428,8 @@ def main():
     parser_group_nF.add_argument('-F', '--force', dest='force', action='store_true', default=False,
                                  help='Write access list without validating GEOPM Service support for names')
     parser.add_argument('-x', '--direct', action='store_true', help='Write directly to files, do not use DBus')
+    parser.add_argument('-p', '--least-privilege', action='store_true', default=False,
+                        help='Restrict access list to the current list of used signals or controls')
 
     args = parser.parse_args()
     if args.direct and not (args.group or args.default):
@@ -436,7 +444,7 @@ def main():
         acc = Access(geopm_proxy)
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
-                         args.edit)
+                         args.edit, args.least_privilege)
         if output:
             print(output)
     except RuntimeError as ee:

@@ -51,6 +51,7 @@ def main():
             _bus.register_service("io.github.geopm")
             _loop.run()
         finally:
+            geopm_service.log_access()
             stop()
 
 if __name__ == '__main__':

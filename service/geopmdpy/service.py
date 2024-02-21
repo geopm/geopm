@@ -48,6 +48,8 @@ class PlatformService(object):
         self._WATCH_INTERVAL_SEC = 1
         self._active_sessions = system_files.ActiveSessions(self._RUN_PATH)
         self._access_lists = system_files.AccessLists(system_files.get_config_path())
+        self._accessed_signals = set()
+        self._accessed_controls = set()
         for client_pid in self._active_sessions.get_clients():
             is_active = self.check_client(client_pid)
             if is_active:
@@ -107,6 +109,10 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        if (system_files.is_least_privilege_request(allowed_signals) and
+            system_files.is_least_privilege_request(allowed_controls)):
+            allowed_signals = list(self._accessed_signals)
+            allowed_controls = list(self._accessed_controls)
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
     def set_group_access_signals(self, group, allowed_signals):
@@ -129,6 +135,8 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        if system_files.is_least_privilege_request(allowed_signals):
+            allowed_signals = list(self._accessed_signals)
         self._access_lists.set_group_access_signals(group, allowed_signals)
 
     def set_group_access_controls(self, group, allowed_controls):
@@ -151,6 +159,8 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        if system_files.is_least_privilege_request(allowed_controls):
+            allowed_controls = list(self._accessed_controls)
         self._access_lists.set_group_access_controls(group, allowed_controls)
 
     def get_user_access(self, user, client_pid):
@@ -605,6 +615,10 @@ class PlatformService(object):
             raise RuntimeError(f'Client {client_pid} has already started a batch server: {batch_pid}')
         batch_pid , batch_key = self._pio.start_batch_server(client_pid, signal_config, control_config)
         self._active_sessions.set_batch_server(client_pid, batch_pid)
+        for (_, _, sn) in signal_config:
+            self._accessed_signals.add(sn)
+        for (_, _, cn) in control_config:
+            self._accessed_controls.add(cn)
         return batch_pid, batch_key
 
     def stop_batch(self, client_pid, server_pid):
@@ -676,6 +690,7 @@ class PlatformService(object):
             sys.stderr.write(f"Warning: <geopm-service>: Requested signal that is not in allowed list: '{signal_name}'\n")
         else:
             result = self._pio.read_signal(signal_name, domain, domain_idx)
+            self._accessed_signals.add(signal_name)
         return result
 
     def write_control(self, client_pid, control_name, domain, domain_idx, setting):
@@ -720,6 +735,7 @@ class PlatformService(object):
             raise RuntimeError('Requested control that is not in allowed list: {}'.format(control_name))
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
+        self._accessed_controls.add(control_name)
 
     def restore_control(self, client_pid):
         """Restore all controls recorded at the start of a session.
@@ -816,6 +832,21 @@ class PlatformService(object):
             result = list(region_names)
             result.sort()
         return result
+
+    def log_access(self):
+        """Print all signals and controls that have been accessed
+
+        """
+        if len(self._accessed_signals) != 0:
+            signal_list = list(self._accessed_signals)
+            signal_list.sort()
+            signal_string = '\n    '.join(signal_list)
+            sys.stderr.write(f'Info <geopm-service>: Signal Log:\n    {signal_string}\n\n')
+        if len(self._accessed_controls) != 0:
+            control_list = list(self._accessed_controls)
+            control_list.sort()
+            control_string = '\n    '.join(control_list)
+            sys.stderr.write(f'Info <geopm-service>: Control Log:\n    {control_string}\n\n')
 
     def _write_mode(self, client_pid):
         write_pid = client_pid
@@ -1040,6 +1071,13 @@ class GEOPMService(object):
 
         """
         self._topo.rm_cache()
+
+
+    def log_access(self):
+        """Print all signals and controls that have been accessed
+
+        """
+        self._platform.log_access()
 
     def _get_user(self, call_info):
         """Use DBus proxy object to derive the user name that owns the client
