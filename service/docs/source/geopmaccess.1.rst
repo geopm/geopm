@@ -18,7 +18,7 @@ Write Access List
 
 .. code-block:: none
 
-    geopmaccess -w [-c] [-g GROUP] [-n | -f]
+    geopmaccess -w [-c] [-g GROUP] [-n | -f] [-p]
 
 Edit Access List
 ~~~~~~~~~~~~~~~~~
@@ -68,6 +68,10 @@ Options
                 configuration files
 -F, --force     Write access list without validating GEOPM Service support for
                 names
+-p, --least-privilege
+                Remove access to any signal that has not been read
+                since last restart of the geopm service (applies to
+                controls that have not been written with -c)
 -h, --help      Print brief summary of the command line usage information, then
                 exit
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,

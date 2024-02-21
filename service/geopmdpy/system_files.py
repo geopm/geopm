@@ -1454,3 +1454,8 @@ def has_cap_sys_admin(pid):
             if line.startswith('CapEff:'):
                 cap = int(line.split(':')[1], 16)
     return (cap & cap_sys_admin != 0)
+
+def is_least_privilege_request(request):
+    if len(request) == 1 and request[0] == '~LEAST_PRIVILEGE~':
+        return True
+    return False
