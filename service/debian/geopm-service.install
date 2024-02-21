@@ -1,3 +1,5 @@
+usr/bin/geopmbatch
+usr/bin/geopmd-proxy
 usr/bin/geopmread
 usr/bin/geopmwrite
 etc/bash_completion.d/geopmread.bash

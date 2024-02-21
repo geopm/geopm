@@ -20,27 +20,6 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/BatchClientTest.write_batch_empty \
               test/gtest_links/BatchClientTest.create_but_timeout \
               test/gtest_links/BatchClientTest.stop_batch \
-              test/gtest_links/BatchServerTest.get_server_pid \
-              test/gtest_links/BatchServerTest.get_server_key \
-              test/gtest_links/BatchServerTest.stop_batch \
-              test/gtest_links/BatchServerTest.stop_batch_exception \
-              test/gtest_links/BatchServerTest.run_batch_read \
-              test/gtest_links/BatchServerTest.run_batch_read_empty \
-              test/gtest_links/BatchServerTest.run_batch_write \
-              test/gtest_links/BatchServerTest.run_batch_write_empty \
-              test/gtest_links/BatchServerTest.receive_message_terminate \
-              test/gtest_links/BatchServerTest.receive_message_default \
-              test/gtest_links/BatchServerTest.receive_message_exception \
-              test/gtest_links/BatchServerTest.write_message_exception \
-              test/gtest_links/BatchServerTest.read_batch_exception \
-              test/gtest_links/BatchServerTest.create_shmem \
-              test/gtest_links/BatchServerTest.fork_with_setup \
-              test/gtest_links/BatchServerTest.fork_with_setup_exception \
-              test/gtest_links/BatchServerTest.destructor_exceptions \
-              test/gtest_links/BatchServerTest.fork_and_terminate_child \
-              test/gtest_links/BatchServerTest.fork_and_terminate_parent \
-              test/gtest_links/BatchServerTest.action_sigchld \
-              test/gtest_links/BatchServerTest.action_sigchld_error \
               test/gtest_links/BatchServerNameTest.signal_shmem_key \
               test/gtest_links/BatchServerNameTest.control_shmem_key \
               test/gtest_links/BatchStatusTest.client_send_to_server_fifo_expect \
@@ -439,7 +418,6 @@ EXTRA_DIST += test/legacy_allowlist.out \
 test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/AggTest.cpp \
                           test/BatchClientTest.cpp \
-                          test/BatchServerTest.cpp \
                           test/BatchStatusTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \

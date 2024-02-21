@@ -26,4 +26,6 @@ for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP; do
     fi
 done
 
+./protoc-gen.sh
+
 autoreconf -i -f

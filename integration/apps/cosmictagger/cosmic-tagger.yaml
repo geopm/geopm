@@ -1,0 +1,104 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cosmic-tagger
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
+      shareProcessNamespace: true
+      containers:
+      - name: cosmic-tagger
+        image: geopm.github.io/dcw/cosmic:latest
+        workingDir: "/cosmic-data"
+        imagePullPolicy: Never
+        resources:
+          limits:
+            nvidia.com/gpu: 4
+        # Small-scale test run (~7 minutes)
+        # command: ["mpirun", "-n", "2", "-ppn", "2", "python3",
+        #           "/CosmicTagger-1.1.0/bin/exec.py", "mode=train",
+        #           "run.distributed=true", "run.minibatch_size=2",
+        #           "data.data_directory=/CosmicTagger-1.1.0/example_data/",
+        #           "data.file=cosmic_tagging_light.h5", "data.aux_file=cosmic_tagging_light.h5",
+        #           "run.id=test-run"]
+        # Full-size run (download the full-size input files as described in the cosmic tagger project readme)
+        command: ["mpirun", "-n", "4", "-ppn", "4", "python3",
+                  "/CosmicTagger-1.1.0/bin/exec.py",
+                  "run.distributed=true", "run.minibatch_size=8",
+                  "data.data_directory=/cosmic-data/",
+                  "mode=train", "data.file=cosmic_tagging_train.h5", "data.aux_file=cosmic_tagging_val.h5",
+                  # "mode=inference", "data.file=cosmic_tagging_test.h5",
+                  "run.id=test-run"]
+        volumeMounts:
+        - name: cosmic-data
+          mountPath: /cosmic-data
+      - name: geopm-client
+        image: dannosliwcd/geopm-service:0.0.2
+        # TODO: Currently using runAsUser/Group while the grpc implementation is a work in progress.
+        #       Should be able to remove later on.
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        - name: tmp-mount
+          mountPath: /tmp
+        # TODO: This container would be better suited to run as a sidecar-style init container.
+        #       Since we are not running as a k8s-native sidecar, which would automatically terminate
+        #       us when the app finishes running, we instead need to monitor the app's process state.
+        #       If this gets moved to an init-style sidecar, you can remove the sleep/tail/pgrep/kill
+        #       parts of this command and you can clear the shareProcessNamespace property from the pod.
+        command: ['/usr/bin/sh', '-c', 'for ss in $(geopmread | grep -v "::"); do if geopmread $ss board 0 >/dev/null; then echo $ss board 0 >> /tmp/geopmsession-requests.txt; fi; done; for rr in $(cat /tmp/geopmsession-requests.txt | cut -d" " -f 1); do printf %s, $rr; done; echo; geopmsession -t1e9 -p1 < /tmp/geopmsession-requests.txt & sessionpid=$!; sleep 5; tail -f --pid "$(pgrep mpirun)" /dev/null; kill "${sessionpid}"; rm /tmp/geopmsession-requests.txt']
+      volumes:
+      # geopm-mount lets our client talk to the geopmd service daemonset
+      - name: geopm-mount
+        hostPath:
+          path: /tmp/run-geopm
+      # cosmic-data exposes input/output files to the cosmic tagger app
+      - name: cosmic-data
+        persistentVolumeClaim:
+          claimName: cosmic-pvc
+      - name: tmp-mount
+        emptyDir: {}
+...
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cosmic-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: local-storage
+  selector:
+    matchLabels:
+      app: cosmic-tagger
+...
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cosmic-volume
+  labels:
+    type: local
+    app: cosmic-tagger
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  hostPath:
+    path: CHOOSE_A_PATH_TO_MOUNT
+...

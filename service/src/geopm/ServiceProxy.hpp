@@ -146,7 +146,7 @@ namespace geopm
                                                 double setting) = 0;
             /// @brief Calls the PlatformRestoreControl API defined in the
             ///        io.github.geopm D-Bus namespace.
-            virtual void platform_restore_control() = 0;
+            virtual void platform_restore_control(void) = 0;
             /// @brief Calls the TopoGetCache API defined in the
             ///        io.github.geopm D-Bus namespace.
             /// @return The string buffer defining the system topology
