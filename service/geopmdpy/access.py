@@ -302,7 +302,7 @@ class Access:
         return [ll.strip() for ll in fid.readlines() if ll.strip()]
 
     def run(self, is_write, is_all, is_control, group, is_default, is_delete,
-            is_dry_run, is_force, is_edit, is_least_privilege=False):
+            is_dry_run, is_force, is_edit, is_log):
         """Execute geopmaccess command line interface
 
         The inputs to this method are parsed from the command line
@@ -335,38 +335,37 @@ class Access:
             is_dry_run (bool): True to run error checking without file
                                modification
             is_force (bool): True if error checking is disabled
-            is_least_privilege (bool): True if access list should be restricted to used values
+            is_log (bool): True if log user requested a log of requests
+                           since service restart
 
         """
         output = None
         # Determine if user provided -g option
         if group is None:
             is_group = False
-            # Empty string is for default access list
-            group = ''
+            if is_log:
+                group = '0_GEOPM_SERVICE_LOG_REQUEST'
+            else:
+                # Empty string is for default access list
+                group = ''
         else:
             is_group = True
 
-        if is_all and (is_write or is_edit or is_delete):
-            raise RuntimeError('Option -a/--all is not valid when writing a configuration')
+        if (is_all or is_log) and (is_write or is_edit or is_delete):
+            raise RuntimeError('Option -a/--all or -l/--log are not valid when writing a configuration')
         if is_dry_run and (is_edit or is_delete):
             raise RuntimeError('Option -n/--dry-run not valid with -e/--edit or -D/--delete')
         if is_force and is_edit:
             raise RuntimeError('Option -F/--force is not valid with -e/--edit')
-        if is_group and (is_default or is_all):
-            raise RuntimeError('Option -g/--group is not valid with -u/--default or -a/--all')
+        if is_group and (is_default or is_all or is_log):
+            raise RuntimeError('Option -g/--group is not valid with -u/--default or -a/--all or -l/--log')
         if not (is_edit or is_write or is_delete) and (is_dry_run or is_force):
-            raise RuntimeError('-n/--dry-run, -F/--force, and -p/--least-privilege not valid when reading')
-        if is_least_privilege and not is_write:
-            raise RuntimeError('-p/--least-privilege must be specified with -w')
+            raise RuntimeError('-n/--dry-run or -F/--force not valid when reading')
 
 
         names = None
         if is_edit:
             names = self.edited_names(is_control, group)
-        elif is_least_privilege:
-            names = ['~LEAST_PRIVILEGE~']
-            is_force = True
         elif is_write:
             names = self.read_names(sys.stdin)
         elif is_delete:
@@ -384,7 +383,7 @@ class Access:
                     output = self.get_all_controls()
                 else:
                     output = self.get_all_signals()
-            elif is_default or is_group:
+            elif is_default or is_group or is_log:
                 if is_control:
                     output = self.get_group_controls(group)
                 else:
@@ -408,13 +407,15 @@ def main():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Command applies to controls not signals')
-    parser_group_uga = parser.add_mutually_exclusive_group(required=False)
-    parser_group_uga.add_argument('-u', '--default', dest='default', action='store_true', default=False,
-                                  help='Print the default user access list')
-    parser_group_uga.add_argument('-g', '--group', dest='group', type=str, default=None,
-                                 help='Read or write the access list for a specific Unix GROUP')
-    parser_group_uga.add_argument('-a', '--all', dest='all', action='store_true', default=False,
-                                  help='Print all signals or controls supported by the service system')
+    parser_group_ugal = parser.add_mutually_exclusive_group(required=False)
+    parser_group_ugal.add_argument('-u', '--default', dest='default', action='store_true', default=False,
+                                   help='Print the default user access list')
+    parser_group_ugal.add_argument('-g', '--group', dest='group', type=str, default=None,
+                                   help='Read or write the access list for a specific Unix GROUP')
+    parser_group_ugal.add_argument('-a', '--all', dest='all', action='store_true', default=False,
+                                   help='Print all signals or controls supported by the service system')
+    parser_group_ugal.add_argument('-l', '--log', action='store_true', default=False,
+                                   help='Print list of used signals or controls used since last restart of the service')
     parser_group_weD = parser.add_mutually_exclusive_group(required=False)
     parser_group_weD.add_argument('-w', '--write', dest='write', action='store_true', default=False,
                                   help='Use standard input to write an access list. Implies -u unless -g is provided.')
@@ -428,8 +429,6 @@ def main():
     parser_group_nF.add_argument('-F', '--force', dest='force', action='store_true', default=False,
                                  help='Write access list without validating GEOPM Service support for names')
     parser.add_argument('-x', '--direct', action='store_true', help='Write directly to files, do not use DBus')
-    parser.add_argument('-p', '--least-privilege', action='store_true', default=False,
-                        help='Restrict access list to the current list of used signals or controls')
 
     args = parser.parse_args()
     if args.direct and not (args.group or args.default):
@@ -444,7 +443,7 @@ def main():
         acc = Access(geopm_proxy)
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
-                         args.edit, args.least_privilege)
+                         args.edit, args.log)
         if output:
             print(output)
     except RuntimeError as ee:

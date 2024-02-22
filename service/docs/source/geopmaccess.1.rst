@@ -10,7 +10,7 @@ Read Access List
 
 .. code-block:: none
 
-    geopmaccess [-c] [-u | -g GROUP | -a]
+    geopmaccess [-c] [-u | -g GROUP | -a | -l]
 
 
 Write Access List
@@ -18,7 +18,7 @@ Write Access List
 
 .. code-block:: none
 
-    geopmaccess -w [-c] [-g GROUP] [-n | -f] [-p]
+    geopmaccess -w [-c] [-g GROUP] [-n | -f]
 
 Edit Access List
 ~~~~~~~~~~~~~~~~~
@@ -68,10 +68,8 @@ Options
                 configuration files
 -F, --force     Write access list without validating GEOPM Service support for
                 names
--p, --least-privilege
-                Remove access to any signal that has not been read
-                since last restart of the geopm service (applies to
-                controls that have not been written with -c)
+-l, --log       Print a log of all signals or controls that have been accessed
+                since the service was last restarted.
 -h, --help      Print brief summary of the command line usage information, then
                 exit
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
