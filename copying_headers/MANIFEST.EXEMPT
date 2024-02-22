@@ -29,7 +29,7 @@ debian/libgeopm-dev.dirs
 debian/geopm-runtime.install
 debian/libgeopm-dev.install
 debian/changelog.in
-debian/libgeopm2.install
+debian/libgeopm3.install
 debian/python3-geopmpy.install
 dox/Doxyfile.in
 examples/comd/README
@@ -98,7 +98,7 @@ service/debian/geopm-service.install
 service/debian/control
 service/debian/python3-geopmdpy.install
 service/debian/libgeopmd-dev.dirs
-service/debian/libgeopmd2.install
+service/debian/libgeopmd3.install
 service/debian/geopm-service.postinst
 service/debian/libgeopmd-dev.install
 service/debian/changelog.in

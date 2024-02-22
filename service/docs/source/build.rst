@@ -41,7 +41,7 @@ These commands create the GEOPM service RPM files in your rpmbuild directory:
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
-    $HOME/rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
+    $HOME/rpmbuild/RPMS/x86_64/libgeopmd3-<VERSION>-1.x86_64.rpm
 
 Building GEOPM Service Debian Packages
 --------------------------------------
@@ -62,7 +62,7 @@ directory, e.g.:
 .. code-block:: bash
 
     $HOME/geopm/service/geopm-service_<VERSION>-1_amd64.deb
-    $HOME/geopm/service/libgeopmd2_<VERSION>-1_amd64.deb
+    $HOME/geopm/service/libgeopmd3_<VERSION>-1_amd64.deb
     $HOME/geopm/service/libgeopmd-dev_<VERSION>-1_amd64.deb
     $HOME/geopm/service/python3-geopmdpy_<VERSION>-1_amd64.deb
 
@@ -96,7 +96,7 @@ packaging manager (i.e. zypper or yum):
      $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm \
      $HOME/rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm \
      $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm \
-     $HOME/rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
+     $HOME/rpmbuild/RPMS/x86_64/libgeopmd3-<VERSION>-1.x86_64.rpm
 
 Or the DEB files by issuing:
 
@@ -105,7 +105,7 @@ Or the DEB files by issuing:
    $ cd geopm/service
    $ sudo apt install \
      ./geopm-service_<VERSION>-1_amd64.deb \
-     ./libgeopmd2_<VERSION>-1_amd64.deb \
+     ./libgeopmd3_<VERSION>-1_amd64.deb \
      ./libgeopmd-dev_<VERSION>-1_amd64.deb \
      ./python3-geopmdpy_<VERSION>-1_amd64.deb
 
@@ -124,11 +124,11 @@ package manager:
 
 .. code-block:: bash
 
-    sudo zypper remove geopm-service libgeopmd2 geopm-service-devel python3-geopmdpy
+    sudo zypper remove geopm-service libgeopmd3 geopm-service-devel python3-geopmdpy
 
 Or for the DEB packages by issuing:
 
 .. code-block:: bash
 
     sudo systemctl stop geopm
-    sudo apt remove geopm-service libgeopmd2 libgeopmd-dev python3-geopmdpy
+    sudo apt remove geopm-service libgeopmd3 libgeopmd-dev python3-geopmdpy

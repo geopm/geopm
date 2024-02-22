@@ -200,7 +200,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              debian/geopm-runtime.install \
              debian/libgeopm-dev.dirs \
              debian/libgeopm-dev.install \
-             debian/libgeopm2.install \
+             debian/libgeopm3.install \
              debian/python3-geopmpy.install \
              debian/rules \
              dox/Doxyfile.in \

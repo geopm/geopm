@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Packages: geopm-service, geopm-service-devel, libgeopmd2, python3-geopmdpy
+# Packages: geopm-service, geopm-service-devel, libgeopmd3, python3-geopmdpy
 # This spec file supports three options for level-zero support:
 #
 # 1. default:
@@ -74,7 +74,7 @@ BuildRequires: python-rpm-macros
 %define python_major_version 3
 
 Requires: python%{python3_pkgversion}-geopmdpy = %{version}
-Requires: libgeopmd2 = %{version}
+Requires: libgeopmd3 = %{version}
 
 %description
 
@@ -96,7 +96,7 @@ Group: Development/Libraries
 %else
 Group: Development/Libraries/C and C++
 %endif
-Requires: libgeopmd2 = %{version}
+Requires: libgeopmd3 = %{version}
 
 %description devel
 
@@ -105,7 +105,7 @@ programming interface to libgeopmd.so.  The package includes the C and
 C++ header files, maunuals for these interfaces and the unversioned
 libgeopmd.so shared object symbolic link.
 
-%package -n libgeopmd2
+%package -n libgeopmd3
 
 Summary: Provides libgeopmd shared object library
 %if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
@@ -127,7 +127,7 @@ BuildRequires: liburing-devel
 %define cpuid_option --disable-cpuid
 %endif
 
-%description -n libgeopmd2
+%description -n libgeopmd3
 
 Library supporting the GEOPM Service.  This provides the libgeopmd
 library which provides C and C++ interfaces.
@@ -152,7 +152,7 @@ Requires: python3-dasbus >= 1.6
 Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
-Requires: libgeopmd2 = %{version}
+Requires: libgeopmd3 = %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
@@ -275,10 +275,10 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
 
-%files -n libgeopmd2
+%files -n libgeopmd3
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmd.so.2.0.0
-%{_libdir}/libgeopmd.so.2
+%{_libdir}/libgeopmd.so.3.0.0
+%{_libdir}/libgeopmd.so.3
 %dir %{_libdir}/geopm
 
 %files -n python%{python3_pkgversion}-geopmdpy

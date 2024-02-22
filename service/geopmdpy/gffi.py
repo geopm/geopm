@@ -51,14 +51,14 @@ def get_dl_geopm():
 # Enforce load order of libgeopm.so and libgeopmd.so by loading
 # them together in this module.
 try:
-    _dl_geopm = gffi.dlopen('libgeopm.so.2',
+    _dl_geopm = gffi.dlopen('libgeopm.so.3',
                             gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopm = err
 
 # Load libgeopmd.so after libgeopm.so
 try:
-    _dl_geopmd =  gffi.dlopen('libgeopmd.so.2',
+    _dl_geopmd =  gffi.dlopen('libgeopmd.so.3',
                               gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopmd = err

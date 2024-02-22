@@ -105,9 +105,9 @@ documentation.
    * Both the ``geopmctl`` process and the application process must have
      the ``GEOPM_PROFILE`` environment variable set to the **same**
      value.
-   * The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
+   * The application process must have ``LD_PRELOAD=libgeopm.so.3`` set
      in the environment, or the application binary must be linked
-     directly to ``libgeopm.so.2`` at compile time.
+     directly to ``libgeopm.so.3`` at compile time.
    * The ``GEOPM_REPORT`` environment variable must be set in the
      environment of the ``geopmctl`` process.
    * While not necessary in this example, in case of multiple extraneous processes
@@ -129,7 +129,7 @@ documentation.
        GEOPM_PROGRAM_FILTER=sleep \
        geopmctl &
      $ GEOPM_PROFILE=sleep-ten \
-       LD_PRELOAD=libgeopm.so.2 \
+       LD_PRELOAD=libgeopm.so.3 \
        sleep 10
      $ cat sleep-ten.yaml
      $ awk -F\| '{print $1, $6, $8}' sleep-ten-trace* | less

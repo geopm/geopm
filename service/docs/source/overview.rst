@@ -806,9 +806,9 @@ generate a report:
 1. Both the ``geopmctl`` process and the application process must have
    the ``GEOPM_PROFILE`` environment variable set to the **same**
    value or both environments may leave this variable unset.
-2. The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
+2. The application process must have ``LD_PRELOAD=libgeopm.so.3`` set
    in the environment or the application binary must be linked
-   directly to ``libgeopm.so.2`` at compile time.
+   directly to ``libgeopm.so.3`` at compile time.
 3. The ``GEOPM_REPORT`` environment variable must be set in the
    environment of the ``geopmctl`` process.
 4. The ``GEOPM_PROGRAM_FILTER`` environment variable is required and
@@ -851,7 +851,7 @@ since application start (column 1), CPU energy (column 6), and CPU power
       geopmctl &
     $ GEOPM_PROFILE=sleep-ten \
       GEOPM_PROGRAM_FILTER=sleep \
-      LD_PRELOAD=libgeopm.so.2 \
+      LD_PRELOAD=libgeopm.so.3 \
       sleep 10
     $ cat sleep-ten.yaml-$(hostname)
     $ awk -F\| '{print $1, $6, $8}' sleep-ten.csv-$(hostname) | less

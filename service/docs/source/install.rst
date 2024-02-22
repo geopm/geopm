@@ -7,12 +7,12 @@ process is uses GitHub Actions, combined with the OpenSUSE Build Service
 (OBS). Here are the packages curated by OBS:
 
 - ``geopm-service``: Sets up and enables the geopm systemd service.
-- ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
+- ``libgeopmd3``: Provides the library that supports the PlatformIO interface.
 - ``python3-geopmdpy``: Houses the implementation of geopmd, CLI utilities, and bindings for PlatformIO.
-- ``geopm-service-devel``: Provides headers and man pages for C and C++ APIs supportable by ``libgeopmd2``.
+- ``geopm-service-devel``: Provides headers and man pages for C and C++ APIs supportable by ``libgeopmd3``.
 
 Installation of ``geopm-service`` will involve the dependency packages:
-``libgeopmd2``, ``python3-geopmdpy`` and ``python3-dasbus``. However, explicit
+``libgeopmd3``, ``python3-geopmdpy`` and ``python3-dasbus``. However, explicit
 installation is obligatory for anyone seeking to use ``geopm-service-devel``.
 
 .. note::
@@ -96,12 +96,12 @@ SLES, OpenSUSE, and CentOS
 When using the below links, it is preferable to click on your desired OS and
 follow the procedure for "Add repositoriy and install manually".  If you do
 this, installing the ``geopm-service`` package will automatically install the
-remaining dependencies (e.g. ``libgeopmd2``, etc.).  If required for source
+remaining dependencies (e.g. ``libgeopmd3``, etc.).  If required for source
 builds, you still must manually install ``geopm-service-devel``.
 
 While you *can* download the binary packages directly and install through your
 package manager, you must specify all of the required packages at install time
-(i.e. ``geopm-service``, ``libgeopmd2``, ``python3-geopmdpy``, and optionally
+(i.e. ``geopm-service``, ``libgeopmd3``, ``python3-geopmdpy``, and optionally
 ``geopm-service-devel``).
 
 .. note::
@@ -111,25 +111,25 @@ package manager, you must specify all of the required packages at install time
 
 - Release Packages (``release-v3.0`` branch - Intel GPU support via levelzero)
    + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service>`__
-   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=libgeopmd2>`__
+   + `libgeopm3 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=libgeopmd3>`__
    + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service-devel>`__
 
 - Release Packages (``release-v3.0`` branch - no GPU support)
    + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service>`__
-   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=libgeopmd2>`__
+   + `libgeopm3 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=libgeopmd3>`__
    + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service-devel>`__
 
 - Development Packages (``dev`` branch - Intel GPU support via levelzero)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service>`__
-   + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=libgeopmd2>`__
+   + `libgeopmd3 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=libgeopmd3>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service-devel>`__
 
 - Development Packages (``dev`` branch - no GPU support)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
-   + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd2>`__
+   + `libgeopmd3 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd3>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
 
@@ -164,7 +164,7 @@ configure the initial access lists:
 .. code-block:: bash
 
     $ sudo apt update
-    $ apt install geopm-service libgeopmd-dev libgeopmd2 python3-geopmdpy
+    $ apt install geopm-service libgeopmd-dev libgeopmd3 python3-geopmdpy
     # Start and enable the service
     $ sudo systemctl start geopm
     $ sudo systemctl enable geopm

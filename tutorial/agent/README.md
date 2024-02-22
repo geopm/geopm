@@ -215,7 +215,7 @@ in example_policy.json.  Pass this configuration file to launcher with
 the --geopm-policy option or by setting GEOPM_POLICY=example_config.json.
 Note that to be recognized as an agent plugin, the shared library
 filename must begin with "libgeopmagent_" and end in
-".so.2.0.0".  Be sure that both the ExampleIO
+".so.3.0.0".  Be sure that both the ExampleIO
 plugin and the ExampleAgent plugin are in GEOPM_PLUGIN_PATH.
 
 An example run script is provided in agent_tutorial.sh.  It uses the

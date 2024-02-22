@@ -52,7 +52,7 @@ BuildRequires: python-rpm-macros
 
 %define python_major_version 3
 
-Requires: libgeopm2 = %{version}
+Requires: libgeopm3 = %{version}
 
 %description
 
@@ -73,7 +73,7 @@ Requires: geopm-runtime
 %description devel
 Development package for GEOPM.
 
-%package -n libgeopm2
+%package -n libgeopm3
 Summary: Provides libgeopm shared object library
 %if 0%{?rhel_version} || 0%{?centos_version}
 # Deprecated for RHEL and CentOS
@@ -82,7 +82,7 @@ Group: System Environment/Libraries
 Group: System/Libraries
 %endif
 
-%description -n libgeopm2
+%description -n libgeopm3
 
 Library supportingthe GEOPM Runtime.  This provides the libgeopm
 library which provides C and C++ interfaces.
@@ -136,10 +136,10 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 %{_bindir}/geopmctl
 %{compdir}
 
-%files -n libgeopm2
+%files -n libgeopm3
 %defattr(-,root,root,-)
-%{_libdir}/libgeopm.so.2.0.0
-%{_libdir}/libgeopm.so.2
+%{_libdir}/libgeopm.so.3.0.0
+%{_libdir}/libgeopm.so.3
 
 %files devel
 %defattr(-,root,root,-)

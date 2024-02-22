@@ -49,7 +49,7 @@ install_packages() {
     RPM_USER=$2
     RPM_DIR=/home/${RPM_USER}/rpmbuild/RPMS
     PACKAGES="\
-${RPM_DIR}/x86_64/libgeopmd2-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/x86_64/libgeopmd3-${VERSION}-1.x86_64.rpm
 ${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm
 ${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
@@ -74,7 +74,7 @@ remove_service() {
         systemctl stop geopm ||
             echo "Warning: Failed to stop geopm service" 1>&2
     fi
-    for pkg in geopm-service python3-geopmdpy libgeopmd2; do
+    for pkg in geopm-service python3-geopmdpy libgeopmd3; do
 	if [[ ${IS_QUIET} -eq 0 ]]; then
             ${PKG_REMOVE} $pkg ||
                 echo "Warning: Failed to remove geopm service package: $pkg" 1>&2
