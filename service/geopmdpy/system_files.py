@@ -1455,7 +1455,7 @@ def has_cap_sys_admin(pid):
                 cap = int(line.split(':')[1], 16)
     return (cap & cap_sys_admin != 0)
 
-def is_least_privilege_request(request):
-    if len(request) == 1 and request[0] == '~LEAST_PRIVILEGE~':
+def is_log_request(request):
+    if len(request) == 1 and request[0] == '0_LOG_REQUEST':
         return True
     return False

@@ -72,14 +72,14 @@ will use to determine user privilege.
 
 When the GEOPM Service ends or restarts, a list of all signals and controls that
 have been accessed since last startup are printed to the system log.  In a
-related feature, an administrator may use the ``--least-privilege`` (``-p``)
-option of ``geopmaccess`` to restrict an access list to the set of values that
-have been used since last restart.  In this case no standard input is required.
+related feature, an administrator may use the ``--log`` (``-l``) option of
+``geopmaccess`` to restrict an access list to the set of values that have been
+used since last restart.
 
 .. code-block:: bash
 
-    $ sudo geopmaccess -p -w
-    $ sudo geopmaccess -p -w -c
+    $ geopmaccess -l | sudo geopmaccess -w
+    $ geopmaccess -l -c | sudo geopmaccess -w -c
 
 More information on access list configuration can be found on the following
 pages: :doc:`admin` and :doc:`geopmaccess.1`.

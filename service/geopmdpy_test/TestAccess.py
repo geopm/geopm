@@ -328,34 +328,33 @@ echo {self._signals_expect[0]} >> $1
 
 
 
-    def test_write_least_privilege_signals(self):
-        """Test command to write least privilege to default signal access list
+    def test_read_log_signals(self):
+        """Test command to read log of signals
 
-        Test the run() method equivalent to 'geopmaccess -w -p'
-
-        """
-        return_value = (self._signals_expect,
-                        self._controls_expect)
-        self._geopm_proxy.PlatformSetGroupAccessSignals = mock.Mock()
-        with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
-            self._access.run(True, False, False, None, False, False, False, False, False, True)
-            self._geopm_proxy.PlatformSetGroupAccessSignals.assert_called_once_with('',
-                                                                                    ['~LEAST_PRIVILEGE~'])
-
-    def test_write_least_privilege_controls(self):
-        """Test command to write least privilege to default control access list
-
-        Test the run() method equivalent to 'geopmaccess -w -c -p'
+        Test the run() method equivalent to 'geopmaccess -l'
 
         """
         return_value = (self._signals_expect,
                         self._controls_expect)
-        self._geopm_proxy.PlatformSetGroupAccessControls = mock.Mock()
-        with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
-            self._access.run(True, False, True, None, False, False, False, False, False, True)
-            self._geopm_proxy.PlatformSetGroupAccessControls.assert_called_once_with('',
-                                                                                     ['~LEAST_PRIVILEGE~'])
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        actual_result = self._access.run(False, False, False, None, False, False, False, False, False, True)
+        self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('0_GEOPM_SERVICE_LOG_REQUEST')
+        expected_result = '\n'.join(self._signals_expect)
+        self.assertEqual(expected_result, actual_result)
 
+    def test_read_log_controls(self):
+        """Test command to read log of controls
+
+        Test the run() method equivalent to 'geopmaccess -l -c'
+
+        """
+        return_value = (self._signals_expect,
+                        self._controls_expect)
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        actual_result = self._access.run(False, False, True, None, False, False, False, False, False, True)
+        self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('0_GEOPM_SERVICE_LOG_REQUEST')
+        expected_result = '\n'.join(self._controls_expect)
+        self.assertEqual(expected_result, actual_result)
 
 
 if __name__ == '__main__':

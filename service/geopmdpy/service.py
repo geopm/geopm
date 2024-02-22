@@ -84,7 +84,11 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        return self._access_lists.get_group_access(group)
+        if group == '0_GEOPM_SERVICE_LOG_REQUEST':
+            result = (sorted(self._accessed_signals), sorted(self._accessed_controls))
+        else:
+            result = self._access_lists.get_group_access(group)
+        return result
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
         """Set signals and controls in the allowed lists
@@ -109,10 +113,6 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        if (system_files.is_least_privilege_request(allowed_signals) and
-            system_files.is_least_privilege_request(allowed_controls)):
-            allowed_signals = list(self._accessed_signals)
-            allowed_controls = list(self._accessed_controls)
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
     def set_group_access_signals(self, group, allowed_signals):
@@ -135,8 +135,6 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        if system_files.is_least_privilege_request(allowed_signals):
-            allowed_signals = list(self._accessed_signals)
         self._access_lists.set_group_access_signals(group, allowed_signals)
 
     def set_group_access_controls(self, group, allowed_controls):
@@ -159,8 +157,6 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        if system_files.is_least_privilege_request(allowed_controls):
-            allowed_controls = list(self._accessed_controls)
         self._access_lists.set_group_access_controls(group, allowed_controls)
 
     def get_user_access(self, user, client_pid):
