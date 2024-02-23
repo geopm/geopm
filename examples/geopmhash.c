@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
     const char *usage = "%s string\n\n"
-                        "    Returns the geopm_hash_str() of the input string.\n"
+                        "    Returns the geopm_crc32_str() of the input string.\n"
                         "    this is useful for determining the region name\n"
                         "    from the region_id printed in the trace.\n";
     if (argc == 1 ||
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
         printf(usage, argv[0]);
     }
     else {
-        printf("0x%.16llx\n", (unsigned long long)geopm_hash_str(argv[1]));
+        printf("0x%.16llx\n", (unsigned long long)geopm_crc32_str(argv[1]));
     }
     return 0;
 }

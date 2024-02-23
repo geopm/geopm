@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -96,80 +97,80 @@ class ReporterTest : public testing::Test
         std::string m_profile_name = "my profile";
         std::set<std::string> m_region_set = {"all2all", "MPI_Init_thread"};
         std::map<uint64_t, double> m_region_runtime = {
-            {geopm::hash("all2all"), 33.33},
-            {geopm::hash("MPI_Init_thread"), 22.11},
+            {geopm_crc32_str("all2all"), 33.33},
+            {geopm_crc32_str("MPI_Init_thread"), 22.11},
         };
         std::map<uint64_t, double> m_region_network_time = {
-            {geopm::hash("all2all"), 3.4},
-            {geopm::hash("MPI_Init_thread"), 5.6},
+            {geopm_crc32_str("all2all"), 3.4},
+            {geopm_crc32_str("MPI_Init_thread"), 5.6},
             {GEOPM_REGION_HASH_UNMARKED, 1.2},
             {GEOPM_REGION_HASH_EPOCH, 4.2},
             {GEOPM_REGION_HASH_APP, 45}
         };
         std::map<uint64_t, double> m_region_ignore_time = {
-            {geopm::hash("all2all"), 3.5},
-            {geopm::hash("MPI_Init_thread"), 5.7},
+            {geopm_crc32_str("all2all"), 3.5},
+            {geopm_crc32_str("MPI_Init_thread"), 5.7},
             {GEOPM_REGION_HASH_UNMARKED, 1.3},
             {GEOPM_REGION_HASH_EPOCH, 4.3},
             {GEOPM_REGION_HASH_APP, 46}
         };
         std::map<uint64_t, double> m_region_count = {
-            {geopm::hash("all2all"), 20},
-            {geopm::hash("MPI_Init_thread"), 1},
+            {geopm_crc32_str("all2all"), 20},
+            {geopm_crc32_str("MPI_Init_thread"), 1},
             {GEOPM_REGION_HASH_EPOCH, 66}
         };
         std::map<uint64_t, double> m_region_sync_rt = {
-            {geopm::hash("all2all"), 555},
-            {geopm::hash("MPI_Init_thread"), 333},
+            {geopm_crc32_str("all2all"), 555},
+            {geopm_crc32_str("MPI_Init_thread"), 333},
             {GEOPM_REGION_HASH_UNMARKED, 444},
             {GEOPM_REGION_HASH_EPOCH, 70},
             {GEOPM_REGION_HASH_APP, 56}
         };
         std::map<uint64_t, double> m_region_energy = {
-            {geopm::hash("all2all"), 777},
-            {geopm::hash("MPI_Init_thread"), 888},
+            {geopm_crc32_str("all2all"), 777},
+            {geopm_crc32_str("MPI_Init_thread"), 888},
             {GEOPM_REGION_HASH_UNMARKED, 222},
             {GEOPM_REGION_HASH_EPOCH, 334},
             {GEOPM_REGION_HASH_APP, 4444}
         };
         std::map<uint64_t, double> m_region_frequency_cpu_uncore = {
-            {geopm::hash("all2all"), 755},
-            {geopm::hash("MPI_Init_thread"), 198},
+            {geopm_crc32_str("all2all"), 755},
+            {geopm_crc32_str("MPI_Init_thread"), 198},
             {GEOPM_REGION_HASH_UNMARKED, 421},
             {GEOPM_REGION_HASH_EPOCH, 653},
             {GEOPM_REGION_HASH_APP, 121213}
         };
         std::map<uint64_t, double> m_region_frequency_gpu = {
-            {geopm::hash("all2all"), 567},
-            {geopm::hash("MPI_Init_thread"), 890},
+            {geopm_crc32_str("all2all"), 567},
+            {geopm_crc32_str("MPI_Init_thread"), 890},
             {GEOPM_REGION_HASH_UNMARKED, 123},
             {GEOPM_REGION_HASH_EPOCH, 456},
             {GEOPM_REGION_HASH_APP, 74489}
         };
         std::map<uint64_t, double> m_region_power_gpu = {
-            {geopm::hash("all2all"), 764},
-            {geopm::hash("MPI_Init_thread"), 653},
+            {geopm_crc32_str("all2all"), 764},
+            {geopm_crc32_str("MPI_Init_thread"), 653},
             {GEOPM_REGION_HASH_UNMARKED, 211},
             {GEOPM_REGION_HASH_EPOCH, 432},
             {GEOPM_REGION_HASH_APP, 8992}
         };
         std::map<uint64_t, double> m_region_clk_core = {
-            {geopm::hash("all2all"), 4545},
-            {geopm::hash("MPI_Init_thread"), 5656},
+            {geopm_crc32_str("all2all"), 4545},
+            {geopm_crc32_str("MPI_Init_thread"), 5656},
             {GEOPM_REGION_HASH_UNMARKED, 3434},
             {GEOPM_REGION_HASH_EPOCH, 7878},
             {GEOPM_REGION_HASH_APP, 22222}
         };
         std::map<uint64_t, double> m_region_clk_ref = {
-            {geopm::hash("all2all"), 5555},
-            {geopm::hash("MPI_Init_thread"), 6666},
+            {geopm_crc32_str("all2all"), 5555},
+            {geopm_crc32_str("MPI_Init_thread"), 6666},
             {GEOPM_REGION_HASH_UNMARKED, 4444},
             {GEOPM_REGION_HASH_EPOCH, 8888},
             {GEOPM_REGION_HASH_APP, 33344}
         };
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_agent_detail = {
-            {geopm::hash("all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
-            {geopm::hash("MPI_Init_thread"), {{"agent stat", "2"}}},
+            {geopm_crc32_str("all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
+            {geopm_crc32_str("MPI_Init_thread"), {{"agent stat", "2"}}},
             {GEOPM_REGION_HASH_UNMARKED, {{"agent stat", "3"}}},
         };
 };
@@ -244,7 +245,7 @@ void ReporterTest::generate_setup(void)
 
     // ProcessRegionAgregator
     EXPECT_CALL(*m_region_agg, update);
-    uint64_t mpi_init_hash = geopm::hash("MPI_Init_thread");
+    uint64_t mpi_init_hash = geopm_crc32_str("MPI_Init_thread");
     for (auto rid : m_region_runtime) {
         if (rid.first == mpi_init_hash) {
             EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
@@ -362,139 +363,140 @@ TEST_F(ReporterTest, generate)
         {"three", "3"},
         {"four", "4"} };
 
-    std::string expected = "GEOPM Version: " + std::string(geopm_version()) + "\n"
-        "Start Time: " + m_start_time + "\n"
-        "Profile: " + m_profile_name + "\n"
-        "Agent: my_agent\n"
-        "Policy: DYNAMIC\n"
-        "one: 1\n"
-        "two: 2\n"
-        "\n"
-        "Hosts:\n"
-        "  " + geopm::hostname() + ":\n"
-        "    three: 3\n"
-        "    four: 4\n"
-        "    Regions:\n"
-        "    -\n"
-        "      region: \"all2all\"\n"
-        "      hash: 0x0d2255a7\n"
-        "      runtime (s): 33.33\n"
-        "      count: 20\n"
-        "      sync-runtime (s): 555\n"
-        "      package-energy (J): 388.5\n"
-        "      dram-energy (J): 388.5\n"
-        "      power (W): 0.7\n"
-        "      frequency (%): 81.8182\n"
-        "      frequency (Hz): 0.818182\n"
-        "      time-hint-network (s): 3.4\n"
-        "      time-hint-ignore (s): 3.5\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      CPU_ENERGY@package-0: 194.25\n"
-        "      CPU_ENERGY@package-1: 194.25\n"
-        "      agent stat: 1\n"
-        "      agent other stat: 2\n"
-        "    -\n"
-        "      region: \"MPI_Init_thread\"\n"
-        "      hash: 0x5d545077\n"
-        "      runtime (s): 22.11\n"
-        "      count: 1\n"
-        "      sync-runtime (s): 333\n"
-        "      package-energy (J): 444\n"
-        "      dram-energy (J): 444\n"
-        "      power (W): 1.33333\n"
-        "      frequency (%): 84.8485\n"
-        "      frequency (Hz): 0.848485\n"
-        "      time-hint-network (s): 5.6\n"
-        "      time-hint-ignore (s): 5.7\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      CPU_ENERGY@package-0: 222\n"
-        "      CPU_ENERGY@package-1: 222\n"
-        "      agent stat: 2\n"
-        "    Unmarked Totals:\n"
-        "      runtime (s): 0.56\n"
-        "      count: 0\n"
-        "      sync-runtime (s): 444\n"
-        "      package-energy (J): 111\n"
-        "      dram-energy (J): 111\n"
-        "      power (W): 0.25\n"
-        "      frequency (%): 77.2727\n"
-        "      frequency (Hz): 0.772727\n"
-        "      time-hint-network (s): 1.2\n"
-        "      time-hint-ignore (s): 1.3\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      CPU_ENERGY@package-0: 55.5\n"
-        "      CPU_ENERGY@package-1: 55.5\n"
-        "      agent stat: 3\n"
-        "    Epoch Totals:\n"
-        "      runtime (s): 70\n"
-        "      count: 66\n"
-        "      sync-runtime (s): 70\n"
-        "      package-energy (J): 167\n"
-        "      dram-energy (J): 167\n"
-        "      power (W): 2.38571\n"
-        "      frequency (%): 88.6364\n"
-        "      frequency (Hz): 0.886364\n"
-        "      time-hint-network (s): 4.2\n"
-        "      time-hint-ignore (s): 4.3\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      CPU_ENERGY@package-0: 83.5\n"
-        "      CPU_ENERGY@package-1: 83.5\n"
-        "    Application Totals:\n"
-        "      runtime (s): 56\n"
-        "      count: 0\n"
-        "      sync-runtime (s): 56\n"
-        "      package-energy (J): 2222\n"
-        "      dram-energy (J): 2222\n"
-        "      power (W): 39.6786\n"
-        "      frequency (%): 66.6447\n"
-        "      frequency (Hz): 0.666447\n"
-        "      time-hint-network (s): 45\n"
-        "      time-hint-ignore (s): 46\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      CPU_ENERGY@package-0: 1111\n"
-        "      CPU_ENERGY@package-1: 1111\n"
-        "      MPI startup (s): 22.11\n"
-        "      GEOPM startup (s): 0.321\n"
-        "      GEOPM overhead (s): 0.123\n"
-        "      geopmctl memory HWM (B): @ANY_STRING@\n"
-        "      geopmctl network BW (B/s): 678\n\n";
+    std::ostringstream expected;
+    expected << "GEOPM Version: " << std::string(geopm_version()) << "\n"
+             << "Start Time: " << m_start_time << "\n"
+             << "Profile: " << m_profile_name << "\n"
+             << "Agent: my_agent\n"
+             << "Policy: DYNAMIC\n"
+             << "one: 1\n"
+             << "two: 2\n"
+             << "\n"
+             << "Hosts:\n"
+             << "  " << geopm::hostname() << ":\n"
+             << "    three: 3\n"
+             << "    four: 4\n"
+             << "    Regions:\n"
+             << "    -\n"
+             << "      region: \"all2all\"\n"
+             << "      hash: 0x" << std::hex << std::setfill('0') << std::setw(8) << std::fixed << geopm_crc32_str("all2all") << "\n"
+             << "      runtime (s): 33.33\n"
+             << "      count: 20\n"
+             << "      sync-runtime (s): 555\n"
+             << "      package-energy (J): 388.5\n"
+             << "      dram-energy (J): 388.5\n"
+             << "      power (W): 0.7\n"
+             << "      frequency (%): 81.8182\n"
+             << "      frequency (Hz): 0.818182\n"
+             << "      time-hint-network (s): 3.4\n"
+             << "      time-hint-ignore (s): 3.5\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      CPU_ENERGY@package-0: 194.25\n"
+             << "      CPU_ENERGY@package-1: 194.25\n"
+             << "      agent stat: 1\n"
+             << "      agent other stat: 2\n"
+             << "    -\n"
+             << "      region: \"MPI_Init_thread\"\n"
+             << "      hash: 0x" << std::hex << std::setfill('0') << std::setw(8) << std::fixed << geopm_crc32_str("MPI_Init_thread") << "\n"
+             << "      runtime (s): 22.11\n"
+             << "      count: 1\n"
+             << "      sync-runtime (s): 333\n"
+             << "      package-energy (J): 444\n"
+             << "      dram-energy (J): 444\n"
+             << "      power (W): 1.33333\n"
+             << "      frequency (%): 84.8485\n"
+             << "      frequency (Hz): 0.848485\n"
+             << "      time-hint-network (s): 5.6\n"
+             << "      time-hint-ignore (s): 5.7\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      CPU_ENERGY@package-0: 222\n"
+             << "      CPU_ENERGY@package-1: 222\n"
+             << "      agent stat: 2\n"
+             << "    Unmarked Totals:\n"
+             << "      runtime (s): 0.56\n"
+             << "      count: 0\n"
+             << "      sync-runtime (s): 444\n"
+             << "      package-energy (J): 111\n"
+             << "      dram-energy (J): 111\n"
+             << "      power (W): 0.25\n"
+             << "      frequency (%): 77.2727\n"
+             << "      frequency (Hz): 0.772727\n"
+             << "      time-hint-network (s): 1.2\n"
+             << "      time-hint-ignore (s): 1.3\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      CPU_ENERGY@package-0: 55.5\n"
+             << "      CPU_ENERGY@package-1: 55.5\n"
+             << "      agent stat: 3\n"
+             << "    Epoch Totals:\n"
+             << "      runtime (s): 70\n"
+             << "      count: 66\n"
+             << "      sync-runtime (s): 70\n"
+             << "      package-energy (J): 167\n"
+             << "      dram-energy (J): 167\n"
+             << "      power (W): 2.38571\n"
+             << "      frequency (%): 88.6364\n"
+             << "      frequency (Hz): 0.886364\n"
+             << "      time-hint-network (s): 4.2\n"
+             << "      time-hint-ignore (s): 4.3\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      CPU_ENERGY@package-0: 83.5\n"
+             << "      CPU_ENERGY@package-1: 83.5\n"
+             << "    Application Totals:\n"
+             << "      runtime (s): 56\n"
+             << "      count: 0\n"
+             << "      sync-runtime (s): 56\n"
+             << "      package-energy (J): 2222\n"
+             << "      dram-energy (J): 2222\n"
+             << "      power (W): 39.6786\n"
+             << "      frequency (%): 66.6447\n"
+             << "      frequency (Hz): 0.666447\n"
+             << "      time-hint-network (s): 45\n"
+             << "      time-hint-ignore (s): 46\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      CPU_ENERGY@package-0: 1111\n"
+             << "      CPU_ENERGY@package-1: 1111\n"
+             << "      MPI startup (s): 22.11\n"
+             << "      GEOPM startup (s): 0.321\n"
+             << "      GEOPM overhead (s): 0.123\n"
+             << "      geopmctl memory HWM (B): @ANY_STRING@\n"
+             << "      geopmctl network BW (B/s): 678\n\n";
 
-    std::istringstream exp_stream(expected);
+    std::istringstream exp_stream(expected.str());
 
     m_reporter->update();
     m_reporter->total_time(56.0);
@@ -569,167 +571,167 @@ TEST_F(ReporterTest, generate_conditional)
         {"three", "3"},
         {"four", "4"} };
 
-    std::string expected = "GEOPM Version: " + std::string(geopm_version()) + "\n"
-        "Start Time: " + m_start_time + "\n"
-        "Profile: " + m_profile_name + "\n"
-        "Agent: my_agent\n"
-        "Policy: DYNAMIC\n"
-        "one: 1\n"
-        "two: 2\n"
-        "\n"
-        "Hosts:\n"
-        "  " + geopm::hostname() + ":\n"
-        "    three: 3\n"
-        "    four: 4\n"
-        "    Regions:\n"
-        "    -\n"
-        "      region: \"all2all\"\n"
-        "      hash: 0x0d2255a7\n"
-        "      runtime (s): 33.33\n"
-        "      count: 20\n"
-        "      sync-runtime (s): 555\n"
-        "      package-energy (J): 388.5\n"
-        "      dram-energy (J): 388.5\n"
-        "      power (W): 0.7\n"
-        "      frequency (%): 81.8182\n"
-        "      frequency (Hz): 0.818182\n"
-        "      time-hint-network (s): 3.4\n"
-        "      time-hint-ignore (s): 3.5\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      gpu-energy (J): 777\n"
-        "      gpu-power (W): 764\n"
-        "      gpu-frequency (Hz): 567\n"
-        "      uncore-frequency (Hz): 755\n"
-        "      CPU_ENERGY@package-0: 194.25\n"
-        "      CPU_ENERGY@package-1: 194.25\n"
-        "      agent stat: 1\n"
-        "      agent other stat: 2\n"
-        "    -\n"
-        "      region: \"MPI_Init_thread\"\n"
-        "      hash: 0x5d545077\n"
-        "      runtime (s): 22.11\n"
-        "      count: 1\n"
-        "      sync-runtime (s): 333\n"
-        "      package-energy (J): 444\n"
-        "      dram-energy (J): 444\n"
-        "      power (W): 1.33333\n"
-        "      frequency (%): 84.8485\n"
-        "      frequency (Hz): 0.848485\n"
-        "      time-hint-network (s): 5.6\n"
-        "      time-hint-ignore (s): 5.7\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      gpu-energy (J): 888\n"
-        "      gpu-power (W): 653\n"
-        "      gpu-frequency (Hz): 890\n"
-        "      uncore-frequency (Hz): 198\n"
-        "      CPU_ENERGY@package-0: 222\n"
-        "      CPU_ENERGY@package-1: 222\n"
-        "      agent stat: 2\n"
-        "    Unmarked Totals:\n"
-        "      runtime (s): 0.56\n"
-        "      count: 0\n"
-        "      sync-runtime (s): 444\n"
-        "      package-energy (J): 111\n"
-        "      dram-energy (J): 111\n"
-        "      power (W): 0.25\n"
-        "      frequency (%): 77.2727\n"
-        "      frequency (Hz): 0.772727\n"
-        "      time-hint-network (s): 1.2\n"
-        "      time-hint-ignore (s): 1.3\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      gpu-energy (J): 222\n"
-        "      gpu-power (W): 211\n"
-        "      gpu-frequency (Hz): 123\n"
-        "      uncore-frequency (Hz): 421\n"
-        "      CPU_ENERGY@package-0: 55.5\n"
-        "      CPU_ENERGY@package-1: 55.5\n"
-        "      agent stat: 3\n"
-        "    Epoch Totals:\n"
-        "      runtime (s): 70\n"
-        "      count: 66\n"
-        "      sync-runtime (s): 70\n"
-        "      package-energy (J): 167\n"
-        "      dram-energy (J): 167\n"
-        "      power (W): 2.38571\n"
-        "      frequency (%): 88.6364\n"
-        "      frequency (Hz): 0.886364\n"
-        "      time-hint-network (s): 4.2\n"
-        "      time-hint-ignore (s): 4.3\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      gpu-energy (J): 334\n"
-        "      gpu-power (W): 432\n"
-        "      gpu-frequency (Hz): 456\n"
-        "      uncore-frequency (Hz): 653\n"
-        "      CPU_ENERGY@package-0: 83.5\n"
-        "      CPU_ENERGY@package-1: 83.5\n"
-        "    Application Totals:\n"
-        "      runtime (s): 56\n"
-        "      count: 0\n"
-        "      sync-runtime (s): 56\n"
-        "      package-energy (J): 2222\n"
-        "      dram-energy (J): 2222\n"
-        "      power (W): 39.6786\n"
-        "      frequency (%): 66.6447\n"
-        "      frequency (Hz): 0.666447\n"
-        "      time-hint-network (s): 45\n"
-        "      time-hint-ignore (s): 46\n"
-        "      time-hint-compute (s): 0.2\n"
-        "      time-hint-memory (s): 0.3\n"
-        "      time-hint-io (s): 0.4\n"
-        "      time-hint-serial (s): 0.5\n"
-        "      time-hint-parallel (s): 0.6\n"
-        "      time-hint-unknown (s): 0.7\n"
-        "      time-hint-unset (s): 0.8\n"
-        "      time-hint-spin (s): 0.9\n"
-        "      gpu-energy (J): 4444\n"
-        "      gpu-power (W): 8992\n"
-        "      gpu-frequency (Hz): 74489\n"
-        "      uncore-frequency (Hz): 121213\n"
-        "      CPU_ENERGY@package-0: 1111\n"
-        "      CPU_ENERGY@package-1: 1111\n"
-        "      MPI startup (s): 22.11\n"
-        "      GEOPM startup (s): 0.321\n"
-        "      GEOPM overhead (s): 0.123\n"
-        "      geopmctl memory HWM (B): @ANY_STRING@\n"
-        "      geopmctl network BW (B/s): 678\n\n";
+    std::ostringstream expected;
+    expected << "GEOPM Version: " << std::string(geopm_version()) << "\n"
+             << "Start Time: " << m_start_time << "\n"
+             << "Profile: " << m_profile_name << "\n"
+             << "Agent: my_agent\n"
+             << "Policy: DYNAMIC\n"
+             << "one: 1\n"
+             << "two: 2\n"
+             << "\n"
+             << "Hosts:\n"
+             << "  " << geopm::hostname() << ":\n"
+             << "    three: 3\n"
+             << "    four: 4\n"
+             << "    Regions:\n"
+             << "    -\n"
+             << "      region: \"all2all\"\n"
+             << "      hash: 0x" << std::hex << std::setfill('0') << std::setw(8) << std::fixed << geopm_crc32_str("all2all") << "\n"
+             << "      runtime (s): 33.33\n"
+             << "      count: 20\n"
+             << "      sync-runtime (s): 555\n"
+             << "      package-energy (J): 388.5\n"
+             << "      dram-energy (J): 388.5\n"
+             << "      power (W): 0.7\n"
+             << "      frequency (%): 81.8182\n"
+             << "      frequency (Hz): 0.818182\n"
+             << "      time-hint-network (s): 3.4\n"
+             << "      time-hint-ignore (s): 3.5\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      gpu-energy (J): 777\n"
+             << "      gpu-power (W): 764\n"
+             << "      gpu-frequency (Hz): 567\n"
+             << "      uncore-frequency (Hz): 755\n"
+             << "      CPU_ENERGY@package-0: 194.25\n"
+             << "      CPU_ENERGY@package-1: 194.25\n"
+             << "      agent stat: 1\n"
+             << "      agent other stat: 2\n"
+             << "    -\n"
+             << "      region: \"MPI_Init_thread\"\n"
+             << "      hash: 0x" << std::hex << std::setfill('0') << std::setw(8) << std::fixed << geopm_crc32_str("MPI_Init_thread") << "\n"
+             << "      runtime (s): 22.11\n"
+             << "      count: 1\n"
+             << "      sync-runtime (s): 333\n"
+             << "      package-energy (J): 444\n"
+             << "      dram-energy (J): 444\n"
+             << "      power (W): 1.33333\n"
+             << "      frequency (%): 84.8485\n"
+             << "      frequency (Hz): 0.848485\n"
+             << "      time-hint-network (s): 5.6\n"
+             << "      time-hint-ignore (s): 5.7\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      gpu-energy (J): 888\n"
+             << "      gpu-power (W): 653\n"
+             << "      gpu-frequency (Hz): 890\n"
+             << "      uncore-frequency (Hz): 198\n"
+             << "      CPU_ENERGY@package-0: 222\n"
+             << "      CPU_ENERGY@package-1: 222\n"
+             << "      agent stat: 2\n"
+             << "    Unmarked Totals:\n"
+             << "      runtime (s): 0.56\n"
+             << "      count: 0\n"
+             << "      sync-runtime (s): 444\n"
+             << "      package-energy (J): 111\n"
+             << "      dram-energy (J): 111\n"
+             << "      power (W): 0.25\n"
+             << "      frequency (%): 77.2727\n"
+             << "      frequency (Hz): 0.772727\n"
+             << "      time-hint-network (s): 1.2\n"
+             << "      time-hint-ignore (s): 1.3\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      gpu-energy (J): 222\n"
+             << "      gpu-power (W): 211\n"
+             << "      gpu-frequency (Hz): 123\n"
+             << "      uncore-frequency (Hz): 421\n"
+             << "      CPU_ENERGY@package-0: 55.5\n"
+             << "      CPU_ENERGY@package-1: 55.5\n"
+             << "      agent stat: 3\n"
+             << "    Epoch Totals:\n"
+             << "      runtime (s): 70\n"
+             << "      count: 66\n"
+             << "      sync-runtime (s): 70\n"
+             << "      package-energy (J): 167\n"
+             << "      dram-energy (J): 167\n"
+             << "      power (W): 2.38571\n"
+             << "      frequency (%): 88.6364\n"
+             << "      frequency (Hz): 0.886364\n"
+             << "      time-hint-network (s): 4.2\n"
+             << "      time-hint-ignore (s): 4.3\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      gpu-energy (J): 334\n"
+             << "      gpu-power (W): 432\n"
+             << "      gpu-frequency (Hz): 456\n"
+             << "      uncore-frequency (Hz): 653\n"
+             << "      CPU_ENERGY@package-0: 83.5\n"
+             << "      CPU_ENERGY@package-1: 83.5\n"
+             << "    Application Totals:\n"
+             << "      runtime (s): 56\n"
+             << "      count: 0\n"
+             << "      sync-runtime (s): 56\n"
+             << "      package-energy (J): 2222\n"
+             << "      dram-energy (J): 2222\n"
+             << "      power (W): 39.6786\n"
+             << "      frequency (%): 66.6447\n"
+             << "      frequency (Hz): 0.666447\n"
+             << "      time-hint-network (s): 45\n"
+             << "      time-hint-ignore (s): 46\n"
+             << "      time-hint-compute (s): 0.2\n"
+             << "      time-hint-memory (s): 0.3\n"
+             << "      time-hint-io (s): 0.4\n"
+             << "      time-hint-serial (s): 0.5\n"
+             << "      time-hint-parallel (s): 0.6\n"
+             << "      time-hint-unknown (s): 0.7\n"
+             << "      time-hint-unset (s): 0.8\n"
+             << "      time-hint-spin (s): 0.9\n"
+             << "      gpu-energy (J): 4444\n"
+             << "      gpu-power (W): 8992\n"
+             << "      gpu-frequency (Hz): 74489\n"
+             << "      uncore-frequency (Hz): 121213\n"
+             << "      CPU_ENERGY@package-0: 1111\n"
+             << "      CPU_ENERGY@package-1: 1111\n"
+             << "      MPI startup (s): 22.11\n"
+             << "      GEOPM startup (s): 0.321\n"
+             << "      GEOPM overhead (s): 0.123\n"
+             << "      geopmctl memory HWM (B): @ANY_STRING@\n"
+             << "      geopmctl network BW (B/s): 678\n\n";
 
-    std::istringstream exp_stream(expected);
-
+    std::istringstream exp_istream(expected.str());
     m_reporter->update();
     m_reporter->overhead(0.123, 0.321);
     m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
                          m_application_io,
                          m_comm, m_tree_comm);
     std::ifstream report(m_report_name);
-    check_report(exp_stream, report);
+    check_report(exp_istream, report);
 }
 
 void check_report(std::istream &expected, std::istream &result)

@@ -67,12 +67,12 @@ TEST_F(ELFTest, symbol_lookup)
     EXPECT_TRUE(geopm::string_ends_with(symbol.second, "(double)")) << symbol.second;
 
     // Lookup a C symbol in the shared object table
-    symbol = geopm::symbol_lookup((void*)geopm_hash_str);
-    EXPECT_EQ("geopm_hash_str", symbol.second);
+    symbol = geopm::symbol_lookup((void*)geopm_crc32_str);
+    EXPECT_EQ("geopm_crc32_str", symbol.second);
 
     // Lookup a C symbol in the shared object table offset by 8 bytes
-    fn_off = (size_t)geopm_hash_str;
+    fn_off = (size_t)geopm_crc32_str;
     fn_off += 8;
     symbol = geopm::symbol_lookup((void*)fn_off);
-    EXPECT_EQ("geopm_hash_str", symbol.second);
+    EXPECT_EQ("geopm_crc32_str", symbol.second);
 }
