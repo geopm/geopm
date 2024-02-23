@@ -70,11 +70,9 @@ features provided by the Service, execute the following commands:
 These commands will create access lists in the system location that the Service
 will use to determine user privilege.
 
-When the GEOPM Service ends or restarts, a list of all signals and controls that
-have been accessed since last startup are printed to the system log.  In a
-related feature, an administrator may use the ``--log`` (``-l``) option of
-``geopmaccess`` to restrict an access list to the set of values that have been
-used since last restart.
+An administrator may use the ``--log`` (``-l``) option of ``geopmaccess`` to
+restrict an access list to the set of values that have been used since last
+restart by piping the output into ``geopmaccess -w``:
 
 .. code-block:: bash
 
