@@ -308,8 +308,8 @@ class TestPlatformService(unittest.TestCase):
         client_pid = session_data['client_pid']
         watch_id = session_data['watch_id']
 
-        valid_signals = session_data['signals']
-        valid_controls = session_data['controls']
+        valid_signals = sorted(session_data['signals'])
+        valid_controls = sorted(session_data['controls'])
         signal_config = [(0, 0, sig) for sig in valid_signals]
         control_config = [(0, 0, con) for con in valid_controls]
 
@@ -334,6 +334,7 @@ class TestPlatformService(unittest.TestCase):
              mock.patch('psutil.pid_exists', return_value=True) as mock_pid_exists:
             self._platform_service.stop_batch(client_pid, expected_result[0])
             mock_stop_batch_server.assert_called_once_with(expected_result[0])
+        self.assertEqual((valid_signals, valid_controls), self._platform_service.get_group_access(GEOPM_SERVICE_LOG_REQUEST))
 
     def test_stop_batch_invalid(self):
         with mock.patch('sys.stderr.write') as mock_stderr:
