@@ -51,10 +51,6 @@ def main():
             _bus.register_service("io.github.geopm")
             _loop.run()
         finally:
-            try:
-                geopm_service.log_access()
-            except Exception as ex:
-                sys.stderr.write(f'Warning <geopm-service> Unable to log access list: {ex.what()}')
             stop()
 
 if __name__ == '__main__':

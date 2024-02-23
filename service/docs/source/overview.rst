@@ -78,8 +78,8 @@ used since last restart.
 
 .. code-block:: bash
 
-    $ geopmaccess -l | sudo geopmaccess -w
-    $ geopmaccess -l -c | sudo geopmaccess -w -c
+    $ sudo geopmaccess -l | sudo geopmaccess -w
+    $ sudo geopmaccess -l -c | sudo geopmaccess -w -c
 
 More information on access list configuration can be found on the following
 pages: :doc:`admin` and :doc:`geopmaccess.1`.

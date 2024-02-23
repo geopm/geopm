@@ -829,21 +829,6 @@ class PlatformService(object):
             result.sort()
         return result
 
-    def log_access(self):
-        """Print all signals and controls that have been accessed
-
-        """
-        if len(self._accessed_signals) != 0:
-            signal_list = list(self._accessed_signals)
-            signal_list.sort()
-            signal_string = '\n    '.join(signal_list)
-            sys.stderr.write(f'Info <geopm-service>: Signal Log:\n    {signal_string}\n\n')
-        if len(self._accessed_controls) != 0:
-            control_list = list(self._accessed_controls)
-            control_list.sort()
-            control_string = '\n    '.join(control_list)
-            sys.stderr.write(f'Info <geopm-service>: Control Log:\n    {control_string}\n\n')
-
     def _write_mode(self, client_pid):
         write_pid = client_pid
         do_open_session = False
@@ -968,7 +953,10 @@ class GEOPMService(object):
     def TopoGetCache(self):
         return self._topo.get_cache()
 
-    def PlatformGetGroupAccess(self, group):
+    @accepts_additional_arguments
+    def PlatformGetGroupAccess(self, group, **call_info):
+        if group == '0_GEOPM_SERVICE_LOG_REQUEST':
+            self._check_cap_sys_admin(call_info, "PlatformGetGroupAccess")
         return self._platform.get_group_access(group)
 
     @accepts_additional_arguments
@@ -1067,13 +1055,6 @@ class GEOPMService(object):
 
         """
         self._topo.rm_cache()
-
-
-    def log_access(self):
-        """Print all signals and controls that have been accessed
-
-        """
-        self._platform.log_access()
 
     def _get_user(self, call_info):
         """Use DBus proxy object to derive the user name that owns the client
