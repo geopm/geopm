@@ -12,6 +12,7 @@ import copy
 import math
 from unittest import mock
 import tempfile
+from geopmdpy.system_files import GEOPM_SERVICE_LOG_REQUEST
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.system_files import ActiveSessions, AccessLists, WriteLock
 
@@ -193,9 +194,14 @@ class TestPlatformService(unittest.TestCase):
 
         self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[client_pid])
         with mock.patch('gi.repository.GLib.source_remove', return_value=[]) as mock_source_remove, \
-             mock.patch('geopmdpy.pio.restore_control_dir') as mock_restore_control_dir, \
+             mock.patch('geopmdpy.pio.read_signal', return_value = 42.024) as mock_read_signal, \
+             mock.patch('os.getsid', return_value=client_pid) as mock_getsid, \
+             mock.patch('geopmdpy.pio.restore_control_dir', return_value=[]) as mock_restore_control_dir, \
              mock.patch('shutil.rmtree', return_value=[]) as mock_rmtree:
-
+            actual = self._platform_service.read_signal(client_pid, 'energy', 'board', 0)
+            mock_read_signal.assert_called_once_with('energy', 'board', 0)
+            self.assertEqual(mock_read_signal.return_value, actual)
+            self.assertEqual((['energy'], []), self._platform_service.get_group_access(GEOPM_SERVICE_LOG_REQUEST))
             self._platform_service.close_session(client_pid)
             mock_restore_control_dir.assert_not_called()
             mock_rmtree.assert_not_called()
@@ -214,6 +220,7 @@ class TestPlatformService(unittest.TestCase):
             self._platform_service.write_control(client_pid, 'geopm', 'board', 0, 42.024)
             mock_save_control_dir.assert_called_once()
             mock_write_control.assert_called_once_with('geopm', 'board', 0, 42.024)
+            self.assertEqual(([], ['geopm']), self._platform_service.get_group_access(GEOPM_SERVICE_LOG_REQUEST))
 
         with mock.patch('gi.repository.GLib.source_remove', return_value=[]) as mock_source_remove, \
              mock.patch('geopmdpy.pio.restore_control_dir', return_value=[]) as mock_restore_control_dir, \

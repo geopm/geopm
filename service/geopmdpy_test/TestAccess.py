@@ -10,6 +10,7 @@ import tempfile
 from unittest import mock
 
 from geopmdpy.access import Access
+from geopmdpy.system_files import GEOPM_SERVICE_LOG_REQUEST
 
 class TestAccess(unittest.TestCase):
     def setUp(self):
@@ -338,7 +339,7 @@ echo {self._signals_expect[0]} >> $1
                         self._controls_expect)
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
         actual_result = self._access.run(False, False, False, None, False, False, False, False, False, True)
-        self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('0_GEOPM_SERVICE_LOG_REQUEST')
+        self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with(GEOPM_SERVICE_LOG_REQUEST)
         expected_result = '\n'.join(self._signals_expect)
         self.assertEqual(expected_result, actual_result)
 
@@ -352,7 +353,7 @@ echo {self._signals_expect[0]} >> $1
                         self._controls_expect)
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
         actual_result = self._access.run(False, False, True, None, False, False, False, False, False, True)
-        self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('0_GEOPM_SERVICE_LOG_REQUEST')
+        self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with(GEOPM_SERVICE_LOG_REQUEST)
         expected_result = '\n'.join(self._controls_expect)
         self.assertEqual(expected_result, actual_result)
 

@@ -41,6 +41,9 @@ GEOPM_SERVICE_RUN_PATH = '/run/geopm'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm'
 # Deprecated since 3.0. May remove in a future release.
 LEGACY_GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
+# Special strings used in place of user "group"
+GEOPM_SERVICE_LOG_REQUEST = '0.LOG_REQUEST'
+GEOPM_SERVICE_DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
 
 GEOPM_SERVICE_RUN_PATH_PERM = 0o711
 """Default permissions for the GEOPM service run path
@@ -1017,13 +1020,12 @@ class AccessLists(object):
     def __init__(self, config_path):
         self._CONFIG_PATH = config_path
         secure_make_dirs(self._CONFIG_PATH)
-        self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._signal_names = _get_names('/usr/bin/geopmread', quiet=False)
         self._control_names = _get_names('/usr/bin/geopmwrite')
 
     def _validate_group(self, group):
         if group is None or group == '':
-            group = self._DEFAULT_ACCESS
+            group = GEOPM_SERVICE_DEFAULT_ACCESS
         else:
             group = str(group)
             if group[0].isdigit():
