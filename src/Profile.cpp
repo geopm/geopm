@@ -214,7 +214,7 @@ namespace geopm
         uint64_t result = 0;
         auto name_it = m_region_names.lower_bound(region_name);
         if (name_it == m_region_names.end() || name_it->first != region_name) {
-            result = geopm::hash(region_name);
+            result = geopm_crc32_str(region_name.c_str());
 #ifdef GEOPM_DEBUG
             m_region_ids.insert(result);
 #endif

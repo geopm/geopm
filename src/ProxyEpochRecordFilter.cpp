@@ -81,7 +81,7 @@ namespace geopm
             region_hash = std::stoull(split_name[1], nullptr, 0);
         }
         catch (const std::exception &) {
-            region_hash = geopm::hash(split_name[1]);
+            region_hash = geopm_crc32_str(split_name[1].c_str());
         }
         calls_per_epoch = 1;
         startup_count = 0;

@@ -175,7 +175,7 @@ static int main_imp(int argc, char **argv)
                         std::string policy_name = geopm::Agent::policy_names(agent_ptr).at(policy_count);
                         if (policy_name.find("HASH") != std::string::npos ||
                             policy_name.find("hash") != std::string::npos) {
-                            policy_vals[policy_count] = geopm::hash(tok);
+                            policy_vals[policy_count] = geopm_crc32_str(tok);
                         }
                         else {
                             fprintf(stderr, "Error: %s is not a valid floating-point number; "
