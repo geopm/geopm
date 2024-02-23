@@ -84,7 +84,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        if group == '0_GEOPM_SERVICE_LOG_REQUEST':
+        if group == system_files.GEOPM_SERVICE_LOG_REQUEST:
             result = (sorted(self._accessed_signals), sorted(self._accessed_controls))
         else:
             result = self._access_lists.get_group_access(group)
@@ -955,7 +955,7 @@ class GEOPMService(object):
 
     @accepts_additional_arguments
     def PlatformGetGroupAccess(self, group, **call_info):
-        if group == '0_GEOPM_SERVICE_LOG_REQUEST':
+        if group == '0.GEOPM_SERVICE_LOG_REQUEST':
             self._check_cap_sys_admin(call_info, "PlatformGetGroupAccess")
         return self._platform.get_group_access(group)
 

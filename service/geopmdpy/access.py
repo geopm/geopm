@@ -344,7 +344,7 @@ class Access:
         if group is None:
             is_group = False
             if is_log:
-                group = '0_GEOPM_SERVICE_LOG_REQUEST'
+                group = system_files.GEOPM_SERVICE_LOG_REQUEST
             else:
                 # Empty string is for default access list
                 group = ''
