@@ -13,3 +13,23 @@ if [ ! -e VERSION ]; then
     fi
 fi
 autoreconf -i -f
+
+
+if ! which protoc >& /dev/null || \
+   ! which grpc_cpp_plugin >& /dev/null; then
+    echo "Error: Install the grpc and grpc development packages" 1>&2
+    exit -1
+fi
+
+protoc --grpc_out src \
+       --plugin=protoc-gen-grpc=$(which grpc_cpp_plugin) \
+       --cpp_out src \
+       --python_out ../geopmpy/geopmpy \
+       geopm_runtime.proto
+
+protoc --grpc_out ../geopmpy/geopmpy \
+       --plugin=protoc-gen-grpc=$(which grpc_python_plugin) \
+       geopm_runtime.proto
+
+sed 's|import geopm_runtime_pb2|from . import geopm_runtime_pb2|' \
+    -i ../geopmpy/geopmpy/geopm_runtime_pb2_grpc.py

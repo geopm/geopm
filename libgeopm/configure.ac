@@ -63,6 +63,19 @@ fi
 [enable_overhead="0"]
 )
 
+AC_PATH_PROG([PROTOC], [protoc], [])
+AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
+PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
+AC_SUBST([PROTOBUF_CFLAGS])
+AC_SUBST([PROTOBUF_LIBS])
+PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
+AC_SUBST([GRPC_CFLAGS])
+AC_SUBST([GRPC_LIBS])
+AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+AS_IF([test "x$GRPC_CPP_PLUGIN" = x], [
+  AC_MSG_ERROR([grpc_cpp_plugin not found])
+])
+
 AC_ARG_ENABLE([beta],
   [AS_HELP_STRING([--enable-beta], [Enable beta features of GEOPM that have interfaces expected to change])],
 [if test "x$enable_beta" = "xno" ; then
@@ -559,6 +572,7 @@ if test ! -z "$FC" && $FC --version | grep "GNU Fortran" > /dev/null; then
 [AM_FFLAGS="$AM_FFLAGS -fno-range-check"]
 [AM_FCFLAGS="$AM_FCFLAGS -fno-range-check"]
 fi
+[LIBS="$LIBS $GRPC_LIBS $PROTOBUF_LIBS"]
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])

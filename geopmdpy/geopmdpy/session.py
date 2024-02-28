@@ -337,7 +337,7 @@ def main():
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
                         help='Total run time of the session to be opened in seconds')
     parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
-                        help='When used with a read mode session reads all values out periodically with the specified period in seconds')
+                        help='Reads all values out periodically with the specified period in seconds')
     parser.add_argument('--pid', type=int,
                         help='Stop the session when the given process PID ends')
     parser.add_argument('--print-header', action='store_true',
