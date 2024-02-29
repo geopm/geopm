@@ -7,84 +7,6 @@
 
 syntax = "proto3";
 
-// Borrows from the geomp_service.proto definition
-package GEOPMPackage;
-
-enum Domain {
-  GEOPM_DOMAIN_BOARD = 0;
-  GEOPM_DOMAIN_PACKAGE = 1;
-  GEOPM_DOMAIN_CORE = 2;
-  GEOPM_DOMAIN_CPU = 3;
-  GEOPM_DOMAIN_MEMORY = 4;
-  GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY = 5;
-  GEOPM_DOMAIN_NIC = 6;
-  GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC = 7;
-  GEOPM_DOMAIN_GPU = 8;
-  GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU = 9;
-  GEOPM_DOMAIN_GPU_CHIP = 10;
-}
-
-enum Aggregation {
-  GEOPM_AGG_SUM = 0;
-  GEOPM_AGG_AVERAGE = 1;
-  GEOPM_AGG_MEDIAN = 2;
-  GEOPM_AGG_INTEGER_BITWISE_OR = 3;
-  GEOPM_AGG_LOGICAL_AND = 4;
-  GEOPM_AGG_LOGICAL_OR = 5;
-  GEOPM_AGG_MIN = 6;
-  GEOPM_AGG_MAX = 7;
-  GEOPM_AGG_STDDEV = 8;
-  GEOPM_AGG_REGION_HASH = 9;
-  GEOPM_AGG_REGION_HINT = 10;
-  GEOPM_AGG_SELECT_FIRST = 11;
-  GEOPM_AGG_EXPECT_SAME = 12;
-}
-
-enum StringFormat {
-  GEOPM_STRING_FORMAT_DOUBLE = 0;
-  GEOPM_STRING_FORMAT_INTEGER = 1;
-  GEOPM_STRING_FORMAT_HEX = 2;
-  GEOPM_STRING_FORMAT_RAW64 = 3;
-}
-
-enum SignalBehavior {
-  GEOPM_SIGNAL_BEHAVIOR_CONSTANT = 0;
-  GEOPM_SIGNAL_BEHAVIOR_MONOTONE = 1;
-  GEOPM_SIGNAL_BEHAVIOR_VARIABLE = 2;
-  GEOPM_SIGNAL_BEHAVIOR_LABEL = 3;
-}
-
-message SessionKey {
-  string name = 1;
-}
-
-message PlatformRequest {
-  string name = 1;
-  Domain domain = 2;
-  int32 domain_idx = 3;
-}
-
-message ReadRequestList {
-  SessionKey session_key = 1;
-  repeated PlatformRequest list = 2;
-}
-
-message ReportHandleList {
-  SessionKey session_key = 1;
-  repeated int32 list = 2;
-}
-
-message WriteRequestList {
-  SessionKey session_key = 1;
-  repeated WriteRequest list = 2;
-}
-
-message WriteRequest {
-  SessionKey session_key = 1;
-  PlatformRequest request = 2;
-  double setting = 3;
-}
-
 message TimeSpec {
   uint64 sec = 1;
   uint64 usec = 2;
@@ -92,29 +14,35 @@ message TimeSpec {
 
 message Report {
   string geopm_version = 1;
-  TimeSpec begin = 2;
-  TimeSpec end = 3;
-  string profile = 4;
-  repeated HostReport hosts = 5;
+  repeated HostReport hosts = 2;
 }
 
 message HostReport {
   string hostname = 1;
-  double runtime = 2;
-  double sample_runtime = 3;
-  map<string, Stats> stats = 4;
+  TimeSpec begin = 2;
+  TimeSpec end = 3;
+  double duration = 4;
+  repeated Stats stats = 5;
 }
 
 message Stats {
-  PlatformRequest = 1;
-  int64 count = 2;
-  double agg_value = 3;
-  double min = 4;
+  string name = 1;
+  double latest = 2;
+  int64 count = 3;
+  double min = 4 ;
   double max = 5;
   double mean = 6;
   double std = 7;
   double skew = 8;
   double kurt = 9;
+  double slope = 10;
+}
+
+message Policy {
+  string agent = 1;
+  double period = 2;
+  string profile = 3;
+  map<string, double> params = 4;
 }
 
 message Empty {
@@ -122,29 +50,13 @@ message Empty {
 }
 
 service GEOPMRuntime {
-  rpc OpenSession(SessionKey) returns(SessionKey);
-  rpc CloseSession(SessionKey) returns(Empty);
-
-  // Add signals to be sampled
-  rpc AddReportSignals(ReadRequestList) returns(ReportHandleList);
-  rpc RemoveReportSignals(ReportHandleList) returns(ReportHandleList);
-
-  // Set the period of the local sampler, this is generally more
-  // frequent than the calls to GetReport()
-  rpc SetSamplePeriod(Duration) returns(Duration);
-
+  // Agent determines which statistics will be included in the report
+  rpc SetPolicy(Policy) returns(TimeSpec);
   // Get statistics about sampled data since last call to GetReport()
-  rpc GetReport(SessionKey) returns(Report);
-
-  // Set control values
-  rpc SetStaticControls(WriteRequestList) returns(WriteRequestList);
-
-  // TODO FUTURE WORK enable samples to be aggregated up a tree by
-  // collecting reports from children
-  //
-  // message Url {SessionKey session_key = 1; string url = 2;}
-  // rpc AddChildNode(Url) returns(SessionKey)
-  // rpc RemoveChildNode(SessionKey) returns(Empty)
-  //
-  // TODO FUTURE WORK Set agents and policies for dynamic controls
+  rpc GetReport(TimeSpec) returns(Report);
+  // Forward calls to SetPolicy() and GetReport() to children.  The
+  // host sections include reports from children, and Policy messages are
+  // forwarded.
+  rpc AddChildNode(Url) returns(TimeSpec)
+  rpc RemoveChildNode(Url) returns(TimeSpec)
 }
