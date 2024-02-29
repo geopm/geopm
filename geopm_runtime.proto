@@ -7,14 +7,14 @@
 
 syntax = "proto3";
 
-message TimeSpec {
-  uint64 sec = 1;
-  uint64 usec = 2;
-}
-
 message Report {
   string geopm_version = 1;
   repeated HostReport hosts = 2;
+}
+
+message TimeSpec {
+  uint64 sec = 1;
+  uint64 usec = 2;
 }
 
 message HostReport {
@@ -27,15 +27,16 @@ message HostReport {
 
 message Stats {
   string name = 1;
-  double latest = 2;
-  int64 count = 3;
-  double min = 4 ;
-  double max = 5;
-  double mean = 6;
-  double std = 7;
-  double skew = 8;
-  double kurt = 9;
-  double slope = 10;
+  double first = 2;
+  double last = 3;
+  int64 count = 4;
+  double min = 5;
+  double max = 6;
+  double mean = 7;
+  double std = 8;
+  double skew = 9;
+  double kurt = 10;
+  double slope = 11;
 }
 
 message Policy {
@@ -43,10 +44,6 @@ message Policy {
   double period = 2;
   string profile = 3;
   map<string, double> params = 4;
-}
-
-message Empty {
-
 }
 
 service GEOPMRuntime {
