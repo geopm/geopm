@@ -54,6 +54,6 @@ service GEOPMRuntime {
   // Forward calls to SetPolicy() and GetReport() to children.  The
   // host sections include reports from children, and Policy messages are
   // forwarded.
-  rpc AddChildNode(Url) returns(TimeSpec)
-  rpc RemoveChildNode(Url) returns(TimeSpec)
+  rpc AddChildNode(Url) returns(TimeSpec);
+  rpc RemoveChildNode(Url) returns(TimeSpec);
 }
