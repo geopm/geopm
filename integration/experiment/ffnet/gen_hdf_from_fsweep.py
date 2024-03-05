@@ -23,7 +23,6 @@ def process_report_files(input_dir):
         #Name of application being profiled
         app_name = report["Profile"][:report["Profile"].find('_frequency_map')]
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
-        #directory_name = os.path.basename(os.path.dirname(report_path))
 
         freqs = {"gpu":None, "cpu":None, "uncore":None}
         lookup_str = {"gpu":"FREQ_GPU_DEFAULT", "cpu":"FREQ_CPU_DEFAULT", "uncore":"FREQ_CPU_UNCORE"}
@@ -41,15 +40,12 @@ def process_report_files(input_dir):
 
             if "Regions" in report["Hosts"][nodename]:
                 for region_dict in report["Hosts"][nodename]["Regions"]:
-                    #TODO: Why was directory name added here? Don't see a need to differentiate runs
-                    #region_dict['app-config'] = app_name + '-' + directory_name + '-' + hex(region_dict['hash'])
                     region_dict['app-config'] = app_name + '-' + hex(region_dict['hash'])
                     region_dict.update(conf)
                     reports.append(region_dict)
             else:
                 # Handle sweeps done with python infrastructure that does not have regions or a region hash
                 region_dict = report["Hosts"][nodename]["Application Totals"]
-                #region_dict['app-config'] = app_name + '-' + directory_name + '-' + "0xDEADBEEF"
                 region_dict['app-config'] = app_name + '-' + "0xDEADBEEF"
 
                 region_dict.update(conf)
@@ -59,7 +55,6 @@ def process_report_files(input_dir):
                 region_dict = report["Hosts"][nodename]["Unmarked Totals"]
                 region_dict['region'] = "Unmarked"
                 region_dict['hash'] = f"{app_name}_unmarked"
-                #region_dict['app-config'] = app_name + '-' + directory_name + '-' + region_dict['hash']
                 region_dict['app-config'] = app_name + '-' + region_dict['hash']
                 region_dict.update(conf)
                 reports.append(region_dict)
@@ -81,7 +76,7 @@ def process_trace_files(sweep_dir):
             if line[0] != '#':
                 break
 
-            #TODO: Clean up--changed b/c there can be multiple ":"
+            #Clean up trace header if there are multiple ':'
             key = line[2:line.strip().find(':')]
             value = line[2+line.strip().find(':'):]
             trace_header[key.strip()] = value.strip()
@@ -153,7 +148,8 @@ def main(output_prefix, frequency_sweep_dirs):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='TODO'
+        description='Generate HDFs from frequency sweep reports/traces, to use
+                     with ffnet agent integration infrastructure.'
     )
     parser.add_argument('output',
                         help='Prefix name of the output HDF files.')

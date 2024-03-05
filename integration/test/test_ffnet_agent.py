@@ -25,7 +25,7 @@ from experiment.ffnet import ffnet
 
 class TestIntegration_ffnet(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls):  #DELME Run exactly once for everything you want to test
         """
         Setup applications, execute, and set up class variables.
         """

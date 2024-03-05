@@ -35,8 +35,49 @@ class TestIntegration_ffnet(unittest.TestCas):
         """
         Setup applications, execute, and set up class variables.
         """
+        sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
+                         '.' + cls.__name__ + ') ...')
+        cls._test_name = 'test_ffnet_scripts'
+        cls._report_path = '{}.report'.format(cls._test_name)
+        cls._trace_path = '{}.trace'.format(cls._test_name)
+        cls._agent_conf_path = 'test_' + cls._test_name + '-config.json'
+
+        # Set the job size parameters
+        cls._num_node = 1
+        num_rank = 2
+        time_limit = 6000
+
+        # Configure the test application
+        test_app_params = {
+            'spin_bigo': 0.5,
+            'sleep_bigo': 1.0,
+            'sleep-unmarked_bigo': 1.0,
+            'dgemm_bigo': 1.0,
+            'stream_bigo': 2.0,
+            'loop_count': 2
+        }
+
+        app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
+        app_conf.set_loop_count(test_app_params['loop_count'])
+        for region in ['spin', 'sleep', 'sleep-unmarked', 'dgemm', 'stream']:
+            app_conf.append_region(region, test_app_params[f"{region}_bigo"])
+        app_conf.write()
+
+        # Set up frequency sweep parameters
+        cls._freq_map = {}
+        cls._freq_map['dgemm'] = cls._machine.frequency_min() + 2 * cls._machine.frequency_step()
+        cls._freq_map['stream'] = cls._machine.frequency_sticker() - 2 * cls._machine.frequency_step()
+        cls._freq_map['all2all'] = cls._machine.frequency_min()
+        cls._options = cls.create_frequency_map_policy(cls._machine.frequency_sticker(),
+                                                       cls._freq_map)
+        cls._agent = 'frequency_map'
+
     def test_neural_net_sweep(self):
 
+        #TODO: FIX THIS--it will not persist during the run. Put it in neural_net_sweep.py
+        #      and ffnet.py. Use init_control_path=args.init_control (like in run_monitor.py)
+        #      which reads control settings from a flat file (check test_init_control.py)
+        #      format:  CONTROL domain value
         # Assign all cores to resource monitoring association ID 0. This
         # allows for monitoring the resource usage of all cores.
         geopm_test_launcher.geopmwrite("MSR::PQR_ASSOC:RMID board 0 {}".format(0))
@@ -47,13 +88,32 @@ class TestIntegration_ffnet(unittest.TestCas):
         # This is used to determine the Xeon Uncore utilization.
         geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:EVENT_ID board 0 {}".format(2))
 
-        #TODO: Add cpu frequency sweep of aib and geopmbench
+        #TODO: Add cpu frequency sweep of geopmbench
 
         #TODO: If on gpu-enabled system, add gpu frequency sweep of parres dgemm / stream
 
+        #TODO: Check start/stop at correct frequencies
+
+        #TODO: Check for desired report signals (CPU-only run)
+        #      CPU_CYCLES_THREAD, CPU_CYCLES_REFERENCE, TIME, CPU_ENERGY
+
+        #TODO: Check that there are no GPU signals (CPU-only run)
+
+        #TODO: Check for desired report signals (CPU+GPU run)
+        #      GPU: GPU_CORE_FREQUENCY_STATUS, GPU_CORE_FREQUENCY_MIN_CONTROL,
+        #           GPU_CORE_FREQUENCY_MAX_CONTROL
+
+        #TODO: Check for desired trace signals:
+        #      CPU-only: CPU_POWER,DRAM_POWER, CPU_FREQUENCY_STATUS,CPU_PACKAGE_TEMPERATURE
+        #               ,MSR::UNCORE_PERF_STATUS:FREQ,MSR::QM_CTR_SCALED_RATE
+        #               ,CPU_INSTRUCTIONS_RETIRED,CPU_CYCLES_THREAD,CPU_ENERGY
+        #               ,MSR::APERF:ACNT,MSR::MPERF:MCNT,MSR::PPERF:PCNT
+
     def test_hdf_generation(self):
         #TODO: Add h5 generation
-        #TODO:     and check for expected columns
+        #TODO: Check for desired columns: node, hash, region, app-config, runtime (s),
+        #      cpu-frequency, package-energy (J)
+        # TODO: Check for desired columns if GPU is present: gpu-frequency, gpu-energy (J),
 
     def test_nn_generation(self):
         #TODO: Add NN generation for CPU (and GPU if on gpu-enabled system)
