@@ -84,7 +84,6 @@ namespace geopm
                 double last_value;
             };
 
-            static bool is_all_nan(const std::vector<double> &vec);
             static std::string get_env_value(const std::string &env_var);
             void init_domain_indices(const PlatformTopo &topo);
 

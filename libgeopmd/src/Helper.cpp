@@ -401,4 +401,10 @@ namespace geopm
     {
         std::cerr << "Warning: " << function << " has been deprecated: " << message << ".\n";
     }
+
+    bool is_all_nan(const std::vector<double> &vec)
+    {
+        return std::all_of(vec.begin(), vec.end(),
+                           [](double x) -> bool { return std::isnan(x); });
+    }
 }

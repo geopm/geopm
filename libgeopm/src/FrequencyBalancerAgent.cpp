@@ -34,6 +34,7 @@
 #include "FrequencyTimeBalancer.hpp"
 #include "SSTClosGovernor.hpp"
 #include "Waiter.hpp"
+#include "geopm_debug.hpp"
 
 // Minimum number of sampling wait periods before applying new epoch controls.
 static constexpr const int MINIMUM_WAIT_PERIODS_FOR_NEW_EPOCH_CONTROL = 5;
@@ -62,12 +63,6 @@ namespace geopm
                                       : nullptr),
                                  {}, {})
     {
-    }
-
-    static bool is_all_nan(const std::vector<double> &vec)
-    {
-        return std::all_of(vec.begin(), vec.end(),
-                           [](double x) -> bool { return std::isnan(x); });
     }
 
     FrequencyBalancerAgent::FrequencyBalancerAgent(PlatformIO &plat_io,

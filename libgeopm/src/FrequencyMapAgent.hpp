@@ -60,7 +60,6 @@ namespace geopm
         private:
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
-            static bool is_all_nan(const std::vector<double> &vec);
 
             enum m_policy_e {
                 M_POLICY_FREQ_CPU_DEFAULT,

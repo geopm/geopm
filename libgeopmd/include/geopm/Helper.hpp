@@ -206,6 +206,11 @@ namespace geopm
             DeprecationWarning(const std::string &function, const std::string &message);
             virtual ~DeprecationWarning() = default;
     };
+
+    /// @brief Return true if all values in the given vector are NAN.
+    /// @param [in] vec Vector to check
+    /// @return True if all values in the vector are NAN
+    bool is_all_nan(const std::vector<double> &vec);
 }
 
 #endif
