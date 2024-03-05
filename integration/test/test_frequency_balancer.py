@@ -14,18 +14,13 @@ workload.
 
 import sys
 import unittest
-import os
 from pathlib import Path
 import shutil
 from experiment import machine
 from types import SimpleNamespace
 
 import geopmpy.agent
-from yaml import load
-try:
-    from yaml import CSafeLoader as SafeLoader
-except ImportError:
-    from yaml import SafeLoader
+from geopmpy.io import RawReport
 from collections import defaultdict
 
 from integration.test import util
@@ -93,24 +88,23 @@ class TestIntegration_frequency_balancer(unittest.TestCase):
 
         results = defaultdict(dict)
         for report_path in output_dir.glob('*.report'):
-            with open(report_path) as f:
-                report = load(f, Loader=SafeLoader)
-                agent_variant = report['Agent']
-                if agent_variant != 'monitor':
-                    if report['Policy'].get('USE_FREQUENCY_LIMITS', 0):
-                        agent_variant += '_pstate'
-                    agent_variant += '(used)' if report.get('Agent uses frequency control', 0) else '(unused)'
-                    if report['Policy'].get('USE_SST_TF', 0):
-                        agent_variant += '_ssttf'
-                    agent_variant += '(used)' if report.get('Agent uses SST-TF', 0) else '(unused)'
+            report = RawReport(report_path).raw_report()
+            agent_variant = report['Agent']
+            if agent_variant != 'monitor':
+                if report['Policy'].get('USE_FREQUENCY_LIMITS', 0):
+                    agent_variant += '_pstate'
+                agent_variant += '(used)' if report.get('Agent uses frequency control', 0) else '(unused)'
+                if report['Policy'].get('USE_SST_TF', 0):
+                    agent_variant += '_ssttf'
+                agent_variant += '(used)' if report.get('Agent uses SST-TF', 0) else '(unused)'
 
-                results[agent_variant]['FoM'] = report['Figure of Merit']
-                results[agent_variant]['package-energy (J)'] = sum(
-                    host_data['Epoch Totals']['package-energy (J)']
-                    for host_data in report['Hosts'].values())
-                results[agent_variant]['time-hint-network (s)'] = max(
-                    host_data['Epoch Totals']['time-hint-network (s)']
-                    for host_data in report['Hosts'].values())
+            results[agent_variant]['FoM'] = report['Figure of Merit']
+            results[agent_variant]['package-energy (J)'] = sum(
+                host_data['Epoch Totals']['package-energy (J)']
+                for host_data in report['Hosts'].values())
+            results[agent_variant]['time-hint-network (s)'] = max(
+                host_data['Epoch Totals']['time-hint-network (s)']
+                for host_data in report['Hosts'].values())
 
         # Save both energy and time when SST-TF is present
         for agent_variant in results:
