@@ -26,7 +26,8 @@ and applies frequency control settings that the agent estimates will let each
 core achieve the target best-case time.
 
 The following subsections outline the agent's responsibilities at a high level.
-See (**TODO** get a paper reference. Also add to the publications page.) for more details.
+See `Guiding Hardware-Driven Turbo with Application Performance Awareness <https://ieeexplore.ieee.org/abstract/document/9969356>`_
+for more details.
 
 Critical Path Time Estimates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,6 +90,9 @@ least one balancing option must be set to ``1``.
 ``USE_SST_TF``
     Set to ``1`` if you want the agent to use SST-TF to help balance the
     application. Default: ``1``
+
+If both P-States and SST-TF are used, then the agent uses both per-core
+P-States and SST-TF controls to help balance the application.
 
 Trace Column Extensions
 -----------------------
