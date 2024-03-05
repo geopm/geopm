@@ -60,6 +60,13 @@ def reports_and_traces_to_dataframes(report_paths):
             non_net_time_core_count = len(app_non_network_time_by_core)
             non_net_time_core_max = max(app_non_network_time_by_core)
 
+            # Report imbalance as a percentage where 0% represents perfect
+            # balance across all processing units and 100% represents the case
+            # where all except one processing unit are waiting on a single
+            # processing unit (as in a serial execution region). For more
+            # information about this metric, see "Detecting Application Load
+            # Imbalance on High End Massively Parallel Systems" by DeRose,
+            # Homer, and Johnson (2007).
             imbalance = (
                 (non_net_time_core_max - non_net_time_core_total / non_net_time_core_count)
                 * non_net_time_core_count
@@ -96,6 +103,9 @@ def reports_and_traces_to_dataframes(report_paths):
                             'Frequency': value,
                         }
 
+                # Determine the processor's sticker frequency from the measured
+                # absolute frequency and the measured frequency as a percentage
+                # of sticker. Round down to 100 MHz steps.
                 sticker_frequency = (
                     data['Application Totals']['frequency (Hz)']
                     / data['Application Totals']['frequency (%)']
@@ -105,6 +115,7 @@ def reports_and_traces_to_dataframes(report_paths):
                 trace_df['timediff'] = trace_df['TIME'].diff()
                 core_count = len([c for c in trace_df.columns if c.startswith('MSR::APERF:ACNT-core')])
                 for core in range(core_count):
+                    # 0x00000004 indicates that GEOPM's network hint is active
                     is_networking = (trace_df[f'REGION_HINT-core-{core}'] == '0x00000004')
                     trace_df[f'network-time-core-{core}'] = is_networking * trace_df['timediff']
                     diff_acnt = trace_df[f'MSR::APERF:ACNT-core-{core}'].diff()
