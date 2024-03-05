@@ -383,58 +383,6 @@ if __name__ == '__main__':
     fig.savefig(os.path.join(args.output_dir, f'critical-path-frequencies.{args.plot_suffix}'),
                 pad_inches=0, bbox_inches='tight')
 
-
-#    fig, ax = plt.subplots(figsize=(4, 2))
-#    sns.violinplot(
-#        data=frequency_df,
-#        ax=ax,
-#        inner=None,
-#        dodge=True,
-#        linewidth=0.5,
-#        cut=0,
-#        scale='count',
-#        hue='Variant',
-#        hue_order=variant_order,
-#        palette=variant_palette,
-#        x='Application',
-#        y='Non-Networking Frequency',
-#    )
-#    if args.all_core_turbo_hz is not None:
-#        ax.axhline(y=args.all_core_turbo_hz, ls=":", c='k', linewidth=0.5, label='All-Core Turbo')
-#    ax.set_ylabel('Frequency')
-#    ax.yaxis.set_major_formatter(mtick.EngFormatter('Hz', 0))
-#    ax.set_ylim(bottom=0)
-#    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-#
-#    fig.suptitle('Non-Networking Core Frequencies by Application')
-#    fig.savefig(os.path.join(args.output_dir, f'non-networking-frequencies.{args.plot_suffix}'), pad_inches=0, bbox_inches='tight')
-#
-#
-#    fig, ax = plt.subplots(figsize=(4, 2))
-#    sns.violinplot(
-#        data=frequency_df,
-#        ax=ax,
-#        inner=None,
-#        dodge=True,
-#        linewidth=0.5,
-#        cut=0,
-#        scale='count',
-#        hue='Variant',
-#        hue_order=variant_order,
-#        palette=variant_palette,
-#        x='Application',
-#        y='Networking Frequency',
-#    )
-#    if args.all_core_turbo_hz is not None:
-#        ax.axhline(y=args.all_core_turbo_hz, ls=":", c='k', linewidth=0.5, label='All-Core Turbo')
-#    ax.set_ylabel('Frequency')
-#    ax.yaxis.set_major_formatter(mtick.EngFormatter('Hz', 0))
-#    ax.set_ylim(bottom=0)
-#    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-#
-#    fig.suptitle('Networking Core Frequencies by Application')
-#    fig.savefig(os.path.join(args.output_dir, f'networking-frequencies.{args.plot_suffix}'), pad_inches=0, bbox_inches='tight')
-#
     for application, data in epoch_df.groupby('Application'):
         plot_data = data.loc[(data['trial'] == 1) & (data['Host'] == 'mcfly5')]
         g = sns.FacetGrid(

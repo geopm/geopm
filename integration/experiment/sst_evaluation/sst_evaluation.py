@@ -44,7 +44,6 @@ def report_signals():
             "CPU_UNCORE_FREQUENCY_STATUS@package",
             "CPU_FREQUENCY_MAX_CONTROL@core",
             "MSR::PM_ENABLE:HWP_ENABLE@package",
-            #'SST::COREPRIORITY:ASSOCIATION@core',
             "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0@package",
             "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1@package",
             "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_2@package",
@@ -56,7 +55,6 @@ def trace_signals():
             'REGION_HINT@core',
             'MSR::APERF:ACNT@core', 'MSR::MPERF:MCNT@core',
             'CPU_INSTRUCTIONS_RETIRED@core', 'CPU_FREQUENCY_MAX_CONTROL@core',
-            #'SST::COREPRIORITY:ASSOCIATION@core'
             ]
 
 
