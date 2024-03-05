@@ -8,24 +8,6 @@
 #include "FrequencyBalancerAgent.hpp"
 
 #include <unistd.h>
-
-#include "Environment.hpp"
-#include "FrequencyGovernor.hpp"
-#include "FrequencyLimitDetector.hpp"
-#include "FrequencyTimeBalancer.hpp"
-#include "PowerGovernor.hpp"
-#include "SSTClosGovernor.hpp"
-#include "Waiter.hpp"
-#include "geopm/Exception.hpp"
-#include "geopm/Helper.hpp"
-#include "geopm/PlatformIO.hpp"
-#include "geopm/PlatformTopo.hpp"
-#include "geopm_debug.hpp"
-#include "geopm_hash.h"
-#include "geopm_hint.h"
-#include "geopm_time.h"
-#include "geopm_topo.h"
-
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -34,6 +16,24 @@
 #include <numeric>
 #include <thread>
 #include <utility>
+
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm_debug.hpp" // What's this for?
+
+#include "geopm_hash.h"
+#include "geopm_hint.h"
+#include "geopm_time.h"
+#include "geopm_topo.h"
+#include "Environment.hpp"
+#include "FrequencyGovernor.hpp"
+#include "FrequencyLimitDetector.hpp"
+#include "FrequencyTimeBalancer.hpp"
+#include "PowerGovernor.hpp"
+#include "SSTClosGovernor.hpp"
+#include "Waiter.hpp"
 
 // Minimum number of sampling wait periods before applying new epoch controls.
 #define MINIMUM_WAIT_PERIODS_FOR_NEW_EPOCH_CONTROL 5
@@ -162,7 +162,7 @@ namespace geopm
     }
 
     void FrequencyBalancerAgent::init(int level, const std::vector<int> &fan_in,
-                                     bool is_level_root)
+                                      bool is_level_root)
     {
         static_cast<void>(is_level_root);
         if (level == 0) {
@@ -218,7 +218,7 @@ namespace geopm
     }
 
     void FrequencyBalancerAgent::split_policy(const std::vector<double> &in_policy,
-                                             std::vector<std::vector<double> > &out_policy)
+                                              std::vector<std::vector<double> > &out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t)m_num_children) {

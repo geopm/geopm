@@ -13,9 +13,9 @@ The ``frequency_balancer`` agent reduces imbalance across CPU cores.
 The executing application's main compute loop must be annotated with
 ``geopm_prof_epoch()`` from :doc:`geopm_prof(3) <geopm_prof.3>`. The agent
 assumes that core application time can be measured as time spent outside of
-networking regions of code. CPU cores that spend more non-networking time per
-epoch are allocated higher CPU frequency limits, while cores that spend less
-non-networking time per epoch are allocated lower CPU frequency limits.
+networking regions of code. CPU cores that spend less networking time per
+epoch are allocated higher CPU frequency limits, while cores that spend more
+networking time per epoch are allocated lower CPU frequency limits.
 
 Allocating CPU Core Frequency Limits
 ------------------------------------
