@@ -135,7 +135,6 @@ namespace geopm
             std::vector<long long> m_network_hint_sample_length;
             std::vector<long long> m_non_network_hint_sample_length;
             std::vector<size_t> m_last_hp_count;
-            /* Vector of packages, containing a vector of buckets */
             bool m_handle_new_epoch;
             int m_epoch_wait_count;
             /* One balancer per package */

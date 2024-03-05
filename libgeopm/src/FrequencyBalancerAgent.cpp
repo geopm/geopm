@@ -8,6 +8,7 @@
 #include "FrequencyBalancerAgent.hpp"
 
 #include <unistd.h>
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -33,22 +34,21 @@
 #include "FrequencyTimeBalancer.hpp"
 #include "SSTClosGovernor.hpp"
 #include "Waiter.hpp"
-#include "geopm_debug.hpp"
 
 // Minimum number of sampling wait periods before applying new epoch controls.
-#define MINIMUM_WAIT_PERIODS_FOR_NEW_EPOCH_CONTROL 5
+static constexpr const int MINIMUM_WAIT_PERIODS_FOR_NEW_EPOCH_CONTROL = 5;
 
 // Minimum number of epochs to wait before applying new epoch controls.
-#define MINIMUM_EPOCHS_FOR_NEW_EPOCH_CONTROL 3
+static constexpr const int MINIMUM_EPOCHS_FOR_NEW_EPOCH_CONTROL = 3;
 
 // Number of back-to-back network hints to treat as "in a network region."
 // Lower numbers respond more quickly, but risk throttling regions that
 // happen to land next to a short-running network region.
 // -- Arbitrarily set to 3 because that produces acceptable behavior so far.
-#define NETWORK_HINT_MINIMUM_SAMPLE_LENGTH 3
+static constexpr const int NETWORK_HINT_MINIMUM_SAMPLE_LENGTH = 3;
 
 // Number of back-to-back non-network hints to treat as not "in a network region."
-#define NON_NETWORK_HINT_MINIMUM_SAMPLE_LENGTH 1
+static constexpr const int NON_NETWORK_HINT_MINIMUM_SAMPLE_LENGTH = 1;
 
 namespace geopm
 {
