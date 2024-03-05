@@ -173,12 +173,6 @@ namespace geopm
         }
     }
 
-    bool FrequencyMapAgent::is_all_nan(const std::vector<double> &vec)
-    {
-        return std::all_of(vec.begin(), vec.end(),
-                           [](double x) -> bool { return std::isnan(x); });
-    }
-
     void FrequencyMapAgent::update_policy(const std::vector<double> &policy)
     {
         if (is_all_nan(policy) && !m_is_real_policy) {

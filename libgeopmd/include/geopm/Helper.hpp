@@ -219,6 +219,11 @@ namespace geopm
     void GEOPM_PUBLIC
         enable_fixed_counters(PlatformIO &pio);
 
+    /// @brief Return true if all values in the given vector are NAN.
+    /// @param [in] vec Vector to check
+    /// @return True if all values in the vector are NAN
+    bool GEOPM_PUBLIC
+        is_all_nan(const std::vector<double> &vec);
 }
 
 #endif

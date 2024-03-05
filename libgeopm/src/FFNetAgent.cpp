@@ -315,12 +315,6 @@ namespace geopm
         return type < other.type || (type == other.type && index < other.index);
     }
 
-    bool FFNetAgent::is_all_nan(const std::vector<double> &vec)
-    {
-        return std::all_of(vec.begin(), vec.end(),
-                           [](double x) -> bool { return std::isnan(x); });
-    }
-
     std::string FFNetAgent::get_env_value(const std::string &env_var)
     {
         std::string value = geopm::get_env(env_var);

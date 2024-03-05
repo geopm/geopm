@@ -454,4 +454,9 @@ namespace geopm
         pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_BOARD, 0, 0);
     }
 
+    bool is_all_nan(const std::vector<double> &vec)
+    {
+        return std::all_of(vec.begin(), vec.end(),
+                           [](double x) -> bool { return std::isnan(x); });
+    }
 }
