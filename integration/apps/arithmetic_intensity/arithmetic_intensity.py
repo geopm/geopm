@@ -14,6 +14,7 @@ import sys
 
 from integration.apps import apps
 
+
 def exec_path(run_type):
     '''
     Args
@@ -27,6 +28,7 @@ def exec_path(run_type):
     benchmark_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(benchmark_dir, "ARITHMETIC_INTENSITY", "bench_" + run_type)
 
+
 def setup_run_args(parser):
     """ Add common arguments for all run scripts.
     """
@@ -37,18 +39,20 @@ def setup_run_args(parser):
     parser.add_argument('--ranks-per-node', dest='ranks_per_node',
                         action='store', type=int,
                         help='Number of physical cores to reserve for the app. '
-                             'If not defined, all nodes but one will be reserved (leaving one '
-                             'node for GEOPM).')
+                             'If not defined, all nodes but one will be '
+                             'reserved (leaving one node for GEOPM).')
     parser.add_argument('--slowdown', type=float, default=1,
-        help='When imbalance is present, this specifies the amount of work for slow ranks'
-             ' to perform, as a factor of the amount of work the fast ranks perform.')
+                        help='When imbalance is present, this specifies the '
+                        'amount of work for slow ranks to perform, as a factor '
+                        'of the amount of work the fast ranks perform.')
     parser.add_argument('--base-internal-iterations', type=int,
-        help='How many iterations to perform in the inner loop, for the fast set of ranks '
-             '(all ranks if there is no imbalance).')
+                        help='How many iterations to perform in the inner loop, '
+                        'for the fast set of ranks (all ranks if there is no imbalance).')
     parser.add_argument('--slow-ranks', type=int,
-        help='The number of ranks to run with extra work for an imbalanced load.')
+                        help='The number of ranks to run with extra work for an imbalanced load.')
     parser.add_argument('--slow-ranks-per-imbalanced-group', type=int,
-        help='The number of ranks to run with extra work within each imbalance group for an imbalanced load.')
+                        help='The number of ranks to run with extra work within '
+                        'each imbalance group for an imbalanced load.')
     parser.add_argument('--ranks-per-imbalanced-group', type=int, default=0,
                         help='Total number of ranks in each imbalanced group of ranks. When '
                              '--slowdown is used, the first --slow-ranks count of '
@@ -56,20 +60,25 @@ def setup_run_args(parser):
                              'will receive extra work. Default: All ranks are in a '
                              'single group.')
     parser.add_argument('--floats', type=int, default=67108864,
-        help='The number of floating-point numbers per rank in the problem array.')
+                        help='The number of floating-point numbers per rank in '
+                        'the problem array.')
     parser.add_argument('-v', '--verbose', help='Run in verbose mode.')
     parser.add_argument('-s', '--single-precision', help='Run in single-precision mode.')
     parser.add_argument('-l', '--list', action='store_true',
-        help='List the available arithmetic intensity levels for use with the --benchmarks option.')
+                        help='List the available arithmetic intensity levels '
+                        'for use with the --benchmarks option.')
     parser.add_argument('-i', '--iterations', type=int, default=5,
-        help='The number of times to run each phase of the benchmark.')
+                        help='The number of times to run each phase of the '
+                        'benchmark.')
     parser.add_argument('-b', '--benchmarks', nargs='+',
-        type=float, choices=[0, 0.25, 0.5, 1, 2, 4, 8, 16, 32],
-        help='List of benchmark intensity variants to run (all are run if this option is not'
-             ' specified).')
+                        type=float, choices=[0, 0.25, 0.5, 1, 2, 4, 8, 16, 32],
+                        help='List of benchmark intensity variants to run '
+                        '(all are run if this option is not specified).')
     parser.add_argument('--start-time', type=int,
-        help='Time at which the benchmark will start, in seconds since the system clock\'s epoch.'
-             ' Start immediately by default, or if the provided time is in the past.')
+                        help='Time at which the benchmark will start, in seconds '
+                        'since the system clock\'s epoch. Start immediately by '
+                        'default, or if the provided time is in the past.')
+
 
 def create_appconf(mach, args):
     ''' Create a ArithmeticIntensityAppConf object from an ArgParse and experiment.machine object.
@@ -93,6 +102,7 @@ def create_appconf(mach, args):
                 app_args.append(str(values))
 
     return ArithmeticIntensityAppConf(app_args, mach, args.run_type, args.ranks_per_node)
+
 
 class ArithmeticIntensityAppConf(apps.AppConf):
     def name(self):

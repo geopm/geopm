@@ -33,6 +33,7 @@ from integration.test import geopm_test_launcher
 from experiment.sst_evaluation import sst_evaluation
 from apps.arithmetic_intensity import arithmetic_intensity
 
+
 @util.skip_unless_do_launch()
 class TestIntegration_frequency_balancer(unittest.TestCase):
     @classmethod
@@ -127,6 +128,7 @@ class TestIntegration_frequency_balancer(unittest.TestCase):
                 self.assertGreater(results[agent_variant]['FoM'],
                                    results['monitor']['FoM'],
                                    msg=f'{agent_variant} should increase figure of merit')
+
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option

@@ -24,4 +24,4 @@ if __name__ == '__main__':
     mach = machine.init_output_dir(args.output_dir)
     app_conf = nasbt.create_appconf(mach, args)
     sst_evaluation.launch(app_conf=app_conf, args=args,
-                       experiment_cli_args=extra_args)
+                          experiment_cli_args=extra_args)
