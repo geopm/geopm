@@ -125,3 +125,18 @@ TEST(HelperTest, read_symlink_target)
     EXPECT_THROW(geopm::read_symlink_target(SYMLINK_PATH), geopm::Exception)
         << "Expect an exception when reading an absent symlink";
 }
+
+TEST(HelperTest, is_all_nan)
+{
+    EXPECT_TRUE(geopm::is_all_nan({NAN}));
+    EXPECT_TRUE(geopm::is_all_nan({NAN, NAN}));
+    EXPECT_TRUE(geopm::is_all_nan({}));
+    EXPECT_TRUE(geopm::is_all_nan({std::nan("1")}));
+    EXPECT_TRUE(geopm::is_all_nan({std::nanf("2")}));
+
+    EXPECT_FALSE(geopm::is_all_nan({1.0}));
+    EXPECT_FALSE(geopm::is_all_nan({1.0, 2.0}));
+    EXPECT_FALSE(geopm::is_all_nan({1.0, NAN, 2.0}));
+    EXPECT_FALSE(geopm::is_all_nan({NAN, NAN, 2.0}));
+    EXPECT_FALSE(geopm::is_all_nan({1.0, NAN, NAN}));
+}
