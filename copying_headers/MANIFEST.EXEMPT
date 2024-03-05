@@ -247,6 +247,7 @@ tutorial/agent/README.md
 tutorial/iogroup/README.md
 tutorial/local/README.md
 tutorial/plugin_load/README.md
+tutorial/pytorch_agent/README.md
 tutorial/README.md
 tutorial/tutorial_6_config.json
 tutorial/tutorial_power_policy.json
