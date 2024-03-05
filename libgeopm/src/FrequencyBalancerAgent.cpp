@@ -8,7 +8,6 @@
 #include "FrequencyBalancerAgent.hpp"
 
 #include <unistd.h>
-
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -163,7 +162,7 @@ namespace geopm
     }
 
     void FrequencyBalancerAgent::init(int level, const std::vector<int> &fan_in,
-                                     bool is_level_root)
+                                      bool is_level_root)
     {
         static_cast<void>(is_level_root);
         if (level == 0) {
@@ -219,7 +218,7 @@ namespace geopm
     }
 
     void FrequencyBalancerAgent::split_policy(const std::vector<double> &in_policy,
-                                             std::vector<std::vector<double> > &out_policy)
+                                              std::vector<std::vector<double> > &out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t)m_num_children) {
