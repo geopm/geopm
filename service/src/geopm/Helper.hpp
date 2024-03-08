@@ -15,6 +15,7 @@
 #include <vector>
 #include <functional>
 #include <set>
+#include <iostream>
 
 namespace geopm
 {
@@ -161,6 +162,16 @@ namespace geopm
     /// @param [in] pid Linux PID to check
     /// @return True if the PID has CAP_SYS_ADMIN
     bool has_cap_sys_admin(int pid);
+
+    class DeprecationWarning
+    {
+        public:
+            DeprecationWarning() = delete;
+            DeprecationWarning(const std::string &function, const std::string &message) {
+                std::cerr << "Warning: " << function << " has been deprecated: " << message << ".\n";
+            }
+            virtual ~DeprecationWarning() = default;
+    };
 }
 
 #endif
