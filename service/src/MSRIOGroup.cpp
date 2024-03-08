@@ -8,6 +8,7 @@
 #include "geopm/MSRIOGroup.hpp"
 
 #include <stdlib.h>
+#include <cpuid.h>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
@@ -941,6 +942,39 @@ namespace geopm
             }
         }
         m_msrio->write_batch(m_save_restore_ctx);
+    }
+
+    int MSRIOGroup::cpuid(void)
+    {
+        static geopm::DeprecationWarning warn(__func__, "use Cpuid->cpuid() instead");
+        uint32_t key = 1; //processor features
+        uint32_t proc_info = 0;
+        uint32_t model;
+        uint32_t family;
+        uint32_t ext_model;
+        uint32_t ext_family;
+        uint32_t ebx, ecx, edx;
+        const uint32_t model_mask = 0xF0;
+        const uint32_t family_mask = 0xF00;
+        const uint32_t extended_model_mask = 0xF0000;
+        const uint32_t extended_family_mask = 0xFF00000;
+
+        __get_cpuid(key, &proc_info, &ebx, &ecx, &edx);
+
+        model = (proc_info & model_mask) >> 4;
+        family = (proc_info & family_mask) >> 8;
+        ext_model = (proc_info & extended_model_mask) >> 16;
+        ext_family = (proc_info & extended_family_mask) >> 20;
+
+        if (family == 6) {
+            model+=(ext_model << 4);
+        }
+        else if (family == 15) {
+            model+=(ext_model << 4);
+            family+=ext_family;
+        }
+
+        return ((family << 8) + model);
     }
 
     void MSRIOGroup::register_signal_alias(const std::string &signal_name,
