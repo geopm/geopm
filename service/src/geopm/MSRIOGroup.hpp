@@ -95,6 +95,8 @@ namespace geopm
             /// @return String formatted to be written to an msr-safe
             ///         allowlist file.
             static std::string msr_allowlist(int cpuid);
+            /// @brief **DEPRECATED** Get the cpuid of the current platform.
+            static int cpuid(void);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
             static std::unique_ptr<IOGroup> make_plugin_safe(void);
