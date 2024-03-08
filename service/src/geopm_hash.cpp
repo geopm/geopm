@@ -7,8 +7,8 @@
 
 #include <string.h>
 #include <zlib.h>
-#include <iostream>
 
+#include "geopm/Helper.hpp"
 
 
 static uint64_t _crc32(uint64_t begin, uint64_t key)
@@ -24,17 +24,6 @@ static uint64_t _crc32(const char *key)
 
 namespace geopm
 {
-
-    class DeprecationWarning
-    {
-        public:
-            DeprecationWarning() = delete;
-            DeprecationWarning(const std::string &function, const std::string &message) {
-                std::cerr << "Warning: " << function << " has been deprecated: " << message << ".\n";
-            }
-            virtual ~DeprecationWarning() = default;
-    };
-
     uint64_t hash(const std::string &key)
     {
         return _crc32(key.c_str());
