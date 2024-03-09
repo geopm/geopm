@@ -45,7 +45,8 @@ message Stats {
   double std = 8;
   double skew = 9;
   double kurt = 10;
-  double slope = 11;
+  double lse_linear_0 = 11;
+  double lse_linear_1 = 12;
 }
 
 message TimeSpec {
