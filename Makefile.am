@@ -442,6 +442,10 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/geopm_prof.h \
                       src/record.cpp \
                       src/record.hpp \
+                      src/geopm_runtime.grpc.pb.cc \
+                      src/geopm_runtime.grpc.pb.h \
+                      src/geopm_runtime.pb.cc \
+                      src/geopm_runtime.pb.h \
                       # end
 
 beta_source_files = src/CPUActivityAgent.cpp \
