@@ -9,10 +9,7 @@ syntax = "proto3";
 
 message Report {
   string geopm_version = 1;
-  Policy policy_begin = 2;
-  Policy policy_end = 3;
-  map<uint64, string> name_uid_map = 4;
-  repeated HostReport hosts = 5;
+  repeated HostReport host_reports = 2;
 }
 
 message HostReport {
@@ -20,7 +17,7 @@ message HostReport {
   TimeSpec begin = 2;
   TimeSpec end = 3;
   double duration = 4;
-  repeated Policy policies = 5;
+  Policy policy = 5;
   repeated Stats stats = 6;
 }
 
@@ -30,12 +27,10 @@ message Policy {
   string profile = 3;
   map<string, double> params = 4;
   string agent_version = 5; // Set on call to SetPolicy() in return message
-  TimeSpec begin = 6; // Set on call to SetPolicy() in return message
-  TimeSpec end = 7; // Set by caller call to SetPolicy() for previous policy message in report list
 }
 
 message Stats {
-  uint64 name_uid = 1;
+  string name = 1;
   double first = 2;
   double last = 3;
   int64 count = 4;
