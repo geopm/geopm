@@ -402,6 +402,7 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/ProxyEpochRecordFilter.hpp \
                       src/ProcessRegionAggregator.cpp \
                       src/ProcessRegionAggregator.hpp \
+                      src/RuntimeService.cpp \
                       src/RecordFilter.cpp \
                       src/RecordFilter.hpp \
                       src/RegionHintRecommender.cpp \
