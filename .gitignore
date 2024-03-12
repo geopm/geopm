@@ -136,6 +136,10 @@ compile_commands.json
 /geopm-runtime*.spec
 /src/*.lo
 /src/*.o
+/src/geopm_runtime.grpc.pb.cc
+/src/geopm_runtime.grpc.pb.h
+/src/geopm_runtime.pb.cc
+/src/geopm_runtime.pb.h
 /stamp-h1
 *.swp
 /tags
