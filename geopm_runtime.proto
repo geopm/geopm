@@ -7,62 +7,69 @@
 
 syntax = "proto3";
 
-message Report {
-  string geopm_version = 1;
-  repeated HostReport host_reports = 2;
+message ReportList {
+  string geopm_version = 1; // Version of the GEOPM service that is running
+  repeated Report list = 2; // List of reports, one for each distinct policy setting on each host
 }
 
-message HostReport {
-  Url host = 1;
-  TimeSpec begin = 2;
-  TimeSpec end = 3;
-  double duration = 4;
-  Policy policy = 5;
-  repeated Stats stats = 6;
+message Report {
+  Url host = 1; // Url of the host where the data was gathered
+  TimeSpec begin = 2; // Time when last reqport was requested, or when policy was first set
+  TimeSpec end = 3; // Time when this report was requested
+  double duration = 4; // sample_count * sample_period
+  Policy policy = 5; // Agent policy including sample period
+  repeated Stats stats = 6; // Stats for each metric measured by an agent
 }
 
 message Policy {
-  string agent = 1;
-  double period = 2;
-  string profile = 3;
-  map<string, double> params = 4;
-  string agent_version = 5; // Set on call to SetPolicy() in return message
+  string agent = 1; // Agent name
+  double period = 2; // Sample period over which statistis are gathered
+  string profile = 3; // String used to paremeterize the agent without a value
+  map<string, double> params = 4; // Map of parameter name to parameter value, the expected keys are agent specific
+  string agent_version = 5; // Set on call to SetPolicy() in return message to identify the version of the agent being executed
 }
 
 message Stats {
-  string name = 1;
-  double first = 2;
-  double last = 3;
-  int64 count = 4;
-  double min = 5;
-  double max = 6;
-  double mean = 7;
-  double std = 8;
-  double skew = 9;
-  double kurt = 10;
-  double lse_linear_0 = 11;
-  double lse_linear_1 = 12;
+  string name = 1; // Agent defined name of the metric
+  double first = 2; // Value of the oldest sample in the set
+  double last = 3; // Value of the newest sample in the set
+  int64 count = 4; // Number of samples in the set
+  double min = 5; // Minimum value sampled
+  double max = 6; // Maximum value sampled
+  double mean = 7; // Average value sampled (first moment)
+  double std = 8; // Estimate of the standard deviation of the samples (second moment)
+  double skew = 9; // Estimate of the skew of the samples (third moment)
+  double kurt = 10; // Estimate of the kurtosis of the samples (fourth moment)
+  double lse_linear_0 = 11; // Least squares linear regression against time constant coefficient
+  double lse_linear_1 = 12; // Least squares linear regresssion against time linear coefficient
 }
 
 message TimeSpec {
-  uint64 sec = 1;
-  uint64 usec = 2;
+  uint64 sec = 1; // Seconds since the epoch as in Linux time spec
+  uint64 usec = 2; // Nano-seconds since last whole second as in Linux time spec
 }
 
 message Url {
-  string url = 1;
+  string url = 1; // Url of a host to connect with
+}
+
+message Empty {
+
 }
 
 
 service GEOPMRuntime {
-  // Agent determines which statistics will be included in the report
+
+  // Configure Agent and start sampling data for reports.  Agent
+  // determines which statistics will be included in the report and the
+  // control algorithm that will be followed.
   rpc SetPolicy(Policy) returns(Policy);
   // Get statistics about sampled data since last call to GetReport()
-  // Input is the end time for last call to report or the begin time for set policy
-  rpc GetReport(TimeSpec) returns(Report);
+  rpc GetReport(Empty) returns(ReportList);
   // Forward calls to SetPolicy() and GetReport() to children.  The
   // host sections include reports from children, and Policy messages are
   // forwarded.
   rpc AddChildHost(Url) returns(TimeSpec);
+  // Stop forwarding calls to child host
   rpc RemoveChildHost(Url) returns(TimeSpec);
 }

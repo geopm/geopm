@@ -10,7 +10,7 @@ namespace geopm {
             RuntimeServiceImp() = default;
             virtual ~RuntimeServiceImp() = default;
             ::grpc::Status SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response) override;
-            ::grpc::Status GetReport(::grpc::ServerContext* context, const ::TimeSpec* request, ::Report* response) override;
+            ::grpc::Status GetReport(::grpc::ServerContext* context, const ::Empty* request, ::ReportList* response) override;
             ::grpc::Status AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
             ::grpc::Status RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
     };
@@ -21,7 +21,7 @@ namespace geopm {
         return result;
     }
 
-    ::grpc::Status RuntimeServiceImp::GetReport(::grpc::ServerContext* context, const ::TimeSpec* request, ::Report* response)
+    ::grpc::Status RuntimeServiceImp::GetReport(::grpc::ServerContext* context, const ::Empty* request, ::ReportList* response)
     {
         ::grpc::Status result;
         return result;
