@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -132,6 +132,16 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals(freq_range.keys()))
     extra_cli_args += list(experiment_cli_args)
 
+    #Set and initialize required counters for nn training
+    init_control_path = 'neural_net_init.controls'
+    with open(init_control_path, 'w') as outfile:
+        outfile.write(f"MSR::PQR_ASSOC:RMID board 0 {}\n".format(0)
+                      "# Assigns all cores to resource monitoring association ID 0\n"
+                      "# Next, assign resource monitoring ID for QM events to match\n"
+                      f"MSR::QM_EVTSEL:RMID board 0 {}".format(0)
+                      "# Then determine Xeon Uncore Utilization\n"
+                      f"MSR::QM_EVTSEL:EVENT_ID board 0 {}\n".format(0))
+
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
@@ -139,7 +149,8 @@ def launch(app_conf, args, experiment_cli_args):
                                 output_dir=args.output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
-                                enable_profile_traces=args.enable_profile_traces)
+                                enable_profile_traces=args.enable_profile_traces,
+                                init_control_path=init_control_path)
 
 def main(app_conf, **defaults):
     parser = argparse.ArgumentParser()

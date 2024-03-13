@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Copyright (c) 2015 - 2023, Intel Corporation
+#  Copyright (c) 2015 - 2024, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -125,6 +125,16 @@ class TestIntegration_ffnet(unittest.TestCase):
                     expect = fmap[region_key]
                     util.assertNear(self, expect, actual, msg=msg)
 
+#TODO: Run geopmbench on pkg0, ffnet phi=0 and phi=1
+#TODO:     and check that perf is within 2% for phi=0
+#TODO:     and check perf @phi0 > perf @phi1
+#TODO:     and check total energy@phi0 > total energy@phi1
+
+#TODO: If on system with gpu, run parres dgemm ffnet with phi=0 and phi=1
+#TODO:     and check that perf is within 2% for phi=0
+#TODO:     and check perf0 > perf1
+#TODO:     and check gpu energy0 > gpu energy1
+#TODO:     and check that other gpus are not steered
 
 #TODO [stretch]: Run geopmbench on pkg0 with dgemm/sleep, geopmbench on pkg1 with stream
 #TODO:           and check that apps are identified independently on each socket
