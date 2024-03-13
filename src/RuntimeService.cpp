@@ -16,6 +16,15 @@
 
 namespace geopm {
     void *rtd_run(void *policy_ptr);
+    class Stats;
+    class Policy;
+
+    struct policy_struct_s {
+        pthread_mutex_t mutex;
+        bool is_updated;
+        std::shared_ptr<Policy> policy;
+        std::shared_ptr<Stats> stats;
+    };
 
     class Policy
     {
