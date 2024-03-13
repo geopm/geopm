@@ -52,7 +52,7 @@ message Url {
   string url = 1; // Url of a host to connect with
 }
 
-message Empty {
+message ReportRequest {
 
 }
 
@@ -61,10 +61,12 @@ service GEOPMRuntime {
 
   // Configure Agent and start sampling data for reports.  Agent
   // determines which statistics will be included in the report and the
-  // control algorithm that will be followed.
+  // control algorithm that will be followed. The returned Policy is the
+  // achieved Policy which may differ from the request due to system
+  // constraints.
   rpc SetPolicy(Policy) returns(Policy);
   // Get statistics about sampled data since last call to GetReport()
-  rpc GetReport(Empty) returns(ReportList);
+  rpc GetReport(ReportRequest) returns(ReportList);
   // Forward calls to SetPolicy() and GetReport() to children.  The
   // host sections include reports from children, and Policy messages are
   // forwarded.

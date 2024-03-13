@@ -3,11 +3,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <pthread.h>
+#ifndef RUNTIMESERVICE_HPP_INCLUDE
+#define RUNTIMESERVICE_HPP_INCLUDE
+
 #include <string>
-#include <memory>
 
 namespace geopm
 {
     int rtd_main(const std::string &server_address);
 }
+
+#endif
