@@ -11,18 +11,18 @@ Link with ``-lgeopmd``
 
 .. code-block:: c
 
-       uint64_t geopm_hash_str(const char *key);
+       uint64_t geopm_crc32_str(const char *key);
 
 Description
 -----------
 
-The `geopm_hash.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_ 
+The `geopm_hash.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_
 header defines GEOPM interfaces for encoding region
 names into 64-bit integers and working with 64-bit integer values
 stored as doubles.
 
 
-``geopm_hash_str()``
+``geopm_crc32_str()``
   Hashes the string *key* to produce a 64-bit value.  This function
   is used to produce unique region IDs for named regions.  An
   ``Agent`` implementation with specialized behavior for specific
