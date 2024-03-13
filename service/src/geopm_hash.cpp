@@ -32,7 +32,6 @@ namespace geopm
 
 uint64_t geopm_crc32_str(const char *key)
 {
-    static geopm::DeprecationWarning warn(__func__, "use geopm_hash_str() instead");
     return _crc32(key);
 }
 
@@ -41,9 +40,4 @@ uint64_t geopm_crc32_u64(uint64_t begin, uint64_t key)
 {
     static geopm::DeprecationWarning warn(__func__, "consider crc32() defined in zlib.h provided by libz");
     return _crc32(begin, key);
-}
-
-uint64_t geopm_hash_str(const char *key)
-{
-    return _crc32(key);
 }
