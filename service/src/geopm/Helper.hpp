@@ -15,7 +15,6 @@
 #include <vector>
 #include <functional>
 #include <set>
-#include <iostream>
 
 namespace geopm
 {
@@ -167,9 +166,7 @@ namespace geopm
     {
         public:
             DeprecationWarning() = delete;
-            DeprecationWarning(const std::string &function, const std::string &message) {
-                std::cerr << "Warning: " << function << " has been deprecated: " << message << ".\n";
-            }
+            DeprecationWarning(const std::string &function, const std::string &message);
             virtual ~DeprecationWarning() = default;
     };
 }

@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <map>
 #include <string>
+#include <iostream>
 #include "geopm_field.h"
 #include "geopm/Exception.hpp"
 
@@ -378,4 +379,8 @@ namespace geopm
 
 #endif
 
+    DeprecationWarning::DeprecationWarning(const std::string &function, const std::string &message)
+    {
+        std::cerr << "Warning: " << function << " has been deprecated: " << message << ".\n";
+    }
 }
