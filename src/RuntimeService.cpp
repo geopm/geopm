@@ -19,6 +19,8 @@
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm/SharedMemoryScopedLock.hpp"
+#include "Waiter.hpp"
 #include "geopm_runtime.grpc.pb.h"
 
 
@@ -261,6 +263,7 @@ namespace geopm {
     class RuntimeServiceImp final : public GEOPMRuntime::Service
     {
         public:
+            static constexpr double POLICY_LATENCY = 5e-3; // 5 millisec sleep while waiting for a policy
             RuntimeServiceImp() = delete;
             RuntimeServiceImp(policy_struct_s &policy_struct);
             virtual ~RuntimeServiceImp() = default;
@@ -300,13 +303,6 @@ namespace geopm {
     {
         ::grpc::Status result;
         return result;
-    }
-
-    void *rtd_run(void *policy_ptr)
-    {
-        // struct policy_struct_s *policy_struct = static_cast<policy_struct_s *>(policy_ptr);
-        // TODO add event loop
-        return nullptr;
     }
 
     class RuntimeAgent
@@ -457,12 +453,61 @@ namespace geopm {
         }
     }
 
+    void *rtd_run(void *policy_ptr)
+    {
+        void *result = nullptr;
+        struct policy_struct_s *policy_struct = static_cast<policy_struct_s *>(policy_ptr);
+        try {
+            std::shared_ptr<RuntimeAgent> agent;
+            std::shared_ptr<RuntimePolicy> policy;
+            std::shared_ptr<RuntimeStats> stats;
+            double period;
+            std::string agent_name;
+            std::string curr_agent;
+            //bool is_updated;
+            {
+                SharedMemoryScopedLock lock(&(policy_struct->mutex));
+                period = policy_struct->policy->m_period;
+                agent_name = policy_struct->policy->m_agent;
+                //is_updated = policy_struct->is_updated;
+                policy = policy_struct->policy;
+                stats = policy_struct->stats;
+                policy_struct->is_updated = false;
+            }
+            if (agent_name != curr_agent) {
+                if (agent_name == "") {
+                    agent = nullptr;
+                    period = RuntimeServiceImp::POLICY_LATENCY;
+                }
+                else {
+                    agent = RuntimeAgent::make_agent(policy, stats);
+                }
+            }
+            std::unique_ptr<Waiter> waiter = Waiter::make_unique(policy->m_period);
+            while(period != 0) {
+                if (agent != nullptr) {
+                    SharedMemoryScopedLock lock(&(policy_struct->mutex));
+                    agent->update();
+                }
+                waiter->wait();
+            }
+        }
+        catch (const Exception &ex) {
+           // result = static_cast<void *>(ex.err_value());
+        }
+        return result;
+    }
+
     int rtd_main(const std::string &server_address)
     {
         int err = 0;
         try {
+            std::vector<double> params;
+            std::vector<std::string> metric_names;
+            std::shared_ptr<RuntimePolicy> policy = std::make_shared<RuntimePolicy>("", RuntimeServiceImp::POLICY_LATENCY, "", params);
+            std::shared_ptr<RuntimeStats> stats = std::make_shared<RuntimeStats>(metric_names);
             policy_struct_s policy_struct {
-                PTHREAD_MUTEX_INITIALIZER, false, nullptr, nullptr
+                PTHREAD_MUTEX_INITIALIZER, true, policy, stats
             };
             RuntimeServiceImp service(policy_struct);
             grpc::ServerBuilder builder;
@@ -471,7 +516,11 @@ namespace geopm {
             builder.RegisterService(&service);
             std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
             pthread_t rtd_run_thread;
-            pthread_create(&rtd_run_thread, NULL, rtd_run, &policy_struct);
+            int pthread_err = pthread_create(&rtd_run_thread, NULL, rtd_run, &policy_struct);
+            if (pthread_err != 0) {
+                throw Exception("Failed to create agent thread",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
             server->Wait();
         }
         catch (const geopm::Exception &ex) {
