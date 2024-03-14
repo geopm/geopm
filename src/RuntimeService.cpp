@@ -9,38 +9,44 @@
 
 #include <cmath>
 #include <memory>
+#include <vector>
+#include <string>
+#include <map>
+
 #include <grpcpp/grpcpp.h>
 #include <pthread.h>
 
 #include "geopm/Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_runtime.grpc.pb.h"
 
 
 namespace geopm {
     void *rtd_run(void *policy_ptr);
-    class Stats;
-    class Policy;
+    class RuntimeStats;
+    class RuntimePolicy;
 
     struct policy_struct_s {
         pthread_mutex_t mutex;
         bool is_updated;
-        std::shared_ptr<Policy> policy;
-        std::shared_ptr<Stats> stats;
+        std::shared_ptr<RuntimePolicy> policy;
+        std::shared_ptr<RuntimeStats> stats;
     };
 
-    class Policy
+    class RuntimePolicy
     {
         public:
-            Policy() = delete;
-            Policy(const std::string &agent, double period, const std::string &profile, std::vector<double> params);
-            virtual ~Policy() = default;
+            RuntimePolicy() = delete;
+            RuntimePolicy(const std::string &agent, double period, const std::string &profile, std::vector<double> params);
+            virtual ~RuntimePolicy() = default;
             const std::string m_agent;
             const double m_period;
             const std::string m_profile;
             const std::vector<double> m_params;
     };
 
-    Policy::Policy(const std::string &agent, double period, const std::string &profile, std::vector<double> params)
+    RuntimePolicy::RuntimePolicy(const std::string &agent, double period, const std::string &profile, std::vector<double> params)
         : m_agent(agent)
         , m_period(period)
         , m_profile(profile)
@@ -49,11 +55,11 @@ namespace geopm {
 
     }
 
-    class Stats
+    class RuntimeStats
     {
         public:
-            Stats(const std::vector<std::string> &metric_names);
-            virtual ~Stats() = default;
+            RuntimeStats(const std::vector<std::string> &metric_names);
+            virtual ~RuntimeStats() = default;
             int num_metric(void) const;
             std::string metric_name(int metric_idx) const;
             uint64_t count(int metric_idx) const;
@@ -87,39 +93,39 @@ namespace geopm {
             std::vector<stats_s> m_moments;
     };
 
-    Stats::Stats(const std::vector<std::string> &metric_names)
+    RuntimeStats::RuntimeStats(const std::vector<std::string> &metric_names)
         : m_metric_names(metric_names)
         , m_moments(m_metric_names.size())
     {
         reset();
     }
 
-    int Stats::num_metric(void) const
+    int RuntimeStats::num_metric(void) const
     {
         return m_metric_names.size();
     }
 
-    void Stats::check_index(int metric_idx, const std::string &func, int line) const
+    void RuntimeStats::check_index(int metric_idx, const std::string &func, int line) const
     {
         if (metric_idx < 0 || (size_t)metric_idx >= m_metric_names.size()) {
-            throw Exception("Stats::" + func  + "(): metric_idx out of range: " + std::to_string(metric_idx),
+            throw Exception("RuntimeStats::" + func  + "(): metric_idx out of range: " + std::to_string(metric_idx),
                             GEOPM_ERROR_INVALID, __FILE__, line);
         }
     }
 
-    std::string Stats::metric_name(int metric_idx) const
+    std::string RuntimeStats::metric_name(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         return m_metric_names[metric_idx];
     }
 
-    uint64_t Stats::count(int metric_idx) const
+    uint64_t RuntimeStats::count(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         return m_moments[metric_idx].count;
     }
 
-    double Stats::first(int metric_idx) const
+    double RuntimeStats::first(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
@@ -129,7 +135,7 @@ namespace geopm {
         return result;
     }
 
-    double Stats::last(int metric_idx) const
+    double RuntimeStats::last(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
@@ -139,7 +145,7 @@ namespace geopm {
         return result;
     }
 
-    double Stats::min(int metric_idx) const
+    double RuntimeStats::min(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
@@ -149,7 +155,7 @@ namespace geopm {
         return result;
     }
 
-    double Stats::max(int metric_idx) const
+    double RuntimeStats::max(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
@@ -159,7 +165,7 @@ namespace geopm {
         return result;
     }
 
-    double Stats::mean(int metric_idx) const
+    double RuntimeStats::mean(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
@@ -170,7 +176,7 @@ namespace geopm {
         return result;
     }
 
-    double Stats::std(int metric_idx) const
+    double RuntimeStats::std(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
@@ -184,31 +190,31 @@ namespace geopm {
         return result;
     }
 
-    double Stats::skew(int metric_idx) const
+    double RuntimeStats::skew(int metric_idx) const
     {
-        throw Exception("Stats::" + std::string(__func__) + " not yet implemented",
+        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    double Stats::kurt(int metric_idx) const
+    double RuntimeStats::kurt(int metric_idx) const
     {
-        throw Exception("Stats::" + std::string(__func__) + " not yet implemented",
+        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    double Stats::lse_linear_0(int metric_idx) const
+    double RuntimeStats::lse_linear_0(int metric_idx) const
     {
-        throw Exception("Stats::" + std::string(__func__) + " not yet implemented",
+        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    double Stats::lse_linear_1(int metric_idx) const
+    double RuntimeStats::lse_linear_1(int metric_idx) const
     {
-        throw Exception("Stats::" + std::string(__func__) + " not yet implemented",
+        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
-    void Stats::reset(void)
+    void RuntimeStats::reset(void)
     {
         for (auto &it : m_moments) {
             it.count = 0;
@@ -219,10 +225,10 @@ namespace geopm {
         }
     }
 
-    void Stats::update(const std::vector<double> &sample)
+    void RuntimeStats::update(const std::vector<double> &sample)
     {
         if (sample.size() != m_moments.size()) {
-            throw Exception("Stats::update(): invalid input vector size: " + std::to_string(sample.size()),
+            throw Exception("RuntimeStats::update(): invalid input vector size: " + std::to_string(sample.size()),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto moments_it = m_moments.begin();
@@ -301,6 +307,154 @@ namespace geopm {
         // struct policy_struct_s *policy_struct = static_cast<policy_struct_s *>(policy_ptr);
         // TODO add event loop
         return nullptr;
+    }
+
+    class RuntimeAgent
+    {
+        public:
+            static std::unique_ptr<RuntimeStats> make_stats(const std::string &agent_name);
+            static std::unique_ptr<RuntimeAgent> make_agent(std::shared_ptr<RuntimePolicy> policy,
+                                                            std::shared_ptr<RuntimeStats> stats);
+            RuntimeAgent() = default;
+            virtual ~RuntimeAgent() = default;
+            virtual std::string name(void) const = 0;
+            virtual double period(void) const = 0;
+            virtual std::string profile(void) const = 0;
+            virtual std::map<std::string, double> params(void) const = 0;
+            virtual void update(void) = 0;
+    };
+
+    class MonitorRuntimeAgent : public RuntimeAgent
+    {
+        public:
+            static std::vector<std::string> metric_names(void);
+            MonitorRuntimeAgent() = delete;
+            MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy,
+                                std::shared_ptr<RuntimeStats> stats);
+            virtual ~MonitorRuntimeAgent() = default;
+            std::string name(void) const override;
+            double period(void) const override;
+            std::string profile(void) const override;
+            std::map<std::string, double> params(void) const override;
+            void update(void) override;
+        private:
+            std::shared_ptr<RuntimePolicy> m_policy;
+            std::shared_ptr<RuntimeStats> m_stats;
+            std::vector<std::string> m_metric_names;
+            std::vector<int> m_pio_idx;
+    };
+
+    std::vector<std::string> MonitorRuntimeAgent::metric_names(void)
+    {
+        return {"cpu-energy (J)",
+                "gpu-energy (J)",
+                "dram-energy (J)",
+                "cpu-power (W)",
+                "gpu-power (W)",
+                "dram-power (W)",
+                "cpu-frequency (Hz)",
+                "cpu-frequency (%)",
+                "gpu-frequency (Hz)",
+                "gpu-frequency (%)"};
+    }
+
+
+    MonitorRuntimeAgent::MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy,
+                                             std::shared_ptr<RuntimeStats> stats)
+        : m_policy(policy)
+        , m_stats(stats)
+        , m_metric_names(metric_names())
+    {
+        if (m_policy == nullptr || m_stats == nullptr) {
+            throw Exception("MonitorRuntimeAgent: passed NULL pointer",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (m_metric_names.size() != (size_t)m_stats->num_metric()) {
+            throw Exception("MonitorRuntimeAgent: stats is incorrectly sized for the monitor agent",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (m_policy->m_agent != "monitor") {
+            throw Exception("MonitorRuntimeAgent: policy is defined for different agent: " + m_policy->m_agent,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (!m_policy->m_params.empty()) {
+            throw Exception("MonitorRuntimeAgent: policy parameters are not empty: ",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_pio_idx.push_back(platform_io().push_signal("CPU_ENERGY", GEOPM_DOMAIN_BOARD, 0));
+        // TODO add conditional logic for GPUs
+        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(platform_io().push_signal("DRAM_ENERGY", GEOPM_DOMAIN_BOARD, 0));
+        m_pio_idx.push_back(platform_io().push_signal("CPU_POWER", GEOPM_DOMAIN_BOARD, 0));
+        // TODO add conditional logic for GPUs
+        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(platform_io().push_signal("DRAM_POWER", GEOPM_DOMAIN_BOARD, 0));
+        m_pio_idx.push_back(platform_io().push_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0));
+        // TODO add logic for fraction of sticker and conditional logic for GPUs
+        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(-1);
+    }
+
+    std::string MonitorRuntimeAgent::name(void) const
+    {
+        return "monitor";
+    }
+
+    double MonitorRuntimeAgent::period(void) const
+    {
+        return m_policy->m_period;
+    }
+
+    std::string MonitorRuntimeAgent::profile(void) const
+    {
+        return m_policy->m_profile;
+    }
+
+    std::map<std::string, double> MonitorRuntimeAgent::params(void) const
+    {
+        return {};
+    }
+
+    void MonitorRuntimeAgent::update(void)
+    {
+        std::vector<double> samples(m_pio_idx.size(), NAN);
+        platform_io().read_batch();
+        int sample_idx = 0;
+        for (const auto &pio_idx : m_pio_idx) {
+            if (pio_idx != -1) {
+                samples[sample_idx] = platform_io().sample(pio_idx);
+            }
+            ++sample_idx;
+        }
+        m_stats->update(samples);
+    }
+
+    std::unique_ptr<RuntimeStats> RuntimeAgent::make_stats(const std::string &agent_name)
+    {
+        std::vector<std::string> metric_names;
+
+        if (agent_name == "monitor") {
+             auto metric_names = MonitorRuntimeAgent::metric_names();
+        }
+        else if (agent_name != "") {
+            throw Exception("RuntimeAgent::make_stats(): Unknown agent name: " + agent_name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return std::make_unique<RuntimeStats>(metric_names);
+    }
+
+
+    std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(std::shared_ptr<RuntimePolicy> policy,
+                                                           std::shared_ptr<RuntimeStats> stats)
+    {
+        if (policy->m_agent == "monitor") {
+            return std::make_unique<MonitorRuntimeAgent>(policy, stats);
+        }
+        else {
+            throw Exception("RuntimeAgent::make_agent(): Unknown agent name: " + policy->m_agent,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
     int rtd_main(const std::string &server_address)
