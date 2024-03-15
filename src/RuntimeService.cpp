@@ -19,6 +19,8 @@
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm_version.h"
 #include "geopm/SharedMemoryScopedLock.hpp"
 #include "Waiter.hpp"
 #include "geopm_runtime.grpc.pb.h"
@@ -522,8 +524,25 @@ namespace geopm {
                                                 const ::ReportRequest* request,
                                                 ::ReportList* response)
     {
-        ::grpc::Status result;
-        return result;
+        response->set_geopm_version(geopm_version());
+        auto report = response->add_list();
+        Url *host = new Url;
+        host->set_url(geopm::hostname());
+        report->set_allocated_host(host);
+        SharedMemoryScopedLock lock(&(m_policy_struct.mutex));
+        for (int metric_idx = 0; metric_idx != m_policy_struct.stats->num_metric(); ++metric_idx) {
+            auto stats = report->add_stats();
+            stats->set_name(m_policy_struct.stats->metric_name(metric_idx));
+            stats->set_count(m_policy_struct.stats->count(metric_idx));
+            stats->set_first(m_policy_struct.stats->first(metric_idx));
+            stats->set_last(m_policy_struct.stats->last(metric_idx));
+            stats->set_min(m_policy_struct.stats->min(metric_idx));
+            stats->set_max(m_policy_struct.stats->max(metric_idx));
+            stats->set_mean(m_policy_struct.stats->mean(metric_idx));
+            stats->set_std(m_policy_struct.stats->std(metric_idx));
+        }
+        m_policy_struct.stats->reset();
+        return ::grpc::Status::OK;
     }
 
     ::grpc::Status RuntimeServiceImp::AddChildHost(::grpc::ServerContext* context,
