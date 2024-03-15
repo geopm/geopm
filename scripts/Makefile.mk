@@ -11,6 +11,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmlaunch \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/agent.py \
+              scripts/geopmpy/geopm_runtime_pb2.py \
               scripts/geopmpy/endpoint.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/hash.py \

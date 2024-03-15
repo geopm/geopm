@@ -129,7 +129,7 @@ compile_commands.json
 /scripts/figures
 /scripts/geopmpy.egg-info/*
 /scripts/geopmpy/version.py
-/scripts/geopm/version.py
+/scripts/geopmpy/geopm_runtime_pb2.py
 /scripts/README
 /scripts/test/pytest_links/*
 /scripts/test/geopmpy_test.sh
