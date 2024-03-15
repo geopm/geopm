@@ -45,10 +45,18 @@ namespace geopm {
             RuntimeServiceImp() = delete;
             RuntimeServiceImp(policy_struct_s &policy_struct);
             virtual ~RuntimeServiceImp() = default;
-            ::grpc::Status SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response) override;
-            ::grpc::Status GetReport(::grpc::ServerContext* context, const ::ReportRequest* request, ::ReportList* response) override;
-            ::grpc::Status AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
-            ::grpc::Status RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
+            ::grpc::Status SetPolicy(::grpc::ServerContext* context,
+                                     const ::Policy* request,
+                                     ::Policy* response) override;
+            ::grpc::Status GetReport(::grpc::ServerContext* context,
+                                     const ::ReportRequest* request,
+                                     ::ReportList* response) override;
+            ::grpc::Status AddChildHost(::grpc::ServerContext* context,
+                                        const ::Url* request,
+                                        ::TimeSpec* response) override;
+            ::grpc::Status RemoveChildHost(::grpc::ServerContext* context,
+                                           const ::Url* request,
+                                           ::TimeSpec* response) override;
         private:
             policy_struct_s &m_policy_struct;
     };
@@ -57,12 +65,12 @@ namespace geopm {
     {
         public:
             RuntimePolicy();
-            RuntimePolicy(const std::string &agent, double period, const std::string &profile, std::vector<double> params);
+            RuntimePolicy(const std::string &agent, double period, const std::string &profile, const std::map<std::string, double> &params);
             virtual ~RuntimePolicy() = default;
             const std::string m_agent;
             const double m_period;
             const std::string m_profile;
-            const std::vector<double> m_params;
+            const std::map<std::string, double> m_params;
     };
 
     RuntimePolicy::RuntimePolicy()
@@ -71,7 +79,7 @@ namespace geopm {
 
     }
 
-    RuntimePolicy::RuntimePolicy(const std::string &agent, double period, const std::string &profile, std::vector<double> params)
+    RuntimePolicy::RuntimePolicy(const std::string &agent, double period, const std::string &profile, const std::map<std::string, double> &params)
         : m_agent(agent)
         , m_period(period)
         , m_profile(profile)
@@ -83,6 +91,7 @@ namespace geopm {
     class RuntimeStats
     {
         public:
+            RuntimeStats() = default;
             RuntimeStats(const std::vector<std::string> &metric_names);
             virtual ~RuntimeStats() = default;
             int num_metric(void) const;
@@ -489,25 +498,45 @@ namespace geopm {
 
     }
 
-    ::grpc::Status RuntimeServiceImp::SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response)
+    ::grpc::Status RuntimeServiceImp::SetPolicy(::grpc::ServerContext* context,
+                                                const ::Policy* request,
+                                                ::Policy* response)
+    {
+        *response = *request;
+        std::map<std::string, double> params;
+        for (const auto &it : request->params()) {
+            params[it.first] = it.second;
+        }
+        // TODO Create report and store before creating new stats object
+        SharedMemoryScopedLock lock(&(m_policy_struct.mutex));
+        m_policy_struct.policy = std::make_shared<RuntimePolicy>(request->agent(),
+                                                                 request->period(),
+                                                                 request->profile(),
+                                                                 params);
+        m_policy_struct.stats = RuntimeAgent::make_stats(request->agent());
+        m_policy_struct.is_updated = true;
+        return ::grpc::Status::OK;
+    }
+
+    ::grpc::Status RuntimeServiceImp::GetReport(::grpc::ServerContext* context,
+                                                const ::ReportRequest* request,
+                                                ::ReportList* response)
     {
         ::grpc::Status result;
         return result;
     }
 
-    ::grpc::Status RuntimeServiceImp::GetReport(::grpc::ServerContext* context, const ::ReportRequest* request, ::ReportList* response)
+    ::grpc::Status RuntimeServiceImp::AddChildHost(::grpc::ServerContext* context,
+                                                   const ::Url* request,
+                                                   ::TimeSpec* response)
     {
         ::grpc::Status result;
         return result;
     }
 
-    ::grpc::Status RuntimeServiceImp::AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response)
-    {
-        ::grpc::Status result;
-        return result;
-    }
-
-    ::grpc::Status RuntimeServiceImp::RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response)
+    ::grpc::Status RuntimeServiceImp::RemoveChildHost(::grpc::ServerContext* context,
+                                                      const ::Url* request,
+                                                      ::TimeSpec* response)
     {
         ::grpc::Status result;
         return result;
@@ -522,11 +551,13 @@ namespace geopm {
             std::unique_ptr<Waiter> waiter = Waiter::make_unique(RuntimeServiceImp::POLICY_LATENCY);
             bool do_loop = true;
             while(do_loop) {
-                if (policy_struct->is_updated) {
-                    // TODO Create report if the policy has changed and store for next call to GetReports()
-                    RuntimePolicy policy;
-                    {
-                        SharedMemoryScopedLock lock(&(policy_struct->mutex));
+                bool is_updated;
+                RuntimePolicy policy;
+                {
+                    SharedMemoryScopedLock lock(&(policy_struct->mutex));
+                    is_updated = (policy_struct->is_updated || agent == nullptr);
+                    if (is_updated) {
+                        // TODO Create report if the policy has changed and store for next call to GetReports()
                         if (policy_struct->policy == nullptr) {
                             throw Exception("rtd_runt(): Thread data is invalid: NULL pointer",
                                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -534,12 +565,14 @@ namespace geopm {
                         RuntimePolicy policy = *(policy_struct->policy);
                         policy_struct->is_updated = false;
                     }
+                }
+                if (is_updated) {
                     agent = RuntimeAgent::make_agent(policy);
-                    if (agent->period() == 0) {
-                        do_loop = false;
-                        break;
-                    }
                     waiter = Waiter::make_unique(agent->period());
+                }
+                if (agent->period() == 0) {
+                    do_loop = false;
+                    break;
                 }
                 auto sample = agent->update();
                 {
@@ -558,22 +591,19 @@ namespace geopm {
     int rtd_main(const std::string &server_address)
     {
         int err = 0;
+        int pthread_err = 1;
+        pthread_t rtd_run_thread;
+        policy_struct_s policy_struct {
+            PTHREAD_MUTEX_INITIALIZER, true, std::make_shared<RuntimePolicy>(), std::make_shared<RuntimeStats>()
+        };
         try {
-            std::vector<double> params;
-            std::vector<std::string> metric_names;
-            std::shared_ptr<RuntimePolicy> policy = std::make_shared<RuntimePolicy>("", RuntimeServiceImp::POLICY_LATENCY, "", params);
-            std::shared_ptr<RuntimeStats> stats = std::make_shared<RuntimeStats>(metric_names);
-            policy_struct_s policy_struct {
-                PTHREAD_MUTEX_INITIALIZER, true, policy, stats
-            };
             RuntimeServiceImp service(policy_struct);
             grpc::ServerBuilder builder;
             // TODO Use secure credentials for authentication
             builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
             builder.RegisterService(&service);
             std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-            pthread_t rtd_run_thread;
-            int pthread_err = pthread_create(&rtd_run_thread, NULL, rtd_run, &policy_struct);
+            pthread_err = pthread_create(&rtd_run_thread, NULL, rtd_run, &policy_struct);
             if (pthread_err != 0) {
                 throw Exception("Failed to create agent thread",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -581,6 +611,11 @@ namespace geopm {
             server->Wait();
         }
         catch (const geopm::Exception &ex) {
+            if (pthread_err == 0) {
+                // TODO manage pthread errors
+                void *res;
+                (void)pthread_join(rtd_run_thread, &res);
+            }
             err = ex.err_value();
             std::cerr << "Error: <geopmrtd>" << ex.what() << "\n\n";
         }
