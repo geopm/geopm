@@ -627,17 +627,24 @@ namespace geopm {
                 throw Exception("Failed to create agent thread",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            server->Wait();
+            int *res;
+            err = pthread_join(rtd_run_thread, &res);
+            if (err != 0) {
+                throw Exception("Call to pthread_join() failed",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            if (*res != 0) {
+                throw Exception("Call to agent thread failed",
+                                *res, __FILE__, __LINE__);
+            }
+            server->Shutdown();
         }
         catch (const geopm::Exception &ex) {
-            if (pthread_err == 0) {
-                // TODO manage pthread errors
-                void *res;
-                (void)pthread_join(rtd_run_thread, &res);
-            }
             err = ex.err_value();
             std::cerr << "Error: <geopmrtd>" << ex.what() << "\n\n";
         }
+
+
         return err;
     }
 
