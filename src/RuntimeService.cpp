@@ -27,7 +27,6 @@
 
 
 namespace geopm {
-    void *rtd_run(void *policy_ptr);
     class RuntimeStats;
     class RuntimePolicy;
 
@@ -37,8 +36,6 @@ namespace geopm {
         std::shared_ptr<RuntimePolicy> policy;
         std::shared_ptr<RuntimeStats> stats;
     };
-
-
 
     class RuntimeServiceImp final : public GEOPMRuntime::Service
     {
@@ -561,57 +558,47 @@ namespace geopm {
         return result;
     }
 
-    static int g_rtd_run_error = 0;
-    void *rtd_run(void *policy_ptr)
+    void rtd_run(policy_struct_s &policy_struct)
     {
-        struct policy_struct_s *policy_struct = static_cast<policy_struct_s *>(policy_ptr);
-        try {
-            std::shared_ptr<RuntimeAgent> agent;
-            std::unique_ptr<Waiter> waiter = Waiter::make_unique(RuntimeServiceImp::POLICY_LATENCY);
-            bool do_loop = true;
-            while(do_loop) {
-                bool is_updated;
-                RuntimePolicy policy;
-                {
-                    SharedMemoryScopedLock lock(&(policy_struct->mutex));
-                    is_updated = (policy_struct->is_updated || agent == nullptr);
-                    if (is_updated) {
-                        // TODO Create report if the policy has changed and store for next call to GetReports()
-                        if (policy_struct->policy == nullptr) {
-                            throw Exception("rtd_runt(): Thread data is invalid: NULL pointer",
-                                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                        }
-                        RuntimePolicy policy = *(policy_struct->policy);
-                        policy_struct->is_updated = false;
-                    }
-                }
+        std::shared_ptr<RuntimeAgent> agent;
+        std::unique_ptr<Waiter> waiter = Waiter::make_unique(RuntimeServiceImp::POLICY_LATENCY);
+        bool do_loop = true;
+        while(do_loop) {
+            bool is_updated;
+            RuntimePolicy policy;
+            {
+                SharedMemoryScopedLock lock(&(policy_struct.mutex));
+                is_updated = (policy_struct.is_updated || agent == nullptr);
                 if (is_updated) {
-                    agent = RuntimeAgent::make_agent(policy);
-                    waiter = Waiter::make_unique(agent->period());
+                    // TODO Create report if the policy has changed and store for next call to GetReports()
+                    if (policy_struct.policy == nullptr) {
+                        throw Exception("rtd_runt(): Thread data is invalid: NULL pointer",
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
+                    RuntimePolicy policy = *(policy_struct.policy);
+                    policy_struct.is_updated = false;
                 }
-                if (agent->period() == 0) {
-                    do_loop = false;
-                    break;
-                }
-                auto sample = agent->update();
-                {
-                    SharedMemoryScopedLock lock(&(policy_struct->mutex));
-                    policy_struct->stats->update(sample);
-                }
-                waiter->wait();
             }
+            if (is_updated) {
+                agent = RuntimeAgent::make_agent(policy);
+                waiter = Waiter::make_unique(agent->period());
+            }
+            if (agent->period() == 0) {
+                do_loop = false;
+                break;
+            }
+            auto sample = agent->update();
+            {
+                SharedMemoryScopedLock lock(&(policy_struct.mutex));
+                policy_struct.stats->update(sample);
+            }
+            waiter->wait();
         }
-        catch (const Exception &ex) {
-           g_rtd_run_error = ex.err_value();
-        }
-        return &g_rtd_run_error;
     }
 
     int rtd_main(const std::string &server_address)
     {
         int err = 0;
-        int pthread_err = 1;
-        pthread_t rtd_run_thread;
         policy_struct_s policy_struct {
             PTHREAD_MUTEX_INITIALIZER, true, std::make_shared<RuntimePolicy>(), std::make_shared<RuntimeStats>()
         };
@@ -622,29 +609,13 @@ namespace geopm {
             builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
             builder.RegisterService(&service);
             std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-            pthread_err = pthread_create(&rtd_run_thread, NULL, rtd_run, &policy_struct);
-            if (pthread_err != 0) {
-                throw Exception("Failed to create agent thread",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            int *res;
-            err = pthread_join(rtd_run_thread, &res);
-            if (err != 0) {
-                throw Exception("Call to pthread_join() failed",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            if (*res != 0) {
-                throw Exception("Call to agent thread failed",
-                                *res, __FILE__, __LINE__);
-            }
+            rtd_run(policy_struct);
             server->Shutdown();
         }
         catch (const geopm::Exception &ex) {
             err = ex.err_value();
             std::cerr << "Error: <geopmrtd>" << ex.what() << "\n\n";
         }
-
-
         return err;
     }
 
