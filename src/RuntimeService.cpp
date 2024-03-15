@@ -309,15 +309,14 @@ namespace geopm {
     {
         public:
             static std::unique_ptr<RuntimeStats> make_stats(const std::string &agent_name);
-            static std::unique_ptr<RuntimeAgent> make_agent(std::shared_ptr<RuntimePolicy> policy,
-                                                            std::shared_ptr<RuntimeStats> stats);
+            static std::unique_ptr<RuntimeAgent> make_agent(std::shared_ptr<RuntimePolicy> policy);
             RuntimeAgent() = default;
             virtual ~RuntimeAgent() = default;
             virtual std::string name(void) const = 0;
             virtual double period(void) const = 0;
             virtual std::string profile(void) const = 0;
             virtual std::map<std::string, double> params(void) const = 0;
-            virtual void update(void) = 0;
+            virtual std::vector<double> update(void) = 0;
     };
 
     class MonitorRuntimeAgent : public RuntimeAgent
@@ -325,17 +324,15 @@ namespace geopm {
         public:
             static std::vector<std::string> metric_names(void);
             MonitorRuntimeAgent() = delete;
-            MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy,
-                                std::shared_ptr<RuntimeStats> stats);
+            MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy);
             virtual ~MonitorRuntimeAgent() = default;
             std::string name(void) const override;
             double period(void) const override;
             std::string profile(void) const override;
             std::map<std::string, double> params(void) const override;
-            void update(void) override;
+            std::vector<double> update(void) override;
         private:
             std::shared_ptr<RuntimePolicy> m_policy;
-            std::shared_ptr<RuntimeStats> m_stats;
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
     };
@@ -355,18 +352,12 @@ namespace geopm {
     }
 
 
-    MonitorRuntimeAgent::MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy,
-                                             std::shared_ptr<RuntimeStats> stats)
+    MonitorRuntimeAgent::MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy)
         : m_policy(policy)
-        , m_stats(stats)
         , m_metric_names(metric_names())
     {
-        if (m_policy == nullptr || m_stats == nullptr) {
+        if (m_policy == nullptr) {
             throw Exception("MonitorRuntimeAgent: passed NULL pointer",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (m_metric_names.size() != (size_t)m_stats->num_metric()) {
-            throw Exception("MonitorRuntimeAgent: stats is incorrectly sized for the monitor agent",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (m_policy->m_agent != "monitor") {
@@ -412,7 +403,7 @@ namespace geopm {
         return {};
     }
 
-    void MonitorRuntimeAgent::update(void)
+    std::vector<double> MonitorRuntimeAgent::update(void)
     {
         std::vector<double> samples(m_pio_idx.size(), NAN);
         platform_io().read_batch();
@@ -423,7 +414,7 @@ namespace geopm {
             }
             ++sample_idx;
         }
-        m_stats->update(samples);
+        return samples;
     }
 
     std::unique_ptr<RuntimeStats> RuntimeAgent::make_stats(const std::string &agent_name)
@@ -441,11 +432,10 @@ namespace geopm {
     }
 
 
-    std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(std::shared_ptr<RuntimePolicy> policy,
-                                                           std::shared_ptr<RuntimeStats> stats)
+    std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(std::shared_ptr<RuntimePolicy> policy)
     {
         if (policy->m_agent == "monitor") {
-            return std::make_unique<MonitorRuntimeAgent>(policy, stats);
+            return std::make_unique<MonitorRuntimeAgent>(policy);
         }
         else {
             throw Exception("RuntimeAgent::make_agent(): Unknown agent name: " + policy->m_agent,
@@ -480,14 +470,14 @@ namespace geopm {
                     period = RuntimeServiceImp::POLICY_LATENCY;
                 }
                 else {
-                    agent = RuntimeAgent::make_agent(policy, stats);
+                    agent = RuntimeAgent::make_agent(policy);
                 }
             }
             std::unique_ptr<Waiter> waiter = Waiter::make_unique(policy->m_period);
             while(period != 0) {
                 if (agent != nullptr) {
                     SharedMemoryScopedLock lock(&(policy_struct->mutex));
-                    agent->update();
+                    stats->update(agent->update());
                 }
                 waiter->wait();
             }
