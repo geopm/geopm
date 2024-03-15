@@ -36,10 +36,27 @@ namespace geopm {
         std::shared_ptr<RuntimeStats> stats;
     };
 
+
+
+    class RuntimeServiceImp final : public GEOPMRuntime::Service
+    {
+        public:
+            static constexpr double POLICY_LATENCY = 5e-3; // 5 millisec sleep while waiting for a policy
+            RuntimeServiceImp() = delete;
+            RuntimeServiceImp(policy_struct_s &policy_struct);
+            virtual ~RuntimeServiceImp() = default;
+            ::grpc::Status SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response) override;
+            ::grpc::Status GetReport(::grpc::ServerContext* context, const ::ReportRequest* request, ::ReportList* response) override;
+            ::grpc::Status AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
+            ::grpc::Status RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
+        private:
+            policy_struct_s &m_policy_struct;
+    };
+
     class RuntimePolicy
     {
         public:
-            RuntimePolicy() = delete;
+            RuntimePolicy();
             RuntimePolicy(const std::string &agent, double period, const std::string &profile, std::vector<double> params);
             virtual ~RuntimePolicy() = default;
             const std::string m_agent;
@@ -47,6 +64,12 @@ namespace geopm {
             const std::string m_profile;
             const std::vector<double> m_params;
     };
+
+    RuntimePolicy::RuntimePolicy()
+        : RuntimePolicy("", RuntimeServiceImp::POLICY_LATENCY, "", {})
+    {
+
+    }
 
     RuntimePolicy::RuntimePolicy(const std::string &agent, double period, const std::string &profile, std::vector<double> params)
         : m_agent(agent)
@@ -260,56 +283,12 @@ namespace geopm {
         }
     }
 
-    class RuntimeServiceImp final : public GEOPMRuntime::Service
-    {
-        public:
-            static constexpr double POLICY_LATENCY = 5e-3; // 5 millisec sleep while waiting for a policy
-            RuntimeServiceImp() = delete;
-            RuntimeServiceImp(policy_struct_s &policy_struct);
-            virtual ~RuntimeServiceImp() = default;
-            ::grpc::Status SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response) override;
-            ::grpc::Status GetReport(::grpc::ServerContext* context, const ::ReportRequest* request, ::ReportList* response) override;
-            ::grpc::Status AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
-            ::grpc::Status RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response) override;
-        private:
-            policy_struct_s &m_policy_struct;
-    };
-
-    RuntimeServiceImp::RuntimeServiceImp(policy_struct_s &policy_struct)
-        : m_policy_struct(policy_struct)
-    {
-
-    }
-
-    ::grpc::Status RuntimeServiceImp::SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response)
-    {
-        ::grpc::Status result;
-        return result;
-    }
-
-    ::grpc::Status RuntimeServiceImp::GetReport(::grpc::ServerContext* context, const ::ReportRequest* request, ::ReportList* response)
-    {
-        ::grpc::Status result;
-        return result;
-    }
-
-    ::grpc::Status RuntimeServiceImp::AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response)
-    {
-        ::grpc::Status result;
-        return result;
-    }
-
-    ::grpc::Status RuntimeServiceImp::RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response)
-    {
-        ::grpc::Status result;
-        return result;
-    }
 
     class RuntimeAgent
     {
         public:
             static std::unique_ptr<RuntimeStats> make_stats(const std::string &agent_name);
-            static std::unique_ptr<RuntimeAgent> make_agent(std::shared_ptr<RuntimePolicy> policy);
+            static std::unique_ptr<RuntimeAgent> make_agent(const RuntimePolicy &policy);
             RuntimeAgent() = default;
             virtual ~RuntimeAgent() = default;
             virtual std::string name(void) const = 0;
@@ -324,7 +303,7 @@ namespace geopm {
         public:
             static std::vector<std::string> metric_names(void);
             NullRuntimeAgent() = delete;
-            NullRuntimeAgent(std::shared_ptr<RuntimePolicy> policy);
+            NullRuntimeAgent(const RuntimePolicy &policy);
             virtual ~NullRuntimeAgent() = default;
             std::string name(void) const override;
             double period(void) const override;
@@ -341,8 +320,8 @@ namespace geopm {
     }
 
 
-    NullRuntimeAgent::NullRuntimeAgent(std::shared_ptr<RuntimePolicy> policy)
-        : m_policy(*policy)
+    NullRuntimeAgent::NullRuntimeAgent(const RuntimePolicy &policy)
+        : m_policy(policy)
     {
         if (m_policy.m_agent != "") {
             throw Exception("NullRuntimeAgent: policy is defined for different agent: " + m_policy.m_agent,
@@ -386,7 +365,7 @@ namespace geopm {
         public:
             static std::vector<std::string> metric_names(void);
             MonitorRuntimeAgent() = delete;
-            MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy);
+            MonitorRuntimeAgent(const RuntimePolicy &policy);
             virtual ~MonitorRuntimeAgent() = default;
             std::string name(void) const override;
             double period(void) const override;
@@ -414,8 +393,8 @@ namespace geopm {
     }
 
 
-    MonitorRuntimeAgent::MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy)
-        : m_policy(*policy)
+    MonitorRuntimeAgent::MonitorRuntimeAgent(const RuntimePolicy &policy)
+        : m_policy(policy)
         , m_metric_names(metric_names())
     {
         if (m_policy.m_agent != "monitor") {
@@ -490,22 +469,48 @@ namespace geopm {
     }
 
 
-    std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(std::shared_ptr<RuntimePolicy> policy)
+    std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(const RuntimePolicy &policy)
     {
-        if (policy == nullptr) {
-            throw Exception("RuntimeAgent::make_agent(): passed NULL pointer",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (policy->m_agent == "") {
+        if (policy.m_agent == "") {
             return std::make_unique<NullRuntimeAgent>(policy);
         }
-        else if (policy->m_agent == "monitor") {
+        else if (policy.m_agent == "monitor") {
             return std::make_unique<MonitorRuntimeAgent>(policy);
         }
         else {
-            throw Exception("RuntimeAgent::make_agent(): Unknown agent name: " + policy->m_agent,
+            throw Exception("RuntimeAgent::make_agent(): Unknown agent name: " + policy.m_agent,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+    }
+
+    RuntimeServiceImp::RuntimeServiceImp(policy_struct_s &policy_struct)
+        : m_policy_struct(policy_struct)
+    {
+
+    }
+
+    ::grpc::Status RuntimeServiceImp::SetPolicy(::grpc::ServerContext* context, const ::Policy* request, ::Policy* response)
+    {
+        ::grpc::Status result;
+        return result;
+    }
+
+    ::grpc::Status RuntimeServiceImp::GetReport(::grpc::ServerContext* context, const ::ReportRequest* request, ::ReportList* response)
+    {
+        ::grpc::Status result;
+        return result;
+    }
+
+    ::grpc::Status RuntimeServiceImp::AddChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response)
+    {
+        ::grpc::Status result;
+        return result;
+    }
+
+    ::grpc::Status RuntimeServiceImp::RemoveChildHost(::grpc::ServerContext* context, const ::Url* request, ::TimeSpec* response)
+    {
+        ::grpc::Status result;
+        return result;
     }
 
     static int g_rtd_run_error = 0;
@@ -519,8 +524,17 @@ namespace geopm {
             while(do_loop) {
                 if (policy_struct->is_updated) {
                     // TODO Create report if the policy has changed and store for next call to GetReports()
-                    SharedMemoryScopedLock lock(&(policy_struct->mutex));
-                    agent = RuntimeAgent::make_agent(policy_struct->policy);
+                    RuntimePolicy policy;
+                    {
+                        SharedMemoryScopedLock lock(&(policy_struct->mutex));
+                        if (policy_struct->policy == nullptr) {
+                            throw Exception("rtd_runt(): Thread data is invalid: NULL pointer",
+                                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                        }
+                        RuntimePolicy policy = *(policy_struct->policy);
+                        policy_struct->is_updated = false;
+                    }
+                    agent = RuntimeAgent::make_agent(policy);
                     if (agent->period() == 0) {
                         do_loop = false;
                         break;
