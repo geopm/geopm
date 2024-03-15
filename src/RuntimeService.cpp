@@ -319,6 +319,68 @@ namespace geopm {
             virtual std::vector<double> update(void) = 0;
     };
 
+    class NullRuntimeAgent : public RuntimeAgent
+    {
+        public:
+            static std::vector<std::string> metric_names(void);
+            NullRuntimeAgent() = delete;
+            NullRuntimeAgent(std::shared_ptr<RuntimePolicy> policy);
+            virtual ~NullRuntimeAgent() = default;
+            std::string name(void) const override;
+            double period(void) const override;
+            std::string profile(void) const override;
+            std::map<std::string, double> params(void) const override;
+            std::vector<double> update(void) override;
+        private:
+            const RuntimePolicy m_policy;
+    };
+
+    std::vector<std::string> NullRuntimeAgent::metric_names(void)
+    {
+        return {};
+    }
+
+
+    NullRuntimeAgent::NullRuntimeAgent(std::shared_ptr<RuntimePolicy> policy)
+        : m_policy(*policy)
+    {
+        if (m_policy.m_agent != "") {
+            throw Exception("NullRuntimeAgent: policy is defined for different agent: " + m_policy.m_agent,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (!m_policy.m_params.empty()) {
+            throw Exception("NullRuntimeAgent: policy parameters are not empty: ",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+
+    std::string NullRuntimeAgent::name(void) const
+    {
+        return "";
+    }
+
+    double NullRuntimeAgent::period(void) const
+    {
+        return m_policy.m_period;
+    }
+
+    std::string NullRuntimeAgent::profile(void) const
+    {
+        return m_policy.m_profile;
+    }
+
+    std::map<std::string, double> NullRuntimeAgent::params(void) const
+    {
+        return {};
+    }
+
+    std::vector<double> NullRuntimeAgent::update(void)
+    {
+        return {};
+    }
+
+
+
     class MonitorRuntimeAgent : public RuntimeAgent
     {
         public:
@@ -332,7 +394,7 @@ namespace geopm {
             std::map<std::string, double> params(void) const override;
             std::vector<double> update(void) override;
         private:
-            std::shared_ptr<RuntimePolicy> m_policy;
+            const RuntimePolicy m_policy;
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
     };
@@ -353,18 +415,14 @@ namespace geopm {
 
 
     MonitorRuntimeAgent::MonitorRuntimeAgent(std::shared_ptr<RuntimePolicy> policy)
-        : m_policy(policy)
+        : m_policy(*policy)
         , m_metric_names(metric_names())
     {
-        if (m_policy == nullptr) {
-            throw Exception("MonitorRuntimeAgent: passed NULL pointer",
+        if (m_policy.m_agent != "monitor") {
+            throw Exception("MonitorRuntimeAgent: policy is defined for different agent: " + m_policy.m_agent,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (m_policy->m_agent != "monitor") {
-            throw Exception("MonitorRuntimeAgent: policy is defined for different agent: " + m_policy->m_agent,
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (!m_policy->m_params.empty()) {
+        if (!m_policy.m_params.empty()) {
             throw Exception("MonitorRuntimeAgent: policy parameters are not empty: ",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -390,12 +448,12 @@ namespace geopm {
 
     double MonitorRuntimeAgent::period(void) const
     {
-        return m_policy->m_period;
+        return m_policy.m_period;
     }
 
     std::string MonitorRuntimeAgent::profile(void) const
     {
-        return m_policy->m_profile;
+        return m_policy.m_profile;
     }
 
     std::map<std::string, double> MonitorRuntimeAgent::params(void) const
@@ -422,7 +480,7 @@ namespace geopm {
         std::vector<std::string> metric_names;
 
         if (agent_name == "monitor") {
-             auto metric_names = MonitorRuntimeAgent::metric_names();
+             metric_names = MonitorRuntimeAgent::metric_names();
         }
         else if (agent_name != "") {
             throw Exception("RuntimeAgent::make_stats(): Unknown agent name: " + agent_name,
@@ -434,7 +492,14 @@ namespace geopm {
 
     std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(std::shared_ptr<RuntimePolicy> policy)
     {
-        if (policy->m_agent == "monitor") {
+        if (policy == nullptr) {
+            throw Exception("RuntimeAgent::make_agent(): passed NULL pointer",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (policy->m_agent == "") {
+            return std::make_unique<NullRuntimeAgent>(policy);
+        }
+        else if (policy->m_agent == "monitor") {
             return std::make_unique<MonitorRuntimeAgent>(policy);
         }
         else {
@@ -443,49 +508,37 @@ namespace geopm {
         }
     }
 
+    static int g_rtd_run_error = 0;
     void *rtd_run(void *policy_ptr)
     {
-        void *result = nullptr;
         struct policy_struct_s *policy_struct = static_cast<policy_struct_s *>(policy_ptr);
         try {
             std::shared_ptr<RuntimeAgent> agent;
-            std::shared_ptr<RuntimePolicy> policy;
-            std::shared_ptr<RuntimeStats> stats;
-            double period;
-            std::string agent_name;
-            std::string curr_agent;
-            //bool is_updated;
-            {
-                SharedMemoryScopedLock lock(&(policy_struct->mutex));
-                period = policy_struct->policy->m_period;
-                agent_name = policy_struct->policy->m_agent;
-                //is_updated = policy_struct->is_updated;
-                policy = policy_struct->policy;
-                stats = policy_struct->stats;
-                policy_struct->is_updated = false;
-            }
-            if (agent_name != curr_agent) {
-                if (agent_name == "") {
-                    agent = nullptr;
-                    period = RuntimeServiceImp::POLICY_LATENCY;
-                }
-                else {
-                    agent = RuntimeAgent::make_agent(policy);
-                }
-            }
-            std::unique_ptr<Waiter> waiter = Waiter::make_unique(policy->m_period);
-            while(period != 0) {
-                if (agent != nullptr) {
+            std::unique_ptr<Waiter> waiter = Waiter::make_unique(RuntimeServiceImp::POLICY_LATENCY);
+            bool do_loop = true;
+            while(do_loop) {
+                if (policy_struct->is_updated) {
+                    // TODO Create report if the policy has changed and store for next call to GetReports()
                     SharedMemoryScopedLock lock(&(policy_struct->mutex));
-                    stats->update(agent->update());
+                    agent = RuntimeAgent::make_agent(policy_struct->policy);
+                    if (agent->period() == 0) {
+                        do_loop = false;
+                        break;
+                    }
+                    waiter = Waiter::make_unique(agent->period());
+                }
+                auto sample = agent->update();
+                {
+                    SharedMemoryScopedLock lock(&(policy_struct->mutex));
+                    policy_struct->stats->update(sample);
                 }
                 waiter->wait();
             }
         }
         catch (const Exception &ex) {
-           // result = static_cast<void *>(ex.err_value());
+           g_rtd_run_error = ex.err_value();
         }
-        return result;
+        return &g_rtd_run_error;
     }
 
     int rtd_main(const std::string &server_address)
