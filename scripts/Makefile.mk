@@ -9,6 +9,7 @@ libexecdir ?= $(exec_prefix)/libexec
 
 EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmlaunch \
+              scripts/geopmrt \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/agent.py \
               scripts/geopmpy/geopm_runtime_pb2.py \
@@ -17,6 +18,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/hash.py \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/policy_store.py \
+              scripts/geopmpy/runtime.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
