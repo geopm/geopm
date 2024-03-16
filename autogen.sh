@@ -43,3 +43,7 @@ protoc --grpc_out src \
        --cpp_out src \
        --python_out scripts/geopmpy \
        geopm_runtime.proto
+
+protoc --grpc_out scripts/geopmpy \
+       --plugin=protoc-gen-grpc=$(which grpc_python_plugin) \
+       geopm_runtime.proto
