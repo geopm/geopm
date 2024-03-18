@@ -224,7 +224,7 @@ namespace geopm {
             result = std::sqrt(
                          (m_moments[metric_idx].m_2 -
                           m_moments[metric_idx].m_1 *
-                          m_moments[metric_idx].m_1) /
+                          m_moments[metric_idx].m_1 / m_moments[metric_idx].count) /
                          (m_moments[metric_idx].count - 1));
         }
         return result;
@@ -404,9 +404,7 @@ namespace geopm {
                 "gpu-power (W)",
                 "dram-power (W)",
                 "cpu-frequency (Hz)",
-                "cpu-frequency (%)",
-                "gpu-frequency (Hz)",
-                "gpu-frequency (%)"};
+                "gpu-frequency (Hz)"};
     }
 
 
@@ -424,17 +422,15 @@ namespace geopm {
         }
         m_pio_idx.push_back(platform_io().push_signal("CPU_ENERGY", GEOPM_DOMAIN_BOARD, 0));
         // TODO add conditional logic for GPUs
-        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(platform_io().push_signal("GPU_ENERGY", GEOPM_DOMAIN_BOARD, 0));
         m_pio_idx.push_back(platform_io().push_signal("DRAM_ENERGY", GEOPM_DOMAIN_BOARD, 0));
         m_pio_idx.push_back(platform_io().push_signal("CPU_POWER", GEOPM_DOMAIN_BOARD, 0));
         // TODO add conditional logic for GPUs
-        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(platform_io().push_signal("GPU_POWER", GEOPM_DOMAIN_BOARD, 0));
         m_pio_idx.push_back(platform_io().push_signal("DRAM_POWER", GEOPM_DOMAIN_BOARD, 0));
         m_pio_idx.push_back(platform_io().push_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0));
         // TODO add logic for fraction of sticker and conditional logic for GPUs
-        m_pio_idx.push_back(-1);
-        m_pio_idx.push_back(-1);
-        m_pio_idx.push_back(-1);
+        m_pio_idx.push_back(platform_io().push_signal("GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0));
     }
 
     std::string MonitorRuntimeAgent::name(void) const
