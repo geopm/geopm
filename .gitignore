@@ -51,6 +51,7 @@ compile_commands.json
 /geopm.o
 /geopmpolicy
 /geopmread
+/geopmrtd
 /geopm*.tar.gz
 /geopmwrite
 /gh-pages/
