@@ -16,7 +16,6 @@ message Report {
   Url host = 1; // Url of the host where the data was gathered
   TimeSpec begin = 2; // Time when last reqport was requested, or when policy was first set
   TimeSpec end = 3; // Time when this report was requested
-  double duration = 4; // sample_count * sample_period
   Policy policy = 5; // Agent policy including sample period
   repeated Stats stats = 6; // Stats for each metric measured by an agent
 }
@@ -45,7 +44,7 @@ message Stats {
 
 message TimeSpec {
   uint64 sec = 1; // Seconds since the epoch as in Linux time spec
-  uint64 usec = 2; // Nano-seconds since last whole second as in Linux time spec
+  uint64 nsec = 2; // Nano-seconds since last whole second as in Linux time spec
 }
 
 message Url {

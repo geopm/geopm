@@ -58,6 +58,8 @@ namespace geopm {
                                            ::TimeSpec* response) override;
         private:
             policy_struct_s &m_policy_struct;
+            geopm_time_s m_report_time;
+            std::shared_ptr<Policy> m_last_policy_ptr;
     };
 
     class RuntimePolicy
@@ -499,6 +501,7 @@ namespace geopm {
 
     RuntimeServiceImp::RuntimeServiceImp(policy_struct_s &policy_struct)
         : m_policy_struct(policy_struct)
+        , m_report_time({{0, 0}})
     {
 
     }
@@ -520,6 +523,7 @@ namespace geopm {
                                                                  params);
         m_policy_struct.stats = RuntimeAgent::make_stats(request->agent());
         m_policy_struct.is_updated = true;
+        m_last_policy_ptr = std::make_shared<Policy>(*response);
         return ::grpc::Status::OK;
     }
 
@@ -532,7 +536,21 @@ namespace geopm {
         Url *host = new Url;
         host->set_url(geopm::hostname());
         report->set_allocated_host(host);
+        Policy *last_policy = nullptr;
+        if (m_last_policy_ptr != nullptr) {
+            last_policy = new Policy(*m_last_policy_ptr);
+            report->set_allocated_policy(last_policy);
+        }
+        TimeSpec *begin_time = new TimeSpec;
+        begin_time->set_sec(m_report_time.t.tv_sec);
+        begin_time->set_nsec(m_report_time.t.tv_nsec);
+        report->set_allocated_begin(begin_time);
+        TimeSpec *end_time = new TimeSpec;
         SharedMemoryScopedLock lock(&(m_policy_struct.mutex));
+        geopm_time(&m_report_time);
+        end_time->set_sec(m_report_time.t.tv_sec);
+        end_time->set_nsec(m_report_time.t.tv_nsec);
+        report->set_allocated_end(end_time);
         for (int metric_idx = 0; metric_idx != m_policy_struct.stats->num_metric(); ++metric_idx) {
             auto stats = report->add_stats();
             stats->set_name(m_policy_struct.stats->metric_name(metric_idx));
