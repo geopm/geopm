@@ -266,28 +266,30 @@ namespace geopm {
         }
         auto moments_it = m_moments.begin();
         for (const auto &ss : sample) {
-            moments_it->count += 1;
-            if (moments_it->count == 1) {
-                moments_it->first = ss;
-                moments_it->min = ss;
-                moments_it->max = ss;
+            if (geopm_pio_check_valid_value(ss)) {
+                moments_it->count += 1;
+                if (moments_it->count == 1) {
+                    moments_it->first = ss;
+                    moments_it->min = ss;
+                    moments_it->max = ss;
+                }
+                moments_it->last = ss;
+                if (moments_it->min > ss) {
+                    moments_it->min = ss;
+                }
+                if (moments_it->max < ss) {
+                    moments_it->max = ss;
+                }
+                double mm = ss;
+                moments_it->m_1 += mm;
+                mm *= ss;
+                moments_it->m_2 += mm;
+                mm *= ss;
+                moments_it->m_3 += mm;
+                mm *= ss;
+                moments_it->m_4 += mm;
+                ++moments_it;
             }
-            moments_it->last = ss;
-            if (moments_it->min > ss) {
-                moments_it->min = ss;
-            }
-            if (moments_it->max < ss) {
-                moments_it->max = ss;
-            }
-            double mm = ss;
-            moments_it->m_1 += mm;
-            mm *= ss;
-            moments_it->m_2 += mm;
-            mm *= ss;
-            moments_it->m_3 += mm;
-            mm *= ss;
-            moments_it->m_4 += mm;
-            ++moments_it;
         }
     }
 
@@ -588,6 +590,7 @@ namespace geopm {
                 break;
             }
             auto sample = agent->update();
+            if (sample.size() != 0) // TODO: avoid using sample when agent changes
             {
                 SharedMemoryScopedLock lock(&(policy_struct.mutex));
                 policy_struct.stats->update(sample);
