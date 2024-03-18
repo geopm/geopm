@@ -65,6 +65,7 @@ namespace geopm {
         public:
             RuntimePolicy();
             RuntimePolicy(const std::string &agent, double period, const std::string &profile, const std::map<std::string, double> &params);
+            RuntimePolicy(const RuntimePolicy &other);
             virtual ~RuntimePolicy() = default;
             const std::string m_agent;
             const double m_period;
@@ -83,6 +84,12 @@ namespace geopm {
         , m_period(period)
         , m_profile(profile)
         , m_params(params)
+    {
+
+    }
+
+    RuntimePolicy::RuntimePolicy(const RuntimePolicy &other)
+        : RuntimePolicy(other.m_agent, other.m_period, other.m_profile, other.m_params)
     {
 
     }
@@ -266,7 +273,7 @@ namespace geopm {
         }
         auto moments_it = m_moments.begin();
         for (const auto &ss : sample) {
-            if (geopm_pio_check_valid_value(ss)) {
+            if (platform_io().is_valid_value(ss)) {
                 moments_it->count += 1;
                 if (moments_it->count == 1) {
                     moments_it->first = ss;
@@ -481,6 +488,7 @@ namespace geopm {
 
     std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(const RuntimePolicy &policy)
     {
+        geopm_pio_reset();
         if (policy.m_agent == "") {
             return std::make_unique<NullRuntimeAgent>(policy);
         }
@@ -567,7 +575,7 @@ namespace geopm {
         bool do_loop = true;
         while(do_loop) {
             bool is_updated;
-            RuntimePolicy policy;
+            std::unique_ptr<RuntimePolicy> policy;
             {
                 SharedMemoryScopedLock lock(&(policy_struct.mutex));
                 is_updated = (policy_struct.is_updated || agent == nullptr);
@@ -577,12 +585,12 @@ namespace geopm {
                         throw Exception("rtd_runt(): Thread data is invalid: NULL pointer",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
-                    RuntimePolicy policy = *(policy_struct.policy);
+                    policy = std::make_unique<RuntimePolicy>(*(policy_struct.policy));
                     policy_struct.is_updated = false;
                 }
             }
             if (is_updated) {
-                agent = RuntimeAgent::make_agent(policy);
+                agent = RuntimeAgent::make_agent(*policy);
                 waiter = Waiter::make_unique(agent->period());
             }
             if (agent->period() == 0) {
