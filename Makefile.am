@@ -207,6 +207,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              dox/Doxyfile.in \
              doxygen_update.sh \
              geopm-tutorial.tar.gz \
+             geopm_runtime.proto \
              indicators/index.html \
              indicators/indicators.py \
              m4/ax_check_compile_flag.m4 \

@@ -4,7 +4,7 @@
 
 # Example client of the geopm runtime service.
 #
-# Starts an agent on an enpoint, gathers reports for a user specified
+# Starts an agent on an endpoint, gathers reports for a user specified
 # period of time and stores the report data in an sqlite3 database.
 #
 

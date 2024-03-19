@@ -101,7 +101,7 @@ namespace geopm {
 
     /// @brief Hold statistics based on return value from
     ///        RuntimeAgent::update() call.  This class is also
-    ///        queried and reset by the GetReport RPC implemenation.
+    ///        queried and reset by the GetReport RPC implementation.
     class RuntimeStats
     {
         public:
