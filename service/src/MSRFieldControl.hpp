@@ -24,7 +24,6 @@ namespace geopm
     {
         public:
             MSRFieldControl(std::shared_ptr<MSRIO> msrio,
-                            int save_restore_ctx,
                             int cpu,
                             uint64_t offset,
                             int begin_bit,
@@ -39,6 +38,7 @@ namespace geopm
             void write(double value) override;
             void save(void) override;
             void restore(void) override;
+            void add_save_restore_context(int);
         private:
             uint64_t encode(double value) const;
 
