@@ -14,7 +14,6 @@
 namespace geopm
 {
     MSRFieldControl::MSRFieldControl(std::shared_ptr<MSRIO> msrio,
-                                     int save_restore_ctx,
                                      int cpu,
                                      uint64_t offset,
                                      int begin_bit,
@@ -22,7 +21,7 @@ namespace geopm
                                      int function,
                                      double scalar)
         : m_msrio(std::move(msrio))
-        , m_save_restore_ctx(save_restore_ctx)
+        , m_save_restore_idx(-1)
         , m_cpu(cpu)
         , m_offset(offset)
         , m_shift(begin_bit)
@@ -32,6 +31,8 @@ namespace geopm
         , m_inverse(1.0 / scalar)
         , m_is_batch_ready(false)
         , m_adjust_idx(-1)
+        , m_save_idx(-1)
+        , m_restore_idx(-1)
         , m_saved_msr_value(0)
     {
         if (m_msrio == nullptr) {
@@ -47,9 +48,6 @@ namespace geopm
             throw Exception("MSRFieldControl: begin bit must be <= end bit",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        m_save_idx = m_msrio->add_read(m_cpu, m_offset, m_save_restore_ctx);
-        m_restore_idx = m_msrio->add_write(m_cpu, m_offset, m_save_restore_ctx);
     }
 
     void MSRFieldControl::setup_batch(void)
@@ -137,5 +135,13 @@ namespace geopm
     {
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "null MSRIO");
         m_msrio->adjust(m_restore_idx, m_saved_msr_value, m_mask, m_save_restore_ctx);
+    }
+
+    void MSRFieldControl::add_save_restore_context(int ctx)
+    {
+        GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "null MSRIO");
+        m_save_restore_ctx = ctx;
+        m_save_idx = m_msrio->add_read(m_cpu, m_offset, m_save_restore_ctx);
+        m_restore_idx = m_msrio->add_write(m_cpu, m_offset, m_save_restore_ctx);
     }
 }
