@@ -52,10 +52,10 @@ namespace geopm {
                                      ::ReportList* response) override;
             ::grpc::Status AddChildHost(::grpc::ServerContext* context,
                                         const ::Url* request,
-                                        ::TimeSpec* response) override;
+                                        ::Policy* response) override;
             ::grpc::Status RemoveChildHost(::grpc::ServerContext* context,
                                            const ::Url* request,
-                                           ::TimeSpec* response) override;
+                                           ::ReportList* response) override;
         private:
             policy_struct_s &m_policy_struct;
             geopm_time_s m_report_time;
@@ -568,7 +568,7 @@ namespace geopm {
 
     ::grpc::Status RuntimeServiceImp::AddChildHost(::grpc::ServerContext* context,
                                                    const ::Url* request,
-                                                   ::TimeSpec* response)
+                                                   ::Policy* response)
     {
         ::grpc::Status result;
         return result;
@@ -576,7 +576,7 @@ namespace geopm {
 
     ::grpc::Status RuntimeServiceImp::RemoveChildHost(::grpc::ServerContext* context,
                                                       const ::Url* request,
-                                                      ::TimeSpec* response)
+                                                      ::ReportList* response)
     {
         ::grpc::Status result;
         return result;
