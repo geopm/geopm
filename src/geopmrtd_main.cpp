@@ -12,7 +12,7 @@
 
 #include "geopm_version.h"
 
-
+/// @brief Entry point for geopmrtd daemon command line tool
 int main(int argc, char **argv)
 {
     std::ostringstream usage;

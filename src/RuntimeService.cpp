@@ -37,6 +37,7 @@ namespace geopm {
         std::shared_ptr<RuntimeStats> stats;
     };
 
+    /// @brief Server side implementation for the GEOPM Runtime gRPC service.
     class RuntimeServiceImp final : public GEOPMRuntime::Service
     {
         public:
@@ -62,6 +63,8 @@ namespace geopm {
             std::shared_ptr<Policy> m_last_policy_ptr;
     };
 
+    /// @brief simple class that holds a const C++ representation of a
+    ///        gRPC Policy object.
     class RuntimePolicy
     {
         public:
@@ -96,6 +99,9 @@ namespace geopm {
 
     }
 
+    /// @brief Hold statistics based on return value from
+    ///        RuntimeAgent::update() call.  This class is also
+    ///        queried and reset by the GetReport RPC implemenation.
     class RuntimeStats
     {
         public:
@@ -302,7 +308,8 @@ namespace geopm {
         }
     }
 
-
+    /// @brief Interface for implementing a GEOPM Runtime Agent
+    ///        algorithm supported by the gRPC interface.
     class RuntimeAgent
     {
         public:
@@ -317,6 +324,8 @@ namespace geopm {
             virtual std::vector<double> update(void) = 0;
     };
 
+    /// @brief Agent interface implementation that runs the event loop
+    ///        waiting for another agent to be started.
     class NullRuntimeAgent : public RuntimeAgent
     {
         public:
@@ -377,8 +386,8 @@ namespace geopm {
         return {};
     }
 
-
-
+    /// @brief Implementation of an agent that monitors CPU and GPU
+    ///        energy related metrics.
     class MonitorRuntimeAgent : public RuntimeAgent
     {
         public:
@@ -582,6 +591,9 @@ namespace geopm {
         return result;
     }
 
+    /// @brief Event loop that executes an Agent algorithm until a new
+    ///        policy is received.  When a policy with a period of
+    ///        zero is provided the function returns.
     void rtd_run(policy_struct_s &policy_struct)
     {
         std::shared_ptr<RuntimeAgent> agent;
