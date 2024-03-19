@@ -533,24 +533,24 @@ namespace geopm {
     {
         response->set_geopm_version(geopm_version());
         auto report = response->add_list();
-        Url *host = new Url;
+        std::unique_ptr<Url> host = std::make_unique<Url>();
         host->set_url(geopm::hostname());
-        report->set_allocated_host(host);
-        Policy *last_policy = nullptr;
+        report->set_allocated_host(host.release());
+        std::unique_ptr<Policy> last_policy;
         if (m_last_policy_ptr != nullptr) {
-            last_policy = new Policy(*m_last_policy_ptr);
-            report->set_allocated_policy(last_policy);
+            last_policy = std::make_unique<Policy>(*m_last_policy_ptr);
+            report->set_allocated_policy(last_policy.release());
         }
-        TimeSpec *begin_time = new TimeSpec;
+        std::unique_ptr<TimeSpec> begin_time = std::make_unique<TimeSpec>();
         begin_time->set_sec(m_report_time.t.tv_sec);
         begin_time->set_nsec(m_report_time.t.tv_nsec);
-        report->set_allocated_begin(begin_time);
-        TimeSpec *end_time = new TimeSpec;
+        report->set_allocated_begin(begin_time.release());
+        std::unique_ptr<TimeSpec> end_time = std::make_unique<TimeSpec>();
         SharedMemoryScopedLock lock(&(m_policy_struct.mutex));
         geopm_time(&m_report_time);
         end_time->set_sec(m_report_time.t.tv_sec);
         end_time->set_nsec(m_report_time.t.tv_nsec);
-        report->set_allocated_end(end_time);
+        report->set_allocated_end(end_time.release());
         for (int metric_idx = 0; metric_idx != m_policy_struct.stats->num_metric(); ++metric_idx) {
             auto stats = report->add_stats();
             stats->set_name(m_policy_struct.stats->metric_name(metric_idx));
