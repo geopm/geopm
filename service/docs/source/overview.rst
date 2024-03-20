@@ -32,10 +32,9 @@ ALCF
 
 For users leveraging the Aurora/Sunspot computing resources at the Argonne
 Leadership Computing Facility (ALCF), the GEOPM Service is installed in the base
-compute image (currently `v2.0.2
-<https://github.com/geopm/geopm/releases/tag/v2.0.2>`__), and the userspace
-components of both the Service and the Runtime are available via environment
-modules.  These components can be loaded on the command-line via:
+compute image.  The userspace components of both the Service and the Runtime
+are available via environment modules.  These components can be loaded on the
+command-line via:
 
 .. code-block:: bash
 
