@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <climits>
+#include <iostream>
 #include <cstring>
 #include <unistd.h>
 #include "geopm/Agg.hpp"

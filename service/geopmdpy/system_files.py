@@ -6,11 +6,11 @@
 
 Provides secure interfaces for manipulating the files in
 
-    /run/geopm
+    /tmp/rungeopm
 
 that enable the service to be restarted and
 
-   /etc/geopm
+   /tmp/etcgeopm
 
 where the access lists are located.  These interfaces provide
 guarantees about the security of these system files, and an
@@ -37,8 +37,8 @@ from . import pio
 from . import schemas
 from . import shmem
 
-GEOPM_SERVICE_RUN_PATH = '/run/geopm'
-GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm'
+GEOPM_SERVICE_RUN_PATH = '/tmp/rungeopm' # TODO: add a new build var?
+GEOPM_SERVICE_CONFIG_PATH = '/tmp/etcgeopm' # TODO: use the existing build var GEOPM_CONFIG_PATH
 # Deprecated since 3.0. May remove in a future release.
 LEGACY_GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
 # Special strings used in place of user "group"
@@ -335,7 +335,7 @@ class ActiveSessions(object):
     """Class that manages the session files for the service
 
     The state about active sessions opened with geopmd by a client
-    processes is stored in files in /run/geopm.  These
+    processes is stored in files in /tmp/rungeopm.  These
     files are loaded when the geopmd process starts.  The files are
     modified each time a client opens a session, closes a session,
     requests write permission, or starts a batch server.  The class is
@@ -354,7 +354,7 @@ class ActiveSessions(object):
 
         The geopmd session files are stored in the directory
 
-            "/run/geopm"
+            "/tmp/rungeopm"
 
         by default, but the user may specify a different path.  The
         creation of an ActiveSessions object will make the directory
@@ -379,7 +379,7 @@ class ActiveSessions(object):
         user, and the permissions are set to GEOPM_SERVICE_RUN_PATH_PERM
         parsing will proceed.  All files matching the pattern
 
-            "/run/geopm/session-*.json"
+            "/tmp/rungeopm/session-*.json"
 
         will be parsed and verified. These files must conform to the
         session JSON schema, be owned by the geopmd user, and have
@@ -392,7 +392,7 @@ class ActiveSessions(object):
         Args:
             run_path (str): Optional argument to override the default
                             path to the session files which is
-                            "/run/geopm"
+                            "/tmp/rungeopm"
 
         Returns:
             ActiveSessions: Object containing all valid sessions data
@@ -497,7 +497,7 @@ class ActiveSessions(object):
         is interrupted before the session file is ready to be used,
         then no file will be present that matches load pattern below.
 
-            ``/run/geopm/session-*.json``
+            ``/tmp/rungeopm/session-*.json``
 
         The session file is created without the JSON object property
         "batch_server" specified.  This properties may be modified by the
@@ -848,7 +848,7 @@ class ActiveSessions(object):
             profile_name = self._sessions[client_pid].pop('profile_name')
         except KeyError:
             raise RuntimeError(f'Client PID {client_pid} requested to stop profiling, but it had not been started.')
-        # TODO: store region names in file in /run/geopm to enable clean restart
+        # TODO: store region names in file in /tmp/rungeopm to enable clean restart
         if profile_name in self._region_names:
             self._region_names[profile_name].update(region_names)
         else:
@@ -1071,7 +1071,7 @@ class AccessLists(object):
         returned.
 
         The values are securely read from files located in
-        /etc/geopm using the secure_read_file() interface.
+        /tmp/etcgeopm using the secure_read_file() interface.
 
         If no secure file exist for the specified group, then two
         empty lists are returned.
@@ -1116,7 +1116,7 @@ class AccessLists(object):
         updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
+        /tmp/etcgeopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -1147,7 +1147,7 @@ class AccessLists(object):
         of allowed signals are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
+        /tmp/etcgeopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -1174,7 +1174,7 @@ class AccessLists(object):
         of allowed controls are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
+        /tmp/etcgeopm using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -1224,7 +1224,8 @@ class AccessLists(object):
             RuntimeError: The user does not exist.
 
         """
-        if has_cap_sys_admin(client_pid):
+        is_service = os.getenv('GEOPM_IS_SERVICE') == '1'
+        if is_service:
             return self.get_all_access()
         user_groups = []
         if user != '':
@@ -1266,7 +1267,7 @@ class WriteLock(object):
     GEOPM Service control write lock.  The state of this lock is stored in the
     file path:
 
-        /run/geopm/CONTROL_LOCK
+        /tmp/rungeopm/CONTROL_LOCK
 
     This file is empty when the lock is free, and contains the PID of the
     controlling process when the lock is held.  The class manages the advisory

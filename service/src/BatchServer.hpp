@@ -95,7 +95,7 @@ namespace geopm
 
         protected:
             static constexpr const char* M_SHMEM_PREFIX =
-                "/run/geopm/batch-buffer-";
+                "/tmp/rungeopm/batch-buffer-";
     };
 
     class BatchServerImp : public BatchServer

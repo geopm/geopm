@@ -50,7 +50,7 @@ namespace geopm
         , m_dbus_interface("io.github.geopm")
         , m_dbus_timeout_usec(0)
     {
-        int err = sd_bus_open_system(&m_bus);
+        int err = sd_bus_open(&m_bus);
         if (err < 0) {
             throw Exception("ServiceProxy: Failed to open system bus",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);

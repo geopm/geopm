@@ -89,7 +89,8 @@ namespace geopm
         // service enabling save/restore by geopmd.  If the geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
-        if (geopm::has_cap_sys_admin()) {
+        bool is_service = get_env("GEOPM_IS_SERVICE") == "1";
+        if (is_service) {
             // May want to give this higher priority than the non-safe
             // msr driver once it is considered more stable.
             register_plugin(CpufreqSysfsDriver::plugin_name(),

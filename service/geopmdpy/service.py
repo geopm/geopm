@@ -22,7 +22,7 @@ from . import pio
 from . import topo
 from . import dbus_xml
 from . import system_files
-from dasbus.connection import SystemMessageBus
+from dasbus.connection import SessionMessageBus,SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
 except ImportError as ee:
@@ -69,7 +69,8 @@ class PlatformService(object):
         returned.
 
         The values are securely read from files located in
-        /etc/geopm using the secure_read_file() interface.
+        GEOPM_CONFIG_PATH (default /etc/geopm) using the secure_read_file()
+        interface.
 
         If no secure file exist for the specified group, then two
         empty lists are returned.
@@ -99,7 +100,7 @@ class PlatformService(object):
         updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
+        GEOPM_CONFIG_PATH (default /etc/geopm) using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -123,7 +124,7 @@ class PlatformService(object):
         of allowed signal are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
+        GEOPM_CONFIG_PATH (default /etc/geopm) using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -145,7 +146,7 @@ class PlatformService(object):
         of allowed control are updated.
 
         The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
+        GEOPM_CONFIG_PATH (default /etc/geopm) using the secure_make_dirs() and
         secure_make_file() interfaces.
 
         Args:
@@ -947,8 +948,8 @@ class GEOPMService(object):
     def __init__(self):
         self._topo = TopoService()
         self._platform = PlatformService()
-        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
-                                                        '/org/freedesktop/DBus')
+        self._dbus_proxy = SessionMessageBus().get_proxy('org.freedesktop.DBus',
+                                                         '/org/freedesktop/DBus')
 
     def TopoGetCache(self):
         return self._topo.get_cache()
