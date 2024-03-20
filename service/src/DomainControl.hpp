@@ -25,6 +25,7 @@ namespace geopm
             void write(double value) override;
             void save(void) override;
             void restore(void) override;
+            std::vector<std::shared_ptr<Control> > controls(void);
         private:
             std::vector<std::shared_ptr<Control> > m_controls;
             bool m_is_batch_ready;

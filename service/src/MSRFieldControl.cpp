@@ -21,7 +21,7 @@ namespace geopm
                                      int function,
                                      double scalar)
         : m_msrio(std::move(msrio))
-        , m_save_restore_idx(-1)
+        , m_save_restore_ctx(-1)
         , m_cpu(cpu)
         , m_offset(offset)
         , m_shift(begin_bit)

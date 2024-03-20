@@ -239,6 +239,19 @@ namespace geopm
             }
         }
 
+        // Setting the batch context must be done after invalid controls are pruned
+        // to ensure the in-memory version of save_control() does not try to read
+        // from a bad offset.
+        for(const auto &cc : m_control_available) {
+            for (const auto &rfc : cc.second.controls) {  // result_field_control vector
+                auto dc = std::static_pointer_cast<DomainControl>(rfc);
+                for (const auto &mfcv : dc->controls()) {
+                    auto mfc = std::static_pointer_cast<MSRFieldControl>(mfcv);
+                    mfc->add_save_restore_context(m_save_restore_ctx);
+                }
+            }
+        }
+
         register_frequency_signals();
         register_frequency_controls();
 
@@ -1575,8 +1588,7 @@ namespace geopm
                                                                    domain_type, domain_idx);
                 for (auto cpu_idx : cpus) {
                     cpu_controls.push_back(std::make_shared<MSRFieldControl>(
-                        m_msrio, m_save_restore_ctx, cpu_idx, msr_offset,
-                        begin_bit, end_bit, function,
+                        m_msrio, cpu_idx, msr_offset, begin_bit, end_bit, function,
                         scalar));
                 }
                 result_field_control.push_back(std::make_shared<DomainControl>(cpu_controls));
