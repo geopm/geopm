@@ -5,6 +5,9 @@
 
 #include "config.h"
 
+#include <iostream>
+#include <sstream>
+
 #include "MSRFieldControl.hpp"
 #include "MSRIO.hpp"
 #include "MSR.hpp"
@@ -47,6 +50,13 @@ namespace geopm
         if (begin_bit > end_bit) {
             throw Exception("MSRFieldControl: begin bit must be <= end bit",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        uint64_t offset_mask = m_msrio->system_write_mask(m_offset);
+        if ((m_mask & offset_mask) != m_mask) {
+            std::ostringstream except;
+            except << "MSRFieldControl: Offset 0x" << std::hex << m_offset << " has an incompatible write "
+                   << "mask.  Bit field expected: 0x" << m_mask << " Whole MSR actual: 0x" << offset_mask;
+            throw Exception(except.str(), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
