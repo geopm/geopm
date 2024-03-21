@@ -44,22 +44,29 @@ def run(server_address, db_path, duration, agent, profile):
                                           profile=profile,
                                           params=dict())
         rt_proxy.SetPolicy(policy)
-        request = geopm_runtime_pb2.ReportRequest()
-        num_period = int(duration / slow_period)
-        for loop_idx in TimedLoop(slow_period, num_period):
-            report_list = rt_proxy.GetReport(request)
+        try:
+            request = geopm_runtime_pb2.ReportRequest()
+            num_period = int(duration / slow_period)
             report_command = "INSERT INTO report VALUES(?,?,?,?,?,?,?)"
-            report_values = []
             stats_command = "INSERT INTO stats VALUES(?,?,?,?,?,?,?,?,?)"
-            stats_values = []
-            for report in report_list.list:
-                report_values.append((report_id, report.host.url, report.begin.sec, report.begin.nsec, report.end.sec, report.end.nsec, policy_id))
-                for stats in report.stats:
-                    stats_values.append((report_id, stats.name, stats.count, stats.first, stats.last, stats.min, stats.max, stats.mean, stats.std))
-                report_id += 1
-            db_cur.executemany(stats_command, stats_values)
-            db_cur.executemany(report_command, report_values)
-            db_con.commit()
+            for loop_idx in TimedLoop(slow_period, num_period):
+                report_list = rt_proxy.GetReport(request)
+                report_values = []
+                stats_values = []
+                for report in report_list.list:
+                    report_values.append((report_id, report.host.url, report.begin.sec, report.begin.nsec, report.end.sec, report.end.nsec, policy_id))
+                    for stats in report.stats:
+                        stats_values.append((report_id, stats.name, stats.count, stats.first, stats.last, stats.min, stats.max, stats.mean, stats.std))
+                    report_id += 1
+                db_cur.executemany(stats_command, stats_values)
+                db_cur.executemany(report_command, report_values)
+                db_con.commit()
+        finally:
+            policy = geopm_runtime_pb2.Policy(agent='',
+                                              period=fast_period,
+                                              profile='',
+                                              params=dict())
+            rt_proxy.SetPolicy(policy)
 
 def main():
     usage = f'{sys.argv[0]} SERVER_ADDRESS DB_PATH DURATION AGENT PROFILE'
