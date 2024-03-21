@@ -1600,8 +1600,12 @@ namespace geopm
                 .description = description,
             };
         }
-        catch (const Exception &) {
-            // Simply don't add to available controls
+        catch (const Exception &ex) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
+                      << "(): Unable to add control " << msr_field_name << " :"
+                      << ex.what() << std::endl;
+#endif
         }
     }
 
@@ -1729,6 +1733,19 @@ namespace geopm
         check_top_level(root);
 
         auto msr_obj = root["msrs"].object_items();
+
+        bool is_trl_writable = false;
+        try {
+            is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], platform_topo(),
+                                                             MSRIO::make_unique(MSRIO::M_DRIVER_MSR));
+        }
+        catch (const Exception &) {
+            std::cerr << "warning: <geopm> msriogroup::" << std::string(__func__)
+                      << "(): unable to check trl via PLATFORM_INFO: "
+                      << "temporarily 'modprobe msr' and re-run to fix." << std::endl;
+            throw;
+        }
+
         for (const auto &msr : msr_obj) {
             std::string msr_name = msr.first;
             Json msr_root = msr.second;
@@ -1750,6 +1767,13 @@ namespace geopm
                 int begin_bit = (int)(field_data["begin_bit"].number_value());
                 int end_bit = (int)(field_data["end_bit"].number_value());
                 bool is_control = field_data["writeable"].bool_value();
+
+                if (is_trl_writable &&
+                    string_begins_with(msr_field_name,
+                                       "TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_")) {
+                    is_control = true;
+                }
+
                 if (is_control) {
                     combined_write_mask |= (((1ULL << (end_bit - begin_bit + 1)) - 1) << begin_bit);
                 }

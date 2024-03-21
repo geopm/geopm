@@ -46,6 +46,7 @@ namespace geopm
             int add_write(int cpu_idx, uint64_t offset, int batch_ctx) override;
             void adjust(int batch_idx, uint64_t value, uint64_t write_mask) override;
             void adjust(int batch_idx, uint64_t value, uint64_t write_mask, int batch_ctx) override;
+            uint64_t system_write_mask(uint64_t offset) override;
         private:
             struct m_msr_batch_op_s {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
@@ -97,7 +98,6 @@ namespace geopm
             void msr_batch_io(IOUring &batcher, struct m_msr_batch_array_s &batch);
             void msr_read_files(int batch_ctx);
             void msr_rmw_files(int batch_ctx);
-            uint64_t system_write_mask(uint64_t offset);
 
             const int m_num_cpu;
             std::vector<int> m_file_desc;

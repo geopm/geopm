@@ -134,6 +134,11 @@ namespace geopm
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
             static std::unique_ptr<MSRIO> make_unique(int driver_type);
+            /// @brief Return the system write mask for a given offset.
+            /// @param [in] offset MSR offset to query
+            /// @return The msr-safe write mask or all 1's if not using
+            ///         msr-safe.
+            virtual uint64_t system_write_mask(uint64_t offset) = 0;
     };
 }
 
