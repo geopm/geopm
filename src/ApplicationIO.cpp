@@ -97,7 +97,15 @@ namespace geopm
     // Private helper function
     std::set<int> ApplicationIOImp::get_profile_pids(void)
     {
-        auto profile_pids = m_service_proxy->platform_get_profile_pids(m_profile_name);
+        std::vector<int> profile_pids;
+        try {
+            profile_pids = m_service_proxy->platform_get_profile_pids(m_profile_name);
+        }
+        catch (const geopm::Exception &ex) {
+            throw Exception("ApplicationIO::get_profile_pids(): Unable to query for PIDs. "
+                            "Is the geopmd service running? " + std::string(ex.what()),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         return std::set<int>(profile_pids.begin(), profile_pids.end());
     }
 
