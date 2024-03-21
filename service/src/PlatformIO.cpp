@@ -394,10 +394,6 @@ namespace geopm
                                    int domain_type,
                                    int domain_idx)
     {
-        if (m_is_signal_active || m_is_control_active) {
-            throw Exception("PlatformIOImp::push_signal(): pushing signals after read_batch() or adjust().",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformIOImp::push_signal(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -417,6 +413,10 @@ namespace geopm
         }
         std::string err_msg;
         if (result == -1) {
+            if (m_is_signal_active || m_is_control_active) {
+                throw Exception("PlatformIOImp::push_signal(): pushing signals after read_batch() or adjust().",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             for (auto &ii : find_signal_iogroup(signal_name)) {
                 no_support = false;
                 if (domain_type == ii->signal_domain_type(signal_name)) {
@@ -543,10 +543,6 @@ namespace geopm
                                     int domain_type,
                                     int domain_idx)
     {
-        if (m_is_signal_active || m_is_control_active) {
-            throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformIOImp::push_control(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -566,6 +562,10 @@ namespace geopm
         }
         std::string err_msg;
         if (result == -1) {
+            if (m_is_signal_active || m_is_control_active) {
+                throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             for (auto &ii : find_control_iogroup(control_name)) {
                 no_support = false;
                 if (ii->control_domain_type(control_name) == domain_type) {
