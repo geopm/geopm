@@ -623,10 +623,11 @@ namespace geopm {
                 break;
             }
             auto sample = agent->update();
-            if (sample.size() != 0) // TODO: avoid using sample when agent changes
             {
                 SharedMemoryScopedLock lock(&(policy_struct.mutex));
-                policy_struct.stats->update(sample);
+                if (!policy_struct.is_updated) {
+                    policy_struct.stats->update(sample);
+                }
             }
             waiter->wait();
         }
