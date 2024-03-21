@@ -495,7 +495,6 @@ namespace geopm {
 
     std::unique_ptr<RuntimeAgent> RuntimeAgent::make_agent(const RuntimePolicy &policy)
     {
-        geopm_pio_reset();
         if (policy.m_agent == "") {
             return std::make_unique<NullRuntimeAgent>(policy);
         }
