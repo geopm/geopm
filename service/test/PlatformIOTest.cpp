@@ -267,7 +267,8 @@ TEST_F(PlatformIOTest, push_signal)
         EXPECT_CALL(*iog, read_batch());
     }
     m_platio->read_batch();
-    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0),
+    EXPECT_EQ(idx, m_platio->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("MODE", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "pushing signals after");
 }
 
