@@ -8,6 +8,7 @@ import sys
 import grpc
 import sqlite3
 import random
+import os
 from argparse import ArgumentParser
 from geopmdpy.loop import TimedLoop
 from . import __version__
@@ -15,7 +16,17 @@ from . import geopm_runtime_pb2_grpc
 from . import geopm_runtime_pb2
 
 def run(server_address, db_path, duration, agent, profile, sample_period, report_period):
-    # TODO check for valid input!
+    if duration < 0:
+        raise RuntimeError('Run duration must not be negative')
+    if sample_period > report_period:
+        raise RuntimeError('Report period must be longer than the sample period')
+    if ':' not in server_address:
+        raise RuntimeError('Server address must include a port')
+    try:
+        int(server_address.split(':')[1])
+    except ValueError:
+        raise RuntimeError('Server address port must be an integer')
+
     run_id = random.randint(0, 0x7FFFFFFF) << 32 # Randomize top 31 bits
     params_id = run_id
     policy_id = run_id
