@@ -10,6 +10,7 @@ libexecdir ?= $(exec_prefix)/libexec
 EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmlaunch \
               scripts/geopmrt \
+              scripts/geopmrt.sh \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/agent.py \
               scripts/geopmpy/geopm_runtime_pb2.py \
