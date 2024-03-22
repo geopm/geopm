@@ -51,6 +51,7 @@ compile_commands.json
 /geopm.o
 /geopmpolicy
 /geopmread
+/geopmrtd
 /geopm*.tar.gz
 /geopmwrite
 /gh-pages/
@@ -129,13 +130,18 @@ compile_commands.json
 /scripts/figures
 /scripts/geopmpy.egg-info/*
 /scripts/geopmpy/version.py
-/scripts/geopm/version.py
+/scripts/geopmpy/geopm_runtime_pb2_grpc.py
+/scripts/geopmpy/geopm_runtime_pb2.py
 /scripts/README
 /scripts/test/pytest_links/*
 /scripts/test/geopmpy_test.sh
 /geopm-runtime*.spec
 /src/*.lo
 /src/*.o
+/src/geopm_runtime.grpc.pb.cc
+/src/geopm_runtime.grpc.pb.h
+/src/geopm_runtime.pb.cc
+/src/geopm_runtime.pb.h
 /stamp-h1
 *.swp
 /tags
