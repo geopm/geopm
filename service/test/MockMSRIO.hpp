@@ -32,6 +32,7 @@ class MockMSRIO : public geopm::MSRIO
                     (int batch_idx, uint64_t value, uint64_t write_mask, int batch_ctx), (override));
         MOCK_METHOD(void, write_batch, (), (override));
         MOCK_METHOD(void, write_batch, (int batch_ctx), (override));
+        MOCK_METHOD(uint64_t, system_write_mask, (uint64_t offset), (override));
 };
 
 #endif
