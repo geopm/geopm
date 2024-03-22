@@ -1,10 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools-scm>=8.0" ]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "geopmdpy/version.py"
 
 [project]
 name = "geopmdpy"
-version = "@VERSION@"
+dynamic = ["version"]
 description = "GEOPM - Global Extensible Open Power Manager Daemon"
 readme = "README.rst"
 requires-python = ">=3.6"

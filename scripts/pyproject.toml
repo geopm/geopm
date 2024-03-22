@@ -1,10 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel", "setuptools-git-versioning<2", ]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools-git-versioning]
+enabled = true
 
 [project]
 name = "geopmpy"
-version = "@VERSION@"
+dynamic = ["version"]
 description = "GEOPM - Global Extensible Open Power Manager Runtime Tools"
 readme = "README.md"
 requires-python = ">=3.6"
