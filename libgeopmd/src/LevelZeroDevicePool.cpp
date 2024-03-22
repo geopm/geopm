@@ -87,131 +87,6 @@ namespace geopm
         return {device_idx, subdevice_idx};
     }
 
-    double LevelZeroDevicePoolImp::ras_reset_count(int domain, unsigned int domain_idx,
-                                                   int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_reset_count(dev_subdev_idx_pair.first, l0_domain,
-                                           dev_subdev_idx_pair.second);
-    }
-
-    double LevelZeroDevicePoolImp::ras_programming_errcount(int domain, unsigned int domain_idx,
-                                                            int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_programming_errcount(dev_subdev_idx_pair.first, l0_domain,
-                                                    dev_subdev_idx_pair.second);
-    }
-
-    double LevelZeroDevicePoolImp::ras_driver_errcount(int domain, unsigned int domain_idx,
-                                                       int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_driver_errcount(dev_subdev_idx_pair.first, l0_domain,
-                                               dev_subdev_idx_pair.second);
-    }
-
-    double LevelZeroDevicePoolImp::ras_compute_errcount(int domain, unsigned int domain_idx,
-                                                        int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_compute_errcount(dev_subdev_idx_pair.first, l0_domain,
-                                                dev_subdev_idx_pair.second);
-    }
-
-    double LevelZeroDevicePoolImp::ras_noncompute_errcount(int domain, unsigned int domain_idx,
-                                                           int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_noncompute_errcount(dev_subdev_idx_pair.first, l0_domain,
-                                                   dev_subdev_idx_pair.second);
-    }
-
-    double LevelZeroDevicePoolImp::ras_cache_errcount(int domain, unsigned int domain_idx,
-                                                      int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_cache_errcount(dev_subdev_idx_pair.first, l0_domain,
-                                              dev_subdev_idx_pair.second);
-    }
-
-    double LevelZeroDevicePoolImp::ras_display_errcount(int domain, unsigned int domain_idx,
-                                                        int l0_domain) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the ras domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
-                            __func__, __LINE__);
-
-        return m_levelzero.ras_display_errcount(dev_subdev_idx_pair.first, l0_domain,
-                                                dev_subdev_idx_pair.second);
-    }
 
     double LevelZeroDevicePoolImp::frequency_status(int domain, unsigned int domain_idx,
                                                     int l0_domain) const
@@ -614,4 +489,262 @@ namespace geopm
         m_levelzero.performance_factor_control(dev_subdev_idx_pair.first,
                                                l0_domain, dev_subdev_idx_pair.second, setting);
     }
+
+
+    // RAS Correctable Counters
+    double LevelZeroDevicePoolImp::ras_reset_count_correctable(int domain, unsigned int domain_idx,
+                                                   int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_reset_count_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                           dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_programming_errcount_correctable(int domain, unsigned int domain_idx,
+                                                            int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_programming_errcount_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                                    dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_driver_errcount_correctable(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_driver_errcount_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                               dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_compute_errcount_correctable(int domain, unsigned int domain_idx,
+                                                        int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_compute_errcount_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                                dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_noncompute_errcount_correctable(int domain, unsigned int domain_idx,
+                                                           int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_noncompute_errcount_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                                   dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_cache_errcount_correctable(int domain, unsigned int domain_idx,
+                                                      int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_cache_errcount_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                              dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_display_errcount_correctable(int domain, unsigned int domain_idx,
+                                                        int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_display_errcount_correctable(dev_subdev_idx_pair.first, l0_domain,
+                                                dev_subdev_idx_pair.second);
+    }
+
+
+    // RAS Uncorrectable Counters
+    double LevelZeroDevicePoolImp::ras_reset_count_uncorrectable(int domain, unsigned int domain_idx,
+                                                   int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_reset_count_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                           dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_programming_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                                            int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_programming_errcount_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                                    dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_driver_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_driver_errcount_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                               dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_compute_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                                        int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_compute_errcount_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                                dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_noncompute_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                                           int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_noncompute_errcount_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                                   dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_cache_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                                      int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_cache_errcount_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                              dev_subdev_idx_pair.second);
+    }
+
+    double LevelZeroDevicePoolImp::ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                                        int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the ras domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+
+        return m_levelzero.ras_display_errcount_uncorrectable(dev_subdev_idx_pair.first, l0_domain,
+                                                dev_subdev_idx_pair.second);
+    }
+
+
 }

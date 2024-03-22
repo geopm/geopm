@@ -118,33 +118,56 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         if(gpu_max_frequency_limit > 0): #Negative value indicates max was not supported
             self.assertLessEqual(frequency_gpu, gpu_max_frequency_limit)
 
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_RESET_COUNT gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_PROGRAMMING_ERRCOUNT gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_DRIVER_ERRCOUNT gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_COMPUTE_ERRCOUNT gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_NONCOMPUTE_ERRCOUNT gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_CACHE_ERRCOUNT gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_RAS_DISPLAY_ERRCOUNT gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_RESET_COUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_PROGRAMMING_ERRCOUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_DRIVER_ERRCOUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_COMPUTE_ERRCOUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_NONCOMPUTE_ERRCOUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_CACHE_ERRCOUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_DISPLAY_ERRCOUNT_CORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_RESET_COUNT_UNCORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_PROGRAMMING_ERRCOUNT_UNCORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_DRIVER_ERRCOUNT_UNCORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_COMPUTE_ERRCOUNT_UNCORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_NONCOMPUTE_ERRCOUNT_UNCORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_CACHE_ERRCOUNT_UNCORRECTABLE gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_RAS_DISPLAY_ERRCOUNT_UNCORRECTABLE gpu 0")
+
     def test_ras(self):
         sys.stdout.write("Running LevelZero RAS Test\n");
+
         #Query
-        gpu_ras_reset_count = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_RESET_COUNT gpu 0")
-        gpu_ras_programming_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_PROGRAMMING_ERRCOUNT gpu 0")
-        gpu_ras_driver_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_DRIVER_ERRCOUNT gpu 0")
-        gpu_ras_compute_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_COMPUTE_ERRCOUNT gpu 0")
-        gpu_ras_noncompute_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_NONCOMPUTE_ERRCOUNT gpu 0")
-        gpu_ras_cache_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_CACHE_ERRCOUNT gpu 0")
-        gpu_ras_display_errcount = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_RAS_DISPLAY_ERRCOUNT gpu 0")
+        gpu_ras_reset_count_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_RESET_COUNT_CORRECTABLE gpu 0")
+        gpu_ras_programming_errcount_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_PROGRAMMING_ERRCOUNT_CORRECTABLE gpu 0")
+        gpu_ras_driver_errcount_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_DRIVER_ERRCOUNT_CORRECTABLE gpu 0")
+        gpu_ras_compute_errcount_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_COMPUTE_ERRCOUNT_CORRECTABLE gpu 0")
+        gpu_ras_noncompute_errcount_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_NONCOMPUTE_ERRCOUNT_CORRECTABLE gpu 0")
+        gpu_ras_cache_errcount_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_CACHE_ERRCOUNT_CORRECTABLE gpu 0")
+        gpu_ras_display_errcount_correctable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_DISPLAY_ERRCOUNT_CORRECTABLE gpu 0")
+        gpu_ras_reset_count_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_RESET_COUNT_UNCORRECTABLE gpu 0")
+        gpu_ras_programming_errcount_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_PROGRAMMING_ERRCOUNT_UNCORRECTABLE gpu 0")
+        gpu_ras_driver_errcount_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_DRIVER_ERRCOUNT_UNCORRECTABLE gpu 0")
+        gpu_ras_compute_errcount_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_COMPUTE_ERRCOUNT_UNCORRECTABLE gpu 0")
+        gpu_ras_noncompute_errcount_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_NONCOMPUTE_ERRCOUNT_UNCORRECTABLE gpu 0")
+        gpu_ras_cache_errcount_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_CACHE_ERRCOUNT_UNCORRECTABLE gpu 0")
+        gpu_ras_display_errcount_uncorrectable = geopm_test_launcher.geopmread("LEVELZERO::GPU_RAS_DISPLAY_ERRCOUNT_UNCORRECTABLE gpu 0")
 
         #Info
         sys.stdout.write("RAS:\n");
-        sys.stdout.write("\tGPU RAS Reset Count: {}\n".format(gpu_ras_reset_count));
-        sys.stdout.write("\tGPU RAS Programming Errcount: {}\n".format(gpu_ras_programming_errcount));
-        sys.stdout.write("\tGPU RAS Driver Errcount: {}\n".format(gpu_ras_driver_errcount));
-        sys.stdout.write("\tGPU RAS Compute Errcount: {}\n".format(gpu_ras_compute_errcount));
-        sys.stdout.write("\tGPU RAS NonCompute Errcount: {}\n".format(gpu_ras_noncompute_errcount));
-        sys.stdout.write("\tGPU RAS Cache Errcount: {}\n".format(gpu_ras_cache_errcount));
-        sys.stdout.write("\tGPU RAS Display Errcount: {}\n".format(gpu_ras_display_errcount));
+        sys.stdout.write("\tGPU RAS Reset Count Correctable: {}\n".format(gpu_ras_reset_count_correctable));
+        sys.stdout.write("\tGPU RAS Programming Errcount Correctable: {}\n".format(gpu_ras_programming_errcount_correctable));
+        sys.stdout.write("\tGPU RAS Driver Errcount Correctable: {}\n".format(gpu_ras_driver_errcount_correctable));
+        sys.stdout.write("\tGPU RAS Compute Errcount Correctable: {}\n".format(gpu_ras_compute_errcount_correctable));
+        sys.stdout.write("\tGPU RAS NonCompute Errcount Correctable: {}\n".format(gpu_ras_noncompute_errcount_correctable));
+        sys.stdout.write("\tGPU RAS Cache Errcount Correctable: {}\n".format(gpu_ras_cache_errcount_correctable));
+        sys.stdout.write("\tGPU RAS Display Errcount Correctable: {}\n".format(gpu_ras_display_errcount_correctable));
+        sys.stdout.write("\tGPU RAS Reset Count Uncorrectable: {}\n".format(gpu_ras_reset_count_uncorrectable));
+        sys.stdout.write("\tGPU RAS Programming Errcount Uncorrectable: {}\n".format(gpu_ras_programming_errcount_uncorrectable));
+        sys.stdout.write("\tGPU RAS Driver Errcount Uncorrectable: {}\n".format(gpu_ras_driver_errcount_uncorrectable));
+        sys.stdout.write("\tGPU RAS Compute Errcount Uncorrectable: {}\n".format(gpu_ras_compute_errcount_uncorrectable));
+        sys.stdout.write("\tGPU RAS NonCompute Errcount Uncorrectable: {}\n".format(gpu_ras_noncompute_errcount_uncorrectable));
+        sys.stdout.write("\tGPU RAS Cache Errcount Uncorrectable: {}\n".format(gpu_ras_cache_errcount_uncorrectable));
+        sys.stdout.write("\tGPU RAS Display Errcount Uncorrectable: {}\n".format(gpu_ras_display_errcount_uncorrectable));
 
 
 if __name__ == '__main__':

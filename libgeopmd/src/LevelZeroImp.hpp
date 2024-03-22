@@ -24,22 +24,6 @@ namespace geopm
             virtual ~LevelZeroImp() = default;
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
-            int ras_domain_count(unsigned int l0_device_idx,
-                                 int l0_domain) const override;
-            double ras_reset_count(unsigned int l0_device_idx,
-                                   int l0_domain, int l0_domain_idx) const override;
-            double ras_programming_errcount(unsigned int l0_device_idx,
-                                            int l0_domain, int l0_domain_idx) const override;
-            double ras_driver_errcount(unsigned int l0_device_idx,
-                                       int l0_domain, int l0_domain_idx) const override;
-            double ras_compute_errcount(unsigned int l0_device_idx,
-                                        int l0_domain, int l0_domain_idx) const override;
-            double ras_noncompute_errcount(unsigned int l0_device_idx,
-                                           int l0_domain, int l0_domain_idx) const override;
-            double ras_cache_errcount(unsigned int l0_device_idx,
-                                      int l0_domain, int l0_domain_idx) const override;
-            double ras_display_errcount(unsigned int l0_device_idx,
-                                        int l0_domain, int l0_domain_idx) const override;
             int frequency_domain_count(unsigned int l0_device_idx,
                                        int domain) const override;
             double frequency_status(unsigned int l0_device_idx,
@@ -88,8 +72,10 @@ namespace geopm
             int32_t power_limit_min(unsigned int l0_device_idx) const override;
             int32_t power_limit_max(unsigned int l0_device_idx) const override;
 
-            void frequency_control(unsigned int l0_device_idx, int l0_domain,
-                                   int l0_domain_idx, double range_min,
+            void frequency_control(unsigned int l0_device_idx,
+                                   int l0_domain,
+                                   int l0_domain_idx,
+                                   double range_min,
                                    double range_max) const override;
 
             void performance_factor_control(unsigned int l0_device_idx,
@@ -97,7 +83,57 @@ namespace geopm
                                             int l0_domain_idx,
                                             double setting) const override;
 
+            int ras_domain_count(unsigned int l0_device_idx,int l0_domain) const override;
+            double ras_reset_count_correctable(unsigned int l0_device_idx,
+                                               int l0_domain,
+                                               int l0_domain_idx) const override;
+            double ras_programming_errcount_correctable(unsigned int l0_device_idx,
+                                                        int l0_domain,
+                                                        int l0_domain_idx) const override;
+            double ras_driver_errcount_correctable(unsigned int l0_device_idx,
+                                                   int l0_domain,
+                                                   int l0_domain_idx) const override;
+            double ras_compute_errcount_correctable(unsigned int l0_device_idx,
+                                                    int l0_domain,
+                                                    int l0_domain_idx) const override;
+            double ras_noncompute_errcount_correctable(unsigned int l0_device_idx,
+                                                       int l0_domain,
+                                                       int l0_domain_idx) const override;
+            double ras_cache_errcount_correctable(unsigned int l0_device_idx,
+                                                  int l0_domain,
+                                                  int l0_domain_idx) const override;
+            double ras_display_errcount_correctable(unsigned int l0_device_idx,
+                                                    int l0_domain,
+                                                    int l0_domain_idx) const override;
+            double ras_reset_count_uncorrectable(unsigned int l0_device_idx,
+                                                 int l0_domain,
+                                                 int l0_domain_idx) const override;
+            double ras_programming_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                          int l0_domain,
+                                                          int l0_domain_idx) const override;
+            double ras_driver_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                     int l0_domain,
+                                                     int l0_domain_idx) const override;
+            double ras_compute_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                      int l0_domain,
+                                                      int l0_domain_idx) const override;
+            double ras_noncompute_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                         int l0_domain,
+                                                         int l0_domain_idx) const override;
+            double ras_cache_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                    int l0_domain,
+                                                    int l0_domain_idx) const override;
+            double ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                      int l0_domain,
+                                                      int l0_domain_idx) const override;
+
         private:
+            enum m_error_type {
+                M_ERROR_TYPE_CORRECTABLE,
+                M_ERROR_TYPE_UNCORRECTABLE,
+                M_NUM_ERROR_TYPE,
+            };
+
             struct m_frequency_s {
                 double voltage = 0;
                 double request  = 0;
@@ -114,7 +150,6 @@ namespace geopm
 
             struct m_subdevice_s {
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
-                std::vector<std::vector<zes_ras_handle_t> > ras_domain;
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_temp_handle_t> > temp_domain_max;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
@@ -126,6 +161,14 @@ namespace geopm
                 uint32_t num_subdevice_power_domain;
                 std::vector<zes_pwr_handle_t> power_domain;
                 mutable std::vector<uint64_t> cached_energy_timestamp;
+
+            	// Note: For RAS counters, as of LevelZero ver 1.9, can't be neatly
+                //       categorized as being specific to compute/memory domains.
+                //       So, assume, L0_domain_type = M_DOMAIN_ALL
+
+                // The RAS counters are index first by subdevice indexed,
+                // then by error set type (correctable vs uncorrectable)
+                std::vector<zes_ras_handle_t> ras_domain;
 
             };
 
@@ -160,9 +203,12 @@ namespace geopm
                                                         int l0_domain, int l0_domain_idx) const;
 
             m_power_limit_s power_limit_default(unsigned int l0_device_idx) const;
-            std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> ras_status_helper(unsigned int l0_device_idx,
-                                                                                     int l0_domain,
-                                                                                     int l0_domain_idx) const;
+            uint64_t ras_status_helper(unsigned int l0_device_idx,
+                                       int l0_domain,
+                                       int l0_domain_idx,
+                                       zes_ras_error_cat_t errorcat,
+                                       int errortype) const;
+
             m_frequency_s frequency_status_helper(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const;
 
