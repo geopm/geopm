@@ -618,7 +618,7 @@ AC_SUBST([ENABLE_BETA])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm-runtime.spec scripts/geopmpy/version.py scripts/pyproject.toml debian/changelog])
+AC_CONFIG_FILES([Makefile geopm-runtime.spec scripts/geopmpy/version.py debian/changelog])
 AC_CONFIG_FILES([test/geopm_test.sh], [chmod a+x test/geopm_test.sh])
 AC_CONFIG_FILES([scripts/test/geopmpy_test.sh], [chmod a+x scripts/test/geopmpy_test.sh])
 AC_OUTPUT
