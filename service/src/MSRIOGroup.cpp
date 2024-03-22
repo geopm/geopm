@@ -1721,7 +1721,9 @@ namespace geopm
     }
 
     void MSRIOGroup::parse_json_msrs_allowlist(const std::string &str,
-                                               std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data)
+                                               std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data,
+                                               const PlatformTopo &topo,
+                                               std::shared_ptr<MSRIO> msrio)
     {
         std::string err;
         Json root = Json::parse(str, err);
@@ -1736,13 +1738,12 @@ namespace geopm
 
         bool is_trl_writable = false;
         try {
-            is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], platform_topo(),
-                                                             MSRIO::make_unique(MSRIO::M_DRIVER_MSR));
+            is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], topo, msrio);
         }
-        catch (const Exception &) {
+        catch (const Exception &ex) {
             std::cerr << "warning: <geopm> msriogroup::" << std::string(__func__)
                       << "(): unable to check trl via PLATFORM_INFO: "
-                      << "temporarily 'modprobe msr' and re-run to fix." << std::endl;
+                      << ex.what() << std::endl;
             throw;
         }
 
@@ -1805,21 +1806,44 @@ namespace geopm
         return result.str();
     }
 
-    std::string MSRIOGroup::msr_allowlist(int cpuid)
+    std::string MSRIOGroup::msr_allowlist(int cpuid,
+                                          const PlatformTopo &topo,
+                                          std::shared_ptr<MSRIO> msrio)
     {
         std::map<uint64_t, std::pair<uint64_t, std::string> > allowlist_data;
-        parse_json_msrs_allowlist(arch_msr_json(), allowlist_data);
+        parse_json_msrs_allowlist(arch_msr_json(), allowlist_data, topo, msrio);
         try {
-            parse_json_msrs_allowlist(platform_data(cpuid), allowlist_data);
+            parse_json_msrs_allowlist(platform_data(cpuid), allowlist_data, topo, msrio);
         }
         catch (const Exception &ex) {
             // Write only architectural MSRs
         }
         auto custom = msr_data_files();
         for (const auto &filename : custom) {
-            parse_json_msrs_allowlist(read_file(filename), allowlist_data);
+            parse_json_msrs_allowlist(read_file(filename), allowlist_data, topo, msrio);
         }
         return format_allowlist(allowlist_data);
     }
 
+    std::string MSRIOGroup::msr_allowlist(int cpuid)
+    {
+        std::string result;
+        try {
+#ifdef GEOPM_ENABLE_RAWMSR
+            result = msr_allowlist(cpuid, platform_topo(),
+                                   MSRIO::make_unique(MSRIO::M_DRIVER_MSR));
+#else
+            throw Exception("MSRIOGroup::" + std::string(__func__) + "(): Requires access to "
+                            "the stock MSR driver. Do not use --disable-rawmsr at configure time. ",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+#endif
+        }
+        catch (const Exception &) {
+            std::cerr << "Error: MSRIOGroup::" << std::string(__func__)
+                      << "(): unable to instantiate MSRIO with the stock MSR driver.  "
+                      << "Temporarily 'modprobe msr' and re-run as root to fix." << std::endl;
+            throw;
+        }
+        return result;
+    }
 }

@@ -95,6 +95,9 @@ namespace geopm
             /// @return String formatted to be written to an msr-safe
             ///         allowlist file.
             static std::string msr_allowlist(int cpuid);
+            static std::string msr_allowlist(int cpuid,
+                                             const PlatformTopo &topo,
+                                             std::shared_ptr<MSRIO> msrio);
             /// @brief **DEPRECATED** Get the cpuid of the current platform.
             static int cpuid(void);
             static std::string plugin_name(void);
@@ -104,7 +107,9 @@ namespace geopm
             /// @brief Parse the given JSON string and update the
             ///        allowlist data map.
             static void parse_json_msrs_allowlist(const std::string &str,
-                                                  std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data);
+                                                  std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data,
+                                                  const PlatformTopo &topo,
+                                                  std::shared_ptr<MSRIO> msrio);
             /// @brief Format a string with the msr-safe allowlist file contents
             ///        reflecting all known MSRs for the current platform.
             /// @param [in] allowlist_data Map from MSR offset to
