@@ -511,7 +511,7 @@ namespace geopm {
         : m_policy_struct(policy_struct)
         , m_report_time({{0, 0}})
     {
-        geopm_time(&m_report_time);
+        geopm_time_real(&m_report_time);
     }
 
     ::grpc::Status RuntimeServiceImp::SetPolicy(::grpc::ServerContext* context,
@@ -555,7 +555,7 @@ namespace geopm {
         report->set_allocated_begin(begin_time.release());
         std::unique_ptr<TimeSpec> end_time = std::make_unique<TimeSpec>();
         SharedMemoryScopedLock lock(&(m_policy_struct.mutex));
-        geopm_time(&m_report_time);
+        geopm_time_real(&m_report_time);
         end_time->set_sec(m_report_time.t.tv_sec);
         end_time->set_nsec(m_report_time.t.tv_nsec);
         report->set_allocated_end(end_time.release());
