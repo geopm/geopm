@@ -144,10 +144,8 @@ EXTRA_DIST = .gitignore \
              geopmdpy/shmem.py \
              geopmdpy/topo.py \
              geopmdpy/schemas.py \
-             geopmdpy/schemas.py.in \
              geopmdpy/system_files.py \
              geopmdpy/version.py \
-             geopmdpy/version.py.in \
              geopmsession \
              docs/json_schemas/active_sessions.schema.json \
              docs/json_schemas/const_config_io.schema.json \
@@ -160,7 +158,6 @@ EXTRA_DIST = .gitignore \
              docs/json_schemas/sysfs_attributes.schema.json \
              requirements.txt \
              pyproject.toml \
-             pyproject.toml.in \
              src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
