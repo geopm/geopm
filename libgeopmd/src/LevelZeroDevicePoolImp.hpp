@@ -23,20 +23,6 @@ namespace geopm
             LevelZeroDevicePoolImp(const LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
             int num_gpu(int domain_type) const override;
-            double ras_reset_count(int domain, unsigned int domain_idx,
-                                   int l0_domain) const override;
-            double ras_programming_errcount(int domain, unsigned int domain_idx,
-                                            int l0_domain) const override;
-            double ras_driver_errcount(int domain, unsigned int domain_idx,
-                                       int l0_domain) const override;
-            double ras_compute_errcount(int domain, unsigned int domain_idx,
-                                        int l0_domain) const override;
-            double ras_noncompute_errcount(int domain, unsigned int domain_idx,
-                                           int l0_domain) const override;
-            double ras_cache_errcount(int domain, unsigned int domain_idx,
-                                      int l0_domain) const override;
-            double ras_display_errcount(int domain, unsigned int domain_idx,
-                                        int l0_domain) const override;
             double frequency_status(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;
             double frequency_efficient(int domain, unsigned int domain_idx,
@@ -81,7 +67,34 @@ namespace geopm
             void performance_factor_control(int domain, unsigned int domain_idx,
                                             int l0_domain,
                                             double setting) const override;
-
+            double ras_reset_count_correctable(int domain, unsigned int domain_idx,
+                                   int l0_domain) const override;
+            double ras_programming_errcount_correctable(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            double ras_driver_errcount_correctable(int domain, unsigned int domain_idx,
+                                       int l0_domain) const override;
+            double ras_compute_errcount_correctable(int domain, unsigned int domain_idx,
+                                        int l0_domain) const override;
+            double ras_noncompute_errcount_correctable(int domain, unsigned int domain_idx,
+                                           int l0_domain) const override;
+            double ras_cache_errcount_correctable(int domain, unsigned int domain_idx,
+                                      int l0_domain) const override;
+            double ras_display_errcount_correctable(int domain, unsigned int domain_idx,
+                                        int l0_domain) const override;
+            double ras_reset_count_uncorrectable(int domain, unsigned int domain_idx,
+                                   int l0_domain) const override;
+            double ras_programming_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            double ras_driver_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                       int l0_domain) const override;
+            double ras_compute_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                        int l0_domain) const override;
+            double ras_noncompute_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                           int l0_domain) const override;
+            double ras_cache_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                      int l0_domain) const override;
+            double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
+                                        int l0_domain) const override;
         private:
             const LevelZero &m_levelzero;
 

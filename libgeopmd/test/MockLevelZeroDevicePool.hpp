@@ -16,19 +16,33 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
         MOCK_METHOD(int, num_gpu,
                     (int), (const, override));
 
-        MOCK_METHOD(double, ras_reset_count,
+        MOCK_METHOD(double, ras_reset_count_correctable,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(double, ras_programming_errcount,
+        MOCK_METHOD(double, ras_programming_errcount_correctable,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(double, ras_driver_errcount,
+        MOCK_METHOD(double, ras_driver_errcount_correctable,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(double, ras_compute_errcount,
+        MOCK_METHOD(double, ras_compute_errcount_correctable,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(double, ras_noncompute_errcount,
+        MOCK_METHOD(double, ras_noncompute_errcount_correctable,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(double, ras_cache_errcount,
+        MOCK_METHOD(double, ras_cache_errcount_correctable,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(double, ras_display_errcount,
+        MOCK_METHOD(double, ras_display_errcount_correctable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_reset_count_uncorrectable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_programming_errcount_uncorrectable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_driver_errcount_uncorrectable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_compute_errcount_uncorrectable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_noncompute_errcount_uncorrectable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_cache_errcount_uncorrectable,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, ras_display_errcount_uncorrectable,
                     (int, unsigned int, int), (const, override));
 
         MOCK_METHOD(double, frequency_status,

@@ -139,13 +139,22 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_CALL(*m_levelzero, temperature_domain_count(dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
 
         for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
-            EXPECT_CALL(*m_levelzero, ras_reset_count(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
-            EXPECT_CALL(*m_levelzero, ras_programming_errcount(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
-            EXPECT_CALL(*m_levelzero, ras_driver_errcount(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
-            EXPECT_CALL(*m_levelzero, ras_compute_errcount(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
-            EXPECT_CALL(*m_levelzero, ras_noncompute_errcount(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
-            EXPECT_CALL(*m_levelzero, ras_cache_errcount(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
-            EXPECT_CALL(*m_levelzero, ras_display_errcount(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_reset_count_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_programming_errcount_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_driver_errcount_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_compute_errcount_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_noncompute_errcount_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_cache_errcount_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_display_errcount_correctable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+
+
+            EXPECT_CALL(*m_levelzero, ras_reset_count_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_programming_errcount_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_driver_errcount_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_compute_errcount_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_noncompute_errcount_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_cache_errcount_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, ras_display_errcount_uncorrectable(dev_idx, MockLevelZero::M_DOMAIN_ALL, sub_idx)).WillOnce(Return(value + offset));
 
             EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset));
             EXPECT_CALL(*m_levelzero, frequency_efficient(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset + num_gpu_subdevice*10));
@@ -166,13 +175,21 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_reset_count(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_programming_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_driver_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_compute_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_noncompute_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_cache_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_EQ(value + sub_idx, m_device_pool.ras_display_errcount(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_reset_count_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_programming_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_driver_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_compute_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_noncompute_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_cache_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_display_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_reset_count_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_programming_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_driver_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_compute_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_noncompute_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_cache_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ(value + sub_idx, m_device_pool.ras_display_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
 
         EXPECT_EQ(value + sub_idx, m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_EQ(value + sub_idx + num_gpu_subdevice * 10, m_device_pool.frequency_efficient(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
@@ -224,13 +241,22 @@ TEST_F(LevelZeroDevicePoolTest, domain_error)
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
     //RAS
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_reset_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_programming_errcount(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID,"Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_driver_errcount(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_compute_errcount(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_noncompute_errcount(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_cache_errcount(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_display_errcount(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_reset_count_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_programming_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID,"Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_driver_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_compute_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_noncompute_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_cache_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_display_errcount_correctable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_reset_count_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_programming_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID,"Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_driver_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_compute_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_noncompute_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_cache_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.ras_display_errcount_uncorrectable(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+
 
     //Frequency
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
