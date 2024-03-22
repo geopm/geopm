@@ -1102,7 +1102,7 @@ TEST_F(MSRIOGroupTest, allowlist)
             scoped_plugin_path.write_file("msr_test.json", contents);
         }
 
-        std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
+        std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX, *m_topo, m_msrio);
         std::istringstream iss(allowlist);
         std::getline(iss, line);// throw away title line
         while (std::getline(iss, line)) {
