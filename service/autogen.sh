@@ -26,4 +26,5 @@ for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP; do
     fi
 done
 
+python3 geopmdpy/schemas.py docs/json_schemas
 autoreconf -i -f

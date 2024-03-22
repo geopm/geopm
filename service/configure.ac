@@ -543,15 +543,10 @@ AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
-AC_SUBST_FILE([JSON_SCHEMA_ACTIVE_SESSIONS])
-JSON_SCHEMA_ACTIVE_SESSIONS=docs/json_schemas/active_sessions.schema.json
-AC_SUBST_FILE([JSON_SCHEMA_CONST_CONFIG_IO])
-JSON_SCHEMA_CONST_CONFIG_IO=docs/json_schemas/const_config_io.schema.json
-
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm-service.spec geopmdpy/version.py geopmdpy/schemas.py debian/changelog])
+AC_CONFIG_FILES([Makefile geopm-service.spec debian/changelog])
 AC_OUTPUT
 
 # ============================================================================
