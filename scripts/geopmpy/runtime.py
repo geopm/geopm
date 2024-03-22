@@ -50,6 +50,8 @@ def run(server_address, db_path, duration, agent, profile):
             report_command = "INSERT INTO report VALUES(?,?,?,?,?,?,?)"
             stats_command = "INSERT INTO stats VALUES(?,?,?,?,?,?,?,?,?)"
             for loop_idx in TimedLoop(slow_period, num_period):
+                if loop_idx == 0:
+                    continue
                 report_list = rt_proxy.GetReport(request)
                 report_values = []
                 stats_values = []

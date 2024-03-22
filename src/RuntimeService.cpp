@@ -511,7 +511,7 @@ namespace geopm {
         : m_policy_struct(policy_struct)
         , m_report_time({{0, 0}})
     {
-
+        geopm_time(&m_report_time)
     }
 
     ::grpc::Status RuntimeServiceImp::SetPolicy(::grpc::ServerContext* context,
