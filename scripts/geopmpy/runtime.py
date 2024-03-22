@@ -85,21 +85,21 @@ Copyright (c) 2015 - 2024, Intel Corporation. All rights reserved.
     err = 0
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-v', '--version', action='store_true', default=False,
-                        help='Display version information')
+                        help='show version information and exit')
     parser.add_argument('-s', '--runtime-server', type=str, default='localhost:8080',
-                        help='Server running leading geopmrtd daemon')
+                        help='server running leading geopmrtd daemon')
     parser.add_argument('-d', '--database', type=str, default='geopmrtd.sqlite3',
-                        help='Path to sqlite3 database file where records will be stored')
+                        help='path to sqlite3 database file where records will be stored')
     parser.add_argument('-t', '--time', type=float, default=0.0,
-                        help='Total run time of the session to be opened in seconds (runs until signaled with 0)')
+                        help='total run time of the session to be opened in seconds, if not specified run until signaled')
     parser.add_argument('-p', '--sample-period', type=float, default=0.01,
-                        help='Run remote sampling periodically with the specified period in seconds')
+                        help='run remote sampling periodically with the specified period in seconds')
     parser.add_argument('-r', '--report-period', type=float, default=1,
-                        help='Collect reports from remote systems periodically with the specified period in seconds')
+                        help='collect reports from remote systems periodically with the specified period in seconds')
     parser.add_argument('-a', '--agent', type=str, default='monitor',
-                        help='Name of agent algorithm to run on remote system')
+                        help='name of agent algorithm to run on remote system')
     parser.add_argument('-n', '--profile', type=str, default='',
-                        help='Name stored with records in DB that can be used for selection')
+                        help='name stored with records in database that can be used for selection')
     args = parser.parse_args()
     if (args.version):
         print(verion_str)
