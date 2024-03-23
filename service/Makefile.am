@@ -158,6 +158,7 @@ EXTRA_DIST = .gitignore \
              docs/json_schemas/sysfs_attributes.schema.json \
              requirements.txt \
              pyproject.toml \
+             setup.py \
              src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
