@@ -419,10 +419,6 @@ $(sysfs_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_sysfs_json/g" \
 	src/json_data.cpp.in > $@
 
-$(abs_srcdir)/geopmdpy/version.py:
-# Move version.py into source for out of place builds
-	cp geopmdpy/version.py $@
-
 
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
