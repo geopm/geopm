@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+export PYBUILD_NAME=geopmdpy
+
 DESTDIR = $(CURDIR)/debian/tmp
 prefix = /usr
 SOURCES_DIR = $(CURDIR)/../SOURCES
