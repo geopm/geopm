@@ -1,0 +1,7 @@
+usr/bin/geopmaccess
+usr/bin/geopmd
+usr/bin/geopmsession
+usr/lib/python*/site-packages/geopmdpy-*.egg-info
+usr/lib/python*/site-packages/geopmdpy-*.egg-info/*
+usr/lib/python*/site-packages/geopmdpy/*.py
+usr/lib/python*/site-packages/geopmdpy/__pycache__/*.pyc

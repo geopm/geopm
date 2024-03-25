@@ -1,0 +1,48 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=geopmdpy
+
+DESTDIR = $(CURDIR)/debian/tmp
+prefix = /usr
+SOURCES_DIR = $(CURDIR)/../SOURCES
+
+DPKG_EXPORT_BUILDFLAGS := 1
+include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/buildtools.mk
+include /usr/share/dpkg/architecture.mk
+
+%:
+	dh $@ --with  python3 --buildsystem=pybuild
+
+override_dh_auto_configure:
+	test -f configure || ./autogen.sh
+	if [ "$(DEB_BUILD_ARCH)" != "amd64" ]; then CPUID_OPTION="--disable-cpuid"; fi; \
+	./configure \
+          --prefix=$(prefix) \
+          --includedir=$(prefix)/include \
+          --datadir=$(prefix)/share \
+          --mandir=$(prefix)/share/man \
+          --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
+          --with-bash-completion-dir=/etc/bash_completion.d \
+          --enable-nvml \
+          $(CPUID_OPTION)
+
+
+override_dh_auto_test:
+	# make check # TODO Fix issue #2999
+
+override_dh_auto_build:
+	make -j
+
+override_dh_auto_install:
+	make DESTDIR=$(DESTDIR) install
+	install -Dp -m644 geopm.service $(DESTDIR)$(prefix)/lib/systemd/system/geopm.service
+	install -Dp -m644 io.github.geopm.conf $(DESTDIR)$(prefix)/share/dbus-1/system.d/io.github.geopm.conf
+	install -Dp -m644 io.github.geopm.xml $(DESTDIR)$(prefix)/share/dbus-1/interfaces/io.github.geopm.xml
+	mkdir -p -m 711 $(DESTDIR)/etc/geopm
+	rm -f $(DESTDIR)$(prefix)/lib/*/libgeopmd.la
+	install -d $(DESTDIR)$(prefix)/sbin
+	ln -s -r $(DESTDIR)$(prefix)/sbin/service $(DESTDIR)$(prefix)/sbin/rcgeopm
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
