@@ -104,6 +104,9 @@ def launch(app_conf, args, experiment_cli_args):
 
     mach = machine.init_output_dir(args.output_dir)
 
+    if mach.num_gpu() == 0 and args.min_gpu_frequency is not None and args.max_gpu_frequency is not None:
+        raise KeyError("GPU frequency sweep specified on system with no GPUs.")
+
     core_freq_range = frequency_sweep.setup_frequency_bounds(mach,
                                                              args.min_frequency,
                                                              args.max_frequency,

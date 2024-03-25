@@ -127,7 +127,6 @@ namespace geopm
         if (std::isnan(freq)) {
             freq = m_max_freq;
         }
-
         if (freq > m_max_freq) {
             freq = m_max_freq;
         }
