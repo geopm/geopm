@@ -1,4 +1,0 @@
-prune *
-exclude .gitignore autogen.sh configure.ac Makefile.am geopm-service.spec.in
-graft geopmdpy
-graft geopmdpy_test
