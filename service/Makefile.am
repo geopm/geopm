@@ -159,6 +159,7 @@ EXTRA_DIST = .gitignore \
              requirements.txt \
              pyproject.toml \
              setup.py \
+             MANIFEST.in \
              src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
