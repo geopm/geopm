@@ -14,6 +14,14 @@ from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
 from geopmdpy import system_files
+from . import gffi
+from . import error
+
+gffi.gffi.cdef("""
+int geopm_allowlist(size_t result_max,
+                    char *result);
+""")
+_dl = gffi.get_dl_geopmd()
 
 
 class DirectAccessProxy:
@@ -301,8 +309,26 @@ class Access:
         """
         return [ll.strip() for ll in fid.readlines() if ll.strip()]
 
+    def get_msr_safe_allowlist(self):
+        """Generate an allowlist for msr-safe
+
+        Generates the minimal msr-safe allowlist required for
+        GEOPM to access all the expected signals and controls.
+
+        Returns:
+            str: msr-safe allowlist string.
+
+        """
+        global _dl
+        name_max = 4096
+        allowlist_cstr = gffi.gffi.new("char[]", name_max)
+        err = _dl.geopm_allowlist(name_max, allowlist_cstr)
+        if err < 0:
+            raise RuntimeError('geopm_allowlist() failed: {}'.format(error.message(err)))
+        return gffi.gffi.string(allowlist_cstr).decode()
+
     def run(self, is_write, is_all, is_control, group, is_default, is_delete,
-            is_dry_run, is_force, is_edit, is_log):
+            is_dry_run, is_force, is_edit, is_log, is_msr_safe):
         """Execute geopmaccess command line interface
 
         The inputs to this method are parsed from the command line
@@ -337,6 +363,7 @@ class Access:
             is_force (bool): True if error checking is disabled
             is_log (bool): True if log user requested a log of requests
                            since service restart
+            is_msr_safe (bool): True if user requested msr-safe allowlist
 
         """
         output = None
@@ -351,14 +378,16 @@ class Access:
         else:
             is_group = True
 
-        if (is_all or is_log) and (is_write or is_edit or is_delete):
-            raise RuntimeError('Option -a/--all or -l/--log are not valid when writing a configuration')
+        if (is_all or is_log or is_msr_safe) and (is_write or is_edit or is_delete):
+            raise RuntimeError('Option -a/--all or -l/--log or -s/--msr-safe are not valid when '
+                               'writing a configuration')
         if is_dry_run and (is_edit or is_delete):
             raise RuntimeError('Option -n/--dry-run not valid with -e/--edit or -D/--delete')
         if is_force and is_edit:
             raise RuntimeError('Option -F/--force is not valid with -e/--edit')
-        if is_group and (is_default or is_all or is_log):
-            raise RuntimeError('Option -g/--group is not valid with -u/--default or -a/--all or -l/--log')
+        if is_group and (is_default or is_all or is_log or is_msr_safe):
+            raise RuntimeError('Option -g/--group is not valid with -u/--default or -a/--all or -l/--log '
+                               ' or -s/--msr-safe')
         if not (is_edit or is_write or is_delete) and (is_dry_run or is_force):
             raise RuntimeError('-n/--dry-run or -F/--force not valid when reading')
 
@@ -388,11 +417,14 @@ class Access:
                     output = self.get_group_controls(group)
                 else:
                     output = self.get_group_signals(group)
+            elif is_msr_safe:
+                output = self.get_msr_safe_allowlist()
             else:
                 if is_control:
                     output = self.get_user_controls()
                 else:
                     output = self.get_user_signals()
+
         return output
 
 def main():
@@ -407,15 +439,17 @@ def main():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Command applies to controls not signals')
-    parser_group_ugal = parser.add_mutually_exclusive_group(required=False)
-    parser_group_ugal.add_argument('-u', '--default', dest='default', action='store_true', default=False,
-                                   help='Print the default user access list')
-    parser_group_ugal.add_argument('-g', '--group', dest='group', type=str, default=None,
-                                   help='Read or write the access list for a specific Unix GROUP')
-    parser_group_ugal.add_argument('-a', '--all', dest='all', action='store_true', default=False,
-                                   help='Print all signals or controls supported by the service system')
-    parser_group_ugal.add_argument('-l', '--log', action='store_true', default=False,
-                                   help='Print list of used signals or controls used since last restart of the service')
+    parser_group_ugals = parser.add_mutually_exclusive_group(required=False)
+    parser_group_ugals.add_argument('-u', '--default', dest='default', action='store_true', default=False,
+                                    help='Print the default user access list')
+    parser_group_ugals.add_argument('-g', '--group', dest='group', type=str, default=None,
+                                    help='Read or write the access list for a specific Unix GROUP')
+    parser_group_ugals.add_argument('-a', '--all', dest='all', action='store_true', default=False,
+                                    help='Print all signals or controls supported by the service system')
+    parser_group_ugals.add_argument('-l', '--log', action='store_true', default=False,
+                                    help='Print list of used signals or controls used since last restart of the service')
+    parser_group_ugals.add_argument('-s', '--msr-safe', dest='msr_safe', action='store_true', default=False,
+                                    help='Generate an allowlist for msr-safe')
     parser_group_weD = parser.add_mutually_exclusive_group(required=False)
     parser_group_weD.add_argument('-w', '--write', dest='write', action='store_true', default=False,
                                   help='Use standard input to write an access list. Implies -u unless -g is provided.')
@@ -443,7 +477,7 @@ def main():
         acc = Access(geopm_proxy)
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
-                         args.edit, args.log)
+                         args.edit, args.log, args.msr_safe)
         if output:
             print(output)
     except RuntimeError as ee:
