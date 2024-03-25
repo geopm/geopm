@@ -66,12 +66,14 @@ compile_commands.json
 /integration/apps/nekbone/nekbone/
 /integration/apps/pennant/PENNANT/
 /integration/apps/pennant/pennant_1_0_1.tgz
+/integration/apps/arithmetic_intensity/ARITHMETIC_INTENSITY*.tgz
 /integration/test/*.config
 /integration/test/geopm_test_integration
 /integration/test/geopm_test_integration.pyc
 /integration/test/*.h5
 /integration/test/*.log
 /integration/test/*.report
+/integration/test/test_cores_rebalance_output/
 /integration/test/test_ee_short_region_slop
 /integration/test/test_ee_timed_scaling_mix
 /integration/test/test_enforce_policy

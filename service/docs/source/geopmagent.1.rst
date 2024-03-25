@@ -109,4 +109,5 @@ See Also
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
 :doc:`geopm_agent_ffnet(7) <geopm_agent_ffnet.7>`,
+:doc:`geopm_agent_frequency_balancer(7) <geopm_agent_frequency_balancer.7>`,
 :doc:`geopm_agent(3) <geopm_agent.3>`

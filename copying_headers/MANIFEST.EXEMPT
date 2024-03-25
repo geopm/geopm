@@ -122,6 +122,7 @@ service/docs/source/geopm_agent_gpu_activity.7.rst
 service/docs/source/geopm_agent_monitor.7.rst
 service/docs/source/geopm_agent_power_balancer.7.rst
 service/docs/source/geopm_agent_power_governor.7.rst
+service/docs/source/geopm_agent_frequency_balancer.7.rst
 service/docs/source/geopmbench.1.rst
 service/docs/source/geopmctl.1.rst
 service/docs/source/geopm_ctl.3.rst
