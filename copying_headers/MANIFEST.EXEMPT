@@ -69,6 +69,7 @@ integration/apps/pennant/README.md
 integration/apps/qe/README.md
 integration/apps/README.md
 integration/config/README.md
+integration/experiment/ffnet/README.md
 integration/experiment/frequency_sweep/README.md
 integration/experiment/gpu_frequency_sweep/README.md
 integration/experiment/monitor/README.md

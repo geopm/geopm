@@ -13,7 +13,9 @@ Description
     the schema domainnetmap_neural_net.schema.json and a region hint 
     recommender JSON file described by the schema
     regionhintrecommender_fmap.schema.json. Without these inputs, the agent 
-    will throw an error. The autogeneration of these files is future work.
+    will throw an error. The autogeneration of these files can be achieved 
+    using scripts included in the ``$GEOPM_SOURCE/integration/experiment/ffnet`` 
+    directory.
 
 The FFNet agent adjusts frequencies per domain for the goal of improved energy
 efficiency with minimal performance loss. The agent instantiates a neural net
@@ -24,15 +26,15 @@ determines the degree to which the frequency recommender is adverse to potential
 reducing performance by reducing frequency to save energy.
 
 The neural net for region classification must be provided in a JSON configuration
-file pointed to by environment variables GEOPM_CPU_NN_PATH and/or GEOPM_GPU_NN_PATH, 
-which must comply with the following schema:
+file pointed to by environment variables ``GEOPM_CPU_NN_PATH`` and/or 
+``GEOPM_GPU_NN_PATH``, which must comply with the following schema:
 
 .. literalinclude:: ../json_schemas/domainnetmap_neural_net.schema.json
     :language: json
 
 The per-region frequency recommendations must be provided in a JSON configuration
-file pointed to by environment variables GEOPM_CPU_FMAP_PATH and/or GEOPM_GPU_FMAP_PATH, 
-which must comply with the following schema:
+file pointed to by environment variables ``GEOPM_CPU_FMAP_PATH`` and/or 
+``GEOPM_GPU_FMAP_PATH``, which must comply with the following schema:
 
 .. literalinclude:: ../json_schemas/regionhintrecommender_fmap.schema.json
     :language: json
@@ -71,6 +73,35 @@ Policy Requirements
 -------------------
 
 The ``PERF_ENERGY_BIAS`` must be between 0 and 1.
+
+Required JSON Files
+--------------------
+
+To generate the neural network and frequency recommendation files, the following procedure
+can be followed. Note that all python files referenced can be found in the directory
+``$GEOPM_SOURCE/integration/experiment/ffnet`` unless otherwise specified.
+
+# Run the ``neural_net_sweep.py`` on microbenchmarks of interest. Some microbenchmarks
+  that are supported in the integration infrastructure and have been demonstrated to 
+  be useful include:
+
+  * [CPU] Arithmetic Intensity Benchmark
+  * [CPU] geopmbench
+  * [GPU] parres dgemm
+  * [GPU] parres stream
+
+# Run ``gen_hdf_from_fsweep.py`` to generate HDF files from the frequency sweep reports
+  and traces
+
+# Run ``gen_neural_net.py`` to generate the neural net(s). CPU/GPU nets will be generated
+  automatically based on the existence of required trace signals for each domain.
+
+# Run ``gen_region_parameters.py`` to generate the region frequency recommendations.
+  CPU recommendations will be generated in all cases. GPU recommendations will be 
+  generated automatically based on the existence of the gpu-frequency field in the report.
+
+# Before running the FFNet agent, the environment variables detailed above must be set
+  to the paths of the neural net and frequency recommendation files.
 
 Report Extensions
 -----------------
