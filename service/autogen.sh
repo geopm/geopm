@@ -9,14 +9,24 @@ for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP; do
         cp ../$ff .
     fi
 done
-python3 -m build --sdist
-if [ ! -e VERSION ]; then
-    PYTHONPATH=: \
-    python3 -c "from geopmdpy.version import __version__; vv=__version__.replace('.dev','+dev', 1).replace('+g','g', 1); vv=vv[:vv.rfind('.d20')]; print(vv)" > VERSION || \
-    echo "0.0.0" > VERSION && \
-    echo "WARNING:  VERSION file does not exist and git describe failed, setting version to 0.0.0" 1>&2
+# Enable version override
+if [ -f VERSION_OVERRIDE ]; then
+   cp VERSION_OVERRIDE VERSION
 fi
-# Recreate the JSON schema files in case they have changed, remember to git commit the generated files if they have.
+
+# Create python source distribution (provides geopmdpy/version.py)
+python3 -m build --sdist
+# Recreate the JSON schema files in case they have changed,
+# remember to git commit the generated files if they have.
 python3 geopmdpy/schemas.py docs/json_schemas
+
+# Create VERSION file
+if [ ! -e VERSION ]; then
+    PYTHONPATH=: python3 -c "from geopmdpy.version import __version__; vv=__version__.replace('.dev','+dev', 1).replace('+g','g', 1); vv=vv[:vv.rfind('.d20')]; print(vv)" > VERSION
+    if [ $? -ne 0 ]; then
+        echo "WARNING:  VERSION file does not exist and geopmdpy/version.py failed, setting version to 0.0.0" 1>&2
+        echo "0.0.0" > VERSION
+    fi
+fi
 # Create configure script
 autoreconf -i -f
