@@ -19,6 +19,12 @@
 #include "geopm_time.h"
 #include "geopm/Cpuid.hpp"
 
+extern "C"
+{
+    int geopm_allowlist(size_t result_max,
+                        char *result);
+}
+
 namespace geopm
 {
     class MSRIO;

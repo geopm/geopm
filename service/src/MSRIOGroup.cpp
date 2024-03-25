@@ -1847,3 +1847,25 @@ namespace geopm
         return result;
     }
 }
+
+
+extern "C" {
+    int geopm_allowlist(size_t result_max, char *result)
+    {
+        int err = 0;
+        result[result_max - 1] = '\0';
+        try {
+            std::string allowlist = geopm::MSRIOGroup::msr_allowlist(geopm_read_cpuid());
+            strncpy(result, allowlist.c_str(), result_max);
+            if (result[result_max - 1] != '\0') {
+                result[result_max - 1] = '\0';
+                err = GEOPM_ERROR_INVALID;
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_INVALID;
+        }
+        return err;
+    }
+}
