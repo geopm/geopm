@@ -132,6 +132,11 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/DomainControlTest.setup_batch \
               test/gtest_links/DomainControlTest.write \
               test/gtest_links/DomainControlTest.write_batch \
+              test/gtest_links/DrmSysfsDriverTest.iogroup_plugin_name_matches_driver_name \
+              test/gtest_links/DrmSysfsDriverTest.domain_type_is_gpu_chip \
+              test/gtest_links/DrmSysfsDriverTest.attribute_path \
+              test/gtest_links/DrmSysfsDriverTest.signal_parse \
+              test/gtest_links/DrmSysfsDriverTest.control_gen \
               test/gtest_links/ExceptionTest.check_ronn \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ExceptionTest.last_message \
@@ -450,6 +455,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/DCGMIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
+                          test/DrmSysfsDriverTest.cpp \
                           test/RatioSignalTest.cpp \
                           test/DomainControlTest.cpp \
                           test/ExceptionTest.cpp \
