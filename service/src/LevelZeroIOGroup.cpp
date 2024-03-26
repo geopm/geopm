@@ -687,18 +687,21 @@ namespace geopm
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
                                      signal_domain_type(sv.first)); ++domain_idx) {
                 try {
-                    double init_setting = 0;
-                    init_setting = sv.second.m_devpool_func(domain_idx);
-                    if (init_setting == -1) {
-                        unsupported_signal_names.push_back(sv.first);
+                    // Skip the RAS counters because they are very slow
+                    // (0.5 seconds to read each).
+                    // Note: only check signals on GPU zero.
+                    if (domain_idx == 0 && sv.first.find("_RAS_") == std::string::npos) {
+                        double init_setting = sv.second.m_devpool_func(domain_idx);
+                        if (init_setting == -1) {
+                            unsupported_signal_names.push_back(sv.first);
+                            break;
+                        }
                     }
-                    else {
-                        std::shared_ptr<Signal> signal =
-                                std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
-                                                                  domain_idx,
-                                                                  sv.second.m_scalar);
-                        result.push_back(signal);
-                    }
+                    std::shared_ptr<Signal> signal =
+                            std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
+                                                              domain_idx,
+                                                              sv.second.m_scalar);
+                    result.push_back(signal);
                 }
                 catch (const geopm::Exception &ex) {
                     if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
