@@ -119,18 +119,19 @@ access can also be managed by the system administrator using the GEOPM
 Service, if active.
 
 The msr-safe kernel driver code can be found `here
-<https://github.com/LLNL/msr-safe>`__.  It's distributed with the
-`OpenSUSE Hardware Repository
-<https://download.opensuse.org/repositories/hardware/>`_ and can be
-installed from the RPMs provided there.
+<https://github.com/LLNL/msr-safe>`__.  It's distributed with the `OpenSUSE
+Hardware Repository <https://download.opensuse.org/repositories/hardware/>`_
+and can be installed from the RPMs provided there.  For more information about
+the necessary configuration of msr-safe see: :ref:`geopmaccess.1:Configuring
+msr-safe`.
 
 In the absence of both the msr-safe kernel driver and the GEOPM
 Systemd Service, root users may access MSRs using the standard MSR
 driver. This can be loaded with the command:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-modprobe msr
+    modprobe msr
 
 The standard MSR driver must also be loaded to enable MSR access
 through the GEOPM Systemd Service when msr-safe is not installed.

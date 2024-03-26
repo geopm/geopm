@@ -12,7 +12,6 @@ Read Access List
 
     geopmaccess [-c] [-u | -g GROUP | -a | -l]
 
-
 Write Access List
 ~~~~~~~~~~~~~~~~~
 
@@ -27,14 +26,12 @@ Edit Access List
 
     geopmaccess -e [-c] [-g GROUP]
 
-
 Remove Access List
 ~~~~~~~~~~~~~~~~~~
 
 .. code-block:: none
 
     geopmaccess -D [-c] [-g GROUP]
-
 
 
 Get Help or Version
@@ -70,6 +67,7 @@ Options
                 names
 -l, --log       Print a log of all signals or controls that have been accessed
                 since the service was last restarted.
+-s, --msr-safe  Print the minimal msr-safe allowlist required by GEOPM.
 -h, --help      Print brief summary of the command line usage information, then
                 exit
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
@@ -349,6 +347,50 @@ and combine access lists when writing to a shared mount point.
     sudo geopmaccess --write --force < all-signals.txt
     sudo geopmaccess --write --controls --force < all-controls.txt
 
+Configuring msr-safe
+~~~~~~~~~~~~~~~~~~~~
+
+In order for the GEOPM service to be able to leverage the msr-safe
+kernel driver for fast MSR access, an allowlist must be put in place.
+Without the allowlist, msr-safe will not provide access to MSRs even
+for privileged users.  For more information see: :ref:`requires:The MSR
+Driver`.
+
+The following example demonstrates the necessary commands to set the
+msr-safe allowlist using ``geopmaccess``:
+
+.. code-block:: bash
+
+    # Run the following with root or sudo:
+    modprobe msr
+    geopmaccess -s > allowlist.txt
+    cat allowlist.txt > /dev/cpu/msr_allowlist
+    rmmod msr
+
+If you have installed msr-safe via RPM, it is likely you have the
+msr-safe.service running via systemd that will try to set the
+allowlist on service start.  In order to have msr-safe.service use the
+allowlist you have just created, you must modify the msr-safe entry in
+sysconfig to set the ``ALLOWLIST`` environment variable.
+
+First, place ``allowlist.txt`` under the default path for allowlists
+from the RPM install: ``/usr/share/msr-safe/allowlists``.  Next,
+create ``/etc/sysconfig/msr-safe`` with the following contents:
+
+.. code-block:: bash
+
+    ALLOWLIST=<PATH_TO_ALLOWLIST_IN_USR_SHARE>
+
+Afterward, use ``systemctl restart msr-safe`` to restart that
+service and the manually verify that the allowlist was set properly.
+This can be done by issuing ``cat /dev/cpu/msr-allowlist`` and
+comparing the entries against ``allowlist.txt``.
+
+More information:
+`msr-safe.service
+<https://github.com/LLNL/msr-safe/blob/main/rpm/msr-safe.service>`_
+`msr-safe.sh
+<https://github.com/LLNL/msr-safe/blob/main/rpm/msr-safe.sh>`_
 
 Exit Status
 -----------
