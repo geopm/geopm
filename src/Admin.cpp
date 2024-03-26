@@ -24,18 +24,15 @@ namespace geopm
 {
     Admin::Admin()
         : Admin(geopm::environment().default_config_path(),
-                geopm::environment().override_config_path(),
-                geopm_read_cpuid())
+                geopm::environment().override_config_path())
     {
 
     }
 
     Admin::Admin(const std::string &default_config_path,
-                 const std::string &override_config_path,
-                 int cpuid_local)
+                 const std::string &override_config_path)
         : m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
-        , m_cpuid_local(cpuid_local)
     {
 
     }
@@ -52,21 +49,16 @@ namespace geopm
                                        EINVAL, __FILE__, __LINE__);
             }
             std_out << run(par.is_set("default"),
-                           par.is_set("override"),
-                           par.is_set("allowlist"),
-                           std::stoi(par.get_value("cpuid"), NULL, 16));
+                           par.is_set("override"));
         }
     }
 
     std::string Admin::run(bool do_default,
-                           bool do_override,
-                           bool do_allowlist,
-                           int cpuid)
+                           bool do_override)
     {
         int action_count = 0;
         action_count += do_default;
         action_count += do_override;
-        action_count += do_allowlist;
         if (action_count > 1) {
             throw geopm::Exception("geopmadmin: -d, -o and -a must be used exclusively",
                                    EINVAL, __FILE__, __LINE__);
@@ -78,9 +70,6 @@ namespace geopm
         }
         else if (do_override) {
             result = override_config();
-        }
-        else if (do_allowlist) {
-            result = allowlist(cpuid);
         }
         else {
             result = check_node();
@@ -95,12 +84,8 @@ namespace geopm
                           "print the path of the GEOPM default configuration file");
         result.add_option("override", 'o', "config-override", false,
                           "print the path of the GEOPM override configuration file");
-        result.add_option("allowlist", 'a', "msr-allowlist", false,
-                          "print the minimum msr-safe allowlist required by GEOPM");
-        result.add_option("cpuid", 'c', "cpuid", "-1",
-                          "cpuid in hexadecimal for allowlist (default is current platform)");
         result.add_example_usage("");
-        result.add_example_usage("[--config-default|--config-override|--msr-allowlist] [--cpuid]");
+        result.add_example_usage("[--config-default|--config-override]");
         return result;
     }
 
@@ -112,14 +97,6 @@ namespace geopm
     std::string Admin::override_config(void)
     {
         return m_override_config_path + "\n";
-    }
-
-    std::string Admin::allowlist(int cpuid)
-    {
-        if (cpuid == -1) {
-            cpuid = m_cpuid_local;
-        }
-        return geopm::MSRIOGroup::msr_allowlist(cpuid);
     }
 
     std::vector<std::string> Admin::dup_keys(const std::map<std::string, std::string> &map_a,
