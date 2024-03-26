@@ -509,7 +509,7 @@ namespace geopm
             // Allocate size for a 2D vector to store all the RAS domain handles for errorsets:
             //       m_num_subdevice = number of subdevices
             //       ZES_RAS_ERROR_TYPE_FORCE_UINT32 = number of RAS error types
-	    m_devices.at(device_idx).subdevice.ras_domain.resize(m_devices.m_num_subdevice,
+	    m_devices.at(device_idx).subdevice.ras_domain.resize(m_devices.at(device_idx).m_num_subdevice,
 		     std::vector<zes_ras_handle_t>(ZES_RAS_ERROR_TYPE_FORCE_UINT32));
 
             // Iterate over errorset handles
@@ -530,7 +530,7 @@ namespace geopm
 #endif
                 }
 		// Check if the RAS errorset handle maps to a known subdevice
-		else if (property.subdeviceId >= m_num_subdevice) {
+		else if (property.subdeviceId >= m_devices.at(device_idx).m_num_subdevice) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A RAS domain handle "
                               << "was found to map to an unaccounted subdevice #"
@@ -633,8 +633,9 @@ namespace geopm
     double LevelZeroImp::ras_reset_count_correctable(unsigned int l0_device_idx,
                                          int l0_domain, int l0_domain_idx) const
     {
+	// TODO RAS delete the comments
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_RESET];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_RESET,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
@@ -643,7 +644,7 @@ namespace geopm
                                                   int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
@@ -652,7 +653,7 @@ namespace geopm
                                              int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DRIVER_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DRIVER_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
@@ -661,7 +662,7 @@ namespace geopm
                                               int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_COMPUTE_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
@@ -670,8 +671,8 @@ namespace geopm
                                                  int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
-                                         ZES_RAS_ERROR_CAT_NONCOMPUTE_ERRORS,
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
@@ -679,7 +680,7 @@ namespace geopm
                                             int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_CACHE_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_CACHE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
@@ -688,7 +689,7 @@ namespace geopm
                                               int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DISPLAY_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DISPLAY_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
@@ -701,7 +702,7 @@ namespace geopm
                                          int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_RESET];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_RESET,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
@@ -710,7 +711,7 @@ namespace geopm
                                                   int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
@@ -719,7 +720,7 @@ namespace geopm
                                              int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DRIVER_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DRIVER_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
@@ -728,7 +729,7 @@ namespace geopm
                                               int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_COMPUTE_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
@@ -737,8 +738,8 @@ namespace geopm
                                                  int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
-                                         ZES_RAS_ERROR_CAT_NONCOMPUTE_ERRORS,
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
 
@@ -746,7 +747,7 @@ namespace geopm
                                             int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_CACHE_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_CACHE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
@@ -755,30 +756,24 @@ namespace geopm
                                               int l0_domain, int l0_domain_idx) const
     {
         //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DISPLAY_ERRORS];
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DISPLAY_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
     }
 
 
 
-
-
-
-
-
-
     // RAS Helper function that extracts the errorset counters using the cached errorset handle
 
-    /*std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
+    /* TODO RAS : delete this signature: std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
                                                                                            int l0_domain,
                                                                                            int l0_domain_idx) const
 */
     uint64_t LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
                                              int l0_domain,
                                              int l0_domain_idx, 
-                                             zes_ras_error_type_t errortype, 
-                                             zes_ras_error_cat_t errorcat) const
+                                             zes_ras_error_cat_t errorcat,
+                                             zes_ras_error_type_t errortype) const 
     {
         zes_ras_state_t pState;
         zes_ras_handle_t handle = m_devices.at(l0_device_idx).

@@ -186,11 +186,11 @@ namespace geopm
                                                                                      int l0_domain,
                                                                                      int l0_domain_idx) const;
             */
-            uint64_t LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
+            uint64_t ras_status_helper(unsigned int l0_device_idx,
                                                      int l0_domain,
                                                      int l0_domain_idx, 
-                                                     zes_ras_error_type_t errortype,
-                                                     zes_ras_error_cat_t errorcat) const
+                                                     zes_ras_error_cat_t errorcat,
+                                                     zes_ras_error_type_t errortype) const;
 
             m_frequency_s frequency_status_helper(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const;
