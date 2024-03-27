@@ -254,8 +254,8 @@ fi
 )
 
 if test "x$enable_geopmd_local" = "x1"; then
-  GEOPMD_INCLUDE="$srcdir/service/src"
-  GEOPMD_LIBDIR="$srcdir/service/.libs"
+  GEOPMD_INCLUDE="$srcdir/../libgeopmd/include"
+  GEOPMD_LIBDIR="$srcdir/../libgeopmd/.libs"
   AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPMD_INCLUDE"
   LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
   AM_LDFLAGS="$AM_LDFLAGS -L$GEOPMD_LIBDIR"

@@ -84,7 +84,7 @@ all-local: $(all_local)
 
 dist_doc_DATA = COPYING \
                 COPYING-TPP \
-                README \
+                README.rst \
                 VERSION \
                 # end
 
@@ -93,7 +93,7 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.rst \
              ChangeLog \
              Makefile.am \
-             README.md \
+             README.rst \
              SECURITY.md \
              TODO \
              configure.ac \

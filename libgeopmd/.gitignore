@@ -40,7 +40,6 @@ compile_commands.json
 /integration/test/test_batch_perf
 /integration/test/test_batch_server
 /integration/test/test_invalid_values
-/libgeopmd.la
 /libgmock.a
 /libgtest.a
 /libtool

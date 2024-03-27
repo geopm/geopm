@@ -3,6 +3,7 @@
 *.gcda
 *.gcno
 *.lo
+*.la
 *.o
 *.mod
 *.pkl
