@@ -633,8 +633,6 @@ namespace geopm
     double LevelZeroImp::ras_reset_count_correctable(unsigned int l0_device_idx,
                                          int l0_domain, int l0_domain_idx) const
     {
-	// TODO RAS delete the comments
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_RESET];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_RESET,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
@@ -643,7 +641,6 @@ namespace geopm
     double LevelZeroImp::ras_programming_errcount_correctable(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
@@ -652,7 +649,6 @@ namespace geopm
     double LevelZeroImp::ras_driver_errcount_correctable(unsigned int l0_device_idx,
                                              int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DRIVER_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DRIVER_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
@@ -661,7 +657,6 @@ namespace geopm
     double LevelZeroImp::ras_compute_errcount_correctable(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_COMPUTE_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
@@ -670,7 +665,6 @@ namespace geopm
     double LevelZeroImp::ras_noncompute_errcount_correctable(unsigned int l0_device_idx,
                                                  int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
@@ -679,7 +673,6 @@ namespace geopm
     double LevelZeroImp::ras_cache_errcount_correctable(unsigned int l0_device_idx,
                                             int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_CACHE_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_CACHE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
@@ -688,20 +681,14 @@ namespace geopm
     double LevelZeroImp::ras_display_errcount_correctable(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DISPLAY_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DISPLAY_ERRORS,
                                          ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-
-
-
-
     double LevelZeroImp::ras_reset_count_uncorrectable(unsigned int l0_device_idx,
                                          int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_RESET];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_RESET,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -710,7 +697,6 @@ namespace geopm
     double LevelZeroImp::ras_programming_errcount_uncorrectable(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -719,7 +705,6 @@ namespace geopm
     double LevelZeroImp::ras_driver_errcount_uncorrectable(unsigned int l0_device_idx,
                                              int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DRIVER_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DRIVER_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -728,7 +713,6 @@ namespace geopm
     double LevelZeroImp::ras_compute_errcount_uncorrectable(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_COMPUTE_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -737,7 +721,6 @@ namespace geopm
     double LevelZeroImp::ras_noncompute_errcount_uncorrectable(unsigned int l0_device_idx,
                                                  int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -746,7 +729,6 @@ namespace geopm
     double LevelZeroImp::ras_cache_errcount_uncorrectable(unsigned int l0_device_idx,
                                             int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_CACHE_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_CACHE_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -755,7 +737,6 @@ namespace geopm
     double LevelZeroImp::ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const
     {
-        //return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DISPLAY_ERRORS];
         return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
                                          ZES_RAS_ERROR_CAT_DISPLAY_ERRORS,
                                          ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
@@ -764,11 +745,6 @@ namespace geopm
 
 
     // RAS Helper function that extracts the errorset counters using the cached errorset handle
-
-    /* TODO RAS : delete this signature: std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
-                                                                                           int l0_domain,
-                                                                                           int l0_domain_idx) const
-*/
     uint64_t LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
                                              int l0_domain,
                                              int l0_domain_idx, 
@@ -783,13 +759,6 @@ namespace geopm
                         "LevelZero::" + std::string(__func__) +
                         ": Sysman failed to get RAS counters",
                         __LINE__);
-
-        /*
-        std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> temp;
-        for (unsigned int err_idx = 0; err_idx < ZES_MAX_RAS_ERROR_CATEGORY_COUNT; err_idx++)
-            temp[err_idx] = pState.category[err_idx];
-        return temp;
-        */
 	return pState.category[errorcat];
     }
 
