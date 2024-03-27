@@ -121,45 +121,12 @@ EXTRA_DIST = .gitignore \
              debian/libgeopmd-dev.dirs \
              debian/libgeopmd-dev.install \
              debian/libgeopmd2.install \
-             debian/python3-geopmdpy.install \
              debian/rules \
              dox/blurb.md \
              dox/Doxyfile.in \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
-             geopmaccess \
-             geopmd \
-             geopmdpy/__init__.py \
-             geopmdpy/__main__.py \
-             geopmdpy/access.py \
-             geopmdpy/dbus_xml.py \
-             geopmdpy/error.py \
-             geopmdpy/gffi.py \
-             geopmdpy/loop.py \
-             geopmdpy/pio.py \
-             geopmdpy/restorable_file_writer.py \
-             geopmdpy/service.py \
-             geopmdpy/session.py \
-             geopmdpy/shmem.py \
-             geopmdpy/topo.py \
-             geopmdpy/schemas.py \
-             geopmdpy/system_files.py \
-             geopmdpy/version.py \
-             geopmsession \
-             docs/json_schemas/active_sessions.schema.json \
-             docs/json_schemas/const_config_io.schema.json \
-             docs/json_schemas/msrs.schema.json \
-             docs/json_schemas/saved_controls.schema.json \
-             docs/json_schemas/domainnetmap_neural_net.schema.json \
-             docs/json_schemas/geopmagent_policy.schema.json \
-             docs/json_schemas/geopmbench_config.schema.json \
-             docs/json_schemas/regionhintrecommender_fmap.schema.json \
-             docs/json_schemas/sysfs_attributes.schema.json \
-             requirements.txt \
-             pyproject.toml \
-             setup.py \
-             MANIFEST.in \
              src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
@@ -189,16 +156,6 @@ msr_cpp_files = \
                 src/msr_data_snb.cpp \
                 src/msr_data_spr.cpp \
                 # end
-EXTRA_DIST += \
-              docs/json_data/msr_data_arch.json \
-              docs/json_data/msr_data_hsx.json \
-              docs/json_data/msr_data_knl.json \
-              docs/json_data/msr_data_skx.json \
-              docs/json_data/msr_data_snb.json \
-              docs/json_data/msr_data_spr.json \
-              docs/json_data/sysfs_attributes_cpufreq.json \
-              src/json_data.cpp.in \
-	      # end
 
 # Sysfs JSON definitions. From each JSON file, generate a same-prefixed cpp file,
 # and use {driver}_sysfs_json as the variable identifier
@@ -207,9 +164,6 @@ EXTRA_DIST += \
 sysfs_cpp_files = \
 		  src/sysfs_attributes_cpufreq.cpp \
 		  #
-EXTRA_DIST += \
-	      docs/json_data/sysfs_attributes_cpufreq.json \
-	      #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
                        $(geopminclude_HEADERS) \
@@ -400,12 +354,6 @@ else
     EXTRA_DIST += $(io_uring_source_files)
 endif
 
-io.github.geopm.xml:
-# Update io.github.geopm.xml in case API documentation changes
-# Remove the file before executing target
-	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	$(PYTHON) -m geopmdpy.dbus_xml > $@
-
 $(msr_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
@@ -437,7 +385,7 @@ deb: dist
 	rm -rf geopm-service-$(VERSION)
 
 if !ENABLE_SANITIZERS
-checkprogs: gtest-checkprogs geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 else
 checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 endif
@@ -465,15 +413,8 @@ CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files)
 
 include test/Makefile.mk
 
-if !ENABLE_SANITIZERS
-include geopmdpy_test/Makefile.mk
-include integration/Makefile.mk
-endif
-
 include shell_completion/Makefile.mk
 
 include fuzz_test/Makefile.mk
-
-include docs/Makefile.mk
 
 .PHONY: $(PHONY_TARGETS)
