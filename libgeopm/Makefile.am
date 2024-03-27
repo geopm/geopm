@@ -461,7 +461,7 @@ check_PROGRAMS =
 check_LTLIBRARIES =
 noinst_PROGRAMS =
 noinst_LTLIBRARIES =
-TESTS = test_license.sh
+TESTS =
 
 PHONY_TARGETS = clean-local \
                 clean-local-coverage \

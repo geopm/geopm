@@ -1,1 +1,1 @@
-../service/test/MockServiceProxy.hpp
+../../libgeopmd/test/MockServiceProxy.hpp

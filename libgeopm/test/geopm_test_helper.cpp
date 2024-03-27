@@ -1,1 +1,1 @@
-../service/test/geopm_test_helper.cpp
+../../libgeopmd/test/geopm_test_helper.cpp
