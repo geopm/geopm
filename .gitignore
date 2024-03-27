@@ -9,6 +9,8 @@
 *.swp
 .gdb_history
 .libs/
+.deps/
+.dirstamp
 /gh-pages/
 /MANIFEST
 *.pyc

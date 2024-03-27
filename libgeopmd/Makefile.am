@@ -4,7 +4,7 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS += -I$(top_srcdir)/src \
+AM_CPPFLAGS += -I$(top_srcdir)/src -I$(top_srcdir)/include \
                -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(libdir)/geopm\" \
                -D_POSIX_C_SOURCE=200809L
 
@@ -15,36 +15,36 @@ bin_PROGRAMS = geopmread \
                geopmwrite \
                # end
 
-include_HEADERS = src/geopm_debug.hpp \
-                  src/geopm_error.h \
-                  src/geopm_field.h \
-                  src/geopm_hash.h \
-                  src/geopm_hint.h \
-                  src/geopm_pio.h \
-                  src/geopm_plugin.hpp \
-                  src/geopm_sched.h \
-                  src/geopm_shmem.h \
-                  src/geopm_time.h \
-                  src/geopm_topo.h \
-                  src/geopm_version.h \
+include_HEADERS = include/geopm_debug.hpp \
+                  include/geopm_error.h \
+                  include/geopm_field.h \
+                  include/geopm_hash.h \
+                  include/geopm_hint.h \
+                  include/geopm_pio.h \
+                  include/geopm_plugin.hpp \
+                  include/geopm_sched.h \
+                  include/geopm_shmem.h \
+                  include/geopm_time.h \
+                  include/geopm_topo.h \
+                  include/geopm_version.h \
                   # end
 
 geopmincludedir = $(includedir)/geopm
 
 geopminclude_HEADERS = contrib/json11/json11.hpp \
-                       src/geopm/Agg.hpp \
-                       src/geopm/Cpuid.hpp \
-                       src/geopm/CircularBuffer.hpp \
-                       src/geopm/Exception.hpp \
-                       src/geopm/Helper.hpp \
-                       src/geopm/IOGroup.hpp \
-                       src/geopm/MSRIOGroup.hpp \
-                       src/geopm/PlatformIO.hpp \
-                       src/geopm/PlatformTopo.hpp \
-                       src/geopm/PluginFactory.hpp \
-                       src/geopm/ServiceProxy.hpp \
-                       src/geopm/SharedMemory.hpp \
-                       src/geopm/SharedMemoryScopedLock.hpp \
+                       include/geopm/Agg.hpp \
+                       include/geopm/Cpuid.hpp \
+                       include/geopm/CircularBuffer.hpp \
+                       include/geopm/Exception.hpp \
+                       include/geopm/Helper.hpp \
+                       include/geopm/IOGroup.hpp \
+                       include/geopm/MSRIOGroup.hpp \
+                       include/geopm/PlatformIO.hpp \
+                       include/geopm/PlatformTopo.hpp \
+                       include/geopm/PluginFactory.hpp \
+                       include/geopm/ServiceProxy.hpp \
+                       include/geopm/SharedMemory.hpp \
+                       include/geopm/SharedMemoryScopedLock.hpp \
                        # end
 
 install-exec-hook: install-plugin-dir
@@ -57,51 +57,6 @@ dist_doc_DATA = COPYING \
                 COPYING-TPP \
                 README.rst \
                 VERSION \
-                # end
-
-dist_man_MANS = docs/build/man/geopm.7 \
-                docs/build/man/GEOPM_CXX_MAN_Agg.3 \
-                docs/build/man/GEOPM_CXX_MAN_CircularBuffer.3 \
-                docs/build/man/GEOPM_CXX_MAN_CNLIOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_Exception.3 \
-                docs/build/man/GEOPM_CXX_MAN_Helper.3 \
-                docs/build/man/GEOPM_CXX_MAN_IOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_MSRIO.3 \
-                docs/build/man/GEOPM_CXX_MAN_MSRIOGroup.3 \
-                docs/build/man/GEOPM_CXX_MAN_PlatformIO.3 \
-                docs/build/man/GEOPM_CXX_MAN_PlatformTopo.3 \
-                docs/build/man/GEOPM_CXX_MAN_PluginFactory.3 \
-                docs/build/man/GEOPM_CXX_MAN_SampleAggregator.3 \
-                docs/build/man/GEOPM_CXX_MAN_SharedMemory.3 \
-                docs/build/man/GEOPM_CXX_MAN_TimeIOGroup.3 \
-                docs/build/man/geopm_error.3 \
-                docs/build/man/geopm_field.3 \
-                docs/build/man/geopm_hash.3 \
-                docs/build/man/geopm_pio.3 \
-                docs/build/man/geopm_pio.7 \
-                docs/build/man/geopm_pio_cnl.7 \
-                docs/build/man/geopm_pio_const_config.7 \
-                docs/build/man/geopm_pio_cpuinfo.7 \
-                docs/build/man/geopm_pio_dcgm.7 \
-                docs/build/man/geopm_pio_levelzero.7 \
-                docs/build/man/geopm_pio_nvml.7 \
-                docs/build/man/geopm_pio_profile.7 \
-                docs/build/man/geopm_pio_service.7 \
-                docs/build/man/geopm_pio_sst.7 \
-                docs/build/man/geopm_pio_time.7 \
-                docs/build/man/geopm_pio_msr.7 \
-                docs/build/man/geopm_pio_sysfs.7 \
-                docs/build/man/geopmread.1 \
-                docs/build/man/geopm_report.7 \
-                docs/build/man/geopm_sched.3 \
-                docs/build/man/geopm_time.3 \
-                docs/build/man/geopm_topo.3 \
-                docs/build/man/geopm_version.3 \
-                docs/build/man/geopmwrite.1 \
-                docs/build/man/geopmaccess.1 \
-                docs/build/man/geopmsession.1 \
-                docs/build/man/geopmdpy.7 \
                 # end
 
 EXTRA_DIST = .gitignore \
@@ -354,14 +309,14 @@ else
     EXTRA_DIST += $(io_uring_source_files)
 endif
 
-$(msr_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
+$(msr_cpp_files): src/%.cpp: json_data/%.json src/json_data.cpp.in
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
 	src/json_data.cpp.in > $@
 
-$(sysfs_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
+$(sysfs_cpp_files): src/%.cpp: json_data/%.json src/json_data.cpp.in
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
