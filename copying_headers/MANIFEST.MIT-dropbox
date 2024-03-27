@@ -1,3 +1,0 @@
-service/contrib/json11/json11.cpp
-service/contrib/json11/json11.hpp
-service/src/geopm/json11.hpp
