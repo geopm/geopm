@@ -174,7 +174,7 @@ Returns the default access lists that apply to all non-root
 users if the empty string is provided.
 
 All available signals and controls are returned if the caller
-specifies the user name 'root'.  A RuntimeError is
+specifies the a pid with CAP_SYSADMIN.  A RuntimeError is
 raised if the user does not exist on the system.
 
 When a user requests a signal or control through one of the
@@ -200,7 +200,7 @@ lists are what this method returns.
           <doc:para>Returns the list of all signals and controls supported by the
 service.  The lists returned are independent of the access
 controls; therefore, calling get_all_access() is equivalent
-to calling get_user_access('root').
+to calling get_user_access() for a user with CAP_SYSADMIN.
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -639,11 +639,6 @@ range.
           </doc:summary>
           <doc:para>For the session associated to the given process, restore the state
 of all controls, which is recorded at the beginning of the session.
-
-Raises
-    RuntimeError: If client_pid does not have an open session or
-                  if a different client currently has an open
-                  session in write mode
           </doc:para>
         </doc:description>
       </doc:doc>

@@ -60,7 +60,7 @@ if ENABLE_BETA
                             # end
 endif
 
-all_local = $(roff_man_noinst)
+all_local =
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
@@ -82,116 +82,21 @@ endif # ENABLE_MPI
 
 all-local: $(all_local)
 
-roff_man_inst = docs/build/man/GEOPM_CXX_MAN_Agent.3 \
-                docs/build/man/GEOPM_CXX_MAN_PowerBalancer.3 \
-                docs/build/man/GEOPM_CXX_MAN_PowerGovernor.3 \
-                docs/build/man/geopm_agent.3 \
-                docs/build/man/geopm_agent_frequency_map.7 \
-                docs/build/man/geopm_agent_monitor.7 \
-                docs/build/man/geopm_agent_power_balancer.7 \
-                docs/build/man/geopm_agent_power_governor.7 \
-                docs/build/man/geopm_ctl.3 \
-                docs/build/man/geopm_fortran.3 \
-                docs/build/man/geopm_imbalancer.3 \
-                docs/build/man/geopm_prof.3 \
-                docs/build/man/geopmadmin.1 \
-                docs/build/man/geopmagent.1 \
-                docs/build/man/geopmbench.1 \
-                docs/build/man/geopmctl.1 \
-                docs/build/man/geopmlaunch.1 \
-                docs/build/man/geopmpy.7 \
-                # end
-
-roff_man_noinst = docs/build/man/GEOPM_CXX_MAN_Comm.3 \
-                  docs/build/man/GEOPM_CXX_MAN_MonitorAgent.3 \
-                  docs/build/man/GEOPM_CXX_MAN_MPIComm.3 \
-                  docs/build/man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
-                  docs/build/man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
-                  docs/build/man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
-                  # end
-
-roff_man_beta = docs/build/man/geopmendpoint.1 \
-                docs/build/man/geopm_agent_cpu_activity.7 \
-                docs/build/man/geopm_agent_gpu_activity.7 \
-                docs/build/man/geopm_daemon.3 \
-                docs/build/man/geopm_endpoint.3 \
-                docs/build/man/geopm_policystore.3 \
-                docs/build/man/GEOPM_CXX_MAN_Daemon.3 \
-                docs/build/man/GEOPM_CXX_MAN_Endpoint.3 \
-                # end
-
-if ENABLE_BETA
-roff_man_inst += $(roff_man_beta)
-else
-roff_man_noinst += $(roff_man_beta)
-endif
-
-roff_man = $(roff_man_inst) $(roff_man_noinst)
-
-dist_man_MANS = $(roff_man_inst) \
-                # end
-
 dist_doc_DATA = COPYING \
                 COPYING-TPP \
                 README \
                 VERSION \
                 # end
 
-EXTRA_DIST = $(TUTORIAL_DIST) \
-             .codespellrc \
-             .github/include_guards.sh \
-             .github/workflows/build.yml \
-             .github/workflows/codeql-analysis.yml \
-             .github/ISSUE_TEMPLATE/bug_report.md \
-             .github/ISSUE_TEMPLATE/feature_request.md \
-             .github/ISSUE_TEMPLATE/story.md \
-             .github/ISSUE_TEMPLATE/change_bug_fix.md \
-             .github/ISSUE_TEMPLATE/change_build.md \
-             .github/ISSUE_TEMPLATE/change_complete_feature.md \
-             .github/ISSUE_TEMPLATE/change_cxx_add_class.md \
-             .github/ISSUE_TEMPLATE/change_cxx_add_methods.md \
-             .github/ISSUE_TEMPLATE/change_doc.md \
-             .github/ISSUE_TEMPLATE/change_ext_dep.md \
-             .github/ISSUE_TEMPLATE/change_imp.md \
-             .github/ISSUE_TEMPLATE/change.md \
-             .github/ISSUE_TEMPLATE/change_python_add_class.md \
-             .github/ISSUE_TEMPLATE/change_python_add_methods.md \
-             .github/ISSUE_TEMPLATE/change_remove_imp.md \
-             .github/ISSUE_TEMPLATE/change_test.md \
-             .github/ISSUE_TEMPLATE/tech_debt.md \
-             .github/ISSUE_TEMPLATE/bug_report.md \
-             .github/ISSUE_TEMPLATE/feature_request.md \
-             .github/ISSUE_TEMPLATE/story.md \
-             .github/ISSUE_TEMPLATE/change.md \
-             .github/ISSUE_TEMPLATE/tech_debt.md \
-             .gitignore \
-             .pre-commit-config.yaml \
+EXTRA_DIST = .gitignore \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
              ChangeLog \
-             MANIFEST \
              Makefile.am \
              README.md \
              SECURITY.md \
              TODO \
-             autogen.sh \
              configure.ac \
-             copying_headers/MANIFEST.apache2-llvm \
-             copying_headers/MANIFEST.autoconf_macro \
-             copying_headers/MANIFEST.BSD3-llnl \
-             copying_headers/MANIFEST.compile_flag \
-             copying_headers/MANIFEST.EXEMPT \
-             copying_headers/MANIFEST.MIT-dropbox \
-             copying_headers/MANIFEST.NAS \
-             copying_headers/header.apache2-llvm \
-             copying_headers/header.autoconf_macro \
-             copying_headers/header.BSD3-intel \
-             copying_headers/header.BSD3-llnl \
-             copying_headers/header.compile_flag \
-             copying_headers/header.MIT-dropbox \
-             copying_headers/header.NAS \
-             copying_headers/test-dist \
-             copying_headers/test-license \
              debian/changelog \
              debian/changelog.in \
              debian/control \
@@ -201,16 +106,10 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              debian/libgeopm-dev.dirs \
              debian/libgeopm-dev.install \
              debian/libgeopm2.install \
-             debian/python3-geopmpy.install \
              debian/rules \
              dox/Doxyfile.in \
-             doxygen_update.sh \
-             geopm-tutorial.tar.gz \
-             indicators/index.html \
-             indicators/indicators.py \
              m4/ax_check_compile_flag.m4 \
              m4/openmp.m4 \
-             pull_request_template.md \
              geopm-runtime.spec \
              geopm-runtime.spec.in \
              test_hw/Makefile \
@@ -218,56 +117,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
              test_hw/rapl_pkg_limit_test.c \
-             test_license.sh \
              # end
-
-TUTORIAL_DIST = tutorial/Makefile \
-                tutorial/README.md \
-                tutorial/admin/README.md \
-                tutorial/admin/00_check_allowlist.sh \
-                tutorial/admin/00_test_prereqs.sh \
-                tutorial/admin/03_setup_fixed_frequency.sh \
-                tutorial/admin/04_setup_default_frequency_map.sh \
-                tutorial/admin/05_setup_fixed_power_cap.sh \
-                tutorial/admin/06_setup_default_power_balancer.sh \
-                tutorial/admin/07_setup_override_power_balancer.sh \
-                tutorial/agent/ExampleAgent.cpp \
-                tutorial/agent/ExampleAgent.hpp \
-                tutorial/agent/README.md \
-                tutorial/agent/agent_tutorial.sh \
-                tutorial/agent/agent_tutorial_config.json \
-                tutorial/agent/example_policy.json \
-                tutorial/iogroup/ExampleIOGroup.cpp \
-                tutorial/iogroup/ExampleIOGroup.hpp \
-                tutorial/iogroup/README.md \
-                tutorial/local/README.md \
-                tutorial/plugin_load/alice/AliceIOGroup.cpp \
-                tutorial/plugin_load/alice/AliceIOGroup.hpp \
-                tutorial/plugin_load/bob/BobIOGroup.cpp \
-                tutorial/plugin_load/bob/BobIOGroup.hpp \
-                tutorial/plugin_load/README.md \
-                tutorial/tutorial_0.c \
-                tutorial/tutorial_0.sh \
-                tutorial/tutorial_1.c \
-                tutorial/tutorial_1.sh \
-                tutorial/tutorial_2.c \
-                tutorial/tutorial_2.sh \
-                tutorial/tutorial_3.c \
-                tutorial/tutorial_3.sh \
-                tutorial/tutorial_4.c \
-                tutorial/tutorial_4.sh \
-                tutorial/tutorial_5.c \
-                tutorial/tutorial_5.sh \
-                tutorial/tutorial_6.sh \
-                tutorial/tutorial_6_config.json \
-                tutorial/tutorial_build_gnu.sh \
-                tutorial/tutorial_build_intel.sh \
-                tutorial/tutorial_env.sh \
-                tutorial/tutorial_power_policy.json \
-                tutorial/tutorial_region.c \
-                tutorial/tutorial_region_prof.c \
-                tutorial/tutorial_region.h \
-                # end
 
 if HAVE_ICX
     MATH_CLDFLAGS = -lm -qmkl
@@ -572,9 +422,6 @@ clean-local-coverage:
 clean-local-fortran:
 	rm -rf geopm_prof.mod
 
-distclean-local-ruby:
-	rm -rf ruby
-
 # FORTRAN MODULE TARGET
 if ENABLE_MPI
 if ENABLE_FORTRAN
@@ -603,11 +450,8 @@ deb: dist
 	cd geopm-runtime-$(VERSION) && dpkg-buildpackage -us -uc
 	rm -rf geopm-runtime-$(VERSION)
 
-geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
-	tar --transform='s|^|geopm-|' -zcf $@ $^
-
 if !ENABLE_SANITIZERS
-checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 else
 checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 endif
@@ -628,13 +472,5 @@ PHONY_TARGETS = clean-local \
                 # end
 
 include test/Makefile.mk
-include docs/Makefile.mk
-
-if !ENABLE_SANITIZERS
-include integration/Makefile.mk
-include examples/Makefile.mk
-include scripts/Makefile.mk
-include shell_completion/Makefile.mk
-endif
 
 .PHONY: $(PHONY_TARGETS)

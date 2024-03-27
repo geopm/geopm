@@ -1,1 +1,1 @@
-../service/test/googletest.mk
+../../libgeopmd/test/googletest.mk
