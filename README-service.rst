@@ -1,1 +1,0 @@
-docs/source/service_readme.rst
