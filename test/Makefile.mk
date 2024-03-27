@@ -24,7 +24,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/AdminTest.positional_args \
               test/gtest_links/AdminTest.print_config \
               test/gtest_links/AdminTest.two_actions \
-              test/gtest_links/AdminTest.allowlist \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/AgentFactoryTest.static_info_balancer \
               test/gtest_links/AgentFactoryTest.static_info_governor \

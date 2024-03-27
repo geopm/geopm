@@ -128,6 +128,7 @@ void MSRIOGroupTest::SetUp()
     EXPECT_CALL(*m_msrio, write_msr(_, _, _, _)).Times(AtLeast(0));
     // suppress mock calls from initializing rdt signals
     EXPECT_CALL(*m_msrio, read_msr(_, _)).Times(AtLeast(0));
+    EXPECT_CALL(*m_msrio, system_write_mask(_)).WillRepeatedly(Return(~0ULL));
     EXPECT_CALL(*m_mock_cpuid, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_SKX));
     m_msrio_group = geopm::make_unique<MSRIOGroup>(*m_topo, m_msrio,
                                                    m_mock_cpuid,
@@ -1101,7 +1102,7 @@ TEST_F(MSRIOGroupTest, allowlist)
             scoped_plugin_path.write_file("msr_test.json", contents);
         }
 
-        std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
+        std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX, *m_topo, m_msrio);
         std::istringstream iss(allowlist);
         std::getline(iss, line);// throw away title line
         while (std::getline(iss, line)) {

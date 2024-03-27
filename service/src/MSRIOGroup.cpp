@@ -239,6 +239,19 @@ namespace geopm
             }
         }
 
+        // Setting the batch context must be done after invalid controls are pruned
+        // to ensure the in-memory version of save_control() does not try to read
+        // from a bad offset.
+        for(const auto &cc : m_control_available) {
+            for (const auto &rfc : cc.second.controls) {  // result_field_control vector
+                auto dc = std::static_pointer_cast<DomainControl>(rfc);
+                for (const auto &mfcv : dc->controls()) {
+                    auto mfc = std::static_pointer_cast<MSRFieldControl>(mfcv);
+                    mfc->add_save_restore_context(m_save_restore_ctx);
+                }
+            }
+        }
+
         register_frequency_signals();
         register_frequency_controls();
 
@@ -1575,8 +1588,7 @@ namespace geopm
                                                                    domain_type, domain_idx);
                 for (auto cpu_idx : cpus) {
                     cpu_controls.push_back(std::make_shared<MSRFieldControl>(
-                        m_msrio, m_save_restore_ctx, cpu_idx, msr_offset,
-                        begin_bit, end_bit, function,
+                        m_msrio, cpu_idx, msr_offset, begin_bit, end_bit, function,
                         scalar));
                 }
                 result_field_control.push_back(std::make_shared<DomainControl>(cpu_controls));
@@ -1588,8 +1600,12 @@ namespace geopm
                 .description = description,
             };
         }
-        catch (const Exception &) {
-            // Simply don't add to available controls
+        catch (const Exception &ex) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
+                      << "(): Unable to add control " << msr_field_name << " :"
+                      << ex.what() << std::endl;
+#endif
         }
     }
 
@@ -1705,7 +1721,9 @@ namespace geopm
     }
 
     void MSRIOGroup::parse_json_msrs_allowlist(const std::string &str,
-                                               std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data)
+                                               std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data,
+                                               const PlatformTopo &topo,
+                                               std::shared_ptr<MSRIO> msrio)
     {
         std::string err;
         Json root = Json::parse(str, err);
@@ -1717,6 +1735,18 @@ namespace geopm
         check_top_level(root);
 
         auto msr_obj = root["msrs"].object_items();
+
+        bool is_trl_writable = false;
+        try {
+            is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], topo, msrio);
+        }
+        catch (const Exception &ex) {
+            std::cerr << "warning: <geopm> msriogroup::" << std::string(__func__)
+                      << "(): unable to check trl via PLATFORM_INFO: "
+                      << ex.what() << std::endl;
+            throw;
+        }
+
         for (const auto &msr : msr_obj) {
             std::string msr_name = msr.first;
             Json msr_root = msr.second;
@@ -1738,6 +1768,13 @@ namespace geopm
                 int begin_bit = (int)(field_data["begin_bit"].number_value());
                 int end_bit = (int)(field_data["end_bit"].number_value());
                 bool is_control = field_data["writeable"].bool_value();
+
+                if (is_trl_writable &&
+                    string_begins_with(msr_field_name,
+                                       "TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_")) {
+                    is_control = true;
+                }
+
                 if (is_control) {
                     combined_write_mask |= (((1ULL << (end_bit - begin_bit + 1)) - 1) << begin_bit);
                 }
@@ -1769,21 +1806,66 @@ namespace geopm
         return result.str();
     }
 
-    std::string MSRIOGroup::msr_allowlist(int cpuid)
+    std::string MSRIOGroup::msr_allowlist(int cpuid,
+                                          const PlatformTopo &topo,
+                                          std::shared_ptr<MSRIO> msrio)
     {
         std::map<uint64_t, std::pair<uint64_t, std::string> > allowlist_data;
-        parse_json_msrs_allowlist(arch_msr_json(), allowlist_data);
+        parse_json_msrs_allowlist(arch_msr_json(), allowlist_data, topo, msrio);
         try {
-            parse_json_msrs_allowlist(platform_data(cpuid), allowlist_data);
+            parse_json_msrs_allowlist(platform_data(cpuid), allowlist_data, topo, msrio);
         }
         catch (const Exception &ex) {
             // Write only architectural MSRs
         }
         auto custom = msr_data_files();
         for (const auto &filename : custom) {
-            parse_json_msrs_allowlist(read_file(filename), allowlist_data);
+            parse_json_msrs_allowlist(read_file(filename), allowlist_data, topo, msrio);
         }
         return format_allowlist(allowlist_data);
     }
 
+    std::string MSRIOGroup::msr_allowlist(int cpuid)
+    {
+        std::string result;
+        try {
+#ifdef GEOPM_ENABLE_RAWMSR
+            result = msr_allowlist(cpuid, platform_topo(),
+                                   MSRIO::make_unique(MSRIO::M_DRIVER_MSR));
+#else
+            throw Exception("MSRIOGroup::" + std::string(__func__) + "(): Requires access to "
+                            "the stock MSR driver. Do not use --disable-rawmsr at configure time. ",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+#endif
+        }
+        catch (const Exception &) {
+            std::cerr << "Error: MSRIOGroup::" << std::string(__func__)
+                      << "(): unable to instantiate MSRIO with the stock MSR driver.  "
+                      << "Temporarily 'modprobe msr' and re-run as root to fix." << std::endl;
+            throw;
+        }
+        return result;
+    }
+}
+
+
+extern "C" {
+    int geopm_allowlist(size_t result_max, char *result)
+    {
+        int err = 0;
+        result[result_max - 1] = '\0';
+        try {
+            std::string allowlist = geopm::MSRIOGroup::msr_allowlist(geopm_read_cpuid());
+            strncpy(result, allowlist.c_str(), result_max);
+            if (result[result_max - 1] != '\0') {
+                result[result_max - 1] = '\0';
+                err = GEOPM_ERROR_INVALID;
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_INVALID;
+        }
+        return err;
+    }
 }

@@ -23,7 +23,6 @@ class AdminTest: public :: testing :: Test
         void SetUp(void);
         void TearDown(void);
         std::shared_ptr<Admin> m_admin;
-        int m_cpuid;
         std::string m_default_path;
         std::string m_override_path;
         std::string m_policy_path;
@@ -31,13 +30,11 @@ class AdminTest: public :: testing :: Test
 
 void AdminTest::SetUp(void)
 {
-    m_cpuid = 0x655;
     m_default_path = "environment-default.json";
     m_override_path = "environment-override.json";
     m_policy_path = "admin_test_policy.json";
     m_admin = std::make_shared<Admin>(m_default_path,
-                                      m_override_path,
-                                      m_cpuid);
+                                      m_override_path);
     unlink(m_override_path.c_str());
     unlink(m_default_path.c_str());
     unlink(m_policy_path.c_str());
@@ -81,33 +78,23 @@ TEST_F(AdminTest, main)
 
 TEST_F(AdminTest, two_actions)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_admin->run(true, true, false, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_admin->run(true, true),
                                EINVAL, "must be used exclusively");
-    GEOPM_EXPECT_THROW_MESSAGE(m_admin->run(false, true, true, -1),
-                               EINVAL, "must be used exclusively");
-    GEOPM_EXPECT_THROW_MESSAGE(m_admin->run(true, false, true, -1),
-                               EINVAL, "must be used exclusively");
+    EXPECT_NO_THROW(m_admin->run(false, true));
+    EXPECT_NO_THROW(m_admin->run(true, false));
 }
 
 
 TEST_F(AdminTest, config_default)
 {
-    std::string result = m_admin->run(true, false, false, -1);
+    std::string result = m_admin->run(true, false);
     ASSERT_NE(std::string::npos, result.find("environment-default.json"));
 }
 
 TEST_F(AdminTest, config_override)
 {
-    std::string result = m_admin->run(false, true, false, -1);
+    std::string result = m_admin->run(false, true);
     ASSERT_NE(std::string::npos, result.find("environment-override.json"));
-}
-
-TEST_F(AdminTest, allowlist)
-{
-    std::string result_0 = m_admin->run(false, false, true, -1);
-    ASSERT_EQ(0U, result_0.find("# MSR        Write Mask           # Comment\n"));
-    std::string result_1 = m_admin->run(false, false, true, m_cpuid);
-    ASSERT_EQ(result_0, result_1);
 }
 
 TEST_F(AdminTest, no_options)

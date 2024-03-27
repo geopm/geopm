@@ -70,4 +70,9 @@ namespace geopm
             ctl->restore();
         }
     }
+
+    std::vector<std::shared_ptr<Control> > DomainControl::controls(void)
+    {
+        return m_controls;
+    }
 }

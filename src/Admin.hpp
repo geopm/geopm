@@ -19,21 +19,17 @@ namespace geopm
         public:
             Admin();
             Admin(const std::string &default_config_path,
-                  const std::string &override_config_path,
-                  int cpuid_local);
+                  const std::string &override_config_path);
             void main(int argc,
                       const char **argv,
                       std::ostream &std_out,
                       std::ostream &std_err);
             std::string run(bool do_default,
-                            bool do_override,
-                            bool do_allowlist,
-                            int cpuid);
+                            bool do_override);
             OptionParser parser(std::ostream &std_out,
                                 std::ostream &std_err);
             std::string default_config(void);
             std::string override_config(void);
-            std::string allowlist(int cpuid);
             std::string check_node(void);
             void check_config(const std::map<std::string, std::string> &config_map,
                               std::vector<std::string> &policy_names,
@@ -47,7 +43,6 @@ namespace geopm
         private:
             std::string m_default_config_path;
             std::string m_override_config_path;
-            int m_cpuid_local;
     };
 }
 
