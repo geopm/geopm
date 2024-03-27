@@ -1,1 +1,1 @@
-../service/test/MockPlatformTopo.hpp
+../../libgeopmd/test/MockPlatformTopo.hpp
