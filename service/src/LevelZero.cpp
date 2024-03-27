@@ -160,12 +160,12 @@ namespace geopm
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
         // This should be changed to a more general loop iterating over type and caching appropriately
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; gpu_idx++) {
-            ras_domain_cache(gpu_idx);
             frequency_domain_cache(gpu_idx);
             power_domain_cache(gpu_idx);
             perf_domain_cache(gpu_idx);
             engine_domain_cache(gpu_idx);
             temperature_domain_cache(gpu_idx);
+            ras_domain_cache(gpu_idx);
         }
     }
 
@@ -494,22 +494,27 @@ namespace geopm
 #endif
         }
         else {
-            // Get handle of all RAS error sets
+            // Get handle of all RAS errorsets
             std::vector<zes_ras_handle_t> error_set(num_errset);
 
             check_ze_result(zesDeviceEnumRasErrorSets(m_devices.at(device_idx).device_handle,
                                                       &num_errset, error_set.data()),
                             GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
-                            ": Sysman failed to get error set handle(s).", __LINE__);
+                            ": Sysman failed to get errorset handle(s).", __LINE__);
 
-            // Note: As of LevelZero ver 1.9, there are no counters that can be clearly
-            //       labeled as being either "compute" or "memory". So all the counters 
-            //       for now have been assigned L0_domain_type = M_DOMAIN_ALL 
-            m_devices.at(device_idx).subdevice.ras_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+	    // Note: RAS domain errorset handles are being stored in a 2D vector with
+	    //       dimensions := (number of subdevices) x (number of RAS error types)
 
-            // Iterate over error set handles
+
+            // Allocate size for a 2D vector to store all the RAS domain handles for errorsets:
+            //       m_num_subdevice = number of subdevices
+            //       ZES_RAS_ERROR_TYPE_FORCE_UINT32 = number of RAS error types
+	    m_devices.at(device_idx).subdevice.ras_domain.resize(m_devices.at(device_idx).m_num_subdevice,
+		     std::vector<zes_ras_handle_t>(ZES_RAS_ERROR_TYPE_FORCE_UINT32));
+
+            // Iterate over errorset handles
             for (auto handle : error_set) {
-                // Get properties corresponding to each error set handle
+                // Get properties corresponding to each RAS errorset handle
                 zes_ras_properties_t property;
                 ze_result = zesRasGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
@@ -517,15 +522,27 @@ namespace geopm
                                 ": Sysman failed to get RAS properties",
                                 __LINE__);
 
+		// Check if the RAS errorset handle maps to a subdevice
                 if (property.onSubdevice == 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                               << "RAS domain was found but is not currently supported.\n";
 #endif
                 }
+		// Check if the RAS errorset handle maps to a known subdevice
+		else if (property.subdeviceId >= m_devices.at(device_idx).m_num_subdevice) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: <geopm> LevelZero: A RAS domain handle "
+                              << "was found to map to an unaccounted subdevice #"
+                              << property.subdeviceId << "\n";
+#endif
+
+                }
+		// Cache the RAS errorset handle into index - [subdevice Id][error type]
                 else {
                     m_devices.at(device_idx).
-                        subdevice.ras_domain.at(geopm::LevelZero::M_DOMAIN_ALL).push_back(handle);
+                              subdevice.ras_domain[property.subdeviceId][property.type]
+                              = handle;
                 }
             }
         }
@@ -606,71 +623,143 @@ namespace geopm
         return result;
     }
 
+
     int LevelZeroImp::ras_domain_count(unsigned int l0_device_idx,
                                        int l0_domain) const
     {
         return m_devices.at(l0_device_idx).subdevice.ras_domain.at(l0_domain).size();
     }
 
-    double LevelZeroImp::ras_reset_count(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_reset_count_correctable(unsigned int l0_device_idx,
                                          int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_RESET];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_RESET,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    double LevelZeroImp::ras_programming_errcount(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_programming_errcount_correctable(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    double LevelZeroImp::ras_driver_errcount(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_driver_errcount_correctable(unsigned int l0_device_idx,
                                              int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DRIVER_ERRORS];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_DRIVER_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    double LevelZeroImp::ras_compute_errcount(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_compute_errcount_correctable(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_COMPUTE_ERRORS];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_COMPUTE_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    double LevelZeroImp::ras_noncompute_errcount(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_noncompute_errcount_correctable(unsigned int l0_device_idx,
                                                  int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    double LevelZeroImp::ras_cache_errcount(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_cache_errcount_correctable(unsigned int l0_device_idx,
                                             int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_CACHE_ERRORS];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_CACHE_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    double LevelZeroImp::ras_display_errcount(unsigned int l0_device_idx,
+    double LevelZeroImp::ras_display_errcount_correctable(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const
     {
-        return (ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx))[ZES_RAS_ERROR_CAT_DISPLAY_ERRORS];
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_DISPLAY_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_CORRECTABLE);
     }
 
-    std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
-                                                                                           int l0_domain,
-                                                                                           int l0_domain_idx) const
+    double LevelZeroImp::ras_reset_count_uncorrectable(unsigned int l0_device_idx,
+                                         int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_RESET,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+    double LevelZeroImp::ras_programming_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                  int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_PROGRAMMING_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+    double LevelZeroImp::ras_driver_errcount_uncorrectable(unsigned int l0_device_idx,
+                                             int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_DRIVER_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+    double LevelZeroImp::ras_compute_errcount_uncorrectable(unsigned int l0_device_idx,
+                                              int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_COMPUTE_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+    double LevelZeroImp::ras_noncompute_errcount_uncorrectable(unsigned int l0_device_idx,
+                                                 int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_NON_COMPUTE_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+    double LevelZeroImp::ras_cache_errcount_uncorrectable(unsigned int l0_device_idx,
+                                            int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_CACHE_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+    double LevelZeroImp::ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
+                                              int l0_domain, int l0_domain_idx) const
+    {
+        return ras_status_helper(l0_device_idx, l0_domain, l0_domain_idx, 
+                                         ZES_RAS_ERROR_CAT_DISPLAY_ERRORS,
+                                         ZES_RAS_ERROR_TYPE_UNCORRECTABLE);
+    }
+
+
+
+    // RAS Helper function that extracts the errorset counters using the cached errorset handle
+    uint64_t LevelZeroImp::ras_status_helper(unsigned int l0_device_idx,
+                                             int l0_domain,
+                                             int l0_domain_idx, 
+                                             zes_ras_error_cat_t errorcat,
+                                             zes_ras_error_type_t errortype) const 
     {
         zes_ras_state_t pState;
         zes_ras_handle_t handle = m_devices.at(l0_device_idx).
-                                      subdevice.ras_domain.at(l0_domain).at(l0_domain_idx);
+                                      subdevice.ras_domain[l0_domain_idx][errortype];
         check_ze_result(zesRasGetState(handle, 0, &pState),
                         GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": Sysman failed to get RAS counters",
                         __LINE__);
-
-        std::array<uint64_t, ZES_MAX_RAS_ERROR_CATEGORY_COUNT> temp;
-        for (unsigned int err_idx = 0; err_idx < ZES_MAX_RAS_ERROR_CATEGORY_COUNT; err_idx++)
-            temp[err_idx] = pState.category[err_idx];
-        return temp;
+	return pState.category[errorcat];
     }
 
     double LevelZeroImp::frequency_status(unsigned int l0_device_idx,
