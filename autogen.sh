@@ -28,7 +28,7 @@ fi
 
 set +x
 # Copy repository files from base directory
-for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP SECURITY.md VERSION; do
+for ff in AUTHORS ChangeLog CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP SECURITY.md VERSION; do
     for dd in libgeopmd libgeopm geopmdpy geopmpy; do
         if [ ! -f $dd/$ff ]; then
             cp $ff $dd/$ff

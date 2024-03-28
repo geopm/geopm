@@ -1,45 +1,19 @@
 #!/usr/bin/make -f
 
-DESTDIR = $(CURDIR)/debian/tmp
-prefix = /usr
-SOURCES_DIR = $(CURDIR)/../SOURCES
-
-include /usr/share/dpkg/default.mk
-include /usr/share/dpkg/buildtools.mk
+export DH_VERBOSE = 1
 
 %:
-	dh $@ --with  python3 --buildsystem=pybuild -D scripts
+	dh $@ --with autoreconf 
+
+override_dh_missing:
+	dh_missing --list-missing -X.la
 
 override_dh_auto_configure:
-	test -f configure || ./autogen.sh
-	./configure \
-          --prefix=$(prefix) \
-          --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
-          --libexecdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH) \
-          --includedir=$(prefix)/include \
-          --sbindir=$(prefix)/sbin \
-          --datadir=$(prefix)/share \
-          --mandir=$(prefix)/share/man \
-          --docdir=$(prefix)/share/doc/geopm \
-          --with-bash-completion-dir=/etc/bash_completion.d \
-          --disable-mpi \
-          --disable-openmp \
-          --disable-fortran \
-          --disable-geopmd-local \
-          --disable-mpi
-
-override_dh_auto_test:
-	# make check # TODO Fix issue #2999
-
-override_dh_auto_clean:
-	if [ -e Makefile ]; then make clean; fi
-
-override_dh_auto_build:
-	make -j
-
-override_dh_auto_install:
-	make DESTDIR=$(DESTDIR) install
-	rm -f $(DESTDIR)$(prefix)/lib/*/*.la
-
-override_dh_shlibdeps:
-	dh_shlibdeps -l $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+	if [ "$(DEB_BUILD_ARCH)" != "amd64" ]; then CPUID_OPTION="--disable-cpuid"; fi; \
+	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d \
+	                     --disable-mpi \
+	                     --with-bash-completion-dir=/etc/bash_completion.d \
+	                     --disable-mpi \
+	                     --disable-openmp \
+	                     --disable-fortran \
+	                     --disable-geopmd-local

@@ -83,6 +83,7 @@ EXTRA_DIST = .gitignore \
              io.github.geopm.xml \
              geopm.service \
              AUTHORS \
+             ChangeLog \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
              json_data/msr_data_arch.json \

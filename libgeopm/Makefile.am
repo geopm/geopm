@@ -95,7 +95,6 @@ EXTRA_DIST = .gitignore \
              Makefile.am \
              README.rst \
              SECURITY.md \
-             TODO \
              configure.ac \
              debian/changelog \
              debian/changelog.in \
