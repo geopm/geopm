@@ -24,17 +24,11 @@ PYTHONPATH=geopmdpy python3 -m geopmdpy.schemas docs/json_schemas
 # remember to git commit the generated files if they have.
 PYTHONPATH=geopmdpy python3 -m geopmdpy.dbus_xml > libgeopmd/io.github.geopm.xml
 
-# Generate all the sphinx documentation
-PYTHONPATH=geopmpy:geopmdpy sphinx-build -M geopmlint docs/source docs/build || \
-    echo "WARNING: geopmlint failed" 1>&2
-PYTHONPATH=geopmpy:geopmdpy sphinx-build -M html docs/source docs/build -W
-PYTHONPATH=geopmpy:geopmdpy sphinx-build -M man docs/source docs/build -W
-
 # Create VERSION file
 if [ ! -e VERSION ]; then
-    # TODO: Consider using raw python version (i.e. print(__version__))
-    # PYTHONPATH=geopmdpy python3 -c "from geopmdpy.version import __version__; print(__version__)" > VERSION
-    PYTHONPATH=geopmdpy python3 -c "from geopmdpy.version import __version__; vv=__version__.replace('.dev','+dev', 1).replace('+g','g', 1); vv=vv[:vv.rfind('.d20')]; print(vv)" > VERSION
+    PYTHONPATH=geopmdpy python3 -c "from geopmdpy.version import __version__; print(__version__)" > VERSION
+    # TODO: If required our old VERSION format can be created this way
+    # PYTHONPATH=geopmdpy python3 -c "from geopmdpy.version import __version__; vv=__version__.replace('.dev','+dev', 1).replace('+g','g', 1); vv=vv[:vv.rfind('.d20')]; print(vv)" > VERSION
     if [ $? -ne 0 ]; then
         echo "WARNING:  VERSION file does not exist and geopmdpy/version.py failed, setting version to 0.0.0" 1>&2
         echo "0.0.0" > VERSION
