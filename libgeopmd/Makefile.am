@@ -31,7 +31,7 @@ include_HEADERS = include/geopm_debug.hpp \
 
 geopmincludedir = $(includedir)/geopm
 
-geopminclude_HEADERS = contrib/json11/json11.hpp \
+geopminclude_HEADERS = include/geopm/json11.hpp \
                        include/geopm/Agg.hpp \
                        include/geopm/Cpuid.hpp \
                        include/geopm/CircularBuffer.hpp \
@@ -48,7 +48,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        # end
 
 install-exec-hook: install-plugin-dir
-dist: dist-googletest base_man
+dist: dist-googletest
 
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/geopm
@@ -61,7 +61,6 @@ dist_doc_DATA = COPYING \
 
 EXTRA_DIST = .gitignore \
              Makefile.am \
-             autogen.sh \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
@@ -82,7 +81,6 @@ EXTRA_DIST = .gitignore \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
-             src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
              CODE_OF_CONDUCT.md \
@@ -245,7 +243,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
                        src/geopm_shmem.cpp \
-                       src/geopm_shmem.h \
                        src/geopm_version.c \
                        $(msr_cpp_files) \
                        $(sysfs_cpp_files) \
