@@ -1,36 +1,967 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: geopm
-Source: https://github.com/geopm/geopm
+Upstream-Name: geopm-service
+Upstream-Contact: <preferred name and address to reach the upstream project>
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
 
-Files: *
-Copyright (c) 2015 - 2024, Intel Corporation
+Files:     config.guess
+           config.sub
+           fuzz_test/Makefile.mk
+           fuzz_test/geopmhash_harness.cpp
+           fuzz_test/run_fuzz_tests.sh
+           geopm.service
+           include/geopm/Agg.hpp
+           include/geopm/CircularBuffer.hpp
+           include/geopm/Cpuid.hpp
+           include/geopm/Exception.hpp
+           include/geopm/Helper.hpp
+           include/geopm/IOGroup.hpp
+           include/geopm/MSRIOGroup.hpp
+           include/geopm/PlatformIO.hpp
+           include/geopm/PlatformTopo.hpp
+           include/geopm/PluginFactory.hpp
+           include/geopm/ServiceProxy.hpp
+           include/geopm/SharedMemory.hpp
+           include/geopm/SharedMemoryScopedLock.hpp
+           include/geopm_debug.hpp
+           include/geopm_error.h
+           include/geopm_field.h
+           include/geopm_hash.h
+           include/geopm_hint.h
+           include/geopm_pio.h
+           include/geopm_plugin.hpp
+           include/geopm_sched.h
+           include/geopm_shmem.h
+           include/geopm_time.h
+           include/geopm_topo.h
+           include/geopm_version.h
+           shell_completion/Makefile.mk
+           src/Agg.cpp
+           src/BatchClient.cpp
+           src/BatchClient.hpp
+           src/BatchServer.cpp
+           src/BatchServer.hpp
+           src/BatchStatus.cpp
+           src/BatchStatus.hpp
+           src/CNLIOGroup.cpp
+           src/CNLIOGroup.hpp
+           src/CombinedControl.cpp
+           src/CombinedControl.hpp
+           src/CombinedSignal.cpp
+           src/CombinedSignal.hpp
+           src/ConstConfigIOGroup.cpp
+           src/ConstConfigIOGroup.hpp
+           src/Control.hpp
+           src/CpufreqSysfsDriver.cpp
+           src/CpufreqSysfsDriver.hpp
+           src/Cpuid.cpp
+           src/CpuinfoIOGroup.cpp
+           src/CpuinfoIOGroup.hpp
+           src/DCGMDevicePool.cpp
+           src/DCGMDevicePool.hpp
+           src/DCGMDevicePoolImp.hpp
+           src/DCGMDevicePoolThrow.cpp
+           src/DCGMIOGroup.cpp
+           src/DCGMIOGroup.hpp
+           src/DerivativeSignal.cpp
+           src/DerivativeSignal.hpp
+           src/DifferenceSignal.cpp
+           src/DifferenceSignal.hpp
+           src/DomainControl.cpp
+           src/DomainControl.hpp
+           src/Exception.cpp
+           src/GEOPMHint.cpp
+           src/GPUTopo.cpp
+           src/GPUTopo.hpp
+           src/GPUTopoNull.cpp
+           src/GPUTopoNull.hpp
+           src/Helper.cpp
+           src/IOGroup.cpp
+           src/IOUring.cpp
+           src/IOUring.hpp
+           src/IOUringFallback.cpp
+           src/IOUringFallback.hpp
+           src/IOUringImp.cpp
+           src/IOUringImp.hpp
+           src/LevelZero.cpp
+           src/LevelZero.hpp
+           src/LevelZeroDevicePool.cpp
+           src/LevelZeroDevicePool.hpp
+           src/LevelZeroDevicePoolImp.hpp
+           src/LevelZeroGPUTopo.cpp
+           src/LevelZeroGPUTopo.hpp
+           src/LevelZeroIOGroup.cpp
+           src/LevelZeroIOGroup.hpp
+           src/LevelZeroImp.hpp
+           src/LevelZeroSignal.cpp
+           src/LevelZeroSignal.hpp
+           src/LevelZeroThrow.cpp
+           src/MSR.cpp
+           src/MSR.hpp
+           src/MSRFieldControl.cpp
+           src/MSRFieldControl.hpp
+           src/MSRFieldSignal.cpp
+           src/MSRFieldSignal.hpp
+           src/MSRIO.cpp
+           src/MSRIO.hpp
+           src/MSRIOGroup.cpp
+           src/MSRIOImp.hpp
+           src/MSRPath.cpp
+           src/MSRPath.hpp
+           src/MultiplicationSignal.cpp
+           src/MultiplicationSignal.hpp
+           src/NVMLDevicePool.cpp
+           src/NVMLDevicePool.hpp
+           src/NVMLDevicePoolImp.hpp
+           src/NVMLDevicePoolThrow.cpp
+           src/NVMLGPUTopo.cpp
+           src/NVMLGPUTopo.hpp
+           src/NVMLIOGroup.cpp
+           src/NVMLIOGroup.hpp
+           src/POSIXSignal.cpp
+           src/POSIXSignal.hpp
+           src/PlatformIO.cpp
+           src/PlatformIOImp.hpp
+           src/PlatformTopo.cpp
+           src/PlatformTopoImp.hpp
+           src/RatioSignal.cpp
+           src/RatioSignal.hpp
+           src/RawMSRSignal.cpp
+           src/RawMSRSignal.hpp
+           src/SDBus.cpp
+           src/SDBus.hpp
+           src/SDBusMessage.cpp
+           src/SDBusMessage.hpp
+           src/SDBusNull.cpp
+           src/SSTControl.cpp
+           src/SSTControl.hpp
+           src/SSTIO.cpp
+           src/SSTIO.hpp
+           src/SSTIOGroup.cpp
+           src/SSTIOGroup.hpp
+           src/SSTIOImp.hpp
+           src/SSTIoctl.cpp
+           src/SSTIoctl.hpp
+           src/SSTIoctlImp.hpp
+           src/SSTSignal.cpp
+           src/SSTSignal.hpp
+           src/SaveControl.cpp
+           src/SaveControl.hpp
+           src/SecurePath.cpp
+           src/SecurePath.hpp
+           src/ServiceIOGroup.cpp
+           src/ServiceIOGroup.hpp
+           src/ServiceProxy.cpp
+           src/SharedMemory.cpp
+           src/SharedMemoryImp.hpp
+           src/SharedMemoryScopedLock.cpp
+           src/Signal.hpp
+           src/SysfsDriver.cpp
+           src/SysfsDriver.hpp
+           src/SysfsIOGroup.cpp
+           src/SysfsIOGroup.hpp
+           src/TimeIOGroup.cpp
+           src/TimeIOGroup.hpp
+           src/TimeSignal.cpp
+           src/TimeSignal.hpp
+           src/TimeZero.cpp
+           src/UniqueFd.cpp
+           src/UniqueFd.hpp
+           src/geopm_hash.cpp
+           src/geopm_plugin.cpp
+           src/geopm_sched.c
+           src/geopm_shmem.cpp
+           src/geopm_version.c
+           src/geopmread_main.cpp
+           src/geopmwrite_main.cpp
+           src/msr_data_arch.cpp
+           src/msr_data_hsx.cpp
+           src/msr_data_knl.cpp
+           src/msr_data_skx.cpp
+           src/msr_data_snb.cpp
+           src/msr_data_spr.cpp
+           src/sysfs_attributes_cpufreq.cpp
+           test/AggTest.cpp
+           test/BatchClientTest.cpp
+           test/BatchServerTest.cpp
+           test/BatchStatusTest.cpp
+           test/CNLIOGroupTest.cpp
+           test/CircularBufferTest.cpp
+           test/CombinedSignalTest.cpp
+           test/ConstConfigIOGroupTest.cpp
+           test/CpufreqSysfsDriverTest.cpp
+           test/CpuinfoIOGroupTest.cpp
+           test/DCGMIOGroupTest.cpp
+           test/DerivativeSignalTest.cpp
+           test/DifferenceSignalTest.cpp
+           test/DomainControlTest.cpp
+           test/ExceptionTest.cpp
+           test/GEOPMHintTest.cpp
+           test/GPUTopoNullTest.cpp
+           test/HelperTest.cpp
+           test/IOUringTest.cpp
+           test/LevelZeroDevicePoolTest.cpp
+           test/LevelZeroGPUTopoTest.cpp
+           test/LevelZeroIOGroupTest.cpp
+           test/MSRFieldControlTest.cpp
+           test/MSRFieldSignalTest.cpp
+           test/MSRIOGroupTest.cpp
+           test/MSRIOTest.cpp
+           test/Makefile.mk
+           test/MockBatchClient.hpp
+           test/MockBatchStatus.hpp
+           test/MockControl.hpp
+           test/MockCpuid.hpp
+           test/MockDCGMDevicePool.hpp
+           test/MockGPUTopo.hpp
+           test/MockIOGroup.hpp
+           test/MockIOUring.hpp
+           test/MockLevelZero.hpp
+           test/MockLevelZeroDevicePool.hpp
+           test/MockMSRIO.hpp
+           test/MockNVMLDevicePool.hpp
+           test/MockPOSIXSignal.hpp
+           test/MockPlatformIO.hpp
+           test/MockPlatformTopo.cpp
+           test/MockPlatformTopo.hpp
+           test/MockSDBus.hpp
+           test/MockSDBusMessage.hpp
+           test/MockSSTIO.hpp
+           test/MockSSTIoctl.hpp
+           test/MockSaveControl.hpp
+           test/MockServiceProxy.hpp
+           test/MockSharedMemory.hpp
+           test/MockSignal.hpp
+           test/MockSysfsDriver.hpp
+           test/NVMLGPUTopoTest.cpp
+           test/NVMLIOGroupTest.cpp
+           test/POSIXSignalTest.cpp
+           test/PlatformIOTest.cpp
+           test/PlatformTopoTest.cpp
+           test/RatioSignalTest.cpp
+           test/RawMSRSignalTest.cpp
+           test/SSTControlTest.cpp
+           test/SSTIOGroupTest.cpp
+           test/SSTIOTest.cpp
+           test/SSTSignalTest.cpp
+           test/SaveControlTest.cpp
+           test/SecurePathTest.cpp
+           test/ServiceIOGroupTest.cpp
+           test/ServiceProxyTest.cpp
+           test/SharedMemoryTest.cpp
+           test/SysfsIOGroupTest.cpp
+           test/TimeIOGroupTest.cpp
+           test/UniqueFdTest.cpp
+           test/geopm_test.cpp
+           test/geopm_test.hpp
+           test/geopm_test.sh
+           test/geopm_test_helper.cpp
+           test/googletest.mk
+           test/isadmin.cpp
+Copyright: 1992-2022 Free Software Foundation, Inc.
+           2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __NO_LICENSE__
 
-SPDX-License-Identifier: BSD-3-Clause
+Files:     Makefile.in
+           aclocal.m4
+           compile
+           configure
+           depcomp
+           install-sh
+           ltmain.sh
+           m4/ax_check_compile_flag.m4
+           m4/libtool.m4
+           m4/ltoptions.m4
+           m4/ltsugar.m4
+           m4/ltversion.m4
+           m4/lt~obsolete.m4
+           missing
+Copyright: 1992-2021 Free Software Foundation, Inc.
+           1994 X Consortium
+           2008 Guido U. Draheim <guidod@gmx.de>
+           2011 Maarten Bosmans <mkbosmans@gmail.com>
+License:   __AUTO_PERMISSIVE__
+ Autogenerated files with permissive licenses.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
+Files:     .gitignore
+           AUTHORS
+           CODE_OF_CONDUCT.md
+           README.rst
+           VERSION
+           config.h.in
+           contrib/json11/README.md
+           dox/Doxyfile.in
+           dox/blurb.md
+           fuzz_test/StandaloneFuzzTargetMain.cpp
+           fuzz_test/geopmhash_corpus.tar.gz
+           googletest-release-1.12.1.tar.gz
+           shell_completion/README.md
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+Files:     contrib/json11/LICENSE.txt
+           contrib/json11/json11.cpp
+           contrib/json11/json11.hpp
+           include/geopm/json11.hpp
+Copyright: 2013 Dropbox, Inc.
+License:   Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in
-      the documentation and/or other materials provided with the
-      distribution.
+Files:     geopm-service.spec.in
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ Packages: geopm-service, geopm-service-devel, libgeopmd2, python3-geopmdpy
+ This spec file supports three options for level-zero support:
+ .
+ 1. default:
+ No level-zero support.
 
-    * Neither the name of Intel Corporation nor the names of its
-      contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
+Files:     shell_completion/geopmread.bash
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ This is a bash completion script for geopmread. Source it in bash,
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Files:     Makefile.am
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ GLOBAL SETTINGS
+
+Files:     configure.ac
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ 2.62 required for OpenMP macro and others
+
+Files:     shell_completion/geopmwrite.bash
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ This is a bash completion script for geopmwrite. Source it in bash,
+
+Files:     CONTRIBUTING.rst
+Copyright: __NO_COPYRIGHT__ in: CONTRIBUTING.rst
+License:   __UNKNOWN__
+ #.
+ Changes are made on that branch and pushed to the author's fork of
+ the GEOPM repository.
+ .
+ #.
+ The author submits the pull request based on the issue branch.
+ Please refer to the Git documentation on how to create pull
+ request:
+ https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests.
+ Note that the pull request will be filled with a template.
+ Selecting the "Preview" tab to render the markdown in the template
+ may be helpful when editing the pull request text.
+ .
+ #.
+ Check that all of the requirements in the issue referenced by the
+ PR have been met.
+ .
+ #.
+ The submitter may optionally request specific people to be
+ reviewers.  Otherwise, any GEOPM maintainer may be an approver for
+ the pull request.  The ``#code-review`` channel on GEOPM's slack
+ organization may be used to alert maintainers of a review request.
+ .
+ #.
+ During the review process, a reviewer may request changes to the
+ pull request.  If possible, these changes should be submitted as
+ new commits without rebasing or squashing to simplify the reader's
+ ability to view changes.
+ .
+ #.
+ When the pull request is accepted by the reviewer(s), it will be
+ marked "Approve".  Once the request is approved by all reviewers
+ and all CI checks are passing, the change will be integrated into
+ the GEOPM development branch by a maintainer.
+ .
+ Developers Guide
+
+Files:     test/IOGroupTest.cpp
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ A sanity check that all registered IOGroups are internally consistent
+ with respect to the list of signals and controls they provide.  This
+ test can be used to check a new IOGroup plugin by loading it with
+
+Files:     test/legacy_allowlist.out
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ MSR      Write Mask         # Comment
+
+Files:     COPYING-TPP
+Copyright: 2008 Google Inc.
+License:   BSD-3-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+ .
+ * Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above
+ copyright notice, this list of conditions and the following disclaimer
+ in the documentation and/or other materials provided with the
+ distribution.
+ * Neither the name of Google Inc. nor the names of its
+ contributors may be used to endorse or promote products derived from
+ this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ .
+ On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
+ License can be found in `/usr/share/common-licenses/BSD'.
+
+Files:     ar-lib
+Copyright: 2010-2021 Free Software Foundation, Inc.
+License:   GPL-2.0+ with autoconf exception
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2, or (at your option)
+ any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ .
+ As a special exception to the GNU General Public License, if you
+ distribute this file as part of a program that contains a
+ configuration script generated by Autoconf, you may include it under
+ the same distribution terms that you use for the rest of that program.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ Version 2 can be found in `/usr/share/common-licenses/GPL-2'.
+
+#----------------------------------------------------------------------------
+# xml and html files (skipped):
+#         io.github.geopm.xml
+#         io.github.geopm.conf
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.
+
+#----------------------------------------------------------------------------
+# License file: COPYING-TPP
+ GEOPM Third Party Programs File
+ .
+ This file contains the list of third party software (“third party
+ programs”) contained in the Intel software and their required notices
+ and/or license terms. This third party software, even if included with
+ the distribution of the Intel software, may be governed by separate
+ license terms, including without limitation, third party license
+ terms, other Intel software license terms, and open source software
+ license terms. These separate license terms govern your use of the
+ third party programs as set forth in the “third-party-programs.txt” or
+ other similarly-named text file.
+ .
+ Third party programs and their corresponding required notices and/or
+ license terms are listed below.
+ .
+ -------------------------------------------------------------------------------
+ .
+ 1. GoogleTest
+ .
+ Copyright 2008, Google Inc.
+ All rights reserved.
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+ .
+     * Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above
+ copyright notice, this list of conditions and the following disclaimer
+ in the documentation and/or other materials provided with the
+ distribution.
+     * Neither the name of Google Inc. nor the names of its
+ contributors may be used to endorse or promote products derived from
+ this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ .
+ -------------------------------------------------------------------------------
+ .
+ 2. json11
+ .
+ Copyright (c) 2013 Dropbox, Inc.
+ .
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ .
+ -------------------------------------------------------------------------------
+ .
+ 3. NAS Parallel Benchmarks
+ .
+ !-------------------------------------------------------------------------!
+ !                                                                         !
+ !        N  A  S     P A R A L L E L     B E N C H M A R K S  3.3         !
+ !                                                                         !
+ !                                   F T                                   !
+ !                                                                         !
+ !-------------------------------------------------------------------------!
+ !                                                                         !
+ !    This benchmark is part of the NAS Parallel Benchmark 3.3 suite.      !
+ !    It is described in NAS Technical Reports 95-020 and 02-007           !
+ !                                                                         !
+ !    Permission to use, copy, distribute and modify this software         !
+ !    for any purpose with or without fee is hereby granted.  We           !
+ !    request, however, that all derived work reference the NAS            !
+ !    Parallel Benchmarks 3.3. This software is provided "as is"           !
+ !    without express or implied warranty.                                 !
+ !                                                                         !
+ !    Information on NPB 3.3, including the technical report, the          !
+ !    original specifications, source code, results and information        !
+ !    on how to submit new results, is available at:                       !
+ !                                                                         !
+ !           http://www.nas.nasa.gov/Software/NPB/                         !
+ !                                                                         !
+ !    Send comments or suggestions to  npb@nas.nasa.gov                    !
+ !                                                                         !
+ !          NAS Parallel Benchmarks Group                                  !
+ !          NASA Ames Research Center                                      !
+ !          Mail Stop: T27A-1                                              !
+ !          Moffett Field, CA   94035-1000                                 !
+ !                                                                         !
+ !          E-mail:  npb@nas.nasa.gov                                      !
+ !          Fax:     (650) 604-3957                                        !
+ !                                                                         !
+ !-------------------------------------------------------------------------!
+ .
+ -------------------------------------------------------------------------------
+ .
+ 4. MPI m4 macro
+ .
+ # Copyright (c) 2010, Lawrence Livermore National Security, LLC.
+ # Produced at the Lawrence Livermore National Laboratory
+ # Written by Todd Gamblin, tgamblin@llnl.gov.
+ # LLNL-CODE-417602
+ # All rights reserved.
+ #
+ # This file is part of Libra. For details, see http://github.com/tgamblin/libra.
+ # Please also read the LICENSE file for further information.
+ #
+ # Redistribution and use in source and binary forms, with or without modification, are
+ # permitted provided that the following conditions are met:
+ #
+ #  * Redistributions of source code must retain the above copyright notice, this list of
+ #    conditions and the disclaimer below.
+ #  * Redistributions in binary form must reproduce the above copyright notice, this list of
+ #    conditions and the disclaimer (as noted below) in the documentation and/or other materials
+ #    provided with the distribution.
+ #  * Neither the name of the LLNS/LLNL nor the names of its contributors may be used to endorse
+ #    or promote products derived from this software without specific prior written permission.
+ #
+ # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+ # OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ # LAWRENCE LIVERMORE NATIONAL SECURITY, LLC, THE U.S. DEPARTMENT OF ENERGY OR CONTRIBUTORS BE
+ # LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ # DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ .
+ -------------------------------------------------------------------------------
+ .
+ 5. LLVM project standalone program for fuzz targets
+ .
+ ==============================================================================
+ The LLVM Project is under the Apache License v2.0 with LLVM Exceptions:
+ ==============================================================================
+ .
+                                  Apache License
+                            Version 2.0, January 2004
+                         http://www.apache.org/licenses/
+ .
+     TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+ .
+     1. Definitions.
+ .
+       "License" shall mean the terms and conditions for use, reproduction,
+       and distribution as defined by Sections 1 through 9 of this document.
+ .
+       "Licensor" shall mean the copyright owner or entity authorized by
+       the copyright owner that is granting the License.
+ .
+       "Legal Entity" shall mean the union of the acting entity and all
+       other entities that control, are controlled by, or are under common
+       control with that entity. For the purposes of this definition,
+       "control" means (i) the power, direct or indirect, to cause the
+       direction or management of such entity, whether by contract or
+       otherwise, or (ii) ownership of fifty percent (50%) or more of the
+       outstanding shares, or (iii) beneficial ownership of such entity.
+ .
+       "You" (or "Your") shall mean an individual or Legal Entity
+       exercising permissions granted by this License.
+ .
+       "Source" form shall mean the preferred form for making modifications,
+       including but not limited to software source code, documentation
+       source, and configuration files.
+ .
+       "Object" form shall mean any form resulting from mechanical
+       transformation or translation of a Source form, including but
+       not limited to compiled object code, generated documentation,
+       and conversions to other media types.
+ .
+       "Work" shall mean the work of authorship, whether in Source or
+       Object form, made available under the License, as indicated by a
+       copyright notice that is included in or attached to the work
+       (an example is provided in the Appendix below).
+ .
+       "Derivative Works" shall mean any work, whether in Source or Object
+       form, that is based on (or derived from) the Work and for which the
+       editorial revisions, annotations, elaborations, or other modifications
+       represent, as a whole, an original work of authorship. For the purposes
+       of this License, Derivative Works shall not include works that remain
+       separable from, or merely link (or bind by name) to the interfaces of,
+       the Work and Derivative Works thereof.
+ .
+       "Contribution" shall mean any work of authorship, including
+       the original version of the Work and any modifications or additions
+       to that Work or Derivative Works thereof, that is intentionally
+       submitted to Licensor for inclusion in the Work by the copyright owner
+       or by an individual or Legal Entity authorized to submit on behalf of
+       the copyright owner. For the purposes of this definition, "submitted"
+       means any form of electronic, verbal, or written communication sent
+       to the Licensor or its representatives, including but not limited to
+       communication on electronic mailing lists, source code control systems,
+       and issue tracking systems that are managed by, or on behalf of, the
+       Licensor for the purpose of discussing and improving the Work, but
+       excluding communication that is conspicuously marked or otherwise
+       designated in writing by the copyright owner as "Not a Contribution."
+ .
+       "Contributor" shall mean Licensor and any individual or Legal Entity
+       on behalf of whom a Contribution has been received by Licensor and
+       subsequently incorporated within the Work.
+ .
+     2. Grant of Copyright License. Subject to the terms and conditions of
+       this License, each Contributor hereby grants to You a perpetual,
+       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+       copyright license to reproduce, prepare Derivative Works of,
+       publicly display, publicly perform, sublicense, and distribute the
+       Work and such Derivative Works in Source or Object form.
+ .
+     3. Grant of Patent License. Subject to the terms and conditions of
+       this License, each Contributor hereby grants to You a perpetual,
+       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+       (except as stated in this section) patent license to make, have made,
+       use, offer to sell, sell, import, and otherwise transfer the Work,
+       where such license applies only to those patent claims licensable
+       by such Contributor that are necessarily infringed by their
+       Contribution(s) alone or by combination of their Contribution(s)
+       with the Work to which such Contribution(s) was submitted. If You
+       institute patent litigation against any entity (including a
+       cross-claim or counterclaim in a lawsuit) alleging that the Work
+       or a Contribution incorporated within the Work constitutes direct
+       or contributory patent infringement, then any patent licenses
+       granted to You under this License for that Work shall terminate
+       as of the date such litigation is filed.
+ .
+     4. Redistribution. You may reproduce and distribute copies of the
+       Work or Derivative Works thereof in any medium, with or without
+       modifications, and in Source or Object form, provided that You
+       meet the following conditions:
+ .
+       (a) You must give any other recipients of the Work or
+           Derivative Works a copy of this License; and
+ .
+       (b) You must cause any modified files to carry prominent notices
+           stating that You changed the files; and
+ .
+       (c) You must retain, in the Source form of any Derivative Works
+           that You distribute, all copyright, patent, trademark, and
+           attribution notices from the Source form of the Work,
+           excluding those notices that do not pertain to any part of
+           the Derivative Works; and
+ .
+       (d) If the Work includes a "NOTICE" text file as part of its
+           distribution, then any Derivative Works that You distribute must
+           include a readable copy of the attribution notices contained
+           within such NOTICE file, excluding those notices that do not
+           pertain to any part of the Derivative Works, in at least one
+           of the following places: within a NOTICE text file distributed
+           as part of the Derivative Works; within the Source form or
+           documentation, if provided along with the Derivative Works; or,
+           within a display generated by the Derivative Works, if and
+           wherever such third-party notices normally appear. The contents
+           of the NOTICE file are for informational purposes only and
+           do not modify the License. You may add Your own attribution
+           notices within Derivative Works that You distribute, alongside
+           or as an addendum to the NOTICE text from the Work, provided
+           that such additional attribution notices cannot be construed
+           as modifying the License.
+ .
+       You may add Your own copyright statement to Your modifications and
+       may provide additional or different license terms and conditions
+       for use, reproduction, or distribution of Your modifications, or
+       for any such Derivative Works as a whole, provided Your use,
+       reproduction, and distribution of the Work otherwise complies with
+       the conditions stated in this License.
+ .
+     5. Submission of Contributions. Unless You explicitly state otherwise,
+       any Contribution intentionally submitted for inclusion in the Work
+       by You to the Licensor shall be under the terms and conditions of
+       this License, without any additional terms or conditions.
+       Notwithstanding the above, nothing herein shall supersede or modify
+       the terms of any separate license agreement you may have executed
+       with Licensor regarding such Contributions.
+ .
+     6. Trademarks. This License does not grant permission to use the trade
+       names, trademarks, service marks, or product names of the Licensor,
+       except as required for reasonable and customary use in describing the
+       origin of the Work and reproducing the content of the NOTICE file.
+ .
+     7. Disclaimer of Warranty. Unless required by applicable law or
+       agreed to in writing, Licensor provides the Work (and each
+       Contributor provides its Contributions) on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+       implied, including, without limitation, any warranties or conditions
+       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+       PARTICULAR PURPOSE. You are solely responsible for determining the
+       appropriateness of using or redistributing the Work and assume any
+       risks associated with Your exercise of permissions under this License.
+ .
+     8. Limitation of Liability. In no event and under no legal theory,
+       whether in tort (including negligence), contract, or otherwise,
+       unless required by applicable law (such as deliberate and grossly
+       negligent acts) or agreed to in writing, shall any Contributor be
+       liable to You for damages, including any direct, indirect, special,
+       incidental, or consequential damages of any character arising as a
+       result of this License or out of the use or inability to use the
+       Work (including but not limited to damages for loss of goodwill,
+       work stoppage, computer failure or malfunction, or any and all
+       other commercial damages or losses), even if such Contributor
+       has been advised of the possibility of such damages.
+ .
+     9. Accepting Warranty or Additional Liability. While redistributing
+       the Work or Derivative Works thereof, You may choose to offer,
+       and charge a fee for, acceptance of support, warranty, indemnity,
+       or other liability obligations and/or rights consistent with this
+       License. However, in accepting such obligations, You may act only
+       on Your own behalf and on Your sole responsibility, not on behalf
+       of any other Contributor, and only if You agree to indemnify,
+       defend, and hold each Contributor harmless for any liability
+       incurred by, or claims asserted against, such Contributor by reason
+       of your accepting any such warranty or additional liability.
+ .
+     END OF TERMS AND CONDITIONS
+ .
+     APPENDIX: How to apply the Apache License to your work.
+ .
+       To apply the Apache License to your work, attach the following
+       boilerplate notice, with the fields enclosed by brackets "[]"
+       replaced with your own identifying information. (Don't include
+       the brackets!)  The text should be enclosed in the appropriate
+       comment syntax for the file format. We also recommend that a
+       file or class name and description of purpose be included on the
+       same "printed page" as the copyright notice for easier
+       identification within third-party archives.
+ .
+     Copyright [yyyy] [name of copyright owner]
+ .
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+ .
+        http://www.apache.org/licenses/LICENSE-2.0
+ .
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ .
+ .
+ ---- LLVM Exceptions to the Apache 2.0 License ----
+ .
+ As an exception, if, as a result of your compiling your source code, portions
+ of this Software are embedded into an Object form of such source code, you
+ may redistribute such embedded portions in such Object form without complying
+ with the conditions of Sections 4(a), 4(b) and 4(d) of the License.
+ .
+ In addition, if you combine or link compiled forms of this Software with
+ software that is licensed under the GPLv2 ("Combined Software") and if a
+ court of competent jurisdiction determines that the patent provision (Section
+ 3), the indemnity provision (Section 9) or other Section of the License
+ conflicts with the conditions of the GPLv2, you may retroactively and
+ prospectively choose to deem waived or otherwise exclude such Section(s) of
+ the License, but only in their entirety and only with respect to the Combined
+ Software.
+ .
+ ==============================================================================
+ Software from third parties included in the LLVM Project:
+ ==============================================================================
+ The LLVM Project contains third party software which is under different license
+ terms. All such code will be identified clearly using at least one of two
+ mechanisms:
+ 1) It will be in a separate directory tree with its own `LICENSE.txt` or
+    `LICENSE` file at the top containing the specific license and restrictions
+    which apply to that software, or
+ 2) It will contain specific license and restriction terms at the top of every
+    file.
+ .
+ ==============================================================================
+ Legacy LLVM License (https://llvm.org/docs/DeveloperPolicy.html#legacy):
+ ==============================================================================
+ University of Illinois/NCSA
+ Open Source License
+ .
+ Copyright (c) 2003-2019 University of Illinois at Urbana-Champaign.
+ All rights reserved.
+ .
+ Developed by:
+ .
+     LLVM Team
+ .
+     University of Illinois at Urbana-Champaign
+ .
+     http://llvm.org
+ .
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal with
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+ .
+     * Redistributions of source code must retain the above copyright notice,
+       this list of conditions and the following disclaimers.
+ .
+     * Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimers in the
+       documentation and/or other materials provided with the distribution.
+ .
+     * Neither the names of the LLVM Team, University of Illinois at
+       Urbana-Champaign, nor the names of its contributors may be used to
+       endorse or promote products derived from this Software without specific
+       prior written permission.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+ SOFTWARE.
+ .
+ -------------------------------------------------------------------------------
+ .
+ 6. Autoconf OpenMP Macro
+ .
+ # This file is part of Autoconf.			-*- Autoconf -*-
+ # Programming languages support.
+ # Copyright (C) 2001-2012 Free Software Foundation, Inc.
+ # Copyright (C) 2015-2023 R Core Team
+ .
+ # This file is part of Autoconf.  This program is free
+ # software; you can redistribute it and/or modify it under the
+ # terms of the GNU General Public License as published by the
+ # Free Software Foundation, either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # This program is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # Under Section 7 of GPL version 3, you are granted additional
+ # permissions described in the Autoconf Configure Script Exception,
+ # version 3.0, as published by the Free Software Foundation.
+ #
+ # You should have received a copy of the GNU General Public License
+ # and a copy of the Autoconf Configure Script Exception along with
+ # this program; see the files COPYINGv3 and COPYING.EXCEPTION
+ # respectively.  If not, see <https://www.gnu.org/licenses/>.
+ .
+ # Written by David MacKenzie, with help from
+ # Akim Demaille, Paul Eggert,
+ # Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
+ # Roland McGrath, Noah Friedman, david d zuhn, and many others.
+
+#----------------------------------------------------------------------------
+# License file: COPYING
+ Copyright (c) 2015 - 2024, Intel Corporation
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+     * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+ .
+     * Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the
+       distribution.
+ .
+     * Neither the name of Intel Corporation nor the names of its
+       contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
