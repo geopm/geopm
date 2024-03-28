@@ -1,1 +1,0 @@
-../service/test/googletest.mk

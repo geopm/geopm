@@ -3,30 +3,40 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# If the VERSION file does not exist, then create it based on git
-# describe or if not in a git repo just set VERSION to 0.0.0.
-if [ -f VERSION_OVERRIDE ]; then
-    cp VERSION_OVERRIDE VERSION
-elif git describe --long > /dev/null 2>&1; then
-    sha=$(git describe --long | awk -F- '{print $(NF)}')
-    release=$(git describe --long | awk -F- '{print $(NF-1)}')
-    version=$(git describe --long | sed -e "s|+rc|~rc|" -e "s|\(.*\)-$release-$sha|\1|" -e "s|-|+|g" -e "s|^v||")
-    if [ "${release}" != "0" ]; then
-        version=${version}+dev${release}${sha}
+set -e -x
+# Create python source distribution (provides geopmdpy/version.py)
+python3 -m build --sdist geopmdpy
+python3 -m build --sdist geopmpy
+
+# Recreate the JSON schema files in case they have changed,
+# remember to git commit the generated files if they have.
+PYTHONPATH=geopmdpy python3 -m geopmdpy.schemas docs/json_schemas
+# Update io.github.geopm.xml in case API documentation changed,
+# remember to git commit the generated files if they have.
+PYTHONPATH=geopmdpy python3 -m geopmdpy.dbus_xml > libgeopmd/io.github.geopm.xml
+
+# Create VERSION file
+if [ ! -e VERSION ]; then
+    PYTHONPATH=geopmdpy python3 -c "from geopmdpy.version import __version__; print(__version__)" > VERSION
+    # TODO: If required our old VERSION format can be created this way
+    # PYTHONPATH=geopmdpy python3 -c "from geopmdpy.version import __version__; vv=__version__.replace('.dev','+dev', 1).replace('+g','g', 1); vv=vv[:vv.rfind('.d20')]; print(vv)" > VERSION
+    if [ $? -ne 0 ]; then
+        echo "WARNING:  VERSION file does not exist and geopmdpy/version.py failed, setting version to 0.0.0" 1>&2
+        echo "0.0.0" > VERSION
     fi
-    echo $version > VERSION
-elif [ ! -f VERSION ]; then
-    echo "WARNING:  VERSION file does not exist and git describe failed, setting version to 0.0.0" 1>&2
-    echo "0.0.0" > VERSION
 fi
 
-if [ -f .git/config ] || git rev-parse --git-dir > /dev/null 2>&1; then
-    git ls-tree --full-tree -r HEAD | awk '{print $4}' | sort > MANIFEST
-fi
-if [ ! -f MANIFEST ]; then
-    echo "WARNING: MANIFEST file does not exist and working directory is not a git repository, creating with find" 1>&2
-    find . -type f | sed 's|^\./||' | sort > MANIFEST
-fi
+set +x
+# Copy repository files from base directory
+for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP SECURITY.md VERSION; do
+    for dd in libgeopmd libgeopm geopmdpy geopmpy; do
+        if [ ! -f $dd/$ff ]; then
+            cp $ff $dd/$ff
+	fi
+    done
+done
 
-mkdir -p m4
-autoreconf -i -f
+set -x
+# Create configure scripts
+cd libgeopmd && autoreconf -i -f; cd -
+cd libgeopm && autoreconf -i -f; cd -

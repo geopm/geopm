@@ -1,0 +1,60 @@
+Source: geopm-service
+Section: utils
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (=13),
+               build-essential,
+               debhelper (>= 11~),
+               dh-python,
+	       libcap-dev,
+               libnvidia-ml-dev,
+               libsystemd-dev (>= 221),
+               liburing-dev,
+               libtool,
+               pkgconf,
+               unzip,
+               zlib1g-dev
+Standards-Version: 4.1.4
+Homepage: https://geopm.github.io
+Vcs-Git: https://github.com/geopm/geopm.git
+Vcs-Browser: https://github.com/geopm/geopm.git
+
+Package: geopm-service
+Section: utils
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgeopmd2 (= ${binary:Version}),
+         python3-geopmdpy (= ${binary:Version})
+Description: The GEOPM Service provides a user-level interface to read
+ telemetry and configure settings of heterogeneous hardware
+ platforms. Linux system administrators may manage permissions for
+ user access to telemetry and configuration at a fine granularity.
+ This package includes the geopm systemd service unit that provides a
+ DBus interface io.github.geopm.  Additionally the libgeopmd.so shared
+ object library is installed with this package.
+
+Package: libgeopmd-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgeopmd2 (= ${binary:Version})
+Description: Development package for the GEOPM Service.  This provides
+ the programming interface to libgeopmd.so.  The package includes the
+ C and C++ header files, maunuals for these interfaces and the
+ unversioned libgeopmd.so shared object symbolic link and the static
+ library.
+
+Package: libgeopmd2
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Library supporting the GEOPM Service.  This provides the
+ libgeopmd library which provides C and C++ interfaces.
+ .
+ This package contains the shared library.
+

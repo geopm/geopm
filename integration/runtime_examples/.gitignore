@@ -1,0 +1,11 @@
+/geopm_ctl_single
+/geopmhash
+/geopm_platform_supported
+/geopm_print_error
+/*.o
+/print_affinity
+/simple_prof_c
+/simple_prof_f
+/synthetic_benchmark
+/threaded_step
+/timed_region

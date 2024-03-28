@@ -1,0 +1,1 @@
+../../libgeopmd/test/googletest.mk

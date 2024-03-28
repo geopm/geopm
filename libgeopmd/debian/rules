@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@ --with autoreconf 
+
+override_dh_auto_test:
+       # TODO Fix issue #2999
+
+override_dh_missing:
+	dh_missing --list-missing -X.la
+
+override_dh_auto_configure:
+	if [ "$(DEB_BUILD_ARCH)" != "amd64" ]; then CPUID_OPTION="--disable-cpuid"; fi; \
+	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d --enable-nvml $(CPUID_OPTION)

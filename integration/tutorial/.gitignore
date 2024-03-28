@@ -1,0 +1,12 @@
+/agent/*.so.*
+/contrib
+/Exception.hpp
+/geopm_time.h
+/iogroup/*.so.*
+/*.o
+/plugin_load/*/*.so.*
+/tutorial_[0-9]
+/tutorial_[0-9]*_report-*
+/tutorial_[0-9]*_trace-*
+/tutorial_4_imbalance.conf
+/python_agents/*.report

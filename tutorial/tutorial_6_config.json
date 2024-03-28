@@ -1,5 +1,0 @@
-{"loop-count": 10,
- "region": ["sleep", "stream-progress", "dgemm-imbalance", "stream", "all2all"],
- "big-o": [1.0, 1.0, 1.0, 1.0, 1.0],
- "hostname": ["compute-node-3", "compute-node-15"],
- "imbalance": [0.05, 0.15]}

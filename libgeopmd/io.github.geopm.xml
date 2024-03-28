@@ -1,0 +1,730 @@
+<!DOCTYPE node PUBLIC
+    "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+     "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <interface name="io.github.geopm">
+    <doc:doc>
+      <doc:description>
+        <doc:para>The GEOPM DBus API enables a client to make measurements from the
+hardware platform and set hardware control parameters.  Fine grained
+permissions management for both measurements (signals) and controls is
+configurable by system administrators.
+        </doc:para>
+      </doc:description>
+    </doc:doc>
+    <method name="TopoGetCache">
+      <arg direction="out" name="result" type="s">
+        <doc:doc>
+          <doc:summary>Contents of the topology cache file that defines
+the system topology.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Return the contents of the PlatformTopo cache file.
+          </doc:summary>
+          <doc:para>Create the PlatformTopo cache file if it does not exist and
+then return the contents of the file as a string.  This
+provides all the information required to associate all domains
+with CPUs.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetGroupAccess">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>Name of group
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="access_lists" type="(asas)">
+        <doc:doc>
+          <doc:summary>list(str), list(str): Signal and control allowed lists, both in sorted order.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get the signal and control access lists
+          </doc:summary>
+          <doc:para>Read the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+returned.
+
+The values are securely read from files located in
+/etc/geopm using the secure_read_file() interface.
+
+If no secure file exist for the specified group, then two
+empty lists are returned.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformSetGroupAccess">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>Name of group
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_signals" type="as">
+        <doc:doc>
+          <doc:summary>Signal names that are allowed
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_controls" type="as">
+        <doc:doc>
+          <doc:summary>Control names that are allowed
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Set signals and controls in the allowed lists
+          </doc:summary>
+          <doc:para>Write the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+updated.
+
+The values are securely written atomically to files located in
+/etc/geopm using the secure_make_dirs() and
+secure_make_file() interfaces.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformSetGroupAccessSignals">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>Name of group
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_signals" type="as">
+        <doc:doc>
+          <doc:summary>Signal names that are allowed
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Set signals and controls in the allowed lists
+          </doc:summary>
+          <doc:para>Write the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+updated.
+
+The values are securely written atomically to files located in
+/etc/geopm using the secure_make_dirs() and
+secure_make_file() interfaces.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformSetGroupAccessControls">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>Name of group
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_controls" type="as">
+        <doc:doc>
+          <doc:summary>Control names that are allowed
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Set signals and controls in the allowed lists
+          </doc:summary>
+          <doc:para>Write the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+updated.
+
+The values are securely written atomically to files located in
+/etc/geopm using the secure_make_dirs() and
+secure_make_file() interfaces.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetUserAccess">
+      <arg direction="out" name="access_lists" type="(asas)">
+        <doc:doc>
+          <doc:summary>list(str), list(str): Signal and control allowed lists, both in sorted order.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get the list of all of the signals and controls that are
+          </doc:summary>
+          <doc:para>accessible to the specified user.
+
+Returns the default access lists that apply to all non-root
+users if the empty string is provided.
+
+All available signals and controls are returned if the caller
+specifies the a pid with CAP_SYSADMIN.  A RuntimeError is
+raised if the user does not exist on the system.
+
+When a user requests a signal or control through one of the
+other PlatformService methods, they are restricted to the
+union of the default allowed lists and the allowed lists for
+all Unix groups that the user belongs to.  These combined
+lists are what this method returns.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetAllAccess">
+      <arg direction="out" name="access_lists" type="(asas)">
+        <doc:doc>
+          <doc:summary>list(str), list(str): All supported signals and controls, in sorted order.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get all of the signals and controls that the service supports.
+          </doc:summary>
+          <doc:para>Returns the list of all signals and controls supported by the
+service.  The lists returned are independent of the access
+controls; therefore, calling get_all_access() is equivalent
+to calling get_user_access() for a user with CAP_SYSADMIN.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetSignalInfo">
+      <arg direction="in" name="signal_names" type="as">
+        <doc:doc>
+          <doc:summary>List of signal names to query
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="info" type="a(ssiiii)">
+        <doc:doc>
+          <doc:summary>list(tuple((str), (str), (int), (int), (int), (int))):
+name (str): The signal name specified by the caller
+
+description (str): A human-readable description of
+                   what the signal measures.
+
+domain_type (int): One of the geopmpy.topo.DOMAIN_*
+                   integers corresponding to a domain
+                   type where the signal is natively
+                   supported.
+
+aggregation (int): One of the geopm::Agg::m_type_e
+                   enum values defined in Agg.hpp that
+                   specifies how to aggregate the
+                   signal over domains.
+
+format_type (int): One of the geopm::string_format_e
+                   enum values defined in Helper.hpp
+                   that specifies how to convert the
+                   signal value to a human readable
+                   string.
+
+behavior (int): One of the
+                IOGroup::m_signal_behavior_e enum
+                values that specifies how the signal
+                changes over time.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>For each specified signal name, return a tuple of information.
+          </doc:summary>
+          <doc:para>The caller provides a list of signal names.  This method returns
+a list of the same length which consists of a tuple of information
+for each signal.
+
+The method will raise a RuntimeError if any of the requested
+signal names are not supported by the service.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetControlInfo">
+      <arg direction="in" name="control_names" type="as">
+        <doc:doc>
+          <doc:summary>List of control names to query
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="info" type="a(ssi)">
+        <doc:doc>
+          <doc:summary>list(tuple((str), (str), (int))):
+name (str): The control name specified by the caller
+
+description (str): A human-readable description of the
+                   effect of setting the control.
+
+domain_type (int): One of the geopmpy.topo.DOMAIN_*
+                   integers corresponding to a domain
+                   type that is the finest available
+                   granularity for the control.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>For each specified control name, return a tuple of information.
+          </doc:summary>
+          <doc:para>The caller provides a list of control names.  This method returns
+a list of the same length which consists of a tuple of information
+for each control.
+
+The method will raise a RuntimeError if any of the requested
+control names are not supported by the service.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformLockControl">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>Block all write-mode sessions.
+          </doc:summary>
+          <doc:para>A call to this method will end any currently running
+write-mode session and block the creation of any new
+write-mode sessions.  Use the unlock_control() method to
+enable write-mode sessions to begin again.
+
+Calls to this method through the DBus interface will be
+blocked for all non-root users due to the rules established by
+the "io.github.geopm.conf" DBus configuration file.
+
+Until write-mode sessions are re-enabled, any calls to
+write_control() or calls to start_batch() with a non-empty
+control_config parameter will raise a RuntimeError.
+
+The default system configuration may be updated by the system
+administrator while write-mode is locked.  For instance, the
+system administrator may use the geopmwrite command-line tool
+as user root between calls to lock_control() and
+unlock_control().  These changes will be reflected by the
+save/restore executed by the service for the next client
+write-mode session after the controls are unlocked.
+
+No action is taken and no error is raised if controls are already
+disabled when this method is called.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformUnlockControl">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>Unblock access to create new write-mode sessions.
+          </doc:summary>
+          <doc:para>A call to this method will re-enable write-mode sessions to be
+created after they were previously disabled by a call to
+lock_control().
+
+Although new sessions may be created after a call to
+unlock_control(), write-mode sessions that were ended due to
+previous calls to lock_control() will remain closed.
+
+No action is taken and no error is raised if controls are already
+enabled when this method is called.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformOpenSession">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>Open a new session for the client thread.
+          </doc:summary>
+          <doc:para>The creation of a session is the first step that a client
+thread makes to interact with the GEOPM service.  Each Linux
+thread has a unique PID, and this PID can be associated with
+at most one GEOPM service session.  The session is ended by
+passing the client PID to the close_session() method.  The
+session will also be ended if the client thread terminates for
+any reason.
+
+The client PID may attempt to open a new session multiple
+times.  In this case a reference count records the number of
+calls to open the session by the client PID.  Each call to
+open a session is expected to be paired with a call to close
+the session.  When the reference count falls to zero, all
+resources associated with the session are released.
+
+Incrementing the reference count is an abstraction for the
+client.  The client itself cannot have more than a single open
+connection at once, so when requesting a new session, other
+than incrementing the counter, nothing else happens.
+
+All sessions are opened in read-mode, and may later be
+promoted to write-mode.  This promotion will occur with the
+first successful call requiring access to controls.  This
+includes any calls to write_control() or calls to
+start_batch() with a non-empty control_config.  These calls
+will fail if there is an active write-mode session opened by
+another thread.
+
+Prior to being promoted to write-mode, the current value for
+all controls that are supported by the GEOPM service will be
+recorded.  This record enables the service to restore all
+controls when the write-mode session ends.
+
+Permissions for the session's access to signals and controls
+are determined based on the policy for the user when
+the session is first opened.  Calling the set_group_access()
+method to alter the policy will not affect active sessions.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformCloseSession">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>Close an active session for the client process.
+          </doc:summary>
+          <doc:para>After closing a session, the client process is required to
+call open_session() again before using any of the client-facing
+member functions.
+
+Closing an active session will remove the record of which
+signals and controls the client process has access to; thus,
+this record is updated to reflect changes to the policy when the
+next session is opened by the process.
+
+When closing a write-mode session, the control values that were
+recorded when the session was promoted to write-mode are restored.
+
+A client PID may attempt to open a session multiple times and
+this is tracked with a reference count as described in the
+documentation for opening a session.  In this case, calls to
+close the session will not actually release the resources
+associated with the session until the reference count falls to
+zero.
+
+A RuntimeError is raised if the client_pid does not have an
+open session.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformCloseSessionAdmin">
+      <arg direction="in" name="client_pid" type="i">
+        <doc:doc>
+          <doc:summary>Linux PID of the client thread
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Close an active session for the client process completely.
+          </doc:summary>
+          <doc:para>This administrative function is used to forcibly close an
+active session regardless of the client's reference count.
+Similarly, if a client process PID is no longer active, but an
+open session exists, this implementation is used to release
+the session resources.
+
+When closing a write-mode session, the control values that were
+recorded when the session was promoted to write-mode are restored.
+A RuntimeError is raised if the client_pid does not have an
+open session.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformStartBatch">
+      <arg direction="in" name="signal_config" type="a(iis)">
+        <doc:doc>
+          <doc:summary>domain_type (int): One of the geopmpy.topo.DOMAIN_*
+                   integers corresponding to a domain
+                   type to read from.
+
+domain_idx (int): Specifies the particular domain
+                  index to read from.
+
+signal_name (str): The name of the signal to read.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="control_config" type="a(iis)">
+        <doc:doc>
+          <doc:summary>domain_type (int): One of the geopmpy.topo.DOMAIN_*
+                   integers corresponding to a domain
+                   type to write to.
+
+domain_idx (int): Specifies the particular domain
+                  index to write to.
+
+control_name (str): The name of the control to write.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="batch" type="(is)">
+        <doc:doc>
+          <doc:summary>tuple(int, str):
+server_pid (int): The Linux PID of the batch server process.
+
+server_key (str): A unique identifier enabling the
+                  server/client connection across
+                  inter-process shared memory.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Start a batch server to support a client session.
+          </doc:summary>
+          <doc:para>Configure the signals and controls that will be enabled by the
+batch server and start the server process.  The server enables
+fast access for the signals and controls that are configured
+by the caller.  These are configured by specifying a name,
+domain and domain index for each of the signals and controls
+that the server will support.
+
+After a batch server is successfully created, the client will
+interact with the batch server though PlatformIO interfaces
+that do not go over DBus.  That is, once access is established
+by DBus, a faster protocol can be safely used.
+
+The batch server does not enable features beyond those of
+the read_signal() or write_control() methods; it simply
+provides a much higher performance interface.
+
+A RuntimeError is raised if the client does not have
+permission to read or write any of configured signals or
+controls or if the client_pid does not have an open session.
+The server process will not be created if any error occurs.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformStopBatch">
+      <arg direction="in" name="server_pid" type="i">
+        <doc:doc>
+          <doc:summary>Linux PID of the client thread.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>End a batch server previously started by the client.
+          </doc:summary>
+          <doc:para>Terminate the batch server process and free up all resources
+associated with the batch server.  Any future calls by the
+client to interfaces that require the batch server will result
+in errors.
+
+The batch server will also be terminated if the client session
+that created the server terminates for any reason.
+
+A RuntimeError will be raised if the specified server PID was
+not previously created by the client's call to start_batch(),
+or if the batch server has already been closed for any reason.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformReadSignal">
+      <arg direction="in" name="signal_name" type="s">
+        <doc:doc>
+          <doc:summary>Linux PID of the client thread.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="domain" type="i">
+        <doc:doc>
+          <doc:summary>Name of the signal to read.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="domain_idx" type="i">
+        <doc:doc>
+          <doc:summary>One of the geopmpy.topo.DOMAIN_* integers
+corresponding to a domain type to read from.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="sample" type="d">
+        <doc:doc>
+          <doc:summary>The value of the signal in SI units.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Read a signal from a particular domain.
+          </doc:summary>
+          <doc:para>Select a signal by name and read the current value from the
+domain type and index specified.  The value is returned
+as a floating point number in SI units.
+
+A RuntimeError is raised if the client_pid does not have an
+open session or if the client does not have permission to read the
+signal from the specified domain.
+
+A RuntimeError is raised if the requested signal is not
+supported, the domain is invalid or the domain index is out of
+range.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformWriteControl">
+      <arg direction="in" name="control_name" type="s">
+        <doc:doc>
+          <doc:summary>Linux PID of the client thread.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="domain" type="i">
+        <doc:doc>
+          <doc:summary>The name of the control to write.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="domain_idx" type="i">
+        <doc:doc>
+          <doc:summary>One of the geopmpy.topo.DOMAIN_* integers
+corresponding to a domain type to written
+to.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="setting" type="d">
+        <doc:doc>
+          <doc:summary>Specifies the particular domain index to
+write to.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Write a control value to a particular domain.
+          </doc:summary>
+          <doc:para>Select a control by name and write a new setting for the
+domain type and index specified.  The written control setting
+is a floating point number in SI units.
+
+A RuntimeError is raised if the client_pid does not have an
+open session, or if the client does not have permission to write the
+control to the specified domain.
+
+A RuntimeError is raised if a different client currently has an
+open write-mode session.
+
+A RuntimeError is raised if the requested control is not
+supported, the domain is invalid or the domain index is out of
+range.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformRestoreControl">
+     <doc:doc>
+        <doc:description>
+          <doc:summary>Restore all controls recorded at the start of a session.
+          </doc:summary>
+          <doc:para>For the session associated to the given process, restore the state
+of all controls, which is recorded at the beginning of the session.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformStartProfile">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>Name of application that PID supports
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Begin profiling a user PID
+          </doc:summary>
+          <doc:para>Called by a thread to enable profiling as part of a named
+application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformStopProfile">
+      <arg direction="in" name="region_names" type="as">
+        <doc:doc>
+          <doc:summary>Names of all regions entered.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Stop profiling a user PID
+          </doc:summary>
+          <doc:para>Called by a thread to end profiling as part of a named
+application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetProfilePids">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>Name of application that PID supports
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="pids" type="ai">
+        <doc:doc>
+          <doc:summary>All PID associated with profile_name or empty
+list if profile_name is not registered.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get PIDs associated with an application
+          </doc:summary>
+          <doc:para>Called by a profiling thread to find all PIDs associated with
+a named application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformPopProfileRegionNames">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>Name of application that PID supports
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="region_names" type="as">
+        <doc:doc>
+          <doc:summary>All region names associated with profile_name
+or empty list if profile_name is not
+registered.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get region names associated with an application
+          </doc:summary>
+          <doc:para>Called by a profiling thread to find all region names
+associated with a named application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+  </interface>
+</node>
