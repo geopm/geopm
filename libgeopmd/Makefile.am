@@ -85,6 +85,14 @@ EXTRA_DIST = .gitignore \
              AUTHORS \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
+             json_data/msr_data_arch.json \
+             json_data/msr_data_hsx.json \
+             json_data/msr_data_knl.json \
+             json_data/msr_data_skx.json \
+             json_data/msr_data_snb.json \
+             json_data/msr_data_spr.json \
+             json_data/sysfs_attributes_cpufreq.json \
+             src/json_data.cpp.in \
              # end
 
 geopmread_SOURCES = src/geopmread_main.cpp

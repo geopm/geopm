@@ -1,12 +1,16 @@
 #!/usr/bin/make -f
-# You must remove unused comment lines for the released package.
-#export DH_VERBOSE = 1
-#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
-#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+export DH_VERBOSE = 1
 
 %:
 	dh $@ --with autoreconf 
 
-#override_dh_install:
-#	dh_install --list-missing -X.la -X.pyc -X.pyo
+override_dh_auto_test:
+       # TODO Fix issue #2999
+
+override_dh_missing:
+	dh_missing --list-missing -X.la
+
+override_dh_auto_configure:
+	if [ "$(DEB_BUILD_ARCH)" != "amd64" ]; then CPUID_OPTION="--disable-cpuid"; fi; \
+	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d --enable-nvml $(CPUID_OPTION)
