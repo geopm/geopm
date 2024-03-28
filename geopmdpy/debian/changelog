@@ -1,5 +1,5 @@
-geopmdpy (3.0.1.dev222+gd00ee89a4.d20240328-1) UNRELEASED; urgency=low
+python3-geopmdpy (3.0.1.dev222+gd00ee89a4.d20240328-1) UNRELEASED; urgency=low
 
-  * Initial release. Closes: #1055130
+  * Release 3.0.1.dev222+gd00ee89a4.d20240328-1
 
- --  <christopher.m.cantalupo@intel.com>  Thu, 28 Mar 2024 12:01:41 -0700
+ -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  Tue, 07 May 2019 20:31:30 +0000
