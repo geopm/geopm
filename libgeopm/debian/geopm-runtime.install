@@ -1,4 +1,3 @@
-etc/bash_completion.d/geopmlaunch.bash
 usr/bin/geopmadmin
 usr/bin/geopmagent
 usr/bin/geopmctl
