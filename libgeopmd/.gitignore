@@ -20,6 +20,9 @@ compile_commands.json
 /debian/changelog
 /depcomp
 /dist
+/dox/Doxyfile
+/dox/html
+/dox/latex
 /docs/build
 /fuzz_test/geopmhash_corpus.tar.gz
 /fuzz_test/geopmhash_corpus
