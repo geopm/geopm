@@ -9,10 +9,7 @@ override_dh_missing:
 	dh_missing --list-missing -X.la
 
 override_dh_auto_configure:
-	if [ "$(DEB_BUILD_ARCH)" != "amd64" ]; then CPUID_OPTION="--disable-cpuid"; fi; \
 	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d \
-	                     --disable-mpi \
-	                     --with-bash-completion-dir=/etc/bash_completion.d \
 	                     --disable-mpi \
 	                     --disable-openmp \
 	                     --disable-fortran \
