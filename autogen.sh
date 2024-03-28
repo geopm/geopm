@@ -3,15 +3,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Copy repository files from base directory
-for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP SECURITY.md VERSION; do
-    for dd in libgeopmd libgeopm geopmdpy geopmpy; do
-        if [ ! -f $dd/$ff ]; then
-            cp $ff $dd/$ff
-	fi
-    done
-done
-
 set -e -x
 # Create python source distribution (provides geopmdpy/version.py)
 python3 -m build --sdist geopmdpy
@@ -35,7 +26,17 @@ if [ ! -e VERSION ]; then
     fi
 fi
 
+set +x
+# Copy repository files from base directory
+for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP SECURITY.md VERSION; do
+    for dd in libgeopmd libgeopm geopmdpy geopmpy; do
+        if [ ! -f $dd/$ff ]; then
+            cp $ff $dd/$ff
+	fi
+    done
+done
 
+set -x
 # Create configure scripts
 cd libgeopmd && autoreconf -i -f; cd -
 cd libgeopm && autoreconf -i -f; cd -
