@@ -54,12 +54,12 @@ install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/geopm
 
 dist_doc_DATA = COPYING \
-                COPYING-TPP \
                 README.rst \
                 VERSION \
                 # end
 
 EXTRA_DIST = .gitignore \
+             autogen.sh \
              Makefile.am \
              configure.ac \
              contrib/json11/LICENSE.txt \

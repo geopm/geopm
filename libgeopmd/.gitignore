@@ -1,10 +1,8 @@
 /aclocal.m4
 /ar-lib
-/AUTHORS
 /autom4te.cache
 /autoscan.log
 /build
-/CODE_OF_CONDUCT.md
 /compile
 compile_commands.json
 /config.guess
@@ -14,9 +12,6 @@ compile_commands.json
 /config.status
 /config.sub
 /configure
-/CONTRIBUTING.rst
-/COPYING
-/COPYING-TPP
 /debian/changelog
 /depcomp
 /dist
@@ -50,14 +45,12 @@ compile_commands.json
 /Makefile
 /Makefile.in
 /missing
-/README
 src/msr_data_*.cpp
 src/sysfs_attributes_*.cpp
 /stamp-h1
 /test/geopm_test
 /test/gtest_links/
 /test/isadmin
-/VERSION
 /*geopm*.ddeb
 /*geopm*.deb
 /geopm-service*.dsc
