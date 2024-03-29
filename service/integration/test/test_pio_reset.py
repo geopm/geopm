@@ -19,6 +19,7 @@ class TestPIOReset(unittest.TestCase):
     new set of signals/controls.
     """
     SIGNALS = ['CPUINFO::FREQ_MIN', 'CPUINFO::FREQ_MAX']
+    UNUSED_SIGNALS = ['CPUINFO::FREQ_STEP', 'CPUINFO::FREQ_STICKER']
 
     @staticmethod
     def push_signals(signals):
@@ -42,8 +43,9 @@ class TestPIOReset(unittest.TestCase):
         signal_idxs = self.push_signals(self.SIGNALS)
         pio.read_batch()
         self.print_sample(self.SIGNALS, signal_idxs)
+        self.push_signals(self.SIGNALS)
         with self.assertRaises(RuntimeError):
-            self.push_signals(self.SIGNALS)
+            self.push_signals(self.UNUSED_SIGNALS)
 
         print("Resetting PlatformIO...")
         pio.reset()
