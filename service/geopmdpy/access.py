@@ -320,9 +320,9 @@ class Access:
 
         """
         global _dl
-        name_max = 4096
-        allowlist_cstr = gffi.gffi.new("char[]", name_max)
-        err = _dl.geopm_allowlist(name_max, allowlist_cstr)
+        data_max = 2097152 # 2 MiB
+        allowlist_cstr = gffi.gffi.new("char[]", data_max)
+        err = _dl.geopm_allowlist(data_max, allowlist_cstr)
         if err < 0:
             raise RuntimeError('geopm_allowlist() failed: {}'.format(error.message(err)))
         return gffi.gffi.string(allowlist_cstr).decode()
@@ -424,7 +424,6 @@ class Access:
                     output = self.get_user_controls()
                 else:
                     output = self.get_user_signals()
-
         return output
 
 def main():

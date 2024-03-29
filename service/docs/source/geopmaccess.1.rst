@@ -357,21 +357,26 @@ for privileged users.  For more information see: :ref:`requires:The MSR
 Driver`.
 
 The following example demonstrates the necessary commands to set the
-msr-safe allowlist using ``geopmaccess``:
+msr-safe allowlist using ``geopmaccess``.
+
+.. note::
+    Note that if the ``msr`` driver is already loaded (via inspection
+    with ``lsmod``) then steps 1 and 4 below can be skipped.
 
 .. code-block:: bash
 
     # Run the following with root or sudo:
-    modprobe msr
-    geopmaccess -s > allowlist.txt
-    cat allowlist.txt > /dev/cpu/msr_allowlist
-    rmmod msr
+    1. modprobe msr
+    2. geopmaccess -s > allowlist.txt
+    3. cat allowlist.txt > /dev/cpu/msr_allowlist
+    4. rmmod msr
 
 If you have installed msr-safe via RPM, it is likely you have the
 msr-safe.service running via systemd that will try to set the
 allowlist on service start.  In order to have msr-safe.service use the
-allowlist you have just created, you must modify the msr-safe entry in
-sysconfig to set the ``ALLOWLIST`` environment variable.
+allowlist you have just created, you must create or modify the
+msr-safe entry in sysconfig to set the ``ALLOWLIST`` environment
+variable.
 
 First, place ``allowlist.txt`` under the default path for allowlists
 from the RPM install: ``/usr/share/msr-safe/allowlists``.  Next,
