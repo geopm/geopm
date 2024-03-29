@@ -5,15 +5,8 @@
 # 2.62 required for OpenMP macro and others
 AC_PREREQ([2.62])
 AC_INIT([geopm-service],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
-m4_define([serial_tests], [m4_esyscmd([
-    vv=$(automake --version | head -n1 | sed 's|[^0-9.]*\([0-9.]*\).*|\1|');
-    major=$(echo $vv | sed 's|\([0-9]*\).*|\1|');
-    minor=$(echo $vv | sed 's|[0-9]*\.\([0-9]*\).*|\1|');
-    if [ "$major" -gt 0 ] && [ "$minor" -gt 11 ]; then
-        echo serial-tests;
-    fi;
-])])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax] foreign serial_tests)
+AC_CONFIG_AUX_DIR([build-aux])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax] foreign)
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -547,6 +540,7 @@ GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
 AC_CONFIG_FILES([Makefile geopm-service.spec debian/changelog])
+AC_REQUIRE_AUX_FILE([tap-driver.sh])
 AC_OUTPUT
 
 # ============================================================================

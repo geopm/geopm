@@ -346,9 +346,9 @@ deb: dist
 	rm -rf geopm-service-$(VERSION)
 
 if !ENABLE_SANITIZERS
-checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)
 else
-checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)
 endif
 
 all-local: $(all_local)
