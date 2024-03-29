@@ -14,11 +14,11 @@ import jsonschema
 class TestMSRDataFiles(unittest.TestCase):
     def setUp(self):
         msr_schema_file = os.path.dirname(os.path.abspath(__file__)) + \
-                          "/../docs/json_schemas/msrs.schema.json"
+                          "/../../docs/json_schemas/msrs.schema.json"
         with open(msr_schema_file, "r") as f:
             self._MSR_SCHEMA = json.load(f)
 
-        msr_data_dir = os.path.dirname(os.path.abspath(__file__)) + "/../docs/json_data"
+        msr_data_dir = os.path.dirname(os.path.abspath(__file__)) + "/../../docs/json_data"
         self._MSR_DATA_FILES = glob.glob(msr_data_dir + "/msr_data_*.json")
         self.assertTrue(self._MSR_DATA_FILES)
 
