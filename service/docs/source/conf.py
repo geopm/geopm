@@ -32,7 +32,7 @@ sys.path.append(_ext_dir)
 # -- Project information -----------------------------------------------------
 
 project = 'GEOPM'
-copyright = '2015 - 2023, Intel Corporation. All rights reserved.'
+copyright = '2015 - 2024, Intel Corporation. All rights reserved.'
 
 author = 'Intel (R) Corporation'
 
