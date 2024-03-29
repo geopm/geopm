@@ -15,11 +15,4 @@
 /gh-pages/
 /MANIFEST
 *.pyc
-/*/AUTHORS
-/*/ChangeLog
-/*/CODE_OF_CONDUCT.md
-/*/CONTRIBUTING.rst
-/*/COPYING
-/*/COPYING-TPP
-/*/SECURITY.md
 VERSION
