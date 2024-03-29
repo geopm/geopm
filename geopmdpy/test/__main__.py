@@ -1,27 +1,15 @@
 #!/usr/bin/env python3
-
-#  Copyright (c) 2015 - 2024, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-
 import unittest
+import os
+import sys
 
-from TestAccess import *
-from TestAccessLists import *
-from TestActiveSessions import *
-from TestConfigPath import *
-from TestDBusXML import *
-from TestError import *
-from TestMSRDataFiles import *
-from TestPIO import *
-from TestPlatformService import *
-from TestRequestQueue import *
-from TestRestorableFileWriter import *
-from TestSecureFiles import *
-from TestSession import *
-from TestTimedLoop import *
-from TestTopo import *
-from TestWriteLock import *
-
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    tests_dir = os.path.dirname(os.path.abspath(__file__))
+    top_dir = os.path.join(tests_dir, '..')
+    loader = unittest.TestLoader()
+    tests = loader.discover(start_dir=tests_dir, pattern='Test*', top_level_dir=top_dir)
+    runner = unittest.TextTestRunner()
+    result = runner.run(tests)
