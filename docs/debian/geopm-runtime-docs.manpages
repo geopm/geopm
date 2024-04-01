@@ -1,0 +1,7 @@
+build/man/geopmadmin.1
+build/man/geopmagent.1
+build/man/geopmctl.1
+build/man/geopm_agent_frequency_map.7
+build/man/geopm_agent_monitor.7
+build/man/geopm_agent_power_balancer.7
+build/man/geopm_agent_power_governor.7

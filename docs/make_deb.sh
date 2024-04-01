@@ -1,7 +1,8 @@
 #!/bin/bash
 
+VERSION=$(python3 -c "from setuptools_scm import get_version; print(get_version('..'))")
+echo $VERSION > VERSION
 cd ..
-VERSION=$(python3 -c "from setuptools_scm import get_version; print(get_version('.'))")
 tar --transform="s|docs|geopm-docs-$VERSION|" -zcvf geopm-docs-$VERSION.tar.gz docs
 mv geopm-docs-$VERSION.tar.gz docs
 cd docs

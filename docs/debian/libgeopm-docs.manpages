@@ -1,0 +1,7 @@
+build/man/geopm::Agent.3
+build/man/geopm::PowerBalancer.3
+build/man/geopm::PowerGovernor.3
+build/man/geopm_agent.3
+build/man/geopm_ctl.3
+build/man/geopm_imbalancer.3
+build/man/geopm_prof.3
