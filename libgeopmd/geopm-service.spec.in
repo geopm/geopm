@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Packages: geopm-service, geopm-service-devel, libgeopmd2, python3-geopmdpy
+# Packages: geopm-service, geopm-service-devel, libgeopmd2
 # This spec file supports three options for level-zero support:
 #
 # 1. default:
@@ -37,9 +37,6 @@ BuildRequires: libtool
 BuildRequires: libcap-devel
 BuildRequires: systemd-devel >= 221
 BuildRequires: zlib-devel
-BuildRequires: python3
-BuildRequires: python3-devel
-BuildRequires: python3-setuptools
 %if 0%{?suse_version}
 BuildRequires: bash-completion-devel
 %else
@@ -54,7 +51,6 @@ Requires: level-zero >= 1.8.1
 BuildRequires: fdupes
 %endif
 BuildRequires: systemd-rpm-macros
-BuildRequires: python-rpm-macros
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm-service
@@ -67,13 +63,6 @@ BuildRequires: python-rpm-macros
 %define compdir "%{_sysconfdir}/bash_completion.d"
 %endif
 
-%define python_bin %{__python3}
-
-%{!?python3_pkgversion:%global python3_pkgversion 3}
-
-%define python_major_version 3
-
-Requires: python%{python3_pkgversion}-geopmdpy = %{version}
 Requires: libgeopmd2 = %{version}
 
 %description
@@ -132,43 +121,10 @@ BuildRequires: liburing-devel
 Library supporting the GEOPM Service.  This provides the libgeopmd
 library which provides C and C++ interfaces.
 
-%package -n python%{python3_pkgversion}-geopmdpy
-
-Summary: The geopmdpy Python package for the GEOPM Service
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-# Deprecated for RHEL and CentOS
-Group: System Environment/Libraries
-%else
-Group: Development/Libraries/Python
-%endif
-
-%if %{defined suse_version}
-Requires: python3-gobject
-BuildRequires: gobject-introspection
-%else
-Requires: python3-gobject-base
-%endif
-Requires: python3-dasbus >= 1.6
-Requires: python3-jsonschema
-Requires: python3-psutil
-Requires: python3-cffi
-Requires: libgeopmd2 = %{version}
-
-%{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
-
-%description -n python%{python3_pkgversion}-geopmdpy
-
-Python %{python_major_version} package for GEOPM service.  Provides
-the implementation for the geopmd service daemon and interfaces for
-configuring the service.
-
 # Steps for all packages
 %global debug_package %{nil}
 %prep
 %setup
-
-%generate_buildrequires
-%pyproject_buildrequires
 
 %build
 
@@ -188,7 +144,6 @@ CC=gcc CXX=g++ \
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-python=%{python_bin} \
             --with-bash-completion-dir=%{compdir} \
             %{?level_zero_option} \
             %{?io_uring_option} \
@@ -198,13 +153,10 @@ CC=gcc CXX=g++ \
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
 %{__make} %{?_smp_mflags}
 
-%pyproject_wheel
-
 %install
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
-%pyproject_install
 
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
@@ -212,10 +164,6 @@ install -Dp -m644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/
 mkdir -p %{buildroot}%{_sysconfdir}/geopm
 mkdir -p %{buildroot}%{_sbindir}
 ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
-%if 0%{?suse_version}
-%python_expand %fdupes %{buildroot}%{python3_sitelib}
-%endif
-%pyproject_save_files %{srcname}
 
 %clean
 
@@ -287,12 +235,6 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_libdir}/libgeopmd.so.2.0.0
 %{_libdir}/libgeopmd.so.2
 %dir %{_libdir}/geopm
-
-%files -n python%{python3_pkgversion}-geopmdpy -f %{pyproject_files}
-%defattr(-,root,root,-)
-%doc %{_mandir}/man1/geopmaccess.1.gz
-%doc %{_mandir}/man1/geopmsession.1.gz
-%doc %{_mandir}/man7/geopmdpy.7.gz
 
 %files devel
 %defattr(-,root,root,-)
