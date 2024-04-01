@@ -1,0 +1,17 @@
+build/man/geopmread.1
+build/man/geopmwrite.1
+build/man/geopm.7
+build/man/geopm_pio.7
+build/man/geopm_pio_cnl.7
+build/man/geopm_pio_const_config.7
+build/man/geopm_pio_cpuinfo.7
+build/man/geopm_pio_dcgm.7
+build/man/geopm_pio_levelzero.7
+build/man/geopm_pio_msr.7
+build/man/geopm_pio_nvml.7
+build/man/geopm_pio_profile.7
+build/man/geopm_pio_service.7
+build/man/geopm_pio_sst.7
+build/man/geopm_pio_sysfs.7
+build/man/geopm_pio_time.7
+build/man/geopm_report.7
