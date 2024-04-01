@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_build:
+	sphinx-build -M html source build -W
+	sphinx-build -M man source build -W
+
+#override_dh_test:
+#	sphinx-build -M geopmlint source build
+
+override_dh_installdocs:
+	dh_installdocs
+	dh_sphinxdoc
