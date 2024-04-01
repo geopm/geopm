@@ -1,0 +1,147 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: geopm-docs
+Upstream-Contact: <preferred name and address to reach the upstream project>
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     .gitignore
+           geopm-docs-.tar.gz
+           json_data/msr_data_arch.json
+           json_data/msr_data_hsx.json
+           json_data/msr_data_knl.json
+           json_data/msr_data_skx.json
+           json_data/msr_data_snb.json
+           json_data/msr_data_spr.json
+           json_data/sysfs_attributes_cpufreq.json
+           json_schemas/active_sessions.schema.json
+           json_schemas/const_config_io.schema.json
+           json_schemas/domainnetmap_neural_net.schema.json
+           json_schemas/geopmagent_policy.schema.json
+           json_schemas/geopmbench_config.schema.json
+           json_schemas/msrs.schema.json
+           json_schemas/regionhintrecommender_fmap.schema.json
+           json_schemas/saved_controls.schema.json
+           json_schemas/sysfs_attributes.schema.json
+           make_deb.sh
+           make_deb.sh~
+           source/GEOPM_CXX_MAN_Agent.3.rst
+           source/GEOPM_CXX_MAN_Agg.3.rst
+           source/GEOPM_CXX_MAN_CNLIOGroup.3.rst
+           source/GEOPM_CXX_MAN_CPUActivityAgent.3.rst
+           source/GEOPM_CXX_MAN_CircularBuffer.3.rst
+           source/GEOPM_CXX_MAN_Comm.3.rst
+           source/GEOPM_CXX_MAN_CpuinfoIOGroup.3.rst
+           source/GEOPM_CXX_MAN_Daemon.3.rst
+           source/GEOPM_CXX_MAN_Endpoint.3.rst
+           source/GEOPM_CXX_MAN_Exception.3.rst
+           source/GEOPM_CXX_MAN_GPUActivityAgent.3.rst
+           source/GEOPM_CXX_MAN_Helper.3.rst
+           source/GEOPM_CXX_MAN_IOGroup.3.rst
+           source/GEOPM_CXX_MAN_MPIComm.3.rst
+           source/GEOPM_CXX_MAN_MSRIO.3.rst
+           source/GEOPM_CXX_MAN_MSRIOGroup.3.rst
+           source/GEOPM_CXX_MAN_MonitorAgent.3.rst
+           source/GEOPM_CXX_MAN_PlatformIO.3.rst
+           source/GEOPM_CXX_MAN_PlatformTopo.3.rst
+           source/GEOPM_CXX_MAN_PluginFactory.3.rst
+           source/GEOPM_CXX_MAN_PowerBalancer.3.rst
+           source/GEOPM_CXX_MAN_PowerBalancerAgent.3.rst
+           source/GEOPM_CXX_MAN_PowerGovernor.3.rst
+           source/GEOPM_CXX_MAN_PowerGovernorAgent.3.rst
+           source/GEOPM_CXX_MAN_ProfileIOGroup.3.rst
+           source/GEOPM_CXX_MAN_SampleAggregator.3.rst
+           source/GEOPM_CXX_MAN_SharedMemory.3.rst
+           source/GEOPM_CXX_MAN_TimeIOGroup.3.rst
+           source/admin.rst
+           source/build.rst
+           source/client.rst
+           source/contrib.rst
+           source/devel.rst
+           source/docu.rst
+           source/geopm.7.rst
+           source/geopm_agent.3.rst
+           source/geopm_agent_cpu_activity.7.rst
+           source/geopm_agent_ffnet.7.rst
+           source/geopm_agent_frequency_map.7.rst
+           source/geopm_agent_gpu_activity.7.rst
+           source/geopm_agent_monitor.7.rst
+           source/geopm_agent_power_balancer.7.rst
+           source/geopm_agent_power_governor.7.rst
+           source/geopm_ctl.3.rst
+           source/geopm_daemon.3.rst
+           source/geopm_endpoint.3.rst
+           source/geopm_error.3.rst
+           source/geopm_field.3.rst
+           source/geopm_fortran.3.rst
+           source/geopm_hash.3.rst
+           source/geopm_imbalancer.3.rst
+           source/geopm_pio.3.rst
+           source/geopm_pio.7.rst
+           source/geopm_pio_cnl.7.rst
+           source/geopm_pio_const_config.7.rst
+           source/geopm_pio_cpuinfo.7.rst
+           source/geopm_pio_dcgm.7.rst
+           source/geopm_pio_levelzero.7.rst
+           source/geopm_pio_msr.7.rst
+           source/geopm_pio_nvml.7.rst
+           source/geopm_pio_profile.7.rst
+           source/geopm_pio_service.7.rst
+           source/geopm_pio_sst.7.rst
+           source/geopm_pio_sysfs.7.rst
+           source/geopm_pio_time.7.rst
+           source/geopm_policystore.3.rst
+           source/geopm_prof.3.rst
+           source/geopm_report.7.rst
+           source/geopm_sched.3.rst
+           source/geopm_time.3.rst
+           source/geopm_topo.3.rst
+           source/geopm_version.3.rst
+           source/geopmaccess.1.rst
+           source/geopmadmin.1.rst
+           source/geopmagent.1.rst
+           source/geopmbench.1.rst
+           source/geopmctl.1.rst
+           source/geopmdpy.7.rst
+           source/geopmendpoint.1.rst
+           source/geopmlaunch.1.rst
+           source/geopmpy.7.rst
+           source/geopmread.1.rst
+           source/geopmsession.1.rst
+           source/geopmwrite.1.rst
+           source/index.rst
+           source/install.rst
+           source/overview.rst
+           source/publications.rst
+           source/reference.rst
+           source/requires.rst
+           source/runtime.rst
+           source/security.rst
+           source/service.rst
+           source/service_readme.rst
+           source/use_cases.rst
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+Files:     source/_ext/geopm_rst_extensions.py
+           source/_ext/geopmlint.py
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __NO_LICENSE__
+
+Files:     source/conf.py
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ -- Path setup --------------------------------------------------------------
+ .
+ If extensions (or modules to document with autodoc) are in another directory,
+ add these directories to sys.path here. If the directory is relative to the
+ documentation root, use os.path.abspath to make it absolute, like shown here.
+
+Files:     Makefile.mk
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ The transform variable will transform any installed file beginning
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.

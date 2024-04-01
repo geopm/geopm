@@ -1,0 +1,15 @@
+Source: geopm-docs
+Section: utility
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (= 12),
+ dh-python,
+ python3-all,
+Standards-Version: 4.4.1
+Vcs-Git: https://github.com/geopm/geopm.git
+Homepage: https://geopm.github.io
+
+Package: geopm-docs
+Architecture: all
+Depends:
+Description: GEOPM - Global Extensible Open Power Manager Documentation

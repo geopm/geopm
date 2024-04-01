@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=59.6", "setuptools-scm>=8.0" ]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["geopmdocs"]
+
+[tool.setuptools_scm]
+root = "../.."
+
+[project]
+name = "geopmdocs"
+dynamic = ["version"]
+description = "GEOPM - Global Extensible Open Power Manager Documentation"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {file = "COPYING"}
+keywords = ["documentation", "hardware", "telemetry", "configuration"]
+authors = [
+    {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
+    {name = "Brad Geltz", email = "brad.geltz@intel.com"},
+]
+maintainers = [
+    {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
+    {name = "Brad Geltz", email = "brad.geltz@intel.com"},
+]
+classifiers = ["Development Status :: 5 - Production/Stable",
+               "License :: OSI Approved :: BSD License",
+               "Operating System :: POSIX :: Linux",
+               "Natural Language :: English",
+               "Topic :: Scientific/Engineering",
+               "Topic :: Software Development :: Libraries :: Application Frameworks",
+               "Topic :: System :: Hardware :: Symmetric Multi-processing",
+               "Topic :: System :: Power (UPS)",
+               "Programming Language :: Python :: 3",
+               "Programming Language :: Python :: 3.6",
+               "Programming Language :: Python :: 3.7",
+               "Programming Language :: Python :: 3.8",
+               "Programming Language :: Python :: 3.9",
+               "Programming Language :: Python :: 3.10",
+               "Programming Language :: Python :: 3.11",
+               "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = ["sphinx>=4.5.0",
+                "sphinx_rtd_theme>=1.0.0",
+                "sphinxemoji>=0.2.0",
+                "pygments>=2.13.0",
+                "sphinx-tabs>=3.3.1",
+]
+
+[project.urls]
+"Homepage" = "https://geopm.github.io"
+"Source" = "https://github.com/geopm/geopm/"
+"Documentation" = "https://geopm.github.io/reference.html"
