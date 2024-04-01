@@ -122,4 +122,4 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`\ ,
-:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`
+:doc:`geopm::MSRIOGroup(3) <geopm::MSRIOGroup.3>`

@@ -182,7 +182,7 @@ GEOPM Options
 
                                 The signals available and their descriptions
                                 are documented in the :doc:`PlatformIO(3)
-                                <GEOPM_CXX_MAN_PlatformIO.3>` man page.
+                                <geopm::PlatformIO.3>` man page.
                                 ``TIME``, ``EPOCH_COUNT``, ``REGION_HASH``,
                                 ``REGION_HINT``, ``REGION_PROGRESS``,
                                 ``CPU_ENERGY``, ``DRAM_ENERGY``, ``CPU_POWER``,
@@ -322,7 +322,7 @@ GEOPM Options
                       agent.
 
                       For more details on the responsibilities of an agent,
-                      see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
+                      see :doc:`geopm::Agent(3) <geopm::Agent.3>`.
 
                       This option is used by the launcher to set the
                       ``GEOPM_AGENT`` environment variable.  The command line
@@ -422,7 +422,7 @@ GEOPM Options
                           plugins.  In order to be available to the GEOPM
                           runtime, plugins should register themselves with the
                           appropriate factory.  See :doc:`geopm::PluginFactory(3)
-                          <GEOPM_CXX_MAN_PluginFactory.3>` for information
+                          <geopm::PluginFactory.3>` for information
                           about the GEOPM plugin interface.
 
                           A zero-length directory name indicates the current

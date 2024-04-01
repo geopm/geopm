@@ -121,10 +121,10 @@ part of the core distribution, then you can extend GEOPM with additional
 IOGroup and agent plugins.
 
 Agents and IOGroups are defined as C++ classes, documented in
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` and :doc:`geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>`, respectively. Both can be registered with GEOPM
-through the :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`
-interface. The :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+:doc:`geopm::Agent(3) <geopm::Agent.3>` and :doc:`geopm::IOGroup(3)
+<geopm::IOGroup.3>`, respectively. Both can be registered with GEOPM
+through the :doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>`
+interface. The :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`
 interface provides a channel through which agents and GEOPM tools can interact
 with IOGroups.
 
@@ -196,7 +196,7 @@ policy.  The specific values received over time can be viewed through
 use of the optional trace file enabled by
 ``--geopm-trace-endpoint-policy``.
 
-Refer to :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` and the individual agent man pages for more
+Refer to :doc:`geopm::Agent(3) <geopm::Agent.3>` and the individual agent man pages for more
 details on the behavior of the agents and their policies.  See
 :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details on the ``--geopm-agent``\ ,
 ``--geopm-policy``\ , ``--geopm-endpoint``\ , and
@@ -430,24 +430,24 @@ See Also
 :doc:`geopm_sched(3) <geopm_sched.3>`,
 :doc:`geopm_time(3) <geopm_time.3>`,
 :doc:`geopm_version(3) <geopm_version.3>`,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`,
-:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`,
-:doc:`geopm::CircularBuffer(3) <GEOPM_CXX_MAN_CircularBuffer.3>`,
-:doc:`geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3>`,
-:doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`,
-:doc:`geopm::Helper(3) <GEOPM_CXX_MAN_Helper.3>`,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
-:doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`,
-:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`,
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`,
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`,
-:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`,
-:doc:`geopm::PowerBalancer(3) <GEOPM_CXX_MAN_PowerBalancer.3>`,
-:doc:`geopm::PowerGovernor(3) <GEOPM_CXX_MAN_PowerGovernor.3>`,
-:doc:`geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3>`,
-:doc:`geopm::SampleAggregator(3) <GEOPM_CXX_MAN_SampleAggregator.3>`,
-:doc:`geopm::SharedMemory(3) <GEOPM_CXX_MAN_SharedMemory.3>`,
-:doc:`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3>`,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`,
+:doc:`geopm::Agg(3) <geopm::Agg.3>`,
+:doc:`geopm::CircularBuffer(3) <geopm::CircularBuffer.3>`,
+:doc:`geopm::CpuinfoIOGroup(3) <geopm::CpuinfoIOGroup.3>`,
+:doc:`geopm::Exception(3) <geopm::Exception.3>`,
+:doc:`geopm::Helper(3) <geopm::Helper.3>`,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`,
+:doc:`geopm::MSRIO(3) <geopm::MSRIO.3>`,
+:doc:`geopm::MSRIOGroup(3) <geopm::MSRIOGroup.3>`,
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`,
+:doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>`,
+:doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>`,
+:doc:`geopm::PowerBalancer(3) <geopm::PowerBalancer.3>`,
+:doc:`geopm::PowerGovernor(3) <geopm::PowerGovernor.3>`,
+:doc:`geopm::ProfileIOGroup(3) <geopm::ProfileIOGroup.3>`,
+:doc:`geopm::SampleAggregator(3) <geopm::SampleAggregator.3>`,
+:doc:`geopm::SharedMemory(3) <geopm::SharedMemory.3>`,
+:doc:`geopm::TimeIOGroup(3) <geopm::TimeIOGroup.3>`,
 :doc:`geopmadmin(1) <geopmadmin.1>`,
 :doc:`geopmagent(1) <geopmagent.1>`,
 :doc:`geopmbench(1) <geopmbench.1>`,

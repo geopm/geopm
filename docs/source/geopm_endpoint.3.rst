@@ -239,6 +239,6 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_error(3) <geopm_error.3>`,
-:doc:`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3>`,
+:doc:`geopm::Endpoint(3) <geopm::Endpoint.3>`,
 :doc:`geopmendpoint(1) <geopmendpoint.1>`,
 :doc:`geopm_agent(3) <geopm_agent.3>`

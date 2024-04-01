@@ -13,7 +13,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 Description
 -----------
 
-This class is used by the :doc:`geopm::PowerBalancerAgent(3) <GEOPM_CXX_MAN_PowerBalancerAgent.3>`
+This class is used by the :doc:`geopm::PowerBalancerAgent(3) <geopm::PowerBalancerAgent.3>`
 to implement the power balancing algorithm.
 
 For more details, see the doxygen
@@ -24,5 +24,5 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`
-:doc:`geopm::PowerBalancerAgent(3) <GEOPM_CXX_MAN_PowerBalancerAgent.3>`
+:doc:`geopm::PowerBalancerAgent(3) <geopm::PowerBalancerAgent.3>`
 

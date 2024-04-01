@@ -5,7 +5,7 @@ Description
 -----------
 
 The CPUInfoIOGroup implements the :doc:`geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals for CPU-related
+<geopm::IOGroup.3>` interface to provide signals for CPU-related
 information on Intel Architecture.
 
 Signals
@@ -69,7 +69,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`,
 :doc:`geopmread(1) <geopmread.1>`,
-:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`
+:doc:`geopm::Agg(3) <geopm::Agg.3>`

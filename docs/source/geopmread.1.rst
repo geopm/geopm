@@ -79,7 +79,7 @@ Values read for signals are in SI units.  Note that the domain can be
 the native domain of the signal (as shown in the summary) or any
 larger containing domain, in which case the signal value will be
 aggregated into a single value for the larger domain.  Refer to the
-domain hierarchy described in :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` for the
+domain hierarchy described in :doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>` for the
 descriptions of the domains and how they are contained within one
 another.
 

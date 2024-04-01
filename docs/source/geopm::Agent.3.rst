@@ -101,7 +101,7 @@ selected with the ``--geopm-agent`` command line option to the
 :doc:`geopmlaunch(1) <geopmlaunch.1>` or ``GEOPM_AGENT`` environment variable.  Exactly
 one agent type is used during each execution of the GEOPM runtime.
 
-The :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` man page gives a general overview of
+The :doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>` man page gives a general overview of
 concepts related to extending GEOPM through plugins.  Please refer to
 that overview as an introduction before implementing an ``Agent`` plugin.
 
@@ -136,7 +136,7 @@ tree uses the same policy/sample interface to interact with the
 resource manager.
 
 The ``Agent`` class is designed to read signals and write controls for
-the hardware and application using the :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+the hardware and application using the :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`
 interface.  Please see the manual for details about how the
 ``PlatformIO`` abstraction enables access to hardware capabilities,
 extension of ``Agent`` algorithms to new hardware architectures, a
@@ -151,7 +151,7 @@ Factory Accessor
   This method returns the singleton accessor for the Agent factory.
   Calling this method will create the factory if it does not already exist.
   If this method is creating the factory, loading of the built-in Agents
-  will be attempted.  For more information see :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`.
+  will be attempted.  For more information see :doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>`.
 
 Class Methods
 -------------
@@ -166,7 +166,7 @@ Class Methods
   between ``self`` and any leaf ``Agent``.  Only when *level* is zero
   will the ``sample_platform()`` and ``adjust_platform()`` methods be
   called.  If the *level* is zero then the ``init()`` method should
-  push all signals and controls for :doc:`PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`.
+  push all signals and controls for :doc:`PlatformIO(3) <geopm::PlatformIO.3>`.
   The *fan_in* is a vector indexed by *level* that describes the number of
   siblings that an ``Agent`` at *level* has which share a parent.  The
   figure below represents a tree with ``fan_in == {4,3,2}`` where each
@@ -363,7 +363,7 @@ Class Methods
 Errors
 ------
 
-All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
+All functions described on this man page throw :doc:`geopm::Exception(3) <geopm::Exception.3>`
 on error.
 
 Example

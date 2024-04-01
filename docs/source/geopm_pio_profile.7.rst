@@ -4,13 +4,13 @@ geopm_pio_profile(7) -- Signals and controls for the ProfileIOGroup
 Description
 -----------
 The ProfileIOGroup implements the :doc:`geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals and controls from
+<geopm::IOGroup.3>` interface to provide signals and controls from
 the application based on calls to GEOPM's prof API :doc:`geopm_prof(3)
 <geopm_prof.3>`.
 
 The signals defined herein are useful primarily for end-of-run reporting
 purposes and for implementing new agents via the :doc:`geopm::Agent(3)
-<GEOPM_CXX_MAN_Agent.3>` interface.
+<geopm::Agent.3>` interface.
 
 Requirements
 ------------
@@ -206,7 +206,7 @@ See Also
 --------
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_pio(7) <geopm_pio.7>`,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
-:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`,
+:doc:`geopm::Agg(3) <geopm::Agg.3>`,
 :doc:`geopm_prof(3) <geopm_prof.3>`,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`
+:doc:`geopm::Agent(3) <geopm::Agent.3>`

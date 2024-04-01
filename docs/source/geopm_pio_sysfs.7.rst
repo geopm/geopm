@@ -5,7 +5,7 @@ Description
 -----------
 
 The SysfsIOGroup implements the
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` interface to provide
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>` interface to provide
 hardware signals and controls for sysfs attribute files.
 
 The set of signals and controls supported by an instance of SysfsIOGroup is
@@ -100,6 +100,6 @@ See Also
 --------
 :doc:`geopm_pio(7) <geopm_pio.7>`\ ,
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
 :doc:`geopmread(1) <geopmread.1>`

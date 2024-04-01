@@ -89,7 +89,7 @@ Link with ``-lgeopmd``
 Description
 -----------
 
-The ``ProfileIOGroup`` class is a derived implementation of :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` that provides signals from the application.
+The ``ProfileIOGroup`` class is a derived implementation of :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>` that provides signals from the application.
 Consequently, it inherits and overrides many of the methods of the ``IOGroup`` class.
 These overridden methods are described in the ``IOGroup`` man page.
 Only the methods unique to the ``ProfileIOGroup`` class are described here.
@@ -115,4 +115,4 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`

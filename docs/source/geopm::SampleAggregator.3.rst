@@ -57,7 +57,7 @@ signals per region.  Regions are automatically detected through
 sampling the ``REGION_HASH`` signal.  The object also accumulates data for
 the epoch.  The set of signals to be tracked is determined by pushing
 signals similar to the ``push_signal()`` method of
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`.
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`.
 
 Class Methods
 -------------
@@ -77,7 +77,7 @@ Class Methods
   The return value is an index to be
   used with ``sample()`` to refer to this signal.
   This index matches the return value of
-  :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ``::push_signal()`` for the same signal.
+  :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`\ ``::push_signal()`` for the same signal.
 
 ``push_signal_total()``
   Push a signal to be accumulated per-region as a total.
@@ -96,7 +96,7 @@ Class Methods
   The return value is an index to be
   used with ``sample()`` to refer to this signal.
   This index matches the return value of
-  :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ``::push_signal()`` for the same signal.
+  :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`\ ``::push_signal()`` for the same signal.
 
 ``push_signal_average()``
   Push a signal to be accumulated per-region as an average.
@@ -115,7 +115,7 @@ Class Methods
   The return value is an index to be
   used with ``sample()`` to refer to this signal.
   This index matches the return value of
-  :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ``::push_signal()`` for the same signal.
+  :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`\ ``::push_signal()`` for the same signal.
 
 ``update()``
   Update stored totals for each signal.
@@ -225,4 +225,4 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`

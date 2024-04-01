@@ -27,8 +27,8 @@ C API
 
 C++ API
 ^^^^^^^
-- :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
-- :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`
+- :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`
+- :doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>`
 
 
 Python3 API

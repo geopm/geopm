@@ -88,9 +88,9 @@ Link with ``-lgeopmd``
 Description
 -----------
 
-The MSRIOGroup implements the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` interface to
+The MSRIOGroup implements the :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>` interface to
 provide hardware signals and controls using MSRs on Intel platforms.
-It relies on :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` and :doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`.
+It relies on :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` and :doc:`geopm::MSRIO(3) <geopm::MSRIO.3>`.
 
 Class Methods
 -------------
@@ -142,11 +142,11 @@ Class Methods
   all CPUs in the domain.
 
 ``read_batch()``
-  Sets up :doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>` for batch reading if needed, then reads
+  Sets up :doc:`geopm::MSRIO(3) <geopm::MSRIO.3>` for batch reading if needed, then reads
   all pushed signals through the ``MSRIO::read_batch()`` method.
 
 ``write_batch()``
-  Writes all adjusted values through the :doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`
+  Writes all adjusted values through the :doc:`geopm::MSRIO(3) <geopm::MSRIO.3>`
   ``write_batch()`` method.
 
 ``sample()``
@@ -182,7 +182,7 @@ Class Methods
 ``agg_function()``
   Returns the function that should be used to aggregate
   *signal_name*.  If one was not previously specified by this class,
-  the default function is ``select_first()`` from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
+  the default function is ``select_first()`` from :doc:`geopm::Agg(3) <geopm::Agg.3>`.
   Throws an exception if the *signal_name* is not valid.
 
 ``format_function()``
@@ -227,11 +227,11 @@ Class Methods
 ``plugin_name()``
   Returns the name of the plugin to use when this plugin is
   registered with the ``IOGroup`` factory; see
-  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
+  :doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>` for more details.
 
 ``make_plugin()``
   Returns a pointer to a new ``MSRIOGroup`` object; see
-  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
+  :doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>` for more details.
 
 Enum Type
 ---------
@@ -271,7 +271,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`\ ,
 :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`\ ,
-:doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`\ ,
+:doc:`geopm::MSRIO(3) <geopm::MSRIO.3>`\ ,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

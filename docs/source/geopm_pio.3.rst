@@ -103,11 +103,11 @@ Description
 -----------
 
 The interfaces described in this man page are the **C** language bindings
-for the :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>` **C++** class.  Please refer to the
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>` and :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` man pages for
+for the :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>` **C++** class.  Please refer to the
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>` and :doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>` man pages for
 a general overview of the GEOPM platform interface layer.  The
 :doc:`geopm_topo(3) <geopm_topo.3>` man page describes the **C** wrappers for the
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` **C++** class and documents the
+:doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>` **C++** class and documents the
 ``geopm_domain_e`` enum.  The caller selects from the ``geopm_domain_e``
 enum for the *domain_type* parameter to many functions in the
 ``geopm_pio_*()`` interface.  The return value from
@@ -402,5 +402,5 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_topo(3) <geopm_topo.3>`\ ,
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+:doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>`\ ,
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`

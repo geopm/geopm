@@ -76,7 +76,7 @@ is the floating-point number in SI units that the control will be
 adjusted to.  If the ``DOMAIN_TYPE`` is a larger containing domain than
 that of the control, the same value will be applied to every contained
 subdomain.  Refer to the domain hierarchy described in
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` for the descriptions of the domains and how
+:doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>` for the descriptions of the domains and how
 they are contained within one another.
 
 | ``board`` - domain for node-wide signals and controls

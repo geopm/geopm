@@ -5,7 +5,7 @@ Description
 -----------
 
 The ServiceIOGroup implements the :doc:`geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>` interface to provide a mechanism for
+<geopm::IOGroup.3>` interface to provide a mechanism for
 access to signals and controls provided by the GEOPM service.
 
 This IOGroup will only provide access to the signals and controls that the
@@ -63,5 +63,5 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_pio(7) <geopm_pio.7>`,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`,
 :doc:`geopmaccess(1) <geopmaccess.1>`

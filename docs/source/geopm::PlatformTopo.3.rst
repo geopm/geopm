@@ -53,7 +53,7 @@ Description
 
 This class describes the number and arrangement of cores, sockets,
 logical CPUs, memory banks, and other components.  This information is
-used when calling methods of the :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>` interface.  The
+used when calling methods of the :doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>` interface.  The
 topology of the current platform is available using the singleton
 ``geopm::platform_topo()``.  The remaining methods are accessed through
 this singleton.
@@ -239,4 +239,4 @@ See Also
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_pio(3) <geopm_pio.3>`\ ,
 :doc:`geopm_topo(3) <geopm_topo.3>`\ ,
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`

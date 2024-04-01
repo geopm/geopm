@@ -4,7 +4,7 @@ geopm_pio_nvml(7) -- IOGroup providing signals and controls for NVIDIA GPUs
 Description
 -----------
 
-The NVMLIOGroup implements the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`
+The NVMLIOGroup implements the :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`
 interface to provide hardware signals and controls for NVIDIA GPUs.
 
 Requirements
@@ -222,7 +222,7 @@ See Also
 
 `NVML API <https://docs.nvidia.com/deploy/nvml-api/nvml-api-reference.html#nvml-api-reference>`_\ ,
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
 :doc:`geopmread(1) <geopmread.1>`,
-:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`
+:doc:`geopm::Agg(3) <geopm::Agg.3>`

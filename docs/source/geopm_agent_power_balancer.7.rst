@@ -10,7 +10,7 @@ geopm_agent_power_balancer(7) -- agent optimizes performance under a power cap
 Description
 -----------
 
-The :doc:`geopm::PowerBalancerAgent(3) <GEOPM_CXX_MAN_PowerBalancerAgent.3>` is designed to enforce an application wide
+The :doc:`geopm::PowerBalancerAgent(3) <geopm::PowerBalancerAgent.3>` is designed to enforce an application wide
 average per-compute-node power cap while varying the power cap of
 individual compute nodes to optimize overall application performance.
 This is achieved by providing more than average power to the compute
@@ -51,7 +51,7 @@ Agent Behavior Highlights
 -------------------------
 
 Policies and samples are vectors of double precision values where each
-value has a meaning defined by the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` implementation.
+value has a meaning defined by the :doc:`geopm::Agent(3) <geopm::Agent.3>` implementation.
 The Agent interface also provides methods for the Agent to extend
 reports and traces with additional Agent-specific information.
 
@@ -196,8 +196,8 @@ See Also
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopmagent(1) <geopmagent.1>`\ ,
 :doc:`geopm_agent(3) <geopm_agent.3>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm::PowerBalancerAgent(3) <GEOPM_CXX_MAN_PowerBalancerAgent.3>`\ ,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`\ ,
+:doc:`geopm::PowerBalancerAgent(3) <geopm::PowerBalancerAgent.3>`\ ,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`\ ,
