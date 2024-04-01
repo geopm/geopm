@@ -13,6 +13,12 @@ Homepage: https://geopm.github.io
 
 Package: python3-geopmdpy
 Architecture: all
-Depends: python3 (>= 3.6~), python3-cffi (>= 1.14.5), python3-dasbus (>= 1.6.0), python3-jsonschema (>= 3.2.0), python3-psutil (>= 5.8.0), python3-setuptools (>= 53.0.0), python3:any
+Depends: python3 (>= 3.6~),
+ python3-cffi (>= 1.14.5),
+ python3-dasbus (>= 1.6.0),
+ python3-jsonschema (>= 3.2.0),
+ python3-psutil (>= 5.8.0),
+ python3-setuptools (>= 53.0.0),
+ python3:any
 Description: GEOPM - Global Extensible Open Power Manager Daemon
  Python support for the GEOPM Service

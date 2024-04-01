@@ -1,3 +1,0 @@
-prune bash_completion
-include COPYING AUTHORS SECURITY.md CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING-TPP requirements.txt
-
