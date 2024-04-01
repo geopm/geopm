@@ -19,15 +19,17 @@
 		  GEOPM RT Visualizer
 	  </div>
 	  <div id="runform">
-	  <div id="checkbox">
-		  <img src="/images/refresh_inv.png" width='30px'/>Auto-Refresh
-		  <input type="checkbox" id="auto" />
-		  <hr>
-	  </div>
-	  </div>
-	  <div id="graphs" onload="source/fetch_draw_data.js">
+		  <div id="checkbox">
+			  <img src="/images/refresh_inv.png" width='16px'/>Auto-Refresh
+			  <input type="checkbox" id="auto" />
+			  <hr>
+			  Display last
+			  <input type="number" id="interval" min="1"> samples  <input type="button" value="Go" onClick="refreshGraphs()">
 
-
+			  <hr>
+		  </div>
+	  </div>
+	  <div id="graphs">
 	  </div>
   </body>
 </html>
