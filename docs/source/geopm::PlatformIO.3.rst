@@ -188,7 +188,7 @@ Inspection Class Methods
 ``agg_function()``
   Returns the function that should be used to aggregate
   *signal_name*.  If one was not previously specified by this class,
-  the default function is select_first from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
+  the default function is select_first from :doc:`geopm::Agg(3) <geopm::Agg.3>`.
 
 ``signal_behavior()``
   Returns one of the ``IOGroup::m_signal_behavior_e`` values which
@@ -330,7 +330,7 @@ Plugin Class Methods
   Registers an ``IOGroup`` with the ``PlatformIO`` so that the signals
   and controls provided by the object are available through the
   ``PlatformIO`` interface.  The *iogroup* is a shared pointer to a
-  class derived from the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`.  This method
+  class derived from the :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`.  This method
   provides the mechanism for extending the ``PlatformIO`` interface at
   runtime.
 
@@ -372,7 +372,7 @@ Example
 Errors
 ------
 
-All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
+All functions described on this man page throw :doc:`geopm::Exception(3) <geopm::Exception.3>`
 on error.
 
 See Also
@@ -383,8 +383,8 @@ See Also
 :doc:`geopm_prof(3) <geopm_prof.3>`\ ,
 :doc:`geopm_pio(3) <geopm_pio.3>`\ ,
 :doc:`geopm_topo(3) <geopm_topo.3>`\ ,
-:doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
-:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`\ ,
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
-:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`
+:doc:`geopm::Exception(3) <geopm::Exception.3>`\ ,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`\ ,
+:doc:`geopm::MSRIOGroup(3) <geopm::MSRIOGroup.3>`\ ,
+:doc:`geopm::PlatformTopo(3) <geopm::PlatformTopo.3>`\ ,
+:doc:`geopm::PluginFactory(3) <geopm::PluginFactory.3>`

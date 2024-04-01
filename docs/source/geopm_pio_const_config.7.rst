@@ -5,7 +5,7 @@ Description
 -----------
 
 ConstConfigIOGroup implements the
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` interface to provide a
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>` interface to provide a
 predefined set of signals with constant values. This is mainly useful to
 provide configuration information needed by some agents (e.g. system
 characterization information).
@@ -77,6 +77,6 @@ See Also
 
 :doc:`geopm_pio(7) <geopm_pio.7>`\ ,
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
 :doc:`geopmread(1) <geopmread.1>`

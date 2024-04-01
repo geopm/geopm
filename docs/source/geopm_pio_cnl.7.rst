@@ -4,7 +4,7 @@ geopm_pio_cnl(7) -- Signals and controls for Compute Node Linux Board-Level Metr
 Description
 -----------
 The CNLIOGroup implements the :doc:`geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals and controls for
+<geopm::IOGroup.3>` interface to provide signals and controls for
 board-level energy and power metrics on Compute Node Linux (CNL).
 
 Requirements
@@ -110,8 +110,8 @@ See Also
 --------
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_pio(7) <geopm_pio.7>`,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
-:doc:`geopm::CNLIOGroup(3) <GEOPM_CXX_MAN_CNLIOGroup.3>`,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`,
+:doc:`geopm::CNLIOGroup(3) <geopm::CNLIOGroup.3>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`,
 :doc:`geopmread(1) <geopmread.1>`,
-:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`
+:doc:`geopm::Agg(3) <geopm::Agg.3>`

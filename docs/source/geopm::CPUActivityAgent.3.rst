@@ -29,4 +29,4 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_agent_cpu_activity(7) <geopm_agent_cpu_activity.7>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`
+:doc:`geopm::Agent(3) <geopm::Agent.3>`

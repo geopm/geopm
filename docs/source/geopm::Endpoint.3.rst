@@ -85,14 +85,14 @@ Class Methods
   ``write_policy()``:
   writes a set of policy values given in *policy* to the endpoint.
   The order of the values is determined by the currently attached
-  agent; see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
+  agent; see :doc:`geopm::Agent(3) <geopm::Agent.3>`.
 
 *
   ``read_sample()``:
   reads the most recent set of sample values from the endpoint into
   the output vector, *sample*\ , and returns the sample age in seconds.
   The order of the values is determined by the currently attached
-  agent; see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
+  agent; see :doc:`geopm::Agent(3) <geopm::Agent.3>`.
 
 *
   ``get_agent()``:
@@ -136,7 +136,7 @@ Class Methods
 Errors
 ------
 
-All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
+All functions described on this man page throw :doc:`geopm::Exception(3) <geopm::Exception.3>`
 on error.
 
 See Also

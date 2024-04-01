@@ -117,7 +117,7 @@ module and that ``libgeopmd`` is available in your ``LD_LIBRARY_PATH``.
 
 The following examples leverage :doc:`geopmread <geopmread.1>` or
 :doc:`geopmwrite <geopmwrite.1>` for command-line usage, and the
-:doc:`C <geopm_topo.3>`, :doc:`C++ <GEOPM_CXX_MAN_PlatformTopo.3>`, and
+:doc:`C <geopm_topo.3>`, :doc:`C++ <geopm::PlatformTopo.3>`, and
 :doc:`Python <geopmdpy.7>` APIs of ``PlatformTopo`` for the platform
 topology.
 
@@ -196,7 +196,7 @@ frequency can be aggregated to the *package* or *board* domains since they are
 more coarse than the CPU domain.
 
 The following examples make use of :doc:`geopmread <geopmread.1>` for the command-line
-and the :doc:`C <geopm_pio.3>`, :doc:`C++ <GEOPM_CXX_MAN_PlatformIO.3>`, and :doc:`Python
+and the :doc:`C <geopm_pio.3>`, :doc:`C++ <geopm::PlatformIO.3>`, and :doc:`Python
 <geopmdpy.7>` APIs for ``PlatformIO`` in their respective languages.
 
 Listing All Available Signals
@@ -338,7 +338,7 @@ to the broadest domain, the ``board`` domain. Thus, to obtain the total energy
 consumed by all packages, cores, and CPUs in the system, one would issue a
 `geopmread` at the ``board`` domain.
 
-For more information about aggregation types, see: :doc:`GEOPM_CXX_MAN_Agg.3`.
+For more information about aggregation types, see: :doc:`geopm::Agg.3`.
 
 Reading Multiple Signals
 """"""""""""""""""""""""
@@ -600,7 +600,7 @@ See `Understanding Disaggregation`_ for more information.
 
 The following examples make use of :doc:`geopmwrite <geopmwrite.1>` for the
 command-line and the :doc:`C <geopm_pio.3>`,
-:doc:`C++ <GEOPM_CXX_MAN_PlatformIO.3>`, and :doc:`Python <geopmdpy.7>`
+:doc:`C++ <geopm::PlatformIO.3>`, and :doc:`Python <geopmdpy.7>`
 APIs for ``PlatformIO`` to enact hardware controls in their respective
 languages.
 

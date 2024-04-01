@@ -10,14 +10,14 @@ geopm_agent_power_governor(7) -- agent enforces a power cap
 Description
 -----------
 
-The :doc:`geopm::PowerGovernorAgent(3) <GEOPM_CXX_MAN_PowerGovernorAgent.3>` enforces a per-compute-node power cap of the
+The :doc:`geopm::PowerGovernorAgent(3) <geopm::PowerGovernorAgent.3>` enforces a per-compute-node power cap of the
 total power of all packages (sockets).
 
 Agent Behavior Highlights
 -------------------------
 
 Policies and samples are vectors of double precision values where each
-value has a meaning defined by the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` implementation.
+value has a meaning defined by the :doc:`geopm::Agent(3) <geopm::Agent.3>` implementation.
 The Agent interface also provides methods for the Agent to extend
 reports and traces with additional Agent-specific information.
 
@@ -89,8 +89,8 @@ See Also
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopmagent(1) <geopmagent.1>`\ ,
 :doc:`geopm_agent(3) <geopm_agent.3>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm::PowerGovernorAgent(3) <GEOPM_CXX_MAN_PowerGovernorAgent.3>`\ ,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`\ ,
+:doc:`geopm::PowerGovernorAgent(3) <geopm::PowerGovernorAgent.3>`\ ,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`\ ,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`\ ,

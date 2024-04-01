@@ -94,5 +94,5 @@ See Also
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
 :doc:`geopm_endpoint(3) <geopm_endpoint.3>`\ ,
 :doc:`geopm_policystore(3) <geopm_policystore.3>`\ ,
-:doc:`geopm::Daemon(3) <GEOPM_CXX_MAN_Daemon.3>`\ ,
-:doc:`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3>`\ ,
+:doc:`geopm::Daemon(3) <geopm::Daemon.3>`\ ,
+:doc:`geopm::Endpoint(3) <geopm::Endpoint.3>`\ ,

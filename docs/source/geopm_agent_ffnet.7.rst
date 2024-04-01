@@ -87,7 +87,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`\ ,
 :doc:`geopm_agent(3) <geopm_agent.3>`\ ,
 :doc:`geopmagent(1) <geopmagent.1>`\ ,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

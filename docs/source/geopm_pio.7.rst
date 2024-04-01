@@ -13,7 +13,7 @@ derived from application behavior.  Application behavior is tracked by
 GEOPM's integration with MPI and OpenMP and also by application use of
 the :doc:`geopm_prof(3) <geopm_prof.3>` mark-up interface. In
 addition to the built-in features, ``PlatformIO`` can be extended
-through the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` plugin
+through the :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>` plugin
 interface to provide arbitrary signals and controls.
 
 A domain is a discrete component within a compute node where a signal
@@ -52,8 +52,8 @@ the current CPU energy value.  Agents are encouraged to request
 high level signals and controls to make the implementation more
 portable.  The high level signals and controls supported by built-in
 ``IOGroup`` classes are listed below.  See :doc:`geopm::PluginFactory(3)
-<GEOPM_CXX_MAN_PluginFactory.3>` section on :ref:`SEARCH AND LOAD ORDER
-<GEOPM_CXX_MAN_PluginFactory.3:Plugin Search Path And Load Order>` for
+<geopm::PluginFactory.3>` section on :ref:`SEARCH AND LOAD ORDER
+<geopm::PluginFactory.3:Plugin Search Path And Load Order>` for
 information about how the ``GEOPM_PLUGIN_PATH`` environment variable is used to
 select which ``IOGroup`` implementation is used in the case where more than one
 provides the same high level signal or control.
@@ -64,7 +64,7 @@ integer signals, the return value of ``read_signal()`` or ``sample()``
 should not be used directly as a double precision number.  To
 decode the 64-bit integer from the double use
 ``geopm_signal_to_field()`` described in :doc:`geopm_hash(3) <geopm_hash.3>`.  The
-:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>` also provides raw MSR field signals that are
+:doc:`geopm::MSRIOGroup(3) <geopm::MSRIOGroup.3>` also provides raw MSR field signals that are
 encoded in this way.
 
 

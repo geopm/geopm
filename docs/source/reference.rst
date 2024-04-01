@@ -51,7 +51,7 @@ GEOPM Manual Pages
    :maxdepth: 1
    :caption: GEOPM C++ Interfaces
 
-   GEOPM_CXX_MAN_*.3
+   geopm::*.3
 
 
 .. toctree::

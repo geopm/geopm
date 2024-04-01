@@ -103,4 +103,4 @@ See Also
 
 :doc:`geopmpy(7) <geopmpy.7>`,
 :doc:`geopm_daemon(3) <geopm_daemon.3>`,
-:doc:`geopm::Daemon(3) <GEOPM_CXX_MAN_Daemon.3>`
+:doc:`geopm::Daemon(3) <geopm::Daemon.3>`

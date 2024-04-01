@@ -38,7 +38,7 @@ Description
 
 GEOPM can be extended though ``Agent``\ , ``IOGroup``\ , and ``Comm`` plugins.
 This man page describes the steps for adding a plugin.  Refer to
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ , and :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` for
+:doc:`geopm::Agent(3) <geopm::Agent.3>`\ , and :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>` for
 more details about these interfaces.  Any **C++** class that derives from
 one of these plugin base classes and is compiled into a shared object
 file can be loaded at application launch time through the GEOPM plugin
@@ -329,6 +329,6 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`\ ,
+:doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`\ ,
 `dlopen(3) <https://man7.org/linux/man-pages/man3/dlopen.3.html>`_

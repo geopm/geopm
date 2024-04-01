@@ -163,7 +163,7 @@ SEE ALSO
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`\ ,
 :doc:`geopm_agent(3) <geopm_agent.3>`\ ,
 :doc:`geopm_prof(3) <geopm_prof.3>`\ ,
 :doc:`geopmagent(1) <geopmagent.1>`\ ,

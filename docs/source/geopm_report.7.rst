@@ -26,10 +26,10 @@ described in :doc:`geopmlaunch(1) <geopmlaunch.1>`.
 
 Notes On Sampling
 -----------------
-Most data in the report is derived from :doc:`PlatformIO <GEOPM_CXX_MAN_PlatformIO.3>` signals (described
+Most data in the report is derived from :doc:`PlatformIO <geopm::PlatformIO.3>` signals (described
 in :doc:`geopm_pio(7) <geopm_pio.7>`) sampled at a rate determined by the
 ``Agent::wait()`` implementation for the active agent (see
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`).  If a sample is longer than the rate specified
+:doc:`geopm::Agent(3) <geopm::Agent.3>`).  If a sample is longer than the rate specified
 by the agent, the subsequent sample may be shortened to correct the rate.
 
 GEOPM reports summarize sampled signals across time and across sampling
@@ -43,7 +43,7 @@ Aggregation Over Time
 ^^^^^^^^^^^^^^^^^^^^^
 Signals are summarized over time following a method that depends on the signal's
 *behavior*, as declared by ``signal_behavior()`` in :doc:`geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>`.
+<geopm::IOGroup.3>`.
 
 If a signal is declared as monotonically increasing, then the reported value
 is the amount of change measured in that signal.
@@ -56,8 +56,8 @@ Aggregation Across Domains
 GEOPM supports reporting signals in the signal's native domain or in a more
 coarse domains. If a more coarse domain is requested, the native signal is
 aggregated across domains as defined by the signal's ``agg_function``,
-documented in :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`. Common
-aggregation functions are documented in :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
+documented in :doc:`geopm::IOGroup(3) <geopm::IOGroup.3>`. Common
+aggregation functions are documented in :doc:`geopm::Agg(3) <geopm::Agg.3>`.
 
 Attributing Signals to Regions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -239,7 +239,7 @@ The fields in each of these sections are described below:
 
   Agents can add keys to the report header, host section, or individual
   region sections using the ``report_header()``, ``report_host()`` or
-  ``report_region()`` methods respectively.  See :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` for
+  ``report_region()`` methods respectively.  See :doc:`geopm::Agent(3) <geopm::Agent.3>` for
   more information about the report extensions available to agents.
 
 Examples
@@ -324,5 +324,5 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_prof(3) <geopm_prof.3>`,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`,
+:doc:`geopm::Agent(3) <geopm::Agent.3>`,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

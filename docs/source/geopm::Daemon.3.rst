@@ -79,7 +79,7 @@ Class Methods
 Errors
 ------
 
-All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
+All functions described on this man page throw :doc:`geopm::Exception(3) <geopm::Exception.3>`
 on error.
 
 See Also

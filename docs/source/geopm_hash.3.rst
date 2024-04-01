@@ -34,4 +34,4 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+:doc:`geopm::PlatformIO(3) <geopm::PlatformIO.3>`

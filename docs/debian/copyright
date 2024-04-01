@@ -25,34 +25,34 @@ Files:     .gitignore
            json_schemas/sysfs_attributes.schema.json
            make_deb.sh
            make_deb.sh~
-           source/GEOPM_CXX_MAN_Agent.3.rst
-           source/GEOPM_CXX_MAN_Agg.3.rst
-           source/GEOPM_CXX_MAN_CNLIOGroup.3.rst
-           source/GEOPM_CXX_MAN_CPUActivityAgent.3.rst
-           source/GEOPM_CXX_MAN_CircularBuffer.3.rst
-           source/GEOPM_CXX_MAN_Comm.3.rst
-           source/GEOPM_CXX_MAN_CpuinfoIOGroup.3.rst
-           source/GEOPM_CXX_MAN_Daemon.3.rst
-           source/GEOPM_CXX_MAN_Endpoint.3.rst
-           source/GEOPM_CXX_MAN_Exception.3.rst
-           source/GEOPM_CXX_MAN_GPUActivityAgent.3.rst
-           source/GEOPM_CXX_MAN_Helper.3.rst
-           source/GEOPM_CXX_MAN_IOGroup.3.rst
-           source/GEOPM_CXX_MAN_MPIComm.3.rst
-           source/GEOPM_CXX_MAN_MSRIO.3.rst
-           source/GEOPM_CXX_MAN_MSRIOGroup.3.rst
-           source/GEOPM_CXX_MAN_MonitorAgent.3.rst
-           source/GEOPM_CXX_MAN_PlatformIO.3.rst
-           source/GEOPM_CXX_MAN_PlatformTopo.3.rst
-           source/GEOPM_CXX_MAN_PluginFactory.3.rst
-           source/GEOPM_CXX_MAN_PowerBalancer.3.rst
-           source/GEOPM_CXX_MAN_PowerBalancerAgent.3.rst
-           source/GEOPM_CXX_MAN_PowerGovernor.3.rst
-           source/GEOPM_CXX_MAN_PowerGovernorAgent.3.rst
-           source/GEOPM_CXX_MAN_ProfileIOGroup.3.rst
-           source/GEOPM_CXX_MAN_SampleAggregator.3.rst
-           source/GEOPM_CXX_MAN_SharedMemory.3.rst
-           source/GEOPM_CXX_MAN_TimeIOGroup.3.rst
+           source/geopm::Agent.3.rst
+           source/geopm::Agg.3.rst
+           source/geopm::CNLIOGroup.3.rst
+           source/geopm::CPUActivityAgent.3.rst
+           source/geopm::CircularBuffer.3.rst
+           source/geopm::Comm.3.rst
+           source/geopm::CpuinfoIOGroup.3.rst
+           source/geopm::Daemon.3.rst
+           source/geopm::Endpoint.3.rst
+           source/geopm::Exception.3.rst
+           source/geopm::GPUActivityAgent.3.rst
+           source/geopm::Helper.3.rst
+           source/geopm::IOGroup.3.rst
+           source/geopm::MPIComm.3.rst
+           source/geopm::MSRIO.3.rst
+           source/geopm::MSRIOGroup.3.rst
+           source/geopm::MonitorAgent.3.rst
+           source/geopm::PlatformIO.3.rst
+           source/geopm::PlatformTopo.3.rst
+           source/geopm::PluginFactory.3.rst
+           source/geopm::PowerBalancer.3.rst
+           source/geopm::PowerBalancerAgent.3.rst
+           source/geopm::PowerGovernor.3.rst
+           source/geopm::PowerGovernorAgent.3.rst
+           source/geopm::ProfileIOGroup.3.rst
+           source/geopm::SampleAggregator.3.rst
+           source/geopm::SharedMemory.3.rst
+           source/geopm::TimeIOGroup.3.rst
            source/admin.rst
            source/build.rst
            source/client.rst

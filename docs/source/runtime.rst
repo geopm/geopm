@@ -164,7 +164,7 @@ installation. For more documentation and links, please visit the :doc:`GEOPM
 overview man page <geopm.7>`.
 
 GEOPM Runtime offers several built-in algorithms, each incorporated within an
-"Agent" implementing the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class
+"Agent" implementing the :doc:`geopm::Agent(3) <geopm::Agent.3>` class
 interface. Developers can expand these algorithm features by creating an Agent
 plugin. An implementation of this class can be dynamically loaded at runtime
 by the GEOPM Controller. The Agent class determines what data is collected,
