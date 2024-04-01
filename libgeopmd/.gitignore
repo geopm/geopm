@@ -9,6 +9,7 @@ compile_commands.json
 /config.log
 /config.status
 /configure
+const_config_test.json
 /debian/changelog
 /dist
 /dox/Doxyfile
