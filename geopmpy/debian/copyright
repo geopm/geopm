@@ -1,0 +1,184 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: geopmpy
+Upstream-Contact: <preferred name and address to reach the upstream project>
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     geopmlaunch
+           geopmpy/__init__.py
+           geopmpy/agent.py
+           geopmpy/endpoint.py
+           geopmpy/hash.py
+           geopmpy/io.py
+           geopmpy/launcher.py
+           geopmpy/policy_store.py
+           geopmpy/version.py.in
+           setup.py
+           test/TestAffinity.py
+           test/TestAgent.py
+           test/TestEndpoint.py
+           test/TestHash.py
+           test/TestIO.py
+           test/TestLauncher.py
+           test/TestPolicyStore.py
+           test/TestPolicyStoreIntegration.py
+           test/__init__.py
+           test/geopmpy_test.sh.in
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __NO_LICENSE__
+
+Files:     .gitignore
+           AUTHORS
+           CODE_OF_CONDUCT.md
+           README.md
+           debian/control
+           debian/rules
+           geopmpy.egg-info/SOURCES.txt
+           geopmpy.egg-info/dependency_links.txt
+           geopmpy.egg-info/entry_points.txt
+           geopmpy.egg-info/requires.txt
+           geopmpy.egg-info/top_level.txt
+           make_deb.sh
+           pyproject.toml
+           requirements.txt
+           setup.cfg
+           shell_completion/README.md
+           test/test_io_experiment.report
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+Files:     PKG-INFO
+           geopmpy.egg-info/PKG-INFO
+Copyright: __NO_COPYRIGHT__ in: PKG-INFO
+           __NO_COPYRIGHT__ in: geopmpy.egg-info/PKG-INFO
+License:   __UNKNOWN__
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+ * Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ .
+ * Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ .
+ * Neither the name of Intel Corporation nor the names of its
+ contributors may be used to endorse or promote products derived
+ from this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ .
+ Project-URL: Homepage, https://geopm.github.io
+ Project-URL: Source, https://github.com/geopm/geopm/
+ Project-URL: Documentation, https://geopm.github.io/geopmpy.7.html
+ Keywords: runtime,hardware,telemetry,configuration
+ Classifier: Development Status :: 5 - Production/Stable
+ Classifier: License :: OSI Approved :: BSD License
+ Classifier: Operating System :: POSIX :: Linux
+ Classifier: Natural Language :: English
+ Classifier: Topic :: Scientific/Engineering
+ Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+ Classifier: Topic :: System :: Hardware :: Symmetric Multi-processing
+ Classifier: Topic :: System :: Power (UPS)
+ Classifier: Programming Language :: Python :: 3
+ Classifier: Programming Language :: Python :: 3.6
+ Classifier: Programming Language :: Python :: 3.7
+ Classifier: Programming Language :: Python :: 3.8
+ Classifier: Programming Language :: Python :: 3.9
+ Classifier: Programming Language :: Python :: 3.10
+ Classifier: Programming Language :: Python :: 3.11
+ Classifier: Programming Language :: Python :: 3 :: Only
+
+Files:     shell_completion/geopmlaunch.bash
+Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
+License:   __UNKNOWN__
+ This is a bash completion script for geopmlaunch. Source it in bash,
+
+Files:     CONTRIBUTING.rst
+Copyright: __NO_COPYRIGHT__ in: CONTRIBUTING.rst
+License:   __UNKNOWN__
+ #.
+ Changes are made on that branch and pushed to the author's fork of
+ the GEOPM repository.
+ .
+ #.
+ The author submits the pull request based on the issue branch.
+ Please refer to the Git documentation on how to create pull
+ request:
+ https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests.
+ Note that the pull request will be filled with a template.
+ Selecting the "Preview" tab to render the markdown in the template
+ may be helpful when editing the pull request text.
+ .
+ #.
+ Check that all of the requirements in the issue referenced by the
+ PR have been met.
+ .
+ #.
+ The submitter may optionally request specific people to be
+ reviewers.  Otherwise, any GEOPM maintainer may be an approver for
+ the pull request.  The ``#code-review`` channel on GEOPM's slack
+ organization may be used to alert maintainers of a review request.
+ .
+ #.
+ During the review process, a reviewer may request changes to the
+ pull request.  If possible, these changes should be submitted as
+ new commits without rebasing or squashing to simplify the reader's
+ ability to view changes.
+ .
+ #.
+ When the pull request is accepted by the reviewer(s), it will be
+ marked "Approve".  Once the request is approved by all reviewers
+ and all CI checks are passing, the change will be integrated into
+ the GEOPM development branch by a maintainer.
+ .
+ Developers Guide
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.
+
+#----------------------------------------------------------------------------
+# License file: COPYING
+ Copyright (c) 2015 - 2024, Intel Corporation
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+     * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+ .
+     * Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the
+       distribution.
+ .
+     * Neither the name of Intel Corporation nor the names of its
+       contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
