@@ -447,11 +447,7 @@ deb: dist
 	cd geopm-runtime-$(VERSION) && dpkg-buildpackage -us -uc
 	rm -rf geopm-runtime-$(VERSION)
 
-if !ENABLE_SANITIZERS
-checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
-else
-checkprogs: gtest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
-endif
+checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)
 
 # INCLUDES
 check_PROGRAMS =
