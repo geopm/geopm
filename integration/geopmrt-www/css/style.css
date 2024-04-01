@@ -1,0 +1,87 @@
+/*
+   Copyright (c) 2015 - 2024, Intel Corporation
+   SPDX-License-Identifier: BSD-3-Clause 
+*/
+body {
+	background-color: #dedede;
+}
+
+td {
+	text-align: right;
+	vertical-align: center;
+}
+
+th {
+	text-align: left;
+	vertical-align: center;
+	padding: 4px;
+}
+
+
+#titlebar {
+	width: 300px;
+	height: 160px;
+	box-sizing: border-box;
+	position: fixed;
+	top:0; left:0;
+	padding: 0.809em;
+	display: block;
+	text-align: center;
+	background-color: #2980b9;
+	font-family: Lato, proxima-nova, Helvetica Neue, Arial, sans-serif;
+	font-variant: small-caps;
+	font-size: 30pt;
+	font-weight: 400;
+	color: #fcfcfc;
+}
+
+#runform {
+	width: 300px;
+	position: fixed;
+	box-sizing: border-box;
+	display: block;
+	top: 160px; bottom: 0; left: 0;
+	padding: 0.809em;
+	font-family: Lato, proxima-nova, Helvetica Neue, Arial, sans-serif;
+	font-weight: 400;
+	font-size: 14pt;
+	color: #e9e9e9;
+	background: #343131;
+}
+
+#graphs {
+	background: #fcfcfc;
+	position: fixed;
+	width: 1000px;
+	box-sizing: border-box;
+	display: block;
+	top: 0px; left: 300px; bottom: 0;
+	padding: 0.809em;
+	font-family: Lato, proxima-nova, Helvetica Neue, Arial, sans-serif;
+	font-weight: 400;
+	font-size: 16pt;
+	color: #e9e9e9;
+	overflow: scroll;
+	z-index: -1;
+}
+
+#checkbox{
+	font-family: Lato, proxima-nova, Helvetica Neue, Arial, sans-serif;
+	font-weight: 300;
+	font-size: 12pt;
+}
+
+#interval{
+	width: 50px;
+}
+.graph{
+	height: 400px;
+	width: 900px;
+	background-color: #fff;
+	box-sizing: border-box;
+	display: block;
+	margin-top: 10px;
+	padding: 0.809em;
+	z-index: 1;
+}
+

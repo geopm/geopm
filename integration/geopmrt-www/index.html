@@ -1,0 +1,38 @@
+<!-- Copyright (c) 2015 - 2024, Intel Corporation
+     SPDX-License-Identifier: BSD-3-Clause -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+	  <title>GEOPM RT Visualizer</title>
+
+	  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+	  <link rel="stylesheet" href="css/style.css">
+
+	  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+	  <script src="source/fetch_draw_data.js"></script>
+  </head>
+  <body>
+	  <div id="titlebar">
+		  GEOPM RT Visualizer
+	  </div>
+	  <div id="runform">
+	  <div id="checkbox">
+		  <img src="/images/refresh_inv.png" width='30px'/>Auto-Refresh
+		  <input type="checkbox" id="auto" />
+		  <hr>
+	  </div>
+	  </div>
+	  <div id="graphs" onload="source/fetch_draw_data.js">
+
+
+	  </div>
+  </body>
+</html>
+
+<script>
+	graphList();
+	var g_interval = setInterval(refreshGraphs, 2000);
+</script>
