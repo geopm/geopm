@@ -47,20 +47,22 @@ jobs:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev liburing-dev libgirepository1.0-dev libcap-dev zlib1g-dev
-    - name: install base and service dir python dependencies
+    - name: install geopmpy and geopmdpy python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
-           python3 -m pip install -r service/requirements.txt
-           python3 -m pip install -r scripts/requirements.txt
-    - name: configure service dir
-      working-directory: service
+           python3 -m pip install -r geopmdpy/requirements.txt
+           python3 -m pip install -r geopmpy/requirements.txt
+    - name: configure libgeopmd dir
+      working-directory: libgeopmd
       run: ./autogen.sh && ./configure
-    - name: make service dir
-      working-directory: service
+    - name: make libgeopmd dir
+      working-directory: libgeopmd
       run: make -j2
-    - name: configure base dir
-      run: ./autogen.sh && ./configure --enable-beta --disable-openmp --with-geopmd-lib=./service/.libs --with-geopmd-include=./service/src || (cat config.log && false)
-    - name: make base dir
+    - name: configure libgeopm dir
+      working-directory: libgeopm
+      run: ./autogen.sh && ./configure --enable-beta --disable-openmp --with-geopmd-lib=../libgeopmd/.libs --with-geopmd-include=../libgeopmd/src || (cat config.log && false)
+    - name: make libgeopm dir
+      working-directory: libgeopm
       run: make -j2
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@47b3d888fe66b639e431abf22ebca059152f1eea # v3.24.5
