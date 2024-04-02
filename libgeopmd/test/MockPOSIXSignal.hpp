@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef MOCKSPOSIXSIGNAL_HPP_INCLUDE
-#define MOCKSPOSIXSIGNAL_HPP_INCLUDE
+#ifndef MOCKPOSIXSIGNAL_HPP_INCLUDE
+#define MOCKPOSIXSIGNAL_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 

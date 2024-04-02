@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef MOCKSBATCHCLIENT_HPP_INCLUDE
-#define MOCKSBATCHCLIENT_HPP_INCLUDE
+#ifndef MOCKBATCHCLIENT_HPP_INCLUDE
+#define MOCKBATCHCLIENT_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
