@@ -13,3 +13,4 @@ if __name__ == "__main__":
     tests = loader.discover(start_dir=tests_dir, pattern='Test*', top_level_dir=top_dir)
     runner = unittest.TextTestRunner()
     result = runner.run(tests)
+    sys.exit(not result.wasSuccessful())
