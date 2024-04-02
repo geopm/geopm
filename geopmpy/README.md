@@ -1,6 +1,13 @@
 GEOPM - Global Extensible Open Power Manager Runtime Tools
 
-# Testing
+# Set Up a Development Environment
+Run `pip install -e .` to install this directory in editable mode (so you don't need to reinstall between updating python source code and re-running tests). That will also install the python execution-time dependencies of this package. Also run `pip install -f requirements.txt` to install additional development dependencies. If you follow these steps, then you do not need to modify your `PYTHONPATH` variable when executing tests.
+
+The `geopmpy` package depends on `geopmdpy`, so also be sure to install that package (e.g., in editable mode as done for this package).
+
+The `geopmpy` package wraps `libgeopm`, which also depends on `libgeopmd`. Be sure to follow the build instructions in the directories for those libraries as part of setting up a geopmpy development environment. Either install those builds somewhere on your path, or manually add them to your `LD_LIBRARY_PATH` (examples in the next section).
+
+# Executing Tests
 Run `LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopm/.libs" python3 test` from this directory to launch the entire test suite. Some of the tests depend on `libgeopm`, so it should be built before running tests.
 Alternatively, run `LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopm/.libs" python3 -m unittest discover -p 'Test*.py'`
 
