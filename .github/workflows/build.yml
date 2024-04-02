@@ -104,6 +104,7 @@ jobs:
         LD_LIBRARY_PATH: .libs:${LD_LIBRARY_PATH}
       run: make check
     - name: test geopmdpy
+      if: matrix.service-asan-flag != 'enable-asan'
       working-directory: geopmdpy
       env:
         LD_LIBRARY_PATH: ../libgeopmd/.libs:${LD_LIBRARY_PATH}
@@ -118,6 +119,7 @@ jobs:
           #      if: matrix.service-asan-flag != 'enable-asan' && matrix.base-asan-flag != 'enable-asan'
           #      run: ./copying_headers/test-dist
     - name: test geopmpy
+      if: matrix.service-asan-flag != 'enable-asan' && matrix.base-asan-flag != 'enable-asan'
       working-directory: geopmpy
       env:
         LD_LIBRARY_PATH: ../libgeopm/.libs:${LD_LIBRARY_PATH}
