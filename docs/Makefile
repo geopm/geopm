@@ -5,7 +5,7 @@
 prefix ?= /usr
 datarootdir ?= /share
 
-all: man
+all: man html
 
 man:
 	sphinx-build -M man source build -W
@@ -23,4 +23,4 @@ geopmlint:
 clean:
 	rm -rf docs/build
 
-PHONY_TARGETS += all man html geopmlint clean install
+.PHONY: all man html geopmlint clean

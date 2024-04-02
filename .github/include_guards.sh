@@ -6,7 +6,7 @@
 ret=0
 
 echo "Checking include guards in headers."
-DIR="src/ test/ service/src/"
+DIR="libgeopm/src libgeopmd/src libgeopm/test libgeopmd/test"
 for file in $(find $DIR -name "*.h" -o -name "*.hpp"); do
     guard=$(basename $file | sed "s|\.|_|g" | tr 'a-z' 'A-Z')_INCLUDE
     if [ $(grep -c $guard $file) -lt 2 ]; then
