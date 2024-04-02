@@ -1,3 +1,3 @@
 [codespell]
-skip = googletest-release*,autom4te.cache,./service/docs/build,./service/contrib,libtool*,ltmain*,./integration/apps/*/*,./.git,./ChangeLog,*.patch,./test/ProfileTableTest.cpp,configure,config.*,depcomp,*.spec
+skip = googletest-release*,autom4te.cache,./docs/build,./libgeopmd/contrib,libtool*,ltmain*,./integration/apps/*/*,./.git,ChangeLog,*.patch,./test/ProfileTableTest.cpp,configure,config.*,depcomp,*.spec,./*/debian/copyright
 ignore-words-list = atleast,clos,fom,warmup,affinitize,affinitized,whis,ois
