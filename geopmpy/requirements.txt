@@ -6,5 +6,6 @@ pandas>=1.1.5
 psutil>=5.8.0
 pyyaml>=6.0.0
 setuptools>=53.0.0
+setuptools-scm>=6.4.2
 tables>=3.7.0
 
