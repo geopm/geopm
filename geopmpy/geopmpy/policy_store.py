@@ -26,6 +26,13 @@ int geopm_policystore_set_default(const char* agent_name,
 _dl = get_dl_geopm()
 
 
+def is_implemented():
+    """Check whether the optional PolicyStore feature is implemented in this
+    deployment of GEOPM.
+    """
+    return hasattr(_dl, 'geopm_policystore_connect')
+
+
 def connect(database_path):
     """Connect to the database at the given location.  Creates a new
     database if one does not yet exist at the given location.

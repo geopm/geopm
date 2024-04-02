@@ -33,11 +33,7 @@ class TestAgent(unittest.TestCase):
         agent_names = set(geopmpy.agent.names())
         expected_agent_names = {'power_balancer', 'power_governor',
                                 'frequency_map', 'monitor'}
-        if geopmpy.version.__beta__:
-            expected_agent_names.add('cpu_activity')
-            expected_agent_names.add('gpu_activity')
-            expected_agent_names.add('ffnet')
-        self.assertEqual(expected_agent_names, agent_names)
+        self.assertTrue(expected_agent_names.issubset(agent_names))
 
     def test_json(self):
         for agent in geopmpy.agent.names():

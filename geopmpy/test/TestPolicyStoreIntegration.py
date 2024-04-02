@@ -11,7 +11,7 @@ import geopmpy.version
 
 
 class TestPolicyStoreIntegration(unittest.TestCase):
-    @unittest.skipIf(not geopmpy.version.__beta__, "PolicyStoreIntegration requires beta features")
+    @unittest.skipIf(not geopmpy.policy_store.is_implemented(), "PolicyStore is not enabled. Skipping its tests.")
     def test_all_interfaces(self):
         geopmpy.policy_store.connect(':memory:')
 
