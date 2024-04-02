@@ -7,10 +7,12 @@
 
 import unittest
 from unittest import mock
+from importlib import reload
+
+import geopmpy.endpoint
+from geopmdpy import gffi
 
 mock_libgeopm = mock.Mock()
-with mock.patch('cffi.FFI.dlopen', return_value=mock_libgeopm):
-    from geopmpy.endpoint import Endpoint
 
 class TestEndpoint(unittest.TestCase):
     def setUp(self):
@@ -19,7 +21,7 @@ class TestEndpoint(unittest.TestCase):
         mock_libgeopm.geopm_endpoint_destroy.return_value = 0
         mock_libgeopm.geopm_endpoint_open.return_value = 0
         mock_libgeopm.geopm_endpoint_close.return_value = 0
-        self._endpoint = Endpoint('test_endpoint')
+        self._endpoint = geopmpy.endpoint.Endpoint('test_endpoint')
 
         self.test_agent_name = 'my_agent'
         def mock_agent(endpoint, name_max, name_cstr):
@@ -29,6 +31,12 @@ class TestEndpoint(unittest.TestCase):
             return 0
         mock_libgeopm.geopm_endpoint_agent.side_effect = mock_agent
 
+        with mock.patch('cffi.FFI.dlopen', return_value=mock_libgeopm):
+            # libgeopm gets loaded on import. Reimport now so we use our mocks instead
+            # of anything that might already be loaded in this python instance.
+            reload(gffi)
+            reload(geopmpy.endpoint)
+
     def test_endpoint_creation_destruction(self):
         self.assertEqual("Endpoint(name='test_endpoint')", repr(self._endpoint))
 
@@ -37,7 +45,7 @@ class TestEndpoint(unittest.TestCase):
         self.assertEqual(initial_destroy_count + 1, mock_libgeopm.geopm_endpoint_destroy.call_count)
 
         mock_libgeopm.geopm_endpoint_create.return_value = 1
-        self.assertRaises(RuntimeError, Endpoint, 'test_endpoint')
+        self.assertRaises(RuntimeError, geopmpy.endpoint.Endpoint, 'test_endpoint')
 
     def test_endpoint_entry_exit(self):
         initial_open_count = mock_libgeopm.geopm_endpoint_open.call_count
