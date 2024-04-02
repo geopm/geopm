@@ -29,6 +29,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "GPUTopo.hpp"
+#include "GPUTopoNull.hpp"
 #include "geopm/ServiceProxy.hpp"
 #include "geopm/Cpuid.hpp"
 
@@ -697,7 +698,8 @@ namespace geopm
         }
         // Early return for mocked file in test case
         if (M_TEST_CACHE_FILE_NAME.size()) {
-            create_cache(M_TEST_CACHE_FILE_NAME);
+            auto mock_topo = std::make_unique<GPUTopoNull>();
+            create_cache(M_TEST_CACHE_FILE_NAME, *mock_topo);
             return geopm::read_file(M_TEST_CACHE_FILE_NAME);
         }
         // In all other cases create a cache in /tmp
