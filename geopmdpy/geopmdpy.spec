@@ -3,10 +3,14 @@
 #
 
 # Packages: python3-geopmdpy
+# This spec file requires the following variable be defined:
+# 1. rpmbuild --define 'archive <PATH_TO_DISTRIBUTION_TARBALL>' ...
+
+%global ver    %(python3 -c "from setuptools_scm import get_version; print(get_version('..'))")
 
 Summary: Global Extensible Open Power Manager Service
 Name: python-geopmdpy
-Version: @VERSION@
+Version: %{ver}
 Release: 1
 License: BSD-3-Clause
 %if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
@@ -16,7 +20,7 @@ Group: System Environment/Daemons
 Group: System/Daemons
 %endif
 URL: https://geopm.github.io
-Source0: geopmdpy-%{version}.tar.gz
+Source0: %{archive}
 BuildRoot: %{_tmppath}/geopmdpy-%{version}-%{release}-root
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
