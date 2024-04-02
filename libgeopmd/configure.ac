@@ -525,9 +525,13 @@ AC_LANG_POP([C++])
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 
-[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
-[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
+[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
 [AM_LDFLAGS="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
+if test "x$enable_debug" != "x1" ; then
+    [AM_CFLAGS="$AM_CFLAGS -flto"]
+    [AM_CXXFLAGS="$AM_CXXFLAGS -flto"]
+fi
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])
