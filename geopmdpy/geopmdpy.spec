@@ -68,15 +68,14 @@ configuring the service.
 %setup -n geopmdpy-%{version}
 
 %build
-python3 -m build
+%py3_build
 
 %install
-python3 -m pip install -I --prefix=%{_prefix} --root=%{buildroot} dist/geopmdpy-%{version}*.tar.gz
+%py3_install
 
 # Installed files
 %files
 %defattr(-,root,root,-)
-%{_bindir}/
 %{python3_sitelib}/*
 %{_bindir}/geopmd
 %{_bindir}/geopmaccess
