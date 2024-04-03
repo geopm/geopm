@@ -3,5 +3,5 @@
 #
 
 import setuptools
-setuptools.setup(name='geopmdpy')
+setuptools.setup()
 
