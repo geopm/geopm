@@ -3,14 +3,10 @@
 #
 
 # Packages: python3-geopmdpy
-# This spec file requires the following variable be defined:
-# 1. rpmbuild --define 'archive <PATH_TO_DISTRIBUTION_TARBALL>' ...
-
-%global ver    %(python3 -c "from setuptools_scm import get_version; print(get_version('..'))")
 
 Summary: The geomdpy package for the GEOPM Service
 Name: python3-geopmdpy
-Version: %{ver}
+Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
 %if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
@@ -20,7 +16,7 @@ Group: System Environment/Libraries
 Group: Development/Libraries/Python
 %endif
 URL: https://geopm.github.io
-Source0: %{archive}
+Source0: @ARCHIVE@
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
