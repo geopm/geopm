@@ -7,4 +7,4 @@ version = get_version(f'{script_dir}/..')
 with open(f'{script_dir}/geopmdpy/VERSION', 'w') as fid:
    fid.write(version)
 pb = ProjectBuilder(script_dir)
-pb.build('sdist', '.')
+pb.build('sdist', 'dist')
