@@ -1,4 +1,4 @@
 /build
 /dist/
 /geopmdpy.egg-info/
-/make_deb-sdist.log
+/make_sdist.log
