@@ -28,9 +28,6 @@ compile_commands.json
 /geopm.mod
 /geopm.o
 /geopmpolicy
-/geopmread
-/geopm-service*.tar.gz
-/geopmwrite
 /gmock-all.o
 /googletest-release-*/
 /googletest-release-*.tar.gz
@@ -83,3 +80,4 @@ compile_commands.json
 /geopm-runtime*.tar.gz
 /geopm-runtime*.buildinfo
 /geopm-runtime*.changes
+/geopm-runtime*/

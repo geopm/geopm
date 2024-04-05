@@ -1,6 +1,5 @@
-/build/*
-/dist/*
-/geopmpy.egg-info/*
-/geopmpy/version.py
-/data
-/figures
+/build/
+/dist/
+/geopmpy.egg-info/
+/make_sdist.log
+/geopmpy-*/
