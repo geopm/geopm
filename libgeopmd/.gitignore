@@ -28,6 +28,7 @@ const_config_test.json
 /geopm_service.egg-info
 /geopm-service.spec
 /geopm-service-*.tar.gz
+/geopm-service-*/
 /geopmread
 /geopmwrite
 /googletest-release-*/

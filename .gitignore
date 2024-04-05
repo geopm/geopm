@@ -16,3 +16,8 @@
 /MANIFEST
 *.pyc
 VERSION
+*.dsc
+*.tar.gz
+*.deb
+*.buildinfo
+*.changes

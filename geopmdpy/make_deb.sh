@@ -1,11 +1,11 @@
 #!/bin/bash
 
 set -xe
+PACKAGE_NAME=geopmdpy
 
 ./make_sdist.sh
 
-PACKAGE_NAME=geopmdpy
-VERSION=$(cat geopmdpy/VERSION)
+VERSION=$(cat ${PACKAGE_NAME}/VERSION)
 ARCHIVE=${PACKAGE_NAME}-${VERSION}.tar.gz
 
 tar -xvf dist/${ARCHIVE}
