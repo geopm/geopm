@@ -6,14 +6,14 @@ import os
 import sys
 
 def get_version():
+    module_dir = os.path.dirname(os.path.realpath(__file__))
     try:
         pkg_name = __name__.split('.')[0]
         # If in git repo, always use for verioning
         from setuptools_scm import get_version
-        version = get_version('..')
+        version = get_version(f'{module_dir}/../..')
     except (ImportError, LookupError):
         # Fall back to VERSION file
-        module_dir = os.path.dirname(os.path.realpath(__file__))
         version_path = os.path.join(module_dir, 'VERSION')
         try:
             with open(version_path) as fid:
