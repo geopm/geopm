@@ -3,3 +3,4 @@
 /geopmdpy.egg-info/
 /make_sdist.log
 /geopmdpy-*/
+/debian/changelog

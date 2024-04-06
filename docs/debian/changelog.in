@@ -1,6 +1,6 @@
-geopm-service (@VERSION@-1) jammy; urgency=low
+python3-geopmpy (@VERSION@-1) jammy; urgency=low
 
   * Update to version @VERSION@
-  * ABI set to @geopm_abi_version@
 
  -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  @DATE@
+
