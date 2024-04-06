@@ -6,6 +6,8 @@ else
     pkg=rpm
 fi
 
+set -e
+
 for cdir in libgeopmd libgeopm; do 
     cd $cdir
     ./autogen.sh && ./configure && make $pkg
