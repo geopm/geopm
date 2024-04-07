@@ -1,0 +1,60 @@
+#  Copyright (c) 2015 - 2024, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+# Packages: python3-geopmpy
+
+Summary: The geopmpy Python package for the GEOPM Runtime
+Name: python3-geopmpy
+Version: @VERSION@
+Release: 1
+License: BSD-3-Clause
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+# Deprecated for RHEL and CentOS
+Group: System Environment/Libraries
+%else
+Group: Development/Libraries/Python
+%endif
+URL: https://geopm.github.io
+Source0: @ARCHIVE@
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools
+BuildRequires: python-rpm-macros
+Requires: python3-cffi >= 1.14.5
+Requires: python3-cycler >= 0.11.0
+Requires: python3-natsort >= 8.1.0
+Requires: python3-numpy>=1.19.5
+Requires: python3-pandas>=1.1.5
+Requires: python3-psutil>=5.8.0
+Requires: python3-pyyaml>=6.0.0
+Requires: python3-setuptools>=53.0.0
+Requires: python3-setuptools-scm>=6.4.2
+Requires: python3-tables>=3.7.0
+Requires: python3-geopmdpy
+Requires: libgeopm2 = %{version}
+
+%{?python_provide:%python_provide python3-geopmpy}
+
+%description
+
+Python3 package for GEOPM runtime.  Provides the implementation for
+the runtime launcher and post-processing tools.
+
+# Steps for all packages
+%prep
+%setup -n geopmpy-%{version}
+
+%build
+%py3_build
+
+%install
+%py3_install
+
+# Installed files
+%files
+%defattr(-,root,root,-)
+%{python3_sitelib}/*
+%{_bindir}/geopmlaunch
+
+
