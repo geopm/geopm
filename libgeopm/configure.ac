@@ -76,19 +76,6 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
-AC_ARG_ENABLE([docs],
-  [AS_HELP_STRING([--disable-docs], [Disable the use of the Python sphinx tool to generate documentation])],
-[if test "x$enable_docs" = "xno" ; then
-  enable_docs="0"
-else
-  enable_docs="1"
-fi
-],
-[enable_docs="1"]
-)
-
-AC_SUBST([enable_docs])
-AM_CONDITIONAL([ENABLE_DOCS], [test "x$enable_docs" = "x1"])
 
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
@@ -301,19 +288,6 @@ AC_ARG_WITH([libelf-lib], [AS_HELP_STRING([--with-libelf-lib=PATH],
 if test "x$with_libelf_lib" != x; then
   LD_LIBRARY_PATH="$with_libelf_lib:$LD_LIBRARY_PATH"
   AM_LDFLAGS="$AM_LDFLAGS -L$with_libelf_lib"
-fi
-
-AC_ARG_VAR([PYTHON],
-           [PYTHON the Python interpreter used to build Python modules])
-
-AC_ARG_WITH([python], [AS_HELP_STRING([--with-python=PATH],
-            [specify the path to the python interpreter])])
-if test "x$with_python" != x; then
-  PYTHON=$with_python
-else
-  # On success, sets PYTHON to a version >= the specified version
-  AM_PATH_PYTHON([3.6], [],
-                 AC_MSG_ERROR([Failed to find a python >= 3.6. Use --with-python to explicitly specify an interpreter]))
 fi
 
 AC_ARG_VAR([GEOPM_CONFIG_PATH],
@@ -652,7 +626,6 @@ AC_MSG_RESULT([MPI_LIBS           : ${MPI_LIBS}])
 AC_MSG_RESULT([MPI_CXXLIBS        : ${MPI_CXXLIBS}])
 AC_MSG_RESULT([MPI_FLIBS          : ${MPI_FLIBS}])
 AC_MSG_RESULT([MPI_FCLIBS         : ${MPI_FCLIBS}])
-AC_MSG_RESULT([PYTHON             : ${PYTHON}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([prefix             : ${prefix}])
 AC_MSG_RESULT([exec_prefix        : ${exec_prefix}])
@@ -673,5 +646,4 @@ AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
-AC_MSG_RESULT([docs               : ${enable_docs}])
 AC_MSG_RESULT([===============================================================================])

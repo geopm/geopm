@@ -18,21 +18,15 @@ BuildRequires: libtool
 BuildRequires: geopm-service-devel
 %if 0%{?suse_version}
 BuildRequires: libelf-devel
-BuildRequires: bash-completion-devel
 %else
 BuildRequires: elfutils-libelf-devel
-BuildRequires: bash-completion
 %endif
 %if 0%{?rhel} >= 8
 # Needed to generate debuginfo packages
 BuildRequires: gdb-headless
 %endif
-BuildRequires: python3
-BuildRequires: python3-devel
-BuildRequires: python3-setuptools
 %if 0%{?suse_version}
 BuildRequires: systemd-rpm-macros
-BuildRequires: python-rpm-macros
 %endif
 
 %if %{defined suse_version}
@@ -40,17 +34,6 @@ BuildRequires: python-rpm-macros
 %else
 %define docdir %{_defaultdocdir}/geopm-%{version}
 %endif
-
-%define compdir %(pkg-config --variable=completionsdir bash-completion)
-%if "x%{compdir}" == "x"
-%define compdir "%{_sysconfdir}/bash_completion.d"
-%endif
-
-%define python_bin %{__python3}
-
-%{!?python3_pkgversion:%global python3_pkgversion 3}
-
-%define python_major_version 3
 
 Requires: libgeopm2 = %{version}
 
@@ -64,9 +47,6 @@ algorithms.
 %prep
 
 %setup -n geopm-runtime-%{version}
-
-%generate_buildrequires
-%pyproject_buildrequires
 
 %package devel
 Summary: Global Extensible Open Power Manager - development
@@ -90,41 +70,23 @@ Group: System/Libraries
 Library supportingthe GEOPM Runtime.  This provides the libgeopm
 library which provides C and C++ interfaces.
 
-%package -n python%{python_major_version}-geopmpy
-Summary: Global Extensible Open Power Manager - python %{python_major_version}
-Group: System Environment/Libraries
-Requires: geopm-runtime
-Requires: python%{python_major_version}-geopmdpy
-%{?python_provide:%python_provide python%{python_major_version}-geopmpy}
-
-%description -n python%{python_major_version}-geopmpy
-Python %{python_major_version} package for GEOPM.
-
 %build
 test -f configure || ./autogen.sh
 
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
-            --mandir=%{_mandir} --docdir=%{docdir} \
+            --docdir=%{docdir} \
             --disable-mpi --disable-openmp \
             --disable-fortran \
-            --with-python=%{python_bin} \
-            --with-bash-completion-dir=%{compdir} \
             --disable-geopmd-local \
             || ( cat config.log && false )
 
 %{__make} %{?_smp_mflags}
 
-%pyproject_wheel
-
 %install
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
-rm -f %{buildroot}/%{_mandir}/man1/geopmbench.1
-rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
-%pyproject_install
-%pyproject_save_files %{srcname}
 
 %clean
 
@@ -141,7 +103,6 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 %{_bindir}/geopmadmin
 %{_bindir}/geopmagent
 %{_bindir}/geopmctl
-%{compdir}
 
 %files -n libgeopm2
 %defattr(-,root,root,-)
@@ -163,27 +124,7 @@ rm -f %{buildroot}/%{_mandir}/man3/geopm_fortran.3
 %{_libdir}/libgeopm.so
 %dir %{docdir}
 %doc %{docdir}/COPYING
-%doc %{docdir}/COPYING-TPP
-%doc %{docdir}/README
+%doc %{docdir}/README.rst
 %doc %{docdir}/VERSION
-%doc %{_mandir}/man1/geopmadmin.1.gz
-%doc %{_mandir}/man1/geopmagent.1.gz
-%doc %{_mandir}/man1/geopmctl.1.gz
-%doc %{_mandir}/man3/geopm::Agent.3.gz
-%doc %{_mandir}/man3/geopm::PowerBalancer.3.gz
-%doc %{_mandir}/man3/geopm::PowerGovernor.3.gz
-%doc %{_mandir}/man3/geopm_agent.3.gz
-%doc %{_mandir}/man3/geopm_ctl.3.gz
-%doc %{_mandir}/man3/geopm_imbalancer.3.gz
-%doc %{_mandir}/man3/geopm_prof.3.gz
-%doc %{_mandir}/man7/geopm_agent_frequency_map.7.gz
-%doc %{_mandir}/man7/geopm_agent_monitor.7.gz
-%doc %{_mandir}/man7/geopm_agent_power_balancer.7.gz
-%doc %{_mandir}/man7/geopm_agent_power_governor.7.gz
 
-%files -n python%{python_major_version}-geopmpy -f %{pyproject_files}
-%defattr(-,root,root,-)
-%doc %{_mandir}/man7/geopmpy.7.gz
-%{_bindir}/geopmlaunch
-%doc %{_mandir}/man1/geopmlaunch.1.gz
 
