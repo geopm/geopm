@@ -20,24 +20,7 @@ Source0: @ARCHIVE@
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-
 BuildRequires: python-rpm-macros
-
-%define python_bin %{__python3}
-
-%{!?python3_pkgversion:%global python3_pkgversion 3}
-
-%define python_major_version 3
-
-Requires: libgeopmd2 = %{version}
-
-Summary: The geopmdpy Python package for the GEOPM Service
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-# Deprecated for RHEL and CentOS
-Group: System Environment/Libraries
-%else
-Group: Development/Libraries/Python
-%endif
 
 %if %{defined suse_version}
 Requires: python3-gobject
@@ -51,13 +34,12 @@ Requires: python3-psutil
 Requires: python3-cffi
 Requires: libgeopmd2 = %{version}
 
-%{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
+%{?python_provide:%python_provide python3-geopmdpy}
 
 %description
 
-Python %{python_major_version} package for GEOPM service.  Provides
-the implementation for the geopmd service daemon and interfaces for
-configuring the service.
+Python3 package for GEOPM service.  Provides the implementation for
+the geopmd service daemon and interfaces for configuring the service.
 
 # Steps for all packages
 %prep
