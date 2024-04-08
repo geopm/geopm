@@ -10,7 +10,7 @@ all:
 	# Do not make anything by default
 	-
 
-man:
+man: html
 	PYTHONPATH=../geopmdpy:../geopmpy \
 	    sphinx-build -M man source build -W
 
