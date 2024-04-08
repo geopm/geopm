@@ -1,6 +1,7 @@
 /build/
 /dist/
 /geopmdpy.egg-info/
+/geopmdpy.spec
 /make_sdist.log
 /geopmdpy-*/
 /debian/changelog

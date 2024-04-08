@@ -48,7 +48,7 @@ compile_commands.json
 /openmp-*.src.tar.xz
 /plugin/*.lo
 /plugin/*.o
-/geopm-runtime*.spec
+/geopm-runtime.spec
 /stamp-h1
 /test-driver
 !/test/fortran/*.f90
