@@ -6,7 +6,9 @@ prefix ?= /usr
 datarootdir ?= $(prefix)/share
 mandir ?= $(datarootdir)/man
 
-all: man html
+all:
+	# Do not make anything by default
+	-
 
 man:
 	PYTHONPATH=../../geopmdpy:../../geopmpy \
@@ -33,11 +35,11 @@ VERSION:
 DATE:
 	date +'%a, %d %b %Y %H:%M:%S %z' > $@
 
-dist: VERSION DATE
+dist: man VERSION DATE
 	VERSION=`cat VERSION` && DATE=`cat DATE` && \
 	cat debian/changelog.in | sed -e "s|@VERSION@|$$VERSION|g" \
 	                              -e "s|@DATE@|$$DATE|g" > debian/changelog && \
-	cd .. && tar --transform="s|docs|geopm-docs-$$VERSION|" -zcvf geopm-docs-$$VERSION.tar.gz docs && \
+	cd .. && tar --transform="s|docs|geopm-docs-$$VERSION|" -h -zcvf geopm-docs-$$VERSION.tar.gz docs && \
 	mv geopm-docs-$$VERSION.tar.gz docs
 
 install_man:
@@ -48,4 +50,4 @@ install_man:
 	install -m644 build/man/*.3 $(DESTDIR)$(mandir)/man3
 	install -m644 build/man/*.7 $(DESTDIR)$(mandir)/man7
 
-.PHONY: all man html geopmlint clean install_man DATE VERSION
+.PHONY: all man html geopmlint clean DATE VERSION dist install_man
