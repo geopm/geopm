@@ -90,14 +90,6 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 
 %clean
 
-%post
-/sbin/ldconfig
-
-%preun
-
-%postun
-/sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
 %{_bindir}/geopmadmin
@@ -126,5 +118,3 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %doc %{docdir}/COPYING
 %doc %{docdir}/README.rst
 %doc %{docdir}/VERSION
-
-
