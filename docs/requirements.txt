@@ -1,5 +1,7 @@
 sphinx>=4.5.0
-sphinx_rtd_theme>=1.0.0"
-sphinxemoji>=0.2.0"
-pygments>=2.13.0"
-sphinx-tabs>=3.3.1"
+sphinx_rtd_theme>=1.0.0
+sphinxemoji>=0.2.0
+pygments>=2.13.0
+sphinx-tabs>=3.3.1
+geopmdpy
+geopmpy

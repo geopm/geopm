@@ -5,6 +5,12 @@ Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 Build-Depends: debhelper-compat (= 12),
  dh-python,
  python3-all,
+ python3-sphinx (>= 4.5.0),
+ python3-sphinx_rtd_theme (>= 1.0.0),
+ python3-sphinxemoji (>= 0.2.0),
+ python3-pygments (>= 2.13.0),
+ sphinx-tabs (>= 3.3.1)
+
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
