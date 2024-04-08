@@ -3,8 +3,8 @@
 #
 
 
-EXTRA_DIST += integration/apps/hpl_mkl/hpl_mkl.py \
-              integration/apps/hpl_mkl/__init__.py \
-              integration/apps/hpl_mkl/check_env.sh \
-              integration/apps/hpl_mkl/README.md \
+EXTRA_DIST += apps/hpl_mkl/hpl_mkl.py \
+              apps/hpl_mkl/__init__.py \
+              apps/hpl_mkl/check_env.sh \
+              apps/hpl_mkl/README.md \
               # end

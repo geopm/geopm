@@ -2,22 +2,22 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
+EXTRA_DIST += apps/apps.py \
+              apps/build_func.sh \
+              apps/__init__.py \
+              apps/README.md \
               # end
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/arithmetic_intensity/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/parres/Makefile.mk
-include integration/apps/pennant/Makefile.mk
-include integration/apps/qe/Makefile.mk
+include apps/private.mk
+include apps/amg/Makefile.mk
+include apps/arithmetic_intensity/Makefile.mk
+include apps/geopmbench/Makefile.mk
+include apps/hpcg/Makefile.mk
+include apps/hpl_mkl/Makefile.mk
+include apps/hpl_netlib/Makefile.mk
+include apps/minife/Makefile.mk
+include apps/nekbone/Makefile.mk
+include apps/nasft/Makefile.mk
+include apps/parres/Makefile.mk
+include apps/pennant/Makefile.mk
+include apps/qe/Makefile.mk

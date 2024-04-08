@@ -2,23 +2,25 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
+# GLOBAL SETTINGS
+AM_CPPFLAGS += -D_POSIX_C_SOURCE=200809L
 
-EXTRA_DIST += integration/README.md \
-              integration/config/australis_env.sh \
-              integration/config/build_env.sh \
-              integration/config/build.sh \
-              integration/config/dudley_env.sh \
-              integration/config/endeavor_env.sh \
-              integration/config/gnu_env.sh \
-              integration/config/README.md \
-              integration/config/run_env.sh \
-              integration/config/smng_env.sh \
-              integration/config/theta_env.sh \
-              integration/requirements.txt \
+EXTRA_DIST += README.md \
+              config/australis_env.sh \
+              config/build_env.sh \
+              config/build.sh \
+              config/dudley_env.sh \
+              config/endeavor_env.sh \
+              config/gnu_env.sh \
+              config/README.md \
+              config/run_env.sh \
+              config/smng_env.sh \
+              config/theta_env.sh \
+              requirements.txt \
               # end
 
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/test_skipped/Makefile.mk
-include integration/smoke/Makefile.mk
+include apps/Makefile.mk
+include experiment/Makefile.mk
+include test/Makefile.mk
+include test_skipped/Makefile.mk
+include smoke/Makefile.mk

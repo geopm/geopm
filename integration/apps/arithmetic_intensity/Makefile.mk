@@ -2,8 +2,8 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/apps/arithmetic_intensity/arithmetic_intensity.py \
-              integration/apps/arithmetic_intensity/__init__.py \
-              integration/apps/arithmetic_intensity/build.sh \
-              integration/apps/arithmetic_intensity/README.md \
+EXTRA_DIST += apps/arithmetic_intensity/arithmetic_intensity.py \
+              apps/arithmetic_intensity/__init__.py \
+              apps/arithmetic_intensity/build.sh \
+              apps/arithmetic_intensity/README.md \
               # end

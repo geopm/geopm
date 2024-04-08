@@ -2,61 +2,61 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/README.md \
-              integration/build_dasbus.sh \
-              integration/check_session_clean.sh \
-              integration/get_batch_server.py \
-              integration/install_service.sh \
-              integration/kill_geopmd.sh \
-              integration/open_pbs/generate_coefficients_from_reports.py \
-              integration/open_pbs/geopm_install_pbs_power_limit.sh \
-              integration/open_pbs/geopm_openpbs_test.sh \
-              integration/open_pbs/geopm_pbs_hook_config.schema.json \
-              integration/open_pbs/geopm_power_limit.py \
-              integration/open_pbs/merge_config_files.py \
-              integration/open_pbs/README.rst \
-              integration/open_pbs/TestPowerLimitHook.py \
-              integration/test/__init__.py \
-              integration/test/test_bash_examples.py \
-              integration/test/check_write_session.sh \
-              integration/test/test_pio_reset.py \
-              integration/test/test_sst_priority.sh \
-              integration/test/test_su_give_access.sh \
-              integration/test/test_su_restart.sh \
-              integration/test/test_term_batch_client.sh \
-              integration/test/save_restore.sh \
-              integration/test/process_server_actions.sh \
-              integration/test/test_kill_batch_client.sh \
-              integration/test/test_kill_batch_server.sh \
-              integration/test/test_kill_geopmd_batch_run.sh \
-              integration/test/test_kill_geopmd_serial_run.sh \
-              integration/test/test_systemctl_stop_geopm.sh \
-              integration/test/batch_write_client_helper.py \
-              integration/test/batch_write_client_helper.sh \
-              integration/test/serial_write_client_helper.py \
-              integration/test/serial_write_client_helper.sh \
-              integration/test/do_write.sh \
-              integration/test/test_batch_perf.sh \
-              integration/test/plot_batch_perf.py \
+EXTRA_DIST += README.md \
+              build_dasbus.sh \
+              check_session_clean.sh \
+              get_batch_server.py \
+              install_service.sh \
+              kill_geopmd.sh \
+              open_pbs/generate_coefficients_from_reports.py \
+              open_pbs/geopm_install_pbs_power_limit.sh \
+              open_pbs/geopm_openpbs_test.sh \
+              open_pbs/geopm_pbs_hook_config.schema.json \
+              open_pbs/geopm_power_limit.py \
+              open_pbs/merge_config_files.py \
+              open_pbs/README.rst \
+              open_pbs/TestPowerLimitHook.py \
+              test/__init__.py \
+              test/test_bash_examples.py \
+              test/check_write_session.sh \
+              test/test_pio_reset.py \
+              test/test_sst_priority.sh \
+              test/test_su_give_access.sh \
+              test/test_su_restart.sh \
+              test/test_term_batch_client.sh \
+              test/save_restore.sh \
+              test/process_server_actions.sh \
+              test/test_kill_batch_client.sh \
+              test/test_kill_batch_server.sh \
+              test/test_kill_geopmd_batch_run.sh \
+              test/test_kill_geopmd_serial_run.sh \
+              test/test_systemctl_stop_geopm.sh \
+              test/batch_write_client_helper.py \
+              test/batch_write_client_helper.sh \
+              test/serial_write_client_helper.py \
+              test/serial_write_client_helper.sh \
+              test/do_write.sh \
+              test/test_batch_perf.sh \
+              test/plot_batch_perf.py \
               # end
 
-check_PROGRAMS += integration/test/test_batch_server \
-                  integration/test/test_batch_interface \
-                  integration/test/test_invalid_values \
-                  integration/test/test_batch_perf \
+check_PROGRAMS += test/test_batch_server \
+                  test/test_batch_interface \
+                  test/test_invalid_values \
+                  test/test_batch_perf \
                   #end
 
-integration_test_test_batch_server_SOURCES = integration/test/test_batch_server.cpp
-integration_test_test_batch_server_LDADD = libgeopmd.la
+test_test_batch_server_SOURCES = test/test_batch_server.cpp
+test_test_batch_server_LDADD = libgeopmd.la
 
-integration_test_test_batch_interface_SOURCES = integration/test/test_batch_interface.cpp
-integration_test_test_batch_interface_LDADD = libgeopmd.la
+test_test_batch_interface_SOURCES = test/test_batch_interface.cpp
+test_test_batch_interface_LDADD = libgeopmd.la
 
-integration_test_test_invalid_values_SOURCES = integration/test/test_invalid_values.cpp
-integration_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) -fPIC -fPIE $(FASTMATH)
-integration_test_test_invalid_values_LDADD = libgeopmd.la
+test_test_invalid_values_SOURCES = test/test_invalid_values.cpp
+test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) -fPIC -fPIE $(FASTMATH)
+test_test_invalid_values_LDADD = libgeopmd.la
 
-integration_test_test_batch_perf_SOURCES = integration/test/test_batch_perf.cpp
-integration_test_test_batch_perf_LDADD = libgeopmd.la
+test_test_batch_perf_SOURCES = test/test_batch_perf.cpp
+test_test_batch_perf_LDADD = libgeopmd.la
 
-TESTS += integration/open_pbs/geopm_openpbs_test.sh
+TESTS += open_pbs/geopm_openpbs_test.sh
