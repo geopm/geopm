@@ -2,9 +2,9 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/apps/hpcg/0001-Fix-whitespace-issues.patch \
-              integration/apps/hpcg/0002-Use-build-environment-vars.patch \
-              integration/apps/hpcg/build.sh \
-              integration/apps/hpcg/hpcg.py \
-              integration/apps/hpcg/__init__.py \
+EXTRA_DIST += apps/hpcg/0001-Fix-whitespace-issues.patch \
+              apps/hpcg/0002-Use-build-environment-vars.patch \
+              apps/hpcg/build.sh \
+              apps/hpcg/hpcg.py \
+              apps/hpcg/__init__.py \
               # end

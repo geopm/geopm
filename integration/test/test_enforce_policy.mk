@@ -6,8 +6,8 @@ EXTRA_DIST += integration/test/test_enforce_policy.py
 
 check_PROGRAMS += integration/test/test_enforce_policy \
                   # end
-integration_test_test_enforce_policy_SOURCES = integration/test/test_enforce_policy.c \
+test_test_enforce_policy_SOURCES = integration/test/test_enforce_policy.c \
                                                # end
-integration_test_test_enforce_policy_LDADD = libgeopm.la
-integration_test_test_enforce_policy_LDFLAGS = $(AM_LDFLAGS)
-integration_test_test_enforce_policy_CFLAGS = $(AM_CFLAGS)
+test_test_enforce_policy_LDADD = libgeopm.la
+test_test_enforce_policy_LDFLAGS = $(AM_LDFLAGS)
+test_test_enforce_policy_CFLAGS = $(AM_CFLAGS)

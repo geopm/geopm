@@ -3,9 +3,9 @@
 #
 
 
-EXTRA_DIST += integration/apps/nasft/nasft.py \
-              integration/apps/nasft/__init__.py \
-              integration/apps/nasft/README.md \
+EXTRA_DIST += apps/nasft/nasft.py \
+              apps/nasft/__init__.py \
+              apps/nasft/README.md \
               # end
 
-include integration/apps/nasft/nasft/Makefile.mk
+include apps/nasft/nasft/Makefile.mk
