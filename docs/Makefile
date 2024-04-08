@@ -26,7 +26,7 @@ geopmlint:
 	PYTHONPATH=../geopmdpy:../geopmpy \
 	    sphinx-build -M geopmlint source build
 
-clean:
+clean_all:
 	rm -rf docs/build VERSION DATE debian/changelog geopm-docs-*
 
 VERSION:
