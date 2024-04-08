@@ -9,3 +9,4 @@ setuptools-scm>=6.4.2
 seaborn[stats]>=0.11.2
 installer>=0.7.0
 build>=0.9.0
+importlib_metadata>=4.0.0

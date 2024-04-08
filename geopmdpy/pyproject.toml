@@ -5,9 +5,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["geopmdpy"]
 
-[tool.setuptools.package-data]
-geopmdpy = ["VERSION"]
-
 [tool.setuptools_scm]
 root = ".."
 
@@ -51,6 +48,7 @@ dependencies = ["cffi>=1.14.5",
                 "jsonschema>=3.2.0",
                 "pygobject>=3.42.0",
                 "docstring-parser>0.13",
+                "importlib_metadata>=4.0.0",
 ]
 
 [project.scripts]
