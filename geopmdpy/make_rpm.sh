@@ -5,7 +5,7 @@ set -xe
 ./make_sdist.sh
 
 PACKAGE_NAME=geopmdpy
-VERSION=$(cat geopmdpy/VERSION)
+VERSION=$(python3 -c "from setuptools_scm import get_version; print(get_version('..'))")
 ARCHIVE=${PACKAGE_NAME}-${VERSION}.tar.gz
 
 sed -e "s/@ARCHIVE@/${ARCHIVE}/" -e "s/@VERSION@/${VERSION}/" geopmdpy.spec.in > geopmdpy.spec
