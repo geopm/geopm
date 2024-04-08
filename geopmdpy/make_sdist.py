@@ -10,11 +10,9 @@ from datetime import datetime
 def setup():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     version = get_version(f'{script_dir}/..')
-    with open(f'{script_dir}/geopmdpy/VERSION', 'w') as fid:
-       fid.write(version)
+    date = datetime.today().astimezone().strftime('%a, %d %b %Y %H:%M:%S %z')
     with open(f'{script_dir}/debian/changelog.in') as fid:
        changelog = fid.read()
-    date = datetime.today().astimezone().strftime('%a, %d %b %Y %H:%M:%S %z')
     changelog = changelog.replace('@VERSION@', version).replace('@DATE@', date)
     with open(f'{script_dir}/debian/changelog', 'w') as fid:
         fid.write(changelog)
