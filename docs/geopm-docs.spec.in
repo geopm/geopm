@@ -77,7 +77,7 @@ Man pages for python3-geopmpy package
 %{__make}
 
 %install
-%{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} install
+%{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} install_man
 
 %clean
 
