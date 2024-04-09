@@ -1,0 +1,2 @@
+shell_completion/geopmread.bash geopmread
+shell_completion/geopmwrite.bash geopmwrite

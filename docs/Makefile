@@ -5,6 +5,8 @@
 prefix ?= /usr
 datarootdir ?= $(prefix)/share
 mandir ?= $(datarootdir)/man
+sysconfdir ?= $(prefix)/etc
+completionsdir ?= `pkg-config --variable=completionsdir bash-completion || echo $(sysconfdir)/bash_completion.d`
 
 all:
 	# Do not make anything by default
@@ -43,9 +45,9 @@ dist: man VERSION DATE
 	mv geopm-docs-$$VERSION.tar.gz docs
 
 install_man:
-	mkdir -p $(DESTDIR)$(mandir)/man1
-	mkdir -p $(DESTDIR)$(mandir)/man3
-	mkdir -p $(DESTDIR)$(mandir)/man7
+	install -d $(DESTDIR)$(mandir)/man1
+	install -d $(DESTDIR)$(mandir)/man3
+	install -d $(DESTDIR)$(mandir)/man7
 	install -m644 build/man/*.1 $(DESTDIR)$(mandir)/man1
 	install -m644 build/man/*.3 $(DESTDIR)$(mandir)/man3
 	install -m644 build/man/*.7 $(DESTDIR)$(mandir)/man7
@@ -66,5 +68,11 @@ install_man:
 	rm $(DESTDIR)$(mandir)/man3/geopm_policystore.3
 	rm $(DESTDIR)$(mandir)/man7/geopm_agent_cpu_activity.7
 	rm $(DESTDIR)$(mandir)/man7/geopm_agent_gpu_activity.7
+
+install_completion:
+	install -d $(DESTDIR)$(completionsdir)
+	install -m644 shell_completion/geopmlaunch.bash $(DESTDIR)$(completionsdir)/geopmlaunch
+	install -m644 shell_completion/geopmread.bash $(DESTDIR)$(completionsdir)/geopmread
+	install -m644 shell_completion/geopmwrite.bash $(DESTDIR)$(completionsdir)/geopmwrite
 
 .PHONY: all man html geopmlint clean DATE VERSION dist install_man

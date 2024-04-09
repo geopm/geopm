@@ -3,6 +3,7 @@ Section: utility
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 Build-Depends: debhelper-compat (= 12),
+               bash-completion
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
@@ -14,12 +15,12 @@ Description: GEOPM - Global Extensible Open Power Manager Documentation (geopmdp
 
 Package: python3-geopmpy-docs
 Architecture: all
-Depends:
+Depends: bash-completion
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopmpy)
 
 Package: geopm-service-docs
 Architecture: all
-Depends:
+Depends: bash-completion
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopm-service)
 
 Package: geopm-runtime-docs

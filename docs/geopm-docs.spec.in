@@ -31,6 +31,17 @@ URL: https://geopm.github.io
 Source0: geopm-docs-%{version}.tar.gz
 BuildRoot: %{_tmppath}/geopm-docs-%{version}-%{release}-root
 Prefix: %{_prefix}
+%if 0%{?suse_version}
+BuildRequires: bash-completion-devel
+%else
+BuildRequires: bash-completion
+%endif
+
+%define completionsdir %(pkg-config --variable=completionsdir bash-completion)
+%if "x%{?completionsdir}" == "x"
+%define completionsdir "%{_sysconfdir}/bash_completion.d"
+%endif
+
 %description
 Man pages for geopm packages
 
@@ -77,6 +88,7 @@ Man pages for python3-geopmpy package
 
 %install
 %{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} install_man
+%{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} completionsdir=%{completionsdir} install_completion
 
 %clean
 
@@ -110,6 +122,8 @@ Man pages for python3-geopmpy package
 %doc %{_mandir}/man7/geopm_pio_sysfs.7.gz
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
+%{completionsdir}/geopmread
+%{completionsdir}/geopmwrite
 
 %files -n libgeopmd-docs
 %doc %{_mandir}/man3/geopm::Agg.3.gz
@@ -153,3 +167,4 @@ Man pages for python3-geopmpy package
 %files -n python3-geopmpy-docs
 %doc %{_mandir}/man1/geopmlaunch.1.gz
 %doc %{_mandir}/man7/geopmpy.7.gz
+%{completionsdir}/geopmlaunch
