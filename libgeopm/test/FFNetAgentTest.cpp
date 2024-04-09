@@ -18,7 +18,7 @@
 #include "geopm_hint.h"
 #include "geopm_hash.h"
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "FFNetAgent.hpp"
 #include "DomainNetMap.hpp"
 #include "RegionHintRecommender.hpp"

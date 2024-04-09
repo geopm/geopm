@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "SampleAggregator.hpp"
+#include "geopm/SampleAggregator.hpp"
 
 class MockSampleAggregator : public geopm::SampleAggregator
 {

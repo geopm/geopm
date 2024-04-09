@@ -12,7 +12,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"

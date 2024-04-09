@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "PowerBalancer.hpp"
+#include "geopm/PowerBalancer.hpp"
 
 class MockPowerBalancer : public geopm::PowerBalancer
 {

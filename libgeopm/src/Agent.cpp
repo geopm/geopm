@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 
 #include <cmath>
 #include <cstring>

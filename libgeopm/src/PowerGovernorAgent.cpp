@@ -10,8 +10,8 @@
 #include <cmath>
 #include <algorithm>
 
-#include "PowerGovernor.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PowerGovernor.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "Waiter.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"

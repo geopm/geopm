@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "Daemon.hpp"
+#include "geopm/Daemon.hpp"
 
 namespace geopm
 {

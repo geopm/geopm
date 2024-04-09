@@ -19,7 +19,7 @@ EXTRA_DIST = README.md \
              config/theta_env.sh \
              requirements.txt \
               # end
-check_PROGRAMS =
+noinst_PROGRAMS =
 
 include apps/Makefile.mk
 include experiment/Makefile.mk

@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-#include "PowerGovernor.hpp"
+#include "geopm/PowerGovernor.hpp"
 
 namespace geopm
 {

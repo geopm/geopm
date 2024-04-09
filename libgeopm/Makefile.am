@@ -5,6 +5,7 @@
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS += -I$(top_srcdir)/src \
+               -I$(top_srcdir)/include \
                -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(libdir)/geopm\" \
                -D_POSIX_C_SOURCE=200809L \
                -DOMPI_SKIP_MPICXX \
@@ -33,30 +34,30 @@ install-exec-hook: install-fortran
 dist: dist-googletest
 
 
-include_HEADERS = src/geopm_agent.h \
-                  src/geopm_imbalancer.h \
-                  src/geopm_prof.h \
+include_HEADERS = include/geopm_agent.h \
+                  include/geopm_imbalancer.h \
+                  include/geopm_prof.h \
                   # end
 if ENABLE_BETA
-    include_HEADERS += src/geopm_daemon.h \
-                       src/geopm_endpoint.h \
-                       src/geopm_policystore.h \
+    include_HEADERS += include/geopm_daemon.h \
+                       include/geopm_endpoint.h \
+                       include/geopm_policystore.h \
                        # end
 endif
 
 geopmincludedir = $(includedir)/geopm
 
-geopminclude_HEADERS = src/Agent.hpp \
-                       src/FrequencyGovernor.hpp \
-                       src/PlatformIOProf.hpp \
-                       src/PowerBalancer.hpp \
-                       src/PowerGovernor.hpp \
-                       src/SampleAggregator.hpp \
+geopminclude_HEADERS = include/geopm/Agent.hpp \
+                       include/geopm/FrequencyGovernor.hpp \
+                       include/geopm/PlatformIOProf.hpp \
+                       include/geopm/PowerBalancer.hpp \
+                       include/geopm/PowerGovernor.hpp \
+                       include/geopm/SampleAggregator.hpp \
                        # end
 
 if ENABLE_BETA
-    geopminclude_HEADERS += src/Daemon.hpp \
-                            src/Endpoint.hpp \
+    geopminclude_HEADERS += include/geopm/Daemon.hpp \
+                            include/geopm/Endpoint.hpp \
                             # end
 endif
 

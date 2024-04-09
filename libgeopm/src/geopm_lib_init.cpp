@@ -8,7 +8,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"
 #include "Profile.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm_time.h"
 
 static void __attribute__((constructor)) geopm_lib_init(void)

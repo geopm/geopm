@@ -16,7 +16,7 @@
 #include "geopm_agent.h"
 #include "geopm_error.h"
 #include "geopm_hash.h"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "OptionParser.hpp"
 
 #include "config.h"

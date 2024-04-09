@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "Endpoint.hpp"
+#include "geopm/Endpoint.hpp"
 
 class MockEndpoint : public geopm::Endpoint
 {

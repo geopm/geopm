@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"

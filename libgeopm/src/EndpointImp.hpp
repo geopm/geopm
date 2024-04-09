@@ -11,7 +11,7 @@
 
 #include "geopm_endpoint.h"
 #include "geopm_time.h"
-#include "Endpoint.hpp"
+#include "geopm/Endpoint.hpp"
 
 namespace geopm
 {
