@@ -22,10 +22,10 @@ if ENABLE_OPENMP
 
     apps_nasft_nasft_nas_ft_LDADD = $(MPI_FCLIBS) $(MPI_CXXLIBS)
     apps_nasft_nasft_nas_ft_LDFLAGS = $(LDFLAGS_NOPIE) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
-    apps_nasft_nasft_nas_ft_FCFLAGS = -std=legacy -fiopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
-    apps_nasft_nasft_nas_ft_FFLAGS =  -fiopenmp -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3
+    apps_nasft_nasft_nas_ft_FCFLAGS = -std=legacy -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) $(AM_FCFLAGS) -O3
+    apps_nasft_nasft_nas_ft_FFLAGS =  -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3
 if HAVE_IFX
-    apps_nasft_nasft_nas_ft_FCFLAGS += -std=legacy -xAVX -shared-intel -mcmodel=medium -fpic
+    apps_nasft_nasft_nas_ft_FCFLAGS += -std=legacy -xAVX -shared-intel -mcmodel=medium -fpic $(AM_FCFLAGS)
     apps_nasft_nasft_nas_ft_FFLAGS += -xAVX -shared-intel -mcmodel=medium -fpic
 endif
 endif
