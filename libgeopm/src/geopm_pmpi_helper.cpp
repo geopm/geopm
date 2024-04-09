@@ -18,7 +18,7 @@
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 #ifndef GEOPM_TEST
 #include <mpi.h>
 #endif

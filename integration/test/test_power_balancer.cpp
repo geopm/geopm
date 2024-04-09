@@ -14,7 +14,7 @@
 
 #include "geopm_prof.h"
 #include "geopm/Exception.hpp"
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_sched.h"
 

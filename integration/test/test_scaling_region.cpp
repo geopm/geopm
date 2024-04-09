@@ -13,11 +13,11 @@
 #include <memory>
 
 #include "geopm_hint.h"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 using geopm::platform_io;
 

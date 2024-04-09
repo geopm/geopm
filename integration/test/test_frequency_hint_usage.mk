@@ -9,7 +9,7 @@ if ENABLE_MPI
 noinst_PROGRAMS += test/test_frequency_hint_usage
 test_test_frequency_hint_usage_SOURCES = test/test_frequency_hint_usage.cpp
 test_test_frequency_hint_usage_SOURCES += $(model_source_files)
-test_test_frequency_hint_usage_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+test_test_frequency_hint_usage_LDADD = $(MATH_LIB) $(MPI_CLIBS)
 test_test_frequency_hint_usage_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_test_frequency_hint_usage_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 endif

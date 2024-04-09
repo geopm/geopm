@@ -4,7 +4,7 @@
  */
 #include "config.h"
 
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

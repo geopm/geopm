@@ -18,7 +18,7 @@
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm_time.h"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 
 #include "geopm_test.hpp"
 #include "MockComm.hpp"

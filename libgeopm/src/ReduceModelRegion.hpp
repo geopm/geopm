@@ -6,7 +6,7 @@
 #ifndef REDUCEMODELREGION_HPP_INCLUDE
 #define REDUCEMODELREGION_HPP_INCLUDE
 
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 #include <vector>
 

@@ -8,7 +8,7 @@
 #include <vector>
 #include "geopm_prof.h"
 #include "geopm_hint.h"
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 
 __attribute__((noinline))

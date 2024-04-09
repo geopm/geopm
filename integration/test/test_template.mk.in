@@ -8,7 +8,7 @@ if ENABLE_MPI
 check_PROGRAMS += integration/test/test_@test_name@
 integration_test_test_@test_name@_SOURCES = integration/test/test_@test_name@.cpp
 integration_test_test_@test_name@_SOURCES += $(model_source_files)
-integration_test_test_@test_name@_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+integration_test_test_@test_name@_LDADD = $(MATH_LIB) $(MPI_CLIBS)
 integration_test_test_@test_name@_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 integration_test_test_@test_name@_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 else

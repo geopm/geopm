@@ -13,7 +13,7 @@
 #include <limits.h>
 
 #include "geopm_prof.h"
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 #include "geopm/Exception.hpp"
 #include "config.h"
 

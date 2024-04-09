@@ -4,7 +4,7 @@
  */
 
 #include "config.h"
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 #include <iostream>
 
@@ -13,7 +13,7 @@
 #include "geopm_imbalancer.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 
 #include "SleepModelRegion.hpp"
 #include "All2allModelRegion.hpp"

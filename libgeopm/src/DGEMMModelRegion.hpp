@@ -6,7 +6,7 @@
 #ifndef DGEMMMODELREGION_HPP_INCLUDE
 #define DGEMMMODELREGION_HPP_INCLUDE
 
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 namespace geopm
 {

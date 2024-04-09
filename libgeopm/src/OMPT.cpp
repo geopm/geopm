@@ -16,7 +16,7 @@
 #include "geopm_prof.h"
 #include "geopm_sched.h"
 #include "geopm_error.h"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 #include "ELF.hpp"
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"

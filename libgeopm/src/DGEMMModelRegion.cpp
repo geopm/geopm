@@ -12,7 +12,7 @@
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm/Exception.hpp"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 #include "geopm/Helper.hpp"
 
 #ifdef GEOPM_ENABLE_MKL

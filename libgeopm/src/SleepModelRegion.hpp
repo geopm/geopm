@@ -6,7 +6,7 @@
 #ifndef SLEEPMODELREGION_HPP_INCLUDE
 #define SLEEPMODELREGION_HPP_INCLUDE
 
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 namespace geopm
 {
