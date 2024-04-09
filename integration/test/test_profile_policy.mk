@@ -5,7 +5,7 @@
 EXTRA_DIST += test/test_profile_policy.py
 
 if ENABLE_BETA
-check_PROGRAMS += test/test_profile_policy
+noinst_PROGRAMS += test/test_profile_policy
 test_test_profile_policy_SOURCES = test/test_profile_policy.cpp \
                                                # end
 test_test_profile_policy_LDADD = libgeopm.la

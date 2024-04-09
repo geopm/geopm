@@ -6,7 +6,7 @@ EXTRA_DIST += test/test_progress.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-check_PROGRAMS += test/test_progress
+noinst_PROGRAMS += test/test_progress
 test_test_progress_SOURCES = test/test_progress.cpp
 test_test_progress_SOURCES += $(model_source_files)
 test_test_progress_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

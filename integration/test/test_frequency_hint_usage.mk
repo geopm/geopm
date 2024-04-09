@@ -6,7 +6,7 @@ EXTRA_DIST += test/test_frequency_hint_usage.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-check_PROGRAMS += test/test_frequency_hint_usage
+noinst_PROGRAMS += test/test_frequency_hint_usage
 test_test_frequency_hint_usage_SOURCES = test/test_frequency_hint_usage.cpp
 test_test_frequency_hint_usage_SOURCES += $(model_source_files)
 test_test_frequency_hint_usage_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

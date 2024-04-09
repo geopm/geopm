@@ -6,7 +6,7 @@ EXTRA_DIST += test/test_scaling_region.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-check_PROGRAMS += test/test_scaling_region
+noinst_PROGRAMS += test/test_scaling_region
 test_test_scaling_region_SOURCES = test/test_scaling_region.cpp
 test_test_scaling_region_SOURCES += $(model_source_files)
 test_test_scaling_region_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

@@ -8,7 +8,7 @@ EXTRA_DIST += test_skipped/test_fmap_short_region_slop.py \
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-check_PROGRAMS += test_skipped/test_fmap_short_region_slop
+noinst_PROGRAMS += test_skipped/test_fmap_short_region_slop
 test_skipped_test_fmap_short_region_slop_SOURCES = test_skipped/test_fmap_short_region_slop.cpp
 test_skipped_test_fmap_short_region_slop_SOURCES += $(model_source_files)
 test_skipped_test_fmap_short_region_slop_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

@@ -13,16 +13,16 @@ EXTRA_DIST += examples/README.md \
               examples/simple_pio_example.c \
               #end
 
-check_PROGRAMS += examples/geopm_print_error
+noinst_PROGRAMS += examples/geopm_print_error
 examples_geopm_print_error_SOURCES = examples/geopm_print_error.c
 examples_geopm_print_error_LDADD = libgeopm.la
 
-check_PROGRAMS += examples/geopmhash
+noinst_PROGRAMS += examples/geopmhash
 examples_geopmhash_SOURCES = examples/geopmhash.c
 examples_geopmhash_LDADD = libgeopm.la
 
 if ENABLE_MPI
-    check_PROGRAMS += examples/timed_region
+    noinst_PROGRAMS += examples/timed_region
     examples_timed_region_SOURCES = examples/timed_region.cpp
     examples_timed_region_LDADD = libgeopm.la $(MPI_CXXLIBS)
     examples_timed_region_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
@@ -32,7 +32,7 @@ endif
 
 if ENABLE_MPI
 if ENABLE_SCHED
-    check_PROGRAMS += examples/synthetic_benchmark \
+    noinst_PROGRAMS += examples/synthetic_benchmark \
                       # end
     examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
     examples_synthetic_benchmark_LDADD = libgeopm.la $(MPI_CXXLIBS)
@@ -45,7 +45,7 @@ endif
 if ENABLE_MPI
 if ENABLE_OPENMP
 if ENABLE_SCHED
-    check_PROGRAMS += examples/simple_prof_c \
+    noinst_PROGRAMS += examples/simple_prof_c \
                       examples/print_affinity \
                       #end
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
@@ -60,7 +60,7 @@ if ENABLE_SCHED
     examples_print_affinity_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     examples_print_affinity_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 if ENABLE_FORTRAN
-    check_PROGRAMS += examples/simple_prof_f
+    noinst_PROGRAMS += examples/simple_prof_f
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
     examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS)
     examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)

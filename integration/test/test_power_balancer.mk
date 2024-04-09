@@ -6,7 +6,7 @@ EXTRA_DIST += test/test_power_balancer.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-check_PROGRAMS += test/test_power_balancer
+noinst_PROGRAMS += test/test_power_balancer
 test_test_power_balancer_SOURCES = test/test_power_balancer.cpp
 test_test_power_balancer_SOURCES += $(model_source_files)
 test_test_power_balancer_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)

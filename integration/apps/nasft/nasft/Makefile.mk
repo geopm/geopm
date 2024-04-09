@@ -10,7 +10,7 @@ EXTRA_DIST += apps/nasft/nasft/COPYING-NAS \
 if ENABLE_FORTRAN
 if ENABLE_MPI
 if ENABLE_OPENMP
-    check_PROGRAMS += apps/nasft/nasft/nas_ft
+    noinst_PROGRAMS += apps/nasft/nasft/nas_ft
     apps_nasft_nasft_nas_ft_SOURCES = apps/nasft/nasft/ft.f90 \
                                   apps/nasft/nasft/global.fi \
                                   apps/nasft/nasft/mpinpb.fi \
