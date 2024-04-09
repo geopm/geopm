@@ -4,7 +4,7 @@
 
 EXTRA_DIST += test/test_enforce_policy.py
 
-check_PROGRAMS += test/test_enforce_policy \
+noinst_PROGRAMS += test/test_enforce_policy \
                   # end
 test_test_enforce_policy_SOURCES = test/test_enforce_policy.c \
                                                # end

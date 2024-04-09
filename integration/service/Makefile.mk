@@ -40,7 +40,7 @@ EXTRA_DIST += README.md \
               test/plot_batch_perf.py \
               # end
 
-check_PROGRAMS += test/test_batch_server \
+noinst_PROGRAMS += test/test_batch_server \
                   test/test_batch_interface \
                   test/test_invalid_values \
                   test/test_batch_perf \

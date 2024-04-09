@@ -6,7 +6,7 @@ EXTRA_DIST += test/test_profile_overflow.py
 
 if ENABLE_OPENMP
 if ENABLE_MPI
-check_PROGRAMS += test/test_profile_overflow
+noinst_PROGRAMS += test/test_profile_overflow
 test_test_profile_overflow_SOURCES = test/test_profile_overflow.cpp
 test_test_profile_overflow_SOURCES += $(model_source_files)
 test_test_profile_overflow_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
