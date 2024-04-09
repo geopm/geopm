@@ -22,7 +22,7 @@
 
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "SampleAggregator.hpp"
+#include "geopm/SampleAggregator.hpp"
 #include "ProcessRegionAggregator.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
@@ -34,7 +34,7 @@
 #include "geopm_debug.hpp"
 #include "Environment.hpp"
 #include "EnvironmentParser.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm_time.h"
 
 namespace geopm

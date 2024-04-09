@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "PowerGovernor.hpp"
+#include "geopm/PowerGovernor.hpp"
 
 class MockPowerGovernor : public geopm::PowerGovernor
 {

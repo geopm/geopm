@@ -4,7 +4,7 @@
  */
 
 #include "config.h"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 
 #include <string>
 #ifdef GEOPM_DEBUG

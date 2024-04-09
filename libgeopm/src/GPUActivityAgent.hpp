@@ -9,7 +9,7 @@
 #include <functional>
 #include <vector>
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 
 namespace geopm
 {

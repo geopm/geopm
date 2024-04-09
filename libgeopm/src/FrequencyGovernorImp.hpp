@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 
-#include "FrequencyGovernor.hpp"
+#include "geopm/FrequencyGovernor.hpp"
 
 namespace geopm
 {

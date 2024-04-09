@@ -11,9 +11,9 @@
 #include <climits>
 
 #include "CSV.hpp"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "Environment.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"

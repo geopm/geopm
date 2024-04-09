@@ -16,7 +16,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 
 namespace geopm
 {

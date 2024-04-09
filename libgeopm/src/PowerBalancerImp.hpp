@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "geopm_time.h"
-#include "PowerBalancer.hpp"
+#include "geopm/PowerBalancer.hpp"
 
 namespace geopm
 {

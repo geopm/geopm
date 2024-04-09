@@ -13,7 +13,7 @@
 
 #include "EndpointImp.hpp"  // for shmem region structs and constants
 #include "geopm/Helper.hpp"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "Environment.hpp"
 #include "geopm/SharedMemory.hpp"
 

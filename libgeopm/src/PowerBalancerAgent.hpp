@@ -10,7 +10,7 @@
 #include <functional>
 #include <memory>
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 
 namespace geopm
 {

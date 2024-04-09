@@ -16,10 +16,10 @@
 #include "geopm_hash.h"
 
 #include "Environment.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "FrequencyGovernor.hpp"
+#include "geopm/FrequencyGovernor.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"

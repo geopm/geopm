@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "FrequencyGovernor.hpp"
+#include "geopm/FrequencyGovernor.hpp"
 
 class MockFrequencyGovernor : public geopm::FrequencyGovernor
 {

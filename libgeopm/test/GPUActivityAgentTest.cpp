@@ -14,7 +14,7 @@
 #include "geopm_agent.h"
 #include "geopm_hash.h"
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "GPUActivityAgent.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

@@ -12,7 +12,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "geopm/Exception.hpp"
 #include "MockAgent.hpp"
 #include "geopm/Helper.hpp"

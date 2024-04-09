@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <fstream>
 
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "Waiter.hpp"
 #include "Environment.hpp"
 #include "geopm_debug.hpp"

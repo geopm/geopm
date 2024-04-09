@@ -14,7 +14,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "Accumulator.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm/IOGroup.hpp"
 
 namespace geopm

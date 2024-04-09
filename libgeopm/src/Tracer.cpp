@@ -21,7 +21,7 @@
 #include "geopm/Helper.hpp"
 #include "Environment.hpp"
 #include "EnvironmentParser.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm_hint.h"

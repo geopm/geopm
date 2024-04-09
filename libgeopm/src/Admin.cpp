@@ -10,7 +10,7 @@
 #include <sstream>
 
 #include "Admin.hpp"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "FilePolicy.hpp"

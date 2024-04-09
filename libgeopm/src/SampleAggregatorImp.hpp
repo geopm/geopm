@@ -10,7 +10,7 @@
 
 #include <map>
 
-#include "SampleAggregator.hpp"
+#include "geopm/SampleAggregator.hpp"
 
 namespace geopm
 {

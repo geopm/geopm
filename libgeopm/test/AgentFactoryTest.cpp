@@ -7,7 +7,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm/PluginFactory.hpp"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"

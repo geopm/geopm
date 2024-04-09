@@ -25,7 +25,7 @@
 #include "Comm.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/PlatformIO.hpp"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "TreeComm.hpp"
 #include "EndpointUser.hpp"
 #include "FilePolicy.hpp"
@@ -33,7 +33,7 @@
 #include "ProfileTracer.hpp"
 #include "ApplicationSampler.hpp"
 #include "record.hpp"
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "InitControl.hpp"
 
 #include "EpochIOGroup.hpp"

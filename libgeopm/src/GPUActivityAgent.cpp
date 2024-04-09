@@ -19,7 +19,7 @@
 #include "geopm/PluginFactory.hpp"
 #include "geopm_debug.hpp"
 
-#include "PlatformIOProf.hpp"
+#include "geopm/PlatformIOProf.hpp"
 #include "Waiter.hpp"
 #include "Environment.hpp"
 

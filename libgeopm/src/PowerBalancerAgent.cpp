@@ -11,14 +11,14 @@
 #include <algorithm>
 #include <limits>
 
-#include "PowerBalancer.hpp"
+#include "geopm/PowerBalancer.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
-#include "PlatformIOProf.hpp"
-#include "SampleAggregator.hpp"
+#include "geopm/PlatformIOProf.hpp"
+#include "geopm/SampleAggregator.hpp"
 #include "Environment.hpp"
 #include "Waiter.hpp"
 #include "geopm_debug.hpp"

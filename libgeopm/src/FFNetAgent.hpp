@@ -12,7 +12,7 @@
 #include <utility>
 #include <memory>
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "geopm_time.h"
 #include "DomainNetMap.hpp"
 #include "RegionHintRecommender.hpp"

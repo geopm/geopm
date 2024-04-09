@@ -13,7 +13,7 @@
 #include <functional>
 #include <set>
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 
 namespace geopm
 {

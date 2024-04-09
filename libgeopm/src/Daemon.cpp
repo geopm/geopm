@@ -5,13 +5,13 @@
 
 #include "config.h"
 
-#include "Daemon.hpp"
+#include "geopm/Daemon.hpp"
 #include "DaemonImp.hpp"
 #include "geopm_daemon.h"
 
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
-#include "Endpoint.hpp"
+#include "geopm/Endpoint.hpp"
 #include "PolicyStore.hpp"
 #include "geopm/Helper.hpp"
 

@@ -21,7 +21,7 @@
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "config.h"
 
 namespace geopm
