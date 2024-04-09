@@ -6,7 +6,7 @@
 #ifndef BARRIERMODELREGION_HPP_INCLUDE
 #define BARRIERMODELREGION_HPP_INCLUDE
 
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 namespace geopm
 {

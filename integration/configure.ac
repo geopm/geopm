@@ -412,6 +412,12 @@ AC_CHECK_LIB([geopm], [geopm_prof_region], [], [
     echo "missing libgeopm: Install the geopm-runtime and use --with-geopm or --with-geopm-lib to specify location"
     exit -1])
 
+
+AC_SEARCH_LIBS([geopm_prof_region], [geopmfort])
+AC_CHECK_LIB([geopmfort], [geopm_prof_region], [], [
+    echo "missing libgeopmfort: Install the geopm-runtime and use --with-geopm or --with-geopm-lib to specify location"
+    exit -1])
+
 AC_CHECK_HEADER([geopm_prof.h], [], [
     echo "missing geopm_prof.h: Install the geopm-runtime and use --with-geopm or --with-geopm-include to specify location"
     exit -1])

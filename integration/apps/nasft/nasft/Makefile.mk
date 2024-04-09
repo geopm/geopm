@@ -20,7 +20,7 @@ if ENABLE_OPENMP
                                   apps/nasft/nasft/timers.f \
                                   # end
 
-    apps_nasft_nasft_nas_ft_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
+    apps_nasft_nasft_nas_ft_LDADD = $(MPI_FCLIBS) $(MPI_CXXLIBS)
     apps_nasft_nasft_nas_ft_LDFLAGS = $(LDFLAGS_NOPIE) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
     apps_nasft_nasft_nas_ft_FCFLAGS = -std=legacy -fiopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
     apps_nasft_nasft_nas_ft_FFLAGS =  -fiopenmp -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3

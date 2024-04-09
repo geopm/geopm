@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 namespace geopm
 {

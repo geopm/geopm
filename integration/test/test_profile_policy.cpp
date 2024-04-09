@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
     }
 
-    // cpp version: include "Daemon.hpp"
+    // cpp version: include "geopm/Daemon.hpp"
     //auto daemon = geopm::Daemon::make_unique(endpoint_name, db_path);
     //daemon->update_endpoint_from_policystore(10);
 

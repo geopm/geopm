@@ -7,7 +7,7 @@
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm_time.h"
 

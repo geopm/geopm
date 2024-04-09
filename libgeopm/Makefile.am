@@ -53,6 +53,8 @@ geopminclude_HEADERS = include/geopm/Agent.hpp \
                        include/geopm/PowerBalancer.hpp \
                        include/geopm/PowerGovernor.hpp \
                        include/geopm/SampleAggregator.hpp \
+                       include/geopm/Profile.hpp \
+                       include/geopm/ModelRegion.hpp \
                        # end
 
 if ENABLE_BETA

@@ -12,9 +12,9 @@
 #include <memory>
 
 #include "geopm_hint.h"
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 #include "geopm/Exception.hpp"
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 int main(int argc, char **argv)
 {

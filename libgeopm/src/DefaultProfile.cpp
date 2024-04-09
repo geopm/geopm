@@ -4,7 +4,7 @@
  */
 #include "config.h"
 
-#include "Profile.hpp"
+#include "geopm/Profile.hpp"
 
 #include <unistd.h>
 #include <string.h>

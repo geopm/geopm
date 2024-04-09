@@ -8,6 +8,5 @@ noinst_PROGRAMS += test/test_enforce_policy \
                   # end
 test_test_enforce_policy_SOURCES = test/test_enforce_policy.c \
                                                # end
-test_test_enforce_policy_LDADD = libgeopm.la
 test_test_enforce_policy_LDFLAGS = $(AM_LDFLAGS)
 test_test_enforce_policy_CFLAGS = $(AM_CFLAGS)

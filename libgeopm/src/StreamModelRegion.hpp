@@ -6,7 +6,7 @@
 #ifndef STREAMMODELREGION_HPP_INCLUDE
 #define STREAMMODELREGION_HPP_INCLUDE
 
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 namespace geopm
 {

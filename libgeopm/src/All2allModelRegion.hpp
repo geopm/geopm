@@ -6,7 +6,7 @@
 #ifndef ALL2ALLMODELREGION_HPP_INCLUDE
 #define ALL2ALLMODELREGION_HPP_INCLUDE
 
-#include "ModelRegion.hpp"
+#include "geopm/ModelRegion.hpp"
 
 namespace geopm
 {
