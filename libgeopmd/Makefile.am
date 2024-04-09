@@ -375,8 +375,6 @@ CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files)
 
 include test/Makefile.mk
 
-include shell_completion/Makefile.mk
-
 include fuzz_test/Makefile.mk
 
 .PHONY: $(PHONY_TARGETS)
