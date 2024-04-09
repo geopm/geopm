@@ -8,6 +8,7 @@ AC_INIT([geopm-integration],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.ca
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax] foreign)
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for header files.
 AC_CHECK_HEADERS([float.h limits.h stdint.h stdlib.h string.h sys/time.h unistd.h])
