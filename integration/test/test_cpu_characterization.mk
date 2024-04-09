@@ -2,4 +2,4 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/test/test_cpu_characterization.py
+EXTRA_DIST += test/test_cpu_characterization.py
