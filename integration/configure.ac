@@ -407,6 +407,15 @@ AC_CHECK_HEADER([geopm_pio.h], [], [
     echo "missing geopm_pio.h: Install the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
     exit -1])
 
+AC_SEARCH_LIBS([geopm_prof_region], [geopm])
+AC_CHECK_LIB([geopm], [geopm_prof_region], [], [
+    echo "missing libgeopm: Install the geopm-runtime and use --with-geopm or --with-geopm-lib to specify location"
+    exit -1])
+
+AC_CHECK_HEADER([geopm_prof.h], [], [
+    echo "missing geopm_prof.h: Install the geopm-runtime and use --with-geopm or --with-geopm-include to specify location"
+    exit -1])
+
 AC_LANG_PUSH([C++])
 AC_MSG_CHECKING([that double is 64 bits])
 AC_COMPILE_IFELSE([
