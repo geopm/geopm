@@ -2,4 +2,4 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/test_skipped/test_levelzero_signals.py
+EXTRA_DIST += test_skipped/test_levelzero_signals.py

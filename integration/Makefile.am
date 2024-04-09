@@ -3,21 +3,23 @@
 #
 
 # GLOBAL SETTINGS
+ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS += -D_POSIX_C_SOURCE=200809L
 
-EXTRA_DIST += README.md \
-              config/australis_env.sh \
-              config/build_env.sh \
-              config/build.sh \
-              config/dudley_env.sh \
-              config/endeavor_env.sh \
-              config/gnu_env.sh \
-              config/README.md \
-              config/run_env.sh \
-              config/smng_env.sh \
-              config/theta_env.sh \
-              requirements.txt \
+EXTRA_DIST = README.md \
+             config/australis_env.sh \
+             config/build_env.sh \
+             config/build.sh \
+             config/dudley_env.sh \
+             config/endeavor_env.sh \
+             config/gnu_env.sh \
+             config/README.md \
+             config/run_env.sh \
+             config/smng_env.sh \
+             config/theta_env.sh \
+             requirements.txt \
               # end
+check_PROGRAMS =
 
 include apps/Makefile.mk
 include experiment/Makefile.mk

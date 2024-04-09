@@ -2,15 +2,15 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-EXTRA_DIST += integration/test/test_profile_policy.py
+EXTRA_DIST += test/test_profile_policy.py
 
 if ENABLE_BETA
-check_PROGRAMS += integration/test/test_profile_policy
-test_test_profile_policy_SOURCES = integration/test/test_profile_policy.cpp \
+check_PROGRAMS += test/test_profile_policy
+test_test_profile_policy_SOURCES = test/test_profile_policy.cpp \
                                                # end
 test_test_profile_policy_LDADD = libgeopm.la
 test_test_profile_policy_LDFLAGS = $(AM_LDFLAGS)
 test_test_profile_policy_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 else
-EXTRA_DIST += integration/test/test_profile_policy.cpp
+EXTRA_DIST += test/test_profile_policy.cpp
 endif
