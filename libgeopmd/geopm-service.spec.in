@@ -37,11 +37,6 @@ BuildRequires: libtool
 BuildRequires: libcap-devel
 BuildRequires: systemd-devel >= 221
 BuildRequires: zlib-devel
-%if 0%{?suse_version}
-BuildRequires: bash-completion-devel
-%else
-BuildRequires: bash-completion
-%endif
 %if %{defined enable_level_zero}
 BuildRequires: level-zero
 BuildRequires: level-zero-devel
@@ -56,11 +51,6 @@ BuildRequires: systemd-rpm-macros
 %define docdir %{_defaultdocdir}/geopm-service
 %else
 %define docdir %{_defaultdocdir}/geopm-service-%{version}
-%endif
-
-%define compdir %(pkg-config --variable=completionsdir bash-completion)
-%if "x%{?compdir}" == "x"
-%define compdir "%{_sysconfdir}/bash_completion.d"
 %endif
 
 Requires: libgeopmd2 = %{version}
@@ -144,7 +134,6 @@ CC=gcc CXX=g++ \
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-bash-completion-dir=%{compdir} \
             %{?level_zero_option} \
             %{?io_uring_option} \
             %{?cpuid_option} \
@@ -200,7 +189,6 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
-%{compdir}
 %dir %{_datadir}/dbus-1
 %dir %{_datadir}/dbus-1/system.d
 %{_datadir}/dbus-1/system.d/io.github.geopm.conf
