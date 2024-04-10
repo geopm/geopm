@@ -50,6 +50,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     # some are generic enough they could be, though
     extra_cli_args += ['--geopm-report', report_path,
                        '--geopm-profile', profile_name,
+                       '--geopm-program-filter', app_conf.get_bash_exec_path(),
     ]
     if enable_traces:
         extra_cli_args += ['--geopm-trace', trace_path]
