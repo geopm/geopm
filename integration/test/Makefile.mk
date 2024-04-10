@@ -24,7 +24,6 @@ include test/test_omp_outer_loop.mk
 include test/test_profile_policy.mk
 include test/test_scaling_region.mk
 include test/test_timed_scaling_region.mk
-include test/test_tutorial_base.mk
 include test/test_frequency_hint_usage.mk
 include test/test_power_balancer.mk
 include test/test_profile_overflow.mk
