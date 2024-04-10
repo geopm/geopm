@@ -73,7 +73,9 @@ namespace geopm
                 throw Exception("StreamModelRegion::big_o(): posix_memalign() failed",
                                 err, __FILE__, __LINE__);
             }
+#ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
+#endif
             for (size_t i = 0; i < m_array_len; i++) {
                 m_array_a[i] = 0.0;
                 m_array_b[i] = 1.0;
@@ -96,7 +98,9 @@ namespace geopm
             double scalar = 3.0;
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegion::loop_enter(i);
+#ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
+#endif
                 for (size_t j = 0; j < block_size; ++j) {
                     m_array_a[i * block_size + j] = m_array_b[i * block_size + j] + scalar * m_array_c[i * block_size + j];
                 }
