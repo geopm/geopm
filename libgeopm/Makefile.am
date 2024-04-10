@@ -140,7 +140,7 @@ else
     MATH_LIB = -lm
 endif
 
-geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MATH_CLDFLAGS)
+geopmbench_LDFLAGS = $(AM_LDFLAGS)
 geopmbench_CFLAGS = $(AM_CFLAGS) -D_GNU_SOURCE -std=c99 $(MATH_CFLAGS)
 geopmbench_CXXFLAGS = $(AM_CXXFLAGS) -D_GNU_SOURCE -std=c++17 $(MATH_CFLAGS)
 
@@ -156,7 +156,7 @@ libgeopm_la_LIBADD = $(MPI_CLIBS)
 endif
 
 
-libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MATH_CLDFLAGS) -version-info $(geopm_abi_version)
 libgeopm_la_CFLAGS = $(AM_CFLAGS)
 libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS)
 
@@ -395,8 +395,9 @@ model_source_files = src/All2allModelRegion.cpp \
                      src/TimedScalingModelRegion.hpp \
                      # end
 
-geopmbench_SOURCES = $(model_source_files) \
-                     src/geopmbench_main.cpp \
+libgeopm_la_SOURCES += $(model_source_files)
+
+geopmbench_SOURCES = src/geopmbench_main.cpp \
                      # end
 
 # CLEAN TARGETS
