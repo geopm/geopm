@@ -20,5 +20,7 @@ Depends: python3 (>= 3.6~),
  python3-psutil (>= 5.8.0),
  python3-setuptools (>= 53.0.0),
  python3:any
+Recommends: libgeopmd2 (= ${binary:Version}),
+	    python3-geopmdpy-docs (= ${binary:Version})
 Description: GEOPM - Global Extensible Open Power Manager Daemon
  Python support for the GEOPM Service
