@@ -97,6 +97,8 @@ options and environment variables are listed below:
 * ``--prefix``: Path prefix for install artifacts
 * ``--enable-debug``: Enable verbose error and warning messaging while disabling optimization.
 * ``--enable-coverage``: Enable coverage report generation with gcov
+* ``--enable-beta``: Enable beta features, which remain in beta until their
+  interfaces are considered finalized and stable for future releases.
 * ``export CC=``: Set the C compiler with environment variable
 * ``export CXX=``: Set the C++ compiler with environment variable
 
@@ -180,6 +182,9 @@ which runs the corresponding unit tests and produces a coverage report in
 
 Note that all tests must pass in order to generate a coverage report.
 Any help in increasing code coverage levels is appreciated.
+
+Coverage from the latest release is [posted to our web
+page](http://geopm.github.io/coverage/index.html).
 
 Coding Style
 ------------
