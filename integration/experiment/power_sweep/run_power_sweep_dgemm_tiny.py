@@ -9,8 +9,8 @@ Example power sweep experiment using geopmbench.
 '''
 
 
-from experiment.power_sweep import power_sweep
-from apps.geopmbench import geopmbench
+from integration.experiment.power_sweep import power_sweep
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

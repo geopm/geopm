@@ -9,8 +9,8 @@ Run a small DGEMM with the monitor agent.
 '''
 
 
-from experiment.monitor import monitor
-from apps.geopmbench import geopmbench
+from integration.experiment.monitor import monitor
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

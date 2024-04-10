@@ -6,8 +6,8 @@
 
 import unittest
 
-from experiment import machine
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment import machine
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
 
 
 class TestUncoreFrequencySweep(unittest.TestCase):

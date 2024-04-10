@@ -9,9 +9,9 @@ against the PENNANT workload
 '''
 import argparse
 
-from experiment.energy_efficiency import cpu_activity
-from experiment import machine
-from apps.pennant import pennant
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.experiment import machine
+from integration.apps.pennant import pennant
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

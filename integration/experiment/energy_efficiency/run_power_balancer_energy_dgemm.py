@@ -5,8 +5,8 @@
 #
 
 
-from experiment.energy_efficiency import power_balancer_energy
-from apps.geopmbench import geopmbench
+from integration.experiment.energy_efficiency import power_balancer_energy
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

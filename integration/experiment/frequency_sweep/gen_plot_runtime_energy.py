@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 
 import geopmpy.io
 
-from experiment import common_args
-from experiment import report
-from experiment import plotting
+from integration.experiment import common_args
+from integration.experiment import report
+from integration.experiment import plotting
 
 
 def generate_runtime_energy_plot(df, perf_metric_label, energy_metric_label, title, output_dir='.'):

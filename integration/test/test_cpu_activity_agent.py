@@ -15,7 +15,6 @@ import unittest
 import os
 from pathlib import Path
 import shutil
-from experiment import machine
 from types import SimpleNamespace
 
 import geopmpy.agent
@@ -23,12 +22,13 @@ import geopmpy.io
 
 from integration.test import util
 from integration.test import geopm_test_launcher
-from experiment.energy_efficiency import cpu_activity
-from experiment.monitor import monitor
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
-from apps.arithmetic_intensity import arithmetic_intensity
-from apps.minife import minife
+from integration.experiment import machine
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.experiment.monitor import monitor
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
+from integration.apps.arithmetic_intensity import arithmetic_intensity
+from integration.apps.minife import minife
 
 @util.skip_unless_config_enable('beta')
 @unittest.skip('Disabled pending resolution of issue #3015.')

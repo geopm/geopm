@@ -9,9 +9,9 @@ against the DGEMM workload
 '''
 import argparse
 
-from experiment.energy_efficiency import cpu_activity
-from experiment import machine
-from apps.geopmbench import geopmbench
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.experiment import machine
+from integration.apps.geopmbench import geopmbench
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -9,9 +9,9 @@ against the PENNANT workload
 '''
 import argparse
 
-from experiment.energy_efficiency import cpu_activity
-from experiment import machine
-from apps.nekbone import nekbone
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.experiment import machine
+from integration.apps.nekbone import nekbone
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

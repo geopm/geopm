@@ -10,9 +10,9 @@ Run Pennant with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from experiment import machine
-from apps.pennant import pennant
+from integration.experiment.monitor import monitor
+from integration.experiment import machine
+from integration.apps.pennant import pennant
 
 if __name__ == '__main__':
 

@@ -10,9 +10,9 @@ Frequency sweep experiment using geopmbench.
 
 import argparse
 
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from experiment import machine
-from apps.geopmbench import geopmbench
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment import machine
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

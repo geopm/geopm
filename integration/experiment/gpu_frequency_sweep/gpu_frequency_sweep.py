@@ -14,11 +14,11 @@ import os
 
 import geopmpy.agent
 
-from experiment import launch_util
-from experiment import common_args
-from experiment import machine
-from experiment.frequency_sweep import frequency_sweep
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment import launch_util
+from integration.experiment import common_args
+from integration.experiment import machine
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)

@@ -10,9 +10,9 @@ Energy savings from power capping experiment using AMG.
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from experiment.energy_efficiency import power_balancer_energy
-from apps.amg import amg
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment.energy_efficiency import power_balancer_energy
+from integration.apps.amg import amg
 
 
 if __name__ == '__main__':

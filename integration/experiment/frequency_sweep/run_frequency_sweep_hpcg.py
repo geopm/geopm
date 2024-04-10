@@ -10,9 +10,9 @@ Frequency sweep experiment using HPCG reference version.
 
 import argparse
 
-from experiment.frequency_sweep import frequency_sweep
-from experiment import machine
-from apps.hpcg import hpcg
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.experiment import machine
+from integration.apps.hpcg import hpcg
 
 if __name__ == '__main__':
 

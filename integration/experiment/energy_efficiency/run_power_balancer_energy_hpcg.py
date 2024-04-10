@@ -10,10 +10,10 @@ Energy savings from power capping experiment using HPCG.
 
 import argparse
 
-from experiment import machine
-from experiment.power_sweep import power_sweep
-from experiment.energy_efficiency import power_balancer_energy
-from apps.hpcg import hpcg
+from integration.experiment import machine
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment.energy_efficiency import power_balancer_energy
+from integration.apps.hpcg import hpcg
 
 
 if __name__ == '__main__':

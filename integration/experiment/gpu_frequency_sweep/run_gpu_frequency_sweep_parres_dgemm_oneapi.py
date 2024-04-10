@@ -10,9 +10,9 @@ Run ParRes dgemm oneAPI version with the frequency map agent.
 
 import argparse
 
-from experiment.gpu_frequency_sweep import gpu_frequency_sweep
-from experiment import machine
-from apps.parres import parres
+from integration.experiment.gpu_frequency_sweep import gpu_frequency_sweep
+from integration.experiment import machine
+from integration.apps.parres import parres
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

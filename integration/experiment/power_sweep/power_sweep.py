@@ -15,9 +15,9 @@ import os
 
 import geopmpy.agent
 
-from experiment import launch_util
-from experiment import common_args
-from experiment import machine
+from integration.experiment import launch_util
+from integration.experiment import common_args
+from integration.experiment import machine
 
 
 def setup_run_args(parser):

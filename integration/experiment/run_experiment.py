@@ -18,7 +18,7 @@ import importlib
 import inspect
 import os
 import pkgutil
-from experiment import machine
+from integration.experiment import machine
 
 
 def list_compatible_apps(args, parent_parser):

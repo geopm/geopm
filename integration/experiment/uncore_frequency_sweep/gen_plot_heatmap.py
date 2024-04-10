@@ -19,7 +19,7 @@ from matplotlib import cm, colors
 
 import geopmpy.io
 
-from experiment import common_args
+from integration.experiment import common_args
 
 
 def plot_3d(df):

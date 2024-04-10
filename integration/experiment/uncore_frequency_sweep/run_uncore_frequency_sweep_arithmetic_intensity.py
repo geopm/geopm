@@ -10,9 +10,9 @@ Uncore frequency sweep experiment using arithmetic intensity benchmark.
 
 import argparse
 
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from experiment import machine
-from apps.arithmetic_intensity import arithmetic_intensity
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment import machine
+from integration.apps.arithmetic_intensity import arithmetic_intensity
 
 
 if __name__ == '__main__':

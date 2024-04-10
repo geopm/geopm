@@ -10,8 +10,8 @@ Run a power sweep with AMG
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from apps.amg import amg
+from integration.experiment.power_sweep import power_sweep
+from integration.apps.amg import amg
 
 
 if __name__ == '__main__':

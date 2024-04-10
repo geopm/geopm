@@ -8,9 +8,9 @@ Run ParRes nstream with the gpu_activity agent.
 '''
 import argparse
 
-from experiment import machine
-from experiment.energy_efficiency import gpu_activity
-from apps.parres import parres
+from integration.experiment import machine
+from integration.experiment.energy_efficiency import gpu_activity
+from integration.apps.parres import parres
 
 
 if __name__ == '__main__':

@@ -10,8 +10,8 @@ Example frequency sweep experiment using Quantum Espresso.
 
 import argparse
 
-from experiment.frequency_sweep import frequency_sweep
-from apps.qe import qe
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.apps.qe import qe
 
 if __name__ == '__main__':
 

@@ -10,9 +10,9 @@ Run nasft with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from experiment import machine
-from apps.nasft import nasft
+from integration.experiment.monitor import monitor
+from integration.experiment import machine
+from integration.apps.nasft import nasft
 
 
 if __name__ == '__main__':

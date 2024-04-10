@@ -132,16 +132,7 @@ def skip_unless_platform_bdx():
     return lambda func: func
 
 def get_config_log():
-    path = os.path.join(
-           os.path.dirname(
-            os.path.dirname(
-             os.path.dirname(
-              os.path.realpath(__file__)))),
-           'config.log')
-    if not os.path.isfile(path):
-        path = os.path.join(
-               os.path.dirname(path),
-                'integration/build/config.log')
+    path = os.path.join(os.environ['GEOPM_SOURCE'], 'libgeopm', 'config.log')
     return path
 
 def get_service_config_log():

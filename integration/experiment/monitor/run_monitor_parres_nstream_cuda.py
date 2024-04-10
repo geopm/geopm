@@ -10,9 +10,9 @@ Run ParRes nstream with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from experiment import machine
-from apps.parres import parres
+from integration.experiment.monitor import monitor
+from integration.experiment import machine
+from integration.apps.parres import parres
 
 if __name__ == '__main__':
 

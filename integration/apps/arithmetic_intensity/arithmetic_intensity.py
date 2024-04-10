@@ -12,7 +12,7 @@ import re
 import subprocess
 import sys
 
-from apps import apps
+from integration.apps import apps
 
 def exec_path(run_type):
     '''

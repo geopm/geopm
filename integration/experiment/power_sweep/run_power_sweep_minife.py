@@ -10,8 +10,8 @@ Example power sweep experiment using miniFE.
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from apps.minife import minife
+from integration.experiment.power_sweep import power_sweep
+from integration.apps.minife import minife
 
 
 if __name__ == '__main__':

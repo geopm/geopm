@@ -16,7 +16,7 @@ import warnings
 import pandas
 
 import geopmpy.io
-from experiment import common_args
+from integration.experiment import common_args
 
 # Suppress Pandas PerformanceWarning
 warnings.simplefilter(action='ignore', category=pandas.errors.PerformanceWarning)

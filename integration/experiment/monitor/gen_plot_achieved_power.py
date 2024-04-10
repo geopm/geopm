@@ -14,10 +14,10 @@ import argparse
 
 import geopmpy.io
 
-from experiment import common_args
-from experiment import machine
+from integration.experiment import common_args
+from integration.experiment import machine
 # TODO: need common thing
-from experiment.power_sweep import gen_plot_node_efficiency
+from integration.experiment.power_sweep import gen_plot_node_efficiency
 
 
 def plot_node_power(df, app_name, min_power, max_power, step_power, output_dir,

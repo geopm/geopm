@@ -67,7 +67,7 @@ each directory.
   `app_conf` instance of the `MinifeAppConf` class is passed to the
   launch method of the monitor:
 ```
-    from apps.minife import minife
+    from integration.apps.minife import minife
     app_conf = minife.MinifeAppConf(args.node_count)
     monitor.launch(app_conf=app_conf, args=args,
                    experiment_cli_args=extra_args)

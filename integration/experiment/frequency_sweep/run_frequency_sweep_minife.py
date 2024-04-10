@@ -10,8 +10,8 @@ Example frequency sweep experiment using miniFE.
 
 import argparse
 
-from experiment.frequency_sweep import frequency_sweep
-from apps.minife import minife
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.apps.minife import minife
 
 
 if __name__ == '__main__':

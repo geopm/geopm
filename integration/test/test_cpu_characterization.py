@@ -15,7 +15,7 @@ import unittest
 import os
 from pathlib import Path
 import shutil
-from experiment import machine
+from integration.experiment import machine
 from types import SimpleNamespace
 
 import geopmpy.agent
@@ -23,10 +23,10 @@ import geopmpy.io
 
 from integration.test import util
 from integration.test import geopm_test_launcher
-from experiment.monitor import monitor
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
-from apps.arithmetic_intensity import arithmetic_intensity
+from integration.experiment.monitor import monitor
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
+from integration.apps.arithmetic_intensity import arithmetic_intensity
 
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 class TestIntegration_cpu_characterization(unittest.TestCase):

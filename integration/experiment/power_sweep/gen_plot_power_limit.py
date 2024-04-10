@@ -17,8 +17,8 @@ import sys
 import os
 import argparse
 
-from experiment import common_args
-from experiment import plotting
+from integration.experiment import common_args
+from integration.experiment import plotting
 
 def plot_lines(traces, label, analysis_dir):
     if not os.path.exists(analysis_dir):

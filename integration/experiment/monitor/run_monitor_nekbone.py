@@ -9,8 +9,8 @@ Run Nekbone with the monitor agent.
 '''
 
 
-from experiment.monitor import monitor
-from apps.nekbone import nekbone
+from integration.experiment.monitor import monitor
+from integration.apps.nekbone import nekbone
 
 
 if __name__ == '__main__':

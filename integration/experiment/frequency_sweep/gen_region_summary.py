@@ -15,7 +15,7 @@ import argparse
 
 import geopmpy.io
 
-from experiment import common_args
+from integration.experiment import common_args
 
 pandas.set_option('display.width', 200)
 

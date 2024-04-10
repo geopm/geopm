@@ -9,9 +9,9 @@ against the HPL workload
 '''
 import argparse
 
-from experiment.energy_efficiency import cpu_activity
-from experiment import machine
-from apps.hpl_netlib import hpl_netlib
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.experiment import machine
+from integration.apps.hpl_netlib import hpl_netlib
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

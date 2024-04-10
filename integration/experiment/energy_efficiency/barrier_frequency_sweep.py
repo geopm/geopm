@@ -10,11 +10,11 @@ import os
 
 import geopmpy.agent
 import geopmpy.hash
-from experiment import util
-from experiment import launch_util
-from experiment import machine
-from experiment.monitor import monitor
-from experiment.frequency_sweep import frequency_sweep
+from integration.experiment import util
+from integration.experiment import launch_util
+from integration.experiment import machine
+from integration.experiment.monitor import monitor
+from integration.experiment.frequency_sweep import frequency_sweep
 
 
 def launch_configs(output_dir, app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash):

@@ -10,9 +10,9 @@ Power sweep experiment using HPCG.
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from experiment import machine
-from apps.hpcg import hpcg
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment import machine
+from integration.apps.hpcg import hpcg
 
 
 if __name__ == '__main__':
