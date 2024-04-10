@@ -145,33 +145,37 @@ AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 # The block of code for geopmd-local must precede the blocks below for
 # with-geopmpd* so that the with-geopmd* options take precedence over
 # using the local build.
-AC_ARG_ENABLE([geopm-local],
-  [AS_HELP_STRING([--disable-geopm-local],
+AC_ARG_ENABLE([geopmd-local],
+  [AS_HELP_STRING([--disable-geopmd-local],
   [Use installed geopmd package, do not use in place build of the service directory.])],
 [if test "x$enable_geopmd_local" = "xno" ; then
-  enable_geopm_local="0"
+  enable_geopmd_local="0"
 else
-  enable_geopm_local="1"
+  enable_geopmd_local="1"
 fi
 ],
-[enable_geopm_local="1"]
+[enable_geopmd_local="1"]
 )
 
-if test "x$enable_geopm_local" = "x1"; then
+if test "x$enable_geopmd_local" = "x1"; then
   GEOPMD_INCLUDE="$srcdir/../libgeopmd/include"
   GEOPMD_LIBDIR="$srcdir/../libgeopmd/.libs"
-  GEOPM_INCLUDE="$srcdir/../libgeopm/include"
-  GEOPM_LIBDIR="$srcdir/../libgeopm/.libs"
-  GEOPM_FC_INCLUDE="$srcdir/../libgeopm"
-  AM_FCFLAGS="-I$GEOPM_FC_INCLUDE"
-  AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPMD_INCLUDE -I$GEOPM_INCLUDE"
-  LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$GEOPM_LIBDIR:$LD_LIBRARY_PATH"
-  AM_LDFLAGS="$AM_LDFLAGS -L$GEOPMD_LIBDIR -L$GEOPM_LIBDIR"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPMD_INCLUDE"
+  LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
+  AM_LDFLAGS="$AM_LDFLAGS -L$GEOPMD_LIBDIR"
   AC_SUBST([GEOPMD_LIBDIR])
   AC_SUBST([GEOPMD_INCLUDE])
-  AC_SUBST([GEOPM_LIBDIR])
-  AC_SUBST([GEOPM_INCLUDE])
 fi
+
+GEOPM_INCLUDE="$srcdir/../libgeopm/include"
+GEOPM_LIBDIR="$srcdir/../libgeopm/.libs"
+GEOPM_FC_INCLUDE="$srcdir/../libgeopm"
+AM_FCFLAGS="-I$GEOPM_FC_INCLUDE"
+AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPM_INCLUDE"
+LD_LIBRARY_PATH="$GEOPM_LIBDIR:$LD_LIBRARY_PATH"
+AM_LDFLAGS="$AM_LDFLAGS -L$GEOPM_LIBDIR"
+AC_SUBST([GEOPM_LIBDIR])
+AC_SUBST([GEOPM_INCLUDE])
 
 # This must stay below the geopm-local block above
 AC_ARG_WITH([geopmd], [AS_HELP_STRING([--with-geopmd=PATH],
