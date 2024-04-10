@@ -74,6 +74,11 @@ if [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ] || \
    [ -d "${GEOPM_INSTALL}" ]; then
     echo "Removing old build located at ${GEOPM_INSTALL}"
     rm -rf ${GEOPM_INSTALL}
+    set +e
+    # The following line will fail if there is a system install,
+    # but no user install.  This is OK.
+    python3 -m pip uninstall -y geopmdpy 2> /dev/null
+    set -e
     python3 -m pip uninstall -y geopmpy
 fi
 
