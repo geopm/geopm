@@ -106,9 +106,11 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %dir %{_includedir}/geopm
 %{_includedir}/geopm/Agent.hpp
 %{_includedir}/geopm/FrequencyGovernor.hpp
+%{_includedir}/geopm/ModelRegion.hpp
 %{_includedir}/geopm/PlatformIOProf.hpp
 %{_includedir}/geopm/PowerBalancer.hpp
 %{_includedir}/geopm/PowerGovernor.hpp
+%{_includedir}/geopm/Profile.hpp
 %{_includedir}/geopm/SampleAggregator.hpp
 %{_includedir}/geopm_agent.h
 %{_includedir}/geopm_imbalancer.h
