@@ -23,21 +23,6 @@ GEOPM_INSTALL=${GEOPM_INSTALL:?Please set GEOPM_INSTALL in your environment.}
 GEOPM_WORKDIR=${GEOPM_WORKDIR:?Please set GEOPM_WORKDIR in your environment.}
 GEOPM_LIB=${GEOPM_INSTALL}/lib
 
-# Use whichever python version was used to build geopmpy
-GEOPMPY_PKGDIR=${GEOPMPY_PKGDIR:-$(ls -dv ${GEOPM_LIB}/python*/site-packages 2>/dev/null)}
-if [ 0 -eq $? ]; then
-    if [ 1 -ne $(echo "${GEOPMPY_PKGDIR}" | wc -l) ]; then
-        GEOPMPY_PKGDIR=$(echo "${GEOPMPY_PKGDIR}" | tail -n1)
-        echo 1>&2 "Error: More than 1 python site-packages directory in ${GEOPM_LIB}"
-        echo 1>&2 "       Remove all except one, or manually set GEOPMPY_PKGDIR."
-        echo 1>&2 "       Assuming GEOPMPY_PKGDIR=${GEOPMPY_PKGDIR}."
-        return 1
-    fi
-else
-    echo 1>&2 "Error: Unable to find python site-packages in ${GEOPM_LIB}"
-    return 1
-fi
-
 # Setup exports
 PATH_EXT=${GEOPM_INSTALL}/bin
 if [ ! -z "${PATH}" ]; then
@@ -62,7 +47,6 @@ else
 fi
 
 PYTHONPATH_EXT=\
-"${GEOPMPY_PKGDIR}:"\
 "${GEOPM_SOURCE}/integration"
 if [ ! -z "${PYTHONPATH}" ]; then
     export PYTHONPATH=${PYTHONPATH_EXT}:${PYTHONPATH}
