@@ -10,9 +10,9 @@ Run GEOPMBENCH with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from experiment import machine
-from apps.geopmbench import geopmbench
+from integration.experiment.monitor import monitor
+from integration.experiment import machine
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

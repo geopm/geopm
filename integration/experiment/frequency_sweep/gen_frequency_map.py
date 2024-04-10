@@ -16,7 +16,7 @@ import json
 import geopmpy.io
 import geopmpy.hash
 
-from experiment import common_args
+from integration.experiment import common_args
 
 
 def find_optimal_freq(region_df, perf_margin):

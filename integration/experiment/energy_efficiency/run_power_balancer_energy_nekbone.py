@@ -5,8 +5,8 @@
 #
 
 
-from experiment.energy_efficiency import power_balancer_energy
-from apps.nekbone import nekbone
+from integration.experiment.energy_efficiency import power_balancer_energy
+from integration.apps.nekbone import nekbone
 
 
 if __name__ == '__main__':

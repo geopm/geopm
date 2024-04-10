@@ -10,9 +10,9 @@ Run Arithmetic Intensity benchmark with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from experiment import machine
-from apps.arithmetic_intensity import arithmetic_intensity
+from integration.experiment.monitor import monitor
+from integration.experiment import machine
+from integration.apps.arithmetic_intensity import arithmetic_intensity
 
 if __name__ == '__main__':
 

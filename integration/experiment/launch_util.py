@@ -15,7 +15,7 @@ import datetime
 import geopmpy.launcher
 from . import util
 from . import machine
-from apps import apps
+from integration.apps import apps
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,

@@ -10,7 +10,7 @@ import sys
 import os
 
 import geopmpy.io
-from experiment import common_args
+from integration.experiment import common_args
 
 pandas.set_option('display.width', 250)
 pandas.set_option('display.max_colwidth', 30)

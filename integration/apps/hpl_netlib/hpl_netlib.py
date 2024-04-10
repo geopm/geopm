@@ -11,7 +11,7 @@ import sys
 import math
 import textwrap
 
-from apps import apps
+from integration.apps import apps
 
 
 def setup_run_args(parser):

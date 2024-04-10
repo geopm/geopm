@@ -9,7 +9,7 @@ AppConf class for HPL MKL benchmark.
 import os
 import textwrap
 
-from apps.hpl_netlib import hpl_netlib
+from integration.apps.hpl_netlib import hpl_netlib
 
 
 def setup_run_args(parser):

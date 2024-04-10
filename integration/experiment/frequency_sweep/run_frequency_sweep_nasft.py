@@ -10,9 +10,9 @@ Example frequency sweep experiment using fft.
 
 import argparse
 
-from experiment import machine
-from experiment.frequency_sweep import frequency_sweep
-from apps.nasft import nasft
+from integration.experiment import machine
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.apps.nasft import nasft
 
 
 if __name__ == '__main__':

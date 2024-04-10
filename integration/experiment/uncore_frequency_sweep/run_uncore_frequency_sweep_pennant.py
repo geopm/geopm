@@ -10,9 +10,9 @@ Uncore frequency sweep experiment using pennant.
 
 import argparse
 
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from experiment import machine
-from apps.pennant import pennant
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.experiment import machine
+from integration.apps.pennant import pennant
 
 
 if __name__ == '__main__':

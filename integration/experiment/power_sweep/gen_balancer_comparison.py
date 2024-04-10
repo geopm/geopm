@@ -14,7 +14,7 @@ import argparse
 
 import geopmpy.io
 
-from experiment import common_args
+from integration.experiment import common_args
 
 
 def balancer_comparison(report_epoch_data, detailed=False):

@@ -10,9 +10,9 @@ Run a power sweep with Arithmetic Intensity benchmark.
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from experiment import machine
-from apps.arithmetic_intensity import arithmetic_intensity
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment import machine
+from integration.apps.arithmetic_intensity import arithmetic_intensity
 
 
 if __name__ == '__main__':

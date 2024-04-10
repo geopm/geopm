@@ -6,7 +6,7 @@ import os
 import sys
 import glob
 
-from apps import apps
+from integration.apps import apps
 
 
 def setup_run_args(parser):

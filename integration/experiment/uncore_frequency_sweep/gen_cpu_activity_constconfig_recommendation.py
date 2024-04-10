@@ -22,9 +22,9 @@ import numpy as np
 
 import geopmpy.io
 
-from experiment import util
-from experiment import common_args
-from experiment import machine
+from integration.experiment import util
+from integration.experiment import common_args
+from integration.experiment import machine
 
 def extract_columns(df, region_list = None):
     """

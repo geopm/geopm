@@ -10,8 +10,8 @@ Run AMG with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from apps.amg import amg
+from integration.experiment.monitor import monitor
+from integration.apps.amg import amg
 
 
 if __name__ == '__main__':

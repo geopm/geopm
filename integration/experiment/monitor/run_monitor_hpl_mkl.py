@@ -10,10 +10,10 @@ Run Intel (R) MKL HPL with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from experiment import machine
-from apps.hpl_mkl import hpl_mkl
-from apps.hpl_netlib import hpl_netlib
+from integration.experiment.monitor import monitor
+from integration.experiment import machine
+from integration.apps.hpl_mkl import hpl_mkl
+from integration.apps.hpl_netlib import hpl_netlib
 
 if __name__ == '__main__':
 

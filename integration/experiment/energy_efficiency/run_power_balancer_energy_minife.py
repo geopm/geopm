@@ -10,9 +10,9 @@ Energy savings from power capping experiment using miniFE.
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from experiment.energy_efficiency import power_balancer_energy
-from apps.minife import minife
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment.energy_efficiency import power_balancer_energy
+from integration.apps.minife import minife
 
 
 if __name__ == '__main__':

@@ -20,8 +20,8 @@ from numpy.polynomial.polynomial import Polynomial
 
 import geopmpy.io
 
-from experiment import common_args
-from experiment import machine
+from integration.experiment import common_args
+from integration.experiment import machine
 
 class PowerLimitModel(object):
     "Abstract class for predicting a statistic based on a power limit."

@@ -8,7 +8,7 @@ import glob
 import textwrap
 import subprocess
 
-from apps import apps
+from integration.apps import apps
 
 def setup_run_args(parser):
     """ Add common arguments for all run scripts.                                                                                                                                                                                                                                                                                                                

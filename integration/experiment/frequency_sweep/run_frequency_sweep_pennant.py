@@ -10,9 +10,9 @@ Example frequency sweep experiment with Pennant.
 
 import argparse
 
-from experiment.frequency_sweep import frequency_sweep
-from experiment import machine
-from apps.pennant import pennant
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.experiment import machine
+from integration.apps.pennant import pennant
 
 if __name__ == '__main__':
 

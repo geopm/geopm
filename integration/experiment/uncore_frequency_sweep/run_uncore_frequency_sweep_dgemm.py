@@ -9,8 +9,8 @@ Example uncore frequency sweep experiment using geopmbench.
 '''
 
 
-from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from apps.geopmbench import geopmbench
+from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

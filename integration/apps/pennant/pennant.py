@@ -9,7 +9,7 @@ AppConf class for Pennant benchmark.
 import os
 import re
 
-from apps import apps
+from integration.apps import apps
 
 
 def setup_run_args(parser):

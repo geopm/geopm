@@ -13,7 +13,7 @@ import unittest
 import os
 from pathlib import Path
 import shutil
-from experiment import machine
+from integration.experiment import machine
 from types import SimpleNamespace
 
 import geopmpy.agent
@@ -21,8 +21,8 @@ import geopmpy.io
 
 from integration.test import util
 from integration.test import geopm_test_launcher
-from experiment.energy_efficiency import gpu_activity
-from apps.parres import parres
+from integration.experiment.energy_efficiency import gpu_activity
+from integration.apps.parres import parres
 
 @util.skip_unless_config_enable('beta')
 @util.skip_unless_gpu()

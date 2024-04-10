@@ -9,8 +9,8 @@ against the AMG workload
 '''
 import argparse
 
-from experiment.energy_efficiency import cpu_activity
-from apps.amg import amg
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.apps.amg import amg
 
 
 if __name__ == '__main__':

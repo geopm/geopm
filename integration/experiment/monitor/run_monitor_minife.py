@@ -10,8 +10,8 @@ Run MiniFE with the monitor agent.
 
 import argparse
 
-from experiment.monitor import monitor
-from apps.minife import minife
+from integration.experiment.monitor import monitor
+from integration.apps.minife import minife
 
 if __name__ == '__main__':
 

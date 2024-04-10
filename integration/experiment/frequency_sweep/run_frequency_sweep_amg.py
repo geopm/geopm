@@ -10,8 +10,8 @@ Example frequency sweep experiment using AMG.
 
 import argparse
 
-from experiment.frequency_sweep import frequency_sweep
-from apps.amg import amg
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.apps.amg import amg
 
 if __name__ == '__main__':
 

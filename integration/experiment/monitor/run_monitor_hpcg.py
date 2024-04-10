@@ -10,9 +10,9 @@ Run HPCG with the monitor agent.
 
 import argparse
 
-from experiment import machine
-from experiment.monitor import monitor
-from apps.hpcg import hpcg
+from integration.experiment import machine
+from integration.experiment.monitor import monitor
+from integration.apps.hpcg import hpcg
 
 
 if __name__ == '__main__':

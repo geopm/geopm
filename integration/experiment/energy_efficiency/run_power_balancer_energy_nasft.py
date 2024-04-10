@@ -6,10 +6,10 @@
 
 import argparse
 
-from experiment import machine
-from experiment.energy_efficiency import power_balancer_energy
-from experiment.power_sweep import power_sweep
-from apps.nasft import nasft
+from integration.experiment import machine
+from integration.experiment.energy_efficiency import power_balancer_energy
+from integration.experiment.power_sweep import power_sweep
+from integration.apps.nasft import nasft
 
 
 if __name__ == '__main__':

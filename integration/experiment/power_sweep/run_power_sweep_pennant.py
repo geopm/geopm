@@ -10,9 +10,9 @@ Run a power sweep with Pennant.
 
 import argparse
 
-from experiment.power_sweep import power_sweep
-from experiment import machine
-from apps.pennant import pennant
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment import machine
+from integration.apps.pennant import pennant
 
 
 if __name__ == '__main__':

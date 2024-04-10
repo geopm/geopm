@@ -16,9 +16,9 @@ import argparse
 
 import geopmpy.io
 
-from experiment import common_args
-from experiment import machine
-from experiment import plotting
+from integration.experiment import common_args
+from integration.experiment import machine
+from integration.experiment import plotting
 
 
 def generate_histogram(data, app_name, min_drop, max_drop, label, bin_size,

@@ -9,8 +9,8 @@ Helper functions for running the monitor agent.
 import argparse
 import os
 
-from experiment import launch_util
-from experiment import common_args
+from integration.experiment import launch_util
+from integration.experiment import common_args
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)

@@ -9,9 +9,9 @@ against the DGEMM workload
 '''
 import argparse
 
-from experiment.energy_efficiency import cpu_activity
-from experiment import machine
-from apps.minife import minife
+from integration.experiment.energy_efficiency import cpu_activity
+from integration.experiment import machine
+from integration.apps.minife import minife
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -7,8 +7,8 @@
 '''
 import argparse
 
-from experiment.monitor import monitor
-from apps.qe import qe
+from integration.experiment.monitor import monitor
+from integration.apps.qe import qe
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

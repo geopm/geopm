@@ -8,8 +8,8 @@
 Run a power sweep with nekbone
 '''
 
-from experiment.power_sweep import power_sweep
-from apps.nekbone import nekbone
+from integration.experiment.power_sweep import power_sweep
+from integration.apps.nekbone import nekbone
 
 
 if __name__ == '__main__':

@@ -17,9 +17,9 @@ import numpy
 
 import geopmpy.io
 
-from experiment import common_args
-from experiment import report
-from experiment import plotting
+from integration.experiment import common_args
+from integration.experiment import report
+from integration.experiment import plotting
 
 
 def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):

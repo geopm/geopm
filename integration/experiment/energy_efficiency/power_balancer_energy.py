@@ -7,11 +7,11 @@
 import argparse
 import os
 
-from experiment import launch_util
-from experiment import common_args
-from experiment import machine
-from experiment.power_sweep import power_sweep
-from experiment.monitor import monitor
+from integration.experiment import launch_util
+from integration.experiment import common_args
+from integration.experiment import machine
+from integration.experiment.power_sweep import power_sweep
+from integration.experiment.monitor import monitor
 
 
 def launch_configs(output_dir, app_conf_ref, app_conf, agent_types, min_power, max_power, step_power):

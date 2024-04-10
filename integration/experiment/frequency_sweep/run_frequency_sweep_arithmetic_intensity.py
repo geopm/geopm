@@ -10,9 +10,9 @@ Example frequency sweep experiment with Arithmetic Intensity benchmark.
 
 import argparse
 
-from experiment.frequency_sweep import frequency_sweep
-from experiment import machine
-from apps.arithmetic_intensity import arithmetic_intensity
+from integration.experiment.frequency_sweep import frequency_sweep
+from integration.experiment import machine
+from integration.apps.arithmetic_intensity import arithmetic_intensity
 
 if __name__ == '__main__':
 
