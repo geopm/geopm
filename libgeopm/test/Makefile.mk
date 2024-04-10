@@ -163,7 +163,7 @@ else
 endif
 
 test_geopm_test_SOURCES += src/Profile.cpp \
-                           src/Profile.hpp \
+                           include/geopm/Profile.hpp \
                            # endif
 
 test_geopm_test_LDADD = libgeopm.la \

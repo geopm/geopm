@@ -29,6 +29,7 @@ endif
 
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
+EXTRA_DIST =
 
 install-exec-hook: install-fortran
 dist: dist-googletest
@@ -43,6 +44,11 @@ if ENABLE_BETA
                        include/geopm_endpoint.h \
                        include/geopm_policystore.h \
                        # end
+else
+    EXTRA_DIST += include/geopm_daemon.h \
+                  include/geopm_endpoint.h \
+                  include/geopm_policystore.h \
+                  # end
 endif
 
 geopmincludedir = $(includedir)/geopm
@@ -61,7 +67,12 @@ if ENABLE_BETA
     geopminclude_HEADERS += include/geopm/Daemon.hpp \
                             include/geopm/Endpoint.hpp \
                             # end
+else
+    EXTRA_DIST += include/geopm/Daemon.hpp \
+                  include/geopm/Endpoint.hpp \
+                  # end
 endif
+
 
 all_local =
 
@@ -90,34 +101,34 @@ dist_doc_DATA = COPYING \
                 VERSION \
                 # end
 
-EXTRA_DIST = .gitignore \
-             CODE_OF_CONDUCT.md \
-             CONTRIBUTING.rst \
-             ChangeLog \
-             Makefile.am \
-             README.rst \
-             configure.ac \
-             debian/changelog \
-             debian/changelog.in \
-             debian/control \
-             debian/copyright \
-             debian/geopm-runtime.dirs \
-             debian/geopm-runtime.install \
-             debian/libgeopm-dev.dirs \
-             debian/libgeopm-dev.install \
-             debian/libgeopm2.install \
-             debian/rules \
-             dox/Doxyfile.in \
-             m4/ax_check_compile_flag.m4 \
-             m4/openmp.m4 \
-             geopm-runtime.spec \
-             geopm-runtime.spec.in \
-             test_hw/Makefile \
-             test_hw/geopm_time.h \
-             test_hw/rapl_pkg_limit_plot.py \
-             test_hw/rapl_pkg_limit_sweep.sh \
-             test_hw/rapl_pkg_limit_test.c \
-             # end
+EXTRA_DIST += .gitignore \
+              CODE_OF_CONDUCT.md \
+              CONTRIBUTING.rst \
+              ChangeLog \
+              Makefile.am \
+              README.rst \
+              configure.ac \
+              debian/changelog \
+              debian/changelog.in \
+              debian/control \
+              debian/copyright \
+              debian/geopm-runtime.dirs \
+              debian/geopm-runtime.install \
+              debian/libgeopm-dev.dirs \
+              debian/libgeopm-dev.install \
+              debian/libgeopm2.install \
+              debian/rules \
+              dox/Doxyfile.in \
+              m4/ax_check_compile_flag.m4 \
+              m4/openmp.m4 \
+              geopm-runtime.spec \
+              geopm-runtime.spec.in \
+              test_hw/Makefile \
+              test_hw/geopm_time.h \
+              test_hw/rapl_pkg_limit_plot.py \
+              test_hw/rapl_pkg_limit_sweep.sh \
+              test_hw/rapl_pkg_limit_test.c \
+              # end
 
 if HAVE_ICX
     MATH_CLDFLAGS = -lm -qmkl
@@ -154,7 +165,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/Admin.cpp \
                       src/Admin.hpp \
                       src/Agent.cpp \
-                      src/Agent.hpp \
                       src/ApplicationIO.cpp \
                       src/ApplicationIO.hpp \
                       src/ApplicationRecordLog.cpp \
@@ -186,7 +196,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/ELF.cpp \
                       src/ELF.hpp \
                       src/Endpoint.cpp \
-                      src/Endpoint.hpp \
                       src/EndpointImp.hpp \
                       src/EndpointPolicyTracer.cpp \
                       src/EndpointPolicyTracer.hpp \
@@ -202,7 +211,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/FilePolicy.cpp \
                       src/FilePolicy.hpp \
                       src/FrequencyGovernor.cpp \
-                      src/FrequencyGovernor.hpp \
                       src/FrequencyGovernorImp.hpp \
                       src/FrequencyLimitDetector.cpp \
                       src/FrequencyLimitDetector.hpp \
@@ -230,19 +238,15 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/OptionParser.cpp \
                       src/OptionParser.hpp \
                       src/PowerBalancer.cpp \
-                      src/PowerBalancer.hpp \
                       src/PowerBalancerImp.hpp \
                       src/PowerBalancerAgent.cpp \
                       src/PowerBalancerAgent.hpp \
                       src/PowerGovernor.cpp \
-                      src/PowerGovernor.hpp \
                       src/PowerGovernorImp.hpp \
                       src/PowerGovernorAgent.cpp \
                       src/PowerGovernorAgent.hpp \
                       src/PlatformIOProf.cpp \
-                      src/PlatformIOProf.hpp \
                       src/Profile.cpp \
-                      src/Profile.hpp \
                       src/ProfileIOGroup.cpp \
                       src/ProfileIOGroup.hpp \
                       src/ProfileTracer.cpp \
@@ -260,7 +264,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/Reporter.cpp \
                       src/Reporter.hpp \
                       src/SampleAggregator.cpp \
-                      src/SampleAggregator.hpp \
                       src/SampleAggregatorImp.hpp \
                       src/Scheduler.cpp \
                       src/Scheduler.hpp \
@@ -283,13 +286,7 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/ValidateRecord.hpp \
                       src/Waiter.cpp \
                       src/Waiter.hpp \
-                      src/geopm_agent.h \
-                      src/geopm_daemon.h \
-                      src/geopm_endpoint.h \
-                      src/geopm_imbalancer.h \
                       src/geopm_lib_init.cpp \
-                      src/geopm_policystore.h \
-                      src/geopm_prof.h \
                       src/record.cpp \
                       src/record.hpp \
                       # end
@@ -297,7 +294,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
 beta_source_files = src/CPUActivityAgent.cpp \
                     src/CPUActivityAgent.hpp \
                     src/Daemon.cpp \
-                    src/Daemon.hpp \
                     src/DaemonImp.hpp \
                     src/FFNetAgent.cpp \
                     src/FFNetAgent.hpp \
@@ -385,7 +381,6 @@ model_source_files = src/All2allModelRegion.cpp \
                      src/ModelApplication.cpp \
                      src/ModelApplication.hpp \
                      src/ModelRegion.cpp \
-                     src/ModelRegion.hpp \
                      src/ReduceModelRegion.cpp \
                      src/ReduceModelRegion.hpp \
                      src/ScalingModelRegion.cpp \
