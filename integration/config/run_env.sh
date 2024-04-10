@@ -47,7 +47,7 @@ else
 fi
 
 PYTHONPATH_EXT=\
-"${GEOPM_SOURCE}/integration"
+"${GEOPM_SOURCE}"
 if [ ! -z "${PYTHONPATH}" ]; then
     export PYTHONPATH=${PYTHONPATH_EXT}:${PYTHONPATH}
 else
@@ -73,7 +73,7 @@ if [ ! -x "$(command -v geopmread)" ]; then
 fi
 
 # Check installed version of GEOPM against source version
-cd ${GEOPM_SOURCE}
+cd ${GEOPM_SOURCE}/libgeopmd
 GEOPM_SOURCE_VERSION=$(cat VERSION)
 cd -
 GEOPMREAD_VERSION=$(geopmread --version | head -n1)
