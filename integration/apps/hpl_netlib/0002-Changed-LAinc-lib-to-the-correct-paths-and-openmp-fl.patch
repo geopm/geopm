@@ -35,10 +35,10 @@ index 47661c2..205a459 100644
  CC       = mpiicc
  CCNOOPT  = $(HPL_DEFS)
 -OMP_DEFS = -openmp
-+OMP_DEFS = -fiopenmp
++OMP_DEFS = -qopenmp
  CCFLAGS  = $(HPL_DEFS) -O3 -w -ansi-alias -i-static -z noexecstack -z relro -z now -nocompchk -Wall
  #
  # On some platforms,  it is necessary  to use the Fortran linker to find
--- 
+--
 1.8.3.1
 
