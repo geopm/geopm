@@ -18,17 +18,17 @@ diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
 index fa6e4f3..a5cce80 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
-@@ -35,8 +35,8 @@ USR_LFLAGS="-fiopenmp -mcmodel=medium -shared-intel"
+@@ -35,8 +35,8 @@ USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel"
  #G="-g"
- 
+
  # optimization flags
--OPT_FLAGS_STD="-fiopenmp -O3 -g -xHost -mcmodel=medium -shared-intel"
--OPT_FLAGS_MAG="-fiopenmp -O3 -g -xHost -mcmodel=medium -shared-intel"
-+OPT_FLAGS_STD="-fiopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
-+OPT_FLAGS_MAG="-fiopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
- 
+-OPT_FLAGS_STD="-qopenmp -O3 -g -xHost -mcmodel=medium -shared-intel"
+-OPT_FLAGS_MAG="-qopenmp -O3 -g -xHost -mcmodel=medium -shared-intel"
++OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
++OPT_FLAGS_MAG="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
+
  ###############################################################################
  # DONT'T TOUCH WHAT FOLLOWS !!!
--- 
+--
 2.23.0
 

@@ -34,7 +34,7 @@ index 11df316..bf3dc4b 100644
 @@ -135,6 +138,9 @@ c
        integer x(n), w(n)
        character*3 op
- 
+
 +#ifdef GEOPM_BARRIER
 +      call mpi_barrier(nekcomm, ierr)
 +#endif
@@ -44,7 +44,7 @@ index 11df316..bf3dc4b 100644
 @@ -163,6 +169,9 @@ c
        integer*8 x(n), w(n)
        character*3 op
- 
+
 +#ifdef GEOPM_BARRIER
 +      call mpi_barrier(nekcomm, ierr)
 +#endif
@@ -56,17 +56,17 @@ index e8ba84e..eb80bf5 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
 @@ -32,7 +32,10 @@ PPLIST="TIMERS CGTIMERS NITER=2000"
- USR_LFLAGS="-fiopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
- 
+ USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
+
  # generic compiler flags
 -G="-DGEOPM -I${GEOPM_ROOT}/include"
 +G="-DGEOPM ${GEOPM_CFLAGS}"
 +if [ ! -z "${GEOPM_BARRIER+x}" ]; then
 +    G="-DGEOPM_BARRIER ${G}"
 +fi
- 
+
  # optimization flags
- OPT_FLAGS_STD="-fiopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
--- 
+ OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
+--
 2.23.0
 
