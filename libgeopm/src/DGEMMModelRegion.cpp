@@ -27,7 +27,9 @@ void dgemm(const char *transa, const char *transb, const int *M,
            const double *A, const int *LDA, const double *B,
            const int *LDB, const double *beta, double *C, const int *LDC)
 {
+#ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
+#endif
     for (int i = 0; i < *M; ++i) {
         for (int j = 0; j < *N; ++j) {
             C[i * *LDC + j] = 0;
@@ -100,7 +102,9 @@ namespace geopm
                 throw Exception("DGEMMModelRegion::big_o(): posix_memalign() failed",
                                 err, __FILE__, __LINE__);
             }
+#ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
+#endif
             for (size_t i = 0; i < mem_size / sizeof(double); ++i) {
                 m_matrix_a[i] = 2.0 * i;
                 m_matrix_b[i] = 3.0 * i;

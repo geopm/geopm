@@ -101,7 +101,9 @@ namespace geopm
                 throw Exception("All2allModelRegion::big_o(): posix_memalign() failed",
                                 err, __FILE__, __LINE__);
             }
+#ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
+#endif
             for (size_t i = 0; i < m_num_rank * m_num_send; i++) {
                 m_send_buffer[i] = (char)(i);
             }

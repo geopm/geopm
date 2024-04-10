@@ -106,7 +106,9 @@ namespace geopm
     void ScalingModelRegion::run_atom(void)
     {
         double scalar = 3.0;
+#ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
+#endif
         for (size_t idx = 0; idx < m_array_len; ++idx) {
             m_arrays[0][idx] += m_arrays[1][idx] + scalar * m_arrays[2][idx];
         }
