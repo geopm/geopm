@@ -39,8 +39,8 @@ index b73ccce..1397d5b 100644
  #CC = mpixlc_r
  
  # set compile flags here
-@@ -51,3 +51,7 @@ INCLUDE_CFLAGS = -O2 -DTIMER_USE_MPI -DHYPRE_USING_OPENMP -fiopenmp -DHYPRE_HOPSC
- INCLUDE_LFLAGS = -lm -fiopenmp
+@@ -51,3 +51,7 @@ INCLUDE_CFLAGS = -O2 -DTIMER_USE_MPI -DHYPRE_USING_OPENMP -fopenmp -DHYPRE_HOPSC
+ INCLUDE_LFLAGS = -lm -fopenmp
  #INCLUDE_LFLAGS = -lm 
  
 +# Add CFLAGS for geopm
