@@ -3,7 +3,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Simple script that will build and test both the base and the service.
+# Simple script that will build and test both the runtime and the service.
 
 set -e
 
@@ -18,18 +18,18 @@ usage(){
     echo
     echo "ENVIRONMENT_OVERRIDES allows for the following variables to be specified:"
     echo "    GEOPM_GLOBAL_CONFIG_OPTIONS : Configure options applicable to all build types."
-    echo "    GEOPM_BASE_CONFIG_OPTIONS : Configure options only applicable to the base build."
+    echo "    GEOPM_RUNTIME_CONFIG_OPTIONS : Configure options only applicable to the runtime build."
     echo "    GEOPM_SERVICE_CONFIG_OPTIONS : Configure options only applicable to the service build."
     echo "        Ensure quotes are used when specifying multiple options.  See examples below."
     echo "    GEOPM_OBJDIR: Build time objects go here (e.g. Makefile, processed .in files)."
     echo "    GEOPM_NUM_THREADS : The number of threads to use when running make (default: 9)."
     echo "    GEOPM_RUN_TESTS : Set to enable running of unit tests."
     echo "    GEOPM_SKIP_SERVICE_INSTALL : Set to skip \"make install\" of the service."
-    echo "    GEOPM_SKIP_BASE_INSTALL : Set to skip \"make install\" of the base directory (HPC runtime)."
+    echo "    GEOPM_SKIP_RUNTIME_INSTALL : Set to skip \"make install\" of the runtime directory (HPC runtime)."
     echo
     echo "Examples (proceeded by \"git clean -ffdx\" to ensure the build tree is clean):"
     echo "    GEOPM_GLOBAL_CONFIG_OPTIONS=\"--enable-debug --enable-coverage\" GEOPM_RUN_TESTS=yes ./build.sh"
-    echo "    GEOPM_BASE_CONFIG_OPTIONS=\"--enable-beta\" ./build.sh"
+    echo "    GEOPM_RUNTIME_CONFIG_OPTIONS=\"--enable-beta\" ./build.sh"
     echo "    GEOPM_SERVICE_CONFIG_OPTIONS=\"--enable-levelzero\" ./build.sh"
     echo "    GEOPM_SKIP_SERVICE_INSTALL=yes GEOPM_SERVICE_CONFIG_OPTIONS=\"--disable-systemd --disable-docs\" integration/config/build.sh"
 }
@@ -55,37 +55,38 @@ source ${BUILD_ENV}
 #   1. If GEOPM_INSTALL is not set, both of the skip install options must be used.
 #   2. If *one* of the skip install options is set, GEOPM_INSTALL must be set.
 if [ -z "${GEOPM_INSTALL}" ] && \
-   [ -z "${GEOPM_SKIP_BASE_INSTALL+x}" ] && \
+   [ -z "${GEOPM_SKIP_RUNTIME_INSTALL+x}" ] && \
    [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ]; then
-    echo "Please define GEOPM_INSTALL or GEOPM_SKIP_BASE_INSTALL *and* GEOPM_SKIP_SERVICE_INSTALL prior to using this script" 1>&2
+    echo "Please define GEOPM_INSTALL or GEOPM_SKIP_RUNTIME_INSTALL *and* GEOPM_SKIP_SERVICE_INSTALL prior to using this script" 1>&2
     exit 1
 fi
 
 if [ ! -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ] || \
-   [ ! -z "${GEOPM_SKIP_BASE_INSTALL+x}" ] && \
+   [ ! -z "${GEOPM_SKIP_RUNTIME_INSTALL+x}" ] && \
    [ -z "${GEOPM_INSTALL}" ]; then
-    echo "Please define GEOPM_INSTALL prior to using this script unless you meant to specify GEOPM_SKIP_SERVICE_INSTALL *and* GEOPM_SKIP_BASE_INSTALL" 1>&2
+    echo "Please define GEOPM_INSTALL prior to using this script unless you meant to specify GEOPM_SKIP_SERVICE_INSTALL *and* GEOPM_SKIP_RUNTIME_INSTALL" 1>&2
     exit 1
 fi
 
 # Clear out old builds unless we are skipping install
 if [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ] || \
-   [ -z "${GEOPM_SKIP_BASE_INSTALL+x}" ] && \
+   [ -z "${GEOPM_SKIP_RUNTIME_INSTALL+x}" ] && \
    [ -d "${GEOPM_INSTALL}" ]; then
     echo "Removing old build located at ${GEOPM_INSTALL}"
     rm -rf ${GEOPM_INSTALL}
+    python3 -m pip uninstall -y geopmpy
 fi
 
 # Append prefix to config options unless skipping install
 if [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ]; then
     GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
 fi
-if [ -z "${GEOPM_SKIP_BASE_INSTALL+x}" ]; then
-    GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_BASE_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
+if [ -z "${GEOPM_SKIP_RUNTIME_INSTALL+x}" ]; then
+    GEOPM_RUNTIME_CONFIG_OPTIONS="${GEOPM_RUNTIME_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
 fi
 
 # Combine global options with build specific options
-GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_BASE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
+GEOPM_RUNTIME_CONFIG_OPTIONS="${GEOPM_RUNTIME_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
 GEOPM_NUM_THREAD=${GEOPM_NUM_THREAD:-9}
@@ -126,17 +127,42 @@ build(){
 
 
 # Run the service build
-cd service
+cd libgeopmd
 unset CFLAGS CXXFLAGS
 CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}" ${GEOPM_SKIP_SERVICE_INSTALL}
 
-# Run the base build
-cd ${GEOPM_SOURCE}
+# Run the runtime build
+cd ${GEOPM_SOURCE}/libgeopm
 
 if [ ! -z ${GEOPM_OBJDIR} ]; then
     build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
            --with-geopmd-include=${GEOPM_SOURCE}/service/src \
-           ${GEOPM_BASE_CONFIG_OPTIONS}" ${GEOPM_SKIP_BASE_INSTALL}
+           ${GEOPM_RUNTIME_CONFIG_OPTIONS}" ${GEOPM_SKIP_RUNTIME_INSTALL}
 else
-    build "${GEOPM_BASE_CONFIG_OPTIONS}" ${GEOPM_SKIP_BASE_INSTALL}
+    build "${GEOPM_RUNTIME_CONFIG_OPTIONS}" ${GEOPM_SKIP_RUNTIME_INSTALL}
+fi
+
+# Build/Install geopmdpy
+if [ -z ${GEOPM_SKIP_SERVICE_INSTALL} ]; then
+    cd ${GEOPM_SOURCE}/geopmdpy
+    python3 -m build
+    python3 -m pip install --user dist/geopmdpy-*.whl
+fi
+
+# Build/Install geopmpy
+if [ -z ${GEOPM_SKIP_RUNTIME_INSTALL} ]; then
+    cd ${GEOPM_SOURCE}/geopmpy
+    python3 -m build
+    python3 -m pip install --user dist/geopmpy-*.whl
+fi
+
+# Build the integration tests, apps, and other examples
+cd ${GEOPM_SOURCE}/integration
+
+if [ ! -z ${GEOPM_OBJDIR} ]; then
+    build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
+           --with-geopmd-include=${GEOPM_SOURCE}/service/src \
+           ${GEOPM_RUNTIME_CONFIG_OPTIONS}" true
+else
+    build "${GEOPM_RUNTIME_CONFIG_OPTIONS}" true
 fi
