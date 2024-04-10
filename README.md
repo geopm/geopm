@@ -1,23 +1,22 @@
 <img src="https://geopm.github.io/images/geopm-banner.png" alt="GEOPM logo">
 
-GEOPM - Global Extensible Open Power Manager
-============================================
+# GEOPM - Global Extensible Open Power Manager
 
 [![Build Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
 [![version](https://img.shields.io/badge/version-3.0.1-blue)](https://github.com/geopm/geopm/releases)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 
-Web Pages
----------
+## Web Pages
+
 https://geopm.github.io <br>
 https://geopm.github.io/service.html <br>
+https://geopm.github.io/runtime.html <br>
 https://geopm.github.io/reference.html <br>
 https://geopm.slack.com
 
 
-Summary
--------
+## Summary
 
 The Global Extensible Open Power Manager (GEOPM) is a collaborative
 framework for exploring power and energy optimizations on
@@ -33,7 +32,7 @@ With GEOPM you can:
 - Interact with hardware settings and sensors using a
   platform-agnostic interface
 - Restore changes to hardware settings when configuring process
-  terminates
+  session terminates
 - Profile applications to study their power and energy behavior
 - Automatically detect MPI and OpenMP phases in an application
 - Optimize applications to improve energy efficiency or reduce the
@@ -43,54 +42,119 @@ With GEOPM you can:
   plugin architecture
 
 
-Repository Organization
------------------------
-
-The GEOPM repository supports two software packages: the
-`geopm-service` package and the `geopm` package.  The `geopm-service`
-package provides a Linux systemd service.  The `geopm` package
-provides a runtime for distributed HPC applications.
-
-- A build of the `geopm-service` package is required to build and run
-  the `geopm` HPC runtime
-
-- All `geopm-service` package features may be used independently of
-  the features provided by the `geopm` package
-
-- All run and build requirements of the `geopm-service` package are
-  provided by commonly used Linux distributions
-
-- The run and build requirements of the `geopm` package include
-  several additional HPC specific dependencies
+The GEOPM software is separated into two major functions: Hardware
+Access and Runtime Optimization.  These two services are referred to
+as the "GEOPM Access Service" and the "GEOPM Runtime Service", where
+the GEOPM Runtime Service builds on the GEOPM Access Service features
+and provides a mechanism for user extension.  The GEOPM Access Service
+is a privileged service, and the Runtime Service may run without any
+privilege beyond the capabilities granted by the GEOPM Access Service.
 
 
-GEOPM Service
--------------
+## GEOPM Access Service
 
-The files supporting the `geopm-service` package are all within the
-`service` subdirectory located in the root directory of the the GEOPM
-repository.  Please refer to the `service/README.rst` file for further
-documentation about the GEOPM Service.  Additionally a comprehensive
-overview of the GEOPM service is posted here:
+Please refer to the `docs/source/service_readme.rst` file for a high
+level overview of the GEOPM Access Service.  This summary and more
+detailed information about how to install and configure GEOPM Access
+Service is posted here:
 
 https://geopm.github.io/service.html
 
 
-GEOPM Runtime
--------------
+Two of the software packages provided by the GEOPM Git repository
+support the GEOPM Access Service: `libgeopmd` and `geopmdpy`. The
+`libgeopmd` package is written in C++ and provides bindings for the
+C language.  The `geopmdpy` package is written in Python and
+provides wrappers for many of the C interfaces provided by the
+`libgeopmd`.
 
-The GEOPM Service provides a foundation for manipulating hardware
-settings to optimize an objective defined by an unprivileged user.
-The GEOPM Runtime is a software platform built on top of the GEOPM
-Service that enables users to select a runtime algorithm and policy to
-meet energy efficiency or performance objectives.  More documentation
-on the GEOPM Runtime is posted with our web documentation here:
+
+## GEOPM Runtime Service
+
+The GEOPM Access Service provides a foundation for manipulating
+hardware settings to optimize an objective defined by an unprivileged
+user.  The GEOPM Runtime is a software platform built on top of the
+GEOPM Service that enables users to select a runtime algorithm and
+policy to meet energy efficiency or performance objectives.  More
+documentation on the GEOPM Runtime is posted with our web
+documentation here:
 
 https://geopm.github.io/runtime.html
 
 
-Guide for Contributors
-----------------------
+Two of the software packages provided by the GEOPM Git repository
+support the GEOPM Runtime Service: `libgeopm` and `geopmpy`. The
+`libgeopm` package is written in C++ and provides bindings for the
+C language.  The `geopmpy` package is written in Python and
+provides wrappers for some of the C interfaces provided by the
+`libgeopmd`.
+
+## Repository Directories
+
+Each of the top level directories of the GEOPM Git repository contain
+their own README file.  Please refer to these files for more detailed
+information about each subdirectory.
+
+
+### libgeopmd
+
+The C++ implementation for the GEOPM Access Service.  This directory
+has an autotools based build system which can be used to create a
+distribution for the `libgeopmd` software package.  The library
+provides the `PlatformIO` interface and support for `IOGroup`
+plugins.  Additionally the Linux System-D service files and installation
+is managed by the build system in this directory.
+
+
+### geopmdpy
+
+The Python implementation for the GEOPM Access Service.  This
+directory has a setuptools based build system which can be used to
+create a distribution for the `geopmdpy` software package for Python
+3.6 and higher versions.  The `geopmdpy` Python module provides the
+implementation for the geopmd daemon executed by the Linux System-D
+unit and Python bindings for the PlatformIO interface.
+
+
+### libgeopm
+
+PASS
+
+
+### geopmpy
+
+PASS
+
+
+### docs
+
+PASS
+
+
+### integration
+
+PASS
+
+
+## Package Dependencies
+
+- A build of the `libgeopmd` and `geopmdpy` packages are required to
+  build and run the `libgeopm` and `geopmpy` packages
+
+- All `libgeopmd` and `geopmdpy` package features may be used
+  independently of the features provided by the `libgeopm` and
+  `geopmpy` packages
+
+- All run and build requirements of the `libgeopmd` and `geopmdpy`
+  packages are provided by commonly used Linux distributions
+
+- Some of the features of the `libgeopm` and `geopmpy` packages
+  require HPC specific dependencies (MPI, OpenMP, and HPC resource
+  manager integration), but these features may be disabled when
+  configuring the build
+
+
+## Guide for Contributors
 
 We appreciate all feedback on our project.  Please see our
 contributing guide for how some guidelines on how to participate.
@@ -100,8 +164,7 @@ called `CONTRIBUTING.rst`.  This guide can also be viewed here:
 https://geopm.github.io/contrib.html
 
 
-Guide for GEOPM Developers
---------------------------
+## Guide for GEOPM Developers
 
 GEOPM is an open development project and we use Github to plan, review
 and test our work.  The process we follow is documented here:
@@ -113,8 +176,7 @@ code anywhere in the GEOPM repository for both the `geopm-service` and
 the `geopm` packages.
 
 
-Status
-------
+## Status
 
 GEOPM version 3.0 enables the GEOPM Runtime to be used with any
 application.  It shifts responsibility for managing inter-process
@@ -129,7 +191,7 @@ features are the GEOPM Service, support for Intel and NVIDIA GPUs, and
 improved consistency of signal and control names provided by
 PlatformIO.  A wide range of other improvements have also been made,
 including a higher performance profiling interface to support highly
-parallel applications, and support for the ``isst_interface`` driver.
+parallel applications, and support for the `isst_interface` driver.
 
 This software is production quality as of version 1.0.  We will be
 enforcing [semantic versioning](https://semver.org/) for all releases
@@ -150,21 +212,20 @@ The GEOPM developers are very interested in feedback from the
 community.  See the [contributing guide](CONTRIBUTING.md) to learn how
 to provide feedback.
 
-License
--------
+## License
 
 The GEOPM source code is distributed under the 3-clause BSD license.
 
 SEE COPYING FILE FOR LICENSE INFORMATION.
 
-Last Update
------------
-2023 December 6
+## Last Update
+
+2024 April 10
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 Brad Geltz <brad.geltz@intel.com> <br>
 
-ACKNOWLEDGMENTS
----------------
+## ACKNOWLEDGMENTS
+
 Development of the GEOPM software package has been partially funded
 through contract B609815 with Argonne National Laboratory.
