@@ -120,18 +120,12 @@ install our latest release through `dnf` or `zypper`.
 
 Follow the documentation in our [developer build
 guide](https://geopm.github.io/devel.html#developer-build-process) for details
-about how to configure the build process.  In the bash script below we show a
-simple way to build and install all of the GEOPM packages from the source in the
-Git repository.
-
-Note that some dependency packages may need to be installed for the C++ build to
-succeed.  On Ubuntu or Debian consider using the `mk-build-deps` command against
-the `libgeopmd/debian/control` and `libgeopm/debian/control` files to install
-build dependencies.  On `yum` based operating systems consider using the
-`yum-builddep` command.  This should be applied to the spec files created after
-each library's `configure` command completes: `libgeopmd/geopm-service.spec` and
-`libgeopm/geopm-runtime.spec`.  On `zypper` based systems some inspection of the
-spec files may be required to determine build dependency packages.
+about how to configure the build process.  Note that some dependency packages
+required for the C++ builds may be missing from your system.  Refer to the
+developer build guide to learn now to discover and install packages required for
+build on your operating system.  In the bash script below we show a simple way
+to build and install all of the GEOPM packages from the source repository
+assuming that all build dependencies are installed system wide.
 
 ```bash
 # Choose install location
