@@ -128,7 +128,7 @@ Note that some dependency packages may need to be installed for the C++ build to
 succeed.  On Ubuntu or Debian consider using the `mk-build-deps` command against
 the `libgeopmd/debian/control` and `libgeopm/debian/control` files to install
 build dependencies.  On `yum` based operating systems consider using the
-`yum-builddep` command.  This should be applied to the spec files created with
+`yum-builddep` command.  This should be applied to the spec files created after
 each library's `configure` command completes: `libgeopmd/geopm-service.spec` and
 `libgeopm/geopm-runtime.spec`.  On `zypper` based systems some inspection of the
 spec files may be required to determine build dependency packages.
