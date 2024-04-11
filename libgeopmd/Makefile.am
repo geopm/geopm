@@ -87,13 +87,6 @@ EXTRA_DIST = .gitignore \
              ChangeLog \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
-             json_data/msr_data_arch.json \
-             json_data/msr_data_hsx.json \
-             json_data/msr_data_knl.json \
-             json_data/msr_data_skx.json \
-             json_data/msr_data_snb.json \
-             json_data/msr_data_spr.json \
-             json_data/sysfs_attributes_cpufreq.json \
              src/json_data.cpp.in \
              # end
 
@@ -316,21 +309,6 @@ else
     EXTRA_DIST += $(io_uring_source_files)
 endif
 
-$(msr_cpp_files): src/%.cpp: json_data/%.json src/json_data.cpp.in
-	sed -e '/@JSON_CONTENTS@/ {' \
-	    -e "r $<" \
-	    -e 'd' -e '}' \
-	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
-	src/json_data.cpp.in > $@
-
-$(sysfs_cpp_files): src/%.cpp: json_data/%.json src/json_data.cpp.in
-	sed -e '/@JSON_CONTENTS@/ {' \
-	    -e "r $<" \
-	    -e 'd' -e '}' \
-	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_sysfs_json/g" \
-	src/json_data.cpp.in > $@
-
-
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
@@ -371,7 +349,7 @@ check_LTLIBRARIES =
 TESTS =
 BUILT_SOURCES =
 DISTCLEANFILES =
-CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files)
+CLEANFILES =
 
 include test/Makefile.mk
 

@@ -47,8 +47,6 @@ const_config_test.json
 /m4/lt~obsolete.m4
 /Makefile
 /Makefile.in
-src/msr_data_*.cpp
-src/sysfs_attributes_*.cpp
 /stamp-h1
 /test/geopm_test
 /test/isadmin
