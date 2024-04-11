@@ -117,26 +117,38 @@ guide](https://geopm.github.io/install.html#sles-opensuse-and-centos) to
 install our latest release through `dnf` or `zypper`.
 
 ### From Source
-**TBD**: Show how to install to `$HOME` (useful for geopmd-client-only changes
-or runtime changes) or install to `/usr/local` (useful for end-to-end setup)?
 
-**TODO**: Validate below after all the build changes are done.
+Follow the documentation in our [developer build
+guide](https://geopm.github.io/devel.html#developer-build-process) for details
+about how to configure the build process.  In the bash script below we show a
+simple way to build and install all of the GEOPM packages from the source in the
+Git repository.
 
-```
+Note that some dependency packages may need to be installed for the C++ build to
+succeed.  On Ubuntu or Debian consider using the `mk-build-deps` command against
+the `libgeopmd/debian/control` and `libgeopm/debian/control` files to install
+build dependencies.  On `yum` based operating systems consider using the
+`yum-builddep` command.  This should be applied to the spec files created with
+each library's `configure` command completes: `libgeopmd/geopm-service.spec` and
+`libgeopm/geopm-runtime.spec`.  On `zypper` based systems some inspection of the
+spec files may be required to determine build dependency packages.
+
+```bash
 # Choose install location
-INSTALL_PREFIX=$HOME/build/geopm # User install
-# INSTALL_PREFIX=/usr/local # Root install
+INSTALL_PREFIX=$HOME/build/geopm    # User install
+# INSTALL_PREFIX=/usr/local         # Root install
+# EXTRA_CONFIG='--disable-io-uring' # Older Linux Kernels without io-uring
 pip install -r requirements.txt
 cd libgeopmd
 ./autogen.sh
 VERSION=$(cat VERSION) # Store version string
-./configure --prefix=$INSTALL_PREFIX
+./configure --prefix=$INSTALL_PREFIX $EXTRA_CONFIG
 make -j            # Build libgeopmd
 make -j check      # Build and run the tests
 make install       # Install to the --prefix location
 cd ../libgeopm
 ./autogen.sh
-./configure --prefix=$INSTALL_PREFIX
+./configure --prefix=$INSTALL_PREFIX $EXTRA_CONFIG
 make -j            # Build libgeopm
 make -j check      # Build and run the tests
 make install       # Install to the --prefix location
