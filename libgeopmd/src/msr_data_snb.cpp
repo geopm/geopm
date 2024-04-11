@@ -1,3 +1,5 @@
+// THIS IS A GENERATED FILE, DO NOT MODIFY, INSTEAD MODIFY: docs/json_data/msr_data_snb.json
+// AND RERUN update_data.sh
 /*
  * Copyright (c) 2015 - 2024, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
