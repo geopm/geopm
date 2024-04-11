@@ -2,12 +2,12 @@
 
 # GEOPM - Global Extensible Open Power Manager
 [Home Page](https://geopm.github.io)
-| [GEOPM Access Service Documentation](https://geopm.github.io/service.html)
-| [GEOPM Runtime Service Documentation](https://geopm.github.io/runtime.html)
+| [GEOPM Access Service](https://geopm.github.io/service.html)
+| [GEOPM Runtime Service](https://geopm.github.io/runtime.html)
 | [Reference Manual](https://geopm.github.io/reference.html)
 | [Slack Workspace](https://geopm.slack.com)
 
-Fine-grained batchable access to power metrics and control knobs on Linux
+Fine-grained low-latency batch access to power metrics and control knobs on Linux
 
 [![Build Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
 [![version](https://img.shields.io/badge/version-3.0.1-blue)](https://github.com/geopm/geopm/releases)
@@ -52,7 +52,7 @@ Service* and the *GEOPM Runtime Service*.
 
 [GEOPM Access Service](https://geopm.github.io/service.html): A privileged
 process that provides user interfaces to hardware signals and controls and
-admin interfaces to control user access. **C and C++ bindings** to this
+admin interfaces to manage user access. **C and C++ bindings** to this
 interface are provided through [libgeopmd](libgeopmd). **Python bindings** are
 provided through the [geopmdpy](geopmdpy) package.
 
@@ -123,26 +123,34 @@ or runtime changes) or install to `/usr/local` (useful for end-to-end setup)?
 **TODO**: Validate below after all the build changes are done.
 
 ```
+# Choose install location
+INSTALL_PREFIX=$HOME/build/geopm # User install
+# INSTALL_PREFIX=/usr/local # Root install
+pip install -r requirements.txt
 cd libgeopmd
 ./autogen.sh
-./configure --prefix=$HOME/build/geopm
+VERSION=$(cat VERSION) # Store version string
+./configure --prefix=$INSTALL_PREFIX
 make -j            # Build libgeopmd
-make -j checkprogs # Build the tests
-make check         # Run the tests
+make -j check      # Build and run the tests
 make install       # Install to the --prefix location
 cd ../libgeopm
 ./autogen.sh
-./configure --prefix=$HOME/build/geopm
+./configure --prefix=$INSTALL_PREFIX
 make -j            # Build libgeopm
-make -j checkprogs # Build the tests
-make check         # Run the tests
+make -j check      # Build and run the tests
 make install       # Install to the --prefix location
 cd ..
 pip install -r geopmdpy/requirements.txt
-pip install ./geopmdpy
+pip install ./geopmdpy ||
+    (echo 'Warning: Installing from source failed, trying to install from wheel' 1>&2 && \
+     python3 -m build geopmdpy && pip install geopmdpy/dist/geopmdpy-${VERSION}-py3-*.whl)
 pip install -r geopmpy/requirements.txt
-pip install ./geopmpy
-make -C docs DESTDIR=$HOME/build/geopm
+pip install ./geopmpy ||
+    (echo 'Warning: Installing from source failed, trying to install from wheel' 1>&2 && \
+     python3 -m build geopmpy && pip install geopmpy/dist/geopmpy-${VERSION}-py3-*.whl)
+make -C docs man
+make -C docs prefix=$INSTALL_PREFIX install_man
 ```
 
 ### Major GEOPM Versions
