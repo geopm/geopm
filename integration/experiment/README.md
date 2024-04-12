@@ -7,7 +7,7 @@ parallel jobs, and analyzing the job output.
 ## Common Python Supporting Files
 
 There is some functionality that is shared between different
-expereiments and these features are captured in python modules
+experiments and these features are captured in python modules
 at the base of the experiment directory.
 
 #### `common_args.py`
@@ -72,7 +72,7 @@ according to the experiment and application to be run.
 The general workflow is as follows:
 
 1. Run the sweep for a specific application with
-   run_<exp>_<app>.py.  A directory to hold all output files is
+   `run_<exp>_<app>.py`.  A directory to hold all output files is
    recommended and can be specified with `--output-dir`.  The number
    of nodes can be specified with `--nodes`; otherwise 1 node will be
    used.
@@ -85,9 +85,10 @@ The general workflow is as follows:
 Example:
 
 1. Run DGEMM on 4 nodes:
-
-  ./run_power_sweep_dgemm.py --nodes=4 --output-dir=test42
-
+   ```
+   ./run_power_sweep_dgemm.py --nodes=4 --output-dir=test42
+   ```
 2. Calculate the achieved frequency on each node and generate histogram plots:
-
-  ./gen_plot_node_efficiency.py --output-dir=test42
+   ```
+   ./gen_plot_node_efficiency.py --output-dir=test42
+   ```

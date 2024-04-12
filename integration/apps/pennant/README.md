@@ -26,7 +26,7 @@ The difference between these builds is how GEOPM epochs are marked:
     epoch1: One epoch every outer loop iteration.
     default: No epoch markup.
 
-There is a known issue that epochs occuring too often causes GEOPM to hang due to
+There is a known issue that epochs occurring too often causes GEOPM to hang due to
 epoch handling overwhelming GEOPM control loop. Larger problem sizes are expected to
 be able to handle a smaller number of outer loops per epoch since outer loop time
 seems to increase with problem size.

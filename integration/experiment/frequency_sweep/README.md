@@ -1,4 +1,4 @@
-FREQUENCY SWEEP-BASED EXPERIMENTS
+Frequency Sweep-Based Experiments
 ---------------------------------
 
 The scripts in this directory are used to run and analyze application

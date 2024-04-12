@@ -4,7 +4,7 @@ controls will be used by GEOPM. There are two subdirectories, alice
 and bob, each containing a single IOGroup plugin.  These IOGroups do
 nothing except provide descriptions for several signal names.  For a
 more complete example of how to build a plugin for GEOPM, please refer
-to the iogroup tutorial found in tutorial/iogroup.
+to the iogroup tutorial found in [tutorial/iogroup](../iogroup).
 
 To start, observe the default list of signals with their descriptions
 available on your system using `geopmread --info`.

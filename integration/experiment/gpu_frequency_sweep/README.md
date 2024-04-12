@@ -1,5 +1,5 @@
-FREQUENCY SWEEP-BASED EXPERIMENTS
----------------------------------
+GPU Frequency Sweep-Based Experiments
+-------------------------------------
 
 The scripts in this directory are used to run and analyze application
 runs that use a range of fixed frequency settings for GPUs.
@@ -33,4 +33,4 @@ runs that use a range of fixed frequency settings for GPUs.
 #### `gen_gpu_activity_constconfig_recommendation.py`:
 
   Calculates the GPU energy efficient frequency and provides a policy
-  recommendation for the gpu_activity agent.
+  recommendation for the `gpu_activity` agent.

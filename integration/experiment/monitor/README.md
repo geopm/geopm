@@ -1,4 +1,4 @@
-MONITOR-BASED EXPERIMENTS
+Monitor-Based Experiments
 -------------------------
 
 The scripts in this directory are used to run applications with the

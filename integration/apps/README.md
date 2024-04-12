@@ -1,14 +1,14 @@
-# Integration Application Support
+Integration Application Support
+===============================
+This directory contains automation to build and run various applications with
+the GEOPM runtime.  Some applications include patches to add instrumentation
+for per-application-region reporting of GEOPM metrics.  More information is
+available in the README files within each directory.
 
 For each application, there is a corresponding sub-directory with
 more information on how to download and build the application.  The
 supported applications are indexed in this file and a summary of the
 requirements for each application directory are provided below.
-
-Each application directory contains shell scripts that contain the required
-setup, run configuration, and command line arguments for executing the
-application. More information is available in the README files within
-each directory.
 
 ## Application Index
 
