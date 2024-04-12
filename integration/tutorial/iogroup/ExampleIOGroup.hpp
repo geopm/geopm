@@ -54,6 +54,7 @@ class ExampleIOGroup : public geopm::IOGroup
         static std::unique_ptr<geopm::IOGroup> make_plugin(void);
     private:
         std::vector<std::string> parse_proc_stat(void);
+        int get_signal_index(const std::string &signal_name) const;
         enum m_signal_type_e {
             M_SIGNAL_USER_TIME,
             M_SIGNAL_NICE_TIME,
