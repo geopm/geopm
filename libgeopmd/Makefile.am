@@ -55,7 +55,7 @@ install-plugin-dir:
 
 dist_doc_DATA = COPYING \
                 COPYING-TPP \
-                README.rst \
+                README.md \
                 VERSION \
                 # end
 

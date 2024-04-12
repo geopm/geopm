@@ -118,5 +118,5 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_libdir}/libgeopm.so
 %dir %{docdir}
 %doc %{docdir}/COPYING
-%doc %{docdir}/README.rst
+%doc %{docdir}/README.md
 %doc %{docdir}/VERSION
