@@ -131,30 +131,23 @@ assuming that all build dependencies are installed system wide.
 # Choose install location
 INSTALL_PREFIX=$HOME/build/geopm    # User install
 # INSTALL_PREFIX=/usr/local         # Root install
-# EXTRA_CONFIG='--disable-io-uring' # Older Linux Kernels without io-uring
 pip install -r requirements.txt
 cd libgeopmd
 ./autogen.sh
-VERSION=$(cat VERSION) # Store version string
+VERSION=$(cat VERSION)              # Store version string
 ./configure --prefix=$INSTALL_PREFIX $EXTRA_CONFIG
-make -j            # Build libgeopmd
-make -j check      # Build and run the tests
-make install       # Install to the --prefix location
+make -j                             # Build libgeopmd
+make install                        # Install to the --prefix location
 cd ../libgeopm
 ./autogen.sh
 ./configure --prefix=$INSTALL_PREFIX $EXTRA_CONFIG
-make -j            # Build libgeopm
-make -j check      # Build and run the tests
-make install       # Install to the --prefix location
+make -j                             # Build libgeopm
+make install                        # Install to the --prefix location
 cd ..
 pip install -r geopmdpy/requirements.txt
-pip install ./geopmdpy ||
-    (echo 'Warning: Installing from source failed, trying to install from wheel' 1>&2 && \
-     python3 -m build geopmdpy && pip install geopmdpy/dist/geopmdpy-${VERSION}-py3-*.whl)
+pip install ./geopmdpy
 pip install -r geopmpy/requirements.txt
-pip install ./geopmpy ||
-    (echo 'Warning: Installing from source failed, trying to install from wheel' 1>&2 && \
-     python3 -m build geopmpy && pip install geopmpy/dist/geopmpy-${VERSION}-py3-*.whl)
+pip install ./geopmpy
 make -C docs man
 make -C docs prefix=$INSTALL_PREFIX install_man
 ```
