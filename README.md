@@ -134,7 +134,6 @@ INSTALL_PREFIX=$HOME/build/geopm    # User install
 pip install -r requirements.txt
 cd libgeopmd
 ./autogen.sh
-VERSION=$(cat VERSION)              # Store version string
 ./configure --prefix=$INSTALL_PREFIX
 make -j                             # Build libgeopmd
 make install                        # Install to the --prefix location
