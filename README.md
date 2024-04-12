@@ -74,6 +74,7 @@ board.
 ```
 geopmread CPU_POWER board 0
 ```
+![geopmread-movie](https://geopm.github.io/images/geopmread.gif)
 
 Apply a 3.0 GHz maximum-allowed CPU core frequency to each CPU on the board.
 This setting will be automatically reverted when the user's session ends (e.g.,
@@ -81,12 +82,14 @@ when exiting the current shell).
 ```
 geopmwrite CPU_FREQUENCY_MAX_CONTROL board 0 3.0e9
 ```
+![geopmwrite-movie](https://geopm.github.io/images/geopmwrite.gif)
 
 Generate a CSV (comma-separated variable) trace of CPU core frequency versus
 time, sampling once every second for a total of 10 seconds:
 ```
 echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession -p 1.0 -t 10.0
 ```
+![geopmsession-movie](https://geopm.github.io/images/geopmsession.gif)
 
 Other use cases in the [Getting Started
 Guide](https://geopm.github.io/overview.html) include:
