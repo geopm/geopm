@@ -198,7 +198,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/COPYING-TPP
-%doc %{docdir}/README.rst
+%doc %{docdir}/README.md
 %doc %{docdir}/VERSION
 
 %files -n libgeopmd2

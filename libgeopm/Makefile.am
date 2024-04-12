@@ -97,7 +97,7 @@ endif # ENABLE_MPI
 all-local: $(all_local)
 
 dist_doc_DATA = COPYING \
-                README.rst \
+                README.md \
                 VERSION \
                 # end
 
@@ -106,7 +106,7 @@ EXTRA_DIST += .gitignore \
               CONTRIBUTING.rst \
               ChangeLog \
               Makefile.am \
-              README.rst \
+              README.md \
               configure.ac \
               debian/changelog \
               debian/changelog.in \
