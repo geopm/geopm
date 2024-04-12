@@ -1,4 +1,4 @@
-UNCORE FREQUENCY SWEEP-BASED EXPERIMENTS
+Uncore Frequency Sweep-Based Experiments
 ----------------------------------------
 
 The scripts in this directory are used to run and analyze application

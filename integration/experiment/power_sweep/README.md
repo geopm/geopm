@@ -1,4 +1,4 @@
-POWER SWEEP-BASED EXPERIMENTS
+Power Sweep-Based Experiments
 -----------------------------
 
 The scripts in this directory are used to run and analyze application
@@ -6,7 +6,7 @@ runs that use different package power limits as their agent policy.
 
 ## Base Experiment Module
 
-#### `power_sweep.py`:
+#### `power_sweep.py`
 
   Contains helper functions for launching a power sweep and common
   command line arguments.
@@ -30,31 +30,31 @@ runs that use different package power limits as their agent policy.
 
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
-#### gen_power_sweep_summary.py:
+#### `gen_power_sweep_summary.py`
 
   Prints basic summary of the runtime and energy characteristics at
   each power cap.
 
-#### gen_balancer_comparison.py
+#### `gen_balancer_comparison.py`
 
   Compares the total runtime and energy of the application when run
   with the power balancer against the power governor and prints the
   runtime and energy savings.
 
-#### gen_plot_node_efficiency.py
+#### `gen_plot_node_efficiency.py`
 
   Calculates the achieved frequency of every package of every node at
   each power cap and agent in the experiment.  Produces a histogram
   plot for each power cap and agent summarizing the data.  If
-  --show-details is passed, it also prints the same data to standard
+  `--show-details` is passed, it also prints the same data to standard
   output.
 
-#### gen_plot_balancer_power_limit.py
+#### `gen_plot_balancer_power_limit.py`
 
   Plot over time showing epoch runtimes and power limits chosen by the
   balancer algorithm.  Useful for checking the algorithm behavior.
 
-#### gen_plot_balancer_comparison.py
+#### `gen_plot_balancer_comparison.py`
 
   Create a bar chart comparing the total runtime or energy of the
   application when run with the power balancer against the power

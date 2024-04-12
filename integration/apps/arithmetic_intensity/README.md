@@ -1,5 +1,5 @@
-# Arithmetic Intensity Micro-Bencmark
+# Arithmetic Intensity Micro-Benchmark
 
-Donwloaded from https://github.com/dannosliwcd/arithmetic-intensity
+Downloaded from https://github.com/dannosliwcd/arithmetic-intensity
 
 Uses the nasm utility: https://github.com/netwide-assembler/nasm

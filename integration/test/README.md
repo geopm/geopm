@@ -1,7 +1,7 @@
-GEOPM Integration Tests
-=======================
+GEOPM Runtime Integration Tests
+===============================
 
-This directory contains the integration tests for the GEOPM package.
+This directory contains the integration tests for the GEOPM runtime package.
 
 Please refer to the [README](../README.md) in the parent directory for
 information on how to define environment variables needed by these
@@ -11,9 +11,10 @@ scripts in your `.geopmrc` file and how to use the scripts in the
 The integration tests are built using the python unittest infrastructure.
 Each of the python test scripts begins with the `test_` prefix, and may be
 run as a batch or individually.  When running test scripts individually, it
-is important to add the GEOPM source code directory to your python path:
+is important to install the `geopmdpy` and `geopmpy` packages or add their
+source code directory to your python path:
 ```
-export PYTHONPATH=${GEOPM_SOURCE}:${PYTHONPATH}
+export PYTHONPATH=${GEOPM_SOURCE}/geopmpy:${PYTHONPATH}
 ```
 Alternatively, the python unittest discovery mechanism may be used.  When
 using this method, the unittest module is executed using the discover
@@ -22,7 +23,7 @@ runtime integration tests:
 ```
 #!/bin/bash
 
-source ${GEOPM_SOURCE}/config/run_env.sh
+source ${GEOPM_SOURCE}/integration/config/run_env.sh
 
 # Run all of the GEOPM HPC Runtime integration tests
 python3 -m unittest discover \
@@ -71,7 +72,7 @@ use `GEOPM_EXEC_WRAPPER` are given below.
 ```
 #!/bin/bash
 
-source ${GEOPM_SOURCE}/config/run_env.sh
+source ${GEOPM_SOURCE}/integration/config/run_env.sh
 
 GEOPM_EXEC_WRAPPER="numactl -m 1" \
 python3 -m unittest discover \

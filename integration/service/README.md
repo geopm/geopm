@@ -7,7 +7,7 @@ command line tools including `geopmaccess`, `geopmread`, and
 
 These tests are written in Bash and Python, and serve the purpose of
 testing a fully installed GEOPM service using only software from the
-service subdirectory of the GEOPM reposistory.  The tests in this
+service subdirectory of the GEOPM repository.  The tests in this
 directory also show examples of how to use each of the features
 provided by the service.  The tests each begin with a long comment
 describing the feature under test, and provide a form of tutorial for
@@ -31,21 +31,18 @@ make rpm
 The RPM files are created with the `rpmbuild` command.  Unless
 otherwise configured, the `rpmbuild` command creates RPMs in the
 location: `${HOME}/rpmbuild/RPMS/x86_64`.  To install these files and
-start the GEOPM service, the
-`geopm/service/integration/install_service.sh` script may be used.
-This script may be run in the `geopm/service` directory by issuing the
-following command:
+start the GEOPM service, the [`install_service.sh`](install_service.sh) script
+may be used as:
 
 ```bash
-cd geopm/service
-sudo integration/install_service.sh $(cat VERSION) ${USER}
+sudo install_service.sh $(cat ../VERSION) ${USER}
 ```
 
-Note that the `VERSION` file is created in the `geopm/service`
+Note that the `VERSION` file is created in the parent
 directory when the `autogen.sh` script is run.  Once the GEOPM Service
 is installed, the access lists must be updated to enable the tests.
-The following commands may be issued to allow any user to access all
-signals and controls:
+Issue the following commands to allow any user to access all signals and
+controls:
 
 ```bash
 geopmaccess -a | sudo geopmaccess -w
@@ -57,34 +54,34 @@ geopmaccess -a -c | sudo geopmaccess -w -c
 Each of the entry points for the integration tests is a script of the
 form:
 
-    geopm/integration/test/test_*.sh
+    test/test_*.sh
 
 Some of these tests require root privileges unless the sudoers file
 has been setup to allow some privileged commands to be run without
 full sudo access (see below for more information).  These tests have
 names of the form:
 
-    geopm/integration/test/test_su_*.sh
+    test/test_su_*.sh
 
 The tests are setup to run as the user specified in the
-${GEOPM_TEST_USER} environment variable.  If the variable is not
+`${GEOPM_TEST_USER}` environment variable.  If the variable is not
 specified the tests will run as the "test-service" user.
 
 If the test finishes with an exit code of `0`, and it prints `SUCCESS`
 at the end, then the test has succeeded.
 
 A limited set of root privileges may be used by non-root users by
-installing the helper scripts
+installing the helper scripts into `/usr/sbin`:
 
-    geopm/service/integration/check_session_clean.sh
-    geopm/service/integration/get_batch_server.py
-    geopm/service/integration/install_service.sh
-    geopm/service/integration/kill_geopmd.sh
-    geopm/service/integration/test/.libs/test_batch_perf (only available after `make checkprogs`)
+    check_session_clean.sh
+    get_batch_server.py
+    install_service.sh
+    kill_geopmd.sh
+    test/.libs/test_batch_perf (only available after `make checkprogs`)
 
-into `/usr/sbin` and adding these and the `geopmaccess` command line
+Add these and the `geopmaccess` command line
 tool to the sudoers file.  This enables the user that executes the
-tests to execute these four commands without providing a sudo password.
+tests to execute those commands without providing a sudo password.
 After this is done the `test_su_*.sh` scripts may be run as a non-root
 user.
 
@@ -122,7 +119,7 @@ privilege specification" section, add the following:
 
 ### Running the suite
 
-Some of the the tests involve positive and negative testing in the
+Some of the tests involve positive and negative testing in the
 same file.  Because of this, examining the test output may be
 confusing.  To avoid this confusion and to run all of the tests as a
 suite, use the following to execute and verify the return codes of all
@@ -133,7 +130,7 @@ the tests:
 
 python3 -m unittest discover \
         --top-level-directory ${GEOPM_SOURCE} \
-        --start-directory ${GEOPM_SOURCE}/service/integration/test \
+        --start-directory ${GEOPM_SOURCE}/integration/service/test \
         --pattern 'test_*.py' \
         --verbose
 ```
@@ -156,13 +153,13 @@ Where to find other tests
 
 The tests in this directory do not use any of the tools provided by
 `libgeopm`.  Integration tests for `libgeopm` derived features are
-located in `geopm/integration/test`.  Some of these tests may use the
+located in `geopm/integration/test`.  Some of those tests may use the
 GEOPM service on a system where it is required.
 
-The unit tests for the C++ files in `geopm/service/src` are located in
-`geopm/service/test`.  The unit tests for the C++ files in `geopm/src`
-are located in `geopm/test`.  We have split the unit tests in to two
+The unit tests for the C++ files in `geopm/libgeopmd/src` are located in
+`geopm/libgeopmd/test`.  The unit tests for the C++ files in `geopm/libgeopm/src`
+are located in `geopm/libgeopm/test`.  We have split the unit tests in to two
 directories so that the service subdirectory is fully independent.
 
 The unit tests for the geopmdpy module are located in
-`geopm/service/geopmdpy_test`.
+`geopm/geopmdpy/test`.

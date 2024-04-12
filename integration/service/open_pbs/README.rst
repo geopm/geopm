@@ -269,7 +269,7 @@ example, one way is to use systemctl or run ``/etc/init.d/pbs restart`` where
 the PBS scheduler is running.
 
 The hook to enforce node power caps is available in the GEOPM
-``service/integration/open_pbs`` directory (``geopm_power_limit.py``) and
+``integration/service/open_pbs`` directory (``geopm_power_limit.py``) and
 can be installed with the following commands:
 
 ::

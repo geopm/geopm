@@ -28,16 +28,16 @@ This file depicts the necessary environment needed to use the GEOPM
 Runtime.  First, the script creates a JSON configuration that will be
 used with `geopmbench`.  Next, the script sources the `run_env.sh` to
 setup the necessary environment for accessing the python modules for
-the Runtime.  The next block sets the GEOPM_PROFILE,
-GEOPM_PROGRAM_FILTER, and LD_PRELOAD variables appropriately for this
+the Runtime.  The next block sets the `GEOPM_PROFILE`,
+`GEOPM_PROGRAM_FILTER`, and `LD_PRELOAD` variables appropriately for this
 app configuration.
 
 The next block sets up the configuration for the GEOPM Controller.
 The configuration enables summary reports, time-series traces, and
 profile traces to be emitted at the conclusion of the run.
-GEOPM_REPORT_SIGNALS adds additional signals to the report files with
-the given configuration.  GEOPM_NUM_PROC informs the Controller how
-many user processes it should expect to profile, and GEOPM_CTL_LOCAL
+`GEOPM_REPORT_SIGNALS` adds additional signals to the report files with
+the given configuration.  `GEOPM_NUM_PROC` informs the Controller how
+many user processes it should expect to profile, and `GEOPM_CTL_LOCAL`
 tells the Controller not to use any MPI communication for transmitting
 data (assuming the Runtime was compiled with MPI support, which is the
 default).
