@@ -43,6 +43,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-trace=agent_tutorial_trace \
                 --geopm-agent=example \
                 --geopm-policy=example_policy.json \
+                --geopm-program-filter=geopmbench \
                 -- geopmbench agent_tutorial_config.json \
                 1>example.stdout 2>example.stderr
     err=$?
@@ -56,6 +57,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-trace=agent_tutorial_trace \
                 --geopm-agent=example \
                 --geopm-policy=example_policy.json \
+                --geopm-program-filter=geopmbench \
                 -- geopmbench agent_tutorial_config.json \
                 1>example.stdout 2>example.stderr
     err=$?
@@ -69,6 +71,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-trace=agent_tutorial_trace \
                 --geopm-agent=example \
                 --geopm-policy=example_policy.json \
+                --geopm-program-filter=geopmbench \
                 -- geopmbench agent_tutorial_config.json \
                 1>example.stdout 2>example.stderr
     err=$?

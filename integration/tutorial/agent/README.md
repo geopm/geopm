@@ -1,4 +1,4 @@
-GEOPM AGENT TUTORIAL
+GEOPM Agent Tutorial
 ====================
 
 This directory contains a tutorial on extending the behavior of the
@@ -14,19 +14,18 @@ passed up the root.  It is important to note that there may not be a
 direct mapping from a policy to a specific control, nor from a
 specific platform signal to a sample.
 
-This example uses the signals and controls provided by ExampleIOGroup
-from the previous tutorial found in $GEOPM_ROOT/tutorial/iogroup.  The
-ExampleAgent calculates the system utilization from the user, system,
-and idle time signals and prints the result to standard output or
-standard error.  The policies in this example are the bounds on the
-idle percentage that determine whether standard out or standard error
-is used.
+This example uses the signals and controls provided by ExampleIOGroup from the
+previous tutorial found in [`$GEOPM_ROOT/tutorial/iogroup`](../iogroup). The
+ExampleAgent calculates the system utilization from the user, system, and idle
+time signals and prints the result to standard output or standard error. The
+policies in this example are the bounds on the idle percentage that determine
+whether standard out or standard error is used.
 
 
 0. Agent Interface
 ------------------
 
-Agents extend the Agent base class found in src/Agent.hpp.  The pure
+Agents extend the Agent base class found in libgeopm/src/Agent.hpp.  The pure
 virtual methods in this interface must be implemented by every Agent;
 however, some methods may have empty or degenerate implementations.
 Some methods of the Agent interact with the platform directly when the
@@ -216,15 +215,14 @@ the --geopm-policy option or by setting GEOPM_POLICY=example_config.json.
 Note that to be recognized as an agent plugin, the shared library
 filename must begin with "libgeopmagent_" and end in
 ".so.2.0.0".  Be sure that both the ExampleIO
-plugin and the ExampleAgent plugin are in GEOPM_PLUGIN_PATH.
+plugin and the ExampleAgent plugin are in `GEOPM_PLUGIN_PATH`.
 
-An example run script is provided in agent_tutorial.sh.  It uses the
-geopmbench application.  Before running, build and install GEOPM and
-make sure that both plugins are built using the "tutorial_build_*.sh"
-script in each folder.  During the run, the idle percent will be
-printed to either standard out or standard error, depending on whether
-it falls within the bounds set in example_policy.json.  The run script
-redirects standard out/error to separate files.
+An example run script is provided in agent_tutorial.sh.  It uses the geopmbench
+application.  Before running, build and install GEOPM and make sure that both
+plugins are built by running `make` and `make -C ../iogroup`.  During the run,
+the idle percent will be printed to either standard out or standard error,
+depending on whether it falls within the bounds set in example_policy.json.
+The run script redirects standard out/error to separate files.
 
 After the run completes, inspect the report and trace files generated.
 The report should show that the agent used was "example" and you should see

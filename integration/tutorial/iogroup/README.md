@@ -1,4 +1,4 @@
-GEOPM IOGROUP TUTORIAL
+GEOPM IOGroup Tutorial
 ======================
 
 This directory contains a tutorial on how to extend the available
@@ -184,12 +184,12 @@ PlatformIO::save_control() is called prior to the Agent::init() method.
 4. Build and install
 --------------------
 
-The ExampleIOGroup plugin is built by running tutorial_build_gnu.sh or
-tutorial_build_intel.sh.  The plugin will be loaded with the geopm library if
-it is found in a directory in GEOPM_PLUGIN_PATH.  Note that to be recognized as
-an iogroup plugin, the filename must begin with "libgeopmiogroup_", end in
-".so.2.0.0", and must not be a symlink.  Add the current directory (containing
-the .so file) to GEOPM_PLUGIN_PATH as follows:
+Build the ExampleIOGroup plugin by running `make` in this directory.  The
+plugin will be loaded with the geopm library if it is found in a directory in
+`GEOPM_PLUGIN_PATH`.  Note that to be recognized as an IOGroup plugin, the
+filename must begin with "libgeopmiogroup_", end in ".so.2.0.0", and must not
+be a symlink.  Add the current directory (containing the .so file) to
+`GEOPM_PLUGIN_PATH` as follows:
 
     $ export GEOPM_PLUGIN_PATH=$PWD
 
@@ -225,4 +225,4 @@ appear in this list as well.  The controls can be tested using geopmwrite as sho
     12.34
 
 For an example Agent that uses these signals and controls, refer to the
-Agent tutorial in $GEOPM_ROOT/tutorial/agent.
+Agent tutorial in [`$GEOPM_ROOT/tutorial/agent`](../agent).

@@ -45,9 +45,9 @@ ExampleIOGroup::ExampleIOGroup()
                         {"STDOUT",              M_CONTROL_STDOUT},     // alias for EXAMPLE::STDOUT
                         {"EXAMPLE::STDERR",     M_CONTROL_STDERR},
                         {"STDERR",              M_CONTROL_STDERR}}     // alias for EXAMPLE::STDERR
-    , m_do_read(M_NUM_SIGNAL, false)
-    , m_do_write(M_NUM_SIGNAL, false)
-    , m_signal_value(M_NUM_SIGNAL)
+    , m_do_read(M_NUM_SIGNAL + M_NUM_CONTROL, false)
+    , m_do_write(M_NUM_CONTROL, false)
+    , m_signal_value(M_NUM_SIGNAL + M_NUM_CONTROL)
     , m_control_value(M_NUM_CONTROL)
 {
 
@@ -58,6 +58,9 @@ std::set<std::string> ExampleIOGroup::signal_names(void) const
 {
     std::set<std::string> result;
     for (const auto &sv : m_signal_idx_map) {
+        result.insert(sv.first);
+    }
+    for (const auto &sv : m_control_idx_map) {
         result.insert(sv.first);
     }
     return result;
@@ -76,7 +79,8 @@ std::set<std::string> ExampleIOGroup::control_names(void) const
 // Check signal name using index map
 bool ExampleIOGroup::is_valid_signal(const std::string &signal_name) const
 {
-    return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
+    return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end() ||
+           m_control_idx_map.find(signal_name) != m_control_idx_map.end();
 }
 
 // Check control name using index map
@@ -125,7 +129,8 @@ int ExampleIOGroup::push_signal(const std::string &signal_name, int domain_type,
         throw Exception("ExampleIOGroup::push_signal(): cannot push signal after call to read_batch().",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    int signal_idx = m_signal_idx_map.at(signal_name);
+
+    int signal_idx = get_signal_index(signal_name);
     m_do_read[signal_idx] = true;
     m_do_batch_read = true;
     return signal_idx;
@@ -187,6 +192,25 @@ std::vector<std::string> ExampleIOGroup::parse_proc_stat(void)
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     return cpu_val;
+}
+
+int ExampleIOGroup::get_signal_index(const std::string &signal_name) const
+{
+    int index;
+    auto it = m_signal_idx_map.find(signal_name);
+    if (it == m_signal_idx_map.end()) {
+        it = m_control_idx_map.find(signal_name);
+        if (it == m_signal_idx_map.end()) {
+            throw Exception("Signal is not provided by ExampleIOGroup: " + signal_name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        index = it->second + M_NUM_SIGNAL;
+    }
+    else {
+        index = it->second;
+    }
+
+    return index;
 }
 
 // Parse /proc/stat and update saved values for signals
@@ -273,7 +297,7 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
 
     double result = NAN;
     std::vector<std::string> cpu_val = parse_proc_stat();
-    int signal_idx = m_signal_idx_map.at(signal_name);
+    int signal_idx = get_signal_index(signal_name);
     switch (signal_idx) {
         case M_SIGNAL_USER_TIME:
             result = std::stod(cpu_val[1]);
@@ -386,7 +410,7 @@ std::string ExampleIOGroup::signal_description(const std::string &signal_name) c
                         " not valid for ExampleIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    int signal_idx = m_signal_idx_map.at(signal_name);
+    int signal_idx = get_signal_index(signal_name);
     std::string result = "";
     switch (signal_idx) {
         case M_SIGNAL_USER_TIME:
