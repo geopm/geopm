@@ -1,82 +1,30 @@
 GEOPM Developer Guide
 =====================
 
-If you wish to modify the source code in the GEOPM git repository, this
-guide provide instructions for the process. The GEOPM repository utilizes
-two separate autotools-based build systems, used for compiling, testing,
-and installing software components designed with C++ and Python.
+If you wish to modify the source code in the GEOPM git repository, this guide
+provide instructions for the process.
 
-The `service` subdirectory of the GEOPM repository houses all the files
-related to the GEOPM systemd services, including the build system and all
-the source codes. In contrast, the base directory of the same repository
-supports all software components not located in the `service` directory and
-relies solely on the components within the `service` directory installed
-by the service build.
-
-Before proceeding with the build steps, it's advisable to familiarize
-yourself with the build requirements for the :doc:`GEOPM service<requires>`
-and :doc:`GEOPM HPC runtime<runtime>`.
+Before proceeding with the build steps, it's advisable to familiarize yourself
+with the build requirements for the :doc:`GEOPM Access Service<requires>` and
+:doc:`GEOPM Runtime Service<runtime>`.
 
 Developer Build Process
 -----------------------
 
 To build all the software in the GEOPM repository, run the following commands
-within the base directory of the GEOPM repository:
+described in the repository README.md.
+
+Upon successful build completion, if you wish to execute unit tests, each build
+has a `check` target in the makefiles.  The `geopmdpy` and `geopmpy` directories
+have a README.md that describes how to run the unit tests.
 
 .. code-block:: bash
 
-    cd service/
-    ./autogen.sh
-    ./configure
-    make
-    cd ..
-    ./autogen.sh
-    ./configure
-    make
+    cd libgeopmd
+    make -j check
+    cd ../libgeopm
+    make -j check
 
-Upon successful build completion, if you wish to execute unit tests,
-each build has a `check` target in the makefiles. Alternatively, the test
-programs can be built separately using the `checkprogs` target.
-
-.. code-block:: bash
-
-    cd service/
-    make checkprogs
-    make check
-    cd ..
-    make checkprogs
-    make check
-
-If you want to install the build artifacts into a separate directory, you'll
-need to provide some additional options to configure during the build process.
-
-.. code-block:: bash
-
-    GEOPM_INSTALL=$HOME/build/geopm
-    cd service/
-    ./autogen.sh
-    ./configure --prefix=$GEOPM_INSTALL
-    make
-    make install
-    cd ..
-    ./autogen.sh
-    ./configure --prefix=$GEOPM_INSTALL --with-geopmd=$GEOPM_INSTALL
-    make
-    make install
-
-When building from source and configured with the `--prefix` option, the
-libraries, binaries, and Python tools will not install into the standard
-system paths. At this point, you must modify your environment to specify
-the installed location.
-
-.. code-block:: bash
-
-    export LD_LIBRARY_PATH=$GEOPM_INSTALL/lib:$LD_LIBRARY_PATH
-    export PATH=$GEOPM_INSTALL/bin:$PATH
-    export PYTHONPATH=$(ls -d $GEOPM_INSTALL/lib/python*/site-packages | tail -n1):$PYTHONPATH
-
-If desired, you can specify a different Python version using the
-`--with-python` option in the configure script.
 
 Configuring the Build
 ---------------------
@@ -102,7 +50,7 @@ options and environment variables are listed below:
 * ``export CC=``: Set the C compiler with environment variable
 * ``export CXX=``: Set the C++ compiler with environment variable
 
-- Service configure script
+- libgeopmd configure script
 
 * ``--enable-nvml``: Adds support for the Nvidia NVML library
 * ``--enable-dcgm``: Adds support for the Nvidia DCGM library
@@ -130,8 +78,9 @@ Intel Compiler and MPI Toolchain
 .. TODO this section and runtime->Build Requirements need to be refactored.
    IMO all this text belongs in the runtime.rst.
 
-To enable the use of the Intel toolchain for both the compiler and MPI support, export
-the following variables prior to configuring the base build of the GEOPM repository:
+To enable the use of the Intel toolchain for both the compiler and MPI support,
+export the following variables prior to configuring the base build of the GEOPM
+repository:
 
 .. code-block:: bash
 
@@ -147,26 +96,26 @@ the following variables prior to configuring the base build of the GEOPM reposit
     export MPIF77=mpiifort
     export MPIFR90=mpiifort
 
-We recommend using the system compiler toolchain for compiling the
-GEOPM service when creating an installed RPM.  The ``make rpm`` target
-of the service directory uses the geopm-service spec file to ensure
-that the system GCC toolchain is used to create the RPM.
+We recommend using the system compiler toolchain for compiling the GEOPM service
+when creating an installed RPM.  The ``make rpm`` target of the service
+directory uses the geopm-service spec file to ensure that the system GCC
+toolchain is used to create the RPM.
 
 Coverage Instructions
 ---------------------
 
-To generate a coverage report, first be sure that you have installed
-the lcov package.  Note that if you are using GCC 9 or above, you must
-use lcov v1.15 or later to work around `this issue
+To generate a coverage report, first be sure that you have installed the lcov
+package.  Note that if you are using GCC 9 or above, you must use lcov v1.15 or
+later to work around `this issue
 <https://github.com/linux-test-project/lcov/issues/58>`_.
 
 The lcov source is available here:
 
 https://github.com/linux-test-project/lcov
 
-The GEOPM build must be configured with the "--enable-coverage" option
-prior to running the tests.  Then in either the service directory or
-the root directory, simply run
+The GEOPM build must be configured with the "--enable-coverage" option prior to
+running the tests.  Then in either the service directory or the root directory,
+simply run
 
 .. code-block::
 
@@ -192,28 +141,27 @@ Coding Style
 Python code should follow the PEP8 standard as described in
 https://peps.python.org/pep-0008/.
 
-C++ code can be corrected to conform to the GEOPM standard
-using astyle with the following options:
+C++ code can be corrected to conform to the GEOPM standard using astyle with the
+following options:
 
 .. code-block::
 
    astyle --style=linux --indent=spaces=4 -y -S -C -N
 
 Note that astyle is not perfect (in particular it is confused by C++11
-initializer lists), and some versions of astyle will format the code
-slightly differently.
+initializer lists), and some versions of astyle will format the code slightly
+differently.
 
-Use C style variable names with lower case and underscores.  Upper
-camel case is used exclusively for class names.  Prefix all member
-variables with "m\ *" and all global variables with "g*\ ".
+Use C style variable names with lower case and underscores.  Upper camel case is
+used exclusively for class names.  Prefix all member variables with "m\ *" and
+all global variables with "g*\ ".
 
-Please avoid global variables as much as possible and if it is
-necessary to use a global (primarily for C code) please scope them
-statically to the compilation unit.
+Please avoid global variables as much as possible and if it is necessary to use
+a global (primarily for C code) please scope them statically to the compilation
+unit.
 
 Avoid preprocessor macros as much as possible (use enum not #define).
-Preprocessor usage should be reserved for expressing configure time
-options.
+Preprocessor usage should be reserved for expressing configure time options.
 
 The number of columns in a source file should not exceed 70 or 80 before
 wrapping the line.  Exceptions are allowed when it is required for compilation
@@ -221,6 +169,7 @@ or similar.  In general, follow the style in the file you are modifying.
 
 Pre-Commit Checks
 -----------------
+
 This repository includes a configuration for `pre-commit
 <https://pre-commit.com/>`_ that uses some of their standard hooks that are
 relevant to GEOPM, and adds a hook that performs the GEOPM license checks.
@@ -235,14 +184,10 @@ of waiting until you make a pull request to see all of them.
 
 License Headers
 ---------------
+
 Introducing a new file requires a license comment in its header with a
-corresponding copying_headers/header.\ * file.  The new file path must
-be listed in the corresponding copying_headers/MANIFEST.* file.  This
-can be tested by running the copying_headers/test_license script after
-committing the new file to git, and rerunning the autogen.sh script.
-Files for which a license comment is not appropriate should be listed
-in copying_headers/MANIFEST.EXEMPT.  Any new installed files should
-also be added to geopm-runtime.spec.in or service/geopm-service.spec.in.
+corresponding file.  Any new installed files should also be added to the package's
+`.spec` file and a `debian/*.install` file.
 
 Creating Manuals
 ----------------
@@ -252,15 +197,8 @@ Introducing a new man page requires changes in multiple files:
 #.
    The build target (man page) should be added to rst_file in conf.py
 #.
-   The rst source file should be added to EXTRA_DIST in service/docs/Makefile.mk
-#.
-   The build target (man page) should be added to dist_man_MANS in service/docs/Makefile.mk
-#.
-   The rst source file should be added to copying_headers/MANIFEST.EXEMPT as
-   described above.
-#.
    The gzipped installed man page should be listed in the %files section of
-   geopm-service.spec.in
+   geopm-docs.spec.in
 #.
    A link to the new html page should be added to the SEE ALSO section of
    geopm.7.rst and any other related man pages.
