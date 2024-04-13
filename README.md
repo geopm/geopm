@@ -125,10 +125,11 @@ Follow the documentation in our [developer build
 guide](https://geopm.github.io/devel.html#developer-build-process) for details
 about how to configure the build process.  Note that some dependency packages
 required for the C++ builds may be missing from your system.  Refer to the
-developer build guide to learn now to discover and install packages required for
-build on your operating system.  In the bash script below we show a simple way
-to build and install all of the GEOPM packages from the source repository
-assuming that all build dependencies are installed system wide.
+[requirements guide](https://geopm.github.io/requires.html) for details on the
+packages required for build on your operating system.  In the bash script below
+we show a simple way to build and install all of the GEOPM packages from the
+source repository assuming that all build dependencies are installed system
+wide.
 
 ```bash
 # Choose install location

@@ -2,7 +2,7 @@ Source Builds
 =============
 
 This documentation provides build instructions for administrators who are
-interested in installing the GEOPM Service based on a checkout from the GEOPM
+interested in installing the GEOPM packages based on a checkout from the GEOPM
 git repository. Following these instructions will assist users in creating RPM
 or debian packages compatible with various Linux distributions.
 
@@ -24,65 +24,56 @@ The GEOPM service build system provides support for packaging for:
 Building GEOPM Service RPMs
 ---------------------------
 
-Use the following bash commands:
+First review the [requirements guide](https://geopm.github.io/requires.html),
+then use the following bash commands to build all of the GEOPM packages.
 
 .. code-block:: bash
 
     git clone git@github.com:geopm/geopm.git
     cd geopm/service
-    ./autogen.sh
-    ./configure
-    make rpm
+    ./package.sh
 
-These commands create the GEOPM service RPM files in your rpmbuild directory:
-
-.. code-block:: bash
-
-    $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
-    $HOME/rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm
-    $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
-    $HOME/rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
-
-Building GEOPM Service Debian Packages
---------------------------------------
-
-Use the following bash commands:
+These commands create the .rpm files or .deb files that package the GEOPM
+software.  On Ubuntu, these packages are build in the tree:
 
 .. code-block:: bash
 
-    git clone git@github.com:geopm/geopm.git
-    cd geopm/service
-    ./autogen.sh
-    ./configure
-    make deb
+    ./docs/geopm-runtime-docs_<VERSION>-1_all.deb
+    ./docs/geopm-service-docs_<VERSION>-1_all.deb
+    ./docs/libgeopmd-docs_<VERSION>-1_all.deb
+    ./docs/libgeopm-docs_<VERSION>-1_all.deb
+    ./docs/python3-geopmdpy-docs_<VERSION>-1_all.deb
+    ./docs/python3-geopmpy-docs_<VERSION>-1_all.deb
+    ./geopmdpy/python3-geopmdpy_<VERSION>-1_all.deb
+    ./geopmpy/python3-geopmpy_<VERSION>-1_all.deb
+    ./libgeopmd/geopm-service_<VERSION>-1_amd64.deb
+    ./libgeopmd/libgeopmd2_<VERSION>-1_amd64.deb
+    ./libgeopmd/libgeopmd-dev_<VERSION>-1_amd64.deb
+    ./libgeopm/geopm-runtime_<VERSION>-1_amd64.deb
+    ./libgeopm/libgeopm2_<VERSION>-1_amd64.deb
+    ./libgeopm/libgeopm-dev_<VERSION>-1_amd64.deb
 
-These commands create the GEOPM service debian packages  in your current working
-directory, e.g.:
+
+In RPM based operating systems the RPMs are created in the rpmbuild root
+(default is ~/rpmbuild).
 
 .. code-block:: bash
 
-    $HOME/geopm/service/geopm-service_<VERSION>-1_amd64.deb
-    $HOME/geopm/service/libgeopmd2_<VERSION>-1_amd64.deb
-    $HOME/geopm/service/libgeopmd-dev_<VERSION>-1_amd64.deb
-    $HOME/geopm/service/python3-geopmdpy_<VERSION>-1_amd64.deb
+    ./rpmbuild/RPMS/x86_64/geopm-runtime-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-runtime-devel-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-runtime-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-service-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/libgeopm2-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/libgeopmd-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/libgeopm-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/python3-geopmdpy-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/python3-geopmpy-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/python3-geopmpy-docs-<VERSION>-1.x86_64.rpm
 
-.. note::
-
-   Because the GEOPM Python modules are still packaged with ``setuptools``, you
-   must use the package manager installed version of python3-setuptools when
-   issuing ``make deb``.  At the of this writing that is version ``59.6.0``.
-
-   If you have a newer version of ``setuptools`` installed via ``pip``, you can
-   use the following to remove it: ``python3 -m pip uninstall setuptools``
-
-   Alternatively you can force the usage of the system version of ``setuptools``
-   with: ``SETUPTOOLS_USE_DISTUTILS=stdlib make deb``
-
-   For more information see:
-
-   https://bugs.launchpad.net/ubuntu/+source/dput/+bug/2018519
-
-   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1003252
 
 Installing and Running the GEOPM Service
 ----------------------------------------
@@ -92,22 +83,14 @@ packaging manager (i.e. zypper or yum):
 
 .. code-block:: bash
 
-   $ sudo zypper install --allow-unsigned-rpm \
-     $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm \
-     $HOME/rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm \
-     $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm \
-     $HOME/rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
+   $ sudo zypper install --allow-unsigned-rpm $HOME/rpmbuild/RPMS/x86_64/*geopm*.rpm
 
 Or the DEB files by issuing:
 
 .. code-block:: bash
 
-   $ cd geopm/service
-   $ sudo apt install \
-     ./geopm-service_<VERSION>-1_amd64.deb \
-     ./libgeopmd2_<VERSION>-1_amd64.deb \
-     ./libgeopmd-dev_<VERSION>-1_amd64.deb \
-     ./python3-geopmdpy_<VERSION>-1_amd64.deb
+   $ cd geopm
+   $ sudo apt install $(find -name '*geopm*.deb')
 
 To start the GEOPM service and check its status issue:
 
@@ -124,11 +107,38 @@ package manager:
 
 .. code-block:: bash
 
-    sudo zypper remove geopm-service libgeopmd2 geopm-service-devel python3-geopmdpy
+    sudo systemctl stop geopm
+    sudo zypper remove geopm-runtime \
+        geopm-runtime-devel \
+        geopm-runtime-docs \
+        geopm-service \
+        geopm-service-devel \
+        geopm-service-docs \
+        libgeopm2 \
+        libgeopmd2 \
+        libgeopmd-docs \
+        libgeopm-docs \
+        python3-geopmdpy \
+        python3-geopmdpy-docs \
+        python3-geopmpy \
+        python3-geopmpy-docs
 
 Or for the DEB packages by issuing:
 
 .. code-block:: bash
 
     sudo systemctl stop geopm
-    sudo apt remove geopm-service libgeopmd2 libgeopmd-dev python3-geopmdpy
+    sudo apt remove geopm-runtime \
+        geopm-runtime-devel \
+        geopm-runtime-docs \
+        geopm-service \
+        geopm-service-devel \
+        geopm-service-docs \
+        libgeopm2 \
+        libgeopmd2 \
+        libgeopmd-docs \
+        libgeopm-docs \
+        python3-geopmdpy \
+        python3-geopmdpy-docs \
+        python3-geopmpy \
+        python3-geopmpy-docs
