@@ -77,8 +77,6 @@ EXTRA_DIST = .gitignore \
              debian/libgeopmd-dev.install \
              debian/libgeopmd2.install \
              debian/rules \
-             dox/blurb.md \
-             dox/Doxyfile.in \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
@@ -341,7 +339,7 @@ endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = doxygen rpm deb
+PHONY_TARGETS = rpm deb
 
 # INCLUDES
 check_PROGRAMS =
