@@ -118,7 +118,6 @@ EXTRA_DIST += .gitignore \
               debian/libgeopm-dev.install \
               debian/libgeopm2.install \
               debian/rules \
-              dox/Doxyfile.in \
               m4/ax_check_compile_flag.m4 \
               m4/openmp.m4 \
               geopm-runtime.spec \

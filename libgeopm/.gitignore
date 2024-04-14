@@ -15,12 +15,6 @@ compile_commands.json
 .deps/
 .dirstamp
 /debian/changelog
-/dox/Doxyfile
-/dox/html/
-/dox/latex/
-/dox-public/Doxyfile
-/dox-public/html/
-/dox-public/latex/
 /geopmadmin
 /geopmagent
 /geopmbench

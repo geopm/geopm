@@ -12,10 +12,6 @@ compile_commands.json
 const_config_test.json
 /debian/changelog
 /dist
-/dox/Doxyfile
-/dox/html
-/dox/latex
-/docs/build
 /fuzz_test/geopmhash_corpus.tar.gz
 /fuzz_test/geopmhash_corpus
 /fuzz_test/geopmhash_corpus/.dir

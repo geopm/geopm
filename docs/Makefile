@@ -8,6 +8,7 @@ mandir ?= $(datarootdir)/man
 sysconfdir ?= $(prefix)/etc
 completionsdir ?= `pkg-config --variable=completionsdir bash-completion || echo $(sysconfdir)/bash_completion.d`
 
+
 all:
 	# Do not make anything by default
 	-
@@ -16,9 +17,10 @@ man: html
 	PYTHONPATH=../geopmdpy:../geopmpy \
 	    sphinx-build -M man source build -W
 
-html:
+html: VERSION
 	PYTHONPATH=../geopmdpy:../geopmpy \
 	    sphinx-build -M html source build -W
+	./doxygen_update.sh
 
 # Nobody asked for this build target, so don't make it a build-blocker unless
 # we decide to keep it. If we choose to keep it, then be sure to ratchet in all
@@ -75,4 +77,10 @@ install_completion:
 	install -m644 shell_completion/geopmread.bash $(DESTDIR)$(completionsdir)/geopmread
 	install -m644 shell_completion/geopmwrite.bash $(DESTDIR)$(completionsdir)/geopmwrite
 
-.PHONY: all man html geopmlint clean DATE VERSION dist install_man
+install_html:
+	if [ ! -d "$(GEOPM_GITHUB_IO)" ]; then echo "Error: Set GEOPM_GITHUB_IO variable to the path of the web page git repo" 1>&2; exit -1; fi
+	cp -rp build/html/* $(GEOPM_GITHUB_IO)
+	cp -rp json_schemas/* $(GEOPM_GITHUB_IO)
+	VERSION=`cat VERSION` && cd $(GEOPM_GITHUB_IO) && git add -A && git commit -sm"Update to version $$VERSION"
+
+.PHONY: all man html geopmlint clean DATE VERSION dist install_man install_completion install_html
