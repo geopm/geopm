@@ -159,10 +159,10 @@ When building from source and configured with the `--prefix` option, the
 libraries, and binaries will not install into the standard system paths. At this
 point, you must modify your environment to specify the installed location.
 
-.. code-block:: bash
-
+```bash
     export LD_LIBRARY_PATH=$INSTALL_PREFIX/lib:$LD_LIBRARY_PATH
     export PATH=$INSTALL_PREFIX/bin:$PATH
+```
 
 ### Major GEOPM Versions
 At a high level, major GEOPM releases are summarized as follows:
