@@ -1,5 +1,5 @@
 Source: geopm-doc
-Section: utility
+Section: utils
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 Build-Depends: debhelper-compat (= 12),
