@@ -5,8 +5,8 @@ The GEOPM Service library depend on several external dependencies for
 enabling certain features. However, most of them are readily available
 in standard Linux distributions. If you intend to use only the GEOPM
 Service, all the required dependencies can be found on this page. For
-users of the GEOPM Runtime, refer to its dedicated documentation `here
-<https://geopm.github.io/runtime.html>`__ for the necessary external
+users of the GEOPM Runtime, refer to its dedicated documentation :doc:`here
+<runtime>` for the necessary external
 dependencies.
 
 Build Requirements
