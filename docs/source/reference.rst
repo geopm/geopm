@@ -72,6 +72,6 @@ GEOPM Manual Pages
 Doxygen Pages
 -------------
 
-- `GEOPM Service <https://geopm.github.io/geopm-service-dox>`_
-- `GEOPM Runtime <https://geopm.github.io/geopm-runtime-dox>`_
+- `GEOPM Service <geopm-service-dox>`_
+- `GEOPM Runtime <geopm-runtime-dox>`_
 
