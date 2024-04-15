@@ -12,4 +12,4 @@ make dist
 VERSION=$(cat VERSION)
 tar xvf geopm-doc-$VERSION.tar.gz
 cd geopm-doc-$VERSION
-dpkg-buildpackage -us -uc
+dpkg-buildpackage ${DPKG_BUILDPACKAGE_OPTIONS:-"-us -uc"}

@@ -9,5 +9,5 @@ ARCHIVE=${PACKAGE_NAME}-$(cat ${PACKAGE_NAME}/VERSION).tar.gz
 tar -xvf dist/${ARCHIVE}
 DIR=$(echo ${ARCHIVE} | sed 's|\.tar\.gz||')
 cd ${DIR}
-dpkg-buildpackage -us -uc
+dpkg-buildpackage ${DPKG_BUILDPACKAGE_OPTIONS:-"-us -uc"}
 cd -
