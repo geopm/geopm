@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["geopmpy"]
 
+[tool.setuptools.package-data]
+geopmpy = ["VERSION"]
+
 [tool.setuptools_scm]
 root = ".."
 

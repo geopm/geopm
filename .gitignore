@@ -15,7 +15,6 @@
 /gh-pages/
 /MANIFEST
 *.pyc
-VERSION
 *.dsc
 *.tar.gz
 *.deb
