@@ -167,10 +167,10 @@ jobs:
       run: make -j2 dist
     - name: make geopmdpy dist
       working-directory: geopmdpy
-      run: ./make_rpm.sh
+      run: ./make_sdist.sh
     - name: make geopmpy dist
       working-directory: geopmpy
-      run: ./make_rpm.sh
+      run: ./make_sdist.sh
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
@@ -191,7 +191,7 @@ jobs:
       working-directory: libgeopmd
       run: |
            osc co ${SERVICE_PACKAGE}
-           rm ${SERVICE_PACKAGE}/geopm-service*.tar.gz
+           rm -f ${SERVICE_PACKAGE}/geopm-service*.tar.gz
            cp geopm-service.spec ${SERVICE_PACKAGE}
            cp geopm-service*.tar.gz ${SERVICE_PACKAGE}
            cd ${SERVICE_PACKAGE}
@@ -202,7 +202,7 @@ jobs:
       working-directory: libgeopm
       run: |
            osc co ${RUNTIME_PACKAGE}
-           rm ${RUNTIME_PACKAGE}/geopm-runtime*.tar.gz
+           rm -f ${RUNTIME_PACKAGE}/geopm-runtime*.tar.gz
            cp geopm-runtime.spec ${RUNTIME_PACKAGE}
            cp geopm-runtime*.tar.gz ${RUNTIME_PACKAGE}
            cd ${RUNTIME_PACKAGE}
@@ -213,7 +213,7 @@ jobs:
       working-directory: geopmdpy
       run: |
            osc co ${GEOPMDPY_PACKAGE}
-           rm ${GEOPMDPY_PACKAGE}/geopmdpy*.tar.gz
+           rm -f ${GEOPMDPY_PACKAGE}/geopmdpy*.tar.gz
            cp geopmdpy.spec ${GEOPMDPY_PACKAGE}
            cp dist/geopmdpy*.tar.gz ${GEOPMDPY_PACKAGE}
            cd ${GEOPMDPY_PACKAGE}
@@ -221,10 +221,10 @@ jobs:
            cd -
            osc ci -m "geopmdpy ${{ github.sha }}" ${GEOPMDPY_PACKAGE}
     - name: publish geopmpy
-      working-directory: geopmdpy
+      working-directory: geopmpy
       run: |
            osc co ${GEOPMPY_PACKAGE}
-           rm ${GEOPMPY_PACKAGE}/geopmpy*.tar.gz
+           rm -f ${GEOPMPY_PACKAGE}/geopmpy*.tar.gz
            cp geopmpy.spec ${GEOPMPY_PACKAGE}
            cp dist/geopmpy*.tar.gz ${GEOPMPY_PACKAGE}
            cd ${GEOPMPY_PACKAGE}
