@@ -145,7 +145,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev python3-gi python3-yaml osc python3-m2crypto libcap-dev zlib1g-dev
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev python3-gi python3-yaml osc python3-m2crypto libcap-dev zlib1g-dev python3-build python3-setuptools_scm
     - name: install geopmpy and geopmdpy python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
@@ -165,6 +165,12 @@ jobs:
     - name: make libgeopm dist
       working-directory: libgeopm
       run: make -j2 dist
+    - name: make geopmdpy dist
+      working-directory: geopmdpy
+      run: ./make_rpm.sh
+    - name: make geopmpy dist
+      working-directory: geopmpy
+      run: ./make_rpm.sh
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
@@ -173,9 +179,13 @@ jobs:
            if [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
                echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:release/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release/geopm-runtime" >> ${GITHUB_ENV}
+               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}:release/geopmdpy" >> ${GITHUB_ENV}
+               echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}:release/geopmpy" >> ${GITHUB_ENV}
            else
                echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}/geopm-runtime" >> ${GITHUB_ENV}
+               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}/geopmdpy" >> ${GITHUB_ENV}
+               echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}/geopmpy" >> ${GITHUB_ENV}
            fi
     - name: publish libgeopmd
       working-directory: libgeopmd
@@ -199,3 +209,25 @@ jobs:
            osc addremove
            cd -
            osc ci -m "geopm runtime ${{ github.sha }}" ${RUNTIME_PACKAGE}
+    - name: publish geopmdpy
+      working-directory: geopmdpy
+      run: |
+           osc co ${GEOPMDPY_PACKAGE}
+           rm ${GEOPMDPY_PACKAGE}/geopmdpy*.tar.gz
+           cp geopmdpy.spec ${GEOPMDPY_PACKAGE}
+           cp dist/geopmdpy*.tar.gz ${GEOPMDPY_PACKAGE}
+           cd ${GEOPMDPY_PACKAGE}
+           osc addremove
+           cd -
+           osc ci -m "geopmdpy ${{ github.sha }}" ${GEOPMDPY_PACKAGE}
+    - name: publish geopmpy
+      working-directory: geopmdpy
+      run: |
+           osc co ${GEOPMPY_PACKAGE}
+           rm ${GEOPMPY_PACKAGE}/geopmpy*.tar.gz
+           cp geopmpy.spec ${GEOPMPY_PACKAGE}
+           cp dist/geopmpy*.tar.gz ${GEOPMPY_PACKAGE}
+           cd ${GEOPMPY_PACKAGE}
+           osc addremove
+           cd -
+           osc ci -m "geopmpy ${{ github.sha }}" ${GEOPMPY_PACKAGE}
