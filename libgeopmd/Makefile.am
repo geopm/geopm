@@ -316,10 +316,11 @@ rpm: dist
 	cp geopm-service.spec $(rpm_topdir)/SPECS
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
 
+DPKG_BUILDPACKAGE_OPTIONS ?= "-us -uc"
 deb: dist
 	rm -rf geopm-service-$(VERSION)
 	tar xvf geopm-service-$(VERSION).tar.gz
-	cd geopm-service-$(VERSION) && dpkg-buildpackage -us -uc
+	cd geopm-service-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
 	rm -rf geopm-service-$(VERSION)
 
 if !ENABLE_SANITIZERS
