@@ -71,20 +71,6 @@ fi
 AC_SUBST([enable_fuzz])
 AM_CONDITIONAL([ENABLE_FUZZTESTS], [test "x$enable_fuzz" = "x1"])
 
-AC_ARG_ENABLE([docs],
-  [AS_HELP_STRING([--disable-docs], [Disable the use of the Python sphinx tool to generate documentation])],
-[if test "x$enable_docs" = "xno" ; then
-  enable_docs="0"
-else
-  enable_docs="1"
-fi
-],
-[enable_docs="1"]
-)
-
-AC_SUBST([enable_docs])
-AM_CONDITIONAL([ENABLE_DOCS], [test "x$enable_docs" = "x1"])
-
 AC_ARG_ENABLE([systemd],
   [AS_HELP_STRING([--disable-systemd], [Disable the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])],
 [if test "x$enable_systemd" = "xno" ; then
@@ -339,19 +325,6 @@ if test "x$with_liburing_lib" != x; then
   AM_LDFLAGS="$AM_LDFLAGS -L$with_liburing_lib"
 fi
 
-AC_ARG_VAR([PYTHON],
-           [PYTHON the Python interpreter used to build Python modules])
-
-AC_ARG_WITH([python], [AS_HELP_STRING([--with-python=PATH],
-            [specify the path to the python interpreter])])
-if test "x$with_python" != x; then
-  PYTHON=$with_python
-else
-  # On success, sets PYTHON to a version >= the specified version
-  AM_PATH_PYTHON([3.6], [],
-                 AC_MSG_ERROR([Failed to find a python >= 3.6. Use --with-python to explicitly specify an interpreter]))
-fi
-
 AC_ARG_VAR([GEOPM_CONFIG_PATH],
            [GEOPM_CONFIG_PATH The prefix to the path where GEOPM config files are stored. Default: /etc/geopm])
 GEOPM_CONFIG_PATH=${GEOPM_CONFIG_PATH:=/etc/geopm}
@@ -564,7 +537,6 @@ AC_MSG_RESULT([LDFLAGS            : ${LDFLAGS}])
 AC_MSG_RESULT([AM_LDFLAGS         : ${AM_LDFLAGS}])
 AC_MSG_RESULT([LD_LIBRARY_PATH    : ${LD_LIBRARY_PATH}])
 AC_MSG_RESULT([LIBS               : ${LIBS}])
-AC_MSG_RESULT([PYTHON             : ${PYTHON}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([prefix             : ${prefix}])
 AC_MSG_RESULT([exec_prefix        : ${exec_prefix}])
@@ -578,7 +550,6 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
-AC_MSG_RESULT([docs               : ${enable_docs}])
 AC_MSG_RESULT([dcgm               : ${enable_dcgm}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([levelzero          : ${enable_levelzero}])

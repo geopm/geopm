@@ -9,8 +9,6 @@ check_PROGRAMS += test/geopm_test \
 test_isadmin_SOURCES = test/isadmin.cpp
 test_isadmin_LDADD = libgeopmd.la
 
-TESTS_ENVIRONMENT = PYTHON='$(PYTHON)'
-
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
                   $(top_srcdir)/build-aux/tap-driver.sh
 

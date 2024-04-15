@@ -8,8 +8,6 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
-TESTS_ENVIRONMENT = PYTHON='$(PYTHON)'
-
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
 				  $(top_srcdir)/build-aux/tap-driver.sh
 TESTS += test/geopm_test.test \

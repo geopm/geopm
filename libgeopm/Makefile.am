@@ -122,11 +122,6 @@ EXTRA_DIST += .gitignore \
               m4/openmp.m4 \
               geopm-runtime.spec \
               geopm-runtime.spec.in \
-              test_hw/Makefile \
-              test_hw/geopm_time.h \
-              test_hw/rapl_pkg_limit_plot.py \
-              test_hw/rapl_pkg_limit_sweep.sh \
-              test_hw/rapl_pkg_limit_test.c \
               # end
 
 if HAVE_ICX
