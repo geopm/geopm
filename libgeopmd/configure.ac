@@ -13,7 +13,6 @@ AC_CONFIG_MACRO_DIR([m4])
 geopm_abi_version=2:0:0
 AC_SUBST(geopm_abi_version)
 AC_DEFINE_UNQUOTED([GEOPM_ABI_VERSION], ["$geopm_abi_version"], [GEOPM shared object version])
-AC_DEFINE([GEOPM_SERVICE_BUILD], [], [Building objects used by geopm-service])
 
 DATE=`LANG=C date -R`
 AC_SUBST(DATE)
