@@ -170,7 +170,7 @@ jobs:
       run: ./make_sdist.sh
     - name: make docs dist
       working-directory: docs
-      run: make dist
+      run: python3 -m pip install -r requirements.txt && make dist
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
