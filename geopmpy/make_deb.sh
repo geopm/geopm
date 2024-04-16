@@ -11,5 +11,3 @@ DIR=$(echo ${ARCHIVE} | sed 's|\.tar\.gz||')
 cd ${DIR}
 dpkg-buildpackage -us -uc
 cd -
-
-echo "0.0.0" > ${PACKAGE_NAME}/VERSION
