@@ -38,12 +38,12 @@ software.  On Ubuntu, these packages are build in the tree:
 
 .. code-block:: bash
 
-    ./docs/geopm-runtime-docs_<VERSION>-1_all.deb
-    ./docs/geopm-service-docs_<VERSION>-1_all.deb
-    ./docs/libgeopmd-docs_<VERSION>-1_all.deb
-    ./docs/libgeopm-docs_<VERSION>-1_all.deb
-    ./docs/python3-geopmdpy-docs_<VERSION>-1_all.deb
-    ./docs/python3-geopmpy-docs_<VERSION>-1_all.deb
+    ./docs/geopm-runtime-doc_<VERSION>-1_all.deb
+    ./docs/geopm-service-doc_<VERSION>-1_all.deb
+    ./docs/libgeopmd-doc_<VERSION>-1_all.deb
+    ./docs/libgeopm-doc_<VERSION>-1_all.deb
+    ./docs/python3-geopmdpy-doc_<VERSION>-1_all.deb
+    ./docs/python3-geopmpy-doc_<VERSION>-1_all.deb
     ./geopmdpy/python3-geopmdpy_<VERSION>-1_all.deb
     ./geopmpy/python3-geopmpy_<VERSION>-1_all.deb
     ./libgeopmd/geopm-service_<VERSION>-1_amd64.deb
@@ -61,18 +61,18 @@ In RPM based operating systems the RPMs are created in the rpmbuild root
 
     ./rpmbuild/RPMS/x86_64/geopm-runtime-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/geopm-runtime-devel-<VERSION>-1.x86_64.rpm
-    ./rpmbuild/RPMS/x86_64/geopm-runtime-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-runtime-doc-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm
-    ./rpmbuild/RPMS/x86_64/geopm-service-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/geopm-service-doc-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/libgeopm2-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/libgeopmd2-<VERSION>-1.x86_64.rpm
-    ./rpmbuild/RPMS/x86_64/libgeopmd-docs-<VERSION>-1.x86_64.rpm
-    ./rpmbuild/RPMS/x86_64/libgeopm-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/libgeopmd-doc-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/libgeopm-doc-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
-    ./rpmbuild/RPMS/x86_64/python3-geopmdpy-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/python3-geopmdpy-doc-<VERSION>-1.x86_64.rpm
     ./rpmbuild/RPMS/x86_64/python3-geopmpy-<VERSION>-1.x86_64.rpm
-    ./rpmbuild/RPMS/x86_64/python3-geopmpy-docs-<VERSION>-1.x86_64.rpm
+    ./rpmbuild/RPMS/x86_64/python3-geopmpy-doc-<VERSION>-1.x86_64.rpm
 
 
 Installing and Running the GEOPM Service
@@ -110,18 +110,18 @@ package manager:
     sudo systemctl stop geopm
     sudo zypper remove geopm-runtime \
         geopm-runtime-devel \
-        geopm-runtime-docs \
+        geopm-runtime-doc \
         geopm-service \
         geopm-service-devel \
-        geopm-service-docs \
+        geopm-service-doc \
         libgeopm2 \
         libgeopmd2 \
-        libgeopmd-docs \
-        libgeopm-docs \
+        libgeopmd-doc \
+        libgeopm-doc \
         python3-geopmdpy \
-        python3-geopmdpy-docs \
+        python3-geopmdpy-doc \
         python3-geopmpy \
-        python3-geopmpy-docs
+        python3-geopmpy-doc
 
 Or for the DEB packages by issuing:
 
@@ -130,15 +130,15 @@ Or for the DEB packages by issuing:
     sudo systemctl stop geopm
     sudo apt remove geopm-runtime \
         geopm-runtime-devel \
-        geopm-runtime-docs \
+        geopm-runtime-doc \
         geopm-service \
         geopm-service-devel \
-        geopm-service-docs \
+        geopm-service-doc \
         libgeopm2 \
         libgeopmd2 \
-        libgeopmd-docs \
-        libgeopm-docs \
+        libgeopmd-doc \
+        libgeopm-doc \
         python3-geopmdpy \
-        python3-geopmdpy-docs \
+        python3-geopmdpy-doc \
         python3-geopmpy \
-        python3-geopmpy-docs
+        python3-geopmpy-doc

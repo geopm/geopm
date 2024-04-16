@@ -1,12 +1,12 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: geopm-docs
+Upstream-Name: geopm-doc
 Upstream-Contact: <preferred name and address to reach the upstream project>
 Source: <url://example.com>
 #
 # Please double check copyright with the licensecheck(1) command.
 
 Files:     .gitignore
-           geopm-docs-.tar.gz
+           geopm-doc-.tar.gz
            json_data/msr_data_arch.json
            json_data/msr_data_hsx.json
            json_data/msr_data_knl.json
