@@ -31,7 +31,7 @@ usage(){
     echo "    GEOPM_GLOBAL_CONFIG_OPTIONS=\"--enable-debug --enable-coverage\" GEOPM_RUN_TESTS=yes ./build.sh"
     echo "    GEOPM_RUNTIME_CONFIG_OPTIONS=\"--enable-beta\" ./build.sh"
     echo "    GEOPM_SERVICE_CONFIG_OPTIONS=\"--enable-levelzero\" ./build.sh"
-    echo "    GEOPM_SKIP_SERVICE_INSTALL=yes GEOPM_SERVICE_CONFIG_OPTIONS=\"--disable-systemd --disable-docs\" integration/config/build.sh"
+    echo "    GEOPM_SKIP_SERVICE_INSTALL=yes GEOPM_SERVICE_CONFIG_OPTIONS=\"--disable-systemd\" integration/config/build.sh"
 }
 
 if [[ ${1} == '--help' ]]; then
