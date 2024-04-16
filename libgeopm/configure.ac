@@ -364,6 +364,19 @@ AC_SUBST([MPI_FLIBS])
 [AM_LDFLAGS="$AM_LDFLAGS $OPENMP_CXXFLAGS"]
 [AM_CPPFLAGS="$AM_CPPFLAGS $MPI_CXXFLAGS"]
 
+# Checks for programs.
+AC_PROG_AWK
+AC_PROG_CXX
+AC_PROG_CC
+if test "x$enable_fortran" = "x1"; then
+AC_PROG_FC
+AC_PROG_F77
+fi
+AC_PROG_MAKE_SET
+m4_pattern_allow([AM_PROG_AR])
+AM_PROG_AR
+LT_INIT
+
 # LDFLAGS must be set properly for the below AC_CHECK_LIB calls
 [LDFLAGS_SAVE="$LDFLAGS"]
 [LDFLAGS="$AM_LDFLAGS"]
@@ -384,19 +397,6 @@ AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
 AC_SEARCH_LIBS([shm_open], [rt])
 AC_SEARCH_LIBS([shm_unlink], [rt])
 AC_SEARCH_LIBS([dlopen], [dl dld])
-
-# Checks for programs.
-AC_PROG_AWK
-AC_PROG_CXX
-AC_PROG_CC
-if test "x$enable_fortran" = "x1"; then
-AC_PROG_FC
-AC_PROG_F77
-fi
-AC_PROG_MAKE_SET
-m4_pattern_allow([AM_PROG_AR])
-AM_PROG_AR
-LT_INIT
 
 m4_include([m4/ax_check_compile_flag.m4])
 AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
