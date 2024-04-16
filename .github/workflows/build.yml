@@ -147,6 +147,7 @@ jobs:
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r geopmdpy/requirements.txt
+           python3 -m pip install -r docs/requirements.txt
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure || (cat config.log && false)
@@ -170,7 +171,7 @@ jobs:
       run: ./make_sdist.sh
     - name: make docs dist
       working-directory: docs
-      run: python3 -m pip install -r requirements.txt && make dist
+      run: make dist
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
