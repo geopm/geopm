@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Creates all of the RPM or Debian packages in the repository
 
 if grep -i ubuntu /etc/os-release || grep -i debian /etc/os-release; then
     pkg=deb
@@ -10,7 +12,7 @@ set -e
 
 for cdir in libgeopmd libgeopm; do 
     cd $cdir
-    ./autogen.sh && ./configure && make $pkg
+    ./autogen.sh && ./configure --disable-mpi --disable-openmp && make $pkg
     cd -
 done
 

@@ -31,7 +31,7 @@ geopmlint:
 	    sphinx-build -M geopmlint source build
 
 clean_all:
-	rm -rf docs/build VERSION DATE debian/changelog geopm-docs-*
+	rm -rf build VERSION DATE debian/changelog geopm-docs-* geopm-docs.spec dox/libgeopmd dox/libgeopm
 
 VERSION:
 	python3 -c "from setuptools_scm import get_version; print(get_version('..'))" > $@
@@ -43,6 +43,7 @@ dist: man VERSION DATE
 	VERSION=`cat VERSION` && DATE=`cat DATE` && \
 	cat debian/changelog.in | sed -e "s|@VERSION@|$$VERSION|g" \
 	                              -e "s|@DATE@|$$DATE|g" > debian/changelog && \
+	sed -e "s|@ARCHIVE@|geopm-docs-$$VERSION|" -e "s|@VERSION@|$$VERSION|" geopm-docs.spec.in > geopm-docs.spec && \
 	cd .. && tar --transform="s|docs|geopm-docs-$$VERSION|" -h -zcvf geopm-docs-$$VERSION.tar.gz docs && \
 	mv geopm-docs-$$VERSION.tar.gz docs
 
