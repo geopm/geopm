@@ -8,7 +8,6 @@
 #include "geopm/MSRIOGroup.hpp"
 
 #include <stdlib.h>
-#include <cpuid.h>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
@@ -41,6 +40,10 @@
 #include "SaveControl.hpp"
 #include "SecurePath.hpp"
 #include "geopm/Cpuid.hpp"
+
+#ifdef GEOPM_ENABLE_CPUID
+#include <cpuid.h>
+#endif
 
 using json11::Json;
 
@@ -960,6 +963,9 @@ namespace geopm
     int MSRIOGroup::cpuid(void)
     {
         static geopm::DeprecationWarning warn(__func__, "use Cpuid->cpuid() instead");
+#ifndef GEOPM_ENABLE_CPUID
+        return 0;
+#else
         uint32_t key = 1; //processor features
         uint32_t proc_info = 0;
         uint32_t model;
@@ -988,6 +994,7 @@ namespace geopm
         }
 
         return ((family << 8) + model);
+#endif
     }
 
     void MSRIOGroup::register_signal_alias(const std::string &signal_name,
