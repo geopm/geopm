@@ -146,7 +146,6 @@ jobs:
     - name: install geopmpy and geopmdpy python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
-           python3 -m pip install -r geopmdpy/requirements.txt
            python3 -m pip install -r docs/requirements.txt
     - name: configure libgeopmd dir
       working-directory: libgeopmd
