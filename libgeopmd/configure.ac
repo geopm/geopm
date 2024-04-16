@@ -358,7 +358,6 @@ AC_PROG_CC
 AC_PROG_MAKE_SET
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
-AM_PROG_CC_C_O
 LT_INIT
 
 m4_include([m4/ax_check_compile_flag.m4])
