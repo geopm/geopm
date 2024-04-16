@@ -1,6 +1,6 @@
 /build
-/geopm-docs-*/
-/geopm-docs.spec
+/geopm-doc-*/
+/geopm-doc.spec
 /debian/changelog
 /DATE
 /dox

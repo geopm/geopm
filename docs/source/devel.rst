@@ -198,7 +198,7 @@ Introducing a new man page requires changes in multiple files:
    The build target (man page) should be added to rst_file in conf.py
 #.
    The gzipped installed man page should be listed in the %files section of
-   geopm-docs.spec.in
+   geopm-doc.spec.in
 #.
    A link to the new html page should be added to the SEE ALSO section of
    geopm.7.rst and any other related man pages.

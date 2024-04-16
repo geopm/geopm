@@ -1,4 +1,4 @@
-Source: geopm-docs
+Source: geopm-doc
 Section: utility
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
@@ -8,32 +8,32 @@ Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
 
-Package: python3-geopmdpy-docs
+Package: python3-geopmdpy-doc
 Architecture: all
 Depends:
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopmdpy)
 
-Package: python3-geopmpy-docs
+Package: python3-geopmpy-doc
 Architecture: all
 Depends: bash-completion
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopmpy)
 
-Package: geopm-service-docs
+Package: geopm-service-doc
 Architecture: all
 Depends: bash-completion
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopm-service)
 
-Package: geopm-runtime-docs
+Package: geopm-runtime-doc
 Architecture: all
 Depends:
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopm-runtime)
 
-Package: libgeopmd-docs
+Package: libgeopmd-doc
 Architecture: all
 Depends:
 Description: GEOPM - Global Extensible Open Power Manager Documentation (libgeopmd)
 
-Package: libgeopm-docs
+Package: libgeopm-doc
 Architecture: all
 Depends:
 Description: GEOPM - Global Extensible Open Power Manager Documentation (libgeopm)

@@ -17,7 +17,7 @@
 #    non-standard prefix.
 
 Summary: Global Extensible Open Power Manager Documentation
-Name: geopm-docs
+Name: geopm-doc
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
@@ -28,8 +28,8 @@ Group: System Environment/Daemons
 Group: System/Daemons
 %endif
 URL: https://geopm.github.io
-Source0: geopm-docs-%{version}.tar.gz
-BuildRoot: %{_tmppath}/geopm-docs-%{version}-%{release}-root
+Source0: geopm-doc-%{version}.tar.gz
+BuildRoot: %{_tmppath}/geopm-doc-%{version}-%{release}-root
 Prefix: %{_prefix}
 %if 0%{?suse_version}
 BuildRequires: bash-completion-devel
@@ -45,40 +45,40 @@ BuildRequires: bash-completion
 %description
 Man pages for geopm packages
 
-%package  -n geopm-runtime-docs
+%package  -n geopm-runtime-doc
 Summary: Global Extensible Open Power Manager Runtime Documentation
 Group: Documentation
-%description -n geopm-runtime-docs
+%description -n geopm-runtime-doc
 Man pages for geopm-runtime package
 
-%package  -n geopm-service-docs
+%package  -n geopm-service-doc
 Summary: Global Extensible Open Power Manager Service Documentation
 Group: Documentation
-%description -n geopm-service-docs
+%description -n geopm-service-doc
 Man pages for geopm-service package
 
-%package  -n libgeopmd-docs
+%package  -n libgeopmd-doc
 Summary: Global Extensible Open Power Manager Service Library Documentation
 Group: Documentation
-%description -n libgeopmd-docs
+%description -n libgeopmd-doc
 Man pages for libgeopmd package
 
-%package  -n libgeopm-docs
+%package  -n libgeopm-doc
 Summary: Global Extensible Open Power Manager Runtime Library Documentation
 Group: Documentation
-%description -n libgeopm-docs
+%description -n libgeopm-doc
 Man pages for libgeopm package
 
-%package  -n python3-geopmdpy-docs
+%package  -n python3-geopmdpy-doc
 Summary: Global Extensible Open Power Manager Service Python Documentation
 Group: Documentation
-%description -n python3-geopmdpy-docs
+%description -n python3-geopmdpy-doc
 Man pages for python3-geopmdpy package
 
-%package  -n python3-geopmpy-docs
+%package  -n python3-geopmpy-doc
 Summary: Global Extensible Open Power Manager Runtime Python Documentation
 Group: Documentation
-%description -n python3-geopmpy-docs
+%description -n python3-geopmpy-doc
 Man pages for python3-geopmpy package
 
 %prep
@@ -93,7 +93,7 @@ Man pages for python3-geopmpy package
 %clean
 
 # Installed files
-%files -n geopm-runtime-docs
+%files -n geopm-runtime-doc
 %defattr(-,root,root,-)
 %doc %{_mandir}/man1/geopmadmin.1.gz
 %doc %{_mandir}/man1/geopmagent.1.gz
@@ -103,7 +103,7 @@ Man pages for python3-geopmpy package
 %doc %{_mandir}/man7/geopm_agent_power_balancer.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_governor.7.gz
 
-%files -n geopm-service-docs
+%files -n geopm-service-doc
 %defattr(-,root,root,-)
 %doc %{_mandir}/man1/geopmread.1.gz
 %doc %{_mandir}/man1/geopmwrite.1.gz
@@ -125,7 +125,7 @@ Man pages for python3-geopmpy package
 %{completionsdir}/geopmread
 %{completionsdir}/geopmwrite
 
-%files -n libgeopmd-docs
+%files -n libgeopmd-doc
 %doc %{_mandir}/man3/geopm::Agg.3.gz
 %doc %{_mandir}/man3/geopm::CNLIOGroup.3.gz
 %doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
@@ -150,7 +150,7 @@ Man pages for python3-geopmpy package
 %doc %{_mandir}/man3/geopm_topo.3.gz
 %doc %{_mandir}/man3/geopm_version.3.gz
 
-%files -n libgeopm-docs
+%files -n libgeopm-doc
 %doc %{_mandir}/man3/geopm::Agent.3.gz
 %doc %{_mandir}/man3/geopm::PowerBalancer.3.gz
 %doc %{_mandir}/man3/geopm::PowerGovernor.3.gz
@@ -159,12 +159,12 @@ Man pages for python3-geopmpy package
 %doc %{_mandir}/man3/geopm_imbalancer.3.gz
 %doc %{_mandir}/man3/geopm_prof.3.gz
 
-%files -n python3-geopmdpy-docs
+%files -n python3-geopmdpy-doc
 %doc %{_mandir}/man1/geopmaccess.1.gz
 %doc %{_mandir}/man1/geopmsession.1.gz
 %doc %{_mandir}/man7/geopmdpy.7.gz
 
-%files -n python3-geopmpy-docs
+%files -n python3-geopmpy-doc
 %doc %{_mandir}/man1/geopmlaunch.1.gz
 %doc %{_mandir}/man7/geopmpy.7.gz
 %{completionsdir}/geopmlaunch

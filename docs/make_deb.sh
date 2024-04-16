@@ -10,6 +10,6 @@ set -xe
 make clean_all
 make dist
 VERSION=$(cat VERSION)
-tar xvf geopm-docs-$VERSION.tar.gz
-cd geopm-docs-$VERSION
+tar xvf geopm-doc-$VERSION.tar.gz
+cd geopm-doc-$VERSION
 dpkg-buildpackage -us -uc

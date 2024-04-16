@@ -1,4 +1,4 @@
-geopm-docs (@VERSION@-1) jammy; urgency=low
+geopm-doc (@VERSION@-1) jammy; urgency=low
 
   * Update to version @VERSION@
 
