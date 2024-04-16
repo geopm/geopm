@@ -5,9 +5,9 @@ if [ $0 != './make_deb.sh' ]; then
     exit -1
 fi
 
-set -e
+set -xe
 
-make clean
+make clean_all
 make dist
 VERSION=$(cat VERSION)
 tar xvf geopm-docs-$VERSION.tar.gz

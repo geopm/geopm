@@ -129,9 +129,6 @@ jobs:
       run: |
            cat ./*/test/test-suite.log || true
            cat integration/service/open_pbs/*.log || true
-    - name: Build Documentation
-      working-directory: docs
-      run: make
   publish_obs:
     if: github.event_name == 'push'
     needs: build_and_test
@@ -171,6 +168,9 @@ jobs:
     - name: make geopmpy dist
       working-directory: geopmpy
       run: ./make_sdist.sh
+    - name: make docs dist
+      working-directory: docs
+      run: make dist
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
@@ -181,11 +181,13 @@ jobs:
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release/geopm-runtime" >> ${GITHUB_ENV}
                echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}:release/geopmdpy" >> ${GITHUB_ENV}
                echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}:release/geopmpy" >> ${GITHUB_ENV}
+               echo "DOCS_PACKAGE=home:${{ github.repository_owner }}:release/geopm-docs" >> ${GITHUB_ENV}
            else
                echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}/geopm-runtime" >> ${GITHUB_ENV}
                echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}/geopmdpy" >> ${GITHUB_ENV}
                echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}/geopmpy" >> ${GITHUB_ENV}
+               echo "DOCS_PACKAGE=home:${{ github.repository_owner }}/geopm-docs" >> ${GITHUB_ENV}
            fi
     - name: publish libgeopmd
       working-directory: libgeopmd
@@ -231,3 +233,14 @@ jobs:
            osc addremove
            cd -
            osc ci -m "geopmpy ${{ github.sha }}" ${GEOPMPY_PACKAGE}
+    - name: publish docs
+      working-directory: docs
+      run: |
+           osc co ${DOCS_PACKAGE}
+           rm -f ${DOCS_PACKAGE}/geopm-docs*.tar.gz
+           cp geopm-docs.spec ${DOCS_PACKAGE}
+           cp dist/geopm-docs*.tar.gz ${DOCS_PACKAGE}
+           cd ${DOCS_PACKAGE}
+           osc addremove
+           cd -
+           osc ci -m "geopm-docs ${{ github.sha }}" ${DOCS_PACKAGE}
