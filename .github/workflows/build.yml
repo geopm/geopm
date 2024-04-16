@@ -241,7 +241,7 @@ jobs:
            osc co ${DOCS_PACKAGE}
            rm -f ${DOCS_PACKAGE}/geopm-docs*.tar.gz
            cp geopm-docs.spec ${DOCS_PACKAGE}
-           cp dist/geopm-docs*.tar.gz ${DOCS_PACKAGE}
+           cp geopm-docs*.tar.gz ${DOCS_PACKAGE}
            cd ${DOCS_PACKAGE}
            osc addremove
            cd -
