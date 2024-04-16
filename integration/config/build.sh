@@ -147,22 +147,21 @@ else
     build "${GEOPM_RUNTIME_CONFIG_OPTIONS}" ${GEOPM_SKIP_RUNTIME_INSTALL}
 fi
 
+cd ${GEOPM_SOURCE}
+
 # Build/Install geopmdpy
 if [ -z ${GEOPM_SKIP_SERVICE_INSTALL} ]; then
-    cd ${GEOPM_SOURCE}/geopmdpy
-    python3 -m build
-    python3 -m pip install --user dist/geopmdpy-*.whl
+    python3 -m pip install ./geopmdpy
 fi
 
 # Build/Install geopmpy
 if [ -z ${GEOPM_SKIP_RUNTIME_INSTALL} ]; then
-    cd ${GEOPM_SOURCE}/geopmpy
-    python3 -m build
-    python3 -m pip install --user dist/geopmpy-*.whl
+    python3 -m pip install ./geopmpy
 fi
 
 # Build the integration tests, apps, and other examples
 cd ${GEOPM_SOURCE}/integration
+unset GEOPM_RUN_TESTS # integration/Makefile.am has no checkprogs or check targets
 
 if [ ! -z ${GEOPM_OBJDIR} ]; then
     build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
