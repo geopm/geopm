@@ -156,6 +156,7 @@ fi
 ],
 [enable_geopmd_local="1"]
 )
+AM_CONDITIONAL([ENABLE_GEOPMD_LOCAL], [test "x$enable_geopmd_local" = "x1"])
 
 if test "x$enable_geopmd_local" = "x1"; then
   GEOPMD_INCLUDE="$srcdir/../libgeopmd/include"
@@ -167,15 +168,29 @@ if test "x$enable_geopmd_local" = "x1"; then
   AC_SUBST([GEOPMD_INCLUDE])
 fi
 
-GEOPM_INCLUDE="$srcdir/../libgeopm/include"
-GEOPM_LIBDIR="$srcdir/../libgeopm/.libs"
-GEOPM_FC_INCLUDE="$srcdir/../libgeopm"
-AM_FCFLAGS="-I$GEOPM_FC_INCLUDE"
-AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPM_INCLUDE"
-LD_LIBRARY_PATH="$GEOPM_LIBDIR:$LD_LIBRARY_PATH"
-AM_LDFLAGS="$AM_LDFLAGS -L$GEOPM_LIBDIR"
-AC_SUBST([GEOPM_LIBDIR])
-AC_SUBST([GEOPM_INCLUDE])
+AC_ARG_ENABLE([geopm-local],
+  [AS_HELP_STRING([--disable-geopm-local],
+  [Use installed libgeopm package, do not use in place build of the libgeopm directory.])],
+[if test "x$enable_geopm_local" = "xno" ; then
+  enable_geopm_local="0"
+else
+  enable_geopm_local="1"
+fi
+],
+[enable_geopm_local="1"]
+)
+
+if test "x$enable_geopm_local" = "x1"; then
+  GEOPM_INCLUDE="$srcdir/../libgeopm/include"
+  GEOPM_LIBDIR="$srcdir/../libgeopm/.libs"
+  GEOPM_FC_INCLUDE="$srcdir/../libgeopm"
+  AM_FCFLAGS="-I$GEOPM_FC_INCLUDE"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$GEOPM_INCLUDE"
+  LD_LIBRARY_PATH="$GEOPM_LIBDIR:$LD_LIBRARY_PATH"
+  AM_LDFLAGS="$AM_LDFLAGS -L$GEOPM_LIBDIR"
+  AC_SUBST([GEOPM_LIBDIR])
+  AC_SUBST([GEOPM_INCLUDE])
+fi
 
 # This must stay below the geopm-local block above
 AC_ARG_WITH([geopmd], [AS_HELP_STRING([--with-geopmd=PATH],
@@ -419,10 +434,13 @@ AC_CHECK_LIB([geopm], [geopm_prof_region], [], [
     exit -1])
 
 
-AC_SEARCH_LIBS([geopm_prof_region], [geopmfort])
-AC_CHECK_LIB([geopmfort], [geopm_prof_region], [], [
-    echo "missing libgeopmfort: Install the geopm-runtime and use --with-geopm or --with-geopm-lib to specify location"
-    exit -1])
+if test "x$enable_fortran" = "x1"; then
+    AC_SEARCH_LIBS([geopm_prof_region], [geopmfort])
+    AC_CHECK_LIB([geopmfort], [geopm_prof_region], [], [
+        echo "missing libgeopmfort: Specify --disable-fortran or install the geopm-runtime and use --with-geopm or --with-geopm-lib to specify location"
+        exit -1])
+fi
+
 
 AC_CHECK_HEADER([geopm_prof.h], [], [
     echo "missing geopm_prof.h: Install the geopm-runtime and use --with-geopm or --with-geopm-include to specify location"
