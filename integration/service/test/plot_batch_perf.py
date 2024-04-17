@@ -48,4 +48,5 @@ for ax in g.axes.flat:
     ax.xaxis.set_minor_locator(locmin)
     ax.yaxis.set_major_formatter(mtick.EngFormatter('s'))
 g.tight_layout()
+g.set_titles(col_template='{col_name}')
 g.savefig(args.plot_path, bbox_inches='tight')
