@@ -26,3 +26,4 @@ include experiment/Makefile.mk
 include test/Makefile.mk
 include test_skipped/Makefile.mk
 include smoke/Makefile.mk
+include service/Makefile.mk

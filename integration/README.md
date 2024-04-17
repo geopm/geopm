@@ -40,9 +40,25 @@ Subdirectories:
 
 Prerequisites
 -------------
-Prior to running these tests for the first time, users must setup their
-environment.  Edit your `~/.bashrc` (or other shell initialization file) to
-include the following:
+Prior to running these tests for the first time, users must:
+
+1. Build and install `libgeopm`, `libgeopmd`, `geopmpy`, and `libgeopmdpy`
+2. Build any binaries used by the integration tests
+3. Setup test environment variables
+
+Follow the build and installation steps outlined in the `libgeopm`,
+`libgeopmd`, `geopmpy`, and `libgeopmdpy` READMEs.
+
+Build the integration tests by running:
+
+```
+./autogen.sh
+./configure
+make -j
+```
+
+Setup the test environment by editing your `~/.bashrc` (or other shell
+initialization file) to include the following:
 
 * `.bashrc` *(optional)*: If you will be sourcing `run_env.sh` before your
   test, modifying your `.bashrc` is not necessary.  To always source your
