@@ -47,8 +47,8 @@ ExampleIOGroup::ExampleIOGroup()
                         {"STDERR",              M_CONTROL_STDERR}}     // alias for EXAMPLE::STDERR
     , m_do_read(M_NUM_SIGNAL + M_NUM_CONTROL, false)
     , m_do_write(M_NUM_CONTROL, false)
-    , m_signal_value(M_NUM_SIGNAL + M_NUM_CONTROL)
-    , m_control_value(M_NUM_CONTROL)
+    , m_signal_value(M_NUM_SIGNAL + M_NUM_CONTROL, 0.0)
+    , m_control_value(M_NUM_CONTROL, 0.0)
 {
 
 }
@@ -295,7 +295,7 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    double result = NAN;
+    double result = 0.0;
     std::vector<std::string> cpu_val = parse_proc_stat();
     int signal_idx = get_signal_index(signal_name);
     switch (signal_idx) {
@@ -312,10 +312,6 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
             result = std::stod(cpu_val[4]);
             break;
         default:
-#ifdef GEOPM_DEBUG
-            throw Exception("ExampleIOGroup::read_signal: Invalid signal index or name: " + signal_name,
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
             break;
     }
     return result;
@@ -347,10 +343,6 @@ void ExampleIOGroup::write_control(const std::string &control_name, int domain_t
             std::cerr << setting << std::endl;
             break;
         default:
-#ifdef GEOPM_DEBUG
-            throw Exception("ExampleIOGroup::write_control: Invalid control index or name: " + control_name,
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
             break;
     }
 }
