@@ -375,7 +375,6 @@ fi
 AC_PROG_MAKE_SET
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
-LT_INIT
 
 # LDFLAGS must be set properly for the below AC_CHECK_LIB calls
 [LDFLAGS_SAVE="$LDFLAGS"]
@@ -390,6 +389,8 @@ LT_INIT
 [CXXFLAGS="$AM_CXXFLAGS"]
 [CPPFLAGS="$AM_CPPFLAGS"]
 [FCFLAGS="$AM_FCFLAGS"]
+
+LT_INIT
 
 AC_CHECK_FUNC([sched_getaffinity],[enable_sched="1"],[enable_sched="0"])
 AM_CONDITIONAL([ENABLE_SCHED], [test "x$enable_sched" = "x1"])
