@@ -39,7 +39,7 @@ void ProxyEpochRecordFilterTest::SetUp()
         geopm::EVENT_EPOCH_COUNT,
     };
     m_tutorial_2_prof_trace_path = GEOPM_SOURCE_DIR;
-    m_tutorial_2_prof_trace_path += "libgeopm/test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace";
+    m_tutorial_2_prof_trace_path += "/test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace";
 }
 
 TEST_F(ProxyEpochRecordFilterTest, simple_conversion)
