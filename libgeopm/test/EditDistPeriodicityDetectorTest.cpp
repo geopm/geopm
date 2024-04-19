@@ -27,7 +27,7 @@ class EditDistPeriodicityDetectorTest : public ::testing::Test
 void EditDistPeriodicityDetectorTest::SetUp()
 {
     m_trace_file_prefix = GEOPM_SOURCE_DIR;
-    m_trace_file_prefix += "/test/EditDistPeriodicityDetectorTest.";
+    m_trace_file_prefix += "libgeopm/test/EditDistPeriodicityDetectorTest.";
 }
 
 void check_vals(std::string trace_file_path, int warmup, int period, int history_size=20);

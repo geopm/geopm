@@ -140,8 +140,8 @@ CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}" ${GEOPM_SKIP_SERVICE_INST
 cd ${GEOPM_SOURCE}/libgeopm
 
 if [ ! -z ${GEOPM_OBJDIR} ]; then
-    build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
-           --with-geopmd-include=${GEOPM_SOURCE}/service/src \
+    build "--with-geopmd-lib=${GEOPM_SOURCE}/libgeopmd/${GEOPM_OBJDIR}/.libs \
+           --with-geopmd-include=${GEOPM_SOURCE}/libgeopmd/src \
            ${GEOPM_RUNTIME_CONFIG_OPTIONS}" ${GEOPM_SKIP_RUNTIME_INSTALL}
 else
     build "${GEOPM_RUNTIME_CONFIG_OPTIONS}" ${GEOPM_SKIP_RUNTIME_INSTALL}
@@ -164,8 +164,8 @@ cd ${GEOPM_SOURCE}/integration
 unset GEOPM_RUN_TESTS # integration/Makefile.am has no checkprogs or check targets
 
 if [ ! -z ${GEOPM_OBJDIR} ]; then
-    build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
-           --with-geopmd-include=${GEOPM_SOURCE}/service/src \
+    build "--with-geopmd-lib=${GEOPM_SOURCE}/libgeopmd/${GEOPM_OBJDIR}/.libs \
+           --with-geopmd-include=${GEOPM_SOURCE}/libgeopmd/src \
            ${GEOPM_RUNTIME_CONFIG_OPTIONS}" true
 else
     build "${GEOPM_RUNTIME_CONFIG_OPTIONS}" true
