@@ -50,7 +50,7 @@ void EditDistEpochRecordFilterTest::SetUp()
         geopm::EVENT_EPOCH_COUNT,
     };
     m_trace_file_prefix = GEOPM_SOURCE_DIR;
-    m_trace_file_prefix += "/test/EditDistPeriodicityDetectorTest.";
+    m_trace_file_prefix += "libgeopm/test/EditDistPeriodicityDetectorTest.";
 }
 
 /*
