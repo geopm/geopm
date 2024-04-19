@@ -49,14 +49,15 @@ noinst_PROGRAMS += service/test/test_batch_interface \
 noinst_PROGRAMS += service/test/test_batch_server \
 		    #end
 service_test_test_batch_server_SOURCES = service/test/test_batch_server.cpp
-service_test_test_batch_server_LDADD = libgeopmd.la
+service_test_test_batch_server_CXXFLAGS = $(CXXFLAGS) -I../libgeopmd/src -fPIC -fPIE
+service_test_test_batch_server_LDADD = ../libgeopmd/libgeopmd.la
 
 service_test_test_batch_interface_SOURCES = service/test/test_batch_interface.cpp
-service_test_test_batch_interface_LDADD = libgeopmd.la
+service_test_test_batch_interface_LDADD = ../libgeopmd/libgeopmd.la
 
 service_test_test_invalid_values_SOURCES = service/test/test_invalid_values.cpp
 service_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) -fPIC -fPIE $(FASTMATH)
-service_test_test_invalid_values_LDADD = libgeopmd.la
+service_test_test_invalid_values_LDADD = ../libgeopmd/libgeopmd.la
 
 service_test_test_batch_perf_SOURCES = service/test/test_batch_perf.cpp
-service_test_test_batch_perf_LDADD = libgeopmd.la
+service_test_test_batch_perf_LDADD = ../libgeopmd/libgeopmd.la
