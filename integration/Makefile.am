@@ -21,6 +21,16 @@ EXTRA_DIST = README.md \
               # end
 noinst_PROGRAMS =
 
+if HAVE_ICX
+    MATH_CLDFLAGS = -lm -qmkl
+    MATH_CFLAGS = -xAVX
+    MATH_LIB = -lm
+else
+    MATH_CLDFLAGS = -mavx
+    MATH_CFLAGS = -mavx
+    MATH_LIB = -lm
+endif
+
 include apps/Makefile.mk
 include experiment/Makefile.mk
 include test/Makefile.mk
