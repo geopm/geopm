@@ -78,15 +78,17 @@ class TestIntegration_frequency_map(unittest.TestCase):
                                                        cls._freq_map)
         cls._agent = 'frequency_map'
         trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core,MSR::PERF_STATUS:FREQ@core'
+        report_signals = 'CPU_FREQUENCY_STATUS@core'
         agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config',
-                                          cls._agent, cls._options)
+                                             cls._agent, cls._options)
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf=app_conf,
                                                     agent_conf=agent_conf,
                                                     report_path=cls._report_path,
                                                     trace_path=cls._trace_path,
-                                                    trace_signals=trace_signals)
+                                                    trace_signals=trace_signals,
+                                                    report_signals=report_signals)
         launcher.set_num_node(cls._num_node)
         launcher.set_num_rank(num_rank)
         # Run the test application
@@ -111,19 +113,6 @@ class TestIntegration_frequency_map(unittest.TestCase):
 
         return policy
 
-    def expected_frequency(self, target):
-        """Adjust the expected average frequency across the board to account
-        for unused cores to be set to sticker.
-
-        """
-        total = self._machine.num_core()
-        # Note two cores are left idle per package by default
-        num_unused = self._machine.num_package() * 2
-        num_used = total - num_unused
-        # Default frequency for the policy is sticker
-        sticker = self._machine.frequency_sticker()
-        return (num_used * target + num_unused * sticker) / total
-
     def test_agent_frequency_map(self):
         host_names = self._report.host_names()
         self.assertEqual(len(host_names), self._num_node)
@@ -134,10 +123,16 @@ class TestIntegration_frequency_map(unittest.TestCase):
                 if (region_name in ['dgemm', 'stream', 'all2all']):
                     #todo verify trace frequencies
                     #todo verify agent report augment frequecies
-                    msg = region_name + ": frequency should be near assigned map frequency"
-                    actual = raw_region['frequency (Hz)']
-                    expect = self.expected_frequency(self._freq_map[region_name])
-                    util.assertNear(self, expect, actual, msg=msg)
+                    expect = self._freq_map[region_name]
+                    core_count_in_region = 0
+                    for field, value in raw_region.items():
+                        if field.startswith('CPU_FREQUENCY_STATUS@core') and value != 'nan':
+                            core_count_in_region += 1
+                            msg = f"{region_name} {field}: frequency should be near assigned map frequency"
+                            util.assertNear(self, expect, value, msg=msg)
+
+                    # Expect 2 unused cores per package. The rest should have reported region-core frequency
+                    self.assertEqual(self._machine.num_core() - self._machine.num_package() * 2, core_count_in_region)
 
 #    def test_agent_frequency_map_per_core(self):
 #        """
