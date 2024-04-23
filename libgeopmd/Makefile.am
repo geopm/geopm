@@ -316,7 +316,7 @@ rpm: dist
 	cp geopm-service.spec $(rpm_topdir)/SPECS
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
 
-DPKG_BUILDPACKAGE_OPTIONS ?= "-us -uc"
+DPKG_BUILDPACKAGE_OPTIONS ?= -us -uc
 deb: dist
 	rm -rf geopm-service-$(VERSION)
 	tar xvf geopm-service-$(VERSION).tar.gz

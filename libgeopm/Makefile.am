@@ -434,7 +434,7 @@ rpm: dist
 	cp geopm-runtime.spec $(rpm_topdir)/SPECS
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-runtime.spec
 
-DPKG_BUILDPACKAGE_OPTIONS ?= "-us -uc"
+DPKG_BUILDPACKAGE_OPTIONS ?= -us -uc
 deb: dist
 	rm -rf geopm-runtime-$(VERSION)
 	tar xvf geopm-runtime-$(VERSION).tar.gz
