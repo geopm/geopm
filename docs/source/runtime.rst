@@ -304,10 +304,10 @@ For more information, see the Linux Kernel documentation on
 Using Slurm to control the Linux CPU governor
 """""""""""""""""""""""""""""""""""""""""""""
 
-When the `userspace` or `performance` mode is selected, the driver will not
+When the ``userspace`` or ``performance`` mode is selected, the driver will not
 interfere with GEOPM. On SLURM-based systems, the :ref:`GEOPM launch wrapper
 <runtime:geopm application launch wrapper>` will attempt to set the scaling
-governor to "performance" automatically, eliminating the need to manually set
+governor to ``performance`` automatically, eliminating the need to manually set
 the governor. On older versions of SLURM, the desired governors must be listed
 explicitly in ``/etc/slurm.conf``. Specifically, SLURM 15.x requires the
 following option:
@@ -320,11 +320,11 @@ For more on SLURM configuration, please see the `slurm.conf manual
 <https://slurm.schedmd.com/slurm.conf.html>`_. On non-SLURM systems, the
 scaling governor should still be manually set through some other mechanism
 to ensure proper GEOPM behavior. The following command will set the governor
-to performance:
+to ``userspace``:
 
 .. code-block:: bash
 
-   echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+   echo userspace | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
 Launching the GEOPM Runtime
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
