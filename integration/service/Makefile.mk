@@ -41,14 +41,14 @@ EXTRA_DIST += service/README.md \
               # end
 
 noinst_PROGRAMS += service/test/test_batch_interface \
-		   service/test/test_invalid_values \
-		   service/test/test_batch_perf \
-		   #end
+                   service/test/test_invalid_values \
+                   service/test/test_batch_perf \
+                   #end
 
 if ENABLE_GEOPMD_LOCAL
   # This test depends on non-installed libgeopmd headers
   noinst_PROGRAMS += service/test/test_batch_server \
-		     #end
+                     #end
   service_test_test_batch_server_SOURCES = service/test/test_batch_server.cpp
   service_test_test_batch_server_CXXFLAGS = $(CXXFLAGS) -I../libgeopmd/src -fPIC -fPIE
   service_test_test_batch_server_LDADD = ../libgeopmd/libgeopmd.la
