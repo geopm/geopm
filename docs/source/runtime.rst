@@ -275,7 +275,7 @@ following on a compute node:
 
 .. code-block:: bash
 
-    ./tutorial/admin/00_test_prereqs.sh
+    ./integration/tutorial/admin/00_test_prereqs.sh
 
 If the script output includes:
 
@@ -292,24 +292,25 @@ For additional information, please contact the GEOPM team.
 Linux Power Management
 ^^^^^^^^^^^^^^^^^^^^^^
 
-It's crucial to note that other Linux mechanisms for power management can
-interfere with GEOPM, which must be disabled. It's recommended to disable the
-``intel_pstate`` kernel driver by modifying the kernel command line through
-grub2 or your system bootloader by adding:
+It's crucial to note that other Linux mechanisms for CPU power management can
+interfere with optimization objectives of GEOPM agents. When deploying an agent
+that controls CPU frequency or power limits, it's recommended that the generic
+scaling govermernor ``userspace`` is selected.
 
-.. code-block:: bash
+For more information, see the Linux Kernel documentation on
+`generic scaling governors <https://docs.kernel.org/admin-guide/pm/cpufreq.html#generic-scaling-governors>`_.
 
-   "intel_pstate=disable"
 
-The `cpufreq` driver will be enabled when the ``intel_pstate`` driver
-is disabled. It has several modes controlled by the ``scaling_governor``
-sysfs entry. When the performance mode is selected, the driver will not
+Using Slurm to control the Linux CPU governor
+"""""""""""""""""""""""""""""""""""""""""""""
+
+When the `userspace` or `performance` mode is selected, the driver will not
 interfere with GEOPM. On SLURM-based systems, the :ref:`GEOPM launch wrapper
 <runtime:geopm application launch wrapper>` will attempt to set the scaling
-governor to "performance" automatically, eliminating the need to manually
-set the governor. On older versions of SLURM, the desired governors must be
-listed explicitly in ``/etc/slurm.conf``. Specifically, SLURM 15.x requires
-the following option:
+governor to "performance" automatically, eliminating the need to manually set
+the governor. On older versions of SLURM, the desired governors must be listed
+explicitly in ``/etc/slurm.conf``. Specifically, SLURM 15.x requires the
+following option:
 
 .. code-block:: bash
 
@@ -325,41 +326,39 @@ to performance:
 
    echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
-For more information, see the Linux Kernel documentation on `cpu-freq
-governors <https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt>`_.
+Launching the GEOPM Runtime
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
 GEOPM Application Launch Wrapper
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""
 
-The GEOPM Runtime package installs the ``geopmlaunch`` command. This
-command is a wrapper for MPI launch commands such as ``srun``, ``aprun``,
-and ``mpiexec``, where the wrapper script enables the GEOPM runtime. The
+The GEOPM Runtime package installs the ``geopmlaunch`` command. This command is
+a wrapper for MPI launch commands such as ``srun``, ``aprun``, and
+``mpiexec.hydra``, where the wrapper script enables the GEOPM runtime. The
 ``geopmlaunch`` command supports the same command-line interface as the
 underlying launch command, while extending the interface with GEOPM-specific
 options. The ``geopmlaunch`` application launches the primary compute
-application and the GEOPM control thread on each compute node, and manages
-all process CPU affinity requirements. This wrapper is documented in the
-:doc:`geopmlaunch(1)<geopmlaunch.1>` man page.
+application and the GEOPM control thread on each compute node.  This wrapper is
+documented in the :doc:`geopmlaunch(1)<geopmlaunch.1>` man page.
 
-The ``geopmlaunch`` command supports various underlying MPI application
-launchers as shown in the :doc:`geopmlaunch(1)<geopmlaunch.1>` man page. If
-your system's launch mechanism is not supported, then you must enforce affinity
-requirements, and all options to the GEOPM runtime must be passed through
-environment variables. Please consult the :doc:`geopm(7)<geopm.7>` man page for
+If your system's launch mechanism is not supported then options to the GEOPM
+runtime must be passed through environment variables and some features of the
+``geopmlaunch`` command (such as process CPU affinity management) will not be
+available.  Please consult the :doc:`geopm(7)<geopm.7>` man page for
 documentation of the environment variables used by the GEOPM runtime that would
-otherwise be controlled by the wrapper script.
+otherwise be controlled by the wrapper script and see :ref:`overview:Profiling Applications without ``geopmlaunch```
+for details.
 
 CPU Affinity Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The GEOPM runtime requires each of the application's MPI processes to
-be affinitized to different CPUs. This is a critical requirement for
-the runtime and must be enforced by the MPI launch command. When using
-the ``geopmlaunch`` wrapper, these affinity requirements are handled by
-``geopmlaunch`` when the ``--geopm-affinity-enable`` command-line option
-is provided (see :doc:`geopmlaunch(1)<geopmlaunch.1>`). Otherwise, users
-must explicitly affinitize their application using the appropriate options
-for their chosen launcher.
+When using the ``geopmlaunch`` wrapper, the user may optionally provide the
+``--geopm-affinity-enable`` command-line option is provided (see
+:doc:`geopmlaunch(1)<geopmlaunch.1>`). This will enable hardware metrics to be
+more accurately measured on a per-application-region basis by restricting
+process migration.
 
 While the GEOPM control thread connects to the application it will
 automatically affinitize itself to the highest indexed core not used by the
@@ -367,18 +366,6 @@ application if the application is not affinitized to a CPU on every core. If
 the application is using all cores of the system, the GEOPM control thread
 will be pinned to the highest logical CPU.
 
-Many ways exist to launch an MPI application, and no single uniform
-way of enforcing MPI rank CPU affinities can work across all job launch
-mechanisms. OpenMP runtimes, which are linked with compiler choice, also have
-different mechanisms for affinitizing OpenMP threads within CPUs available
-to each MPI process. The GEOPM control thread can also be launched as an
-application thread or process that can either be part of the primary MPI
-application or a completely different MPI application. Due to these factors,
-it is challenging to document the correct process affinitization across all
-configurations. Please refer to your site documentation about CPU affinity for
-the best solution for your system and consider extending the ``geopmlaunch``
-wrapper to support your system configuration. For information on how to
-share these implementations with the community, refer to :doc:`contrib`.
 
 Resource Manager Integration
 ----------------------------

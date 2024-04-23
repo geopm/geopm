@@ -794,61 +794,61 @@ option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
 :doc:`geopmlaunch.1`.  For more information about the reports, see:
 :doc:`geopm_report.7`.
 
-Profiling Non-MPI Applications
-""""""""""""""""""""""""""""""
 
-The ``geopmlaunch(1)`` command may not be best suited for your needs
-if you are running a non-MPI application, or if you are running an MPI
-application but the launch command is embedded in scripts that are
-difficult to modify.  Instead of using ``geopmlaunch(1)``, the
-user may use the ``geopmctl(1)`` application in conjunction with
-environment variables that control the GEOPM Runtime behavior.
+Profiling Applications without ``geopmlaunch``
+""""""""""""""""""""""""""""""""""""""""""""""
 
-In this simple example we run the ``sleep(1)`` command for 10 seconds
-and monitor the system during its execution.  Rather than using the
-``geopmlaunch`` tool as in the above example, we will run the
-``geopmctl`` command in the background while the application of
-interest is executing.  There are four requirements to enable the
-GEOPM controller process to connect to the application process and
-generate a report:
+The ``geopmlaunch(1)`` command may not be best suited for your needs if you are
+running a non-MPI application, or if you are running an MPI application but the
+launch command is embedded in scripts that are difficult to modify.  Instead of
+using ``geopmlaunch(1)``, the user may use the ``geopmctl(1)`` application in
+conjunction with environment variables that control the GEOPM Runtime behavior.
 
-1. Both the ``geopmctl`` process and the application process must have
-   the ``GEOPM_PROFILE`` environment variable set to the **same**
-   value or both environments may leave this variable unset.
-2. The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
-   in the environment or the application binary must be linked
-   directly to ``libgeopm.so.2`` at compile time.
-3. The ``GEOPM_REPORT`` environment variable must be set in the
-   environment of the ``geopmctl`` process.
-4. The ``GEOPM_PROGRAM_FILTER`` environment variable is required and
-   explicitly lists the program invovation names of any process to be
-   profiled. All other programs will not be affected by ``LD_PRELOAD``
-   of ``libgeopm.so``.  For this reason a user will typically set
-   these two environment variables together.  This is especially
-   important when profiling programs within a bash script.
+In this simple example we run the ``sleep(1)`` command for 10 seconds and
+monitor the system during its execution.  Rather than using the ``geopmlaunch``
+tool as in the above example, we will run the ``geopmctl`` command in the
+background while the application of interest is executing.  The ``geopmctl`` MPI
+application should be launched with one process per compute node when executing
+the runtime on multiple nodes.  There are five requirements to enable the GEOPM
+controller process to connect to the application process and generate a report:
 
-In addition to generating a report in YAML format, the example below
-showcases two optional features of the GEOPM Runtime:
+1. Both the ``geopmctl`` process and the application process must have the
+   ``GEOPM_PROFILE`` environment variable set to the **same** value or both
+   environments may leave this variable unset.
+2. The application process must have ``LD_PRELOAD=libgeopm.so.2`` set in the
+   environment or the application binary must be linked directly to
+   ``libgeopm.so.2`` at compile time.
+3. The ``GEOPM_REPORT`` environment variable must be set in the environment of
+   the ``geopmctl`` process.
+4. The ``GEOPM_PROGRAM_FILTER`` environment variable is required and explicitly
+   lists the program invovation names of any process to be profiled. All other
+   programs will not be affected by ``LD_PRELOAD`` of ``libgeopm.so``.  For this
+   reason a user will typically set these two environment variables together.
+   This is especially important when profiling programs within a bash script.
+5. The ``GEOPM_NUM_PROCESS`` variable must be set in the ``geopmctl``
+   environment if there is more than one process to be tracked on each compute
+   node.
 
-1. **CSV Trace File**: By setting the ``GEOPM_TRACE`` environment
-   variable, you can generate a trace file in CSV format.
+In addition to generating a report in YAML format, the example below showcases
+two optional features of the GEOPM Runtime:
+
+1. **CSV Trace File**: By setting the ``GEOPM_TRACE`` environment variable, you
+   can generate a trace file in CSV format.
 2. **Sampling Period Adjustment**: The ``GEOPM_PERIOD`` environment variable
    allows you to modify the controller's sampling period. For instance, setting
    it to 200 milliseconds, up from the default 5 milliseconds, results in
    approximately 50 rows of samples in the trace file (calculated as five
    samples per second over ten seconds).
-3. **Disable Network Use** The ``GEOPM_CTL_LOCAL`` environment
-   variable may be set which disables all intra-node communication
-   between the controllers on each node, thereby generating a unique
-   report file per host node over which the application processes are
-   launched.
+3. **Disable Network Use** The ``GEOPM_CTL_LOCAL`` environment variable may be
+   set which disables all intra-node communication between the controllers on
+   each node, thereby generating a unique report file per host node over which
+   the application processes are launched.
 
 These three options together will inform the GEOPM runtime controller
-(``geopmctl``) to profile the ``sleep`` utility and generate a CSV trace
-file with approximately 50 rows of samples (five per-second for ten seconds).
-In the provided example, the ``awk`` command extracts specific columns: time
-since application start (column 1), CPU energy (column 6), and CPU power
-(column 8).
+(``geopmctl``) to profile the ``sleep`` utility and generate a CSV trace file
+with approximately 50 rows of samples (five per-second for ten seconds).  In the
+provided example, the ``awk`` command extracts specific columns: time since
+application start (column 1), CPU energy (column 6), and CPU power (column 8).
 
 .. code-block:: bash
 
