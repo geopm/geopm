@@ -49,10 +49,11 @@ def check_sample_rate(trace_file, expected_sample_rate, verbose=False):
 
     util.assertNear(test, delta_t.mean(), expected_sample_rate)
 
-    # find outliers
-    delta_t_out = delta_t[(delta_t - delta_t.mean()) >= 3*delta_t.std()]
+    # find outliers - number of samples that differ from the mean by 1ms is < 1%
+    target = 0.001
+    delta_t_out = delta_t[abs(delta_t - delta_t.mean()) > target]
     if verbose:
-        sys.stdout.write('outliers (>3*stdev):\n{}\n'.format(delta_t_out.describe()))
+        sys.stdout.write('outliers (>1ms vs. mean):\n{}\n'.format(delta_t_out.describe()))
     num_samples = len(delta_t)
     num_out = len(delta_t_out)
     # check that less than 1% of the samples are outliers
