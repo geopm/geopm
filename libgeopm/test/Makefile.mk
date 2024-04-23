@@ -11,10 +11,10 @@ if ENABLE_MPI
 endif
 
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
-				  $(top_srcdir)/build-aux/tap-driver.sh
+                  $(top_srcdir)/build-aux/tap-driver.sh
 
 AM_TESTS_ENVIRONMENT = geopm_test_path='$(top_builddir)'/test/geopm_test; \
-		       export geopm_test_path;
+                       export geopm_test_path;
 TESTS += $(check_SCRIPTS)
 
 EXTRA_DIST += test/InternalProfile.cpp \
