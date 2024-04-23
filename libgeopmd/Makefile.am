@@ -344,6 +344,8 @@ PHONY_TARGETS = rpm deb
 
 # INCLUDES
 check_PROGRAMS =
+check_SCRIPTS =
+noinst_SCRIPTS =
 check_LTLIBRARIES =
 TESTS =
 BUILT_SOURCES =

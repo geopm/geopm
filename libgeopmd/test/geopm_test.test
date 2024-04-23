@@ -3,4 +3,4 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 test_dir="$(dirname "$0")"
-"${test_dir}/geopm_test" --tap-out-path -
+"${geopm_test_path:-$test_dir/geopm_test}" --tap-out-path -
