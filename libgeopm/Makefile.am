@@ -445,9 +445,11 @@ checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)
 
 # INCLUDES
 check_PROGRAMS =
+check_SCRIPTS =
 check_LTLIBRARIES =
 noinst_PROGRAMS =
 noinst_LTLIBRARIES =
+noinst_SCRIPTS =
 TESTS =
 
 PHONY_TARGETS = clean-local \

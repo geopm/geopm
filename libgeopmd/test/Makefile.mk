@@ -5,6 +5,8 @@
 check_PROGRAMS += test/geopm_test \
                   test/isadmin \
                   # end
+check_SCRIPTS += test/geopm_test.test
+noinst_SCRIPTS += $(check_SCRIPTS)
 
 test_isadmin_SOURCES = test/isadmin.cpp
 test_isadmin_LDADD = libgeopmd.la
@@ -12,11 +14,12 @@ test_isadmin_LDADD = libgeopmd.la
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
                   $(top_srcdir)/build-aux/tap-driver.sh
 
-TESTS += test/geopm_test.test \
-         # end
+AM_TESTS_ENVIRONMENT = geopm_test_path='$(top_builddir)'/test/geopm_test; \
+		       export geopm_test_path;
+TESTS += $(check_SCRIPTS)
 
 EXTRA_DIST += test/legacy_allowlist.out \
-              test/geopm_test.test \
+              $(check_SCRIPTS) \
               # end
 
 test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \

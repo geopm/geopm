@@ -3,6 +3,8 @@
 #
 
 check_PROGRAMS += test/geopm_test
+check_SCRIPTS += test/geopm_test.test
+noinst_SCRIPTS += $(check_SCRIPTS)
 
 if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
@@ -10,8 +12,10 @@ endif
 
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
 				  $(top_srcdir)/build-aux/tap-driver.sh
-TESTS += test/geopm_test.test \
-         # end
+
+AM_TESTS_ENVIRONMENT = geopm_test_path='$(top_builddir)'/test/geopm_test; \
+		       export geopm_test_path;
+TESTS += $(check_SCRIPTS)
 
 EXTRA_DIST += test/InternalProfile.cpp \
               test/InternalProfile.hpp \
