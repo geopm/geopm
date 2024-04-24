@@ -66,8 +66,10 @@ namespace geopm
                                    const std::string &drm_directory)
         : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), drm_sysfs_json())}
         , M_DRM_RESOURCE_BY_GPU_TILE(load_resources_by_gpu_tile(
-                    drm_directory,
-                    (topo.num_domain(GEOPM_DOMAIN_GPU) > 0) ? (topo.num_domain(GEOPM_DOMAIN_GPU_CHIP) / topo.num_domain(GEOPM_DOMAIN_GPU)) : 0))
+                                     drm_directory,
+                                     (topo.num_domain(GEOPM_DOMAIN_GPU) > 0) ? 
+                                     (topo.num_domain(GEOPM_DOMAIN_GPU_CHIP) /
+                                     topo.num_domain(GEOPM_DOMAIN_GPU)) : 0))
         , m_domain(GEOPM_DOMAIN_GPU_CHIP)
     {
     }
