@@ -123,9 +123,9 @@ msr_cpp_files = \
 # E.g., src/sysfs_attributes_cpufreq.cpp is made from
 # src/sysfs_attributes_cpufreq.json and names the JSON variable cpufreq_sysfs_json.
 sysfs_cpp_files = \
-		  $(top_builddir)/gen-src/sysfs_attributes_cpufreq.cpp \
-		  $(top_builddir)/gen-src/sysfs_attributes_drm.cpp \
-		  #
+                  $(top_builddir)/gen-src/sysfs_attributes_cpufreq.cpp \
+                  $(top_builddir)/gen-src/sysfs_attributes_drm.cpp \
+                  #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
                        $(geopminclude_HEADERS) \
@@ -258,9 +258,9 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        # end
 
 nodist_libgeopmd_la_SOURCES = \
-                       $(msr_cpp_files) \
-                       $(sysfs_cpp_files) \
-                       # end
+                              $(msr_cpp_files) \
+                              $(sysfs_cpp_files) \
+                              # end
 
 systemd_source_files = src/SDBus.cpp \
                        src/SDBusMessage.cpp \
@@ -333,7 +333,6 @@ $(sysfs_cpp_files): $(top_builddir)/gen-src/%.cpp: $(top_srcdir)/json_data/%.jso
 	    -e 'd' -e '}' \
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_sysfs_json/g" \
 	$(top_srcdir)/src/json_data.cpp.in > $@
-
 
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
