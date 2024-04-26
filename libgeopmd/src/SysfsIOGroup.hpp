@@ -68,6 +68,7 @@ namespace geopm
             const geopm::PlatformTopo &m_platform_topo;
             /// Whether any signal has been pushed
             bool m_do_batch_read;
+            bool m_do_batch_write;
             /// Whether read_batch() has been called at least once
             bool m_is_batch_read;
             bool m_is_batch_write;

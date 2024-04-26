@@ -107,6 +107,7 @@ namespace geopm
         : m_driver(driver)
         , m_platform_topo(topo)
         , m_do_batch_read(false)
+        , m_do_batch_write(false)
         , m_is_batch_read(false)
         , m_is_batch_write(false)
         , m_control_value{}
@@ -303,6 +304,8 @@ namespace geopm
                 });
             control_idx = m_pushed_info_control.size() - 1;
         }
+
+        m_do_batch_write = true;
         return control_idx;
     }
 
@@ -338,30 +341,32 @@ namespace geopm
     void SysfsIOGroup::write_batch(void)
     {
         m_is_batch_write = true;
-        if (!m_batch_writer) {
-            m_batch_writer = IOUring::make_unique(m_pushed_info_signal.size());
-        }
-
-        for (auto &info : m_pushed_info_control) {
-            if (info.do_write && !std::isnan(info.value)) {
-                std::string setting = info.gen(info.value);
-                if (setting.length() >= info.buf.size()) {
-                    throw geopm::Exception("SysfsIOGroup control value is too long",
-                                           GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                }
-                std::strncpy(info.buf.data(), setting.c_str(), info.buf.size());
-                m_batch_writer->prep_write(
-                    info.last_io_return, info.fd.get(), info.buf.data(),
-                    static_cast<unsigned>(setting.length() + 1), 0);
+        if (m_do_batch_write) {
+            if (!m_batch_writer) {
+                m_batch_writer = IOUring::make_unique(m_pushed_info_signal.size());
             }
-        }
-        m_batch_writer->submit();
-        for (auto &info : m_pushed_info_control) {
-            if (info.do_write && !std::isnan(info.value)) {
-                if (*info.last_io_return < 0) {
-                    throw geopm::Exception("SysfsIOGroup failed to write control \"" +
-                                           info.name + "\"",
-                                           errno, __FILE__, __LINE__);
+
+            for (auto &info : m_pushed_info_control) {
+                if (info.do_write && !std::isnan(info.value)) {
+                    std::string setting = info.gen(info.value);
+                    if (setting.length() >= info.buf.size()) {
+                        throw geopm::Exception("SysfsIOGroup control value is too long",
+                                               GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
+                    std::strncpy(info.buf.data(), setting.c_str(), info.buf.size());
+                    m_batch_writer->prep_write(
+                        info.last_io_return, info.fd.get(), info.buf.data(),
+                        static_cast<unsigned>(setting.length() + 1), 0);
+                }
+            }
+            m_batch_writer->submit();
+            for (auto &info : m_pushed_info_control) {
+                if (info.do_write && !std::isnan(info.value)) {
+                    if (*info.last_io_return < 0) {
+                        throw geopm::Exception("SysfsIOGroup failed to write control \"" +
+                                               info.name + "\"",
+                                               errno, __FILE__, __LINE__);
+                    }
                 }
             }
         }
