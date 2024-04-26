@@ -83,6 +83,7 @@ namespace geopm
         , m_is_adjust_initialized(false)
         , m_is_real_policy(false)
         , m_package_count(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
+        , m_core_count(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_package_core_indices()
         , m_policy_power_package_limit_total(NAN)
         , m_policy_use_frequency_limits(true)
@@ -575,14 +576,19 @@ namespace geopm
 
     void FrequencyBalancerAgent::trace_values(std::vector<double> &values)
     {
-        values.clear();
+        if (static_cast<int>(values.size()) != (m_core_count + m_package_count)) {
+            throw Exception("FrequencyBalancerAgent::trace_values(): values vector is incorrectly sized.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto values_it = values.begin();
         for (int package_idx = 0; package_idx < m_package_count; ++package_idx) {
-            values.insert(values.end(),
-                          m_last_epoch_non_network_time_diff[package_idx].begin(),
-                          m_last_epoch_non_network_time_diff[package_idx].end());
+            values_it = std::copy(m_last_epoch_non_network_time_diff[package_idx].begin(),
+                                  m_last_epoch_non_network_time_diff[package_idx].end(),
+                                  values_it);
         }
         for (const auto &balancer : m_package_balancers) {
-            values.push_back(balancer->get_target_time());
+            *values_it = balancer->get_target_time();
+            ++values_it;
         }
     }
 

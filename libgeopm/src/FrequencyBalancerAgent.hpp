@@ -116,6 +116,7 @@ namespace geopm
             bool m_is_adjust_initialized;
             bool m_is_real_policy;
             int m_package_count;
+            int m_core_count;
             std::vector<std::vector<size_t> > m_package_core_indices;
             double m_policy_power_package_limit_total;
             bool m_policy_use_frequency_limits;
