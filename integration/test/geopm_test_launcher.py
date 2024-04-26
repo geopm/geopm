@@ -128,7 +128,7 @@ class TestLauncher(object):
             argv = ['dummy', detect_launcher(), '--geopm-ctl', self._pmpi_ctl,
                                                 '--geopm-agent', self._agent_conf.get_agent(),
                                                 '--geopm-profile', test_name,
-                                                '--geopm-program-filter', self._app_conf.get_exec_path()]
+                                                '--geopm-program-filter', os.path.basename(self._app_conf.get_exec_path())]
             if include_geopm_policy:
                 argv.extend(['--geopm-policy', self._agent_conf.get_path()])
             if self._report_path is not None:
