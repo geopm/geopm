@@ -85,36 +85,36 @@ local Python package bin directory to your path for access to the
 The MSR Driver
 ^^^^^^^^^^^^^^
 
-Access to MSRs enhances the capability of the GEOPM Access Service in terms of
-hardware telemetry and controls. While the GEOPM Service can function without
-access to MSRs, it provides a limited set of hardware features. For the GEOPM
-Runtime to function correctly, these MSR-related hardware features are
-necessary. Hence, MSR support is a hard requirement for the GEOPM Runtime.
+Access to MSRs enhances the capabilities of the GEOPM Access Service by
+providing additional hardware telemetry and controls. While the **GEOPM Access
+Service** can function without access to MSRs, it provides a limited set of CPU
+features. For the **GEOPM Runtime** to function correctly, these MSR-related
+CPU features are necessary. Hence, MSR support is a hard requirement for
+the GEOPM Runtime which may be relaxed in a future release.
 
-The msr-safe kernel driver provides two key features. Firstly, it offers a low
-latency interface for reading and writing many MSR values at once through an
-`ioctl(2) <https://man7.org/linux/man-pages/man2/ioctl.2.html>`_ system call,
-possibly improving the performance of GEOPM Runtime or other MSR usages.
+One of two drivers may be used by the GEOPM Access Service to enable the MSR
+features: the standard Linux (in-tree) MSR driver or the msr-safe kernel driver
+maintained by LLNL.  The msr-safe driver is preferred by GEOPM if both kernel
+modules are loaded because it provides low latency interface for reading and
+writing many MSR values at once through an `ioctl(2)
+<https://man7.org/linux/man-pages/man2/ioctl.2.html>`_ system call, possibly
+improving the performance of GEOPM Runtime or other MSR usages.
 
-Secondly, the msr-safe kernel driver enables user-level read and write
-operations of the model-specific registers (MSRs) with access controlled by the
-system administrator.  This feature is mandatory if the GEOPM Access Service is
-not active on the system. Alternatively, the access can also be managed by the
-system administrator using the GEOPM Access Service, if active.
-
-The msr-safe kernel driver code can be found `here
+The msr-safe kernel driver source code can be found `here
 <https://github.com/LLNL/msr-safe>`__.  It's distributed with the `OpenSUSE
 Hardware Repository <https://download.opensuse.org/repositories/hardware/>`_ and
 can be installed from the RPMs provided there.  For more information about the
-necessary configuration of msr-safe see: :ref:`geopmaccess.1:Configuring msr-safe`.
+necessary configuration of msr-safe see: :ref:`geopmaccess.1:Configuring
+msr-safe` and :ref:`overview:admin-configuration`.  Note that subsequent to
+v1.7.0 of msr-safe, it is required that the msr-safe allow list be configured
+prior to starting the GEOPM Access Service.
 
-In the absence of both the msr-safe kernel driver and the GEOPM Systemd Service,
-root users may access MSRs using the standard MSR driver. This can be loaded
-with the command:
+In the absence of the msr-safe kernel driver, users may access MSRs using the
+standard Linux MSR driver. This can be loaded with the command:
 
 .. code-block:: bash
 
     modprobe msr
 
-The standard MSR driver must also be loaded to enable MSR access through the
-GEOPM Systemd Service when msr-safe is not installed.
+The standard MSR driver be loaded to enable MSR access through the GEOPM Systemd
+Service when msr-safe is not installed.

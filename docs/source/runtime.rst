@@ -292,10 +292,13 @@ For additional information, please contact the GEOPM team.
 Linux Power Management
 ^^^^^^^^^^^^^^^^^^^^^^
 
-It's crucial to note that other Linux mechanisms for CPU power management can
-interfere with optimization objectives of GEOPM agents. When deploying an agent
-that controls CPU frequency or power limits, it's recommended that the generic
-scaling govermernor ``userspace`` is selected.
+It's important to note that other Linux mechanisms for CPU power management may
+interfere with performance optimization objectives of GEOPM Agents. To achieve
+optimal performance when deploying a GEOPM Agent that controls CPU frequency or
+power limits it's recommended that the generic scaling govermernor ``userspace``
+is selected while the GEOPM Agent is active.  If ``userspace`` is not available
+on your system, it may be preferred to select ``performance`` mode of the
+acpi-cpufreq driver.
 
 For more information, see the Linux Kernel documentation on
 `generic scaling governors <https://docs.kernel.org/admin-guide/pm/cpufreq.html#generic-scaling-governors>`_.
@@ -355,7 +358,7 @@ CPU Affinity Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When using the ``geopmlaunch`` wrapper, the user may optionally provide the
-``--geopm-affinity-enable`` command-line option is provided (see
+``--geopm-affinity-enable`` command-line option (see
 :doc:`geopmlaunch(1)<geopmlaunch.1>`). This will enable hardware metrics to be
 more accurately measured on a per-application-region basis by restricting
 process migration.
