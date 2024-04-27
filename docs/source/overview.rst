@@ -821,7 +821,7 @@ controller process to connect to the application process and generate a report:
 3. The ``GEOPM_REPORT`` environment variable must be set in the environment of
    the ``geopmctl`` process.
 4. The ``GEOPM_PROGRAM_FILTER`` environment variable is required and explicitly
-   lists the program invovation names of any process to be profiled. All other
+   lists the program invocation names of any process to be profiled. All other
    programs will not be affected by ``LD_PRELOAD`` of ``libgeopm.so``.  For this
    reason a user will typically set these two environment variables together.
    This is especially important when profiling programs within a bash script.
