@@ -2,7 +2,9 @@ User Guide for GEOPM Runtime
 ============================
 
 The GEOPM Runtime is software designed to enhance energy efficiency of
-applications through active hardware configuration.
+applications through active hardware configuration. See
+:doc:`Getting Started Guide <overview:straight-ruler-use-the-runtime-to-measure-application-performance>`
+for information on how to begin using the GEOPM Runtime.
 
 User Model
 ----------
@@ -65,84 +67,6 @@ documentation.
 .. figure:: https://geopm.github.io/images/geopm-runtime-usage.svg
    :alt: An illustration of geopmlaunch running on 2 servers, generating a trace file per host, and one report across all hosts.
    :align: center
-
-.. admonition:: Quick start for MPI applications
-
-   The ``geopmlaunch`` tool is the recommended user interface for GEOPM Runtime. It wraps a launcher application
-   (like srun in this example), generates a summarizing report file, and optionally generates a time-series trace for each host.
-
-   The steps for using ``geopmlaunch`` with your MPI application are:
-
-  * Specify how many nodes and processes to use.
-  * Run the ``geopmlaunch`` command wherever you would normally run the
-    wrapped launcher command (e.g., ``srun``, ``mpiexec``, etc.).
-  * Read the generated ``geopm.report`` file
-
-  .. code-block:: console
-    :caption: Examples using ``geopmlaunch``
-
-    # Launch with srun and examine the generated GEOPM report
-    $ geopmlaunch srun -N 1 -n 20 -- ./my-app
-    $ less geopm.report
-    # Launch with Intel mpiexec and examine the generated GEOPM report
-    $ geopmlaunch impi -n 1 -ppn 20 -- ./my-app
-    $ less geopm.report
-    # Display all options and available launchers
-    $ geopmlaunch --help
-
-.. admonition:: Quick start for Non-MPI applications
-
-   In order to profile non-MPI applications, the recommended approach is to launch
-   the GEOPM runtime alongside the target application. This can be done by launching
-   the ``geopmctl`` application in the background on every host node that the non-MPI
-   application is expected to run. After a clean or forced termination of the
-   application being profiled, the ``geopmctl`` application is designed to terminate
-   and generate a summarizing report file, and optionally, a time-series trace per host.
-
-   The following requirements must be met while launching ``geopmctl`` with your
-   non-MPI application:
-
-   * Both the ``geopmctl`` process and the application process must have
-     the ``GEOPM_PROFILE`` environment variable set to the **same**
-     value.
-   * The application process must have ``LD_PRELOAD=libgeopm.so.2`` set
-     in the environment, or the application binary must be linked
-     directly to ``libgeopm.so.2`` at compile time.
-   * The ``GEOPM_REPORT`` environment variable must be set in the
-     environment of the ``geopmctl`` process.
-   * While not necessary in this example, in case of multiple extraneous processes
-     getting launched, the optional ``GEOPM_PROGRAM_FILTER`` environment variable
-     can be set to explicitly list the program invocation name of the specific
-     non-MPI process that needs to be profiled.
-   * While optional in this example, in case of launching non-MPI applications across
-     multiple nodes, the ``GEOPM_CTL_LOCAL`` environment variable should be set in order
-     to generate a unique GEOPM report file for each host node. This disables all
-     intra-process MPI communication between the GEOPM controllers.
-
-   .. code-block:: console
-     :caption: Examples using ``geopmctl``
-
-     $ GEOPM_PROFILE=sleep-ten \
-       GEOPM_REPORT=sleep-ten.yaml \
-       GEOPM_CTL_LOCAL=true \
-       GEOPM_TRACE=sleep-ten-trace \
-       GEOPM_PROGRAM_FILTER=sleep \
-       geopmctl &
-     $ GEOPM_PROFILE=sleep-ten \
-       LD_PRELOAD=libgeopm.so.2 \
-       sleep 10
-     $ cat sleep-ten.yaml
-     $ awk -F\| '{print $1, $6, $8}' sleep-ten-trace* | less
-
-The `GEOPM Environment Variables
-<https://geopm.github.io/geopm.7.html#geopm-environment-variables>`_ section
-includes a complete listing of the environment variables accepted by the GEOPM runtime.
-
-The `GEOPM runtime tutorial
-<https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
-to profile unmodified applications, select and evaluate different GEOPM agent
-algorithms (see below), and how to add markup to an application.  The tutorial
-provides a starting point for someone trying to get familiar with the GEOPM runtime.
 
 GEOPM *agents* can exploit this hierarchical control system to optimize
 various objective functions. Examples include maximizing application
