@@ -105,7 +105,7 @@ The msr-safe kernel driver source code can be found `here
 Hardware Repository <https://download.opensuse.org/repositories/hardware/>`_ and
 can be installed from the RPMs provided there.  For more information about the
 necessary configuration of msr-safe see: :ref:`geopmaccess.1:Configuring
-msr-safe` and :ref:`overview:admin-configuration`.  Note that subsequent to
+msr-safe` and :ref:`overview:admin configuration`.  Note that subsequent to
 v1.7.0 of msr-safe, it is required that the msr-safe allow list be configured
 prior to starting the GEOPM Access Service.
 
