@@ -5,11 +5,27 @@
 
 test_error() {
     echo "Error: ${0} restoring GEOPM service state and unloading msr" 1>&2
-    sudo modprobe -r msr
-    sudo systemctl unset-environment GEOPM_DISABLE_IO_URING GEOPM_DISABLE_MSR_SAFE
-    sudo systemctl restart geopm
     exit -1
 }
+
+cleanup() {
+    local ensure_msr_module_is_loaded=$1
+    sudo systemctl stop geopm
+    if [ $ensure_msr_module_is_loaded -eq 0 ]; then
+        sudo modprobe -r msr
+    else
+        sudo modprobe msr
+    fi
+    sudo systemctl unset-environment GEOPM_DISABLE_IO_URING GEOPM_DISABLE_MSR_SAFE
+    sudo systemctl start geopm
+}
+
+if lsmod | grep -q '^msr\>'; then
+        LOAD_MSR_ON_EXIT=1
+else
+        LOAD_MSR_ON_EXIT=0
+fi
+trap "cleanup $LOAD_MSR_ON_EXIT" EXIT
 
 SCRIPT_DIR=$(dirname $(realpath $0))
 
@@ -29,8 +45,8 @@ PREFIX=test-batch-perf
 
 # Clean environment and restart service
 sudo systemctl unset-environment GEOPM_DISABLE_IO_URING GEOPM_DISABLE_MSR_SAFE
-sudo systemctl restart geopm
 sudo modprobe msr
+sudo systemctl restart geopm
 
 for ((TRIAL=0; TRIAL < NUM_TRIAL; TRIAL++)) do
 
@@ -64,5 +80,4 @@ for ((TRIAL=0; TRIAL < NUM_TRIAL; TRIAL++)) do
 
 done
 
-sudo modprobe -r msr
 python3 ${SCRIPT_DIR}/plot_batch_perf.py --plot-path=test_batch_perf.png --min-y=1e-4 ${PREFIX}*.csv
