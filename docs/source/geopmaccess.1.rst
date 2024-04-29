@@ -5,6 +5,13 @@ geopmaccess(1) -- Access management for the GEOPM Service
 Synopsis
 --------
 
+.. code-block:: none
+
+    geopmaccess [-h] [-v] [-c] [-u | -g GROUP | -a | -l | -s] [-w | -e | -D] [-n | -F] [-x]
+
+Access management for the GEOPM Service. Command line tool for reading and
+writing the access management lists for the GEOPM Service signals and controls.
+
 Read Access List
 ~~~~~~~~~~~~~~~~
 
@@ -33,7 +40,6 @@ Remove Access List
 
     geopmaccess -D [-c] [-g GROUP]
 
-
 Get Help or Version
 ~~~~~~~~~~~~~~~~~~~
 
@@ -45,33 +51,73 @@ Get Help or Version
 Description
 -----------
 
-The GEOPM service uses the ``/etc/geopm`` directory to store
-files that control which signals and controls may be accessed by a
-user through the service.  The purpose of the ``geopmaccess`` command
-line tool is to enable reading and writing of these access list files.
+The GEOPM service uses the ``/etc/geopm`` directory to store files that control
+which signals and controls may be accessed by a user through the service.  The
+purpose of the ``geopmaccess`` command line tool is to enable reading and
+writing of these access list files.
 
 
 Options
 ~~~~~~~
--c, --controls  Command applies to controls not signals
--u, --default   Print the default user access list
--g, --group     Read or write the access list for a specific Unix GROUP
--a, --all       Print all signals or controls supported by the service system
--w, --write     Use standard input to write an access list
--e, --edit      Edit an access list using EDITOR environment variable, default
-                ``vi``
--D, --delete    Remove an access list for default user or a particular Unix Group
--n, --dry-run   Do error checking on all user input, but do not modify
-                configuration files
--F, --force     Write access list without validating GEOPM Service support for
-                names
--l, --log       Print a log of all signals or controls that have been accessed
-                since the service was last restarted.
--s, --msr-safe  Print the minimal msr-safe allowlist required by GEOPM.
--h, --help      Print brief summary of the command line usage information, then
-                exit
--v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
-                then exit
+
+-h, --help  .. _help option:
+
+    Print help message and exit
+
+-v, --version  .. _version option:
+
+    Print version and exit
+
+-c, --controls  .. _controls option:
+
+    Command applies to controls not signals
+
+-u, --default  .. _default option:
+
+    Print the default user access list
+
+-g GROUP, --group GROUP  .. _group option:
+
+    Read or write the access list for a specific Unix GROUP
+
+-a, --all  .. _all option:
+
+    Print all signals or controls supported by the service system
+
+-l, --log  .. _log option:
+
+    Print list of used signals or controls used since last restart of the
+    service
+
+-s, --msr-safe  .. _msr-safe option:
+
+    Generate an allowlist for msr-safe
+
+-w, --write  .. _write option:
+
+    Use standard input to write an access list. Implies -u unless -g is
+    provided.
+
+-e, --edit  .. _edit option:
+
+    Edit an access list using EDITOR environment variable, default vi
+
+-D, --delete  .. _delete option:
+
+    Remove an access list for default user or a particular Unix Group
+
+-n, --dry-run  .. _dry-run option:
+
+    Do error checking on all user input, but do not modify configuration files
+
+-F, --force  .. _force option:
+
+    Write access list without validating GEOPM Service support for names
+
+-x, --direct  .. _direct option:
+
+    Write directly to files, do not use DBus
+
 
 Query Access
 ~~~~~~~~~~~~

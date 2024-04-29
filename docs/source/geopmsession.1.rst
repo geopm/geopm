@@ -5,6 +5,14 @@ geopmsession(1) -- Command line interface for the GEOPM service batch read featu
 Synopsis
 --------
 
+.. code-block:: none
+
+    geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID] [--print-header]
+
+Command line interface for the geopm service batch read features. This command
+can be used to read signals by opening a session with the geopm service.
+
+
 Read a signal
 ~~~~~~~~~~~~~
 
@@ -49,11 +57,33 @@ signals requested though standard input is made and the results are
 printed to the screen.
 
 Options
-~~~~~~~
--h, --help                  show this help message and exit
--t TIME, --time TIME        Total run time of the session to be opened in seconds
--p PERIOD, --period PERIOD  When used with a read mode session reads all values
-                            out periodically with the specified period in seconds
+-------
+
+-h, --help  .. _help option:
+
+    Print help message and exit
+
+-v, --version  .. _version option:
+
+    Print version and exit
+
+-t TIME, --time TIME  .. _time option:
+
+    Total run time of the session to be opened in seconds
+
+-p PERIOD, --period PERIOD  .. _period option:
+
+    When used with a read mode session reads all values out periodically with
+    the specified period in seconds
+
+--pid PID  .. _pid option:
+
+    Stop the session when the given process PID ends
+
+--print-header  .. _header option:
+
+    Print a CSV header before printing any sampled values
+
 
 Examples
 --------
