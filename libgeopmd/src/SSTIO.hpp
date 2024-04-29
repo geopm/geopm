@@ -16,6 +16,7 @@ namespace geopm
     class SSTIO
     {
         public:
+            SSTIO() = default;
             virtual ~SSTIO() = default;
 
             /// @brief Interact with the mailbox on commands that are expected to return data
