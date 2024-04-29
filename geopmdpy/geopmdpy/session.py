@@ -14,6 +14,7 @@ from argparse import ArgumentParser
 from . import topo
 from . import pio
 from . import loop
+from . import __version_str__
 
 
 class Session:
@@ -331,6 +332,8 @@ def main():
     """
     err = 0
     parser = ArgumentParser(description=main.__doc__)
+    parser.add_argument('-v', '--version', dest='version', action='store_true',
+                        help='Print version and exit')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
                         help='Total run time of the session to be opened in seconds')
     parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
@@ -341,6 +344,9 @@ def main():
                         help='Print a CSV header before printing any sampled values')
     args = parser.parse_args()
     try:
+        if args.version:
+            print(__version_str__)
+            return 0
         sess = Session()
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header)
     except RuntimeError as ee:

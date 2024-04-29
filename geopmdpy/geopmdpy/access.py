@@ -16,6 +16,7 @@ from dasbus.error import DBusError
 from geopmdpy import system_files
 from . import gffi
 from . import error
+from . import __version_str__
 
 gffi.gffi.cdef("""
 int geopm_allowlist(size_t result_max,
@@ -436,6 +437,8 @@ def main():
 
     err = 0
     parser = ArgumentParser(description=main.__doc__)
+    parser.add_argument('-v', '--version', dest='version', action='store_true',
+                        help='Print version and exit')
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Command applies to controls not signals')
     parser_group_ugals = parser.add_mutually_exclusive_group(required=False)
@@ -471,6 +474,9 @@ def main():
         parser.error('Must specify either --group or --default with --direct.')
 
     try:
+        if args.version:
+            print(__version_str__)
+            return 0
         geopm_proxy = (DirectAccessProxy() if args.direct
                        else SystemMessageBus().get_proxy('io.github.geopm', '/io/github/geopm'))
         acc = Access(geopm_proxy)

@@ -10,6 +10,7 @@ import sys
 import os
 from . import service
 from . import system_files
+from . import __version_str__
 from geopmdpy.restorable_file_writer import RestorableFileWriter
 
 ALLOW_WRITES_PATH = '/sys/module/msr/parameters/allow_writes'
@@ -32,6 +33,9 @@ def stop():
 
 
 def main():
+    if sys.argv[1] == '--version':
+        print(__version_str__)
+        return 0
     signal(SIGTERM, term_handler)
     global _bus, _loop
     system_files.secure_make_dirs(system_files.GEOPM_SERVICE_RUN_PATH,
