@@ -16,6 +16,8 @@ namespace geopm
     class SSTIO
     {
         public:
+            virtual ~SSTIO() = default;
+
             /// @brief Interact with the mailbox on commands that are expected to return data
             /// @param [in] cpu_index Index of the CPU to which the mailbox
             ///             read is being issued
