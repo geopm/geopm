@@ -54,7 +54,6 @@ install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/geopm
 
 dist_doc_DATA = COPYING \
-                COPYING-TPP \
                 README.md \
                 VERSION \
                 # end
