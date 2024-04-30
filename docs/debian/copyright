@@ -42,8 +42,6 @@ Files:     .gitignore
            make_rpm.sh
            requirements.txt
            shell_completion/README.md
-           source/_ext/__pycache__/geopm_rst_extensions.cpython-310.pyc
-           source/_ext/__pycache__/geopmlint.cpython-310.pyc
            source/admin.rst
            source/build.rst
            source/client.rst
