@@ -221,8 +221,8 @@ interfere with performance optimization objectives of GEOPM Agents. To achieve
 optimal performance when deploying a GEOPM Agent that controls CPU frequency or
 power limits it's recommended that the generic scaling govermernor ``userspace``
 is selected while the GEOPM Agent is active.  If ``userspace`` is not available
-on your system, it may be preferred to select ``performance`` mode of the
-acpi-cpufreq driver.
+on your system, it may be preferred to select ``performance`` mode while the
+GEOPM Agent is active.
 
 For more information, see the Linux Kernel documentation on
 `generic scaling governors <https://docs.kernel.org/admin-guide/pm/cpufreq.html#generic-scaling-governors>`_.
