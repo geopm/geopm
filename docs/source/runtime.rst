@@ -219,7 +219,7 @@ Linux Power Management
 It's important to note that other Linux mechanisms for CPU power management may
 interfere with performance optimization objectives of GEOPM Agents. To achieve
 optimal performance when deploying a GEOPM Agent that controls CPU frequency or
-power limits it's recommended that the generic scaling govermernor ``userspace``
+power limits it's recommended that the generic scaling governor ``userspace``
 is selected while the GEOPM Agent is active.  If ``userspace`` is not available
 on your system, it may be preferred to select ``performance`` mode while the
 GEOPM Agent is active.
