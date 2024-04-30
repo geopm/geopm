@@ -31,7 +31,7 @@ geopmlint:
 	    sphinx-build -M geopmlint source build
 
 clean_all:
-	rm -rf build VERSION DATE debian/changelog geopm-doc-* geopm-doc.spec dox/libgeopmd dox/libgeopm
+	rm -rf build VERSION DATE debian/changelog geopm-doc-* geopm-doc.spec dox/libgeopmd dox/libgeopm source/_ext/__pycache__
 
 VERSION:
 	python3 -c "from setuptools_scm import get_version; print(get_version('..'))" > $@
