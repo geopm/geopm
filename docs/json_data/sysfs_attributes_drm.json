@@ -87,7 +87,7 @@
         "BASE_ACT_FREQ": {
             "attribute": "base_act_freq_mhz",
             "scalar": 1e6,
-            "description": "Actual GPU base-doc_domain frequency selected by the power manager",
+            "description": "Actual GPU base-die frequency selected by the power manager",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -111,7 +111,7 @@
         "BASE_FREQ_FACTOR_STEP": {
             "attribute": "base_freq_factor",
             "scalar": 1.0,
-            "description": "GPU base-doc_domain frequency factor scaled by 1/DRM::BASE_FREQ_FACTOR_SCALE",
+            "description": "GPU base-die frequency factor scaled by 1/DRM::BASE_FREQ_FACTOR_SCALE",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -195,7 +195,7 @@
         "BASE_RP0_FREQ": {
             "attribute": "base_RP0_freq_mhz",
             "scalar": 1e6,
-            "description": "GPU base-doc_domain RP0 frequency",
+            "description": "GPU base-die RP0 frequency",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -219,7 +219,7 @@
         "MEM_RP0_FREQ": {
             "attribute": "mem_RP0_freq_mhz",
             "scalar": 1e6,
-            "description": "GPU memory-doc_domain RP0 frequency",
+            "description": "GPU memory-die RP0 frequency",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -243,7 +243,7 @@
         "BASE_RPN_FREQ": {
             "attribute": "base_RPn_freq_mhz",
             "scalar": 1e6,
-            "description": "GPU base-doc_domain RPn frequency",
+            "description": "GPU base-die RPn frequency",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -279,7 +279,7 @@
         "MEM_RPN_FREQ": {
             "attribute": "mem_RPn_freq_mhz",
             "scalar": 1e6,
-            "description": "GPU memory-doc_domain RPn frequency",
+            "description": "GPU memory-die RPn frequency",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
