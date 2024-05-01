@@ -1,7 +1,8 @@
 .. GEOPM Service documentation main file
 
-Welcome to GEOPM
-================
+
+GEOPM: Global Extensible Open Power Manager
+===========================================
 
 **Fine-grained low-latency batch access to power metrics and control knobs on Linux**
 
@@ -41,17 +42,22 @@ performance objectives.
   - Gather large groups of signal-reads or control-writes into batch
     operations, often reducing total latency to complete the operations.
 
-
-.. image:: https://geopm.github.io/images/github-button.png
-   :target: https://github.com/geopm/geopm
-   :width: 200
-   :alt: View on Github
+Source Code
+-----------
 
 To get the latest source code clone the git repository:
 
 .. code-block:: bash
 
     $ git clone https://github.com/geopm/geopm.git
+
+.. image:: https://geopm.github.io/images/github-button.png
+   :target: https://github.com/geopm/geopm
+   :width: 200
+   :alt: View on Github
+
+Documentation
+-------------
 
 .. toctree::
    :maxdepth: 1
