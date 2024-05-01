@@ -1,8 +1,8 @@
-.. GEOPM Service documentation main file
+.. GEOPM documentation main file
 
 
-GEOPM: Global Extensible Open Power Manager
-===========================================
+GEOPM
+=====
 
 **Fine-grained low-latency batch access to power metrics and control knobs on Linux**
 
