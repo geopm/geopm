@@ -24,7 +24,9 @@ static inline double geopm_time_diff(const struct geopm_time_s *begin, const str
 static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
 static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end);
 static inline double geopm_time_since(const struct geopm_time_s *begin);
-int geopm_time_zero(struct geopm_time_s *zero_time);
+
+int __attribute__((visibility("default")))
+    geopm_time_zero(struct geopm_time_s *zero_time);
 
 #include <time.h>
 
@@ -32,7 +34,8 @@ int geopm_time_zero(struct geopm_time_s *zero_time);
  * @brief structure to abstract the timespec on linux from other
  *        representations of time.
  */
-struct geopm_time_s {
+struct __attribute__((visibility("default")))
+    geopm_time_s {
     struct timespec t;
 };
 
@@ -111,9 +114,12 @@ static inline double geopm_time_since(const struct geopm_time_s *begin)
 }
 namespace geopm
 {
-    struct geopm_time_s time_zero(void);
-    struct geopm_time_s time_curr(void);
-    void time_zero_reset(const geopm_time_s &zero);
+    struct geopm_time_s __attribute__((visibility("default")))
+        time_zero(void);
+    struct geopm_time_s __attribute__((visibility("default")))
+        time_curr(void);
+    void __attribute__((visibility("default")))
+        time_zero_reset(const geopm_time_s &zero);
 }
 #endif
 #endif
