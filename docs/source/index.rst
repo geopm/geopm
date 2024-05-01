@@ -69,8 +69,10 @@ Documentation
    devel
    reference
 
-License
--------
+License: BSD 3-Clause
+---------------------
 
 .. literalinclude:: ../COPYING
   :language: none
+
+`SPDX Details for BSD 3-Clause License <https://spdx.org/licenses/BSD-3-Clause.html>`_
