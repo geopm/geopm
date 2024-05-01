@@ -33,7 +33,7 @@ def stop():
 
 
 def main():
-    if sys.argv[1] == '--version':
+    if len(sys.argv) > 1 and sys.argv[1] == '--version':
         print(__version_str__)
         return 0
     signal(SIGTERM, term_handler)
