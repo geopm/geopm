@@ -17,12 +17,12 @@
 extern "C"
 {
     /// @brief Identify host CPU.
-    int geopm_read_cpuid(void);
+    int __attribute__((visibility("default"))) geopm_read_cpuid(void);
 }
 
 namespace geopm
 {
-    class PlatformTopo
+    class __attribute__((visibility("default"))) PlatformTopo
     {
         public:
             PlatformTopo() = default;
@@ -83,6 +83,6 @@ namespace geopm
             static std::map<std::string, int> domain_types(void);
     };
 
-    const PlatformTopo &platform_topo(void);
+    const PlatformTopo __attribute__((visibility("default"))) & platform_topo(void);
 }
 #endif

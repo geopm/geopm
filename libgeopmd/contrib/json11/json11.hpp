@@ -78,7 +78,7 @@ enum JsonParse {
 
 class JsonValue;
 
-class Json final {
+class __attribute__((visibility("default"))) Json final {
 public:
     // Types
     enum Type {

@@ -16,7 +16,7 @@
 namespace geopm
 {
     /// @brief This class encapsulates an inter-process shared memory region.
-    class SharedMemory
+    class __attribute__((visibility("default"))) SharedMemory
     {
         public:
             SharedMemory() = default;

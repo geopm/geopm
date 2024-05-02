@@ -9,7 +9,7 @@
 
 namespace geopm
 {
-    class Cpuid
+    class __attribute__((visibility("default"))) Cpuid
     {
         public:
             struct rdt_info_s

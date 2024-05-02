@@ -34,8 +34,7 @@ int __attribute__((visibility("default")))
  * @brief structure to abstract the timespec on linux from other
  *        representations of time.
  */
-struct __attribute__((visibility("default")))
-    geopm_time_s {
+struct __attribute__((visibility("default"))) geopm_time_s {
     struct timespec t;
 };
 
@@ -114,12 +113,9 @@ static inline double geopm_time_since(const struct geopm_time_s *begin)
 }
 namespace geopm
 {
-    struct geopm_time_s __attribute__((visibility("default")))
-        time_zero(void);
-    struct geopm_time_s __attribute__((visibility("default")))
-        time_curr(void);
-    void __attribute__((visibility("default")))
-        time_zero_reset(const geopm_time_s &zero);
+    struct geopm_time_s __attribute__((visibility("default"))) time_zero(void);
+    struct geopm_time_s __attribute__((visibility("default"))) time_curr(void);
+    void __attribute__((visibility("default"))) time_zero_reset(const geopm_time_s &zero);
 }
 #endif
 #endif

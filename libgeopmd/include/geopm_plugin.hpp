@@ -8,8 +8,8 @@
 
 namespace geopm
 {
-    void plugin_load(const std::string &plugin_prefix);
-    void plugin_reset(void);
+    void __attribute__((visibility("default"))) plugin_load(const std::string &plugin_prefix);
+    void __attribute__((visibility("default"))) plugin_reset(void);
 }
 
 #endif

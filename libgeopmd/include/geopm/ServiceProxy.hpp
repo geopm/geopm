@@ -19,7 +19,7 @@ namespace geopm
 
     /// @brief Information pertaining to a particular signal supported
     ///        by PlatformIO
-    struct signal_info_s {
+    struct __attribute__((visibility("default"))) signal_info_s {
         /// @brief Name of the signal
         std::string name;
         /// @brief Description of the signal
@@ -42,7 +42,7 @@ namespace geopm
 
     /// @brief Information pertaining to a particular control
     ///        supported by PlatformIO
-    struct control_info_s {
+    struct __attribute__((visibility("default"))) control_info_s {
         /// @brief Name of the control
         std::string name;
         /// @brief Description of the control
@@ -54,7 +54,7 @@ namespace geopm
 
     /// @brief Proxy object for the io.github.geopm D-Bus interface
     ///        used to implement the ServiceIOGroup
-    class ServiceProxy
+    class __attribute__((visibility("default"))) ServiceProxy
     {
         public:
             /// @brief ServiceProxy constructor
@@ -157,7 +157,7 @@ namespace geopm
             virtual std::vector<std::string> platform_pop_profile_region_names(const std::string &profile_name) = 0;
     };
 
-    class ServiceProxyImp : public ServiceProxy
+    class __attribute__((visibility("default"))) ServiceProxyImp : public ServiceProxy
     {
         public:
             ServiceProxyImp();
@@ -188,7 +188,7 @@ namespace geopm
             std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
             std::vector<std::string> platform_pop_profile_region_names(const std::string &profile_name) override;
         private:
-            std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
+            std::vector<std::string> __attribute__((visibility("hidden"))) read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;
     };
 }
