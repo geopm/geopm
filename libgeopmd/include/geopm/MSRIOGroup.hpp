@@ -21,8 +21,8 @@
 
 extern "C"
 {
-    int geopm_allowlist(size_t result_max,
-                        char *result);
+    int __attribute__((visibility("default"))) geopm_allowlist(
+        size_t result_max, char *result);
 }
 
 namespace geopm
@@ -34,7 +34,7 @@ namespace geopm
     class SaveControl;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
-    class MSRIOGroup : public IOGroup
+    class __attribute__((visibility("default"))) MSRIOGroup : public IOGroup
     {
         public:
             enum m_cpuid_e {
@@ -141,43 +141,48 @@ namespace geopm
                     MsrConfigWarningPreference_e warning_preference = SILENCE_CONFIG_DEPRECATION_WARNING);
             /// @brief Override the default description for a signal.
             ///        If signal is not available, does nothing.
-            void set_signal_description(const std::string &name,
-                                        const std::string &description);
+            void __attribute__((visibility("hidden"))) set_signal_description(
+                const std::string &name,
+                const std::string &description);
             /// @brief Override the default description for a signal.
             ///        If signal is not available, does nothing.
-            void set_control_description(const std::string &name,
-                                        const std::string &description);
+            void __attribute__((visibility("hidden"))) set_control_description(
+                const std::string &name,
+                const std::string &description);
             /// @brief Add support for an alias of a signal by name.
-            void register_signal_alias(const std::string &signal_name, const std::string &msr_field_name);
+            void __attribute__((visibility("hidden"))) register_signal_alias(
+                const std::string &signal_name, const std::string &msr_field_name);
             /// @brief Add support for an alias of a control by name.
-            void register_control_alias(const std::string &control_name, const std::string &msr_field_name);
+            void __attribute__((visibility("hidden"))) register_control_alias(
+                const std::string &control_name, const std::string &msr_field_name);
             /// @brief Add support for temperature combined signals if underlying
             ///        signals are available.
-            void register_temperature_signals(void);
+            void __attribute__((visibility("hidden"))) register_temperature_signals(void);
             /// @brief Add support for power combined signals if underlying
             ///        signals are available.
-            void register_power_signals(void);
+            void __attribute__((visibility("hidden"))) register_power_signals(void);
             /// @brief Add support for pcnt scalability signals if underlying
             ///        signals are available.
-            void register_pcnt_scalability_signals(void);
+            void __attribute__((visibility("hidden"))) register_pcnt_scalability_signals(void);
             /// @brief Add support for Intel Resource Director signals if
             ///        underlying signals are available.
-            void register_rdt_signals(void);
+            void __attribute__((visibility("hidden"))) register_rdt_signals(void);
             /// @brief Add support for frequency signal aliases if underlying
             ///        signals are available.
-            void register_frequency_signals(void);
+            void __attribute__((visibility("hidden"))) register_frequency_signals(void);
             /// @brief Add support for frequency control aliases if underlying
             ///        controls are available.
-            void register_frequency_controls(void);
+            void __attribute__((visibility("hidden"))) register_frequency_controls(void);
             /// @brief Write to enable bits for all fixed counters.
-            void enable_fixed_counters(void);
+            void __attribute__((visibility("hidden"))) enable_fixed_counters(void);
             /// @brief Check system configuration and warn if it ma
             ///        interfere with the given control.
-            void check_control(const std::string &control_name);
+            void __attribute__((visibility("hidden"))) check_control(const std::string &control_name);
 
             /// @brief Check control lock and error if locked
-            void check_control_lock(const std::string &lock_name,
-                                    const std::string &error);
+            void __attribute__((visibility("hidden"))) check_control_lock(
+                const std::string &lock_name,
+                const std::string &error);
 
             /// Helpers for JSON parsing
             static void check_top_level(const json11::Json &root);
@@ -194,25 +199,28 @@ namespace geopm
             static bool json_check_is_integer(const json11::Json &num);
             static bool json_check_is_valid_aggregation(const json11::Json &obj);
             // Add raw MSR as an available signal
-            void add_raw_msr_signal(const std::string &msr_name, int domain_type,
-                                    uint64_t msr_offset);
+            void __attribute__((visibility("hidden"))) add_raw_msr_signal(
+                const std::string &msr_name, int domain_type,
+                uint64_t msr_offset);
             // Add a bitfield of an MSR as an available signal
-            void add_msr_field_signal(const std::string &msr_name,
-                                      const std::string &msr_field_name,
-                                      int domain_type,
-                                      int begin_bit, int end_bit,
-                                      int function, double scalar, int units,
-                                      const std::string &aggregation,
-                                      const std::string &description,
-                                      int behavior,
-                                      const std::function<std::string(double)> &format_function);
+            void __attribute__((visibility("hidden"))) add_msr_field_signal(
+                const std::string &msr_name,
+                const std::string &msr_field_name,
+                int domain_type,
+                int begin_bit, int end_bit,
+                int function, double scalar, int units,
+                const std::string &aggregation,
+                const std::string &description,
+                int behavior,
+                const std::function<std::string(double)> &format_function);
             // Add a bitfield of an MSR as an available control
-            void add_msr_field_control(const std::string &msr_field_name,
-                                       int domain_type,
-                                       uint64_t msr_offset,
-                                       int begin_bit, int end_bit,
-                                       int function, double scalar, int units,
-                                       const std::string &description);
+            void __attribute__((visibility("hidden"))) add_msr_field_control(
+                const std::string &msr_field_name,
+                int domain_type,
+                uint64_t msr_offset,
+                int begin_bit, int end_bit,
+                int function, double scalar, int units,
+                const std::string &description);
 
             static const std::string M_DEFAULT_DESCRIPTION;
             static const std::string M_PLUGIN_NAME;
@@ -244,7 +252,7 @@ namespace geopm
             // The signals vector is over the indices for the domain.
             // The signals pointers should be copied when signal is
             // pushed and used directly for read_signal.
-            struct signal_info
+            struct __attribute__((visibility("hidden"))) signal_info
             {
                 std::vector<std::shared_ptr<Signal> > signals;
                 int domain;
@@ -256,7 +264,7 @@ namespace geopm
             };
             std::map<std::string, signal_info> m_signal_available;
 
-            struct control_info
+            struct __attribute__((visibility("hidden"))) control_info
             {
                 std::vector<std::shared_ptr<Control> > controls;
                 int domain;

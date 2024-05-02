@@ -17,7 +17,7 @@ extern "C" {
 ///         name_idx parameter to the geopm_pio_signal_name()
 ///         function.  Any error in loading the platform will result
 ///         in a negative error code describing the failure.
-int geopm_pio_num_signal_name(void);
+int __attribute__((visibility("default"))) geopm_pio_num_signal_name(void);
 
 /// @param [in] name_idx The value of name_idx must be greater than
 ///        zero and less than the return value from
@@ -33,15 +33,16 @@ int geopm_pio_num_signal_name(void);
 ///
 /// @result Zero is returned on success and
 ///         a negative error code is returned if any error occurs.
-int geopm_pio_signal_name(int name_idx,
-                          size_t result_max,
-                          char *result);
+int __attribute__((visibility("default"))) geopm_pio_signal_name(
+    int name_idx,
+    size_t result_max,
+    char *result);
 
 /// @return the number of control names that can be indexed with the
 ///         name_idx parameter to the geopm_pio_control_name()
 ///         function.  Any error in loading the platform will result
 ///         in a negative error code describing the failure.
-int geopm_pio_num_control_name(void);
+int __attribute__((visibility("default"))) geopm_pio_num_control_name(void);
 
 /// @param [in] name_idx The value of name_idx must be greater than
 ///        zero and less than the return value from
@@ -57,9 +58,10 @@ int geopm_pio_num_control_name(void);
 ///
 /// @result Zero is returned on success and
 ///         a negative error code is returned if any error occurs.
-int geopm_pio_control_name(int name_index,
-                           size_t result_max,
-                           char *result);
+int __attribute__((visibility("default"))) geopm_pio_control_name(
+    int name_index,
+    size_t result_max,
+    char *result);
 
 /// @brief Query the domain for the signal with name signal_name.
 ///
@@ -69,7 +71,8 @@ int geopm_pio_control_name(int name_index,
 ///         granularity at which the signal is measured.  Will return
 ///         a negative error code if any error occurs, e.g. a request
 ///         for a signal_name that is not supported by the platform.
-int geopm_pio_signal_domain_type(const char *signal_name);
+int __attribute__((visibility("default"))) geopm_pio_signal_domain_type(
+    const char *signal_name);
 
 /// @brief Query the domain for the control with name control_name.
 ///
@@ -79,7 +82,8 @@ int geopm_pio_signal_domain_type(const char *signal_name);
 ///         granularity at which the control is measured.  Will return
 ///         a negative error code if any error occurs, e.g. a request
 ///         for a control_name that is not supported by the platform.
-int geopm_pio_control_domain_type(const char *control_name);
+int __attribute__((visibility("default"))) geopm_pio_control_domain_type(
+    const char *control_name);
 
 /// @brief Read from the platform and interpret into SI units a signal
 ///        associated with signal_name and store the value in result.
@@ -102,10 +106,11 @@ int geopm_pio_control_domain_type(const char *control_name);
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_read_signal(const char *signal_name,
-                          int domain_type,
-                          int domain_idx,
-                          double *result);
+int __attribute__((visibility("default"))) geopm_pio_read_signal(
+    const char *signal_name,
+    int domain_type,
+    int domain_idx,
+    double *result);
 
 /// @brief Interpret the setting in SI units associated with
 ///        control_name and write it to the platform.  This value is
@@ -129,10 +134,11 @@ int geopm_pio_read_signal(const char *signal_name,
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_write_control(const char *control_name,
-                            int domain_type,
-                            int domain_idx,
-                            double setting);
+int __attribute__((visibility("default"))) geopm_pio_write_control(
+    const char *control_name,
+    int domain_type,
+    int domain_idx,
+    double setting);
 
 /// @brief Push a signal onto the stack of batch access signals.  The
 ///        signal is defined by selecting a signal_name from one of
@@ -173,9 +179,10 @@ int geopm_pio_write_control(const char *control_name,
 ///         the internal state from the last update.  A distinct
 ///         signal index will be returned for each unique combination
 ///         of input parameters.
-int geopm_pio_push_signal(const char *signal_name,
-                          int domain_type,
-                          int domain_idx);
+int __attribute__((visibility("default"))) geopm_pio_push_signal(
+    const char *signal_name,
+    int domain_type,
+    int domain_idx);
 
 /// @brief Push a control onto the stack of batch access controls.
 ///        The control is defined by selecting a control_name from one
@@ -215,9 +222,10 @@ int geopm_pio_push_signal(const char *signal_name,
 ///         internal state used to store batch controls.  A distinct
 ///         control index will be returned for each unique combination
 ///         of input parameters.
-int geopm_pio_push_control(const char *control_name,
-                           int domain_type,
-                           int domain_idx);
+int __attribute__((visibility("default"))) geopm_pio_push_control(
+    const char *control_name,
+    int domain_type,
+    int domain_idx);
 
 /// @brief Samples cached value of a single signal that has been
 ///        pushed via geopm_pio_push_signal() and writes the value
@@ -234,8 +242,9 @@ int geopm_pio_push_control(const char *control_name,
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_sample(int signal_idx,
-                     double *result);
+int __attribute__((visibility("default"))) geopm_pio_sample(
+    int signal_idx,
+    double *result);
 
 /// @brief Updates cached value for single control that has been
 ///        pushed via geopm_pio_push_control() to the value setting.
@@ -251,22 +260,23 @@ int geopm_pio_sample(int signal_idx,
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_adjust(int control_idx,
-                     double setting);
+int __attribute__((visibility("default"))) geopm_pio_adjust(
+    int control_idx,
+    double setting);
 
 /// @brief Read all push signals from the platform so that the next
 ///        call to geopm_pio_sample() will reflect the updated data.
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_read_batch(void);
+int __attribute__((visibility("default"))) geopm_pio_read_batch(void);
 
 /// @brief Write all pushed controls so that values provided to
 ///        geopm_pio_adjust() are written to the platform.
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_write_batch(void);
+int __attribute__((visibility("default"))) geopm_pio_write_batch(void);
 
 /// @brief Save the state of all controls so that any subsequent
 ///        changes made through geopm_pio_write_control() or
@@ -278,7 +288,7 @@ int geopm_pio_write_batch(void);
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_save_control(void);
+int __attribute__((visibility("default"))) geopm_pio_save_control(void);
 
 /// @brief Save the state of all controls in the directory so that any
 ///        subsequent changes made through geopm_pio_write_control()
@@ -292,7 +302,7 @@ int geopm_pio_save_control(void);
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_save_control_dir(const char *save_dir);
+int __attribute__((visibility("default"))) geopm_pio_save_control_dir(const char *save_dir);
 
 /// @brief Restore the state recorded by the last call to
 ///        geopm_pio_save_control() so that all subsequent changes
@@ -302,7 +312,7 @@ int geopm_pio_save_control_dir(const char *save_dir);
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_restore_control(void);
+int __attribute__((visibility("default"))) geopm_pio_restore_control(void);
 
 /// @brief Restore the state recorded by the last call to
 ///        geopm_pio_save_control() in the directory so that all
@@ -314,7 +324,7 @@ int geopm_pio_restore_control(void);
 ///
 /// @return If an error occurs then negative error code is returned.
 ///         Zero is returned upon success.
-int geopm_pio_restore_control_dir(const char *save_dir);
+int __attribute__((visibility("default"))) geopm_pio_restore_control_dir(const char *save_dir);
 
 /// @param [in] signal_name A string holding the name of the signal.
 ///
@@ -329,9 +339,10 @@ int geopm_pio_restore_control_dir(const char *save_dir);
 ///
 /// @result Zero is returned on success and a negative error code is
 ///         returned if any error occurs.
-int geopm_pio_signal_description(const char *signal_name,
-                                 size_t description_max,
-                                 char *description);
+int __attribute__((visibility("default"))) geopm_pio_signal_description(
+    const char *signal_name,
+    size_t description_max,
+    char *description);
 
 /// @param [in] control_name A string holding the name of the control.
 ///
@@ -345,9 +356,10 @@ int geopm_pio_signal_description(const char *signal_name,
 ///
 /// @result Zero is returned on success and a negative error code is
 ///         returned if any error occurs.
-int geopm_pio_control_description(const char *control_name,
-                                  size_t description_max,
-                                  char *description);
+int __attribute__((visibility("default"))) geopm_pio_control_description(
+    const char *control_name,
+    size_t description_max,
+    char *description);
 
 /// @brief C interface to get enums associated with a signal name.
 ///
@@ -368,10 +380,11 @@ int geopm_pio_control_description(const char *control_name,
 ///        enum values that describes the signals behavior over time.
 ///
 /// @return Zero on success, error value on failure.
-int geopm_pio_signal_info(const char *signal_name,
-                          int *aggregation_type,
-                          int *format_type,
-                          int *behavior_type);
+int __attribute__((visibility("default"))) geopm_pio_signal_info(
+    const char *signal_name,
+    int *aggregation_type,
+    int *format_type,
+    int *behavior_type);
 
 struct geopm_request_s;
 
@@ -409,14 +422,15 @@ struct geopm_request_s;
 ///
 /// @result Zero is returned on success and
 ///         a negative error code is returned if any error occurs.
-int geopm_pio_start_batch_server(int client_pid,
-                                 int num_signal,
-                                 const struct geopm_request_s *signal_config,
-                                 int num_control,
-                                 const struct geopm_request_s *control_config,
-                                 int *server_pid,
-                                 int key_size,
-                                 char *server_key);
+int __attribute__((visibility("default"))) geopm_pio_start_batch_server(
+    int client_pid,
+    int num_signal,
+    const struct geopm_request_s *signal_config,
+    int num_control,
+    const struct geopm_request_s *control_config,
+    int *server_pid,
+    int key_size,
+    char *server_key);
 
 /// @brief Supports the D-Bus interface for stopping a batch server.
 ///        Call through to BatchServer::stop_batch()
@@ -430,7 +444,7 @@ int geopm_pio_start_batch_server(int client_pid,
 ///
 /// @result Zero is returned on success and a negative error code is
 ///         returned if any error occurs.
-int geopm_pio_stop_batch_server(int server_pid);
+int __attribute__((visibility("default"))) geopm_pio_stop_batch_server(int server_pid);
 
 /// @brief Format the signal according to the format type specified,
 ///        and write the output into the result string.
@@ -450,10 +464,11 @@ int geopm_pio_stop_batch_server(int server_pid);
 ///        any result.
 ///
 /// @return Zero on success, error value on failure.
-int geopm_pio_format_signal(double signal,
-                            int format_type,
-                            size_t result_max,
-                            char *result);
+int __attribute__((visibility("default"))) geopm_pio_format_signal(
+    double signal,
+    int format_type,
+    size_t result_max,
+    char *result);
 
 /// @brief Reset the GEOPM platform interface causing resources to be
 ///        freed.  This will cause the internal PlatormIO instance to
@@ -465,12 +480,12 @@ int geopm_pio_format_signal(double signal,
 ///        NOTE: the reset only applies to the Service PlatformIO
 ///        instance and does not affect the PlatformIO instance
 ///        managed by the GEOPM HPC runtime.
-void geopm_pio_reset(void);
+void __attribute__((visibility("default"))) geopm_pio_reset(void);
 
 /// @param [in] value Check if the given parameter is a valid value.
 ///
 /// @return 0 if the value is valid, GEOPM_ERROR_INVALID if the value is invalid.
-int geopm_pio_check_valid_value(double value);
+int __attribute__((visibility("default"))) geopm_pio_check_valid_value(double value);
 
 /// @brief Discover the thread PIDS associated with an application
 ///
@@ -488,8 +503,8 @@ int geopm_pio_check_valid_value(double value);
 ///
 /// @param [out] pid An array of Linux PIDs that are associated with
 ///        the application.
-int geopm_pio_profile_pids(const char *profile_name, int max_num_pid, int *num_pid, int *pid);
-
+int __attribute__((visibility("default"))) geopm_pio_profile_pids(
+    const char *profile_name, int max_num_pid, int *num_pid, int *pid);
 
 #ifdef __cplusplus
 }

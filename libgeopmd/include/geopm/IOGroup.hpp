@@ -15,7 +15,7 @@
 
 namespace geopm
 {
-    class IOGroup
+    class __attribute__((visibility("default"))) IOGroup
     {
         public:
             enum m_units_e {
@@ -223,14 +223,14 @@ namespace geopm
             static const std::map<std::string, m_signal_behavior_e> M_BEHAVIOR_STRING;
     };
 
-    class IOGroupFactory : public PluginFactory<IOGroup>
+    class __attribute__((visibility("default"))) IOGroupFactory : public PluginFactory<IOGroup>
     {
         public:
             IOGroupFactory();
             virtual ~IOGroupFactory() = default;
     };
 
-    IOGroupFactory &iogroup_factory(void);
+    IOGroupFactory __attribute__((visibility("default"))) & iogroup_factory(void);
 }
 
 #endif

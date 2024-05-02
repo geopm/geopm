@@ -14,7 +14,7 @@ namespace geopm
 {
     /// Aggregation functions available to be used by Agents and IOGroups to
     /// condense a vector of signal values into a single value.
-    class Agg
+    class __attribute__((visibility("default"))) Agg
     {
         public:
             enum m_type_e {

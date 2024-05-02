@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-const char *geopm_version(void);
+const char __attribute__((visibility("default"))) * geopm_version(void);
 
 #ifdef __cplusplus
 }

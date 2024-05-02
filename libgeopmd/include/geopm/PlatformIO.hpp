@@ -15,7 +15,7 @@
 
 #include "geopm_pio.h"
 
-struct geopm_request_s {
+struct __attribute__((visibility("default"))) geopm_request_s {
     int domain_type;
     int domain_idx;
     char name[NAME_MAX];
@@ -28,7 +28,7 @@ namespace geopm
 
     /// @brief Class which is a collection of all valid control and
     /// signal objects for a platform
-    class PlatformIO
+    class __attribute__((visibility("default"))) PlatformIO
     {
         public:
             PlatformIO() = default;
@@ -255,7 +255,7 @@ namespace geopm
             static bool is_valid_value(double value);
     };
 
-    PlatformIO &platform_io(void);
+    PlatformIO __attribute__((visibility("default"))) & platform_io(void);
 }
 
 #endif

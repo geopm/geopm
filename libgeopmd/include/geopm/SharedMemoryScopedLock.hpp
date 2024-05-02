@@ -12,7 +12,7 @@ namespace geopm
 {
     /// @brief An object used to automatically hold a SharedMemory mutex while
     ///        in scope, and release it when out of scope.
-    class SharedMemoryScopedLock
+    class __attribute__((visibility("default"))) SharedMemoryScopedLock
     {
         public:
             SharedMemoryScopedLock() = delete;
