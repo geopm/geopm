@@ -55,17 +55,15 @@ class ExampleIOGroup : public geopm::IOGroup
     private:
         std::vector<std::string> parse_proc_stat(void);
         int get_signal_index(const std::string &signal_name) const;
+        double read_control(void);
+        void write_control(double value);
         enum m_signal_type_e {
             M_SIGNAL_USER_TIME,
             M_SIGNAL_NICE_TIME,
             M_SIGNAL_SYSTEM_TIME,
             M_SIGNAL_IDLE_TIME,
+            M_CONTROL_TMP_FILE,
             M_NUM_SIGNAL
-        };
-        enum m_control_type_e {
-            M_CONTROL_STDOUT,
-            M_CONTROL_STDERR,
-            M_NUM_CONTROL
         };
         const geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed
@@ -75,9 +73,12 @@ class ExampleIOGroup : public geopm::IOGroup
         std::map<std::string, int> m_signal_idx_map;
         std::map<std::string, int> m_control_idx_map;
         std::vector<bool> m_do_read;
-        std::vector<bool> m_do_write;
-        std::vector<std::string> m_signal_value;
-        std::vector<std::string> m_control_value;
+        std::vector<double> m_signal_value;
+        std::string m_tmp_file_path;
+        std::string m_tmp_file_msg;
+        bool m_do_write;
+        double m_control_value;
+        bool m_is_control_enabled;
 };
 
 #endif
