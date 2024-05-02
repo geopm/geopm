@@ -103,7 +103,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         # Only benchmarks 1 & 16 are used to reduce characterization time
         aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
             ['--slowdown=1',
-             '--base-internal-iterations=10',
+             '--base-internal-iterations=50',
              '--iterations=5',
              f'--floats={1<<21}', # quick characterization, use 26 for slower & more accurate
              '--benchmarks=1 16'], # 1 & 16 are reasonable memory and compute bound
@@ -133,7 +133,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         experiment_args.run_max_turbo = False
 
         report_signals="MSR::QM_CTR_SCALED_RATE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_MAX_CONTROL@package,CPU_UNCORE_FREQUENCY_MIN_CONTROL@package,CPU_UNCORE_FREQUENCY_MAX_CONTROL@package"
-        experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
+        experiment_cli_args=['--geopm-report-signals={}'.format(report_signals), '--geopm-ctl=process']
 
         # We're using the AIB app conf from above here
         launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg + freq_cfg)
