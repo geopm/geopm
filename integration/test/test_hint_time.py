@@ -89,7 +89,6 @@ class TestIntegration_hint_time(unittest.TestCase):
         if not cls._skip_launch:
             # Set the job size parameters
             num_rank = cls._num_node
-            time_limit = 60
             # Configure the test application
             app_conf = AppConf()
             agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
@@ -97,11 +96,9 @@ class TestIntegration_hint_time(unittest.TestCase):
             # Create the test launcher with the above configuration
             launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         agent_conf,
-                                                        cls._report_path,
-                                                        time_limit=time_limit)
+                                                        cls._report_path)
             launcher.set_num_node(cls._num_node)
             launcher.set_num_rank(num_rank)
-            launcher.set_pmpi_ctl('application')
             # Run the test application
             geopm_args = ['--geopm-period=0.005']
             launcher.run('test_' + cls._test_name, add_geopm_args=geopm_args)
@@ -164,7 +161,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             util.assertNear(self, expect, actual, msg=msg)
 
             raw_epoch = self._report.raw_epoch(host_name=host)
-            msg = "Epoch should have two seconds of network time"
+            msg = "Epoch should have one second of network time"
             expect = 1.0
             actual = raw_epoch['time-hint-network (s)']
             util.assertNear(self, expect, actual, msg=msg)
