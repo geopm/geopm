@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unistd.h>
 
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
@@ -40,17 +41,48 @@ ExampleIOGroup::ExampleIOGroup()
                        {"EXAMPLE::SYSTEM_TIME", M_SIGNAL_SYSTEM_TIME},
                        {"SYSTEM_TIME",          M_SIGNAL_SYSTEM_TIME}, // alias for EXAMPLE::SYSTEM_TIME
                        {"EXAMPLE::IDLE_TIME",   M_SIGNAL_IDLE_TIME},
-                       {"IDLE_TIME",            M_SIGNAL_IDLE_TIME}}   // alias for EXAMPLE::IDLE_TIME
-    , m_control_idx_map{{"EXAMPLE::STDOUT",     M_CONTROL_STDOUT},
-                        {"STDOUT",              M_CONTROL_STDOUT},     // alias for EXAMPLE::STDOUT
-                        {"EXAMPLE::STDERR",     M_CONTROL_STDERR},
-                        {"STDERR",              M_CONTROL_STDERR}}     // alias for EXAMPLE::STDERR
-    , m_do_read(M_NUM_SIGNAL + M_NUM_CONTROL, false)
-    , m_do_write(M_NUM_CONTROL, false)
-    , m_signal_value(M_NUM_SIGNAL + M_NUM_CONTROL, 0.0)
-    , m_control_value(M_NUM_CONTROL, 0.0)
+                       {"IDLE_TIME",            M_SIGNAL_IDLE_TIME}}
+    , m_do_read(M_NUM_SIGNAL, false)
+    , m_signal_value(M_NUM_SIGNAL, 0.0)
+    , m_tmp_file_path("/tmp/geopm_example_control." + std::to_string(getuid()))
+    , m_tmp_file_msg("Could not open or parse text file \"" + m_tmp_file_path +
+                     "\", create and populate with a floating point number to enable \"TMP_FILE_CONTROL\"")
+    , m_do_write(false)
+    , m_control_value(0.0)
+    , m_is_control_enabled(false)
 {
+    try {
+        m_control_value = read_control();
+        m_is_control_enabled = std::isfinite(m_control_value);
+    }
+    catch (const Exception &ex) {
+        std::cerr << "Warning: " << ex.what() << std::endl;
+    }
+    if (m_is_control_enabled) {
+        m_signal_idx_map["EXAMPLE::TMP_FILE_CONTROL"] = M_CONTROL_TMP_FILE;
+        m_signal_idx_map["TMP_FILE_CONTROL"] = M_CONTROL_TMP_FILE;
+        m_control_idx_map["EXAMPLE::TMP_FILE_CONTROL"] = M_CONTROL_TMP_FILE;
+        m_control_idx_map["TMP_FILE_CONTROL"] = M_CONTROL_TMP_FILE;
+    }
+}
 
+double ExampleIOGroup::read_control(void)
+{
+    double result;
+    std::ifstream control_stream(m_tmp_file_path);
+    if (!control_stream.good()) {
+        throw Exception("File not found: " + m_tmp_file_path,
+                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    control_stream >> result;
+    return result;
+}
+
+
+void ExampleIOGroup::write_control(double setting)
+{
+    std::ofstream control_stream(m_tmp_file_path);
+    control_stream << setting;
 }
 
 // Extract the set of all signal names from the index map
@@ -58,9 +90,6 @@ std::set<std::string> ExampleIOGroup::signal_names(void) const
 {
     std::set<std::string> result;
     for (const auto &sv : m_signal_idx_map) {
-        result.insert(sv.first);
-    }
-    for (const auto &sv : m_control_idx_map) {
         result.insert(sv.first);
     }
     return result;
@@ -79,8 +108,7 @@ std::set<std::string> ExampleIOGroup::control_names(void) const
 // Check signal name using index map
 bool ExampleIOGroup::is_valid_signal(const std::string &signal_name) const
 {
-    return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end() ||
-           m_control_idx_map.find(signal_name) != m_control_idx_map.end();
+    return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
 }
 
 // Check control name using index map
@@ -125,10 +153,6 @@ int ExampleIOGroup::push_signal(const std::string &signal_name, int domain_type,
         throw Exception("ExampleIOGroup::push_signal(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (m_is_batch_read) {
-        throw Exception("ExampleIOGroup::push_signal(): cannot push signal after call to read_batch().",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
 
     int signal_idx = get_signal_index(signal_name);
     m_do_read[signal_idx] = true;
@@ -139,6 +163,9 @@ int ExampleIOGroup::push_signal(const std::string &signal_name, int domain_type,
 // Mark the given control to be written by write_batch()
 int ExampleIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
 {
+    if (!m_is_control_enabled) {
+        throw Exception(m_tmp_file_msg, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
     if (!is_valid_control(control_name)) {
         throw Exception("ExampleIOGroup::push_control(): control_name " + control_name +
                         " not valid for ExampleIOGroup",
@@ -152,9 +179,8 @@ int ExampleIOGroup::push_control(const std::string &control_name, int domain_typ
         throw Exception("ExampleIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    int control_idx = m_control_idx_map.at(control_name);
-    m_do_write[control_idx] = true;
-    return control_idx;
+    m_do_write = true;
+    return 0;
 }
 
 // Parse /proc/stat for values in the cpu row
@@ -196,21 +222,12 @@ std::vector<std::string> ExampleIOGroup::parse_proc_stat(void)
 
 int ExampleIOGroup::get_signal_index(const std::string &signal_name) const
 {
-    int index;
     auto it = m_signal_idx_map.find(signal_name);
     if (it == m_signal_idx_map.end()) {
-        it = m_control_idx_map.find(signal_name);
-        if (it == m_signal_idx_map.end()) {
-            throw Exception("Signal is not provided by ExampleIOGroup: " + signal_name,
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        index = it->second + M_NUM_SIGNAL;
+        throw Exception("Signal is not provided by ExampleIOGroup: " + signal_name,
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    else {
-        index = it->second;
-    }
-
-    return index;
+    return it->second;
 }
 
 // Parse /proc/stat and update saved values for signals
@@ -220,16 +237,19 @@ void ExampleIOGroup::read_batch(void)
     if (m_do_batch_read) {
         std::vector<std::string> cpu_val = parse_proc_stat();
         if (m_do_read[M_SIGNAL_USER_TIME]) {
-            m_signal_value[M_SIGNAL_USER_TIME] = cpu_val[1];
+            m_signal_value[M_SIGNAL_USER_TIME] = stod(cpu_val[1]);
         }
         if (m_do_read[M_SIGNAL_NICE_TIME]) {
-            m_signal_value[M_SIGNAL_NICE_TIME] = cpu_val[2];
+            m_signal_value[M_SIGNAL_NICE_TIME] = stod(cpu_val[2]);
         }
         if (m_do_read[M_SIGNAL_SYSTEM_TIME]) {
-            m_signal_value[M_SIGNAL_SYSTEM_TIME] = cpu_val[3];
+            m_signal_value[M_SIGNAL_SYSTEM_TIME] = stod(cpu_val[3]);
         }
         if (m_do_read[M_SIGNAL_IDLE_TIME]) {
-            m_signal_value[M_SIGNAL_IDLE_TIME] = cpu_val[4];
+            m_signal_value[M_SIGNAL_IDLE_TIME] = stod(cpu_val[4]);
+        }
+        if (m_do_read[M_CONTROL_TMP_FILE]) {
+            m_signal_value[M_CONTROL_TMP_FILE] = read_control();
         }
     }
 }
@@ -237,11 +257,8 @@ void ExampleIOGroup::read_batch(void)
 // Print the saved values for controls
 void ExampleIOGroup::write_batch(void)
 {
-    if (m_do_write[M_CONTROL_STDOUT]) {
-        std::cout << m_control_value[M_CONTROL_STDOUT] << std::endl;
-    }
-    if (m_do_write[M_CONTROL_STDERR]) {
-        std::cerr << m_control_value[M_CONTROL_STDERR] << std::endl;
+    if (m_do_write) {
+        write_control(m_control_value);
     }
 }
 
@@ -261,21 +278,25 @@ double ExampleIOGroup::sample(int batch_idx)
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     /// @todo more error handling
-    return std::stod(m_signal_value[batch_idx]);
+    return m_signal_value[batch_idx];
 }
 
 // Save a setting to be written by a future write_batch()
 void ExampleIOGroup::adjust(int batch_idx, double setting)
 {
-    if (batch_idx < 0 || batch_idx >= M_NUM_CONTROL) {
+    if (!m_is_control_enabled) {
+        throw Exception("ExampleIOGroup::adjust(): File does not exist or could not be parsed:" + m_tmp_file_path,
+                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    if (batch_idx != 0) {
         throw Exception("ExampleIOGroup::adjust(): batch_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (!m_do_write[batch_idx]) {
+    if (!m_do_write) {
         throw Exception("ExampleIOGroup::adjust(): control has not been pushed.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    m_control_value[batch_idx] = std::to_string(setting);
+    m_control_value = setting;
 }
 
 // Read the value of a signal immediately, bypassing read_batch()
@@ -311,6 +332,9 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
         case M_SIGNAL_IDLE_TIME:
             result = std::stod(cpu_val[4]);
             break;
+        case M_CONTROL_TMP_FILE:
+            result = read_control();
+            break;
         default:
             break;
     }
@@ -320,6 +344,9 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
 // Write to the control immediately, bypassing write_batch()
 void ExampleIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
 {
+    if (!m_is_control_enabled) {
+        throw Exception(m_tmp_file_msg, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
     if (!is_valid_control(control_name)) {
         throw Exception("ExampleIOGroup:write_control(): " + control_name +
                         "not valid for ExampleIOGroup",
@@ -333,21 +360,10 @@ void ExampleIOGroup::write_control(const std::string &control_name, int domain_t
         throw Exception("ExampleIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-
-    int control_idx = m_control_idx_map.at(control_name);
-    switch (control_idx) {
-        case M_CONTROL_STDOUT:
-            std::cout << setting << std::endl;
-            break;
-        case M_CONTROL_STDERR:
-            std::cerr << setting << std::endl;
-            break;
-        default:
-            break;
-    }
+    write_control(setting);
 }
 
-// Implemented to allow an IOGroup platform settings before starting
+// Implemented to allow an IOGroup platform settings to be saved before starting
 // to adjust them
 void ExampleIOGroup::save_control(void)
 {
@@ -359,8 +375,7 @@ void ExampleIOGroup::save_control(const std::string &save_path)
 
 }
 
-// Implemented to allow an IOGroup to restore previously saved
-// platform settings
+// Implemented to allow an IOGroup to restore previously saved platform settings
 void ExampleIOGroup::restore_control(void)
 {
 
@@ -417,6 +432,9 @@ std::string ExampleIOGroup::signal_description(const std::string &signal_name) c
         case M_SIGNAL_IDLE_TIME:
             result = "CPU idle time";
             break;
+        case M_CONTROL_TMP_FILE:
+            result = "Value contained in file \"" + m_tmp_file_path + "\"";
+            break;
         default:
             break;
     }
@@ -432,19 +450,7 @@ std::string ExampleIOGroup::control_description(const std::string &control_name)
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    std::string result = "";
-    int control_idx = m_control_idx_map.at(control_name);
-    switch (control_idx) {
-        case M_CONTROL_STDOUT:
-            result = "Writes a floating point value to standard output";
-            break;
-        case M_CONTROL_STDERR:
-            result = "Writes a floating point value to standard error";
-            break;
-        default:
-            break;
-    }
-    return result;
+    return "Writes a value to \"" + m_tmp_file_path + "\" but file must be created prior to startup";
 }
 
 int ExampleIOGroup::signal_behavior(const std::string &signal_name) const
@@ -455,7 +461,11 @@ int ExampleIOGroup::signal_behavior(const std::string &signal_name) const
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
     // All example signals are time based and increase monotonically
-    return M_SIGNAL_BEHAVIOR_MONOTONE;
+    int result = M_SIGNAL_BEHAVIOR_MONOTONE;
+    if (signal_name != "TMP_FILE_CONTROL" && signal_name != "EXAMPLE::TMP_FILE_CONTROL") {
+        result = M_SIGNAL_BEHAVIOR_VARIABLE;
+    }
+    return result;
 }
 
 std::string ExampleIOGroup::name(void) const
@@ -466,11 +476,11 @@ std::string ExampleIOGroup::name(void) const
 // Name used for registration with the IOGroup factory
 std::string ExampleIOGroup::plugin_name(void)
 {
-    return "example";
+    return "EXAMPLE";
 }
 
 // Function used by the factory to create objects of this type
 std::unique_ptr<geopm::IOGroup> ExampleIOGroup::make_plugin(void)
 {
-    return std::unique_ptr<geopm::IOGroup>(new ExampleIOGroup);
+    return std::make_unique<ExampleIOGroup>();
 }
