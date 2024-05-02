@@ -19,13 +19,13 @@ extern "C"
      * @param [in] data_path Path to the data store.
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_connect(const char *data_path);
+    int __attribute__((visibility("default"))) geopm_policystore_connect(const char *data_path);
 
     /*!
      * @brief Destroy a geopm policy store interface and release its resources
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_disconnect();
+    int __attribute__((visibility("default"))) geopm_policystore_disconnect();
 
     /*!
      * @brief Get the best known policy for a given agent and profile.
@@ -37,8 +37,9 @@ extern "C"
      * @param [out] policy_vals Best known or default policy.
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_get_best(const char *agent_name, const char *profile_name,
-                                   size_t max_policy_vals, double *policy_vals);
+    int __attribute__((visibility("default"))) geopm_policystore_get_best(
+        const char *agent_name, const char *profile_name,
+        size_t max_policy_vals, double *policy_vals);
 
     /*!
      * @brief Set the best known policy for a given agent and profile.
@@ -48,8 +49,9 @@ extern "C"
      * @param [in] policy_vals New policy to apply.
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_set_best(const char *agent_name, const char *profile_name,
-                                   size_t num_policy_vals, const double *policy_vals);
+    int __attribute__((visibility("default"))) geopm_policystore_set_best(
+        const char *agent_name, const char *profile_name,
+        size_t num_policy_vals, const double *policy_vals);
 
     /*!
      * @brief Set the default policy for a given agent.
@@ -58,8 +60,8 @@ extern "C"
      * @param [in] policy_vals Default policy to apply.
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_set_default(const char *agent_name, size_t num_policy_vals,
-                                      const double *policy_vals);
+    int __attribute__((visibility("default"))) geopm_policystore_set_default(
+        const char *agent_name, size_t num_policy_vals, const double *policy_vals);
 
 #ifdef __cplusplus
 }

@@ -12,7 +12,7 @@
 
 namespace geopm
 {
-    class ModelRegion
+    class __attribute__((visibility("default"))) ModelRegion
     {
         public:
             static std::unique_ptr<ModelRegion> model_region(const std::string &name,

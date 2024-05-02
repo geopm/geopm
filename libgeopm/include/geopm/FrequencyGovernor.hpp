@@ -14,7 +14,7 @@ namespace geopm
     class PlatformIO;
     class PlatformTopo;
 
-    class FrequencyGovernor
+    class __attribute__((visibility("default"))) FrequencyGovernor
     {
         public:
             FrequencyGovernor() = default;

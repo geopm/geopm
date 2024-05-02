@@ -10,7 +10,7 @@
 
 namespace geopm
 {
-    class PowerGovernor
+    class __attribute__((visibility("default"))) PowerGovernor
     {
         public:
             PowerGovernor() = default;

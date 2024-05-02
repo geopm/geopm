@@ -15,7 +15,7 @@
 
 namespace geopm
 {
-    class Agent
+    class __attribute__((visibility("default"))) Agent
     {
         public:
             Agent() = default;
@@ -186,14 +186,14 @@ namespace geopm
             static const std::string m_policy_prefix;
     };
 
-    class AgentFactory : public PluginFactory<Agent>
+    class __attribute__((visibility("default"))) AgentFactory : public PluginFactory<Agent>
     {
         public:
             AgentFactory();
             virtual ~AgentFactory() = default;
     };
 
-    AgentFactory &agent_factory(void);
+    AgentFactory __attribute__((visibility("default"))) & agent_factory(void);
 }
 
 #endif

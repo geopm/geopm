@@ -14,14 +14,19 @@ extern "C" {
 
 struct geopm_daemon_c;
 
-int geopm_daemon_create(const char *endpoint_name,
-                        const char *policystore_path,
-                        struct geopm_daemon_c **daemon);
-int geopm_daemon_destroy(struct geopm_daemon_c *daemon);
-int geopm_daemon_update_endpoint_from_policystore(struct geopm_daemon_c *daemon,
-                                                  double timeout);
-int geopm_daemon_stop_wait_loop(struct geopm_daemon_c *daemon);
-int geopm_daemon_reset_wait_loop(struct geopm_daemon_c *daemon);
+int __attribute__((visibility("default"))) geopm_daemon_create(
+    const char *endpoint_name,
+    const char *policystore_path,
+    struct geopm_daemon_c **daemon);
+int __attribute__((visibility("default"))) geopm_daemon_destroy(
+    struct geopm_daemon_c *daemon);
+int __attribute__((visibility("default"))) geopm_daemon_update_endpoint_from_policystore(
+    struct geopm_daemon_c *daemon,
+    double timeout);
+int __attribute__((visibility("default"))) geopm_daemon_stop_wait_loop(
+    struct geopm_daemon_c *daemon);
+int __attribute__((visibility("default"))) geopm_daemon_reset_wait_loop(
+    struct geopm_daemon_c *daemon);
 
 #ifdef __cplusplus
 }
