@@ -14,7 +14,7 @@ namespace geopm
     ///        optimize performance. An average per compute node power
     ///        maximum is maintained, but individual nodes will be
     ///        allowed above or below this average.
-    class PowerBalancer
+    class __attribute__((visibility("default"))) PowerBalancer
     {
         public:
             /// @brief Construct a IPowerBalancer object.

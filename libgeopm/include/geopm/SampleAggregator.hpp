@@ -14,7 +14,7 @@
 
 namespace geopm
 {
-    class SampleAggregator
+    class __attribute__((visibility("default"))) SampleAggregator
     {
         public:
             /// @brief Returns a unique_ptr to a concrete object

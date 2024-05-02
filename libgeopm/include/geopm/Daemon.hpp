@@ -12,7 +12,7 @@ namespace geopm
 {
     /// Methods using the Endpoint interface in combination with other
     /// utilities to perform some system admin functions.
-    class Daemon
+    class __attribute__((visibility("default"))) Daemon
     {
         public:
             virtual ~Daemon() = default;

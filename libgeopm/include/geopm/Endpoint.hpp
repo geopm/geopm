@@ -15,7 +15,7 @@
 
 namespace geopm
 {
-    class Endpoint
+    class __attribute__((visibility("default"))) Endpoint
     {
         public:
             virtual ~Endpoint() = default;
