@@ -809,6 +809,7 @@ class RawReportCollection(object):
         self._reports_df = pandas.DataFrame()
         self._app_reports_df = pandas.DataFrame()
         self._epoch_reports_df = pandas.DataFrame()
+        self._unmarked_reports_df = pandas.DataFrame()
         self._meta_data = None
         self.load_reports(report_paths, dir_name, dir_cache, verbose, do_cache)
 
@@ -872,7 +873,10 @@ class RawReportCollection(object):
                 except KeyError:
                     pass # No regions in cached report
                 self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
-                self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
+                try:
+                    self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
+                except KeyError:
+                    pass
                 try:
                     self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
                 except KeyError:
@@ -890,13 +894,13 @@ class RawReportCollection(object):
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                        try:
-                            self._reports_df.to_hdf(self._report_h5_name, 'report', format='table')
-                        except AttributeError:
-                            pass
-                        self._app_reports_df.to_hdf(self._report_h5_name, 'app_report', format='table', append=True)
-                        self._unmarked_reports_df.to_hdf(self._report_h5_name, 'unmarked_report', format='table', append=True)
-                        self._epoch_reports_df.to_hdf(self._report_h5_name, 'epoch_report', format='table', append=True)
+                        self._app_reports_df.to_hdf(self._report_h5_name, 'app_report', format='table')
+                        if len(self._reports_df) > 0:
+                            self._reports_df.to_hdf(self._report_h5_name, 'report', format='table', append=True)
+                        if len(self._unmarked_reports_df) > 0:
+                            self._unmarked_reports_df.to_hdf(self._report_h5_name, 'unmarked_report', format='table', append=True)
+                        if len(self._epoch_reports_df) > 0:
+                            self._epoch_reports_df.to_hdf(self._report_h5_name, 'epoch_report', format='table', append=True)
                         cache_created = True
                     except TypeError as error:
                         fm = RawReportCollection.fixup_metadata
@@ -1054,17 +1058,20 @@ class RawReportCollection(object):
         try:
             df = pandas.concat(region_df_list, ignore_index=True)
             df = df.reindex(columns=self._columns_order['region'])
+            self._reports_df = df
         except ValueError: # If there were no regions
-            df = None
-        self._reports_df = df
-        unmarked_df = pandas.concat(unmarked_df_list, ignore_index=True)
-        unmarked_df = unmarked_df.reindex(columns=self._columns_order['unmarked'])
-        self._unmarked_reports_df = unmarked_df
+            pass
+        try:
+            unmarked_df = pandas.concat(unmarked_df_list, ignore_index=True)
+            unmarked_df = unmarked_df.reindex(columns=self._columns_order['unmarked'])
+            self._unmarked_reports_df = unmarked_df
+        except ValueError: # If there were no unmarked regions (non-MPI app)
+            pass
         try:
             epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
             epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
             self._epoch_reports_df = epoch_df
-        except KeyError:
+        except (KeyError, ValueError):
             pass
         app_df = pandas.concat(app_df_list, ignore_index=True)
         app_df = app_df.reindex(columns=self._columns_order['app'])
