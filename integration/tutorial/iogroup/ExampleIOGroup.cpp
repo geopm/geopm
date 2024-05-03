@@ -17,6 +17,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/SaveControl.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;
@@ -367,23 +368,32 @@ void ExampleIOGroup::write_control(const std::string &control_name, int domain_t
 // to adjust them
 void ExampleIOGroup::save_control(void)
 {
-
+    if (m_is_control_enabled && m_control_saver == nullptr) {
+        m_control_saver = geopm::SaveControl::make_unique(*this);
+    }
 }
 
 void ExampleIOGroup::save_control(const std::string &save_path)
 {
-
+    if (m_is_control_enabled && m_control_saver == nullptr) {
+        m_control_saver = geopm::SaveControl::make_unique(*this);
+    }
+    m_control_saver->write_json(save_path);
 }
 
 // Implemented to allow an IOGroup to restore previously saved platform settings
 void ExampleIOGroup::restore_control(void)
 {
-
+    if (m_control_saver != nullptr) {
+        m_control_saver->restore(*this);
+    }
 }
 
 void ExampleIOGroup::restore_control(const std::string &save_path)
 {
-
+    if (m_control_saver != nullptr) {
+        m_control_saver->restore(*this);
+    }
 }
 
 // Hint to Agent about how to aggregate signals from this IOGroup
