@@ -40,6 +40,7 @@ ExampleAgent::ExampleAgent()
     , M_WAIT_SEC(1.0)
     , m_min_idle(NAN)
     , m_max_idle(NAN)
+    , m_is_control_active(false)
 {
     geopm_time(&m_last_wait);
 }
@@ -55,8 +56,14 @@ void ExampleAgent::init(int level, const std::vector<int> &fan_in, bool is_level
     m_signal_idx[M_PLAT_SIGNAL_IDLE] = m_platform_io.push_signal("IDLE_TIME", board, 0);
     m_signal_idx[M_PLAT_SIGNAL_NICE] = m_platform_io.push_signal("NICE_TIME", board, 0);
     // push controls
-    m_control_idx[M_PLAT_CONTROL_STDOUT] = m_platform_io.push_control("STDOUT", board, 0);
-    m_control_idx[M_PLAT_CONTROL_STDERR] = m_platform_io.push_control("STDERR", board, 0);
+    if (m_platform_io.control_names().count("TMP_FILE_CONTROL") != 0) {
+        m_control_idx[M_PLAT_CONTROL] = m_platform_io.push_control("TMP_FILE_CONTROL", board, 0);
+        m_is_control_active = true;
+    }
+    else {
+        m_control_idx[M_PLAT_CONTROL] = -1;
+    }
+
 }
 
 // Validate incoming policy and configure default policy requests.
@@ -101,7 +108,7 @@ bool ExampleAgent::do_send_sample(void) const
     return true;
 }
 
-// Set up idle percentage to print to either standard out or standard error
+// Set temporary file to 0 if in range, or percent out of range otherwise
 void ExampleAgent::adjust_platform(const std::vector<double>& in_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
@@ -116,15 +123,15 @@ void ExampleAgent::adjust_platform(const std::vector<double>& in_policy)
     }
 
     double idle_percent = m_last_sample[M_SAMPLE_IDLE_PCT];
-    if (geopm_pio_check_valid_value(idle_percent)) {
+    if (m_is_control_active && geopm_pio_check_valid_value(idle_percent)) {
         if (idle_percent < low_thresh) {
-            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
+            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL], idle_percent - low_thresh);
         }
         else if (idle_percent > high_thresh) {
-            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
+            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL], idle_percent - high_thresh);
         }
         else {
-            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDOUT], idle_percent);
+            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL], 0);
         }
     }
 }
