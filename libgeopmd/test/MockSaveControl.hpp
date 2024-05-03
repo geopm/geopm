@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "SaveControl.hpp"
+#include "geopm/SaveControl.hpp"
 #include "geopm/IOGroup.hpp"
 
 
