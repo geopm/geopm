@@ -232,7 +232,8 @@ namespace geopm
             virtual ~IOGroupFactory() = default;
     };
 
-    IOGroupFactory GEOPM_PUBLIC & iogroup_factory(void);
+    IOGroupFactory GEOPM_PUBLIC &
+        iogroup_factory(void);
 }
 
 #endif

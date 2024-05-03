@@ -18,23 +18,29 @@ extern "C" {
 /*************************/
 /* APPLICATION PROFILING */
 /*************************/
-int GEOPM_PUBLIC geopm_prof_region(const char *region_name,
-                                                             uint64_t hint,
-                                                             uint64_t *region_id);
+int GEOPM_PUBLIC
+    geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id);
 
-int GEOPM_PUBLIC geopm_prof_enter(uint64_t region_id);
+int GEOPM_PUBLIC
+    geopm_prof_enter(uint64_t region_id);
 
-int GEOPM_PUBLIC geopm_prof_exit(uint64_t region_id);
+int GEOPM_PUBLIC
+    geopm_prof_exit(uint64_t region_id);
 
-int GEOPM_PUBLIC geopm_prof_epoch(void);
+int GEOPM_PUBLIC
+    geopm_prof_epoch(void);
 
-int GEOPM_PUBLIC geopm_prof_shutdown(void);
+int GEOPM_PUBLIC
+    geopm_prof_shutdown(void);
 
-int GEOPM_PUBLIC geopm_tprof_init(uint32_t num_work_unit);
+int GEOPM_PUBLIC
+    geopm_tprof_init(uint32_t num_work_unit);
 
-int GEOPM_PUBLIC geopm_tprof_post(void);
+int GEOPM_PUBLIC
+    geopm_tprof_post(void);
 
-int GEOPM_PUBLIC geopm_prof_overhead(double overhead_sec);
+int GEOPM_PUBLIC
+    geopm_prof_overhead(double overhead_sec);
 
 #ifdef __cplusplus
 }

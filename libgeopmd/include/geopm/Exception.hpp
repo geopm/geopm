@@ -34,8 +34,8 @@ namespace geopm
     ///
     /// @return Error number, positive numbers are system errors,
     ///         negative numbers are GEOPM errors.
-    int GEOPM_PUBLIC exception_handler(
-        std::exception_ptr eptr, bool do_print = false);
+    int GEOPM_PUBLIC
+        exception_handler(std::exception_ptr eptr, bool do_print = false);
 
     /// @brief Class for all GEOPM-specific exceptions.
     ///
@@ -102,7 +102,8 @@ namespace geopm
     /// @param error_value The error code associated with the exception.
     ///
     /// @return string The error message associated with the error code.
-    std::string GEOPM_PUBLIC error_message(int error_value);
+    std::string GEOPM_PUBLIC
+        error_message(int error_value);
 }
 
 #endif

@@ -32,7 +32,8 @@ enum geopm_error_e {
 };
 
 /* Convert error number into an error message */
-void GEOPM_PUBLIC geopm_error_message(int err, char *msg, size_t size);
+void GEOPM_PUBLIC
+    geopm_error_message(int err, char *msg, size_t size);
 
 #ifdef __cplusplus
 }

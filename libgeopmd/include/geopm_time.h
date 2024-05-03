@@ -115,9 +115,12 @@ static inline double geopm_time_since(const struct geopm_time_s *begin)
 }
 namespace geopm
 {
-    struct geopm_time_s GEOPM_PUBLIC time_zero(void);
-    struct geopm_time_s GEOPM_PUBLIC time_curr(void);
-    void GEOPM_PUBLIC time_zero_reset(const geopm_time_s &zero);
+    struct geopm_time_s GEOPM_PUBLIC
+        time_zero(void);
+    struct geopm_time_s GEOPM_PUBLIC
+        time_curr(void);
+    void GEOPM_PUBLIC
+        time_zero_reset(const geopm_time_s &zero);
 }
 #endif
 #endif

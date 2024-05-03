@@ -194,7 +194,8 @@ namespace geopm
             virtual ~AgentFactory() = default;
     };
 
-    AgentFactory GEOPM_PUBLIC & agent_factory(void);
+    AgentFactory GEOPM_PUBLIC &
+        agent_factory(void);
 }
 
 #endif
