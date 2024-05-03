@@ -73,8 +73,7 @@ class ExampleAgent : public geopm::Agent
         };
         // Controls written in adjust_platform()
         enum m_plat_control_e {
-            M_PLAT_CONTROL_STDOUT,
-            M_PLAT_CONTROL_STDERR,
+            M_PLAT_CONTROL,
             M_NUM_PLAT_CONTROL
         };
         // Values for trace
@@ -102,6 +101,8 @@ class ExampleAgent : public geopm::Agent
 
         double m_min_idle;
         double m_max_idle;
+
+        bool m_is_control_active;
 };
 
 #endif
