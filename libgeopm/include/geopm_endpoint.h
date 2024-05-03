@@ -31,9 +31,8 @@ struct geopm_endpoint_c;
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_endpoint_create(
-    const char *endpoint_name,
-    struct geopm_endpoint_c **endpoint);
+int GEOPM_PUBLIC
+    geopm_endpoint_create(const char *endpoint_name, struct geopm_endpoint_c **endpoint);
 
 /*!
  *  @brief Release resources associated with endpoint.
@@ -46,7 +45,8 @@ int GEOPM_PUBLIC geopm_endpoint_create(
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC
+    geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Create shmem regions within the endpoint for policy/sample
@@ -57,7 +57,8 @@ int GEOPM_PUBLIC geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC
+    geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Destroy shmem regions within the endpoint.
@@ -67,7 +68,8 @@ int GEOPM_PUBLIC geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC
+    geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Check if an agent has attached.
@@ -87,10 +89,9 @@ int GEOPM_PUBLIC geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
  *          returned.
  *
  */
-int GEOPM_PUBLIC geopm_endpoint_agent(
-    struct geopm_endpoint_c *endpoint,
-    size_t agent_name_max,
-    char *agent_name);
+int GEOPM_PUBLIC
+    geopm_endpoint_agent(struct geopm_endpoint_c *endpoint, size_t agent_name_max,
+                         char *agent_name);
 
 /*!
  *  @brief Blocks until an agent has attached or the timeout is
@@ -101,9 +102,8 @@ int GEOPM_PUBLIC geopm_endpoint_agent(
  *
  *  @param [in] timeout Timeout in seconds.
  */
-int GEOPM_PUBLIC geopm_endpoint_wait_for_agent_attach(
-    struct geopm_endpoint_c *endpoint,
-    double timeout);
+int GEOPM_PUBLIC
+    geopm_endpoint_wait_for_agent_attach(struct geopm_endpoint_c *endpoint, double timeout);
 
 /*!
  * @brief Stops any current wait loops the endpoint is running.
@@ -111,8 +111,8 @@ int GEOPM_PUBLIC geopm_endpoint_wait_for_agent_attach(
  *  @param [in] endpoint Object created by call to
  *         geopm_endpoint_create().
  */
-int GEOPM_PUBLIC geopm_endpoint_stop_wait_loop(
-    struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC
+    geopm_endpoint_stop_wait_loop(struct geopm_endpoint_c *endpoint);
 
 /*!
  * @brief Resets the endpoint to prepare for a subsequent call to
@@ -121,7 +121,8 @@ int GEOPM_PUBLIC geopm_endpoint_stop_wait_loop(
  *  @param [in] endpoint Object created by call to
  *         geopm_endpoint_create().
  */
-int GEOPM_PUBLIC geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC
+    geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Check profile name for an attached job.
@@ -142,10 +143,9 @@ int GEOPM_PUBLIC geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoin
  *          returned.
  *
  */
-int GEOPM_PUBLIC geopm_endpoint_profile_name(
-    struct geopm_endpoint_c *endpoint,
-    size_t profile_name_max,
-    char *profile_name);
+int GEOPM_PUBLIC
+    geopm_endpoint_profile_name(struct geopm_endpoint_c *endpoint, size_t profile_name_max,
+                                char *profile_name);
 
 /*!
  *  @brief Get the number of nodes managed by the agent.
@@ -159,9 +159,8 @@ int GEOPM_PUBLIC geopm_endpoint_profile_name(
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_endpoint_num_node(
-    struct geopm_endpoint_c *endpoint,
-    int *num_node);
+int GEOPM_PUBLIC
+    geopm_endpoint_num_node(struct geopm_endpoint_c *endpoint, int *num_node);
 
 /*!
  *  @brief Get the hostname of the indexed compute node.
@@ -180,11 +179,9 @@ int GEOPM_PUBLIC geopm_endpoint_num_node(
  *
  *  @return Zero on success, error code on failure
  */
-int GEOPM_PUBLIC geopm_endpoint_node_name(
-    struct geopm_endpoint_c *endpoint,
-    int node_idx,
-    size_t node_name_max,
-    char *node_name);
+int GEOPM_PUBLIC
+    geopm_endpoint_node_name(struct geopm_endpoint_c *endpoint, int node_idx,
+                             size_t node_name_max, char *node_name);
 
 /*!
  *  @brief Set the policy values for the agent to follow.
@@ -199,10 +196,9 @@ int GEOPM_PUBLIC geopm_endpoint_node_name(
  *
  *  @return Zero on success, error code on failure
  */
-int GEOPM_PUBLIC geopm_endpoint_write_policy(
-    struct geopm_endpoint_c *endpoint,
-    size_t num_policy,
-    const double *policy_array);
+int GEOPM_PUBLIC
+    geopm_endpoint_write_policy(struct geopm_endpoint_c *endpoint,
+                                size_t num_policy, const double *policy_array);
 
 /*!
  *  @brief Get a sample from the agent and amount of time that has
@@ -221,11 +217,9 @@ int GEOPM_PUBLIC geopm_endpoint_write_policy(
  *
  *  @return Zero on success, error code on failure
  */
-int GEOPM_PUBLIC geopm_endpoint_read_sample(
-    struct geopm_endpoint_c *endpoint,
-    size_t num_sample,
-    double *sample_array,
-    double *sample_age_sec);
+int GEOPM_PUBLIC
+    geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint, size_t num_sample,
+                               double *sample_array, double *sample_age_sec);
 
 #ifdef __cplusplus
 }

@@ -18,9 +18,11 @@ namespace geopm
             static PlatformIO &platform_io(void);
             virtual ~PlatformIOProf() = default;
         private:
-            GEOPM_PRIVATE PlatformIOProf();
-            void GEOPM_PRIVATE print_load_warning(const std::string &io_group_name,
-                                    const std::string &what) const;
+            GEOPM_PRIVATE
+                PlatformIOProf();
+            void GEOPM_PRIVATE
+                print_load_warning(const std::string &io_group_name,
+                                   const std::string &what) const;
             PlatformIO &m_platform_io;
     };
 }

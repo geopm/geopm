@@ -18,7 +18,8 @@
 extern "C"
 {
     /// @brief Identify host CPU.
-    int GEOPM_PUBLIC geopm_read_cpuid(void);
+    int GEOPM_PUBLIC
+        geopm_read_cpuid(void);
 }
 
 namespace geopm
@@ -84,6 +85,7 @@ namespace geopm
             static std::map<std::string, int> domain_types(void);
     };
 
-    const PlatformTopo GEOPM_PUBLIC & platform_topo(void);
+    const PlatformTopo GEOPM_PUBLIC &
+        platform_topo(void);
 }
 #endif

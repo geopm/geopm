@@ -263,10 +263,13 @@ namespace geopm
         protected:
             bool m_is_enabled;
         private:
-            void GEOPM_PRIVATE init_app_status(void);
-            void GEOPM_PRIVATE init_app_record_log(void);
+            void GEOPM_PRIVATE
+                init_app_status(void);
+            void GEOPM_PRIVATE
+                init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
-            void GEOPM_PRIVATE set_hint(uint64_t hint);
+            void GEOPM_PRIVATE
+                set_hint(uint64_t hint);
 
             /// @brief holds the string name of the profile.
             std::string m_prof_name;

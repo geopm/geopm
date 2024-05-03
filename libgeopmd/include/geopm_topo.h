@@ -73,33 +73,27 @@ enum geopm_domain_e {
     GEOPM_NUM_DOMAIN = 11,
 };
 
-int GEOPM_PUBLIC geopm_topo_num_domain(
-    int domain_type);
+int GEOPM_PUBLIC
+    geopm_topo_num_domain(int domain_type);
 
-int GEOPM_PUBLIC geopm_topo_domain_idx(
-    int domain_type,
-    int cpu_idx);
+int GEOPM_PUBLIC
+    geopm_topo_domain_idx(int domain_type, int cpu_idx);
 
-int GEOPM_PUBLIC geopm_topo_num_domain_nested(
-    int inner_domain,
-    int outer_domain);
+int GEOPM_PUBLIC
+    geopm_topo_num_domain_nested(int inner_domain, int outer_domain);
 
-int GEOPM_PUBLIC geopm_topo_domain_nested(
-    int inner_domain,
-    int outer_domain,
-    int outer_idx,
-    size_t num_domain_nested,
-    int *domain_nested);
+int GEOPM_PUBLIC
+    geopm_topo_domain_nested(int inner_domain, int outer_domain, int outer_idx,
+                             size_t num_domain_nested, int *domain_nested);
 
-int GEOPM_PUBLIC geopm_topo_domain_name(
-    int domain_type,
-    size_t domain_name_max,
-    char *domain_name);
+int GEOPM_PUBLIC
+    geopm_topo_domain_name(int domain_type, size_t domain_name_max, char *domain_name);
 
-int GEOPM_PUBLIC geopm_topo_domain_type(
-    const char *domain_name);
+int GEOPM_PUBLIC
+    geopm_topo_domain_type(const char *domain_name);
 
-int GEOPM_PUBLIC geopm_topo_create_cache(void);
+int GEOPM_PUBLIC
+    geopm_topo_create_cache(void);
 
 #ifdef __cplusplus
 }

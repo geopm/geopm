@@ -256,7 +256,8 @@ namespace geopm
             static bool is_valid_value(double value);
     };
 
-    PlatformIO GEOPM_PUBLIC & platform_io(void);
+    PlatformIO GEOPM_PUBLIC &
+        platform_io(void);
 }
 
 #endif

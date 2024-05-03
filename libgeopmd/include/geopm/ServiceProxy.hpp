@@ -190,7 +190,8 @@ namespace geopm
             std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
             std::vector<std::string> platform_pop_profile_region_names(const std::string &profile_name) override;
         private:
-            std::vector<std::string> GEOPM_PRIVATE read_string_array(std::shared_ptr<SDBusMessage> bus_message);
+            std::vector<std::string> GEOPM_PRIVATE
+                read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;
     };
 }

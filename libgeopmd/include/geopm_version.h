@@ -12,7 +12,8 @@
 extern "C" {
 #endif
 
-const char GEOPM_PUBLIC * geopm_version(void);
+const char GEOPM_PUBLIC *
+    geopm_version(void);
 
 #ifdef __cplusplus
 }

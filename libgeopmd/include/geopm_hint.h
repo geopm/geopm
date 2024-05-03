@@ -36,7 +36,8 @@ enum geopm_region_hint_e {
 
 namespace geopm {
     /// @brief Verify a region's hint value is legal for use.
-    void GEOPM_PUBLIC check_hint(uint64_t hint);
+    void GEOPM_PUBLIC
+        check_hint(uint64_t hint);
 }
 #endif
 

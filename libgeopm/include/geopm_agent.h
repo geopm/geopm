@@ -21,7 +21,8 @@ extern "C" {
  *
  *  @return Zero if agent is supported, error code otherwise.
  */
-int GEOPM_PUBLIC geopm_agent_supported(const char *agent_name);
+int GEOPM_PUBLIC
+    geopm_agent_supported(const char *agent_name);
 
 /*!
  *  @brief Get number of policy parameters supported by agent.
@@ -33,9 +34,8 @@ int GEOPM_PUBLIC geopm_agent_supported(const char *agent_name);
  *
  *  @return Zero if agent is supported, error code otherwise.
  */
-int GEOPM_PUBLIC geopm_agent_num_policy(
-    const char *agent_name,
-    int *num_policy);
+int GEOPM_PUBLIC
+    geopm_agent_num_policy(const char *agent_name, int *num_policy);
 
 /*!
  *  @brief Get the name of a policy parameter.
@@ -55,11 +55,9 @@ int GEOPM_PUBLIC geopm_agent_num_policy(
  *          policy name can be stored in output string, error code
  *          otherwise.
  */
-int GEOPM_PUBLIC geopm_agent_policy_name(
-    const char *agent_name,
-    int policy_idx,
-    size_t policy_name_max,
-    char *policy_name);
+int GEOPM_PUBLIC
+    geopm_agent_policy_name(const char *agent_name, int policy_idx,
+                            size_t policy_name_max, char *policy_name);
 
 /*!
  *  @brief Create a json file to control agent policy statically.
@@ -78,11 +76,9 @@ int GEOPM_PUBLIC geopm_agent_policy_name(
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_agent_policy_json(
-    const char *agent_name,
-    const double *policy_array,
-    size_t json_string_max,
-    char *json_string);
+int GEOPM_PUBLIC
+    geopm_agent_policy_json(const char *agent_name, const double *policy_array,
+                            size_t json_string_max, char *json_string);
 
 /*!
  *  @brief Create a json file to control agent policy statically.
@@ -104,12 +100,10 @@ int GEOPM_PUBLIC geopm_agent_policy_json(
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_agent_policy_json_partial(
-    const char *agent_name,
-    size_t policy_array_size,
-    const double *policy_array,
-    size_t json_string_max,
-    char *json_string);
+int GEOPM_PUBLIC
+    geopm_agent_policy_json_partial(const char *agent_name, size_t policy_array_size,
+                                    const double *policy_array, size_t json_string_max,
+                                    char *json_string);
 
 /*!
  *  @brief The number of sampled parameters provided by agent.
@@ -121,9 +115,8 @@ int GEOPM_PUBLIC geopm_agent_policy_json_partial(
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_agent_num_sample(
-    const char *agent_name,
-    int *num_sample);
+int GEOPM_PUBLIC
+    geopm_agent_num_sample(const char *agent_name, int *num_sample);
 
 /*!
  *  @brief The name of the indexed sample value.
@@ -142,11 +135,9 @@ int GEOPM_PUBLIC geopm_agent_num_sample(
  *
  *  @return Zero if agent is supported, error code otherwise.
  */
-int GEOPM_PUBLIC geopm_agent_sample_name(
-    const char *agent_name,
-    int sample_idx,
-    size_t sample_name_max,
-    char *sample_name);
+int GEOPM_PUBLIC
+    geopm_agent_sample_name(const char *agent_name, int sample_idx,
+                            size_t sample_name_max, char *sample_name);
 
 /*!
  *  @brief The number of available agents.
@@ -155,7 +146,8 @@ int GEOPM_PUBLIC geopm_agent_sample_name(
  *
  *  @return Zero if no error occurred.  Otherwise the error code will be returned.
  */
-int GEOPM_PUBLIC geopm_agent_num_avail(int *num_agent);
+int GEOPM_PUBLIC
+    geopm_agent_num_avail(int *num_agent);
 
 /*!
  *  @brief The name of a specific agent.
@@ -173,10 +165,8 @@ int GEOPM_PUBLIC geopm_agent_num_avail(int *num_agent);
  *  @return Zero if agent_name is large enough to hold the name,
  *          error code otherwise.
  */
-int GEOPM_PUBLIC geopm_agent_name(
-    int agent_idx,
-    size_t agent_name_max,
-    char *agent_name);
+int GEOPM_PUBLIC
+    geopm_agent_name(int agent_idx, size_t agent_name_max, char *agent_name);
 
 /*!
  *  @brief Enforce a static implementation of the agent's policy.  The
@@ -185,7 +175,8 @@ int GEOPM_PUBLIC geopm_agent_name(
  *
  *  @return Zero on success, error code on failure.
  */
-int GEOPM_PUBLIC geopm_agent_enforce_policy(void);
+int GEOPM_PUBLIC
+    geopm_agent_enforce_policy(void);
 
 #ifdef __cplusplus
 }
