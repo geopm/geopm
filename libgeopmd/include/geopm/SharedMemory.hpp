@@ -8,15 +8,17 @@
 
 #include <stdlib.h>
 
-#include <string>
 #include <memory>
+#include <string>
+
+#include "geopm_public.h"
 
 #include "SharedMemoryScopedLock.hpp"
 
 namespace geopm
 {
     /// @brief This class encapsulates an inter-process shared memory region.
-    class __attribute__((visibility("default"))) SharedMemory
+    class GEOPM_PUBLIC SharedMemory
     {
         public:
             SharedMemory() = default;

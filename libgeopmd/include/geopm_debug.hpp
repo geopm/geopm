@@ -6,9 +6,10 @@
 #ifndef GEOPM_DEBUG_HPP_INCLUDE
 #define GEOPM_DEBUG_HPP_INCLUDE
 
-#include "config.h"  // for GEOPM_DEBUG
+#include "config.h" // for GEOPM_DEBUG
 
 #include "geopm/Exception.hpp"
+#include "geopm_public.h"
 
 #ifdef GEOPM_DEBUG
 /// Used to check for errors that should never occur unless there is a

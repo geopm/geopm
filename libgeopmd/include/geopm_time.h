@@ -5,9 +5,11 @@
 #ifndef GEOPM_TIME_H_INCLUDE
 #define GEOPM_TIME_H_INCLUDE
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 #include <string.h>
+
+#include "geopm_public.h"
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -25,7 +27,7 @@ static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct g
 static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end);
 static inline double geopm_time_since(const struct geopm_time_s *begin);
 
-int __attribute__((visibility("default")))
+int GEOPM_PUBLIC
     geopm_time_zero(struct geopm_time_s *zero_time);
 
 #include <time.h>
@@ -34,7 +36,7 @@ int __attribute__((visibility("default")))
  * @brief structure to abstract the timespec on linux from other
  *        representations of time.
  */
-struct __attribute__((visibility("default"))) geopm_time_s {
+struct GEOPM_PUBLIC geopm_time_s {
     struct timespec t;
 };
 
@@ -113,9 +115,9 @@ static inline double geopm_time_since(const struct geopm_time_s *begin)
 }
 namespace geopm
 {
-    struct geopm_time_s __attribute__((visibility("default"))) time_zero(void);
-    struct geopm_time_s __attribute__((visibility("default"))) time_curr(void);
-    void __attribute__((visibility("default"))) time_zero_reset(const geopm_time_s &zero);
+    struct geopm_time_s GEOPM_PUBLIC time_zero(void);
+    struct geopm_time_s GEOPM_PUBLIC time_curr(void);
+    void GEOPM_PUBLIC time_zero_reset(const geopm_time_s &zero);
 }
 #endif
 #endif

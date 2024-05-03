@@ -7,6 +7,8 @@
 #define GEOPM_HINT_H_INCLUDE
 #include <stdint.h>
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,7 +36,7 @@ enum geopm_region_hint_e {
 
 namespace geopm {
     /// @brief Verify a region's hint value is legal for use.
-    void __attribute__((visibility("default"))) check_hint(uint64_t hint);
+    void GEOPM_PUBLIC check_hint(uint64_t hint);
 }
 #endif
 

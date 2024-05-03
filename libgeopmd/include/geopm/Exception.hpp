@@ -5,9 +5,11 @@
 #ifndef EXCEPTION_HPP_INCLUDE
 #define EXCEPTION_HPP_INCLUDE
 
-#include <string>
 #include <stdexcept>
+#include <string>
+
 #include "geopm_error.h"
+#include "geopm_public.h"
 
 namespace geopm
 {
@@ -32,7 +34,7 @@ namespace geopm
     ///
     /// @return Error number, positive numbers are system errors,
     ///         negative numbers are GEOPM errors.
-    int __attribute__((visibility("default"))) exception_handler(
+    int GEOPM_PUBLIC exception_handler(
         std::exception_ptr eptr, bool do_print = false);
 
     /// @brief Class for all GEOPM-specific exceptions.
@@ -42,7 +44,7 @@ namespace geopm
     /// method called err_value() that returns the error code
     /// associated with the exception.  There are a number of
     /// different constructors.
-    class __attribute__((visibility("default"))) Exception : public std::runtime_error
+    class GEOPM_PUBLIC Exception : public std::runtime_error
     {
         public:
             /// @brief Empty constructor.
@@ -100,7 +102,7 @@ namespace geopm
     /// @param error_value The error code associated with the exception.
     ///
     /// @return string The error message associated with the error code.
-    std::string __attribute__((visibility("default"))) error_message(int error_value);
+    std::string GEOPM_PUBLIC error_message(int error_value);
 }
 
 #endif

@@ -6,15 +6,17 @@
 #ifndef FREQUENCYGOVERNOR_HPP_INCLUDE
 #define FREQUENCYGOVERNOR_HPP_INCLUDE
 
-#include <vector>
 #include <memory>
+#include <vector>
+
+#include "geopm_public.h"
 
 namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
 
-    class __attribute__((visibility("default"))) FrequencyGovernor
+    class GEOPM_PUBLIC FrequencyGovernor
     {
         public:
             FrequencyGovernor() = default;

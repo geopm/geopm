@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 #include <string>
 
@@ -47,7 +49,7 @@ enum geopm_region_hash_epoch_e {
 /// @param [in] key This value is hashed to produce a 32-bit result.
 ///
 /// @return uint64_t The result is returned as a 64-bit integer.
-uint64_t __attribute__((visibility("default"))) geopm_crc32_u64(uint64_t begin, uint64_t key);
+uint64_t GEOPM_PUBLIC geopm_crc32_u64(uint64_t begin, uint64_t key);
 
 /// @brief This function is used to produce unique region IDs for
 ///        named regions.
@@ -61,14 +63,14 @@ uint64_t __attribute__((visibility("default"))) geopm_crc32_u64(uint64_t begin, 
 /// @param [in] key This string is hashed to produce a 64-bit value.
 ///
 /// @return uint64_t The result is returned as a 64-bit integer.
-uint64_t __attribute__((visibility("default"))) geopm_crc32_str(const char *key);
+uint64_t GEOPM_PUBLIC geopm_crc32_str(const char *key);
 
 #ifdef __cplusplus
 }
 
 namespace geopm
 {
-    uint64_t __attribute__((visibility("default"))) hash(const std::string &key);
+    uint64_t GEOPM_PUBLIC hash(const std::string &key);
 }
 
 #endif

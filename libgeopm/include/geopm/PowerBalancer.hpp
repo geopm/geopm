@@ -8,13 +8,15 @@
 
 #include <memory>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
     /// @brief Stay within a power cap but redistribute power to
     ///        optimize performance. An average per compute node power
     ///        maximum is maintained, but individual nodes will be
     ///        allowed above or below this average.
-    class __attribute__((visibility("default"))) PowerBalancer
+    class GEOPM_PUBLIC PowerBalancer
     {
         public:
             /// @brief Construct a IPowerBalancer object.

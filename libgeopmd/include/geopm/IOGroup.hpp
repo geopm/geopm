@@ -6,16 +6,18 @@
 #ifndef IOGROUP_HPP_INCLUDE
 #define IOGROUP_HPP_INCLUDE
 
+#include <functional>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <functional>
+
+#include "geopm_public.h"
 
 #include "PluginFactory.hpp"
 
 namespace geopm
 {
-    class __attribute__((visibility("default"))) IOGroup
+    class GEOPM_PUBLIC IOGroup
     {
         public:
             enum m_units_e {
@@ -223,14 +225,14 @@ namespace geopm
             static const std::map<std::string, m_signal_behavior_e> M_BEHAVIOR_STRING;
     };
 
-    class __attribute__((visibility("default"))) IOGroupFactory : public PluginFactory<IOGroup>
+    class GEOPM_PUBLIC IOGroupFactory : public PluginFactory<IOGroup>
     {
         public:
             IOGroupFactory();
             virtual ~IOGroupFactory() = default;
     };
 
-    IOGroupFactory __attribute__((visibility("default"))) & iogroup_factory(void);
+    IOGroupFactory GEOPM_PUBLIC & iogroup_factory(void);
 }
 
 #endif

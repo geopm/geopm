@@ -7,9 +7,11 @@
 
 #include <memory>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
-    class __attribute__((visibility("default"))) Cpuid
+    class GEOPM_PUBLIC Cpuid
     {
         public:
             struct rdt_info_s

@@ -6,16 +6,17 @@
 #ifndef PLATFORMIO_HPP_INCLUDE
 #define PLATFORMIO_HPP_INCLUDE
 
+#include <climits>
+#include <functional>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <functional>
-#include <set>
-#include <climits>
 
 #include "geopm_pio.h"
+#include "geopm_public.h"
 
-struct __attribute__((visibility("default"))) geopm_request_s {
+struct GEOPM_PUBLIC geopm_request_s {
     int domain_type;
     int domain_idx;
     char name[NAME_MAX];
@@ -28,7 +29,7 @@ namespace geopm
 
     /// @brief Class which is a collection of all valid control and
     /// signal objects for a platform
-    class __attribute__((visibility("default"))) PlatformIO
+    class GEOPM_PUBLIC PlatformIO
     {
         public:
             PlatformIO() = default;
@@ -255,7 +256,7 @@ namespace geopm
             static bool is_valid_value(double value);
     };
 
-    PlatformIO __attribute__((visibility("default"))) & platform_io(void);
+    PlatformIO GEOPM_PUBLIC & platform_io(void);
 }
 
 #endif

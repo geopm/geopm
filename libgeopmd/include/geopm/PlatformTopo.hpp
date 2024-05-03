@@ -7,22 +7,23 @@
 #ifndef PLATFORMTOPO_HPP_INCLUDE
 #define PLATFORMTOPO_HPP_INCLUDE
 
-#include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <string>
+#include <vector>
 
+#include "geopm_public.h"
 #include "geopm_topo.h"
 
 extern "C"
 {
     /// @brief Identify host CPU.
-    int __attribute__((visibility("default"))) geopm_read_cpuid(void);
+    int GEOPM_PUBLIC geopm_read_cpuid(void);
 }
 
 namespace geopm
 {
-    class __attribute__((visibility("default"))) PlatformTopo
+    class GEOPM_PUBLIC PlatformTopo
     {
         public:
             PlatformTopo() = default;
@@ -83,6 +84,6 @@ namespace geopm
             static std::map<std::string, int> domain_types(void);
     };
 
-    const PlatformTopo __attribute__((visibility("default"))) & platform_topo(void);
+    const PlatformTopo GEOPM_PUBLIC & platform_topo(void);
 }
 #endif

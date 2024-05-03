@@ -8,11 +8,13 @@
 
 #include <pthread.h>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
     /// @brief An object used to automatically hold a SharedMemory mutex while
     ///        in scope, and release it when out of scope.
-    class __attribute__((visibility("default"))) SharedMemoryScopedLock
+    class GEOPM_PUBLIC SharedMemoryScopedLock
     {
         public:
             SharedMemoryScopedLock() = delete;

@@ -6,13 +6,15 @@
 #ifndef MODELREGION_HPP_INCLUDE
 #define MODELREGION_HPP_INCLUDE
 
-#include <string>
 #include <cstdint>
 #include <memory>
+#include <string>
+
+#include "geopm_public.h"
 
 namespace geopm
 {
-    class __attribute__((visibility("default"))) ModelRegion
+    class GEOPM_PUBLIC ModelRegion
     {
         public:
             static std::unique_ptr<ModelRegion> model_region(const std::string &name,

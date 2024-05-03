@@ -7,6 +7,7 @@
 #define GEOPM_SCHED_H_INCLUDE
 
 #include <stdio.h>
+#include "geopm_public.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -17,7 +18,7 @@ extern "C"
 /*!
  * @brief cpuset definition for non-linux platforms.
  */
-typedef struct __attribute__((visibility("default"))) cpu_set_t {
+typedef struct GEOPM_PUBLIC cpu_set_t {
     long int x[512];
 } cpu_set_t;
 
@@ -49,15 +50,15 @@ static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
 #include <sched.h>
 #endif
 
-int __attribute__((visibility("default"))) geopm_sched_num_cpu(void);
+int GEOPM_PUBLIC geopm_sched_num_cpu(void);
 
-int __attribute__((visibility("default"))) geopm_sched_get_cpu(void);
+int GEOPM_PUBLIC geopm_sched_get_cpu(void);
 
-int __attribute__((visibility("default"))) geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset);
+int GEOPM_PUBLIC geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset);
 
-int __attribute__((visibility("default"))) geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset);
+int GEOPM_PUBLIC geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset);
 
-int __attribute__((visibility("default"))) geopm_sched_woomp(int num_cpu, cpu_set_t *woomp);
+int GEOPM_PUBLIC geopm_sched_woomp(int num_cpu, cpu_set_t *woomp);
 
 #ifdef __cplusplus
 }

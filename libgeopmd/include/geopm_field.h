@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

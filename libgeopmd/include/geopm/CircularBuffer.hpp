@@ -10,6 +10,8 @@
 
 #include <vector>
 
+#include "geopm_public.h"
+
 #include "Exception.hpp"
 
 namespace geopm

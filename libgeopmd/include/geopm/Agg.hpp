@@ -6,15 +6,17 @@
 #ifndef AGG_HPP_INCLUDE
 #define AGG_HPP_INCLUDE
 
-#include <vector>
-#include <string>
 #include <functional>
+#include <string>
+#include <vector>
+
+#include "geopm_public.h"
 
 namespace geopm
 {
     /// Aggregation functions available to be used by Agents and IOGroups to
     /// condense a vector of signal values into a single value.
-    class __attribute__((visibility("default"))) Agg
+    class GEOPM_PUBLIC Agg
     {
         public:
             enum m_type_e {

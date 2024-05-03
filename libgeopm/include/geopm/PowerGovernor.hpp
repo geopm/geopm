@@ -8,9 +8,11 @@
 
 #include <memory>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
-    class __attribute__((visibility("default"))) PowerGovernor
+    class GEOPM_PUBLIC PowerGovernor
     {
         public:
             PowerGovernor() = default;

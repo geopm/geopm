@@ -8,6 +8,8 @@
 
 #include <stdlib.h>
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,7 +32,7 @@ enum geopm_error_e {
 };
 
 /* Convert error number into an error message */
-void __attribute__((visibility("default"))) geopm_error_message(int err, char *msg, size_t size);
+void GEOPM_PUBLIC geopm_error_message(int err, char *msg, size_t size);
 
 #ifdef __cplusplus
 }

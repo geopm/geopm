@@ -8,6 +8,8 @@
 
 #include <stddef.h>
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,7 +31,7 @@ struct geopm_endpoint_c;
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_endpoint_create(
+int GEOPM_PUBLIC geopm_endpoint_create(
     const char *endpoint_name,
     struct geopm_endpoint_c **endpoint);
 
@@ -44,7 +46,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_create(
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Create shmem regions within the endpoint for policy/sample
@@ -55,7 +57,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_destroy(struct geopm_e
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Destroy shmem regions within the endpoint.
@@ -65,7 +67,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_open(struct geopm_endp
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Check if an agent has attached.
@@ -85,7 +87,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_close(struct geopm_end
  *          returned.
  *
  */
-int __attribute__((visibility("default"))) geopm_endpoint_agent(
+int GEOPM_PUBLIC geopm_endpoint_agent(
     struct geopm_endpoint_c *endpoint,
     size_t agent_name_max,
     char *agent_name);
@@ -99,7 +101,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_agent(
  *
  *  @param [in] timeout Timeout in seconds.
  */
-int __attribute__((visibility("default"))) geopm_endpoint_wait_for_agent_attach(
+int GEOPM_PUBLIC geopm_endpoint_wait_for_agent_attach(
     struct geopm_endpoint_c *endpoint,
     double timeout);
 
@@ -109,7 +111,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_wait_for_agent_attach(
  *  @param [in] endpoint Object created by call to
  *         geopm_endpoint_create().
  */
-int __attribute__((visibility("default"))) geopm_endpoint_stop_wait_loop(
+int GEOPM_PUBLIC geopm_endpoint_stop_wait_loop(
     struct geopm_endpoint_c *endpoint);
 
 /*!
@@ -119,7 +121,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_stop_wait_loop(
  *  @param [in] endpoint Object created by call to
  *         geopm_endpoint_create().
  */
-int __attribute__((visibility("default"))) geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint);
+int GEOPM_PUBLIC geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Check profile name for an attached job.
@@ -140,7 +142,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_reset_wait_loop(struct
  *          returned.
  *
  */
-int __attribute__((visibility("default"))) geopm_endpoint_profile_name(
+int GEOPM_PUBLIC geopm_endpoint_profile_name(
     struct geopm_endpoint_c *endpoint,
     size_t profile_name_max,
     char *profile_name);
@@ -157,7 +159,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_profile_name(
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_endpoint_num_node(
+int GEOPM_PUBLIC geopm_endpoint_num_node(
     struct geopm_endpoint_c *endpoint,
     int *num_node);
 
@@ -178,7 +180,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_num_node(
  *
  *  @return Zero on success, error code on failure
  */
-int __attribute__((visibility("default"))) geopm_endpoint_node_name(
+int GEOPM_PUBLIC geopm_endpoint_node_name(
     struct geopm_endpoint_c *endpoint,
     int node_idx,
     size_t node_name_max,
@@ -197,7 +199,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_node_name(
  *
  *  @return Zero on success, error code on failure
  */
-int __attribute__((visibility("default"))) geopm_endpoint_write_policy(
+int GEOPM_PUBLIC geopm_endpoint_write_policy(
     struct geopm_endpoint_c *endpoint,
     size_t num_policy,
     const double *policy_array);
@@ -219,7 +221,7 @@ int __attribute__((visibility("default"))) geopm_endpoint_write_policy(
  *
  *  @return Zero on success, error code on failure
  */
-int __attribute__((visibility("default"))) geopm_endpoint_read_sample(
+int GEOPM_PUBLIC geopm_endpoint_read_sample(
     struct geopm_endpoint_c *endpoint,
     size_t num_sample,
     double *sample_array,

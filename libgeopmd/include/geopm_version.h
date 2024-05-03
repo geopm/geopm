@@ -6,11 +6,13 @@
 #ifndef GEOPM_VERSION_H_INCLUDE
 #define GEOPM_VERSION_H_INCLUDE
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-const char __attribute__((visibility("default"))) * geopm_version(void);
+const char GEOPM_PUBLIC * geopm_version(void);
 
 #ifdef __cplusplus
 }

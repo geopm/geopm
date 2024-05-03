@@ -5,6 +5,8 @@
 
 #ifndef GEOPM_IMBALANCER_H_INCLUDE
 #define GEOPM_IMBALANCER_H_INCLUDE
+
+#include "geopm_public.h"
 #ifdef __cplusplus
 extern "C"
 {
@@ -12,11 +14,11 @@ extern "C"
 
     /// @brief Used to set a delay frac that will sleep for the given fraction
     ///        of the region runtime.
-    int __attribute__((visibility("default"))) geopm_imbalancer_frac(double frac);
+    int GEOPM_PUBLIC geopm_imbalancer_frac(double frac);
     /// @brief Sets the entry time for the imbalanced region.
-    int __attribute__((visibility("default"))) geopm_imbalancer_enter(void);
+    int GEOPM_PUBLIC geopm_imbalancer_enter(void);
     /// @brief Spins until the region has been extended by the previously specified delay.
-    int __attribute__((visibility("default"))) geopm_imbalancer_exit(void);
+    int GEOPM_PUBLIC geopm_imbalancer_exit(void);
 
 #ifdef __cplusplus
 }
