@@ -17,6 +17,7 @@
 namespace geopm
 {
     class PlatformTopo;
+    class SaveControl;
 }
 
 /// @brief IOGroup that provides a signals for user and idle CPU time, and
@@ -79,6 +80,7 @@ class ExampleIOGroup : public geopm::IOGroup
         bool m_do_write;
         double m_control_value;
         bool m_is_control_enabled;
+        std::shared_ptr<geopm::SaveControl> m_control_saver;
 };
 
 #endif
