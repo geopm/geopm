@@ -23,7 +23,7 @@
 #include "SSTSignal.hpp"
 #include "geopm_debug.hpp"
 #include "geopm_topo.h"
-#include "SaveControl.hpp"
+#include "geopm/SaveControl.hpp"
 
 namespace geopm
 {

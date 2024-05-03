@@ -37,7 +37,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
-#include "SaveControl.hpp"
+#include "geopm/SaveControl.hpp"
 #include "SecurePath.hpp"
 #include "geopm/Cpuid.hpp"
 

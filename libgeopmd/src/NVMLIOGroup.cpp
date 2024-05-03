@@ -24,7 +24,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
-#include "SaveControl.hpp"
+#include "geopm/SaveControl.hpp"
 
 namespace geopm
 {

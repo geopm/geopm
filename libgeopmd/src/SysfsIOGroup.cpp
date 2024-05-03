@@ -27,9 +27,9 @@
 #include "geopm/Helper.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm/SaveControl.hpp"
 
 #include "IOUring.hpp"
-#include "SaveControl.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;

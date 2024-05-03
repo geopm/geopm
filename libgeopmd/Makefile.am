@@ -43,6 +43,7 @@ geopminclude_HEADERS = include/geopm/json11.hpp \
                        include/geopm/PlatformIO.hpp \
                        include/geopm/PlatformTopo.hpp \
                        include/geopm/PluginFactory.hpp \
+                       include/geopm/SaveControl.hpp \
                        include/geopm/ServiceProxy.hpp \
                        include/geopm/SharedMemory.hpp \
                        include/geopm/SharedMemoryScopedLock.hpp \
@@ -218,7 +219,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
                        src/SaveControl.cpp \
-                       src/SaveControl.hpp \
                        src/SDBus.hpp \
                        src/SDBusMessage.hpp \
                        src/SecurePath.cpp \

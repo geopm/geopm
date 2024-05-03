@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "SaveControl.hpp"
+#include "geopm/SaveControl.hpp"
 
 #include <cmath>
 
