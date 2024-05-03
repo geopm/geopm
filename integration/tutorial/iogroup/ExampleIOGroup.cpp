@@ -44,7 +44,7 @@ ExampleIOGroup::ExampleIOGroup()
                        {"EXAMPLE::IDLE_TIME",   M_SIGNAL_IDLE_TIME},
                        {"IDLE_TIME",            M_SIGNAL_IDLE_TIME}}
     , m_do_read(M_NUM_SIGNAL, false)
-    , m_signal_value(M_NUM_SIGNAL, 0.0)
+    , m_signal_value(M_NUM_SIGNAL, "")
     , m_tmp_file_path("/tmp/geopm_example_control." + std::to_string(getuid()))
     , m_tmp_file_msg("Could not open or parse text file \"" + m_tmp_file_path +
                      "\", create and populate with a floating point number to enable \"TMP_FILE_CONTROL\"")
@@ -53,7 +53,7 @@ ExampleIOGroup::ExampleIOGroup()
     , m_is_control_enabled(false)
 {
     try {
-        m_control_value = read_control();
+        m_control_value = parse_buffer(read_control());
         m_is_control_enabled = std::isfinite(m_control_value);
     }
     catch (const Exception &ex) {
@@ -67,9 +67,9 @@ ExampleIOGroup::ExampleIOGroup()
     }
 }
 
-double ExampleIOGroup::read_control(void)
+std::string ExampleIOGroup::read_control(void)
 {
-    double result;
+    std::string result;
     std::ifstream control_stream(m_tmp_file_path);
     if (!control_stream.good()) {
         throw Exception("File not found: " + m_tmp_file_path,
@@ -79,7 +79,20 @@ double ExampleIOGroup::read_control(void)
     return result;
 }
 
-
+double ExampleIOGroup::parse_buffer(const std::string &buffer)
+{
+    try {
+        return stod(buffer);
+    }
+    catch (const std::invalid_argument &ex) {
+        throw Exception("ExampleIOGroup: Value could not be parsed: \"" + buffer + "\"",
+                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    catch (const std::out_of_range &ex) {
+        throw Exception("ExampleIOGroup: Value out of range: \"" + buffer + "\"",
+                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+}
 void ExampleIOGroup::write_control(double setting)
 {
     std::ofstream control_stream(m_tmp_file_path);
@@ -238,16 +251,16 @@ void ExampleIOGroup::read_batch(void)
     if (m_do_batch_read) {
         std::vector<std::string> cpu_val = parse_proc_stat();
         if (m_do_read[M_SIGNAL_USER_TIME]) {
-            m_signal_value[M_SIGNAL_USER_TIME] = stod(cpu_val[1]);
+            m_signal_value[M_SIGNAL_USER_TIME] = cpu_val[1];
         }
         if (m_do_read[M_SIGNAL_NICE_TIME]) {
-            m_signal_value[M_SIGNAL_NICE_TIME] = stod(cpu_val[2]);
+            m_signal_value[M_SIGNAL_NICE_TIME] = cpu_val[2];
         }
         if (m_do_read[M_SIGNAL_SYSTEM_TIME]) {
-            m_signal_value[M_SIGNAL_SYSTEM_TIME] = stod(cpu_val[3]);
+            m_signal_value[M_SIGNAL_SYSTEM_TIME] = cpu_val[3];
         }
         if (m_do_read[M_SIGNAL_IDLE_TIME]) {
-            m_signal_value[M_SIGNAL_IDLE_TIME] = stod(cpu_val[4]);
+            m_signal_value[M_SIGNAL_IDLE_TIME] = cpu_val[4];
         }
         if (m_do_read[M_CONTROL_TMP_FILE]) {
             m_signal_value[M_CONTROL_TMP_FILE] = read_control();
@@ -278,8 +291,7 @@ double ExampleIOGroup::sample(int batch_idx)
         throw Exception("ExampleIOGroup::sample(): signal has not been read.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    /// @todo more error handling
-    return m_signal_value[batch_idx];
+    return parse_buffer(m_signal_value[batch_idx]);
 }
 
 // Save a setting to be written by a future write_batch()
@@ -322,19 +334,19 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
     int signal_idx = get_signal_index(signal_name);
     switch (signal_idx) {
         case M_SIGNAL_USER_TIME:
-            result = std::stod(cpu_val[1]);
+            result = parse_buffer(cpu_val[1]);
             break;
         case M_SIGNAL_NICE_TIME:
-            result = std::stod(cpu_val[2]);
+            result = parse_buffer(cpu_val[2]);
             break;
         case M_SIGNAL_SYSTEM_TIME:
-            result = std::stod(cpu_val[3]);
+            result = parse_buffer(cpu_val[3]);
             break;
         case M_SIGNAL_IDLE_TIME:
-            result = std::stod(cpu_val[4]);
+            result = parse_buffer(cpu_val[4]);
             break;
         case M_CONTROL_TMP_FILE:
-            result = read_control();
+            result = parse_buffer(read_control());
             break;
         default:
             break;
