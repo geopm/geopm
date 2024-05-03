@@ -50,7 +50,7 @@ class AppConf(object):
         multiple times.
 
         """
-        return ['10']
+        return ['60']
 
 
 class TestIntegration_time(unittest.TestCase):
@@ -71,12 +71,11 @@ class TestIntegration_time(unittest.TestCase):
             cls._machine.load()
         except RuntimeError:
             cls._machine.save()
+        cls._num_node = util.get_num_node()
 
         if not cls._skip_launch:
             # Set the job size parameters
-            cls._num_node = util.get_num_node()
             num_rank = cls._num_node
-            time_limit = 60
             # Configure the test application
             app_conf = AppConf()
             agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
@@ -85,31 +84,30 @@ class TestIntegration_time(unittest.TestCase):
             launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         agent_conf,
                                                         cls._report_path,
-                                                        cls._test_name + '.trace',
-                                                        time_limit=time_limit)
+                                                        cls._test_name + '.trace')
             launcher.set_num_node(cls._num_node)
             launcher.set_num_rank(num_rank)
             launcher.set_pmpi_ctl('application')
             # Run the test application
-            launcher.run('test_' + cls._test_name)
-        cls._report = geopmpy.io.RawReport(cls._report_path)
+            launcher.run('test_' + cls._test_name, ctl_local=True)
+        cls._rrc = geopmpy.io.RawReportCollection(cls._report_path + '*')
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
             TestIntegration_hint_time._keep_files = True
 
     def test_hint_time(self):
-        host_names = self._report.host_names()
-        self.assertEqual(len(host_names), self._num_node)
-        for host in host_names:
-            self.assertEqual(0, len(self._report.region_names(host)))
-            raw_totals = self._report.raw_totals(host_name=host)
-            msg = "Application totals should have 10 seconds of total time"
-            expect = 10.0
-            actual = raw_totals['runtime (s)']
+        grouped_df = self._rrc.get_app_df().groupby('host')
+        self.assertEqual(len(grouped_df.groups), self._num_node)
+
+        for host, df in grouped_df:
+            self.assertEqual(0, len(self._rrc.get_df()))
+            self.assertEqual(0, len(self._rrc.get_epoch_df()))
+            self.assertEqual(0, len(self._rrc.get_unmarked_df()))
+            msg = "Application totals should have 60 seconds of total time"
+            expect = 60.0
+            actual = df['runtime (s)'].iloc[0]
             util.assertNear(self, expect, actual, msg=msg)
-            with self.assertRaises(KeyError):
-                raw_epoch = self._report.raw_epoch(host_name=host)
 
 
 if __name__ == '__main__':
