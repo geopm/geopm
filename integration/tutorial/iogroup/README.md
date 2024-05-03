@@ -97,14 +97,17 @@ section on registration.
 
 * control_names():
 
-  ExampleIOGroup provides two controls: "EXAMPLE::STDOUT" and its
-  alias "STDOUT" print a number to standard output.
-  "EXAMPLE::STDERR" and its alias "STDERR" print a number to
-  standard error.  While these controls are not very useful for real
-  applications, they are provided as an example of the IOGroup
-  interfaces dealing with output to the system.  Under normal
-  circumstances, printing values within GEOPM should be done through
-  the reporting and tracing features, not through custom controls.
+  ExampleIOGroup provides one control: "EXAMPLE::TMP_FILE_CONTROL" and
+  its alias "TMP_FILE_CONTROL" print a number to the file with the
+  path "/tmp/geopm_example_control.<UID>" where <UID> is the user's
+  uid number.  While this control is not very useful for real
+  applications, it is provided as an example of the IOGroup interfaces
+  dealing with output to the system.  Typically a user may or may not
+  have access to a control at runtime.  In these cases, the control
+  should be pruned from the list of available controls.  In the case of
+  this example, if the file "/tmp/geopm_example_control.<UID>" does
+  not exist then the control is pruned from the available list of
+  signals and controls.
 
 * is_valid_control():
 
@@ -136,9 +139,8 @@ section on registration.
 
 * write_batch():
 
-  If the STDOUT control has been pushed, it prints the latest value
-  to standard output.  If STDERR has been pushed, it prints the
-  latest value to standard error.
+  If the TMP_FILE_CONTROL control has been pushed, it prints the latest value
+  to the temporary file.
 
 * control_description():
 
@@ -170,8 +172,8 @@ link dependency.
 
 The Controller will make an effort to save and restore all of the values
 exposed by an IOGroup that has implemented the save_control() and
-restore_control() methods.  The only built-in IOGroup with this functionality
-is the MSRIOGroup.
+restore_control() methods.  The geopm::SaveControl class can be used
+to implement this feature.
 
 The PlatformIO::save_control() method is implemented so that one must register
 all desired IOGroups prior to the invocation of PlatformIO::save_control().
@@ -209,6 +211,13 @@ the GEOPM install directory, <GEOPM_INSTALL_DIR>/lib/geopm.
 5. Run with geopmread and geopmwrite
 ------------------------------------
 
+First set up the example control file with the value 43.21:
+
+    $ echo 43.21 > /tmp/geopm_example_control.$(id -u)
+
+If this step is skipped then the TMP_FILE_CONTROL will not be
+available.
+
 Running `geopmread` with no arguments will print out a list of all
 signals on the platform.  The new signals from ExampleIOGroup should
 now appear in this list.  The values can be read using the signal name
@@ -218,11 +227,15 @@ as shown:
     4932648
 
 Running `geopmwrite` with no arguments will print out a list of all
-controls on the platform.  The new controls from ExampleIOGroup should
-appear in this list as well.  The controls can be tested using geopmwrite as shown:
+controls on the platform.  The new control from ExampleIOGroup should
+appear in this list as well.  The control can be tested using
+geopmwrite as shown:
 
-    $ geopmwrite STDOUT board 0 12.34
+    $ geopmread TMP_FILE_CONTROL board 0
+    43.21
+    $ geopmwrite TMP_FILE_CONTROL board 0 12.34
+    $ geopmread TMP_FILE_CONTROL board 0
     12.34
 
 For an example Agent that uses these signals and controls, refer to the
-Agent tutorial in [`$GEOPM_ROOT/tutorial/agent`](../agent).
+Agent tutorial in [`$GEOPM_ROOT/integration/tutorial/agent`](../agent).
