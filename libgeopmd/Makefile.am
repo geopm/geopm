@@ -22,6 +22,7 @@ include_HEADERS = include/geopm_debug.hpp \
                   include/geopm_hint.h \
                   include/geopm_pio.h \
                   include/geopm_plugin.hpp \
+                  include/geopm_public.h \
                   include/geopm_sched.h \
                   include/geopm_shmem.h \
                   include/geopm_time.h \

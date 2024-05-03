@@ -6,11 +6,13 @@
 #ifndef PLUGINFACTORY_HPP_INCLUDE
 #define PLUGINFACTORY_HPP_INCLUDE
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
-#include <functional>
 #include <vector>
+
+#include "geopm_public.h"
 
 #include "Exception.hpp"
 

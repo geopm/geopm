@@ -8,6 +8,8 @@
 
 #include <stddef.h>
 
+#include "geopm_public.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,7 +21,7 @@ extern "C" {
  *
  *  @return Zero if agent is supported, error code otherwise.
  */
-int __attribute__((visibility("default"))) geopm_agent_supported(const char *agent_name);
+int GEOPM_PUBLIC geopm_agent_supported(const char *agent_name);
 
 /*!
  *  @brief Get number of policy parameters supported by agent.
@@ -31,7 +33,7 @@ int __attribute__((visibility("default"))) geopm_agent_supported(const char *age
  *
  *  @return Zero if agent is supported, error code otherwise.
  */
-int __attribute__((visibility("default"))) geopm_agent_num_policy(
+int GEOPM_PUBLIC geopm_agent_num_policy(
     const char *agent_name,
     int *num_policy);
 
@@ -53,7 +55,7 @@ int __attribute__((visibility("default"))) geopm_agent_num_policy(
  *          policy name can be stored in output string, error code
  *          otherwise.
  */
-int __attribute__((visibility("default"))) geopm_agent_policy_name(
+int GEOPM_PUBLIC geopm_agent_policy_name(
     const char *agent_name,
     int policy_idx,
     size_t policy_name_max,
@@ -76,7 +78,7 @@ int __attribute__((visibility("default"))) geopm_agent_policy_name(
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_agent_policy_json(
+int GEOPM_PUBLIC geopm_agent_policy_json(
     const char *agent_name,
     const double *policy_array,
     size_t json_string_max,
@@ -102,7 +104,7 @@ int __attribute__((visibility("default"))) geopm_agent_policy_json(
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_agent_policy_json_partial(
+int GEOPM_PUBLIC geopm_agent_policy_json_partial(
     const char *agent_name,
     size_t policy_array_size,
     const double *policy_array,
@@ -119,7 +121,7 @@ int __attribute__((visibility("default"))) geopm_agent_policy_json_partial(
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_agent_num_sample(
+int GEOPM_PUBLIC geopm_agent_num_sample(
     const char *agent_name,
     int *num_sample);
 
@@ -140,7 +142,7 @@ int __attribute__((visibility("default"))) geopm_agent_num_sample(
  *
  *  @return Zero if agent is supported, error code otherwise.
  */
-int __attribute__((visibility("default"))) geopm_agent_sample_name(
+int GEOPM_PUBLIC geopm_agent_sample_name(
     const char *agent_name,
     int sample_idx,
     size_t sample_name_max,
@@ -153,7 +155,7 @@ int __attribute__((visibility("default"))) geopm_agent_sample_name(
  *
  *  @return Zero if no error occurred.  Otherwise the error code will be returned.
  */
-int __attribute__((visibility("default"))) geopm_agent_num_avail(int *num_agent);
+int GEOPM_PUBLIC geopm_agent_num_avail(int *num_agent);
 
 /*!
  *  @brief The name of a specific agent.
@@ -171,7 +173,7 @@ int __attribute__((visibility("default"))) geopm_agent_num_avail(int *num_agent)
  *  @return Zero if agent_name is large enough to hold the name,
  *          error code otherwise.
  */
-int __attribute__((visibility("default"))) geopm_agent_name(
+int GEOPM_PUBLIC geopm_agent_name(
     int agent_idx,
     size_t agent_name_max,
     char *agent_name);
@@ -183,7 +185,7 @@ int __attribute__((visibility("default"))) geopm_agent_name(
  *
  *  @return Zero on success, error code on failure.
  */
-int __attribute__((visibility("default"))) geopm_agent_enforce_policy(void);
+int GEOPM_PUBLIC geopm_agent_enforce_policy(void);
 
 #ifdef __cplusplus
 }

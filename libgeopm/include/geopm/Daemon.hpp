@@ -8,11 +8,13 @@
 
 #include <memory>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
     /// Methods using the Endpoint interface in combination with other
     /// utilities to perform some system admin functions.
-    class __attribute__((visibility("default"))) Daemon
+    class GEOPM_PUBLIC Daemon
     {
         public:
             virtual ~Daemon() = default;

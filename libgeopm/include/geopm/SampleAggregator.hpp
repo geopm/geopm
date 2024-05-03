@@ -7,14 +7,15 @@
 #define SAMPLEAGGREGATOR_HPP_INCLUDE
 
 #include <cstdint>
-
-#include <string>
-#include <set>
 #include <memory>
+#include <set>
+#include <string>
+
+#include "geopm_public.h"
 
 namespace geopm
 {
-    class __attribute__((visibility("default"))) SampleAggregator
+    class GEOPM_PUBLIC SampleAggregator
     {
         public:
             /// @brief Returns a unique_ptr to a concrete object

@@ -6,9 +6,11 @@
 #ifndef SERVICEPROXY_HPP_INCLUDE
 #define SERVICEPROXY_HPP_INCLUDE
 
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
+
+#include "geopm_public.h"
 
 struct geopm_request_s;
 
@@ -19,7 +21,7 @@ namespace geopm
 
     /// @brief Information pertaining to a particular signal supported
     ///        by PlatformIO
-    struct __attribute__((visibility("default"))) signal_info_s {
+    struct GEOPM_PUBLIC signal_info_s {
         /// @brief Name of the signal
         std::string name;
         /// @brief Description of the signal
@@ -42,7 +44,7 @@ namespace geopm
 
     /// @brief Information pertaining to a particular control
     ///        supported by PlatformIO
-    struct __attribute__((visibility("default"))) control_info_s {
+    struct GEOPM_PUBLIC control_info_s {
         /// @brief Name of the control
         std::string name;
         /// @brief Description of the control
@@ -54,7 +56,7 @@ namespace geopm
 
     /// @brief Proxy object for the io.github.geopm D-Bus interface
     ///        used to implement the ServiceIOGroup
-    class __attribute__((visibility("default"))) ServiceProxy
+    class GEOPM_PUBLIC ServiceProxy
     {
         public:
             /// @brief ServiceProxy constructor
@@ -157,7 +159,7 @@ namespace geopm
             virtual std::vector<std::string> platform_pop_profile_region_names(const std::string &profile_name) = 0;
     };
 
-    class __attribute__((visibility("default"))) ServiceProxyImp : public ServiceProxy
+    class GEOPM_PUBLIC ServiceProxyImp : public ServiceProxy
     {
         public:
             ServiceProxyImp();
@@ -188,7 +190,7 @@ namespace geopm
             std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
             std::vector<std::string> platform_pop_profile_region_names(const std::string &profile_name) override;
         private:
-            std::vector<std::string> __attribute__((visibility("hidden"))) read_string_array(std::shared_ptr<SDBusMessage> bus_message);
+            std::vector<std::string> GEOPM_PRIVATE read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;
     };
 }

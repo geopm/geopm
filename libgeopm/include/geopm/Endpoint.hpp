@@ -7,15 +7,16 @@
 #define ENDPOINT_HPP_INCLUDE
 
 #include <cstddef>
-
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
+
+#include "geopm_public.h"
 
 namespace geopm
 {
-    class __attribute__((visibility("default"))) Endpoint
+    class GEOPM_PUBLIC Endpoint
     {
         public:
             virtual ~Endpoint() = default;

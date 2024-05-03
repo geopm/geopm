@@ -6,19 +6,20 @@
 #ifndef PROFILE_HPP_INCLUDE
 #define PROFILE_HPP_INCLUDE
 
+#include "config.h"
+
 #include <cstdint>
-#include <vector>
-#include <string>
-#include <set>
-#include <memory>
-#include <stack>
 #include <map>
+#include <memory>
+#include <set>
+#include <stack>
+#include <string>
+#include <vector>
 
 #include "geopm_hash.h"
 #include "geopm_hint.h"
+#include "geopm_public.h"
 #include "geopm_time.h"
-#include "config.h"
-
 
 /****************************************/
 /* Encode/decode function for region_id */
@@ -110,7 +111,7 @@ namespace geopm
     /// for use with the geopm_prof_c structure and are named
     /// accordingly.  The geopm_prof_c structure is an opaque
     /// reference to the Profile class.
-    class __attribute__((visibility("default"))) Profile
+    class GEOPM_PUBLIC Profile
     {
         public:
             Profile() = default;
@@ -211,7 +212,7 @@ namespace geopm
     class ServiceProxy;
     class Scheduler;
 
-    class __attribute__((visibility("default"))) ProfileImp : public Profile
+    class GEOPM_PUBLIC ProfileImp : public Profile
     {
         public:
             /// @brief ProfileImp constructor.
@@ -262,10 +263,10 @@ namespace geopm
         protected:
             bool m_is_enabled;
         private:
-            void __attribute__((visibility("hidden"))) init_app_status(void);
-            void __attribute__((visibility("hidden"))) init_app_record_log(void);
+            void GEOPM_PRIVATE init_app_status(void);
+            void GEOPM_PRIVATE init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
-            void __attribute__((visibility("hidden"))) set_hint(uint64_t hint);
+            void GEOPM_PRIVATE set_hint(uint64_t hint);
 
             /// @brief holds the string name of the profile.
             std::string m_prof_name;

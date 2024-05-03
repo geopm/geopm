@@ -6,16 +6,17 @@
 #ifndef AGENT_HPP_INCLUDE
 #define AGENT_HPP_INCLUDE
 
-#include <string>
-#include <map>
-#include <vector>
 #include <functional>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "geopm/PluginFactory.hpp"
+#include "geopm_public.h"
 
 namespace geopm
 {
-    class __attribute__((visibility("default"))) Agent
+    class GEOPM_PUBLIC Agent
     {
         public:
             Agent() = default;
@@ -186,14 +187,14 @@ namespace geopm
             static const std::string m_policy_prefix;
     };
 
-    class __attribute__((visibility("default"))) AgentFactory : public PluginFactory<Agent>
+    class GEOPM_PUBLIC AgentFactory : public PluginFactory<Agent>
     {
         public:
             AgentFactory();
             virtual ~AgentFactory() = default;
     };
 
-    AgentFactory __attribute__((visibility("default"))) & agent_factory(void);
+    AgentFactory GEOPM_PUBLIC & agent_factory(void);
 }
 
 #endif
