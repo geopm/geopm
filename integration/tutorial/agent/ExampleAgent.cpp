@@ -14,6 +14,8 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
+#include "geopm/Waiter.hpp"
+#include "geopm/Environment.hpp"
 
 using geopm::Agent;
 using geopm::PlatformIO;
@@ -36,13 +38,13 @@ ExampleAgent::ExampleAgent()
     , m_control_idx(M_NUM_PLAT_CONTROL, -1)
     , m_last_sample(M_NUM_SAMPLE, NAN)
     , m_last_signal(M_NUM_PLAT_SIGNAL, NAN)
-    , m_last_wait{{0, 0}}
     , M_WAIT_SEC(1.0)
+    , m_waiter(geopm::Waiter::make_unique(geopm::environment().period(M_WAIT_SEC)))
     , m_min_idle(NAN)
     , m_max_idle(NAN)
     , m_is_control_active(false)
 {
-    geopm_time(&m_last_wait);
+
 }
 
 // Push signals and controls for future batch read/write
@@ -154,14 +156,18 @@ void ExampleAgent::sample_platform(std::vector<double> &out_sample)
     }
 
     // Update samples
-    m_last_sample[M_SAMPLE_USER_PCT] = m_last_signal[M_PLAT_SIGNAL_USER] / total;
-    m_last_sample[M_SAMPLE_SYSTEM_PCT] = m_last_signal[M_PLAT_SIGNAL_SYSTEM] / total;
-    m_last_sample[M_SAMPLE_IDLE_PCT] = m_last_signal[M_PLAT_SIGNAL_IDLE] / total;
+    double factor = 0.0;
+    if (total != 0) {
+        factor = 1.0 / total;
+    }
+    m_last_sample[M_SAMPLE_USER_PCT] = m_last_signal[M_PLAT_SIGNAL_USER] * factor;
+    m_last_sample[M_SAMPLE_SYSTEM_PCT] = m_last_signal[M_PLAT_SIGNAL_SYSTEM] * factor;
+    m_last_sample[M_SAMPLE_IDLE_PCT] = m_last_signal[M_PLAT_SIGNAL_IDLE] * factor;
     out_sample[M_SAMPLE_USER_PCT] = m_last_sample[M_SAMPLE_USER_PCT];
     out_sample[M_SAMPLE_SYSTEM_PCT] = m_last_sample[M_SAMPLE_SYSTEM_PCT];
     out_sample[M_SAMPLE_IDLE_PCT] = m_last_sample[M_SAMPLE_IDLE_PCT];
 
-    // Update mix and max for the report
+    // Update min and max for the report
     if (!geopm_pio_check_valid_value(m_min_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] < m_min_idle) {
         m_min_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
     }
@@ -173,12 +179,7 @@ void ExampleAgent::sample_platform(std::vector<double> &out_sample)
 // Wait for the remaining cycle time to keep Controller loop cadence at 1 second
 void ExampleAgent::wait(void)
 {
-    geopm_time_s current_time;
-    do {
-        geopm_time(&current_time);
-    }
-    while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
-    geopm_time(&m_last_wait);
+    m_waiter->wait();
 }
 
 // Adds the wait time to the top of the report

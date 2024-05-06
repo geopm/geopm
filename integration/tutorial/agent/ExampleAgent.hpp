@@ -15,6 +15,7 @@ namespace geopm
 {
     class PlatformTopo;
     class PlatformIO;
+    class Waiter;
 }
 
 /// @brief Agent
@@ -96,8 +97,8 @@ class ExampleAgent : public geopm::Agent
         std::vector<double> m_last_sample;
         std::vector<double> m_last_signal;
 
-        geopm_time_s m_last_wait;
         const double M_WAIT_SEC;
+        std::unique_ptr<geopm::Waiter> m_waiter;
 
         double m_min_idle;
         double m_max_idle;
