@@ -150,9 +150,11 @@ void ExampleAgent::sample_platform(std::vector<double> &out_sample)
     assert(out_sample.size() == M_NUM_SAMPLE);
     // Collect latest times from platform signals
     double total = 0.0;
+    auto signal_it = m_last_signal.begin();
     for (auto signal_idx : m_signal_idx) {
-        m_last_signal[signal_idx] = m_platform_io.sample(signal_idx);
-        total += m_last_signal[signal_idx];
+        *signal_it = m_platform_io.sample(signal_idx);
+        total += *signal_it;
+        ++signal_it;
     }
 
     // Update samples
