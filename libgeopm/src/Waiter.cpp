@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "Waiter.hpp"
+#include "geopm/Waiter.hpp"
 
 #include <time.h>
 

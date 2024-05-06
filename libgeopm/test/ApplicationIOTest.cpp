@@ -12,7 +12,7 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationIO.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Helper.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"

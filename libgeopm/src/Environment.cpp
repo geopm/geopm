@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 
 #include <iostream>
 #include <stdlib.h>

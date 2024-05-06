@@ -28,7 +28,7 @@
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "MonitorAgent.hpp"
 #include "record.hpp"
 #include "RecordFilter.hpp"

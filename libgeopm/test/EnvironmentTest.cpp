@@ -19,7 +19,7 @@
 #include "geopm_field.h"
 #include "geopm_topo.h"  // for geopm_domain_e
 #include "geopm_test.hpp" // for GEOPM_EXPECT_THROW_MESSAGE
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "EnvironmentParser.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

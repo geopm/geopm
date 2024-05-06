@@ -17,7 +17,7 @@
 #include "geopm_hint.h"
 #include "geopm_time.h"
 #include "geopm_field.h"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "CSV.hpp"
 #include "geopm_debug.hpp"

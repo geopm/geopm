@@ -17,7 +17,7 @@
 #endif
 
 #include "ApplicationIO.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "Reporter.hpp"
 #include "Tracer.hpp"
 #include "EndpointPolicyTracer.hpp"

@@ -12,7 +12,7 @@
 #include "geopm/Helper.hpp"
 #include "CSV.hpp"
 #include "geopm/Exception.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 
 namespace geopm
 {

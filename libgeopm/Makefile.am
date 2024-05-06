@@ -54,6 +54,7 @@ endif
 geopmincludedir = $(includedir)/geopm
 
 geopminclude_HEADERS = include/geopm/Agent.hpp \
+                       include/geopm/Environment.hpp \
                        include/geopm/FrequencyGovernor.hpp \
                        include/geopm/PlatformIOProf.hpp \
                        include/geopm/PowerBalancer.hpp \
@@ -61,6 +62,7 @@ geopminclude_HEADERS = include/geopm/Agent.hpp \
                        include/geopm/SampleAggregator.hpp \
                        include/geopm/Profile.hpp \
                        include/geopm/ModelRegion.hpp \
+                       include/geopm/Waiter.hpp \
                        # end
 
 if ENABLE_BETA
@@ -197,7 +199,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/EndpointUser.cpp \
                       src/EndpointUser.hpp \
                       src/Environment.cpp \
-                      src/Environment.hpp \
                       src/EnvironmentParser.cpp \
                       src/EnvironmentParser.hpp \
                       src/EpochIOGroup.cpp \
@@ -279,7 +280,6 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/ValidateRecord.cpp \
                       src/ValidateRecord.hpp \
                       src/Waiter.cpp \
-                      src/Waiter.hpp \
                       src/geopm_lib_init.cpp \
                       src/record.cpp \
                       src/record.hpp \

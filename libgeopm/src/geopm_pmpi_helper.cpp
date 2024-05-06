@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <limits.h>
 
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"
 #include "geopm/Profile.hpp"

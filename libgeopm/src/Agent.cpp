@@ -21,7 +21,7 @@
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "FrequencyMapAgent.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Helper.hpp"
 
 #ifdef GEOPM_ENABLE_BETA

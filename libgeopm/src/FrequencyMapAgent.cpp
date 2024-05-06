@@ -15,7 +15,7 @@
 
 #include "geopm_hash.h"
 
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
@@ -23,7 +23,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
-#include "Waiter.hpp"
+#include "geopm/Waiter.hpp"
 
 using json11::Json;
 
