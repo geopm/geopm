@@ -382,10 +382,13 @@ namespace geopm
         bool result = false;
         if (is_set("GEOPM_PROGRAM_FILTER")) {
             auto valid_names = geopm::string_split(lookup("GEOPM_PROGRAM_FILTER"), ",");
+            // Extract just the basename for any path provided as input
+            std::transform(valid_names.begin(), valid_names.end(), valid_names.begin(),
+                           [](const std::string& vn) {
+                               return vn.substr(vn.find_last_of("/") + 1);});
             result = std::any_of(valid_names.begin(), valid_names.end(),
                                  [](const std::string &vn) {
-                                     return vn == program_invocation_name ||
-                                            vn == program_invocation_short_name;});
+                                     return vn == program_invocation_short_name;});
         }
         return result;
     }

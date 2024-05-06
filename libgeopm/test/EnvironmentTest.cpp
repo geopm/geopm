@@ -707,3 +707,14 @@ TEST_F(EnvironmentTest, signal_parser)
         "Invalid signal : NUM_VACUUM_TUBES"
     );
 }
+
+TEST_F(EnvironmentTest, program_filter)
+{
+    // The program_invocation_short_name is geopm_test
+    setenv("GEOPM_PROGRAM_FILTER", "/usr/bin/sleep,/bin/bash,/my/app/geopm_test", 1);
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    EXPECT_TRUE(m_env->do_profile());
+    setenv("GEOPM_PROGRAM_FILTER", "sleep,bash,geopm_test", 1);
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    EXPECT_TRUE(m_env->do_profile());
+}
