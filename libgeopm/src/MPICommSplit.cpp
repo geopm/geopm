@@ -9,7 +9,7 @@
 
 #include "geopm_mpi_comm_split.h"
 #include "geopm/SharedMemory.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "Controller.hpp"
 #include "Comm.hpp"

@@ -13,7 +13,7 @@
 #include <sqlite3.h>
 
 #include "geopm/Agent.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_error.h"

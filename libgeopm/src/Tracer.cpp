@@ -19,7 +19,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "EnvironmentParser.hpp"
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm_hash.h"

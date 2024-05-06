@@ -20,8 +20,8 @@
 #include "geopm_debug.hpp"
 
 #include "geopm/PlatformIOProf.hpp"
-#include "Waiter.hpp"
-#include "Environment.hpp"
+#include "geopm/Waiter.hpp"
+#include "geopm/Environment.hpp"
 
 namespace geopm
 {

@@ -23,7 +23,7 @@
 #include "geopm_hash.h"
 #include "geopm_time.h"
 #include "Scheduler.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "ApplicationRecordLog.hpp"

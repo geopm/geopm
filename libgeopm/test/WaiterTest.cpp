@@ -8,7 +8,7 @@
 #include "gtest/gtest.h"
 #include "geopm_test.hpp"
 
-#include "Waiter.hpp"
+#include "geopm/Waiter.hpp"
 
 using geopm::Waiter;
 

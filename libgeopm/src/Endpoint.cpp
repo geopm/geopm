@@ -17,7 +17,7 @@
 #include <chrono>
 #include <stdexcept>
 
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

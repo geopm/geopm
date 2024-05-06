@@ -14,7 +14,7 @@
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/ServiceProxy.hpp"
 
 namespace geopm

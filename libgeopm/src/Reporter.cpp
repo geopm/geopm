@@ -32,7 +32,7 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm_debug.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "EnvironmentParser.hpp"
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm_time.h"

@@ -11,8 +11,8 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
-#include "Waiter.hpp"
-#include "Environment.hpp"
+#include "geopm/Waiter.hpp"
+#include "geopm/Environment.hpp"
 
 namespace geopm
 {

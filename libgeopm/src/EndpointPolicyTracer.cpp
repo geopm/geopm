@@ -12,7 +12,7 @@
 
 #include "CSV.hpp"
 #include "geopm/Agent.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"

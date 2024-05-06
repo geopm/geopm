@@ -19,8 +19,8 @@
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm/SampleAggregator.hpp"
-#include "Environment.hpp"
-#include "Waiter.hpp"
+#include "geopm/Environment.hpp"
+#include "geopm/Waiter.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm

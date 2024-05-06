@@ -18,7 +18,7 @@
 #include "geopm_error.h"
 #include "geopm/Profile.hpp"
 #include "ELF.hpp"
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "OMPT.hpp"
 #include "geopm_hash.h"

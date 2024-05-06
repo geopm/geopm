@@ -14,7 +14,7 @@
 #include <list>
 #include <mutex>
 #include <algorithm>
-#include <Environment.hpp>
+#include <geopm/Environment.hpp>
 #include <geopm_plugin.hpp>
 #ifdef GEOPM_ENABLE_MPI
 #include "MPIComm.hpp"

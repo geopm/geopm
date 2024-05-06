@@ -11,7 +11,7 @@
 #include <memory>
 #include <cmath>
 
-#include "Environment.hpp"
+#include "geopm/Environment.hpp"
 
 #include "geopm/Exception.hpp"
 #include "TreeCommLevel.hpp"

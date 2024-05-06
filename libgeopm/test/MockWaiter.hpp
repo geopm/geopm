@@ -8,7 +8,7 @@
 
 #include "gmock/gmock.h"
 
-#include "Waiter.hpp"
+#include "geopm/Waiter.hpp"
 
 class MockWaiter : public geopm::Waiter
 {
