@@ -139,7 +139,7 @@ void ExampleAgent::adjust_platform(const std::vector<double>& in_policy)
 // If idle percent had a valid value, execute the print
 bool ExampleAgent::do_write_batch(void) const
 {
-    return geopm_pio_check_valid_value(m_last_sample[M_SAMPLE_IDLE_PCT]);
+    return m_is_control_active && geopm_pio_check_valid_value(m_last_sample[M_SAMPLE_IDLE_PCT]);
 }
 
 // Read signals from the platform and calculate samples to be sent up
