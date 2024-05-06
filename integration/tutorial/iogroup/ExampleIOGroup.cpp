@@ -484,7 +484,7 @@ int ExampleIOGroup::signal_behavior(const std::string &signal_name) const
     }
     // All example signals are time based and increase monotonically
     int result = M_SIGNAL_BEHAVIOR_MONOTONE;
-    if (signal_name != "TMP_FILE_CONTROL" && signal_name != "EXAMPLE::TMP_FILE_CONTROL") {
+    if (signal_name == "TMP_FILE_CONTROL" || signal_name == "EXAMPLE::TMP_FILE_CONTROL") {
         result = M_SIGNAL_BEHAVIOR_VARIABLE;
     }
     return result;
