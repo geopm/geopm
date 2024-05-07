@@ -110,11 +110,14 @@ namespace geopm
 
         const auto nnet_properties = nnet_json.object_items();
         const auto signal_it = nnet_properties.find("signal_inputs");
+        bool use_signal_it = (signal_it != nnet_properties.end());
         const auto delta_it = nnet_properties.find("delta_inputs");
+        bool use_delta_it = (delta_it != nnet_properties.end());
+
         size_t signal_inputs_size = 0;
         size_t delta_inputs_size = 0;
 
-        if (signal_it != nnet_properties.end()) {
+        if (use_signal_it) {
             if (!signal_it->second.is_array()) {
                 throw Exception("DomainNetMapImp::" + std::string(__func__) +
                                  ": Neural net \"signal_inputs\" must be an array.",
@@ -123,7 +126,7 @@ namespace geopm
             signal_inputs_size = signal_it->second.array_items().size();
         }
 
-        if (delta_it != nnet_properties.end()) {
+        if (use_delta_it) {
             if (!delta_it->second.is_array()) {
                 throw Exception("DomainNetMapImp::" + std::string(__func__) +
                                 ": Neural net \"delta_inputs\" must be an array.",
@@ -169,32 +172,36 @@ namespace geopm
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        for (const auto &input : signal_it->second.array_items()) {
-            if (!input.is_string()) {
-                throw Exception("DomainNetMapImp::" + std::string(__func__) + 
-                                ": Neural net signal inputs must be strings.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (use_signal_it) {
+            for (const auto &input : signal_it->second.array_items()) {
+                if (!input.is_string()) {
+                    throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                                    ": Neural net signal inputs must be strings.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                m_signal_inputs.push_back({m_platform_io.push_signal(input.string_value(),
+                                                                     domain_type,
+                                                                     domain_index),
+                                           NAN});
             }
-            m_signal_inputs.push_back({m_platform_io.push_signal(input.string_value(),
-                                                                 domain_type,
-                                                                 domain_index),
-                                       NAN});
         }
 
-        for (const auto &input : delta_it->second.array_items()) {
-            if (!input.is_array() || input.array_items().size() != 2 ||
-                !input[0].is_string() || !input[1].is_string()) {
-                throw Exception("DomainNetMapImp::" + std::string(__func__) + 
-                                ": Neural net delta inputs must be tuples of strings.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (use_delta_it) {
+            for (const auto &input : delta_it->second.array_items()) {
+                if (!input.is_array() || input.array_items().size() != 2 ||
+                    !input[0].is_string() || !input[1].is_string()) {
+                    throw Exception("DomainNetMapImp::" + std::string(__func__) + 
+                                    ": Neural net delta inputs must be tuples of strings.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                m_delta_inputs.push_back({m_platform_io.push_signal(input[0].string_value(),
+                                                                    domain_type,
+                                                                    domain_index),
+                                          m_platform_io.push_signal(input[1].string_value(),
+                                                                    domain_type,
+                                                                    domain_index),
+                                          NAN, NAN, NAN, NAN});
             }
-            m_delta_inputs.push_back({m_platform_io.push_signal(input[0].string_value(),
-                                                                domain_type,
-                                                                domain_index),
-                                      m_platform_io.push_signal(input[1].string_value(),
-                                                                domain_type,
-                                                                domain_index),
-                                      NAN, NAN, NAN, NAN});
         }
 
         for (const auto &output : nnet_json["trace_outputs"].array_items()) {
