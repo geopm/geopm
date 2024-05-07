@@ -31,7 +31,6 @@ from integration.apps.arithmetic_intensity import arithmetic_intensity
 from integration.apps.minife import minife
 
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
-@util.skip_unless_workload_exists("apps/minife/miniFE_openmp-2.0-rc3/src/miniFE.x")
 class TestIntegration_cpu_characterization(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -276,6 +275,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
                 self.assertLessEqual(energy, monitor_energy_1)
 
     @util.skip_unless_config_enable('beta')
+    @util.skip_unless_workload_exists("apps/minife/miniFE_openmp-2.0-rc3/src/miniFE.x")
     def test_cpu_activity_minife(self):
         """
         MiniFE testing to make sure agent saves energy for cpu frequency
