@@ -8,11 +8,12 @@
 
 #include <memory>
 #include "geopm_time.h"
+#include "geopm_public.h"
 
 namespace geopm
 {
     /// @brief Class to support a periodic wait loop
-    class Waiter
+    class GEOPM_PUBLIC Waiter
     {
         public:
             /// @brief Create a Waiter with "sleep" strategy
@@ -40,7 +41,7 @@ namespace geopm
 
     /// @brief Class to support a periodic wait loop based on
     ///        clock_nanosleep() using CLOCK_REALTIME.
-    class SleepWaiter : public Waiter
+    class GEOPM_PUBLIC SleepWaiter : public Waiter
     {
         public:
             SleepWaiter(double period);

@@ -13,12 +13,14 @@
 #include <set>
 #include <memory>
 
+#include "geopm_public.h"
+
 
 namespace geopm
 {
     /// @brief Environment class encapsulates all functionality related to
     /// dealing with runtime environment variables.
-    class Environment
+    class GEOPM_PUBLIC Environment
     {
         public:
             /// @brief Enum for controller launch methods
@@ -69,7 +71,7 @@ namespace geopm
             static std::map<std::string, std::string> parse_environment_file(const std::string &env_file_path);
     };
 
-    class EnvironmentImp : public Environment
+    class GEOPM_PUBLIC EnvironmentImp : public Environment
     {
         public:
             EnvironmentImp();
@@ -116,9 +118,9 @@ namespace geopm
             int num_proc(void) const override;
             bool do_ctl_local(void) const override;
         protected:
-            void parse_environment(void);
-            bool is_set(const std::string &env_var) const;
-            std::string lookup(const std::string &env_var) const;
+            void GEOPM_PRIVATE parse_environment(void);
+            bool GEOPM_PRIVATE is_set(const std::string &env_var) const;
+            std::string GEOPM_PRIVATE lookup(const std::string &env_var) const;
             const std::set<std::string> m_all_names;
             std::set<std::string> m_user_defined_names;
             std::map<std::string, std::string> m_name_value_map;
@@ -126,6 +128,6 @@ namespace geopm
             const std::string m_override_config_path;
     };
 
-    const Environment &environment(void);
+    const Environment GEOPM_PUBLIC &environment(void);
 }
 #endif
