@@ -23,30 +23,22 @@ import geopmpy.io
 
 from integration.test import util
 from integration.test import geopm_test_launcher
+from integration.experiment.energy_efficiency import cpu_activity
 from integration.experiment.monitor import monitor
 from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
 from integration.experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
 from integration.apps.arithmetic_intensity import arithmetic_intensity
+from integration.apps.minife import minife
 
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
+@util.skip_unless_workload_exists("apps/minife/miniFE_openmp-2.0-rc3/src/miniFE.x")
 class TestIntegration_cpu_characterization(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Setup applications, execute, and set up class variables.
+        Setup applications, execute the characterizer, and set up class variables.
         """
         cls._skip_launch = not util.do_launch()
-
-        # Define global init control config
-        #   Enable QM to measure total memory bandwidth for uncore utilization
-        mem_bw_cfg = """
-        # Assign all cores to resource monitoring association ID 0
-        MSR::PQR_ASSOC:RMID board 0 0
-        # Assign the resource monitoring ID for QM Events to match ID 0
-        MSR::QM_EVTSEL:RMID board 0 0
-        # Select monitoring event ID 0x2 - Total Memory Bandwidth Monitoring
-        MSR::QM_EVTSEL:EVENT_ID board 0 2
-        """
 
         # Grabbing system frequency parameters for experiment frequency bounds
         cls._cpu_base_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_STICKER board 0")
@@ -66,29 +58,23 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         mach = machine.init_output_dir('.')
 
         cls._run_count = 0
-        def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args, init_control_cfg):
-            if not cls._skip_launch:
-                init_control_path = 'init_control_{}'.format(cls._run_count)
-                cls._run_count += 1
-                with open(init_control_path, 'w') as outfile:
-                    outfile.write(init_control_cfg)
-                experiment_args.init_control = os.path.realpath(init_control_path)
-
-                output_dir = experiment_args.output_dir
-                if output_dir.exists() and output_dir.is_dir():
-                    shutil.rmtree(output_dir)
-
-                experiment_type.launch(app_conf=app_conf, args=experiment_args,
-                                       experiment_cli_args=experiment_cli_args)
 
         #####################
         # Setup Common Args #
         #####################
-        freq_cfg = """
-        CPU_FREQUENCY_MAX_CONTROL board 0 {}
-        CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 {}
-        CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {}
-        """.format(cls._cpu_max_freq, cls._uncore_max_freq, cls._uncore_min_freq)
+        # Define global init control config
+        #   Enable QM to measure total memory bandwidth for uncore utilization
+        cls._initial_control_config = f"""
+        # Assign all cores to resource monitoring association ID 0
+        MSR::PQR_ASSOC:RMID board 0 0
+        # Assign the resource monitoring ID for QM Events to match ID 0
+        MSR::QM_EVTSEL:RMID board 0 0
+        # Select monitoring event ID 0x2 - Total Memory Bandwidth Monitoring
+        MSR::QM_EVTSEL:EVENT_ID board 0 2
+        CPU_FREQUENCY_MAX_CONTROL board 0 {cls._cpu_max_freq}
+        CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 {cls._uncore_max_freq}
+        CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {cls._uncore_min_freq}
+        """
 
         experiment_args = SimpleNamespace(
             node_count=node_count,
@@ -101,11 +87,11 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
 
         # Arithmetic Intensity Benchmark
         # Only benchmarks 1 & 16 are used to reduce characterization time
-        aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
+        cls._aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
             ['--slowdown=1',
-             '--base-internal-iterations=50',
+             '--base-internal-iterations=10',
              '--iterations=5',
-             f'--floats={1<<21}', # quick characterization, use 26 for slower & more accurate
+             f'--floats={1<<26}', # quick characterization, use 26 for slower & more accurate
              '--benchmarks=1 16'], # 1 & 16 are reasonable memory and compute bound
                                    # scenarios that more closely mimic real world apps.
                                    # 0 and 32 may be used for maximum memory and compute bound
@@ -114,6 +100,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
             run_type='sse', # Only the SSE workload is used for characterization
             ranks_per_node=None,
             distribute_slow_ranks=False)
+        cls._minife_app_conf = minife.create_appconf(mach, experiment_args)
 
         # use a two step characterization process to reduce runtime
         # Uncore sweep with core = base freq first
@@ -136,7 +123,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals), '--geopm-ctl=process']
 
         # We're using the AIB app conf from above here
-        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg + freq_cfg)
+        cls.launch_helper(cls, uncore_frequency_sweep, experiment_args, cls._aib_app_conf, experiment_cli_args, cls._initial_control_config)
 
         ##############
         # Parse data #
@@ -159,7 +146,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         experiment_args.min_uncore_frequency = uncore_efficient_freq
         experiment_args.max_uncore_frequency = uncore_efficient_freq
 
-        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args, mem_bw_cfg + freq_cfg)
+        cls.launch_helper(cls, uncore_frequency_sweep, experiment_args, cls._aib_app_conf, experiment_cli_args, cls._initial_control_config)
 
         ##############
         # Parse data #
@@ -185,7 +172,24 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
-            TestIntegration_cpu_activity._keep_files = True
+            TestIntegration_cpu_characterization._keep_files = True
+
+
+    def launch_helper(self, experiment_type, experiment_args, app_conf, experiment_cli_args, init_control_cfg):
+        if not self._skip_launch:
+            init_control_path = 'init_control_{}'.format(self._run_count)
+            self._run_count += 1
+            with open(init_control_path, 'w') as outfile:
+                outfile.write(init_control_cfg)
+            experiment_args.init_control = os.path.realpath(init_control_path)
+
+            output_dir = experiment_args.output_dir
+            if output_dir.exists() and output_dir.is_dir():
+                shutil.rmtree(output_dir)
+
+            experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                   experiment_cli_args=experiment_cli_args)
+
 
     def test_const_config_file_exists(self):
         """
@@ -212,6 +216,108 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         # Check Fue within range
         self.assertGreaterEqual(uncore_freq_efficient, self._uncore_min_freq)
         self.assertLessEqual(uncore_freq_efficient, self._uncore_max_freq)
+
+    @util.skip_unless_config_enable('beta')
+    def test_cpu_activity_aib(self):
+        """
+        AIB testing to make sure agent tuning based on AIB yielded sensible
+        results
+        """
+        # Arithmetic Intensity Benchmark
+        aib_monitor_dir = Path(os.path.join('test_cpu_activity_aib_output', 'aib_monitor'))
+
+        experiment_args = SimpleNamespace(
+            output_dir=aib_monitor_dir,
+            node_count=1,
+            trial_count=3,
+            cool_off_time=3,
+            enable_traces=False,
+            enable_profile_traces=False,
+            verbose=False,
+        )
+        self.launch_helper(monitor, experiment_args, self._aib_app_conf, ['--geopm-ctl=process'], self._initial_control_config)
+
+        aib_agent_dir = Path(os.path.join('test_cpu_activity_aib_output', 'aib_cpu_activity'))
+        experiment_args.output_dir = aib_agent_dir
+        experiment_args.phi_list = [0.2, 0.5, 0.7]
+        self.launch_helper(cpu_activity, experiment_args, self._aib_app_conf, ['--geopm-ctl=process'], self._initial_control_config)
+
+        df_monitor = geopmpy.io.RawReportCollection('*report', dir_name=aib_monitor_dir).get_df()
+        monitor_runtime_16 = df_monitor[df_monitor['region'] == 'intensity_16']['runtime (s)'].mean()
+        monitor_energy_16 = df_monitor[df_monitor['region'] == 'intensity_16']['package-energy (J)'].mean()
+
+        monitor_runtime_1 = df_monitor[df_monitor['region'] == 'intensity_1']['runtime (s)'].mean()
+        monitor_energy_1 = df_monitor[df_monitor['region'] == 'intensity_1']['package-energy (J)'].mean()
+
+        df_agent = geopmpy.io.RawReportCollection('*report', dir_name=aib_agent_dir).get_df()
+        df_agent_16 = df_agent[df_agent['region'] == 'intensity_16']
+        df_agent_1 = df_agent[df_agent['region'] == 'intensity_1']
+
+        # Test FoM & Runtime impact on the compute intensive workload
+        # used for tuning the agent
+        for phi in set(df_agent_16['CPU_PHI']):
+            runtime = df_agent_16[df_agent_16['CPU_PHI'] == phi]['runtime (s)'].mean()
+            energy = df_agent_16[df_agent_16['CPU_PHI'] == phi]['package-energy (J)'].mean()
+            if phi <= 0.5:
+                util.assertNear(self, runtime, monitor_runtime_16)
+                util.assertNear(self, energy, monitor_energy_16)
+            if phi >= 0.5:
+                self.assertGreaterEqual(runtime, monitor_runtime_16)
+
+        # Test FoM & Runtime impact on the memory intensive workload
+        # used for tuning the agent
+        for phi in set(df_agent_1['CPU_PHI']):
+            runtime = df_agent_1[df_agent_1['CPU_PHI'] == phi]['runtime (s)'].mean()
+            energy = df_agent_1[df_agent_1['CPU_PHI'] == phi]['package-energy (J)'].mean()
+
+            if phi <= 0.5:
+                util.assertNear(self, runtime, monitor_runtime_1)
+            if phi >= 0.5:
+                self.assertLessEqual(energy, monitor_energy_1)
+
+    @util.skip_unless_config_enable('beta')
+    def test_cpu_activity_minife(self):
+        """
+        MiniFE testing to make sure agent saves energy for cpu frequency
+        insensitive workloads
+        """
+        ################
+        # Monitor Runs #
+        ################
+
+        # MiniFE
+        minife_monitor_dir = Path(os.path.join('test_cpu_activity_minife_output', 'minife_monitor'))
+        experiment_args = SimpleNamespace(
+            output_dir=minife_monitor_dir,
+            node_count=1,
+            trial_count=3,
+            cool_off_time=3,
+            enable_traces=False,
+            enable_profile_traces=False,
+            verbose=False,
+        )
+        self.launch_helper(monitor, experiment_args, self._minife_app_conf, ['--geopm-ctl=process'], self._initial_control_config)
+
+        minife_agent_dir = Path(os.path.join('test_cpu_activity_minife_output', 'minife_cpu_activity'))
+        experiment_args.output_dir = minife_agent_dir
+        experiment_args.phi_list = [0.2, 0.5, 0.7]
+        self.launch_helper(cpu_activity, experiment_args, self._minife_app_conf, ['--geopm-ctl=process'], self._initial_control_config)
+
+        monitor_fom = geopmpy.io.RawReportCollection('*report', dir_name=minife_monitor_dir).get_app_df()['FOM'].mean()
+        monitor_energy = geopmpy.io.RawReportCollection('*report', dir_name=minife_monitor_dir).get_epoch_df()['package-energy (J)'].mean()
+
+        df_agent = geopmpy.io.RawReportCollection('*report', dir_name=minife_agent_dir).get_epoch_df()
+        df_agent_app = geopmpy.io.RawReportCollection('*report', dir_name=minife_agent_dir).get_app_df()
+
+        for phi in set(df_agent['CPU_PHI']):
+            fom = df_agent_app[df_agent_app['CPU_PHI'] == phi]['FOM'].mean()
+            energy = df_agent[df_agent['CPU_PHI'] == phi]['package-energy (J)'].mean()
+
+            if phi < 0.5:
+                util.assertNear(self, fom, monitor_fom)
+            if phi >= 0.5:
+                self.assertLess(energy, monitor_energy)
+
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option

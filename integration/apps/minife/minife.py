@@ -15,15 +15,15 @@ def setup_run_args(parser):
 def create_appconf(mach, args):
     ''' Create a MinifeAppConf object from an ArgParse and experiment.machine object.
     '''
-    return MinifeAppConf(args.node_count)
+    return MinifeAppConf(args.node_count, packages_per_node=mach.num_package(), cpus_per_node=mach.num_cpu())
 
 class MinifeAppConf(apps.AppConf):
     @staticmethod
     def name():
         return 'minife'
 
-    def __init__(self, num_nodes):
-        self.ranks_per_node = 2
+    def __init__(self, num_nodes, packages_per_node, cpus_per_node):
+        self.ranks_per_node = (cpus_per_node - 1) // packages_per_node * packages_per_node
         problem_sizes = {
             1: '-nx=396 -ny=384 -nz=384',  # '-nx=264 -ny=256 -nz=256',
             4: '-nx=528 -ny=512 -nz=512',  # '-nx=419 -ny=406 -nz=406',
@@ -42,6 +42,12 @@ class MinifeAppConf(apps.AppConf):
 
     def get_rank_per_node(self):
         return self.ranks_per_node
+
+    def get_cpu_per_rank(self):
+        return 1
+
+    def get_custom_geopm_args(self):
+        return ['--geopm-hyperthreads-disable']
 
     def get_bash_exec_path(self):
         return self.exe_path
