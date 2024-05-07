@@ -168,13 +168,13 @@ namespace geopm
 
     std::string ErrorMessage::message_last(int error_value)
     {
-        if (error_value == m_error_value) {
+        {
             std::lock_guard<std::mutex> guard(m_lock);
-            return m_error_message;
+            if (error_value == m_error_value) {
+                return m_error_message;
+            }
         }
-        else {
-            return message_fixed(error_value);
-        }
+        return message_fixed(error_value);
     }
 
     std::string ErrorMessage::message_fixed(int err)
