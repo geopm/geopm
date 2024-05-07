@@ -18,6 +18,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     monitor.setup_run_args(parser)
     args, extra_args = parser.parse_known_args()
-    app_conf = minife.MinifeAppConf(args.node_count)
+    app_conf = minife.create_appconf(mach, args)
     monitor.launch(app_conf=app_conf, args=args,
                    experiment_cli_args=extra_args)

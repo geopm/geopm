@@ -42,7 +42,6 @@ include test/test_gpu_activity_agent.mk
 include test/test_hint_time.mk
 include test/test_progress.mk
 include test/test_programmable_counters.mk
-include test/test_cpu_activity_agent.mk
 include test/test_cpu_characterization.mk
 include test/test_multi_app.mk
 include test/test_epoch_inference.mk
