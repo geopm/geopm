@@ -70,19 +70,34 @@ jobs:
     - name: install geopmpy and geopmdpy along with their development dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
-           python3 -m pip install ./geopmdpy
-           python3 -m pip install ./geopmpy
            python3 -m pip install -r geopmdpy/requirements.txt
            python3 -m pip install -r geopmpy/requirements.txt
+           python3 -m pip install -r docs/requirements.txt
+           python3 -m pip install -r requirements.txt
+           python3 -m pip install ./geopmdpy
+           python3 -m pip install ./geopmpy
     - name: check include guards
       shell: bash
       run: .github/include_guards.sh
+
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure --${{ matrix.debug-flag }} --${{ matrix.service-asan-flag }} || (cat config.log && false)
     - name: make libgeopmd dir
       working-directory: libgeopmd
       run: make -j2
+    - name: make libgeopmd dist
+      working-directory: libgeopmd
+      run: make -j2 dist
+    - name: make checkprogs libgeopmd
+      working-directory: libgeopmd
+      run: make checkprogs -j2
+    - name: make check libgeopmd
+      working-directory: libgeopmd
+      env:
+        LD_LIBRARY_PATH: .libs:${LD_LIBRARY_PATH}
+      run: make check
+
     - name: configure libgeopm dir
       working-directory: libgeopm
       if: matrix.service-asan-flag != 'enable-asan'
@@ -91,44 +106,52 @@ jobs:
       working-directory: libgeopm
       if: matrix.service-asan-flag != 'enable-asan'
       run: make -j2
-    - name: make checkprogs libgeopmd
-      working-directory: libgeopmd
-      run: make checkprogs -j2
+    - name: make libgeopm dist
+      working-directory: libgeopm
+      if: matrix.service-asan-flag != 'enable-asan'
+      run: make -j2 dist
     - name: make checkprogs libgeopm
       working-directory: libgeopm
       if: matrix.service-asan-flag != 'enable-asan'
       run: make checkprogs -j2
-    - name: make check libgeopmd
-      working-directory: libgeopmd
+    - name: make check libgeopm
+      working-directory: libgeopm
       env:
-        LD_LIBRARY_PATH: .libs:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH: .libs:../libgeopmd/.libs:${LD_LIBRARY_PATH}
+      if: matrix.service-asan-flag != 'enable-asan'
       run: make check
+
     - name: test geopmdpy
       if: matrix.service-asan-flag != 'enable-asan'
       working-directory: geopmdpy
       env:
         LD_LIBRARY_PATH: ../libgeopmd/.libs:${LD_LIBRARY_PATH}
       run: python3 test
-    - name: make check libgeopm
-      working-directory: libgeopm
+    - name: make geopmdpy dist
       if: matrix.service-asan-flag != 'enable-asan'
-      run: make check
-      env:
-        LD_LIBRARY_PATH: .libs:../libgeopmd/.libs:${LD_LIBRARY_PATH}
-          #    - name: test-dist
-          #      if: matrix.service-asan-flag != 'enable-asan' && matrix.base-asan-flag != 'enable-asan'
-          #      run: ./copying_headers/test-dist
+      working-directory: geopmdpy
+      run: ./make_sdist.sh
     - name: test geopmpy
       if: matrix.service-asan-flag != 'enable-asan' && matrix.base-asan-flag != 'enable-asan'
       working-directory: geopmpy
       env:
         LD_LIBRARY_PATH: ../libgeopm/.libs:${LD_LIBRARY_PATH}
       run: python3 test
+    - name: make geopmpy dist
+      if: matrix.service-asan-flag != 'enable-asan'
+      working-directory: geopmpy
+      run: ./make_sdist.sh
+    - name: make docs dist
+      if: matrix.service-asan-flag != 'enable-asan'
+      working-directory: docs
+      run: make dist
+
     - name: show failure logs
       if: ${{ failure() }}
       run: |
            cat ./*/test/test-suite.log || true
            cat integration/service/open_pbs/*.log || true
+
   publish_obs:
     if: github.event_name == 'push'
     needs: build_and_test
