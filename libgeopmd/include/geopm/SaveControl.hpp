@@ -11,6 +11,8 @@
 #include <string>
 #include <set>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
     class IOGroup;
@@ -37,7 +39,7 @@ namespace geopm
     ///       "domain_idx": 1,
     ///       "setting": 2.4e9}]
     ///
-    class SaveControl
+    class GEOPM_PUBLIC SaveControl
     {
         public:
             /// @brief Structure that holds the parameters passed to
@@ -121,7 +123,7 @@ namespace geopm
             virtual std::set<std::string> unsaved_controls(const std::set<std::string> &all_controls) const = 0;
     };
 
-    class SaveControlImp : public SaveControl
+    class GEOPM_PUBLIC SaveControlImp : public SaveControl
     {
         public:
             SaveControlImp(const std::vector<m_setting_s> &settings);
