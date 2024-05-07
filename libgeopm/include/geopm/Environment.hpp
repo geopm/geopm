@@ -118,9 +118,9 @@ namespace geopm
             int num_proc(void) const override;
             bool do_ctl_local(void) const override;
         protected:
-            void GEOPM_PRIVATE parse_environment(void);
-            bool GEOPM_PRIVATE is_set(const std::string &env_var) const;
-            std::string GEOPM_PRIVATE lookup(const std::string &env_var) const;
+            void parse_environment(void);
+            bool is_set(const std::string &env_var) const;
+            std::string lookup(const std::string &env_var) const;
             const std::set<std::string> m_all_names;
             std::set<std::string> m_user_defined_names;
             std::map<std::string, std::string> m_name_value_map;
