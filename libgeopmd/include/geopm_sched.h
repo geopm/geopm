@@ -14,41 +14,11 @@ extern "C"
 {
 #endif
 
-#ifndef __linux__
-/*!
- * @brief cpuset definition for non-linux platforms.
- */
-typedef struct GEOPM_PUBLIC cpu_set_t {
-    long int x[512];
-} cpu_set_t;
-
-static inline void CPU_SET(int cpu, cpu_set_t *set)
-{
-    int array_num = -1;
-    long comp_mask;
-
-    array_num = cpu / 64;
-    comp_mask = 1 << (cpu % 64);
-
-    set->x[array_num] |= comp_mask;
-}
-
-static inline int  CPU_ISSET(int cpu, cpu_set_t *set)
-{
-    int array_num = -1;
-    long comp_mask;
-
-    array_num = cpu / 64;
-    comp_mask = 1 << (cpu % 64);
-
-    return set->x[array_num] &= comp_mask;
-}
-#else
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+
 #include <sched.h>
-#endif
 
 int GEOPM_PUBLIC
     geopm_sched_num_cpu(void);
