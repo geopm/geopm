@@ -26,16 +26,17 @@ jobs:
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure || (cat config.log && false)
-    - uses: vapier/coverity-scan-action@2068473c7bdf8c2fb984a6a40ae76ee7facd7a85 # v1.8.0
-      with:
-        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
-        email: ${{ secrets.COVERITY_SCAN_EMAIL }}
-        command: make -C libgeopmd -O -j$(getconf _NPROCESSORS_CONF)
+    - name: build libgeopmd dir
+      working-directory: libgeopmd
+      run: make -j$(getconf _NPROCESSORS_CONF)
+    - name: install libgeopmd and clean dir
+      working-directory: libgeopmd
+      run: sudo make install && make clean
     - name: configure libgeopm dir
       working-directory: libgeopm
-      run: ./autogen.sh && ./configure --enable-beta || (cat config.log && false)
+      run: ./autogen.sh && ./configure --enable-beta --disable-geopmd-local || (cat config.log && false)
     - uses: vapier/coverity-scan-action@2068473c7bdf8c2fb984a6a40ae76ee7facd7a85 # v1.8.0
       with:
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         email: ${{ secrets.COVERITY_SCAN_EMAIL }}
-        command: make -C libgeopm -O -j$(getconf _NPROCESSORS_CONF)
+        command: make -C libgeopmd -O -j$(getconf _NPROCESSORS_CONF) && make -C libgeopm -O -j$(getconf _NPROCESSORS_CONF)
