@@ -336,7 +336,7 @@ $(sysfs_cpp_files): $(top_builddir)/gen-src/%.cpp: $(top_srcdir)/json_data/%.jso
 	$(top_srcdir)/src/json_data.cpp.in > $@
 
 io.github.geopm.xml:
-	PYTHONPATH=../geopmdpy \
+	PYTHONPATH=$(abs_srcdir)/../geopmdpy \
 	    python3 -m geopmdpy.dbus_xml > $@ || \
 	    echo "Warning: Could not import geopmdpy.dbus_xml, will not update io.github.geopm.xml"
 
