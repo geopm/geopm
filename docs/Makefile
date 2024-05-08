@@ -13,11 +13,23 @@ all:
 	# Do not make anything by default
 	-
 
+json_schemas: json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json
+
+json_schemas/active_sessions.schema.json:
+	PYTHONPATH=../geopmdpy \
+	    python3 -c \
+	    'from geopmdpy.schemas import GEOPM_ACTIVE_SESSIONS_SCHEMA as schema; print(schema)' > $@
+
+json_schemas/const_config_io.schema.json:
+	PYTHONPATH=../geopmdpy \
+	    python3 -c \
+	    'from geopmdpy.schemas import GEOPM_CONST_CONFIG_IO_SCHEMA as schema; print(schema)' > $@
+
 man: html
 	PYTHONPATH=../geopmdpy:../geopmpy \
 	    sphinx-build -M man source build -W
 
-html: VERSION
+html: VERSION json_schemas
 	PYTHONPATH=../geopmdpy:../geopmpy \
 	    sphinx-build -M html source build -W
 	./doxygen_update.sh
@@ -84,4 +96,4 @@ install_html:
 	cp -rp json_schemas/* $(GEOPM_GITHUB_IO)
 	VERSION=`cat VERSION` && cd $(GEOPM_GITHUB_IO) && git add -A && git commit -sm"Update to version $$VERSION"
 
-.PHONY: all man html geopmlint clean_all DATE VERSION dist install_man install_completion install_html
+.PHONY: all man html geopmlint clean_all DATE VERSION dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json

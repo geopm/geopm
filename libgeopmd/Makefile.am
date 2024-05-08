@@ -335,6 +335,11 @@ $(sysfs_cpp_files): $(top_builddir)/gen-src/%.cpp: $(top_srcdir)/json_data/%.jso
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_sysfs_json/g" \
 	$(top_srcdir)/src/json_data.cpp.in > $@
 
+io.github.geopm.xml:
+	PYTHONPATH=../geopmdpy \
+	    python3 -m geopmdpy.dbus_xml > $@ || \
+	    echo "Warning: Could not import geopmdpy.dbus_xml, will not update io.github.geopm.xml"
+
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
@@ -368,7 +373,7 @@ endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = rpm deb
+PHONY_TARGETS = rpm deb io.github.geopm.xml
 
 # INCLUDES
 check_PROGRAMS =

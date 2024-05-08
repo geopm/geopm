@@ -117,15 +117,3 @@ GEOPM_CONST_CONFIG_IO_SCHEMA = """
         }
     }
 """
-
-if __name__ == '__main__':
-    usage = f'{sys.argv[0]} SCHEMA_DIRECTORY\n\n'
-    if len(sys.argv) != 2:
-        print(usage)
-        sys.exit(0)
-
-    schema_dir = sys.argv[1]
-    with open(f'{schema_dir}/active_sessions.schema.json', 'w') as fid:
-        fid.write(GEOPM_ACTIVE_SESSIONS_SCHEMA)
-    with open(f'{schema_dir}/const_config_io.schema.json', 'w') as fid:
-        fid.write(GEOPM_CONST_CONFIG_IO_SCHEMA)
