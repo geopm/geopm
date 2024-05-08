@@ -24,6 +24,8 @@ extern "C" {
 static inline uint64_t geopm_signal_to_field(double signal)
 {
     uint64_t result;
+    static_assert(sizeof result == sizeof signal,
+                  "geopm_signal_to_field requires that signals and fields are the same size");
     memcpy(&result, &signal, sizeof(result));
     return result;
 }
@@ -37,6 +39,8 @@ static inline uint64_t geopm_signal_to_field(double signal)
 static inline double geopm_field_to_signal(uint64_t field)
 {
     double result;
+    static_assert(sizeof result == sizeof field,
+                  "geopm_field_to_signal requires that signals and fields are the same size");
     memcpy(&result, &field, sizeof(result));
     return result;
 }
