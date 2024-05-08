@@ -39,4 +39,4 @@ jobs:
       with:
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         email: ${{ secrets.COVERITY_SCAN_EMAIL }}
-        command: make -C libgeopmd -O -j$(getconf _NPROCESSORS_CONF) && make -C libgeopm -O -j$(getconf _NPROCESSORS_CONF)
+        command: bash -c "make -C libgeopmd -O -j$(getconf _NPROCESSORS_CONF) && make -C libgeopm -O -j$(getconf _NPROCESSORS_CONF)"
