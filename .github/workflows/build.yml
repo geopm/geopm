@@ -269,3 +269,80 @@ jobs:
            osc addremove
            cd -
            osc ci -m "geopm-doc ${{ github.sha }}" ${DOCS_PACKAGE}
+  test_packages:
+    name: "Make Deb Packages"
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    - name: Set shared environment variables
+      run:
+        echo "TEST_DEBS_DIR=/usr/local/mydebs"  >> "$GITHUB_ENV"
+    - name: Update package-building dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install devscripts equivs dpkg-dev
+        python3 -m pip install -r requirements.txt
+        # Create a local repo where we can locate our built deb files so that
+        # they can be found in dependency checks from later steps.
+        # Mark the repo as trusted so we can install these unsigned packages in the later steps.
+        sudo mkdir -p "$TEST_DEBS_DIR"
+        echo "deb [trusted=yes] file:$TEST_DEBS_DIR ./" | sudo tee --append /etc/apt/sources.list
+    - name: Package libgeopmd
+      working-directory: libgeopmd
+      env:
+        MAKEFLAGS: "-j"
+      run: |
+        # Install build dependencies listed in our debian control file
+        sudo mk-build-deps --install
+        # Build our deb packages
+        ./autogen.sh && ./configure || (cat config.log && false)
+        make deb
+        # Clean up so later steps don't unknowingly miss declaring a dependency installed by this step 
+        sudo apt-get purge --auto-remove geopm-service-build-deps
+        # Add our new packages to the local repo
+        sudo mv ./*.deb $TEST_DEBS_DIR
+        sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
+        sudo apt-get update
+    - name: Package geopmdpy
+      working-directory: geopmdpy
+      run: |
+        sudo mk-build-deps --install
+        python3 -m pip install -r requirements.txt
+        ./make_deb.sh
+        sudo apt-get purge --auto-remove python3-geopmdpy-build-deps
+        sudo mv ./*.deb $TEST_DEBS_DIR
+        sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
+        sudo apt-get update
+    - name: Package libgeopm
+      working-directory: libgeopm
+      env:
+        MAKEFLAGS: "-j"
+      run: |
+        sudo mk-build-deps --install
+        ./autogen.sh && ./configure --disable-mpi --disable-openmp --disable-fortran || (cat config.log && false)
+        make deb
+        # Clean up so later steps don't unknowingly miss a dependency 
+        sudo apt-get purge --auto-remove geopm-service-build-deps
+        sudo mv ./*.deb $TEST_DEBS_DIR
+        sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
+        sudo apt-get update
+    - name: Package geopmpy
+      working-directory: geopmpy
+      run: |
+        sudo mk-build-deps --install
+        python3 -m pip install -r requirements.txt
+        ./make_deb.sh
+        sudo apt-get purge --auto-remove python3-geopmpy-build-deps
+        sudo mv ./*.deb $TEST_DEBS_DIR
+        sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
+        sudo apt-get update
+    - name: Package docs
+      working-directory: docs
+      run: |
+        sudo mk-build-deps --install
+        python3 -m pip install -r requirements.txt
+        ./make_deb.sh
+        sudo apt-get purge --auto-remove python3-geopmpy-build-deps
+        sudo mv ./*.deb $TEST_DEBS_DIR
+        sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
+        sudo apt-get update
