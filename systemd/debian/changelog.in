@@ -1,0 +1,5 @@
+geopm-systemd (@VERSION@-1) jammy; urgency=low
+
+  * Update to version @VERSION@
+
+ -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  @DATE@

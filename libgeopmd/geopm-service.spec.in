@@ -45,7 +45,6 @@ Requires: level-zero >= 1.8.1
 %if 0%{?suse_version}
 BuildRequires: fdupes
 %endif
-BuildRequires: systemd-rpm-macros
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm-service
@@ -147,54 +146,14 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
 
-install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
-install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
-install -Dp -m644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
-mkdir -p %{buildroot}%{_sysconfdir}/geopm
-mkdir -p %{buildroot}%{_sbindir}
-ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
-
 %clean
-
-%if 0%{?suse_version}
-%pre -n geopm-service
-%service_add_pre geopm.service
-%endif
-
-%post -n geopm-service
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-%systemd_post geopm.service
-%else
-%service_add_post geopm.service
-%endif
-
-%preun -n geopm-service
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-%systemd_preun geopm.service
-%else
-%service_del_preun geopm.service
-%endif
-
-%postun -n geopm-service
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-%systemd_postun_with_restart geopm.service
-%else
-%service_del_postun geopm.service
-%endif
 
 # Installed files
 
 %files
 %defattr(-,root,root,-)
-%{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
-%dir %{_datadir}/dbus-1
-%dir %{_datadir}/dbus-1/system.d
-%{_datadir}/dbus-1/system.d/io.github.geopm.conf
-%dir %{_datadir}/dbus-1/interfaces
-%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
-%{_unitdir}/geopm.service
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/README.md

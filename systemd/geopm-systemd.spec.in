@@ -1,0 +1,93 @@
+#  Copyright (c) 2015 - 2024, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+# Packages: geopm-service, geopm-service-devel, libgeopmd2
+# This spec file supports three options for level-zero support:
+#
+# 1. default:
+#    No level-zero support.
+#
+# 2. rpmbuild --define 'enable_level_zero 1' ...
+#    Enable level-zero with packages installed into standard
+#    locations: libdir and includedir.
+#
+# 3. rpmbuild --define 'with_level_zero <LEVEL_ZERO_PREFIX>' ...
+#    Enable level-zero with packages installed into a
+#    non-standard prefix.
+
+Summary: Global Extensible Open Power Manager Service System Service
+Name: geopm-systemd
+Version: @VERSION@
+Release: 1
+License: BSD-3-Clause
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+# Deprecated for RHEL and CentOS
+Group: System Environment/Daemons
+%else
+Group: System/Daemons
+%endif
+URL: https://geopm.github.io
+Source0: geopm-systemd-%{version}.tar.gz
+BuildRoot: %{_tmppath}/geopm-systemd-%{version}-%{release}-root
+Prefix: %{_prefix}
+BuildRequires: systemd-rpm-macros
+Requires: libgeopmd2 = %{version}
+Requires: python3-geopmd = %{version}
+
+
+%description
+
+The GEOPM Service systemd components.
+
+%prep
+%setup
+
+%build
+
+%install
+install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
+install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
+install -Dp -m644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
+mkdir -p %{buildroot}%{_sysconfdir}/geopm
+mkdir -p %{buildroot}%{_sbindir}
+ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
+
+%clean
+%if 0%{?suse_version}
+%pre
+%service_add_pre geopm.service
+%endif
+
+%post
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+%systemd_post geopm.service
+%else
+%service_add_post geopm.service
+%endif
+
+%preun
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+%systemd_preun geopm.service
+%else
+%service_del_preun geopm.service
+%endif
+
+%postun
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+%systemd_postun_with_restart geopm.service
+%else
+%service_del_postun geopm.service
+%endif
+
+# Installed files
+
+%files
+%defattr(-,root,root,-)
+%{_sbindir}/rcgeopm
+%dir %{_datadir}/dbus-1
+%dir %{_datadir}/dbus-1/system.d
+%{_datadir}/dbus-1/system.d/io.github.geopm.conf
+%dir %{_datadir}/dbus-1/interfaces
+%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
+%{_unitdir}/geopm.service
