@@ -325,14 +325,14 @@ endif
 $(gen_src_dir):
 	$(MKDIR_P) $@
 
-$(msr_cpp_files): $(gen_src_dir)/%.cpp: $(top_srcdir)/json_data/%.json $(gen_src_dir) $(top_srcdir)/src/json_data.cpp.in
+$(msr_cpp_files): $(gen_src_dir)/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/src/json_data.cpp.in | $(gen_src_dir)
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
 	$(top_srcdir)/src/json_data.cpp.in > $@
 
-$(sysfs_cpp_files): $(gen_src_dir)/%.cpp: $(top_srcdir)/json_data/%.json $(gen_src_dir) $(top_srcdir)/src/json_data.cpp.in
+$(sysfs_cpp_files): $(gen_src_dir)/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/src/json_data.cpp.in | $(gen_src_dir)
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
