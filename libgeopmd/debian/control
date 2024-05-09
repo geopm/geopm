@@ -26,7 +26,7 @@ Depends: ${misc:Depends},
          libgeopmd2 (= ${binary:Version}),
          python3-geopmdpy (= ${binary:Version})
 Recommends: libgeopmd-doc (= ${binary:Version})
-Description: Command line interface to the libgeopmd2 libraray.  This
+Description: Command line interface to the libgeopmd library.  This
  provides the geopmread and geopmwrite command line tools.
 
 Package: libgeopmd-dev
