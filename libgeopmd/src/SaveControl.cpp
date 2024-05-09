@@ -104,7 +104,7 @@ namespace geopm
                 throw Exception("SaveControlImp::settings(): Expected a JSON object, unable to parse",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            auto jss_map = jss.object_items();
+            const auto &jss_map = jss.object_items();
             std::vector<std::string> required_keys = {"name",
                                                       "domain_type",
                                                       "domain_idx",

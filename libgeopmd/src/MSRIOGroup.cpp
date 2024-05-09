@@ -582,10 +582,9 @@ namespace geopm
         std::string msr_name = "MSR::PCNT_RATE";
         auto read_it = signal_hidden.find(msr_name);
         if (read_it != signal_hidden.end()) {
-            auto readings = read_it->second.signals;
             int cnt_domain = read_it->second.domain;
             int num_domain = m_platform_topo.num_domain(cnt_domain);
-            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+            GEOPM_DEBUG_ASSERT(num_domain == (int)read_it->second.signals.size(),
                                "size of domain for " + msr_name +
                                " does not match number of signals available.");
             std::vector<std::shared_ptr<Signal> > result(num_domain);

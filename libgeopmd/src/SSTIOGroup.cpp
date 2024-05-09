@@ -326,8 +326,8 @@ namespace geopm
 
         // For MMIO-based controls, register both a control and a signal.
         for (const auto &kv : sst_control_mmio_info) {
-            auto raw_name = kv.first;
-            auto raw_desc = kv.second;
+            const auto &raw_name = kv.first;
+            const auto &raw_desc = kv.second;
 
             uint32_t control_read_mask = 0;
 
@@ -682,8 +682,8 @@ namespace geopm
         int num_domain = m_topo.num_domain(domain_type);
 
         for (const auto &ff : fields) {
-            auto field_name = ff.first;
-            auto field_desc = ff.second;
+            const auto &field_name = ff.first;
+            const auto &field_desc = ff.second;
             auto request_data = field_desc.request_data;
             auto begin_bit = field_desc.begin_bit;
             auto end_bit = field_desc.end_bit;
@@ -748,8 +748,8 @@ namespace geopm
         int num_domain = m_topo.num_domain(domain_type);
 
         for (const auto &ff : fields) {
-            auto field_name = ff.first;
-            auto field_description = ff.second;
+            const auto &field_name = ff.first;
+            const auto &field_description = ff.second;
             auto write_data = field_description.write_data;
             auto begin_bit = field_description.begin_bit;
             auto end_bit = field_description.end_bit;
@@ -793,8 +793,8 @@ namespace geopm
         int num_domain = m_topo.num_domain(domain_type);
 
         for (const auto &ff : fields) {
-            auto field_name = ff.first;
-            auto field_desc = ff.second;
+            const auto &field_name = ff.first;
+            const auto &field_desc = ff.second;
             auto write_value = field_desc.write_value;
             auto begin_bit = field_desc.begin_bit;
             auto end_bit = field_desc.end_bit;
@@ -863,8 +863,8 @@ namespace geopm
         int num_domain = m_topo.num_domain(domain_type);
 
         for (const auto &ff : fields) {
-            auto field_name = ff.first;
-            auto field_desc = ff.second;
+            const auto &field_name = ff.first;
+            const auto &field_desc = ff.second;
             auto begin_bit = field_desc.begin_bit;
             auto end_bit = field_desc.end_bit;
             auto description = field_desc.description;
