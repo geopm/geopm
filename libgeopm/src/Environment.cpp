@@ -178,7 +178,7 @@ namespace geopm
                 }
                 auto override_value = json_obj.second.string_value();
                 if (user_defined_names.find(var_name) != user_defined_names.end()) {
-                    auto user_value = name_value_map[var_name];
+                    const auto &user_value = name_value_map[var_name];
                     std::cerr << "Warning: <geopm> User provided environment variable \"" << var_name
                               << "\" with value <"  << user_value << ">"
                               << " has been overridden with value <"  << override_value << ">" << std::endl;

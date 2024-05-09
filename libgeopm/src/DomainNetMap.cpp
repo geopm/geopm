@@ -108,7 +108,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        const auto nnet_properties = nnet_json.object_items();
+        const auto &nnet_properties = nnet_json.object_items();
         const auto signal_it = nnet_properties.find("signal_inputs");
         bool use_signal_it = (signal_it != nnet_properties.end());
         const auto delta_it = nnet_properties.find("delta_inputs");
