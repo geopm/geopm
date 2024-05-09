@@ -257,10 +257,11 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         for phi in set(df_agent_16['CPU_PHI']):
             runtime = df_agent_16[df_agent_16['CPU_PHI'] == phi]['runtime (s)'].mean()
             energy = df_agent_16[df_agent_16['CPU_PHI'] == phi]['package-energy (J)'].mean()
-            if phi <= 0.5:
+            if phi < 0.5:
                 util.assertNear(self, runtime, monitor_runtime_16)
                 util.assertNear(self, energy, monitor_energy_16)
             if phi >= 0.5:
+                self.assertLess(energy, monitor_energy_16)
                 self.assertGreaterEqual(runtime, monitor_runtime_16)
 
         # Test FoM & Runtime impact on the memory intensive workload
@@ -269,10 +270,8 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
             runtime = df_agent_1[df_agent_1['CPU_PHI'] == phi]['runtime (s)'].mean()
             energy = df_agent_1[df_agent_1['CPU_PHI'] == phi]['package-energy (J)'].mean()
 
-            if phi <= 0.5:
-                util.assertNear(self, runtime, monitor_runtime_1)
-            if phi >= 0.5:
-                self.assertLessEqual(energy, monitor_energy_1)
+            util.assertNear(self, runtime, monitor_runtime_1)
+            self.assertLess(energy, monitor_energy_1)
 
     @util.skip_unless_config_enable('beta')
     @util.skip_unless_workload_exists("apps/minife/miniFE_openmp-2.0-rc3/src/miniFE.x")
