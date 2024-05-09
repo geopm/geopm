@@ -3,7 +3,9 @@ Section: utils
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 Build-Depends: debhelper-compat (= 12),
-               bash-completion
+               bash-completion,
+               doxygen,
+               graphviz
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
