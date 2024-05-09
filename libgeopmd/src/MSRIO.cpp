@@ -34,7 +34,7 @@ namespace geopm
     }
 
     MSRIOImp::MSRIOImp(std::shared_ptr<MSRPath> path)
-        : MSRIOImp(platform_topo().num_domain(GEOPM_DOMAIN_CPU), path, nullptr, nullptr)
+        : MSRIOImp(platform_topo().num_domain(GEOPM_DOMAIN_CPU), std::move(path), nullptr, nullptr)
     {
 
     }

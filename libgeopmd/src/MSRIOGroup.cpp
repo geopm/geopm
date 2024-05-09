@@ -68,7 +68,7 @@ namespace geopm
     // warning if there is mixed writability across domains.
     static bool is_trl_writable_in_all_domains(const Json &msr_json,
                                                const PlatformTopo &topo,
-                                               std::shared_ptr<MSRIO> msrio)
+                                               std::shared_ptr<MSRIO> &msrio)
     {
         bool is_writable = false;
         const auto &msr_obj = msr_json.object_items();
@@ -156,7 +156,7 @@ namespace geopm
         : m_platform_topo(topo)
         , m_msrio(std::move(msrio))
         , m_save_restore_ctx(m_msrio->create_batch_context())
-        , m_cpuid(cpuid)
+        , m_cpuid(std::move(cpuid))
         , m_num_cpu(num_cpu)
         , m_is_active(false)
         , m_is_read(false)
