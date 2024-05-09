@@ -19,7 +19,7 @@ BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
 Prefix: %{_prefix}
 BuildRequires: systemd-rpm-macros
 Requires: libgeopmd2 = %{version}
-Requires: python3-geopmd = %{version}
+Requires: python3-geopmdpy = %{version}
 
 
 %description
