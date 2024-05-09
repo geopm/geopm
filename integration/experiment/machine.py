@@ -59,6 +59,15 @@ class Machine:
     def frequency_step(self):
         return self.signals['CPU_FREQUENCY_STEP']
 
+    def frequency_max_many_core(self):
+        return self.signals['MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7']
+
+    def frequency_uncore_min(self):
+        return self.signals['CPU_UNCORE_FREQUENCY_MIN_CONTROL']
+
+    def frequency_uncore_max(self):
+        return self.signals['CPU_UNCORE_FREQUENCY_MAX_CONTROL']
+
     def gpu_frequency_step(self):
         return self.signals['GPU_CORE_FREQUENCY_STEP']
 
@@ -116,6 +125,9 @@ class Machine:
                         'CPU_FREQUENCY_MAX_AVAIL',
                         'CPU_FREQUENCY_STICKER',
                         'CPU_FREQUENCY_STEP',
+                        'MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7',
+                        'CPU_UNCORE_FREQUENCY_MIN_CONTROL',
+                        'CPU_UNCORE_FREQUENCY_MAX_CONTROL',
                         'CPU_POWER_MIN_AVAIL',
                         'CPU_POWER_LIMIT_DEFAULT',
                         'CPU_POWER_MAX_AVAIL']
