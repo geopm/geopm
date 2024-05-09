@@ -256,8 +256,8 @@ namespace geopm
 
         // Directly register MBOX-based signals
         for (const auto &kv : sst_signal_mbox_info) {
-            auto raw_name = kv.first;
-            auto raw_desc = kv.second;
+            const auto &raw_name = kv.first;
+            const auto &raw_desc = kv.second;
 
             add_mbox_signals(raw_name, raw_desc.command, raw_desc.subcommand,
                              raw_desc.fields);
@@ -267,8 +267,8 @@ namespace geopm
         // control needs to be aware of how the signal reads are performed so
         // it can do software read/modify/write.
         for (const auto &kv : sst_control_mbox_info) {
-            auto raw_name = kv.first;
-            auto raw_desc = kv.second;
+            const auto &raw_name = kv.first;
+            const auto &raw_desc = kv.second;
 
             // Create a read mask for pre-write reads in the control. The mask
             // is a union of all known fields.
