@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Packages: geopm-service, geopm-service-devel, libgeopmd2
+# Packages: libgeopmd, libgeopmd-devel, libgeopmd2
 # This spec file supports three options for level-zero support:
 #
 # 1. default:
@@ -16,8 +16,8 @@
 #    Enable level-zero with packages installed into a
 #    non-standard prefix.
 
-Summary: Global Extensible Open Power Manager Service
-Name: geopm-service
+Summary: Global Extensible Open Power Manager Service Library
+Name: libgeopmd2
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
@@ -28,8 +28,8 @@ Group: System Environment/Daemons
 Group: System/Daemons
 %endif
 URL: https://geopm.github.io
-Source0: geopm-service-%{version}.tar.gz
-BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
+Source0: libgeopmd-%{version}.tar.gz
+BuildRoot: %{_tmppath}/libgeopmd-%{version}-%{release}-root
 Prefix: %{_prefix}
 BuildRequires: gcc-c++
 BuildRequires: unzip
@@ -46,53 +46,6 @@ Requires: level-zero >= 1.8.1
 BuildRequires: fdupes
 %endif
 
-%if %{defined suse_version}
-%define docdir %{_defaultdocdir}/geopm-service
-%else
-%define docdir %{_defaultdocdir}/geopm-service-%{version}
-%endif
-
-Requires: libgeopmd2 = %{version}
-
-%description
-
-The GEOPM Service provides a user-level interface to read telemetry
-and configure settings of heterogeneous hardware platforms. Linux
-system administrators may manage permissions for user access to
-telemetry and configuration at a fine granularity.  This package
-includes the geopm systemd service unit that provides a DBus interface
-io.github.geopm.  Additionally the libgeopmd.so shared object library
-is installed with this package.
-
-
-%package devel
-
-Summary: Global Extensible Open Power Manager Service - development
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-# Deprecated for RHEL and CentOS
-Group: Development/Libraries
-%else
-Group: Development/Libraries/C and C++
-%endif
-Requires: libgeopmd2 = %{version}
-
-%description devel
-
-Development package for the GEOPM Service.  This provides the
-programming interface to libgeopmd.so.  The package includes the C and
-C++ header files, maunuals for these interfaces and the unversioned
-libgeopmd.so shared object symbolic link.
-
-%package -n libgeopmd2
-
-Summary: Provides libgeopmd shared object library
-%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
-# Deprecated for RHEL and CentOS
-Group: System Environment/Libraries
-%else
-Group: System/Libraries
-%endif
-
 # Lets GEOPM batch its IO operations to reduce syscall overhead in IOGroups
 # with a lot of reads/writes per GEOPM batch operation.
 %if %{defined disable_io_uring} || 0%{?centos_ver} == 8
@@ -105,15 +58,57 @@ BuildRequires: liburing-devel
 %define cpuid_option --disable-cpuid
 %endif
 
-%description -n libgeopmd2
+%if %{defined suse_version}
+%define docdir %{_defaultdocdir}/libgeopmd
+%else
+%define docdir %{_defaultdocdir}/libgeopmd-%{version}
+%endif
+
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+# Deprecated for RHEL and CentOS
+Group: System Environment/Libraries
+%else
+Group: System/Libraries
+%endif
+
+%description
 
 Library supporting the GEOPM Service.  This provides the libgeopmd
 library which provides C and C++ interfaces.
 
+%package -n libgeopmd-cli
+Summary: Global Extensible Open Power Manager Service Library - Command Line Interfaces
+
+Requires: libgeopmd2 = %{version}
+
+%description -n libgeopmd-cli
+
+Command line interfaces to libgeopmd, including geopmread and
+geopmwrite.
+
+
+%package -n libgeopmd-devel
+
+Summary: Global Extensible Open Power Manager Service Library - Development
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver}
+# Deprecated for RHEL and CentOS
+Group: Development/Libraries
+%else
+Group: Development/Libraries/C and C++
+%endif
+Requires: libgeopmd2 = %{version}
+
+%description -n libgeopmd-devel
+
+Development package for the GEOPM Service.  This provides the
+programming interface to libgeopmd.so.  The package includes the C and
+C++ header files, maunuals for these interfaces and the unversioned
+libgeopmd.so shared object symbolic link.
+
 # Steps for all packages
 %global debug_package %{nil}
 %prep
-%setup
+%setup -n libgeopmd-%{version}
 
 %build
 
@@ -152,20 +147,20 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/geopmread
-%{_bindir}/geopmwrite
+%{_libdir}/libgeopmd.so.2.0.0
+%{_libdir}/libgeopmd.so.2
+%dir %{_libdir}/geopm
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/README.md
 %doc %{docdir}/VERSION
 
-%files -n libgeopmd2
+%files -n libgeopmd-cli
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmd.so.2.0.0
-%{_libdir}/libgeopmd.so.2
-%dir %{_libdir}/geopm
+%{_bindir}/geopmread
+%{_bindir}/geopmwrite
 
-%files devel
+%files -n libgeopmd-devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/geopm
 %{_includedir}/geopm/Agg.hpp

@@ -70,13 +70,13 @@ EXTRA_DIST = .gitignore \
              debian/changelog.in \
              debian/control \
              debian/copyright \
-             debian/geopm-service.dirs \
-             debian/geopm-service.install \
+             debian/libgeopmd-cli.install \
              debian/libgeopmd-dev.dirs \
              debian/libgeopmd-dev.install \
+             debian/libgeopmd2.dirs \
              debian/libgeopmd2.install \
              debian/rules \
-             geopm-service.spec.in \
+             libgeopmd.spec.in \
              AUTHORS \
              ChangeLog \
              CODE_OF_CONDUCT.md \
@@ -339,16 +339,16 @@ rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-service-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
-	cp geopm-service.spec $(rpm_topdir)/SPECS
-	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
+	cp libgeopmd-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
+	cp libgeopmd.spec $(rpm_topdir)/SPECS
+	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/libgeopmd.spec
 
 DPKG_BUILDPACKAGE_OPTIONS ?= -us -uc
 deb: dist
-	rm -rf geopm-service-$(VERSION)
-	tar xvf geopm-service-$(VERSION).tar.gz
-	cd geopm-service-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
-	rm -rf geopm-service-$(VERSION)
+	rm -rf libgeopmd-$(VERSION)
+	tar xvf libgeopmd-$(VERSION).tar.gz
+	cd libgeopmd-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
+	rm -rf libgeopmd-$(VERSION)
 
 if !ENABLE_SANITIZERS
 checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)

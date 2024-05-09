@@ -1,5 +1,5 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: geopm-service
+Upstream-Name: libgeopmd
 Upstream-Contact: <preferred name and address to reach the upstream project>
 Source: <url://example.com>
 #
@@ -275,9 +275,9 @@ Files:     .gitignore
            contrib/json11/README.md
            debian/changelog.in
            debian/control
-           debian/geopm-service.dirs
-           debian/geopm-service.install
-           debian/geopm-service.postinst
+           debian/libgeopmd.dirs
+           debian/libgeopmd.install
+           debian/libgeopmd.postinst
            debian/libgeopmd-dev.dirs
            debian/libgeopmd-dev.install
            debian/libgeopmd2.install
@@ -335,10 +335,10 @@ License:   Expat
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 
-Files:     geopm-service.spec.in
+Files:     libgeopmd.spec.in
 Copyright: 2015-2024 Intel Corporation SPDX-License-Identifier: BSD-3-Clause
 License:   __UNKNOWN__
- Packages: geopm-service, geopm-service-devel, libgeopmd2
+ Packages: libgeopmd, libgeopmd-devel, libgeopmd2
  This spec file supports three options for level-zero support:
  .
  1. default:
