@@ -37,24 +37,23 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         """
         Setup applications, execute the characterizer, and set up class variables.
         """
+        mach = machine.init_output_dir('.')
         cls._skip_launch = not util.do_launch()
 
         # Grabbing system frequency parameters for experiment frequency bounds
-        cls._cpu_base_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_STICKER board 0")
+        cls._cpu_base_freq = mach.frequency_sticker()
 
         # Choosing the maximum many core frequency to remove redundant frequency sweep values
-        cls._cpu_max_freq = geopm_test_launcher.geopmread("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7 board 0")
-        cls._cpu_min_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MIN_AVAIL board 0")
+        cls._cpu_max_freq = mach.frequency_max_many_core()
+        cls._cpu_min_freq = mach.frequency_min()
 
         # The minimum and maximum values used rely on the system controls being properly configured
         # as there is no other mechanism to confirm uncore min & max at this time.  These values are
         # guaranteed to be correct after a system reset, but could have been modified by the administrator
-        cls._uncore_min_freq = geopm_test_launcher.geopmread("CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0")
-        cls._uncore_max_freq = geopm_test_launcher.geopmread("CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0")
+        cls._uncore_min_freq = mach.frequency_uncore_min()
+        cls._uncore_max_freq = mach.frequency_uncore_max()
 
         node_count = 1
-
-        mach = machine.init_output_dir('.')
 
         cls._run_count = 0
 
@@ -199,6 +198,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
             raise Exception("Error: <geopm> test_cpu_characterization.py: Creation of "
                             "ConstConfigIOGroup configuration file failed")
 
+    @util.skip_unless_batch()
     def test_const_config_signals(self):
         """
         Basic testing of signal availability and within system ranges
