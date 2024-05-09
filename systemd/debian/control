@@ -1,0 +1,22 @@
+Source: geopm-service
+Section: utils
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (=13),
+               build-essential,
+               debhelper (>= 11~),
+Standards-Version: 4.1.4
+Homepage: https://geopm.github.io
+Vcs-Git: https://github.com/geopm/geopm.git
+Vcs-Browser: https://github.com/geopm/geopm.git
+
+Package: geopm-service
+Section: utils
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgeopmd2 (= ${binary:Version}),
+         python3-geopmdpy (= ${binary:Version})
+Description: The GEOPM Service systemd integration files.
+
+

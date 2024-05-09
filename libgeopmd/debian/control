@@ -1,4 +1,4 @@
-Source: geopm-service
+Source: libgeopmd
 Section: utils
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
@@ -18,21 +18,15 @@ Homepage: https://geopm.github.io
 Vcs-Git: https://github.com/geopm/geopm.git
 Vcs-Browser: https://github.com/geopm/geopm.git
 
-Package: geopm-service
+Package: libgeopmd-cli
 Section: utils
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          libgeopmd2 (= ${binary:Version}),
-         python3-geopmdpy (= ${binary:Version})
-Recommends: geopm-service-doc (= ${binary:Version})
-Description: The GEOPM Service provides a user-level interface to read
- telemetry and configure settings of heterogeneous hardware
- platforms. Linux system administrators may manage permissions for
- user access to telemetry and configuration at a fine granularity.
- This package includes the geopm systemd service unit that provides a
- DBus interface io.github.geopm.  Additionally the libgeopmd.so shared
- object library is installed with this package.
+Recommends: libgeopmd-doc (= ${binary:Version})
+Description: Command line interface to the libgeopmd library.  This
+ provides the geopmread and geopmwrite command line tools.
 
 Package: libgeopmd-dev
 Section: libdevel

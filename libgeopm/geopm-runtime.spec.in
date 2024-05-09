@@ -15,7 +15,7 @@ Prefix: %{_prefix}
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
-BuildRequires: geopm-service-devel
+BuildRequires: libgeopmd-devel
 %if 0%{?suse_version}
 BuildRequires: libelf-devel
 %else

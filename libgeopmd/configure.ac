@@ -4,7 +4,7 @@
 
 # 2.62 required for OpenMP macro and others
 AC_PREREQ([2.62])
-AC_INIT([geopm-service],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
+AC_INIT([libgeopmd],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax] foreign)
 AC_CONFIG_HEADERS([config.h])
@@ -502,7 +502,7 @@ AC_SUBST([AM_LDFLAGS])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm-service.spec debian/changelog])
+AC_CONFIG_FILES([Makefile libgeopmd.spec debian/changelog])
 AC_REQUIRE_AUX_FILE([tap-driver.sh])
 AC_OUTPUT
 

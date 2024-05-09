@@ -9,7 +9,7 @@ print_help() {
            $0 --remove
 
     Installs the RPMs created by the \"make rpm\" target of the
-    geopm/service build.  The geopm-service geopm-service-devel and
+    geopm/service build.  The geopm-service libgeopmd-devel and
     python3-geopmdpy packages are installed and then the geopm service
     is started with systemctl.
 

@@ -16,7 +16,7 @@ for cdir in libgeopmd libgeopm; do
     cd -
 done
 
-for pdir in geopmdpy geopmpy docs; do
+for pdir in geopmdpy geopmpy docs systemd; do
     cd $pdir
     ./make_$pkg.sh
     cd -
