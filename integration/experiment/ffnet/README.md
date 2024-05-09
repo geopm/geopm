@@ -91,12 +91,12 @@ frequency recommendation maps, optionally with a specified perf energy bias.
                            GPUs on the node. 
 
   - `--min-gpu-frequency`: the minimum GPU frequency setting for the sweep.
-  -                        By default, it uses the minimum frequency for the
-  -                        GPUs on the node.
+                           By default, it uses the minimum frequency for the
+                           GPUs on the node.
 
   - `--step-gpu-frequency`: the step size in hertz between settings for the sweep.
-  -                         By default, it uses the minimum supported step size
-  -                         of GPUs on the node.
+                            By default, it uses the minimum supported step size
+                            of GPUs on the node.
 
   Note that for any frequency domain, if the values above are not specified or if
   the min and max values are equal, a frequency sweep will not be executed across
@@ -122,7 +122,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
   E.g.:
 
    ```
-   ./gen_hdf_from_fsweep.py example_output frequency_sweep_output_dir
+   ./gen_hdf_from_fsweep.py example_output /path/to/fsweep
    ```
    This will generate `example_output_stats.h5` and `example_output_traces.h5`
 
@@ -169,7 +169,8 @@ frequency recommendation maps, optionally with a specified perf energy bias.
    ```
     ./gen_region_parameters.py --output fmap --data-file example_output_stats.h5
    ```
-    This will generate `fmap_cpu.json` and/or `fmap_gpu.json`
+
+   This will generate `fmap_cpu.json` and/or `fmap_gpu.json`
 
 #### `gen_sweep_to_ffnet.py`:
 
@@ -187,7 +188,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
   
    E.g. 
    ```
-   ./gen_sweep_to_ffnet.py --output test --description "Test" --frequency_sweep_dirs freq_dir 
+   ./gen_sweep_to_ffnet.py --output test --description "Test" --frequency_sweep_dirs /path/to/fsweep
    ```
    This will generate the following files:
    - `test_stats.h5`
@@ -210,7 +211,7 @@ using the following steps.
    `gen_sweep_to_ffnet.py`. E.g.:
 
    ```
-   ./gen_sweep_to_ffnet.py --output test --description "Test" --frequency_sweep_dirs freq_dir 
+   ./gen_sweep_to_ffnet.py --output test --description "Test" --frequency_sweep_dirs /path/to/fsweep
    ```
 
    Resulting json files will output in the directory in which the script was executed
