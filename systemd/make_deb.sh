@@ -12,6 +12,6 @@ set -xe
 
 make dist
 VERSION=$(cat VERSION)
-tar xvf geopm-systemd-$VERSION.tar.gz
-cd geopm-systemd-$VERSION
+tar xvf geopm-service-$VERSION.tar.gz
+cd geopm-service-$VERSION
 dpkg-buildpackage ${DPKG_BUILDPACKAGE_OPTIONS:- -us -uc}

@@ -1,4 +1,4 @@
-geopm-systemd (@VERSION@-1) jammy; urgency=low
+geopm-service (@VERSION@-1) jammy; urgency=low
 
   * Update to version @VERSION@
 

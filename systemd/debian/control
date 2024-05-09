@@ -1,4 +1,4 @@
-Source: geopm-systemd
+Source: geopm-service
 Section: utils
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
@@ -10,7 +10,7 @@ Homepage: https://geopm.github.io
 Vcs-Git: https://github.com/geopm/geopm.git
 Vcs-Browser: https://github.com/geopm/geopm.git
 
-Package: geopm-systemd
+Package: geopm-service
 Section: utils
 Architecture: any
 Depends: ${misc:Depends},

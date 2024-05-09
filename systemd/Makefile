@@ -17,8 +17,8 @@ dist: io.github.geopm.xml VERSION DATE
 	VERSION=`cat VERSION` && DATE=`cat DATE` && \
 	cat debian/changelog.in | sed -e "s|@VERSION@|$$VERSION|g" \
 	                              -e "s|@DATE@|$$DATE|g" > debian/changelog && \
-	sed -e "s|@VERSION@|$$VERSION|" geopm-systemd.spec.in > geopm-systemd.spec && \
-	cd .. && tar --transform="s|systemd|geopm-systemd-$$VERSION|" -h -zcvf geopm-systemd-$$VERSION.tar.gz systemd && \
-	mv geopm-systemd-$$VERSION.tar.gz systemd
+	sed -e "s|@VERSION@|$$VERSION|" geopm-service.spec.in > geopm-service.spec && \
+	cd .. && tar --transform="s|systemd|geopm-service-$$VERSION|" -h -zcvf geopm-service-$$VERSION.tar.gz systemd && \
+	mv geopm-service-$$VERSION.tar.gz systemd
 
 .PHONY: VERSION io.github.geopm.xml

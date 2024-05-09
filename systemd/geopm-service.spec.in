@@ -2,22 +2,8 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Packages: geopm-service, geopm-service-devel, libgeopmd2
-# This spec file supports three options for level-zero support:
-#
-# 1. default:
-#    No level-zero support.
-#
-# 2. rpmbuild --define 'enable_level_zero 1' ...
-#    Enable level-zero with packages installed into standard
-#    locations: libdir and includedir.
-#
-# 3. rpmbuild --define 'with_level_zero <LEVEL_ZERO_PREFIX>' ...
-#    Enable level-zero with packages installed into a
-#    non-standard prefix.
-
 Summary: Global Extensible Open Power Manager Service System Service
-Name: geopm-systemd
+Name: geopm-service
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
@@ -28,8 +14,8 @@ Group: System Environment/Daemons
 Group: System/Daemons
 %endif
 URL: https://geopm.github.io
-Source0: geopm-systemd-%{version}.tar.gz
-BuildRoot: %{_tmppath}/geopm-systemd-%{version}-%{release}-root
+Source0: geopm-service-%{version}.tar.gz
+BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
 Prefix: %{_prefix}
 BuildRequires: systemd-rpm-macros
 Requires: libgeopmd2 = %{version}
