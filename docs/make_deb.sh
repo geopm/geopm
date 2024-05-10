@@ -1,4 +1,7 @@
 #!/bin/bash
+#  Copyright (c) 2015 - 2024 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 
 if [ $0 != './make_deb.sh' ]; then
     echo "Error: Working directory must be geopm/docs" 1>&2
