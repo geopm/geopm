@@ -19,7 +19,7 @@
 #include "geopm_public.h"
 #include "geopm_time.h"
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 
 extern "C"
 {
