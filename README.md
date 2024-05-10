@@ -201,7 +201,7 @@ information about how to interact with our build and test tools.
 ## License
 The GEOPM source code is distributed under the 3-clause BSD license.
 
-SEE [COPYING](COPYING) FILE FOR LICENSE INFORMATION.
+SEE [LICENSE-BSD-3-Clause](LICENSE-BSD-3-Clause) FILE FOR LICENSE INFORMATION.
 
 ## Last Update
 2024 April 10

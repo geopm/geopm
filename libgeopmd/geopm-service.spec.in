@@ -196,7 +196,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
 %dir %{docdir}
-%doc %{docdir}/COPYING
+%doc %{docdir}/LICENSE-BSD-3-Clause
 %doc %{docdir}/README.md
 %doc %{docdir}/VERSION
 

@@ -55,7 +55,7 @@ dist: dist-googletest
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/geopm
 
-dist_doc_DATA = COPYING \
+dist_doc_DATA = LICENSE-BSD-3-Clause \
                 README.md \
                 VERSION \
                 # end

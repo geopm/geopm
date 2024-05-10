@@ -72,7 +72,7 @@ Documentation
 License: BSD 3-Clause
 ---------------------
 
-.. literalinclude:: ../COPYING
+.. literalinclude:: ../LICENSE-BSD-3-Clause
   :language: none
 
 `SPDX Details for BSD 3-Clause License <https://spdx.org/licenses/BSD-3-Clause.html>`_

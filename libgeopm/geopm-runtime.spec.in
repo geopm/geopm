@@ -119,6 +119,6 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_includedir}/geopm_prof.h
 %{_libdir}/libgeopm.so
 %dir %{docdir}
-%doc %{docdir}/COPYING
+%doc %{docdir}/LICENSE-BSD-3-Clause
 %doc %{docdir}/README.md
 %doc %{docdir}/VERSION
