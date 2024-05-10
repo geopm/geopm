@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "geopm/MSRIOGroup.hpp"
+#include "MSRIOGroup.hpp"
 
 #include <stdlib.h>
 #include <cmath>

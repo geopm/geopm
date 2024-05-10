@@ -13,7 +13,7 @@
 #include "geopm/IOGroup.hpp"
 
 #include "geopm_plugin.hpp"
-#include "geopm/MSRIOGroup.hpp"
+#include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
