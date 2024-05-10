@@ -15,7 +15,6 @@
 #include "geopm/Exception.hpp"
 #include "FilePolicy.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm/MSRIOGroup.hpp"
 #include "OptionParser.hpp"
 #include "geopm/PlatformTopo.hpp"
 

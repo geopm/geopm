@@ -19,7 +19,7 @@ Files:     autogen.sh
            include/geopm/Exception.hpp
            include/geopm/Helper.hpp
            include/geopm/IOGroup.hpp
-           include/geopm/MSRIOGroup.hpp
+           include/MSRIOGroup.hpp
            include/geopm/PlatformIO.hpp
            include/geopm/PlatformTopo.hpp
            include/geopm/PluginFactory.hpp

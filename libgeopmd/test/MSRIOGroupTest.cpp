@@ -32,7 +32,7 @@
 #include "MSR.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/PluginFactory.hpp"
-#include "geopm/MSRIOGroup.hpp"
+#include "MSRIOGroup.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockMSRIO.hpp"
 #include "MockSaveControl.hpp"

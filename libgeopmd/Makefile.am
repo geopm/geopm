@@ -39,7 +39,6 @@ geopminclude_HEADERS = include/geopm/json11.hpp \
                        include/geopm/Exception.hpp \
                        include/geopm/Helper.hpp \
                        include/geopm/IOGroup.hpp \
-                       include/geopm/MSRIOGroup.hpp \
                        include/geopm/PlatformIO.hpp \
                        include/geopm/PlatformTopo.hpp \
                        include/geopm/PluginFactory.hpp \
@@ -201,6 +200,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/MSRIO.hpp \
                        src/MSRIOImp.hpp \
                        src/MSRIOGroup.cpp \
+                       src/MSRIOGroup.hpp \
                        src/MSRPath.cpp \
                        src/MSRPath.hpp \
                        src/MultiplicationSignal.cpp \
