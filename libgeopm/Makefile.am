@@ -98,7 +98,7 @@ endif # ENABLE_MPI
 
 all-local: $(all_local)
 
-dist_doc_DATA = COPYING \
+dist_doc_DATA = LICENSE-BSD-3-Clause \
                 README.md \
                 VERSION \
                 # end

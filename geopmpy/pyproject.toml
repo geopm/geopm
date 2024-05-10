@@ -17,7 +17,7 @@ dynamic = ["version"]
 description = "GEOPM - Global Extensible Open Power Manager Runtime Tools"
 readme = "README.md"
 requires-python = ">=3.6"
-license = {file = "COPYING"}
+license = {file = "LICENSE-BSD-3-Clause"}
 keywords = ["runtime", "hardware", "telemetry", "configuration"]
 authors = [
     {name = "Christopher Cantalupo", email = "christopher.m.cantalupo@intel.com"},
