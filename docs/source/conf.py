@@ -210,7 +210,9 @@ rst_files = [
     "geopmwrite.1",
     "geopmaccess.1",
     "geopmsession.1",
-    "geopmdpy.7"
+    "geopmdpy.7",
+    "geopm_agent_ffnet.7",
+    "geopm::CPUActivityAgent.3",
 ]
 
 authors = ["Christopher Cantalupo", "Brad Geltz", "Konstantin Rebrov"]
