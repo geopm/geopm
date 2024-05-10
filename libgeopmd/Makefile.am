@@ -111,14 +111,13 @@ libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 # and use {arch}_msr_json as the variable identifier
 # E.g., src/msr_data_skx.cpp is made from src/msr_data_skx.json and names the
 # JSON variable skx_msr_json
-gen_src_dir = $(top_builddir)/gen-src
 msr_cpp_files = \
-                $(gen_src_dir)/msr_data_arch.cpp \
-                $(gen_src_dir)/msr_data_hsx.cpp \
-                $(gen_src_dir)/msr_data_knl.cpp \
-                $(gen_src_dir)/msr_data_skx.cpp \
-                $(gen_src_dir)/msr_data_snb.cpp \
-                $(gen_src_dir)/msr_data_spr.cpp \
+                gen-src/msr_data_arch.cpp \
+                gen-src/msr_data_hsx.cpp \
+                gen-src/msr_data_knl.cpp \
+                gen-src/msr_data_skx.cpp \
+                gen-src/msr_data_snb.cpp \
+                gen-src/msr_data_spr.cpp \
                 # end
 
 # Sysfs JSON definitions. From each JSON file, generate a same-prefixed cpp file,
@@ -126,8 +125,8 @@ msr_cpp_files = \
 # E.g., src/sysfs_attributes_cpufreq.cpp is made from
 # src/sysfs_attributes_cpufreq.json and names the JSON variable cpufreq_sysfs_json.
 sysfs_cpp_files = \
-                  $(gen_src_dir)/sysfs_attributes_cpufreq.cpp \
-                  $(gen_src_dir)/sysfs_attributes_drm.cpp \
+                  gen-src/sysfs_attributes_cpufreq.cpp \
+                  gen-src/sysfs_attributes_drm.cpp \
                   #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
@@ -322,17 +321,17 @@ else
     EXTRA_DIST += $(io_uring_source_files)
 endif
 
-$(gen_src_dir):
+gen-src:
 	$(MKDIR_P) $@
 
-$(msr_cpp_files): $(gen_src_dir)/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/src/json_data.cpp.in | $(gen_src_dir)
+$(msr_cpp_files): gen-src/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/src/json_data.cpp.in | gen-src
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
 	$(top_srcdir)/src/json_data.cpp.in > $@
 
-$(sysfs_cpp_files): $(gen_src_dir)/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/src/json_data.cpp.in | $(gen_src_dir)
+$(sysfs_cpp_files): gen-src/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/src/json_data.cpp.in | gen-src
 	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
