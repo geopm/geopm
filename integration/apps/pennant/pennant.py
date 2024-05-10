@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2024, Intel Corporation
+#  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -62,7 +62,7 @@ class PennantAppConf(apps.AppConf):
         #    epoch100: One epoch every 100 outer loop iterations.
         #    epoch1: One epoch every outer loop iteration.
         #    default: No epoch markup.
-        # There is a known issue that epochs occuring too often causes GEOPM to hang due to
+        # There is a known issue that epochs occurring too often causes GEOPM to hang due to
         # epoch handling overwhelming GEOPM control loop. Larger problem sizes are expected to
         # handle less outer loops per epoch since outer loop time seems to go up with
         # problem size.
