@@ -51,12 +51,22 @@ VERSION:
 DATE:
 	date +'%a, %d %b %Y %H:%M:%S %z' > $@
 
-dist: man VERSION DATE
+MANIFEST:
+	git ls-tree --full-tree --name-only -r HEAD | grep '^docs/' > MANIFEST.partial
+	ls source/*.[1-9].rst | sed -e 's|source/\(.*\)\.rst|docs/build/man/\1|' >> MANIFEST.partial
+	echo docs/VERSION >> MANIFEST.partial
+	echo docs/DATE >> MANIFEST.partial
+	echo docs/debian/changelog >> MANIFEST.partial
+	echo docs/geopm-doc.spec >> MANIFEST.partial
+	sort MANIFEST.partial > $@
+	rm MANIFEST.partial
+
+dist: man VERSION DATE MANIFEST
 	VERSION=`cat VERSION` && DATE=`cat DATE` && \
 	cat debian/changelog.in | sed -e "s|@VERSION@|$$VERSION|g" \
 	                              -e "s|@DATE@|$$DATE|g" > debian/changelog && \
 	sed -e "s|@ARCHIVE@|geopm-doc-$$VERSION|" -e "s|@VERSION@|$$VERSION|" geopm-doc.spec.in > geopm-doc.spec && \
-	cd .. && tar --transform="s|docs|geopm-doc-$$VERSION|" -h -zcvf geopm-doc-$$VERSION.tar.gz docs && \
+	cd .. && tar -T docs/MANIFEST --transform="s|docs|geopm-doc-$$VERSION|" -h -zcvf geopm-doc-$$VERSION.tar.gz && \
 	mv geopm-doc-$$VERSION.tar.gz docs
 
 install_man:
@@ -96,4 +106,4 @@ install_html:
 	cp -rp json_schemas/* $(GEOPM_GITHUB_IO)
 	VERSION=`cat VERSION` && cd $(GEOPM_GITHUB_IO) && git add -A && git commit -sm"Update to version $$VERSION"
 
-.PHONY: all man html geopmlint clean_all DATE VERSION dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json
+.PHONY: all man html geopmlint clean_all DATE VERSION MANIFEST dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json
