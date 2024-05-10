@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2024, Intel Corporation
+#  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -75,7 +75,7 @@ class QuantumEspressoAppConf(apps.AppConf):
 
         self._thread_group_count = total_ranks // (self._pool_count * 2)
         if self._thread_group_count % 2 == 0:
-            # We perfer thread group count == ranks / (2*pools), but it needs
+            # We prefer thread group count == ranks / (2*pools), but it needs
             # to be possible to distribute across the thread groups. So only
             # do the final division by 2 if the result is a whole number.
             self._thread_group_count = self._thread_group_count // 2

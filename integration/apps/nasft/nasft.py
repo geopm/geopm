@@ -1,10 +1,10 @@
-#  Copyright (c) 2015 - 2024, Intel Corporation
+#  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
 
 '''
-Describes the best known configuration for the NAS FT benchamrk.
+Describes the best known configuration for the NAS FT benchmark.
 
 '''
 
