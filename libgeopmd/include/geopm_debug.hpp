@@ -6,8 +6,6 @@
 #ifndef GEOPM_DEBUG_HPP_INCLUDE
 #define GEOPM_DEBUG_HPP_INCLUDE
 
-#include "config.h" // for GEOPM_DEBUG
-
 #include "geopm/Exception.hpp"
 #include "geopm_public.h"
 

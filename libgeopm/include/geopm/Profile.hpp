@@ -6,8 +6,6 @@
 #ifndef PROFILE_HPP_INCLUDE
 #define PROFILE_HPP_INCLUDE
 
-#include "config.h"
-
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -295,10 +293,7 @@ namespace geopm
             double m_overhead_time_shutdown;
             bool m_do_profile;
             std::map<std::string, uint64_t> m_region_names;
-#ifdef GEOPM_DEBUG
-            /// @brief The list of known region identifiers.
-            std::set<uint64_t> m_region_ids;
-#endif
+
             std::shared_ptr<ServiceProxy> m_service_proxy;
             std::shared_ptr<Scheduler> m_scheduler;
             int m_pid_registered;
@@ -308,7 +303,8 @@ namespace geopm
                 M_PID_TEST = -2,
             };
 
-
+            /// @brief The list of known region identifiers (for debug).
+            std::set<uint64_t> m_region_ids;
     };
 }
 
