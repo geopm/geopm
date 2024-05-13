@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "config.h"
 #include "OMPT.hpp"
 #include "geopm_prof.h"
 #include <omp-tools.h>

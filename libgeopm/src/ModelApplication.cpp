@@ -15,7 +15,6 @@
 #include "geopm_prof.h"
 #include "geopm/ModelRegion.hpp"
 #include "geopm/Exception.hpp"
-#include "config.h"
 
 namespace geopm
 {

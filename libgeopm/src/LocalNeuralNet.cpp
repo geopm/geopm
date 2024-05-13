@@ -4,7 +4,6 @@
  */
 
 
-#include "config.h"
 
 #include "TensorOneD.hpp"
 #include "TensorTwoD.hpp"

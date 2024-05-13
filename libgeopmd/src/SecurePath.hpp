@@ -6,7 +6,6 @@
 #ifndef SECUREPATH_HPP_INCLUDE
 #define SECUREPATH_HPP_INCLUDE
 
-#include "config.h"
 
 #include <sys/stat.h>
 

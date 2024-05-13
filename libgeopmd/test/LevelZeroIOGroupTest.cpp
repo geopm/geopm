@@ -13,7 +13,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "config.h"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"

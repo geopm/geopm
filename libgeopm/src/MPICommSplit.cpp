@@ -16,7 +16,6 @@
 #include "MPIComm.hpp"
 #include "ApplicationSampler.hpp"
 
-#include "config.h"
 
 
 extern "C"

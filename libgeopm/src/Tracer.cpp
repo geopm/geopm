@@ -25,7 +25,6 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm_hint.h"
-#include "config.h"
 
 namespace geopm
 {

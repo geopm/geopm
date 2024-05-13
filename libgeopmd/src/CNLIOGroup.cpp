@@ -18,7 +18,6 @@
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 
-#include "config.h"
 
 namespace geopm
 {

@@ -17,7 +17,6 @@
 #include "geopm/Environment.hpp"
 #include "geopm/SharedMemory.hpp"
 
-#include "config.h"
 
 namespace geopm
 {

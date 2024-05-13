@@ -9,7 +9,6 @@
 #include <string>
 #include <map>
 
-#include "config.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "NVMLDevicePool.hpp"

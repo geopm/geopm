@@ -19,7 +19,6 @@
 #include "geopm_hint.h"
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
-#include "config.h"
 
 using testing::_;
 using testing::Return;

@@ -12,7 +12,6 @@
 #include <algorithm>
 
 #include "geopm_version.h"
-#include "config.h"
 
 namespace geopm
 {

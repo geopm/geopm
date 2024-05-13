@@ -11,7 +11,6 @@
 #include "geopm/CircularBuffer.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
-#include "config.h"
 
 namespace geopm
 {

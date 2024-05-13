@@ -22,7 +22,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agent.hpp"
-#include "config.h"
 
 namespace geopm
 {

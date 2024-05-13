@@ -20,7 +20,6 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm_test.hpp"
-#include "config.h"
 
 using geopm::TracerImp;
 using geopm::PlatformIO;

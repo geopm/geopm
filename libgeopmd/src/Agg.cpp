@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "config.h"
 
 #include "geopm/Agg.hpp"
 #include "geopm_hint.h"

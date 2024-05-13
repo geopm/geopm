@@ -7,7 +7,6 @@
 #include <string>
 #include <map>
 
-#include "config.h"
 #include "geopm/Exception.hpp"
 #include "LevelZeroDevicePool.hpp"
 #include "LevelZeroGPUTopo.hpp"

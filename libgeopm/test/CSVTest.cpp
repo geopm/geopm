@@ -17,7 +17,6 @@
 #include "geopm_version.h"
 #include "geopm_hash.h"
 #include "geopm_field.h"
-#include "config.h"
 
 
 class CSVTest: public :: testing :: Test

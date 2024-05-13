@@ -12,7 +12,6 @@
 #include <stdint.h>
 
 #include "geopm_pmpi.h"
-#include "config.h"
 
 /* MPI FORTRAN extern definitions */
 #ifdef GEOPM_ENABLE_MPI3

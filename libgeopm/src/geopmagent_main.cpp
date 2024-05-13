@@ -19,7 +19,6 @@
 #include "geopm/Agent.hpp"
 #include "OptionParser.hpp"
 
-#include "config.h"
 
 enum geopmagent_const {
     GEOPMAGENT_STRING_LENGTH = 512,
