@@ -87,6 +87,10 @@ namespace geopm
             return;
         }
         connect();
+#ifndef GEOPM_DEBUG
+        // When debug not enabled, use of m_region_ids is optimized out
+        m_region_ids.insert(GEOPM_REGION_HASH_UNMARKED);
+#endif
     }
 
     void ProfileImp::connect(void)
