@@ -17,7 +17,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Cpuid.hpp"
-#include "config.h"
 
 #define GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME "CPUINFO"
 

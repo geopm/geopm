@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "config.h"
 #include "ReduceModelRegion.hpp"
 
 #ifdef GEOPM_ENABLE_MPI

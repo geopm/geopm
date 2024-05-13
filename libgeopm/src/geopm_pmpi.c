@@ -21,7 +21,6 @@
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "geopm_mpi_comm_split.h"
-#include "config.h"
 
 
 #ifndef GEOPM_TEST

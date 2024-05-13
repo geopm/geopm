@@ -8,7 +8,6 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
-#include "config.h"
 
 namespace geopm
 {

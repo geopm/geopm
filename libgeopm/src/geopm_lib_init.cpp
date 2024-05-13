@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "config.h"
 #include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"

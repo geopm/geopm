@@ -7,7 +7,6 @@
 
 #include "InternalProfile.hpp"
 #include "Exception.hpp"
-#include "config.h"
 
 namespace geopm
 {

@@ -9,7 +9,6 @@
 #include "CombinedSignal.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
-#include "config.h"
 
 using geopm::CombinedSignal;
 using geopm::Exception;

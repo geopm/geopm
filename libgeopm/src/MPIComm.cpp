@@ -13,7 +13,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
-#include "config.h"
 
 #define GEOPM_MPI_COMM_PLUGIN_NAME "MPIComm"
 

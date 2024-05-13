@@ -19,7 +19,6 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_time.h"
 
-#include "config.h"
 
 namespace geopm
 {

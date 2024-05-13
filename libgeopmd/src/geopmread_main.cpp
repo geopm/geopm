@@ -24,7 +24,6 @@
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
 
-#include "config.h"
 
 using geopm::PlatformIO;
 using geopm::PlatformTopo;

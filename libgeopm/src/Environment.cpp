@@ -23,7 +23,6 @@
 #include "geopm/Helper.hpp"
 #include "geopm_prof.h"
 
-#include "config.h"
 
 using json11::Json;
 

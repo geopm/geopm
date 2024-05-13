@@ -18,7 +18,6 @@
 #include "geopm/Helper.hpp"
 #include "SecurePath.hpp"
 
-#include "config.h"
 
 
 namespace geopm

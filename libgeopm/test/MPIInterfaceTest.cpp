@@ -13,7 +13,6 @@
 
 #include "gtest/gtest.h"
 
-#include "config.h"
 
 extern "C"
 {

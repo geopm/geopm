@@ -17,7 +17,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_error.h"
-#include "config.h"
 
 namespace geopm
 {

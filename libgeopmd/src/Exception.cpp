@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <map>
 
-#include "config.h"
 
 namespace geopm
 {

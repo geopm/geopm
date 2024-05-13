@@ -17,7 +17,6 @@
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
-#include "config.h"
 
 using geopm::PowerBalancerAgent;
 using geopm::PowerBalancer;

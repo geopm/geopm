@@ -67,7 +67,7 @@ TEST(RawMSRSignalTest, errors)
 {
 #ifdef GEOPM_DEBUG
     // cannot construct with null MSRIO
-    GEOPM_EXPECT_THROW_MESSAGE(RawMSRSignal(0, nullptr, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(RawMSRSignal(nullptr, 0, 0),
                                GEOPM_ERROR_LOGIC, "no valid MSRIO");
 #endif
 

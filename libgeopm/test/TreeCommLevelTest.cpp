@@ -12,7 +12,6 @@
 #include "TreeCommLevel.hpp"
 #include "MockComm.hpp"
 #include "geopm_test.hpp"
-#include "config.h"
 
 using geopm::TreeCommLevel;
 using geopm::TreeCommLevelImp;

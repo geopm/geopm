@@ -538,8 +538,8 @@ AC_COMPILE_IFELSE([
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 [FCFLAGS="$FCFLAGS_SAVE"]
 
-[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
-[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE"]
+[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE -include config.h"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE -include config.h"]
 [LDFLAGS_NOPIE="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack"]
 [AM_LDFLAGS="$LDFLAGS_NOPIE -pie"]
 [AM_FFLAGS="$AM_FFLAGS $NO_FASTMATH -fPIC"]

@@ -13,7 +13,6 @@
 
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
-#include "config.h"
 
 using json11::Json;
 

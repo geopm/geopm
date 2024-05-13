@@ -15,7 +15,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_imbalancer.h"
-#include "config.h"
 
 using json11::Json;
 
