@@ -62,7 +62,7 @@ namespace geopm
         m_handles.clear();
     }
 
-    static bool is_plugin(const std::vector<int> &abi_num, const std::string &plugin_prefix, const std::string &name)
+    static bool is_plugin(const std::vector<int> &so_version, const std::string &plugin_prefix, const std::string &name)
     {
         bool result = false;
         if (!geopm::string_begins_with(name, plugin_prefix)) {
@@ -79,8 +79,8 @@ namespace geopm
         try {
             int major_num = std::stoi(suffix[0]);
             int minor_num = std::stoi(suffix[1]);
-            if (major_num == abi_num[0] &&
-                minor_num <= abi_num[2]) {
+            if (major_num == so_version[0] &&
+                minor_num <= so_version[1]) {
                 result = true;
             }
         }
@@ -102,12 +102,12 @@ namespace geopm
             plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
         }
 
-        const auto abi_num = geopm::version_abi();
+        const auto so_version = geopm::shared_object_version();
         std::vector<std::string> plugins;
         for (const auto &path : plugin_paths) {
             std::vector<std::string> files = geopm::list_directory_files(path);
             for (const auto &name : files) {
-                if (is_plugin(abi_num, plugin_prefix, name)) {
+                if (is_plugin(so_version, plugin_prefix, name)) {
                     plugins.push_back(path + "/" + name);
                 }
             }

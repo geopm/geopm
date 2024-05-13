@@ -25,7 +25,7 @@ namespace geopm {
     std::string GEOPM_PUBLIC
         version(void);
     std::vector<int> GEOPM_PUBLIC
-        version_abi(void);
+        shared_object_version(void);
 }
 
 #endif // End C++
