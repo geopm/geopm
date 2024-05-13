@@ -80,7 +80,7 @@ namespace geopm
             int major_num = std::stoi(suffix[0]);
             int minor_num = std::stoi(suffix[1]);
             if (major_num == abi_num[0] &&
-                minor_num <= abi_num[1]) {
+                minor_num <= abi_num[2]) {
                 result = true;
             }
         }
