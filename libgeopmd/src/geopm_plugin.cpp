@@ -13,6 +13,7 @@
 
 #include "geopm_error.h"
 #include "geopm_plugin.hpp"
+#include "geopm_version.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "SecurePath.hpp"
@@ -62,33 +63,54 @@ namespace geopm
         m_handles.clear();
     }
 
+    static bool is_plugin(const std::vector<int> &abi_num, const std::string &plugin_prefix, const std::string &name)
+    {
+        bool result = false;
+        if (!geopm::string_begins_with(name, plugin_prefix)) {
+            return result;
+        }
+        size_t suffix_pos = name.rfind(".so.");
+        if (suffix_pos == std::string::npos) {
+            return result;
+        }
+        auto suffix = geopm::string_split(name.substr(suffix_pos + 4), ".");
+        if (suffix.size() != 3) {
+            return result;
+        }
+        try {
+            int major_num = std::stoi(suffix[0]);
+            int minor_num = std::stoi(suffix[1]);
+            if (major_num == abi_num[0] &&
+                minor_num <= abi_num[1]) {
+                result = true;
+            }
+        }
+        catch (const std::invalid_argument &ex) {
+        }
+        catch (const std::out_of_range &ex) {
+        }
+        return result;
+    }
+
     void plugin_load(const std::string &plugin_prefix)
     {
         std::string env_plugin_path_str(geopm::get_env("GEOPM_PLUGIN_PATH"));
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
-        std::string so_suffix = ".so." GEOPM_ABI_VERSION;
-        std::replace(so_suffix.begin(), so_suffix.end(), ':', '.');
-
         if (!env_plugin_path_str.empty()) {
             // load paths in reverse order from environment variable list
             auto user_paths = geopm::string_split(env_plugin_path_str, ":");
             std::reverse(user_paths.begin(), user_paths.end());
             plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
         }
+
+        const auto abi_num = geopm::version_abi();
         std::vector<std::string> plugins;
         for (const auto &path : plugin_paths) {
-            try {
-                std::vector<std::string> files = geopm::list_directory_files(path);
-                for (const auto &name : files) {
-                    if (geopm::string_ends_with(name, so_suffix)) {
-                        if (geopm::string_begins_with(name, plugin_prefix)) {
-                            plugins.push_back(path + "/" + name);
-                        }
-                    }
+            std::vector<std::string> files = geopm::list_directory_files(path);
+            for (const auto &name : files) {
+                if (is_plugin(abi_num, plugin_prefix, name)) {
+                    plugins.push_back(path + "/" + name);
                 }
-            }
-            catch (const geopm::Exception &ex) {
-                std::cerr << ex.what() << std::endl;
             }
         }
         for (const auto &plugin : plugins) {
