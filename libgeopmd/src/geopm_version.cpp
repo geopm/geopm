@@ -24,7 +24,7 @@ namespace geopm
         return PACKAGE_VERSION;
     }
 
-    std::vector<int> version_abi(void)
+    std::vector<int> shared_object_version(void)
     {
         geopm::Exception logic_error("geopm::plugin_load(): Could not parse GEOPM_ABI_VERSION: " GEOPM_ABI_VERSION,
                                      GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
@@ -41,6 +41,6 @@ namespace geopm
             throw logic_error;
         }
         GEOPM_DEBUG_ASSERT(abi_nums.size() == 3, logic_error.what());
-        return abi_nums;
+        return {abi_nums[0] - abi_nums[2], abi_nums[2], abi_nums[3]};
     }
 }
