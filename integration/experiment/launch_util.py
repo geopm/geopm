@@ -58,6 +58,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
         extra_cli_args += ['--geopm-trace-profile', profile_trace_path]
     if init_control_path is not None:
         extra_cli_args += ['--geopm-init-control', init_control_path]
+    extra_cli_args += ['--geopm-affinity-enable']
 
     argv.extend(extra_cli_args)
 
