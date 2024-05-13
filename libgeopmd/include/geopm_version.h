@@ -16,6 +16,17 @@ const char GEOPM_PUBLIC *
     geopm_version(void);
 
 #ifdef __cplusplus
+} // End extern "C"
+
+#include <vector>
+#include <string>
+
+namespace geopm {
+    std::string GEOPM_PUBLIC
+        version(void);
+    std::vector<int> GEOPM_PUBLIC
+        version_abi(void);
 }
-#endif
-#endif
+
+#endif // End C++
+#endif // Include guard

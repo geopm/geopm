@@ -255,7 +255,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
                        src/geopm_shmem.cpp \
-                       src/geopm_version.c \
+                       src/geopm_version.cpp \
                        # end
 
 nodist_libgeopmd_la_SOURCES = \
