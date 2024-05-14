@@ -41,6 +41,6 @@ namespace geopm
             throw logic_error;
         }
         GEOPM_DEBUG_ASSERT(abi_nums.size() == 3, logic_error.what());
-        return {abi_nums[0] - abi_nums[2], abi_nums[2], abi_nums[3]};
+        return {abi_nums.at(0) - abi_nums.at(2), abi_nums.at(2), abi_nums.at(1)};
     }
 }
