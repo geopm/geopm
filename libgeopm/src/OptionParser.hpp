@@ -12,10 +12,11 @@
 #include <vector>
 
 #include "geopm/Exception.hpp"
+#include "geopm_public.h"
 
 namespace geopm
 {
-    class OptionParser
+    class GEOPM_PUBLIC OptionParser
     {
         public:
             OptionParser(const std::string &prog_name,
@@ -58,13 +59,15 @@ namespace geopm
             ///        of all options.
             std::string format_help(void);
         private:
-            void check_add_option(const std::string &name,
-                                  char short_form,
-                                  const std::string &long_form);
-            void format_option(std::ostream &tmp,
-                               const std::string &short_form,
-                               const std::string &long_form,
-                               std::string description);
+            void GEOPM_PRIVATE
+                check_add_option(const std::string &name,
+                                 char short_form,
+                                 const std::string &long_form);
+            void GEOPM_PRIVATE
+                format_option(std::ostream &tmp,
+                              const std::string &short_form,
+                              const std::string &long_form,
+                              std::string description);
 
             static const std::string M_COPYRIGHT_TEXT;
 

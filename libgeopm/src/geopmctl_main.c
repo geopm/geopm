@@ -16,12 +16,14 @@
 
 #include "geopm_version.h"
 #include "geopm_error.h"
+#include "geopm_public.h"
 
 enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(int argc, char **argv);
+int GEOPM_PUBLIC
+    geopmctl_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {

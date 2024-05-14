@@ -10,11 +10,12 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "geopm_public.h"
 
 namespace geopm
 {
     class OptionParser;
-    class Admin
+    class GEOPM_PUBLIC Admin
     {
         public:
             Admin();

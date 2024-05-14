@@ -11,11 +11,13 @@
 #include <vector>
 #include <memory>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
     class ModelRegion;
 
-    class ModelApplication
+    class GEOPM_PUBLIC ModelApplication
     {
         public:
             ModelApplication(uint64_t loop_count, const std::vector<std::string> &region_name,
