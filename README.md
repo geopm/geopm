@@ -12,6 +12,10 @@ Fine-grained low-latency batch access to power metrics and control knobs on Linu
 [![Build Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
 [![version](https://img.shields.io/badge/version-3.0.1-blue)](https://github.com/geopm/geopm/releases)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Coverity Status](https://img.shields.io/coverity/scan/23217.svg)](https://scan.coverity.com/projects/geopm-geopm)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/geopm/geopm/badge)](https://scorecard.dev/viewer/?uri=github.com/geopm/geopm)
+
+
 
 ## Key Features
 The Global Extensible Open Power Manager (GEOPM) provides a framework to
