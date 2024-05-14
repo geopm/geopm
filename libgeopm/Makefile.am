@@ -130,10 +130,6 @@ if HAVE_ICX
     MATH_CLDFLAGS = -lm -qmkl
     MATH_CFLAGS = -xAVX
     MATH_LIB = -lm
-else
-    MATH_CLDFLAGS = -mavx
-    MATH_CFLAGS = -mavx
-    MATH_LIB = -lm
 endif
 
 geopmbench_LDFLAGS = $(AM_LDFLAGS)
