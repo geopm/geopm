@@ -9,13 +9,14 @@
 
 Fine-grained low-latency batch access to power metrics and control knobs on Linux
 
-[![Build Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
-[![version](https://img.shields.io/badge/version-3.1.0-blue)](https://github.com/geopm/geopm/releases)
+[![Version](https://img.shields.io/badge/Version-3.1.0-blue)](https://github.com/geopm/geopm/releases)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+[![CI Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
 [![Coverity Status](https://img.shields.io/coverity/scan/23217.svg)](https://scan.coverity.com/projects/geopm-geopm)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/geopm/geopm/badge)](https://scorecard.dev/viewer/?uri=github.com/geopm/geopm)
-
-
+[![OBS Packaging: Service](https://build.opensuse.org/projects/home:geopm/packages/geopm-service/badge.svg?type=default)](https://build.opensuse.org/package/show/home:geopm/geopm-service)
+[![OBS Packaging: Runtime](https://build.opensuse.org/projects/home:geopm/packages/geopm-runtime/badge.svg?type=default)](https://build.opensuse.org/package/show/home:geopm/geopm-runtime)
 
 ## Key Features
 The Global Extensible Open Power Manager (GEOPM) provides a framework to
