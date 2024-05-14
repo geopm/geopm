@@ -161,7 +161,7 @@ letters.  The shared object file names must conform to the pattern:
 
 .. code-block::
 
-   libgeopm<CLASS>_<NAME>.so.2.0.0
+   libgeopm<CLASS>_<NAME>.so.2.1.0
 
 
 Here ``<NAME>`` is the *plugin_name* and ``<CLASS>`` is one of the three

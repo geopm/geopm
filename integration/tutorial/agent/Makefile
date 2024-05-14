@@ -4,7 +4,7 @@ CXXFLAGS=-g -Wall -MMD -fpic -I$(GEOPM_INC) -std=c++17
 LDFLAGS=-shared -L$(GEOPM_LIB)
 LDLIBS=-lgeopmd
 
-libgeopmagent_example_agent.so.2.0.0: ExampleAgent.o
+libgeopmagent_example_agent.so.2.1.0: ExampleAgent.o
 	$(LINK.cc) $^ $(LDLIBS) -o $@
 
 -include *.d
