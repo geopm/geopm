@@ -88,6 +88,7 @@ namespace geopm
         connect();
 #ifndef GEOPM_DEBUG
         // When debug not enabled, use of m_region_ids is optimized out
+        // Update it here to avoid warnings about unused member variables.
         m_region_ids.insert(GEOPM_REGION_HASH_UNMARKED);
 #endif
     }
