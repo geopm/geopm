@@ -4,7 +4,7 @@ CXXFLAGS=-g -Wall -MMD -fpic -I$(GEOPM_INC) -std=c++17
 LDFLAGS=-shared -L$(GEOPM_LIB)
 LDLIBS=-lgeopmd
 
-libgeopmiogroup_example_iogroup.so.2.0.0: ExampleIOGroup.o
+libgeopmiogroup_example_iogroup.so.2.1.0: ExampleIOGroup.o
 	$(LINK.cc) $^ $(LDLIBS) -o $@
 
 -include *.d
@@ -12,7 +12,7 @@ libgeopmiogroup_example_iogroup.so.2.0.0: ExampleIOGroup.o
 clean:
 	rm -f ./*.o ./*.d ./*.so*
 
-check: libgeopmiogroup_example_iogroup.so.2.0.0
+check: libgeopmiogroup_example_iogroup.so.2.1.0
 	rm -f /tmp/geopm_example_control.$$(id -u)
 	GEOPM_PLUGIN_PATH=$$PWD geopmread | grep -q TMP_FILE_CONTROL; test $$? -ne 0 # File does not exist, but control is listed
 	echo foobar > /tmp/geopm_example_control.$$(id -u)

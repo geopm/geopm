@@ -98,7 +98,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 
 %files -n libgeopm2
 %defattr(-,root,root,-)
-%{_libdir}/libgeopm.so.2.0.0
+%{_libdir}/libgeopm.so.2.1.0
 %{_libdir}/libgeopm.so.2
 
 %files devel

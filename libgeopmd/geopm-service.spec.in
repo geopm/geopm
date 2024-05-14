@@ -202,7 +202,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 
 %files -n libgeopmd2
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmd.so.2.0.0
+%{_libdir}/libgeopmd.so.2.1.0
 %{_libdir}/libgeopmd.so.2
 %dir %{_libdir}/geopm
 

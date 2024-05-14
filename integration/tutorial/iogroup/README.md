@@ -189,7 +189,7 @@ PlatformIO::save_control() is called prior to the Agent::init() method.
 Build the ExampleIOGroup plugin by running `make` in this directory.  The
 plugin will be loaded with the geopm library if it is found in a directory in
 `GEOPM_PLUGIN_PATH`.  Note that to be recognized as an IOGroup plugin, the
-filename must begin with "libgeopmiogroup_", end in ".so.2.0.0", and must not
+filename must begin with "libgeopmiogroup_", end in ".so.2.1.0", and must not
 be a symlink.  Add the current directory (containing the .so file) to
 `GEOPM_PLUGIN_PATH` as follows:
 
