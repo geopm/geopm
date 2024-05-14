@@ -194,15 +194,15 @@ namespace geopm
             void add_raw_msr_signal(const std::string &msr_name, int domain_type, uint64_t msr_offset);
             // Add a bitfield of an MSR as an available signal
             void add_msr_field_signal(const std::string &msr_name, const std::string &msr_field_name,
-                                     int domain_type, int begin_bit, int end_bit, int function,
-                                     double scalar, int units, const std::string &aggregation,
-                                     const std::string &description, int behavior,
-                                     const std::function<std::string(double)> &format_function);
+                                      int domain_type, int begin_bit, int end_bit, int function,
+                                      double scalar, int units, const std::string &aggregation,
+                                      const std::string &description, int behavior,
+                                      const std::function<std::string(double)> &format_function);
             // Add a bitfield of an MSR as an available control
             void add_msr_field_control(const std::string &msr_field_name, int domain_type,
-                                      uint64_t msr_offset, int begin_bit, int end_bit,
-                                      int function, double scalar, int units,
-                                      const std::string &description);
+                                       uint64_t msr_offset, int begin_bit, int end_bit,
+                                       int function, double scalar, int units,
+                                       const std::string &description);
 
             static const std::string M_DEFAULT_DESCRIPTION;
             static const std::string M_PLUGIN_NAME;
