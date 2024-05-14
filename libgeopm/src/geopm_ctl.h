@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
+#include "geopm_public.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,12 +33,14 @@ struct geopm_ctl_c;
 ///             have at least one process running on every compute node under control.
 ///
 /// @param ctl The out parameter pointer to the created geopm_ctl_c object
-int geopm_ctl_create(MPI_Comm comm,
+int GEOPM_PUBLIC
+    geopm_ctl_create(MPI_Comm comm,
                      struct geopm_ctl_c **ctl);
 
 /// @brief destroys all resources associated with the ctl structure which
 ///        allocated by a previous call to geopm_ctl_create().
-int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
+int GEOPM_PUBLIC
+    geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 
 /********************/
 /* POWER MANAGEMENT */
@@ -45,7 +48,8 @@ int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 
 /// @brief steps the control algorithm continuously until the application
 ///        signals shutdown.
-int geopm_ctl_run(struct geopm_ctl_c *ctl);
+int GEOPM_PUBLIC
+    geopm_ctl_run(struct geopm_ctl_c *ctl);
 
 /// @brief creates a POSIX thread running the control algorithm continuously
 ///        until the application signals shutdown.
@@ -58,7 +62,8 @@ int geopm_ctl_run(struct geopm_ctl_c *ctl);
 /// @param attr is used to create the POSIX thread
 ///
 /// @param thread is used to create the POSIX thread
-int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
+int GEOPM_PUBLIC
+    geopm_ctl_pthread(struct geopm_ctl_c *ctl,
                       const pthread_attr_t *attr,
                       pthread_t *thread);
 #ifdef __cplusplus

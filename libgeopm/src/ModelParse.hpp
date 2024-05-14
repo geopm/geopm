@@ -10,10 +10,13 @@
 #include <vector>
 #include <cstdint>
 
+#include "geopm_public.h"
+
 namespace geopm
 {
-    void model_parse_config(const std::string config_path, uint64_t &loop_count,
-                            std::vector<std::string> &region_name, std::vector<double> &big_o);
+    void GEOPM_PUBLIC
+        model_parse_config(const std::string config_path, uint64_t &loop_count,
+                           std::vector<std::string> &region_name, std::vector<double> &big_o);
 
 }
 

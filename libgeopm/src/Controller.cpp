@@ -37,6 +37,7 @@
 
 #include "EpochIOGroup.hpp"
 #include "ProfileIOGroup.hpp"
+#include "geopm_public.h"
 
 extern "C"
 {
@@ -65,7 +66,7 @@ extern "C"
         return (void *) (long) geopm_run_imp((struct geopm_ctl_c *)args);
     }
 
-    int geopmctl_main(int argc, char **argv)
+    int GEOPM_PUBLIC geopmctl_main(int argc, char **argv)
     {
         int err = 0;
 
