@@ -195,8 +195,8 @@ namespace geopm
                 int32_t num_region;
                 short_region_s region_table[M_MAX_REGION];
             };
-            static_assert(sizeof(m_layout_s) == M_LAYOUT_SIZE,
-                          "Defined layout size does not match the actual layout size ");
+            static_assert(sizeof(m_layout_s) <= M_LAYOUT_SIZE,
+                          "Layout size used in geopmdpy/system_files.py to create shared memory footprint is smaller than required by C++ code");
 
             struct m_region_enter_s {
                 int record_idx;
