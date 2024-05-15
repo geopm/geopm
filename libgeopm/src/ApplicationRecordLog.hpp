@@ -190,9 +190,9 @@ namespace geopm
             void overhead(const geopm_time_s &time, double overhead_sec) override;
         private:
             struct m_layout_s {
-                int num_record;
+                int32_t num_record;
                 record_s record_table[M_MAX_RECORD];
-                int num_region;
+                int32_t num_region;
                 short_region_s region_table[M_MAX_REGION];
             };
             static_assert(sizeof(m_layout_s) == M_LAYOUT_SIZE,
