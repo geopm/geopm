@@ -62,16 +62,16 @@ namespace geopm
         /// @brief System time when event was recorded.
         geopm_time_s time;
         /// @brief The process identifier where event occurred.
-        int process;
+        int32_t process;
         /// @brief One of the m_event_e event types.
-        int event;
+        int32_t event;
         /// @brief The signal associated with the event type.
         uint64_t signal;
     };
 
     struct short_region_s {
         uint64_t hash;
-        int num_complete;
+        int32_t num_complete;
         double total_time;
     };
 }
