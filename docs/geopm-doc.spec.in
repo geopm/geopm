@@ -98,6 +98,7 @@ Man pages for python3-geopmpy package
 %doc %{_mandir}/man1/geopmadmin.1.gz
 %doc %{_mandir}/man1/geopmagent.1.gz
 %doc %{_mandir}/man1/geopmctl.1.gz
+%doc %{_mandir}/man7/geopm_agent_ffnet.7.gz
 %doc %{_mandir}/man7/geopm_agent_frequency_map.7.gz
 %doc %{_mandir}/man7/geopm_agent_monitor.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_balancer.7.gz
@@ -152,6 +153,7 @@ Man pages for python3-geopmpy package
 
 %files -n libgeopm-doc
 %doc %{_mandir}/man3/geopm::Agent.3.gz
+%doc %{_mandir}/man3/geopm::CPUActivityAgent.3.gz
 %doc %{_mandir}/man3/geopm::PowerBalancer.3.gz
 %doc %{_mandir}/man3/geopm::PowerGovernor.3.gz
 %doc %{_mandir}/man3/geopm_agent.3.gz
