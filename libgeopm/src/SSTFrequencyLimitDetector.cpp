@@ -114,7 +114,7 @@ namespace geopm
         for (size_t package_idx = 0; package_idx < m_package_count; ++package_idx) {
             const auto &cores_in_package = m_cores_in_packages[package_idx];
             if (m_platform_io.sample(m_sst_tf_enable_signals[package_idx])) {
-                auto hp_core_count = std::count_if(
+                unsigned int hp_core_count = std::count_if(
                     cores_in_package.begin(), cores_in_package.end(),
                     [this](int idx) {
                         return m_platform_io.sample(m_clos_association_signals[idx]) <= MEDIUM_HIGH_PRIORITY;
