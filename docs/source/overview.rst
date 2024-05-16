@@ -16,30 +16,54 @@ For in-depth information see: :doc:`service` or :doc:`runtime`.
 |:computer:| Install GEOPM
 --------------------------
 
-ALCF
-^^^^
+Pre-built binaries of the GEOPM Service and Runtime are available for download
+using the openSUSE Build Service for RPM-based Linux distributions and through
+Launchpad for Debian-based distributions.  For information on how to configure
+those repositories with your system package manager or directly download the
+binaries see: :doc:`install`
 
-For users leveraging the Aurora/Sunspot computing resources at the Argonne
-Leadership Computing Facility (ALCF), the GEOPM Service is installed in the base
-compute image.  The userspace components of both the Service and the Runtime
-are available via environment modules.  These components can be loaded on the
-command-line via:
+Spack
+^^^^^
+
+.. note::
+
+    Recipes for the v3.1 release of GEOPM are currently work-in-progress.
+
+For users that leverage `Spack <https://spack.io/>`_ to distribute software,
+recipes to build the `geopm-service
+<https://github.com/spack/spack/blob/v0.22.0/var/spack/repos/builtin/packages/geopm-service/package.py>`_
+and `geopm-runtime
+<https://github.com/spack/spack/blob/v0.22.0/var/spack/repos/builtin/packages/geopm-runtime/package.py>`_
+have been included in their `v0.22.0 release
+<https://github.com/spack/spack/tree/v0.22.0>`_.  These recipes currently allow
+for building both the v3.0.1 release of GEOPM and our main development branch.
+
+For deploying GEOPM's layers to a compute image, a typical configration would
+be to have a system install of the service RPMs baked into the compute image,
+and use spack to install ``geopm-runtime``.  This is required as the GEOPM
+service will be launched via systemd, and thus must run against the system
+installed Python runtime.
+
+For GEOPM v3.0.1, system install ``geopm-service``, ``libgeopmd2``, and ``python3-geopmdpy``
+
+For GEOPM v3.1, system install ``geopm-service``, ``libgeopmd2``, ``python3-geopmdpy``, and ``python3-geopmdpy-doc``
+
+In order to build with spack this way, ``geopm-service`` must be configured as an
+external package in ``~/.spack/packages.yaml``:
 
 .. code-block:: bash
 
-    $ module load geopm
+    packages:
+      geopm-service:
+        externals:
+        - spec: "geopm-service@3.0.1"
+          prefix: /usr
+        version:
+        - 3.0.1
+        buildable: False
 
-To list all of the available GEOPM versions issue:
-
-.. code-block:: bash
-
-    $ module avail geopm
-
-General Users (non-ALCF)
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-For users who are running one of our supported Linux distributions, see the
-following for installation instructions: :doc:`install`.
+Afterwards, ``geopm-runtime`` can be installed normally with ``spack install
+geopm-runtime``.
 
 Admin Configuration
 ^^^^^^^^^^^^^^^^^^^
