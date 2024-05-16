@@ -12,6 +12,7 @@
 #include "LocalNeuralNet.hpp"
 #include "LocalNeuralNetImp.hpp"
 #include "DenseLayer.hpp"
+#include "DenseLayerImp.hpp"
 #include "TensorOneD.hpp"
 
 #include "MockDenseLayer.hpp"
@@ -19,7 +20,9 @@
 #include "TensorOneDMatcher.hpp"
 
 using geopm::TensorOneD;
+using geopm::TensorTwoD;
 using geopm::DenseLayer;
+using geopm::DenseLayerImp;
 using geopm::LocalNeuralNet;
 using geopm::LocalNeuralNetImp;
 using ::testing::Mock;
@@ -30,9 +33,9 @@ class LocalNeuralNetTest : public ::testing::Test
 {
     protected:
         void SetUp() override;
-	std::shared_ptr<MockTensorMath> m_fake_math;
-	std::shared_ptr<MockDenseLayer> m_fake_layer1, m_fake_layer2;
-	TensorOneD m_inp2, m_inp3, m_inp4, m_inp4s;
+        std::shared_ptr<MockTensorMath> m_fake_math;
+        std::shared_ptr<MockDenseLayer> m_fake_layer1, m_fake_layer2;
+        TensorOneD m_inp2, m_inp3, m_inp4, m_inp4s;
 };
 
 void LocalNeuralNetTest::SetUp()
@@ -63,6 +66,14 @@ TEST_F(LocalNeuralNetTest, test_inference)
     EXPECT_CALL(*m_fake_math, sigmoid(TensorOneDEqualTo(m_inp4))).WillOnce(Return(m_inp4s));
 
     EXPECT_THAT(net.forward(m_inp2), TensorOneDEqualTo(m_inp3));
+}
+
+TEST_F(LocalNeuralNetTest, test_dims)
+{
+    LocalNeuralNetImp net({m_fake_layer1, m_fake_layer2});
+
+    EXPECT_EQ(net.get_input_dim(), m_fake_layer1->get_input_dim());
+    EXPECT_EQ(net.get_output_dim(), m_fake_layer2->get_output_dim());
 }
 
 TEST_F(LocalNeuralNetTest, test_bad_dimensions)
