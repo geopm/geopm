@@ -20,6 +20,8 @@ To get the latest source code clone the git repository:
    :width: 200
    :alt: View on Github
 
+----
+
 Key Features
 ------------
 
@@ -64,6 +66,8 @@ With GEOPM, an end user can:
 |:race_car:| Efficiently gather large amounts of data
   - Gather large groups of signal-reads or control-writes into batch
     operations, often reducing total latency to complete the operations.
+
+----
 
 Documentation
 -------------
