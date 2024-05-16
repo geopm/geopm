@@ -6,6 +6,19 @@ GEOPM
 
 **Fine-grained low-latency batch access to power metrics and control knobs on Linux**
 
+Key Features
+------------
+
+The Global Extensible Open Power Manager (GEOPM) provides a framework to
+explore power and energy optimizations on platforms with heterogeneous mixes of
+computing hardware.
+
+Users can monitor their system's energy and power consumption, and safely
+optimize system hardware settings to achieve energy efficiency and/or
+performance objectives.
+
+----
+
 Source Code
 -----------
 
@@ -21,17 +34,6 @@ To get the latest source code clone the git repository:
    :alt: View on Github
 
 ----
-
-Key Features
-------------
-
-The Global Extensible Open Power Manager (GEOPM) provides a framework to
-explore power and energy optimizations on platforms with heterogeneous mixes of
-computing hardware.
-
-Users can monitor their system's energy and power consumption, and safely
-optimize system hardware settings to achieve energy efficiency and/or
-performance objectives.
 
 With GEOPM, a system administrator can:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
