@@ -84,7 +84,7 @@ pages: :doc:`admin` and :doc:`geopmaccess.1`.
 ----
 
 |:card_file_box:| Understand the Platform Topology
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _topo-diagram:
 .. figure:: https://geopm.github.io/images/platform-topo-diagram.svg
@@ -340,6 +340,14 @@ consumed by all packages, cores, and CPUs in the system, one would issue a
 
 For more information about aggregation types, see: :doc:`geopm::Agg.3`.
 
+Video Demo: Using ``geopmread``
+"""""""""""""""""""""""""""""""
+.. raw:: html
+
+    <video src="images/geopmread.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+
+----
+
 Reading Multiple Signals
 """"""""""""""""""""""""
 To fetch platform telemetry and output it to the console or a file:
@@ -588,6 +596,12 @@ interface.
 
 Again, for more information on ``geopmsession`` see :doc:`geopmsession.1`.
 
+Video Demo: Using ``geopmsession``
+""""""""""""""""""""""""""""""""""
+.. raw:: html
+
+    <video src="images/geopmsession.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+
 ----
 
 |:gear:| Enact Hardware-based Settings
@@ -748,6 +762,12 @@ control at the ``board`` domain will evenly distribute the requested value over
 all the packages in the system.  This means that requesting a 200 W power limit
 at the ``board`` domain will result in each ``package`` receiving a limit of
 100 W.
+
+Video Demo: Using ``geopmwrite``
+""""""""""""""""""""""""""""""""
+.. raw:: html
+
+    <video src="images/geopmwrite.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
 
