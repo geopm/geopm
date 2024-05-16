@@ -63,6 +63,7 @@ Documentation
    :maxdepth: 1
 
    overview
+   publications
    service
    runtime
    contrib
