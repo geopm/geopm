@@ -136,7 +136,6 @@ Files:     .gitignore
            source/security.rst
            source/service.rst
            source/service_readme.rst
-           source/use_cases.rst
 Copyright: __NO_COPYRIGHT_NOR_LICENSE__
 License:   __NO_COPYRIGHT_NOR_LICENSE__
 
