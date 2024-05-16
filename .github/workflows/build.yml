@@ -297,7 +297,7 @@ jobs:
         # Build our deb packages
         ./autogen.sh && ./configure || (cat config.log && false)
         make deb
-        # Clean up so later steps don't unknowingly miss declaring a dependency installed by this step 
+        # Clean up so later steps don't unknowingly miss declaring a dependency installed by this step
         sudo apt-get purge --auto-remove geopm-service-build-deps
         # Add our new packages to the local repo
         sudo mv ./*.deb $TEST_DEBS_DIR
@@ -321,7 +321,7 @@ jobs:
         sudo mk-build-deps --install
         ./autogen.sh && ./configure --disable-mpi --disable-openmp --disable-fortran || (cat config.log && false)
         make deb
-        # Clean up so later steps don't unknowingly miss a dependency 
+        # Clean up so later steps don't unknowingly miss a dependency
         sudo apt-get purge --auto-remove geopm-service-build-deps
         sudo mv ./*.deb $TEST_DEBS_DIR
         sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"

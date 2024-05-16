@@ -1,0 +1,70 @@
+#
+#  Copyright (c) 2015 - 2024 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+name: Publish website
+
+on:
+  push:
+    branches:
+      - dev
+    tags:
+      - v*
+
+permissions: read-all
+
+concurrency:
+  group: website-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish_html:
+    name: "publish_html"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout base repo
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
+    - name: Checkout website repo
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        token: ${{ secrets.WEBSITE_TOKEN }}
+        repository: ${{ github.repository_owner }}/geopm.github.io
+        path: docs/geopm.github.io
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install python3-gi python3-yaml python3-m2crypto python3-build python3-setuptools-scm doxygen graphviz
+    - name: Install python dependencies
+      run: |
+           python3 -m pip install --upgrade pip setuptools wheel pep517
+           python3 -m pip install -r requirements.txt
+           python3 -m pip install -r docs/requirements.txt
+           python3 -m pip install -r geopmdpy/requirements.txt
+           python3 -m pip install -r geopmpy/requirements.txt
+    - name: make geopmdpy dist
+      working-directory: geopmdpy
+      run: ./make_sdist.sh
+    - name: make geopmpy dist
+      working-directory: geopmpy
+      run: ./make_sdist.sh
+    - name: make docs
+      working-directory: docs
+      run: make html
+    - name: Set environment
+      run: |
+           if [[ "${{ github.ref_name }}" == "dev" ]]; then
+               echo "GEOPM_GITHUB_IO=geopm.github.io" >> ${GITHUB_ENV}
+           else
+               echo "GEOPM_GITHUB_IO=geopm.github.io/${{ github.ref_name }}" >> ${GITHUB_ENV}
+           fi
+    - name: Install docs and push
+      working-directory: docs
+      run: |
+           git config --global user.name "github-actions[bot]"
+           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+           mkdir -p ${GEOPM_GITHUB_IO}
+           make install_html >& /tmp/build.tmp || grep "nothing to commit" /tmp/build.tmp
+           cd geopm.github.io
+           git push origin
+
