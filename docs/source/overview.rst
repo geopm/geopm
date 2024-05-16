@@ -72,8 +72,8 @@ pages: :doc:`admin` and :doc:`geopmaccess.1`.
 
 ----
 
-|:card_file_box:| Understand the Platform Topology
---------------------------------------------------
+|:card_file_box:| Platform Topology
+-----------------------------------
 
 .. _topo-diagram:
 .. figure:: https://geopm.github.io/images/platform-topo-diagram.svg
@@ -173,8 +173,8 @@ topology.
 
 ----
 
-|:microscope:| Read Telemetry from the Platform
------------------------------------------------
+|:microscope:| Reading Telemetry
+--------------------------------
 
 We refer to any bit of telemetry that can be read with the Service as a
 *signal*.  Each signal has a native domain.  For example, the native domain of
@@ -760,8 +760,8 @@ Video Demo: Using ``geopmwrite``
 
 ----
 
-|:straight_ruler:| Use the Runtime to Measure Application Performance
----------------------------------------------------------------------
+|:straight_ruler:| Measure Performance
+--------------------------------------
 
 The GEOPM Runtime offers capabilities for collecting telemetry throughout an
 application's execution. If you're aiming to measure a particular segment of an
