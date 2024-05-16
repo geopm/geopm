@@ -17,7 +17,6 @@ For in-depth information see: :doc:`service` or :doc:`runtime`.
    :maxdepth: 0
 
    use_cases
-   publications
 
 ----
 
