@@ -13,21 +13,11 @@ For in-depth information see: :doc:`service` or :doc:`runtime`.
 
 ----
 
-.. toctree::
-   :maxdepth: 0
-
-   use_cases
-
-----
-
-How to...
----------
-
 |:computer:| Install GEOPM
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 ALCF
-""""
+^^^^
 
 For users leveraging the Aurora/Sunspot computing resources at the Argonne
 Leadership Computing Facility (ALCF), the GEOPM Service is installed in the base
@@ -46,13 +36,13 @@ To list all of the available GEOPM versions issue:
     $ module avail geopm
 
 General Users (non-ALCF)
-""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 For users who are running one of our supported Linux distributions, see the
 following for installation instructions: :doc:`install`.
 
 Admin Configuration
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
 After the Service has been installed, it must be configured properly before
 non-root users will be able to leverage it.
@@ -83,7 +73,7 @@ pages: :doc:`admin` and :doc:`geopmaccess.1`.
 ----
 
 |:card_file_box:| Understand the Platform Topology
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------
 
 .. _topo-diagram:
 .. figure:: https://geopm.github.io/images/platform-topo-diagram.svg
@@ -108,7 +98,7 @@ has support for the following domains:
 For more information on the domain types, see: :ref:`geopm_topo.3:Domain Types`.
 
 Code Examples
-"""""""""""""
+^^^^^^^^^^^^^
 
 All of the code examples require linking against ``libgeopmd`` for C/C++.  The
 Python examples require that your ``PYTHONPATH`` contains the ``geopmdpy``
@@ -184,7 +174,7 @@ topology.
 ----
 
 |:microscope:| Read Telemetry from the Platform
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------------
 
 We refer to any bit of telemetry that can be read with the Service as a
 *signal*.  Each signal has a native domain.  For example, the native domain of
@@ -199,14 +189,14 @@ and the :doc:`C <geopm_pio.3>`, :doc:`C++ <geopm::PlatformIO.3>`, and :doc:`Pyth
 <geopmdpy.7>` APIs for ``PlatformIO`` in their respective languages.
 
 Listing All Available Signals
-"""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
     $ geopmread
 
 Listing Signal Information
-""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
 
@@ -237,7 +227,7 @@ Listing Signal Information
         iogroup: MSRIOGroup
 
 Reading Signals
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 .. tabs::
 
@@ -308,7 +298,7 @@ Reading Signals
 
 
 Understanding Aggregation
-"""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The telemetry that is output from ``geopmread`` or the APIs will automatically
 be aggregated based on the requested domain and the aggregation
@@ -340,7 +330,7 @@ consumed by all packages, cores, and CPUs in the system, one would issue a
 For more information about aggregation types, see: :doc:`geopm::Agg.3`.
 
 Video Demo: Using ``geopmread``
-"""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
 
     <video src="images/geopmread.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
@@ -348,7 +338,7 @@ Video Demo: Using ``geopmread``
 ----
 
 Reading Multiple Signals
-""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 To fetch platform telemetry and output it to the console or a file:
 
 - From the command-line: Use `geopmsession`. Its input arguments are similar to `geopmread`,
@@ -464,7 +454,7 @@ To fetch platform telemetry and output it to the console or a file:
 For more information on ``geopmsession`` see: :doc:`geopmsession.1`.
 
 Capturing Telemetry Over Time
-"""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``geopmsession`` can also capture data over time with the ``-p`` and ``-t``
 options. This behavior is easily implemented in code along with the batch read
@@ -596,7 +586,7 @@ interface.
 Again, for more information on ``geopmsession`` see :doc:`geopmsession.1`.
 
 Video Demo: Using ``geopmsession``
-""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
 
     <video src="images/geopmsession.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
@@ -604,7 +594,7 @@ Video Demo: Using ``geopmsession``
 ----
 
 |:gear:| Enact Hardware-based Settings
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------
 
 We refer to any hardware setting that can be manipulated through the Service as
 a *control*.  Like signals, each control has a native domain.  Any control can
@@ -618,14 +608,14 @@ APIs for ``PlatformIO`` to enact hardware controls in their respective
 languages.
 
 Listing All Available Controls
-""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
     $ geopmwrite
 
 Listing Control Information
-"""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
@@ -647,7 +637,7 @@ Listing Control Information
         iogroup: MSRIOGroup
 
 Writing Controls
-""""""""""""""""
+^^^^^^^^^^^^^^^^
 
 .. tabs::
 
@@ -720,7 +710,7 @@ Writing Controls
         $ geopmread CPU_FREQUENCY_MAX_CONTROL core 0
 
 Understanding Disaggregation
-""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Just as signals can be aggregated to a more coarse domain from their native
 one, controls can be disaggregated from a coarse domain to their native domain.
@@ -763,7 +753,7 @@ at the ``board`` domain will result in each ``package`` receiving a limit of
 100 W.
 
 Video Demo: Using ``geopmwrite``
-""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
 
     <video src="images/geopmwrite.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
@@ -771,7 +761,7 @@ Video Demo: Using ``geopmwrite``
 ----
 
 |:straight_ruler:| Use the Runtime to Measure Application Performance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------------------------------
 
 The GEOPM Runtime offers capabilities for collecting telemetry throughout an
 application's execution. If you're aiming to measure a particular segment of an
@@ -791,7 +781,7 @@ separate application (useful for non-MPI applications).  For more information,
 see the ``--geopm-ctl`` :ref:`option description <geopm-ctl option>`.
 
 Using ``geopmlaunch`` with MPI Applications
-"""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
@@ -815,7 +805,7 @@ option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
 
 
 Profiling Applications without ``geopmlaunch``
-""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``geopmlaunch(1)`` command may not be best suited for your needs if you are
 running a non-MPI application, or if you are running an MPI application but the
@@ -891,7 +881,7 @@ runtime, please refer to the `GEOPM Environment Variables
 the GEOPM documentation.
 
 Profiling Specific Parts of an Application
-""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Runtime supports the automatic profiling of various application regions through several methods:
 
@@ -958,10 +948,10 @@ our GitHub repository <https://github.com/geopm/geopm/tree/dev/tutorial>`__.
 ----
 
 |:alembic:| Advanced Topics
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 
 Breaking Down Signal/Control Names
-""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Signal and control names in GEOPM are categorized into two types: low-level and high-level.
 
@@ -1011,7 +1001,7 @@ For more information about the currently supported aliases and IOGroups, see:
 .. WIP
 
 Using the Programmable Counters
-"""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The programmable counters available on various CPUs can be read with
 ``geopmread`` from the command-line and through the use of the
