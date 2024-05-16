@@ -6,6 +6,20 @@ GEOPM
 
 **Fine-grained low-latency batch access to power metrics and control knobs on Linux**
 
+Source Code
+-----------
+
+To get the latest source code clone the git repository:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/geopm/geopm.git
+
+.. image:: https://geopm.github.io/images/github-button.png
+   :target: https://github.com/geopm/geopm
+   :width: 200
+   :alt: View on Github
+
 Key Features
 ------------
 
@@ -50,20 +64,6 @@ With GEOPM, an end user can:
 |:race_car:| Efficiently gather large amounts of data
   - Gather large groups of signal-reads or control-writes into batch
     operations, often reducing total latency to complete the operations.
-
-Source Code
------------
-
-To get the latest source code clone the git repository:
-
-.. code-block:: bash
-
-    $ git clone https://github.com/geopm/geopm.git
-
-.. image:: https://geopm.github.io/images/github-button.png
-   :target: https://github.com/geopm/geopm
-   :width: 200
-   :alt: View on Github
 
 Documentation
 -------------
