@@ -3,7 +3,7 @@ User Guide for GEOPM Runtime
 
 The GEOPM Runtime is software designed to enhance energy efficiency of
 applications through active hardware configuration. See
-:ref:`Getting Started Guide <overview:|:straight_ruler:| Use the Runtime to Measure Application Performance>`
+:ref:`Getting Started Guide <overview:|:straight_ruler:| Measure Performance>`
 for information on how to begin using the GEOPM Runtime.
 
 User Model
