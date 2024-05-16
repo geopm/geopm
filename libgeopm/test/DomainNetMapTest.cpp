@@ -77,6 +77,19 @@ void DomainNetMapTest::TearDown()
 
 TEST_F(DomainNetMapTest, test_json_parsing)
 {
+    // no file present
+    {
+        remove(M_FILENAME.c_str());
+
+        GEOPM_EXPECT_THROW_MESSAGE(
+                DomainNetMapImp(M_FILENAME,
+                    GEOPM_DOMAIN_PACKAGE,
+                    0,
+                    m_fake_plat_io,
+                    m_fake_nn_factory),
+                GEOPM_ERROR_INVALID,
+                "Unable to open neural net file");
+    }
     // malformed json
     {
         std::ofstream bad_json(M_FILENAME);

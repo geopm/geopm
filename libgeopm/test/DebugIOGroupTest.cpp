@@ -72,6 +72,13 @@ void DebugIOGroupTest::update_values(void)
     *m_values = {m_val0_0, m_val0_1, m_val1, geopm_field_to_signal(m_int_val)};
 }
 
+TEST_F(DebugIOGroupTest, null_value_cache)
+{
+    GEOPM_EXPECT_THROW_MESSAGE(DebugIOGroup group(m_topo, nullptr),
+            GEOPM_ERROR_RUNTIME,
+            "value_cache cannot be null");
+}
+
 TEST_F(DebugIOGroupTest, is_valid)
 {
     DebugIOGroup group(m_topo, m_values);
@@ -171,6 +178,12 @@ TEST_F(DebugIOGroupTest, sample)
     EXPECT_EQ(m_val0_1, m_group.sample(idx1b));
     EXPECT_EQ(m_val1, m_group.sample(idx2));
     EXPECT_EQ(m_int_val, geopm_signal_to_field(m_group.sample(idx3)));
+
+    //Out of range tests
+    GEOPM_EXPECT_THROW_MESSAGE(m_group.sample(-1), GEOPM_ERROR_INVALID,
+            "batch_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_group.sample(100), GEOPM_ERROR_INVALID,
+            "batch_idx out of range");
 
     m_val0_0 = 15;
     m_val0_1 = 16;

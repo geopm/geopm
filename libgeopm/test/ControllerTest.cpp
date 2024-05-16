@@ -117,7 +117,7 @@ class ControllerTest : public ::testing::Test
         void SetUp();
         void TearDown();
 
-	void set_up_agents(int num_level, std::vector<int> &fan_out);
+        void set_up_agents(int num_level, std::vector<int> &fan_out);
 
         std::string m_agent_name = "temp";
         int m_num_send_up = 4;
@@ -125,17 +125,17 @@ class ControllerTest : public ::testing::Test
         std::shared_ptr<MockComm> m_comm;
         ControllerTestMockPlatformIO m_platform_io;
         std::shared_ptr<MockApplicationIO> m_application_io;
-	std::unique_ptr<MockTreeComm> m_tree_comm;
-	MockTreeComm *m_tree_comm_ptr;
-	std::unique_ptr<MockReporter> m_reporter;
-	MockReporter *m_reporter_ptr;
-	std::unique_ptr<MockTracer> m_tracer;
-	MockTracer *m_tracer_ptr;
-	std::unique_ptr<MockEndpointPolicyTracer> m_policy_tracer;
-	MockEndpointPolicyTracer *m_policy_tracer_ptr;
+        std::unique_ptr<MockTreeComm> m_tree_comm;
+        MockTreeComm *m_tree_comm_ptr;
+        std::unique_ptr<MockReporter> m_reporter;
+        MockReporter *m_reporter_ptr;
+        std::unique_ptr<MockTracer> m_tracer;
+        MockTracer *m_tracer_ptr;
+        std::unique_ptr<MockEndpointPolicyTracer> m_policy_tracer;
+        MockEndpointPolicyTracer *m_policy_tracer_ptr;
         std::vector<MockAgent*> m_level_agent;
         std::vector<std::unique_ptr<Agent> > m_agents;
-	std::unique_ptr<MockEndpointUser> m_endpoint;
+        std::unique_ptr<MockEndpointUser> m_endpoint;
         MockEndpointUser *m_endpoint_ptr;
 
         int m_num_step = 3;
