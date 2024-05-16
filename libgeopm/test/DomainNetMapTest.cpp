@@ -82,13 +82,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         remove(M_FILENAME.c_str());
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "Unable to open neural net file");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0, 
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "Unable to open neural net file");
     }
     // malformed json
     {
@@ -97,13 +93,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "Neural net file format is incorrect");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "Neural net file format is incorrect");
     }
 
     // empty file
@@ -113,13 +105,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "Neural net file format is incorrect");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "Neural net file format is incorrect");
     }
     
     // empty json
@@ -129,11 +117,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "must have a key \"layers\" whose value is a non-empty array");
     }
@@ -147,11 +132,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "must have a key \"layers\" whose value is a non-empty array");
     }
@@ -166,11 +148,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "must have a key \"layers\" whose value is a non-empty array");
     }
@@ -186,13 +165,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "Unexpected key");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                    m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "Unexpected key");
     }
 
     // missing both signal_inputs and delta_inputs
@@ -204,11 +179,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "must contain at least one of \"signal_inputs\" and \"delta_inputs\"");
     }
@@ -226,13 +198,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "\"delta_inputs\" must be an array");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "\"delta_inputs\" must be an array");
     }
 
     // valid delta_inputs, invalid signal_inputs 
@@ -251,13 +219,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
         bad_json.close();
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "\"signal_inputs\" must be an array");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "\"signal_inputs\" must be an array");
     }
 
     // missing trace_outputs
@@ -283,11 +247,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "must have a key \"trace_outputs\" whose value is an array");
 
@@ -319,11 +280,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "input dimension must match the number of signal and delta inputs");
         Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
@@ -354,11 +312,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "output dimension must match the number of trace outputs");
         Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
@@ -394,11 +349,8 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
                 GEOPM_ERROR_INVALID,
                 "signal inputs must be strings");
         Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
@@ -435,13 +387,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "delta inputs must be tuples of strings");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "delta inputs must be tuples of strings");
         Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
     
@@ -476,13 +424,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "delta inputs must be tuples of strings");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "delta inputs must be tuples of strings");
         Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 
@@ -521,13 +465,9 @@ TEST_F(DomainNetMapTest, test_json_parsing)
             .WillOnce(Return(m_fake_nn));
 
         GEOPM_EXPECT_THROW_MESSAGE(
-                DomainNetMapImp(M_FILENAME,
-                    GEOPM_DOMAIN_PACKAGE,
-                    0,
-                    m_fake_plat_io,
-                    m_fake_nn_factory),
-                GEOPM_ERROR_INVALID,
-                "trace outputs must be strings");
+                DomainNetMapImp(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                                m_fake_plat_io, m_fake_nn_factory),
+                GEOPM_ERROR_INVALID, "trace outputs must be strings");
         Mock::VerifyAndClearExpectations(m_fake_nn_factory.get());
     }
 }
@@ -576,11 +516,8 @@ TEST_F(DomainNetMapTest, test_plumbing)
     EXPECT_CALL(m_fake_plat_io, sample(3)).WillOnce(Return(4)).WillOnce(Return(0));
     EXPECT_CALL(m_fake_plat_io, sample(4)).WillOnce(Return(5)).WillOnce(Return(6));
 
-    DomainNetMapImp net_map(M_FILENAME,
-            GEOPM_DOMAIN_PACKAGE,
-            0,
-            m_fake_plat_io,
-            m_fake_nn_factory);
+    DomainNetMapImp net_map(M_FILENAME, GEOPM_DOMAIN_PACKAGE, 0,
+                            m_fake_plat_io, m_fake_nn_factory);
 
     EXPECT_CALL(*m_fake_nn, forward(_)).WillRepeatedly(Return(m_tmp1));
 

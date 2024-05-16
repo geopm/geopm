@@ -25,8 +25,8 @@ namespace geopm
     }
 
     DenseLayerImp::DenseLayerImp(const TensorTwoD &weights, const TensorOneD &biases) 
-          : m_weights(weights)
-          , m_biases(biases)
+        : m_weights(weights)
+        , m_biases(biases)
     {
         if (weights.get_rows() == 0 && weights.get_cols() == 0) {
             throw Exception("DenseLayerImp::" + std::string(__func__) +
