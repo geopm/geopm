@@ -78,11 +78,11 @@ Documentation
    :maxdepth: 1
 
    overview
-   publications
    service
    runtime
    contrib
    devel
+   publications
    reference
 
 License: BSD 3-Clause
