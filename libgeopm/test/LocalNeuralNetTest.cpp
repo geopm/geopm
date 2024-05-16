@@ -12,7 +12,6 @@
 #include "LocalNeuralNet.hpp"
 #include "LocalNeuralNetImp.hpp"
 #include "DenseLayer.hpp"
-#include "DenseLayerImp.hpp"
 #include "TensorOneD.hpp"
 
 #include "MockDenseLayer.hpp"
@@ -20,9 +19,7 @@
 #include "TensorOneDMatcher.hpp"
 
 using geopm::TensorOneD;
-using geopm::TensorTwoD;
 using geopm::DenseLayer;
-using geopm::DenseLayerImp;
 using geopm::LocalNeuralNet;
 using geopm::LocalNeuralNetImp;
 using ::testing::Mock;
