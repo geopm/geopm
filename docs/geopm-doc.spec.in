@@ -31,6 +31,12 @@ URL: https://geopm.github.io
 Source0: geopm-doc-%{version}.tar.gz
 BuildRoot: %{_tmppath}/geopm-doc-%{version}-%{release}-root
 Prefix: %{_prefix}
+Requires: geopm-service-doc
+Requires: libgeopmd-doc
+Requires: python3-geopmdpy-doc
+Requires: geopm-runtime-doc
+Requires: libgeopm-doc
+Requires: python3-geopmpy-doc
 %if 0%{?suse_version}
 BuildRequires: bash-completion-devel
 %else
@@ -93,6 +99,8 @@ Man pages for python3-geopmpy package
 %clean
 
 # Installed files
+%files
+
 %files -n geopm-runtime-doc
 %defattr(-,root,root,-)
 %doc %{_mandir}/man1/geopmadmin.1.gz
