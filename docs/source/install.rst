@@ -9,19 +9,17 @@ distributions are hosted on `Launchpad <https://launchpad.net/>`_.
 
 Here are the packages curated by OBS and Launchpad:
 
-v3.1 to Current
----------------
+v3.1.0 to Current
+-----------------
 
 - ``geopm-service``: Sets up and enables the geopm systemd service.
-- ``geopm-service-doc``: Provides the man pages for the service.
 - ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
-- ``libgeopmd-doc``: Provides the man pages for libgeopmd.
 - ``python3-geopmdpy``: Houses the implementation of geopmd, CLI utilities, and bindings for PlatformIO.
-- ``python3-geopmdpy-doc``: Provides the man pages for python3-geopmdpy.
 - ``geopm-service-devel``: Provides headers and man pages for C and C++ APIs supportable by ``libgeopmd2``.
+- ``geopm-doc``: Provides all GEOPM man pages.
 
-v3.0
-----
+v3.0.1
+------
 
 - ``geopm-service``: Sets up and enables the geopm systemd service.
 - ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
@@ -44,7 +42,7 @@ necessary libraries for either Intel GPUs (levelzero) or Nvidia GPUs (NVML).
 Prerequisites for Level Zero
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``levelzero`` allows GEOPM to read metrics and enact controls from Intel GPUs.
+``level-zero`` allows GEOPM to read metrics and enact controls from Intel GPUs.
 Currently, none of the Linux distributions supporting GEOPM provide this
 package upstream.
 
@@ -54,11 +52,6 @@ For up-to-date distributions (e.g. SLES 15.4 and Ubuntu 22.04):
 
 * `Intel(R) software for general purpose GPU capabilities
   <https://dgpu-docs.intel.com/driver/installation.html>`__
-
-For older, deprecated distributions (e.g. SLES 15.3 and Ubuntu 20.04):
-
-* `Intel(R) software for general purpose GPU capabilities
-  <https://dgpu-docs.intel.com/installation-guides/index.html>`__
 
 Once added your system's OS appropriate package management repository, you can
 use ``yum``, ``zypper``, or ``apt`` to install the package.
@@ -91,55 +84,87 @@ for CUDA here:
 Download Repositories
 ---------------------
 
-The ``release-v3.0`` branch tracks the v3.0 GEOPM release, including any
+The ``release-v3.1`` branch tracks the v3.1 GEOPM release, including any
 potential hotfixes that could occur in the future. It captures the latest
+stable GEOPM release.
+
+The ``release-v3.0`` branch tracks the v3.0 GEOPM release, including any
+potential hotfixes that could occur in the future. It captures the previous
 stable GEOPM release.
 
 The ``dev`` branch, however, presents the most up-to-date stable development.
 See below for download repository information for your Linux distribution.
 
-SLES, OpenSUSE, and CentOS
+SLES, openSUSE, and CentOS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When using the below links, it is preferable to click on your desired OS and
 follow the procedure for "Add repositoriy and install manually".  If you do
 this, installing the ``geopm-service`` package will automatically install the
-remaining dependencies (e.g. ``libgeopmd2``, etc.).  If required for source
-builds, you still must manually install ``geopm-service-devel``.
+remaining dependencies and reccomended packages (e.g. ``libgeopmd2``,
+``geopm-service-doc``, etc.).  If required for source builds, you still must
+manually install ``geopm-service-devel``.
 
 While you *can* download the binary packages directly and install through your
 package manager, you must specify all of the required packages at install time
-(i.e. ``geopm-service``, ``libgeopmd2``, ``python3-geopmdpy``, and optionally
-``geopm-service-devel``).
+(i.e. ``geopm-service``, ``libgeopmd2``, ``python3-geopmdpy``).  Optionally
+you may install the following to enable source builds and documentation:
+``geopm-service-devel``, ``geopm-service-doc``, ``libgeopmd-doc``, and
+``python3-geopmdpy-doc``.
 
 .. note::
 
    You will not automatically pull updates and bug fixes unless the repository
    is added.
 
-- Release Packages (``release-v3.0`` branch - Intel GPU support via levelzero)
+v3.1
+""""
+
+- Release Packages (``release-v3.1`` branch - Intel GPU support via levelzero)
    + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service>`__
    + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=libgeopmd2>`__
    + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service-devel>`__
+   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-doc>`__
 
-- Release Packages (``release-v3.0`` branch - no GPU support)
+- Release Packages (``release-v3.1`` branch - no GPU support)
    + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service>`__
    + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=libgeopmd2>`__
    + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service-devel>`__
+   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-doc>`__
+
+v3.0
+""""
+
+- Release Packages (``release-v3.0`` branch - Intel GPU support via levelzero)
+   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=geopm-service>`__
+   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=libgeopmd2>`__
+   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=geopm-service-devel>`__
+
+- Release Packages (``release-v3.0`` branch - no GPU support)
+   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=geopm-service>`__
+   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=libgeopmd2>`__
+   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=geopm-service-devel>`__
+
+Development
+"""""""""""
 
 - Development Packages (``dev`` branch - Intel GPU support via levelzero)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service>`__
    + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=libgeopmd2>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service-devel>`__
+   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm%3Asupplementary&package=geopm-doc>`__
 
 - Development Packages (``dev`` branch - no GPU support)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
    + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd2>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
+   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm&package=geopm-doc>`__
 
 .. warning::
 
@@ -152,7 +177,7 @@ Ubuntu
 ^^^^^^
 
 There are 2 repositories that are maintained for GEOPM support on Ubuntu: one
-corresponding to the ``release-v3.0`` branch while the other corresponds to the
+corresponding to the ``release-v3.1`` branch while the other corresponds to the
 ``dev`` branch.  Both are built with Nvidia GPU support **only**.
 
 First, add the necessary upstream repository:
