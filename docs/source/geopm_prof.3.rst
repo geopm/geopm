@@ -4,7 +4,7 @@ geopm_prof(3) -- application profiling interfaces
 Synopsis
 --------
 
-#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_
+#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm_prof.h>`_
 
 ``Link with -lgeopm``
 
@@ -70,7 +70,7 @@ initialized.
 
   The *hint* is one of the values given by the enum ``geopm_region_hint_e``
   defined in `geopm_hint.h
-  <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_ which
+  <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_hint.h>`_ which
   determines the initial control settings.  The following hints are supported:
 
   ``GEOPM_REGION_HINT_UNKNOWN``

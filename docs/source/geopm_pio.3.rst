@@ -6,7 +6,7 @@ geopm_pio(3) -- interfaces to query and modify platform
 Synopsis
 --------
 
-#include `<geopm_pio.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_pio.h>`_\
+#include `<geopm_pio.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_pio.h>`_\
 
 Link with ``-lgeopmd``
 
@@ -194,7 +194,7 @@ Inspection Functions
   The parameters:
   **in** *signal_name*, name of signal to query.
   **out** *aggregation_type* One of the ``Agg::m_type_e`` enum values describing the way the signal is aggregated.
-  **out** *format_type* One of the ``geopm::string_format_e`` enums defined in `Helper.hpp <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Helper.hpp>`_\  that defines how to format
+  **out** *format_type* One of the ``geopm::string_format_e`` enums defined in `Helper.hpp <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/Helper.hpp>`_\  that defines how to format
   the signal as a string.
   **out** *behavior_type* One of the ``IOGroup::m_signal_behavior_e`` enum values that describes
   the signals behavior over time.

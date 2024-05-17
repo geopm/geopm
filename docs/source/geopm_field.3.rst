@@ -4,7 +4,7 @@ geopm_agent(3) -- query information about available agents
 Synopsis
 --------
 
-#include `<geopm_field.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_field.h>`_
+#include `<geopm_field.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_field.h>`_
 
 Link with ``-lgeopmd``
 

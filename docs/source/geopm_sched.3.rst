@@ -13,7 +13,7 @@ geopm_sched(3) -- interface with Linux scheduler
 Synopsis
 --------
 
-#include `<geopm_sched.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_sched.h>`_
+#include `<geopm_sched.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_sched.h>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
@@ -32,7 +32,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 Description
 -----------
 
-The `geopm_sched.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_sched.h>`_ header defines GEOPM interfaces for interacting with
+The `geopm_sched.h <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_sched.h>`_ header defines GEOPM interfaces for interacting with
 the Linux scheduler.
 
 

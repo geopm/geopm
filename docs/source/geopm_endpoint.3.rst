@@ -6,7 +6,7 @@ geopm_endpoint(3) -- dynamic policy control for resource management
 Synopsis
 --------
 
-#include `<geopm_endpoint.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_endpoint.h>`_
+#include `<geopm_endpoint.h> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm_endpoint.h>`_
 
 Link with ``-lgeopm``
 

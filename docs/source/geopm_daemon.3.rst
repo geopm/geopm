@@ -6,7 +6,7 @@ geopm_daemon(3) -- helpers for GEOPM daemons
 Synopsis
 --------
 
-#include `<geopm_daemon.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_daemon.h>`_
+#include `<geopm_daemon.h> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm_daemon.h>`_
 
 Link with ``-lgeopm``
 

@@ -15,7 +15,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/CNLIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/CNLIOGroup.hpp>`_
+#include `<geopm/CNLIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/CNLIOGroup.hpp>`_
 
 Link with ``-lgeopmd``
 

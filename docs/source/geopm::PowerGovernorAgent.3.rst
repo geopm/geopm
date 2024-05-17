@@ -6,7 +6,7 @@ geopm::PowerGovernorAgent(3) -- agent that enforces a power cap
 Synopsis
 --------
 
-#include `<geopm/PowerGovernorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/PowerGovernorAgent.hpp>`_
+#include `<geopm/PowerGovernorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/PowerGovernorAgent.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

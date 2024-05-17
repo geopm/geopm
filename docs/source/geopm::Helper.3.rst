@@ -6,7 +6,7 @@ geopm::Helper -- common helper methods
 Synopsis
 --------
 
-#include `<geopm/Helper.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Helper.hpp>`_
+#include `<geopm/Helper.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/Helper.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

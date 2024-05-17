@@ -16,7 +16,7 @@ to enable better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/MSRIO.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/MSRIO.hpp>`_
+#include `<geopm/MSRIO.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/MSRIO.hpp>`_
 
 Link with ``-lgeopmd``
 

@@ -17,7 +17,7 @@ this manual.
 Synopsis
 --------
 
-#include `<geopm/ProfileIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/ProfileIOGroup.hpp>`_
+#include `<geopm/ProfileIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/ProfileIOGroup.hpp>`_
 
 Link with ``-lgeopmd``
 

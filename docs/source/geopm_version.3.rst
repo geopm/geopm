@@ -10,7 +10,7 @@ geopm_version(3) -- GEOPM library version
 Synopsis
 --------
 
-#include `<geopm_version.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_version.h>`_
+#include `<geopm_version.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_version.h>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

@@ -4,7 +4,7 @@ geopm_hash(3) -- helper methods for encoding
 Synopsis
 --------
 
-#include `<geopm_hash.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_
+#include `<geopm_hash.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_hash.h>`_
 
 Link with ``-lgeopmd``
 
@@ -16,7 +16,7 @@ Link with ``-lgeopmd``
 Description
 -----------
 
-The `geopm_hash.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_
+The `geopm_hash.h <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_hash.h>`_
 header defines GEOPM interfaces for encoding region
 names into 64-bit integers and working with 64-bit integer values
 stored as doubles.

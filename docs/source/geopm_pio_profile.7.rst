@@ -25,7 +25,7 @@ Signals
     <geopm_prof.3>`) currently being run by all ranks, otherwise
     ``GEOPM_REGION_HASH_UNMARKED``.  See the enum ``geopm_region_hash_e``
     defined in `geopm_hash.h
-    <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_ for
+    <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_hash.h>`_ for
     more information.
 
     * **Aggregation**: region_hash
@@ -44,7 +44,7 @@ Signals
     time spent within the MPI function as MPI time in the report files.  It
     will be instead attributed to the time spent in the region as a whole.  See
     the enum ``geopm_region_hint_e`` defined in `geopm_hint.h
-    <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_ for
+    <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_hint.h>`_ for
     more information.
 
     * **Aggregation**: region_hint

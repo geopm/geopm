@@ -16,7 +16,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/CircularBuffer.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/CircularBuffer.hpp>`_
+#include `<geopm/CircularBuffer.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/CircularBuffer.hpp>`_
 
 
 .. code-block:: c++

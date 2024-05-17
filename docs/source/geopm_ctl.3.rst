@@ -10,7 +10,7 @@ geopm_ctl(3) -- GEOPM runtime control thread
 Synopsis
 --------
 
-#include `<geopm_ctl.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_ctl.h>`_
+#include `<geopm_ctl.h> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm_ctl.h>`_
 
 Link with ``-lgeopm``
 

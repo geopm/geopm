@@ -6,7 +6,7 @@ geopm_imbalancer(3) -- set artificial runtime imbalance
 Synopsis
 --------
 
-#include `<geopm_imbalancer.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_imbalancer.h>`_
+#include `<geopm_imbalancer.h> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm_imbalancer.h>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
@@ -22,7 +22,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 Description
 -----------
 
-The `geopm_imbalancer.h <https://github.com/geopm/geopm/blob/dev/src/geopm_imbalancer.h>`_ header defines interfaces for accessing the
+The `geopm_imbalancer.h <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm_imbalancer.h>`_ header defines interfaces for accessing the
 imbalancer singleton, which is an object used to add artificial
 imbalance to regions as a fraction of the total region runtime.  In
 particular, it is used by the ``ModelRegion`` of the ``geopmbench``

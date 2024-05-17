@@ -16,7 +16,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/SharedMemory.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/SharedMemory.hpp>`_
+#include `<geopm/SharedMemory.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/SharedMemory.hpp>`_
 
 Link with ``-lgeopmd``
 

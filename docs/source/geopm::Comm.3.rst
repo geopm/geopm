@@ -17,7 +17,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_
+#include `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/Comm.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
@@ -94,7 +94,7 @@ The ``CommFactory`` class is a specialization of ``PluginFactory`` class which c
 Enum Type
 ---------
 
-There are two ``enum``\ s defined in the `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_\ .
+There are two ``enum``\ s defined in the `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/Comm.hpp>`_\ .
 ``Comm::m_comm_split_type_e`` and ``Comm::m_split_color_e``
 
 .. code-block:: c++

@@ -13,7 +13,7 @@ geopm_time(3) -- helper methods for time
 Synopsis
 --------
 
-#include `<geopm_time.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_time.h>`_
+#include `<geopm_time.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_time.h>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
@@ -42,7 +42,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 Description
 -----------
 
-The `geopm_time.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_time.h>`_ header defines GEOPM interfaces for measuring time
+The `geopm_time.h <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_time.h>`_ header defines GEOPM interfaces for measuring time
 in seconds relative to a fixed arbitrary reference point. The ``geopm_time_s``
 structure is used to hold time values.
 
