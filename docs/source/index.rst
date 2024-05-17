@@ -38,25 +38,28 @@ To get the latest source code clone the git repository:
 With GEOPM, a system administrator can:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-|:closed_lock_with_key:| Provide secure access to hardware telemetry and controls
-  - Grant per-user or per-group access to individual metrics and controls, even
-    when their underlying interfaces do not offer fine-grained access control
+|:closed_lock_with_key:| Enable users with fine-grained access management
+  - Grant per-user or per-group access to individual metrics and controls
+  - Finer grained management of features than the underlying OS access
+    mechanisms provide
 |:safety_vest:| Provide safe access to hardware settings
   - Ensure that user-driven changes to hardware settings are reverted when the
     user's process session terminates
-|:building_construction:| Develop new plugins
+|:building_construction:| Extend the open-core framework
   - Develop your own platform-specific monitor and control interfaces through
     the extensible plugin architecture
 
 With GEOPM, an end user can:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-|:microscope:| Gather hardware telemetry and set hardware configuration
-  - Interact with hardware settings and sensors (e.g., set a CPU power limit or
-    read a GPU's current power consumption) using a platform-agnostic interface
+|:microscope:| Interact with hardware settings and sensors
+  - Platform-agnostic interface
+  - Support for a wide range of Linux device drivers
+  - Examples: set a CPU power limit, read a GPU's current power consumption,
+    limit the frequency range of system sub-components
 |:stopwatch:| Gather data for analysis
-  - Generate summarized reports of power and energy behavior during execution
-    of an application
+  - Generate summarized reports of power and energy behavior during execution of
+    an application
   - Automatically detect MPI and OpenMP phases in an application, generating
     per-phase summaries within application reports
 |:checkered_flag:| Implement optimization objectives
@@ -65,9 +68,10 @@ With GEOPM, an end user can:
     through built-in control algorithms
   - Develop your own runtime control algorithms through the extensible
     plugin architecture
-|:race_car:| Efficiently gather large amounts of data
+|:race_car:| Efficiently gather metrics from across the entire platform
   - Gather large groups of signal-reads or control-writes into batch
-    operations, often reducing total latency to complete the operations.
+    operations
+  - Batch interface often reduces total latency to complete the operations
 
 ----
 
