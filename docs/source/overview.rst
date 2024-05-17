@@ -357,7 +357,7 @@ Video Demo: Using ``geopmread``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
 
-    <video src="images/geopmread.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+    <video src="https://geopm.github.io/images/geopmread.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
 
@@ -613,7 +613,7 @@ Video Demo: Using ``geopmsession``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
 
-    <video src="images/geopmsession.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+    <video src="https://geopm.github.io/images/geopmsession.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
 
@@ -780,7 +780,7 @@ Video Demo: Using ``geopmwrite``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
 
-    <video src="images/geopmwrite.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+    <video src="https://geopm.github.io/images/geopmwrite.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
 
