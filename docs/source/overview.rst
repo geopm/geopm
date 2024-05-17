@@ -51,7 +51,7 @@ For GEOPM v3.1, system install ``geopm-service``, ``libgeopmd2``, ``python3-geop
 In order to build with spack this way, ``geopm-service`` must be configured as an
 external package in ``~/.spack/packages.yaml``:
 
-.. code-block:: bash
+.. code-block:: yaml
 
     packages:
       geopm-service:
