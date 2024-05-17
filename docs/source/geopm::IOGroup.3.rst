@@ -16,7 +16,7 @@ to enable better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/IOGroup.hpp>`_\
+#include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/IOGroup.hpp>`_\
 
 Link with ``-lgeopmd``
 

@@ -4,7 +4,7 @@ geopm_topo(3) -- query platform component topology
 Synopsis
 --------
 
-#include `<geopm_topo.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_topo.h>`_
+#include `<geopm_topo.h> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_topo.h>`_
 
 ``Link with -lgeopm (MPI) or -lgeopm (non-MPI)``
 

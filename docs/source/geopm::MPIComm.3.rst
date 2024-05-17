@@ -18,7 +18,7 @@ Note that the ``MPIComm`` class is derived from :doc:`geopm::Comm(3) <geopm::Com
 Synopsis
 --------
 
-#include `<geopm/MPIComm.hpp> <https://github.com/geopm/geopm/blob/dev/src/MPIComm.hpp>`_
+#include `<geopm/MPIComm.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/MPIComm.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)**
 

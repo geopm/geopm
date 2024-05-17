@@ -19,7 +19,7 @@ Note that the ``geopm::Exception`` class is derived from ``std::runtime_error`` 
 Synopsis
 --------
 
-#include `<geopm/Exception.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Exception.hpp>`_
+#include `<geopm/Exception.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/Exception.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

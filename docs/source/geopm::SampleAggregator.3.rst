@@ -10,7 +10,7 @@ geopm::SampleAggregator(3) -- per-region aggregated signal data
 Synopsis
 --------
 
-#include `<geopm/SampleAggregator.hpp> <https://github.com/geopm/geopm/blob/dev/src/SampleAggregator.hpp>`_
+#include `<geopm/SampleAggregator.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/SampleAggregator.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

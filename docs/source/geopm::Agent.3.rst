@@ -21,7 +21,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/src/Agent.hpp>`_
+#include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/Agent.hpp>`_
 
 Link with ``-lgeopm``
 

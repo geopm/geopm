@@ -6,7 +6,7 @@ geopm::GPUActivityAgent(3) -- agent for selecting GPU frequency based on GPU com
 Synopsis
 --------
 
-#include `<geopm/GPUActivityAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/GPUActivityAgent.hpp>`_\
+#include `<geopm/GPUActivityAgent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/GPUActivityAgent.hpp>`_\
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

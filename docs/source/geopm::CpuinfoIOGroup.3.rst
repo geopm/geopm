@@ -17,7 +17,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/CpuinfoIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/CpuinfoIOGroup.hpp>`_
+#include `<geopm/CpuinfoIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/CpuinfoIOGroup.hpp>`_
 
 Link with ``-lgeopmd``
 

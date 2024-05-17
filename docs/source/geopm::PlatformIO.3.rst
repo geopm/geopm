@@ -21,7 +21,7 @@ hidden by the singleton accessor.
 Synopsis
 --------
 
-#include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/PlatformIO.hpp>`_\
+#include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm/PlatformIO.hpp>`_\
 
 Link with ``-lgeopmd``
 
@@ -209,13 +209,13 @@ Serial Class Methods
   Read from the platform and interpret into SI units a signal
   given its name and domain.  Does not modify values stored by
   calling ``read_batch()``. The parameters correspond to the ``struct geopm_request_s``.
-  The ``domain_type`` is from the ``enum geopm_domain_e`` described in `geopm_topo.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_topo.h>`_\
+  The ``domain_type`` is from the ``enum geopm_domain_e`` described in `geopm_topo.h <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_topo.h>`_\
 
 ``write_control()``
   Interpret the setting and write it to the platform.  Does not
   modify the values stored by calling ``adjust()``.
   The first three parameters correspond to the ``struct geopm_request_s``.
-  The ``domain_type`` is from the ``enum geopm_domain_e`` described in `geopm_topo.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_topo.h>`_
+  The ``domain_type`` is from the ``enum geopm_domain_e`` described in `geopm_topo.h <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_topo.h>`_
   ``setting`` is new value in SI units of the setting for the control.
 
 ``save_control()``

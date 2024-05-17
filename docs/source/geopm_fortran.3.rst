@@ -96,7 +96,7 @@ converting Fortran strings.
 Enum Type
 ---------
 
-This fortran code has access to several enum values, which are defined in `geopm_hint.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_\ :
+This fortran code has access to several enum values, which are defined in `geopm_hint.h <https://github.com/geopm/geopm/blob/dev/libgeopmd/include/geopm_hint.h>`_\ :
 
 * ``GEOPM_REGION_HINT_UNKNOWN``
 * ``GEOPM_REGION_HINT_COMPUTE``
