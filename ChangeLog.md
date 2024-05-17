@@ -1,3 +1,38 @@
+* Fri May 17 2024 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.1.0
+- Official v3.1.0 release tag
+- ABI bump moving so-version from 2.0.0 -> 2.1.0 with backward compatibility for release v3.0
+- Support for building on non-x86 CPU architectures
+- Support for CPU frequency metrics and controls through standard Linux cpufreq sysfs interfaces
+- Support GPU features through standard Linux DRM sysfs interfaces
+- Support for LevelZero RAS signals #3155
+- Update packaging to comply with standards
+- Support for Rocky Linux packaging
+- Implement versioning solution for python packages that works with python v3.6 - v3.11
+- Setting the GEOPM_PROGRAM_FILTER environment variable is now a requirement for libgeopm to register a process for profiling
+- Clarify copyright documentation
+- Improve and publish OpenSSF scorecard
+- Documentation and web page improvements
+- Release distinct packages for documentation
+- Improved error messaging
+- Update IOGroup and Agent tutorial
+- Remove dated runtime tutorial
+- Reorganize source code repository directory structure
+- Improve github CI automation
+- Run Coverity static analysis as part of CI workflow
+- Add package.sh script to build all of the repository packages
+- Remove all use of autotools in python build and packaging
+- Update integration tests to run on a wider range of systems
+- Allow push_signal/control() for previous requests after read/write_batch()
+- Use libz crc32 implementation to replace direct call to intrinsic
+- Add performance test for the GEOPM Service
+- Add upstream openmp.m4 macro from fossies
+- Fix issues by deleting topology cache file when geopmd starts up
+- Fix issues with installed headers: removing unwanted dependencies and specifying public symbol visibility
+- Fix issue when --disable-systemd configure option is provided #3289
+- Fix issue with SaveControl class in cases where controls are pruned from support at runtime
+- Fix issues running geopmctl as root #3352 (not regression from 3.0.1)
+- Fix SysfsIOGroup batch write issue #3388 (not regression from 3.0.1)
+- Fix static analysis issues (not regression from 3.0.1)
 * Wed Dec 06 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.0.1
 - Hotfix for v3.0.0 release.
 - Fix missing systemd dependency on the msr-safe systemd service.  This bug could cause MSRs to be unavailable from the GEOPM Service if load order is incorrect.
