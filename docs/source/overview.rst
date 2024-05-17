@@ -39,7 +39,7 @@ have been included in their `v0.22.0 release
 for building both the v3.0.1 release of GEOPM and our main development branch.
 
 For deploying GEOPM's layers to a compute image, a typical configuration would
-be to have a system install of the service RPMs baked into the compute image,
+be to have a system install of the service RPMs baked into the compute image
 and use spack to install ``geopm-runtime``.  This is required as the GEOPM
 service will be launched via systemd, and thus must run against the system
 installed Python runtime.
@@ -788,7 +788,7 @@ Video Demo: Using ``geopmwrite``
 --------------------------------------
 
 The GEOPM Runtime offers capabilities for collecting telemetry throughout an
-application's execution. If you're aiming to measure a particular segment of an
+application's execution. If you want to measure a particular segment of an
 application, you can annotate the application code using GEOPM markup.
 
 To integrate the Runtime with an application, you have two options:
