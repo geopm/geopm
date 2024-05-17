@@ -19,8 +19,7 @@ The behavior of this agent is described in more detail in the
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>` man page.  The power limit is
 enforced using the :doc:`geopm::PowerGovernor(3) <geopm::PowerGovernor.3>` class.
 
-For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_power_governor_agent.html.
+For more details, see the `doxygen page <https://geopm.github.io/geopm-runtime-dox/classgeopm_1_1_power_governor_agent.html>`_.
 
 See Also
 --------

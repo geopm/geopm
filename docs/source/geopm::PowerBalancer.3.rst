@@ -16,8 +16,8 @@ Description
 This class is used by the :doc:`geopm::PowerBalancerAgent(3) <geopm::PowerBalancerAgent.3>`
 to implement the power balancing algorithm.
 
-For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_power_balancer.html.
+For more details, see the
+`doxygen page <https://geopm.github.io/geopm-service-dox/classgeopm_1_1_power_balancer.html>`_.
 
 See Also
 --------

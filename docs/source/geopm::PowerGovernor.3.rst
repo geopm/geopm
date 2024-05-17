@@ -17,8 +17,8 @@ This class is used by the :doc:`geopm::PowerGovernorAgent(3) <geopm::PowerGovern
 and the :doc:`geopm::PowerBalancerAgent(3) <geopm::PowerBalancerAgent.3>`
 to enforce power limits.
 
-For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_power_governor.html.
+For more details, see the
+`doxygen page <https://geopm.github.io/geopm-runtime-dox/classgeopm_1_1_power_governor.html>`_.
 
 See Also
 --------
