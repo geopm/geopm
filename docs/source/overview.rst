@@ -38,7 +38,7 @@ have been included in their `v0.22.0 release
 <https://github.com/spack/spack/tree/v0.22.0>`_.  These recipes currently allow
 for building both the v3.0.1 release of GEOPM and our main development branch.
 
-For deploying GEOPM's layers to a compute image, a typical configration would
+For deploying GEOPM's layers to a compute image, a typical configuration would
 be to have a system install of the service RPMs baked into the compute image,
 and use spack to install ``geopm-runtime``.  This is required as the GEOPM
 service will be launched via systemd, and thus must run against the system
