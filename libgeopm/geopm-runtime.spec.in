@@ -28,6 +28,7 @@ BuildRequires: gdb-headless
 %if 0%{?suse_version}
 BuildRequires: systemd-rpm-macros
 %endif
+Recommends: geopm-runtime-doc
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm
@@ -64,6 +65,7 @@ Group: System Environment/Libraries
 %else
 Group: System/Libraries
 %endif
+Recommends: libgeopm-doc
 
 %description -n libgeopm2
 
