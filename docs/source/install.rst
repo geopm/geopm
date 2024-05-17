@@ -1,10 +1,27 @@
 Installation
 ============
 
-Each time specified branches hosted on GitHub are updated, continuous
-integration generates packages for numerous Linux distributions. This
-process is uses GitHub Actions, combined with the OpenSUSE Build Service
-(OBS). Here are the packages curated by OBS:
+The packages provided below correspond to branches hosted on GitHub.  The
+packages are updated through continuous integration via GitHub Actions for
+numerous Linux distributions.  RPM-based distributions are hosted on `openSUSE
+Build Service (OBS) <https://build.opensuse.org/>`_ while Debian-based
+distributions are hosted on `Launchpad <https://launchpad.net/>`_.
+
+Here are the packages curated by OBS and Launchpad:
+
+v3.1 to Current
+---------------
+
+- ``geopm-service``: Sets up and enables the geopm systemd service.
+- ``geopm-service-doc``: Provides the man pages for the service.
+- ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
+- ``libgeopmd-doc``: Provides the man pages for libgeopmd.
+- ``python3-geopmdpy``: Houses the implementation of geopmd, CLI utilities, and bindings for PlatformIO.
+- ``python3-geopmdpy-doc``: Provides the man pages for python3-geopmdpy.
+- ``geopm-service-devel``: Provides headers and man pages for C and C++ APIs supportable by ``libgeopmd2``.
+
+v3.0
+----
 
 - ``geopm-service``: Sets up and enables the geopm systemd service.
 - ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
@@ -13,17 +30,8 @@ process is uses GitHub Actions, combined with the OpenSUSE Build Service
 
 Installation of ``geopm-service`` will involve the dependency packages:
 ``libgeopmd2``, ``python3-geopmdpy`` and ``python3-dasbus``. However, explicit
-installation is obligatory for anyone seeking to use ``geopm-service-devel``.
-
-.. note::
-
-    Besides these routinely curated packages, the download repositories also
-    grant access to ``python3-dasbus`` version 1.6. This version is a
-    prerequisite for ``python3-geopmdpy``, but it is not included by some of
-    the Linux distributions that support GEOPM.  In particular, starting with
-    SLES 15.4 the necessary ``python3-dasbus`` version is available in the
-    regular package repositories.  This support will be removed from OBS in
-    a future release.
+installation is obligatory for anyone seeking to use ``geopm-service-devel`` or
+the docs packages.
 
 ----
 
