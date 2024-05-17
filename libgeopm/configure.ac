@@ -558,9 +558,6 @@ AC_SUBST([AM_FCFLAGS])
 AC_SUBST([AM_LDFLAGS])
 AC_SUBST([LDFLAGS_NOPIE])
 
-AC_SUBST_FILE([CHANGELOG])
-CHANGELOG=ChangeLog
-
 if test "x$enable_beta" = "x1"; then
   ENABLE_BETA=True
   AC_DEFINE([GEOPM_ENABLE_BETA], [ ], [Enables beta feature implementations.])

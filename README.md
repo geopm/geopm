@@ -182,7 +182,7 @@ At a high level, major GEOPM releases are summarized as follows:
   offers the ability to interact with control knobs based on information from
   instrumented MPI applications.
 
-Please refer to the [ChangeLog](ChangeLog) for a more detailed history of
+Please refer to the [ChangeLog.md](ChangeLog.md) for a more detailed history of
 changes in each release. 
 
 ## Repository Directories

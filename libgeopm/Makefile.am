@@ -106,7 +106,6 @@ dist_doc_DATA = LICENSE-BSD-3-Clause \
 EXTRA_DIST += .gitignore \
               CODE_OF_CONDUCT.md \
               CONTRIBUTING.rst \
-              ChangeLog \
               Makefile.am \
               README.md \
               configure.ac \
