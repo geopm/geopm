@@ -91,8 +91,8 @@ Description
 This class implements the Comm abstraction (:doc:`geopm::Comm(3) <geopm::Comm.3>`) using MPI
 as the underlying communication mechanism.
 
-For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_m_p_i_comm.html.
+For more details, see the
+`doxygen page <https://geopm.github.io/geopm-runtime-dox/classgeopm_1_1_m_p_i_comm.html>`_.
 
 See Also
 --------

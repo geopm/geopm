@@ -95,7 +95,7 @@ These overridden methods are described in the ``IOGroup`` man page.
 Only the methods unique to the ``ProfileIOGroup`` class are described here.
 
 For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_profile_i_o_group.html.
+page at https://geopm.github.io/geopm-runtime-dox/classgeopm_1_1_profile_i_o_group.html.
 
 Class Methods
 -------------

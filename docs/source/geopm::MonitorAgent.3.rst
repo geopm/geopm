@@ -73,8 +73,8 @@ Only the methods unique to the ``MonitorAgent`` class are described here.
 The behavior of this agent is described in more detail in the
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>` man page.
 
-For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_monitor_agent.html.
+For more details, see the
+`doxygen page <https://geopm.github.io/geopm-runtime-dox/classgeopm_1_1_monitor_agent.html>`_.
 
 Class Methods
 -------------

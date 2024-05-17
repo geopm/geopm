@@ -326,8 +326,8 @@ Please see the `GEOPM IOGroup
 tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/iogroup>`_ for more
 information.  That code is located in the GEOPM source under tutorial/iogroup.
 
-Further documentation for this module can be found here:
-https://geopm.github.io/doxall/classgeopm_1_1_i_o_group.html
+Further documentation for this module can be found in the
+`doxygen page <https://geopm.github.io/geopm-service-dox/classgeopm_1_1_i_o_group.html>`_.
 
 See Also
 --------

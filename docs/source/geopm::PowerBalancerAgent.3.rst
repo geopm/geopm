@@ -23,8 +23,8 @@ is implemented using the :doc:`geopm::PowerBalancer(3) <geopm::PowerBalancer.3>`
 
 This class uses the :doc:`geopm::PowerGovernor(3) <geopm::PowerGovernor.3>` to enforce power limits.
 
-For more details, see the doxygen
-page at https://geopm.github.io/doxall/classgeopm_1_1_power_balancer_agent.html.
+For more details, see
+`doxygen page <https://geopm.github.io/geopm-service-dox/classgeopm_1_1_power_balancer_agent.html>`_.
 
 See Also
 --------
