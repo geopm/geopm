@@ -201,17 +201,20 @@ jobs:
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
            echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
-           if [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
+           if [[ "${{ github.ref_name }}" == "release-v3.1" ]]; then
                echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:release/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release/geopm-runtime" >> ${GITHUB_ENV}
-               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}:release/geopmdpy" >> ${GITHUB_ENV}
-               echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}:release/geopmpy" >> ${GITHUB_ENV}
+               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}:release/python3-geopmdpy" >> ${GITHUB_ENV}
+               echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}:release/python3-geopmpy" >> ${GITHUB_ENV}
                echo "DOCS_PACKAGE=home:${{ github.repository_owner }}:release/geopm-doc" >> ${GITHUB_ENV}
+           elif [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
+               echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/geopm-service" >> ${GITHUB_ENV}
+               echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/geopm-runtime" >> ${GITHUB_ENV}
            else
                echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}/geopm-runtime" >> ${GITHUB_ENV}
-               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}/geopmdpy" >> ${GITHUB_ENV}
-               echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}/geopmpy" >> ${GITHUB_ENV}
+               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}/python3-geopmdpy" >> ${GITHUB_ENV}
+               echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}/python3-geopmpy" >> ${GITHUB_ENV}
                echo "DOCS_PACKAGE=home:${{ github.repository_owner }}/geopm-doc" >> ${GITHUB_ENV}
            fi
     - name: publish libgeopmd
@@ -237,6 +240,7 @@ jobs:
            cd -
            osc ci -m "geopm runtime ${{ github.sha }}" ${RUNTIME_PACKAGE}
     - name: publish geopmdpy
+      if: ${{ github.ref_name }} != 'release-v3.0'
       working-directory: geopmdpy
       run: |
            osc co ${GEOPMDPY_PACKAGE}
@@ -248,6 +252,7 @@ jobs:
            cd -
            osc ci -m "geopmdpy ${{ github.sha }}" ${GEOPMDPY_PACKAGE}
     - name: publish geopmpy
+      if: ${{ github.ref_name }} != 'release-v3.0'
       working-directory: geopmpy
       run: |
            osc co ${GEOPMPY_PACKAGE}
@@ -259,6 +264,7 @@ jobs:
            cd -
            osc ci -m "geopmpy ${{ github.sha }}" ${GEOPMPY_PACKAGE}
     - name: publish docs
+      if: ${{ github.ref_name }} != 'release-v3.0'
       working-directory: docs
       run: |
            osc co ${DOCS_PACKAGE}
@@ -269,6 +275,7 @@ jobs:
            osc addremove
            cd -
            osc ci -m "geopm-doc ${{ github.sha }}" ${DOCS_PACKAGE}
+
   test_packages:
     name: "Make Deb Packages"
     runs-on: ubuntu-22.04
