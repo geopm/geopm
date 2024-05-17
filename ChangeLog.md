@@ -1023,7 +1023,7 @@
 - Fixed big-o scaling for all2all ModelRegion.
 - Fixed integration tests for unmarked regions.
 - Fixed test_progress_exit integration test.
-- Fixed standard directory specificiation in the spec file
+- Fixed standard directory specification in the spec file
 - Fixed test_sample_rate integration test.
 - Fixed check_run issue in scaling integration test.
 - Fixed integration tests and unit tests to handle the new node-combined report with header format.
