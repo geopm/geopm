@@ -37,7 +37,7 @@ With GEOPM, a system administrator can:
 
 |:closed_lock_with_key:| Utilize fine-grained access management
   - Grant per-user or per-group access to individual metrics and controls
-  - More granular management of features than the underlying OS access
+  - Gain more granular management of features than the underlying OS access
     mechanisms provide
 |:safety_vest:| Provide safe access to hardware settings
   - Ensure that user-driven changes to hardware settings are reverted when the
@@ -84,6 +84,8 @@ Documentation
    devel
    publications
    reference
+
+----
 
 License: BSD 3-Clause
 ---------------------
