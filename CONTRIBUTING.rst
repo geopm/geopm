@@ -1,8 +1,14 @@
-GEOPM Contributor Guide
-=======================
+Contributor Guide
+=================
 
-This file describes how to contribute to the GEOPM project.  All
-feedback is appreciated.
+This file describes how to contribute to the GEOPM project: how to create bug
+reports, request features, and contribute to the repository.  All feedback is
+appreciated.
+
+Refer to the developers guide for more details about how to make changes to the
+source code.  The guide for developers is maintained here:
+
+https://geopm.github.io/devel.html
 
 
 Bug Report
@@ -144,14 +150,3 @@ is as follows:
    marked "Approve".  Once the request is approved by all reviewers
    and all CI checks are passing, the change will be integrated into
    the GEOPM development branch by a maintainer.
-
-
-Developers Guide
-----------------
-
-The guide for developers is maintained here:
-
-https://geopm.github.io/devel.html
-
-Refer to this guide to learn how to make changes to the GEOPM source
-code.
