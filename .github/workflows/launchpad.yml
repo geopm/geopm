@@ -1,0 +1,63 @@
+#
+#  Copyright (c) 2015 - 2024, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+name: Publish to Launchpad
+
+on:
+  push:
+    branches:
+      - dev
+      - release-v3.1
+
+permissions: read-all
+
+concurrency:
+  group: launchpad-${{ github.ref }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish_launchpad:
+    name: "publish_launchpad"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
+    - name: install system dependencies
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev python3-gi python3-yaml osc python3-m2crypto libcap-dev zlib1g-dev python3-build python3-setuptools-scm doxygen graphviz debhelper-compat debhelper libnvidia-ml-dev pkgconf dh-python python3-all dput elfutils
+    - name: install geopmpy and geopmdpy python dependencies
+      run: |
+           python3 -m pip install --upgrade pip setuptools wheel pep517
+           python3 -m pip install -r docs/requirements.txt
+           python3 -m pip install ./geopmdpy
+           python3 -m pip install ./geopmpy
+    - name: make and install geopmdpy deb
+      working-directory: geopmdpy
+      run: |
+           ./make_deb.sh
+           sudo apt-get install ./*deb
+           git clean -ffdx
+    - name: configure libgeopmd dir
+      working-directory: libgeopmd
+      run: ./autogen.sh && ./configure || (cat config.log && false)
+    - name: make and install libgeopmd deb
+      working-directory: libgeopmd
+      run: |
+           make deb
+           sudo apt-get install ./*deb
+           git clean -ffdx
+    - name: configure GPG key
+      run: echo -n "${{ secrets.LAUNCHPAD_GPG_KEY }}" | base64 --decode | gpg --import
+    - name: run package.sh
+      run: DPKG_BUILDPACKAGE_OPTIONS='-S -k${{ secrets.LAUNCHPAD_EMAIL }}' ./package.sh
+    - name: Set environment
+      run: |
+           if [[ "${{ github.ref_name }}" == "dev" ]]; then
+               echo "LAUNCHPAD_PPA=dev" >> ${GITHUB_ENV}
+           else
+               echo "LAUNCHPAD_PPA=release" >> ${GITHUB_ENV}
+           fi
+    - name: dput the package
+      run: dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./*/*.changes
