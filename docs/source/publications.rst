@@ -1,6 +1,6 @@
 
-Community-Maintained Publications
-=================================
+Publications
+============
 
 Conferences & Workshops
 -----------------------
