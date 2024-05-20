@@ -32,7 +32,7 @@ Requires: python3-setuptools>=53.0.0
 Requires: python3-setuptools-scm>=6.4.2
 Requires: python3-tables>=3.7.0
 Requires: python3-geopmdpy
-Requires: libgeopm2 = %{version}
+Requires: libgeopm2
 Recommends: python3-geopmpy-doc
 
 %{?python_provide:%python_provide python3-geopmpy}
