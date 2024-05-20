@@ -12,9 +12,11 @@ fi
 
 set -e
 
-for cdir in libgeopmd libgeopm; do 
+for cdir in libgeopmd libgeopm; do
     cd $cdir
-    ./autogen.sh && ./configure --disable-mpi --disable-openmp && make $pkg
+    ./autogen.sh
+    ./configure --disable-mpi --disable-openmp
+    make $pkg
     cd -
 done
 

@@ -10,10 +10,12 @@ on:
     branches:
       - dev
       - release-v3.0
+      - release-v3.1
   pull_request:
     branches:
       - dev
       - release-v3.0
+      - release-v3.1
 
 permissions: read-all
 
