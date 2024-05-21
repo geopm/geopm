@@ -36,6 +36,8 @@ Recommends: geopm-runtime-doc
 %define docdir %{_defaultdocdir}/geopm-%{version}
 %endif
 
+Requires: libgeopm2 = %{version}
+
 %description
 
 The GEOPM Runtime is software designed to enhance energy efficiency of

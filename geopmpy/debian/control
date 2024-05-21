@@ -26,8 +26,8 @@ Depends: python3 (>= 3.6~),
  python3-geopmdpy (= ${binary:Version}),
  python3:any
 Recommends: libgeopmd2 (= ${binary:Version}),
-            libgeopm2 (= ${binary:Version}),
-            python3-geopmpy-doc (= ${binary:Version})
+ libgeopm2 (= ${binary:Version}),
+ python3-geopmpy-doc (= ${binary:Version})
 Description: GEOPM - Global Extensible Open Power Manager Runtime Tools
  Python support for GEOPM Runtime
  
