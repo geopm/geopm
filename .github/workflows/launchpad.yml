@@ -59,5 +59,14 @@ jobs:
            else
                echo "LAUNCHPAD_PPA=release" >> ${GITHUB_ENV}
            fi
-    - name: dput the package
-      run: dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./*/*.changes
+    - name: dput the service
+      run: |
+           dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./geopmdpy/*.changes
+           dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./libgeopmd/*.changes
+    - name: wait for the service build
+      run: sleep 1200 # 20 minutes should be enough time for all the arch's to build
+    - name: dput the runtime
+      run: |
+           dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./geopmpy/*.changes
+           dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./libgeopm/*.changes
+           dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./docs/*.changes
