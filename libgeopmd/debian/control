@@ -5,7 +5,7 @@ Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 Build-Depends: debhelper-compat (=13),
                build-essential,
                debhelper (>= 11~),
-	       libcap-dev,
+               libcap-dev,
                libnvidia-ml-dev [amd64 arm64],
                libsystemd-dev (>= 221),
                liburing-dev,
