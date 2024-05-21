@@ -84,6 +84,7 @@ Documentation
    devel
    publications
    reference
+   releases
 
 ----
 
