@@ -101,7 +101,7 @@ SLES, openSUSE, and CentOS
 When using the below links, it is preferable to click on your desired OS and
 follow the procedure for "Add repositoriy and install manually".  If you do
 this, installing the ``geopm-service`` package will automatically install the
-remaining dependencies and reccomended packages (e.g. ``libgeopmd2``,
+remaining dependencies and recommended packages (e.g. ``libgeopmd2``,
 ``geopm-service-doc``, etc.).  If required for source builds, you still must
 manually install ``geopm-service-devel``.
 
