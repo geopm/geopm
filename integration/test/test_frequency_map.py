@@ -122,7 +122,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
                                                      region_name=region_name)
                 if (region_name in ['dgemm', 'stream', 'all2all']):
                     #todo verify trace frequencies
-                    #todo verify agent report augment frequecies
+                    #todo verify agent report augment frequencies
                     expect = self._freq_map[region_name]
                     core_count_in_region = 0
                     for field, value in raw_region.items():
