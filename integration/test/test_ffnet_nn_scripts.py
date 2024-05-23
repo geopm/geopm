@@ -174,9 +174,9 @@ class TestIntegration_ffnet(unittest.TestCas):
                 launch_helper(neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
 
         ##TODO: Pick up here
-        ##############
-        # Parse data #
-        ##############
+        ###########
+        # Helpers #
+        ###########
 
         #Check if JSON is valid (used in tests below)
         def is_valid_json(json_file):
@@ -204,70 +204,16 @@ class TestIntegration_ffnet(unittest.TestCas):
                                        experiment_cli_args=experiment_cli_args)
 
 
-        cls._do_gpu = False
-        cls._num_gpu = cls._machine.num_gpu()
-        if cls._num_gpu > 0
-            cls._do_gpu = True
-            cls._gpu_freq_min = cls._machine.gpu_frequency_min()
-                              + 2 * cls._machine.gpu_frequency_step()
-            cls._gpu_freq_max = cls._gpu_frequency_max() + 2 * cls._machine_gpu_frequency_step()
-            cls._gpu_freq_step = cls._machine_gpu_frequency_step()
-
-        cls._agent = 'frequency_map'
-
         # Set up HDF/neural net file info
         cls._nn_sweep_dir = "test_neural_net_sweep_output"
 
         cls._nn_output_prefix = "test_nn"
         cls._nn_description = "test description"
-        cls._nn_region_ignore = "geopmbench-0x644f9787"
+        cls._nn_region_ignore = "geopmbench-0x536c798f"
         cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
         cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
         cls._nn_out = f"{cls._nn_output_prefix}_nn"
         cls._nn_fmap_out = f"{cls._fmap_output_prefix}_fmap"
-
-        #Parameters for neural net frequency sweeps
-        #CPU
-        launch_helper(neural_net_sweep, cpu_experiment_args, geopmbench_app_conf, [], None)
-
-        #GPU
-        if cls._do_gpu:
-            #Check if parres is compiled in integration apps directory
-            parres_basepath = os.path.join(os.path.dirname(
-                              os.path.dirname(os.path.realpath(__file__))),
-                                              "apps/parres/Kernels/Cxx11")
-            cls._do_gpu = os.path.exists(parres_basepath)
-            parres_app_paths = []
-            parres_app_confs = []
-        if cls._do_gpu:
-            gpu_experiment_args = SimpleNamespace(
-                node_count=node_count,
-                parres_cores_per_node=None,
-                parres_gpus_per_node=None,
-                parres_cores_per_rank=1,
-                parres_init_setup=None,
-                parres_exp_setup=None,
-                parres_teardown=None,
-                parres_args=None,
-                output_dir=cls._nn_sweep_dir,
-                node_count=cls._num_node,
-                min_gpu_frequency = cls._gpu_freq_min,
-                max_gpu_frequency = cls._gpu_freq_max,
-                step_gpu_frequency = cls._gpu_freq_step
-            )
-            #Get correct parres executables
-            if util.get_service_config_value('enable_nvml') == '1':
-                app_exec_names = ["dgemm-mpi-cublas", "nstream-mpi-cuda"]:
-            elif util.get_service_config_value('enable_levelzero') == '1':
-                app_exec_names = ["dgemm-onemkl", "nstream-onemkl"]
-            for app in app_exec_names:
-                app_path = os.path.join(parres_basepath, app))
-                if os.path.exists(app_path):
-                    parres_app_paths.append(app_path)
-            #If no parres executables exist, error
-            if len(parres_app_paths) == 0:
-                self.fail("No parres dgemm/nstream executables were found. Cannot test GPU.")
-            launch_helper(neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
 
         # Output to be reused by all tests
         cls._trace_output = geopmpy.io.AppOutput(traces=cls._trace_path + '*')
@@ -279,7 +225,6 @@ class TestIntegration_ffnet(unittest.TestCas):
         gen_hdf_from_fsweep.main(cls._trace_output, cls._nn_sweep_dir)
 
         # Generate neural nets
-        #TODO: Add a region to ignore for testing
         gen_neural_net.main(cls._nn_trace_hdf, cls._nn_out, cls._nn_description, cls._nn_region_ignore)
 
         gen_region_parameters.main(cls._nn_fmap_out, cls._nn_stats_hdf)
@@ -369,9 +314,8 @@ class TestIntegration_ffnet(unittest.TestCas):
             #Check that the desired fields are present
             for nn_field in nn_fields:
                 util.assertTrue(nn_field in nn_json)
-            #TODO: Check that the appropriate region is ignored in trace_output
+            #Check that the appropriate region is ignored in trace_output
             util.assertFalse(self._nn_region_ignore in nn_json["trace_outputs"])
-
 
     def test_freqmap_generation(self):
         #Region frequency map JSONs (with/without GPUs)
