@@ -248,7 +248,8 @@ TEST_F(MPIInterfaceTest, geopm_api)
 TEST_F(MPIInterfaceTest, mpi_api)
 {
     int junk = 0;
-    int size = 100;
+    const int csize = 100;
+    int size = csize;
     EXPECT_EQ(0, MPI_Comm_size(MPI_COMM_WORLD, &size));
     std::vector<int> zeros(size);
     std::fill(zeros.begin(), zeros.end(), 0);
@@ -268,7 +269,7 @@ TEST_F(MPIInterfaceTest, mpi_api)
     MPI_File fh = 0;
     MPI_Win win = 0;
 #ifdef GEOPM_ENABLE_MPI3
-    MPI_Aint aints[size];
+    MPI_Aint aints[csize];
     MPI_Message message = 0;
 #endif
 
