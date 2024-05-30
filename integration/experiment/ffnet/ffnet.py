@@ -13,9 +13,9 @@ import os
 
 import geopmpy.agent
 
-from experiment import launch_util
-from experiment import common_args
-from experiment import machine
+from integration.experiment import launch_util
+from integration.experiment import common_args
+from integration.experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
@@ -102,12 +102,12 @@ def launch(app_conf, args, experiment_cli_args):
     #Set and initialize required counters for nn training
     init_control_path = 'neural_net_init.controls'
     with open(init_control_path, 'w') as outfile:
-        outfile.write(f"MSR::PQR_ASSOC:RMID board 0 {}\n".format(0)
-                      "# Assigns all cores to resource monitoring association ID 0\n"
-                      "# Next, assign resource monitoring ID for QM events to match\n"
-                      f"MSR::QM_EVTSEL:RMID board 0 {}".format(0)
-                      "# Then determine Xeon Uncore Utilization\n"
-                      f"MSR::QM_EVTSEL:EVENT_ID board 0 {}\n".format(0))
+        outfile.write(f"""MSR::PQR_ASSOC:RMID board 0 0
+                      # Assigns all cores to resource monitoring association ID 0
+                      # Next, assign resource monitoring ID for QM events to match
+                      f"MSR::QM_EVTSEL:RMID board 0 0
+                      # Then determine Xeon Uncore Utilization
+                      f"MSR::QM_EVTSEL:EVENT_ID board 0 0""")
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,

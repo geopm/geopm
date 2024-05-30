@@ -12,7 +12,7 @@ import argparse
 
 import integration.experiment.ffnet.neural_net_sweep as neural_net_sweep
 from integration.experiment import machine
-from apps.geopmbench import geopmbench
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

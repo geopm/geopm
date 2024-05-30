@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Copyright (c) 2015 - 2024, Intel Corporation
+#  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -17,22 +17,23 @@ import pandas as pd
 import geopmpy.agent
 import geopmpy.io
 
-from apps.geopmbench import geopmbench
-from apps.parres import parres
+from integration.apps.geopmbench import geopmbench
+from integration.apps.parres import parres
 
 from integration.test import util
 from integration.test import geopm_test_launcher
 
-from experiment.ffnet import ffnet
-from experiment.ffnet import neural_net_sweep
-from experiment.ffnet import gen_hdf_from_fsweep
-from experiment.ffnet import gen_neural_net
-from experiment.ffnet import gen_region_parameters
+from integration.experiment import machine
+from integration.experiment.ffnet import ffnet
+from integration.experiment.ffnet import neural_net_sweep
+from integration.experiment.ffnet import gen_hdf_from_fsweep
+from integration.experiment.ffnet import gen_neural_net
+from integration.experiment.ffnet import gen_region_parameters
 
-@util.skip_unless_config_enable('beta')
-@util.skip_unless_do_launch()
+#@util.skip_unless_config_enable('beta')
+#@util.skip_unless_do_launch()
 
-class TestIntegration_ffnet(unittest.TestCas):
+class TestIntegration_ffnet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
@@ -40,6 +41,7 @@ class TestIntegration_ffnet(unittest.TestCas):
         """
         mach = machine.init_output_dir('.')
         cls._skip_launch = not util.do_launch()
+        cls._test_name = 'test_ffnet_nn_scripts'
 
         ########################
         # CPU Neural Net Sweep #
@@ -59,12 +61,9 @@ class TestIntegration_ffnet(unittest.TestCas):
 
 
         node_count = 1
-
         cls._run_count = 0
 
-        #--Setup Common Args--#
-
-        #TODO: Figure out if you need to enable traces explicitly
+        # Setup Common Args
         cls._nn_sweep_dir = Path(os.path.join('test_neural_net_sweep_output', 'gpu_frequency_sweep'))
         cpu_fsweep_experiment_args = SimpleNamespace(
             output_dir=cls._nn_sweep_dir,
@@ -91,16 +90,13 @@ class TestIntegration_ffnet(unittest.TestCas):
                             'stream':"geopmbench-0xd691da00"}
 
         cpu_app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
-        cpu_app_conf.set_loop_count(test_app_params['loop_count'])
+        cpu_app_conf.set_loop_count(loop_count)
         for region in cls._cpu_app_regions:
             cpu_app_conf.append_region(region, test_app_params[f"{region}_bigo"])
         cpu_app_conf.write()
 
-        #TODO: What
-        geopmbench_app_conf = geopmbench.GeopmbenchAppConf(cls._test_name = '_app.config', num_rank)
-
         #Launch CPU Frequency Sweeps for NN Generation - geopmbench
-        cls.launch_helper(cls, neural_net_sweep, cpu_fsweep_experiment_args, geopmbench_app_conf, experiment_cli_args)
+        cls.launch_helper(cls, neural_net_sweep, cpu_fsweep_experiment_args, cpu_app_conf, experiment_cli_args)
 
         ########################
         # GPU Neural Net Sweep #
@@ -145,7 +141,6 @@ class TestIntegration_ffnet(unittest.TestCas):
                 parres_teardown=None,
                 parres_args=None,
                 output_dir=cls._nn_sweep_dir,
-                node_count=cls._num_node,
                 min_gpu_frequency = cls._gpu_freq_min,
                 max_gpu_frequency = cls._gpu_freq_max,
                 step_gpu_frequency = cls._gpu_freq_step
@@ -161,7 +156,7 @@ class TestIntegration_ffnet(unittest.TestCas):
                 app_confs = [parres.create_dgemm_appconf_oneapi(mach, experiment_args),
                              parres.create_nstream_appconf_oneapi(mach, experiment_args)]
             for app in app_exec_names:
-                app_path = os.path.join(parres_basepath, app))
+                app_path = os.path.join(parres_basepath, app)
                 if os.path.exists(app_path):
                     parres_app_paths.append(app_path)
 
@@ -174,6 +169,32 @@ class TestIntegration_ffnet(unittest.TestCas):
                 launch_helper(neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
 
         ##TODO: Pick up here
+
+        # Set up HDF/neural net file info
+        cls._nn_sweep_dir = "test_neural_net_sweep_output"
+
+        cls._nn_output_prefix = "test_nn"
+        cls._nn_description = "test description"
+        cls._nn_region_ignore = "geopmbench-0x536c798f"
+        cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
+        cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
+        cls._nn_out = f"{cls._nn_output_prefix}_nn"
+        cls._nn_fmap_out = f"{cls._fmap_output_prefix}_fmap"
+
+        # Output to be reused by all tests
+        cls._trace_output = geopmpy.io.AppOutput(traces=cls._trace_path + '*')
+        cls._report = geopmpy.io.RawReport(cls._report_path)
+        cls._node_names = cls._report.host_names()
+
+
+        # Generate h5s
+        gen_hdf_from_fsweep.main(cls._trace_output, cls._nn_sweep_dir)
+
+        # Generate neural nets
+        gen_neural_net.main(cls._nn_trace_hdf, cls._nn_out, cls._nn_description, cls._nn_region_ignore)
+
+        gen_region_parameters.main(cls._nn_fmap_out, cls._nn_stats_hdf)
+
         ###########
         # Helpers #
         ###########
@@ -203,58 +224,6 @@ class TestIntegration_ffnet(unittest.TestCas):
                 experiment_type.launch(app_conf=app_conf, args=experiment_args,
                                        experiment_cli_args=experiment_cli_args)
 
-
-        # Set up HDF/neural net file info
-        cls._nn_sweep_dir = "test_neural_net_sweep_output"
-
-        cls._nn_output_prefix = "test_nn"
-        cls._nn_description = "test description"
-        cls._nn_region_ignore = "geopmbench-0x536c798f"
-        cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
-        cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
-        cls._nn_out = f"{cls._nn_output_prefix}_nn"
-        cls._nn_fmap_out = f"{cls._fmap_output_prefix}_fmap"
-
-        # Output to be reused by all tests
-        cls._trace_output = geopmpy.io.AppOutput(traces=cls._trace_path + '*')
-        cls._report = geopmpy.io.RawReport(cls._report_path)
-        cls._node_names = cls._report.host_names()
-
-
-        # Generate h5s
-        gen_hdf_from_fsweep.main(cls._trace_output, cls._nn_sweep_dir)
-
-        # Generate neural nets
-        gen_neural_net.main(cls._nn_trace_hdf, cls._nn_out, cls._nn_description, cls._nn_region_ignore)
-
-        gen_region_parameters.main(cls._nn_fmap_out, cls._nn_stats_hdf)
-        #TODO: Add region-frequency map generation for CPU (and GPU if on gpu-enabled system)
-
-
-    def test_frequency_range(self):
-        #TODO: Check start/stop at correct frequencies
-        for node in self._node_names:
-            trace_data = self._trace_output.get_trace_data(node_name=node)
-            dgemm_data = self._report.raw_region(node, 'dgemm')
-            epoch_data = self._report.raw_epoch(node)
-
-    def test_report_signals(self):
-        #TODO: Check for desired report signals (CPU-only run)
-        #      CPU_CYCLES_THREAD, CPU_CYCLES_REFERENCE, TIME, CPU_ENERGY
-
-        #TODO: Check that there are no GPU signals (CPU-only run)
-
-        #TODO: Check for desired report signals (CPU+GPU run)
-        #      GPU: GPU_CORE_FREQUENCY_STATUS, GPU_CORE_FREQUENCY_MIN_CONTROL,
-        #           GPU_CORE_FREQUENCY_MAX_CONTROL
-
-    def test_trace_signals(self):
-        #TODO: Check for desired trace signals:
-        #      CPU-only: CPU_POWER,DRAM_POWER, CPU_FREQUENCY_STATUS,CPU_PACKAGE_TEMPERATURE
-        #               ,MSR::UNCORE_PERF_STATUS:FREQ,MSR::QM_CTR_SCALED_RATE
-        #               ,CPU_INSTRUCTIONS_RETIRED,CPU_CYCLES_THREAD,CPU_ENERGY
-        #               ,MSR::APERF:ACNT,MSR::MPERF:MCNT,MSR::PPERF:PCNT
-
     def test_hdf_generation(self):
         stats_hdf = pd.read_hdf(self._nn_stats_hdf)
         trace_hdf = pd.read_hdf(self._nn_trace_hdf)
@@ -283,7 +252,7 @@ class TestIntegration_ffnet(unittest.TestCas):
         #Check for desired stats columns
         for col in cpu_stats_columns:
             util.assertTrue(col in stats_hdf)
-        if self._num_gpu > 0:
+        if self.do_gpu is True:
             for col in gpu_stats_columns:
                 util.assertTrue(col in stats_hdf)
         else:
@@ -293,7 +262,7 @@ class TestIntegration_ffnet(unittest.TestCas):
         #Check for desired trace columns
         for col in cpu_trace_columns:
             util.assertTrue(col in trace_hdf)
-        if self._num_gpu > 0:
+        if self.do_gpu is True:
             for col in gpu_trace_columns:
                 util.assertTrue(col in trace_hdf)
         else:
@@ -301,55 +270,60 @@ class TestIntegration_ffnet(unittest.TestCas):
                 util.assertFalse(col in trace_hdf)
 
     def test_nn_generation(self):
-        nn_files = [f"{cls._nn_out}_cpu.json"]
-        if self._num_gpu > 0:
-            nn_files.append(f"{cls._nn_out}_gpu.json")
+        nn_files = {"cpu":f"{cls._nn_out}_cpu.json"}
+        if self.do_gpu is True:
+            nn_files["gpu"] = f"{cls._nn_out}_gpu.json"
 
         nn_fields = ["description", "delta_inputs", "signal_inputs", "trace_outputs", "layers"]
 
-        for nn in nn_files:
-            nn_json = json.load(open(nn, "r"))
+        nn_jsons = {}
+        for domain, nn in nn_files:
+            nn_jsons[domain] = json.load(open(nn, "r"))
             #Check that the neural net file contains valid json
-            util.assertTrue(is_valid_json(nn_json))
+            util.assertTrue(is_valid_json(nn_jsons[domain]))
             #Check that the desired fields are present
             for nn_field in nn_fields:
-                util.assertTrue(nn_field in nn_json)
-            #Check that the appropriate region is ignored in trace_output
-            util.assertFalse(self._nn_region_ignore in nn_json["trace_outputs"])
+                util.assertTrue(nn_field in nn_jsons[domain])
+
+        #Check that the appropriate region is ignored in trace_output
+        util.assertFalse(self._nn_region_ignore in nn_jsons["cpu"]["trace_outputs"])
+
+        #Check that other regions are in trace_output
 
     def test_freqmap_generation(self):
         #Region frequency map JSONs (with/without GPUs)
-        fmap_files = [f"{cls._nn_fmap_out}_cpu.json"]
+        fmap_files = {"cpu":f"{cls._nn_fmap_out}_cpu.json"}
         if self._num_gpu > 0:
-            fmap_files.append(f"{cls._nn_fmap_out}_gpu.json")
+            fmap_files["gpu"] = f"{cls._nn_fmap_out}_gpu.json"
 
-
-        for fmap in fmap_files:
-            fmap_json = json.load(open(fmap, "r"))
+        fmap_jsons = {}
+        for domain,fmap in fmap_files:
+            fmap_jsons[domain] = json.load(open(fmap, "r"))
             #Check that the region frequency map file contains valid json
-            util.assertTrue(is_valid_json(fmap_json))
+            util.assertTrue(is_valid_json(fmap_jsons[domain]))
             #Check that frequency values decrease monotonically with phi
-            for region,freqlist in fmap_json:
-                for idx in len(freqlist)-1:
-                    util.assertTrue(freqlist[idx] <= freqlist[idx+1])
+            for fmap_json in fmap_jsons:
+                for region,freqlist in fmap_json:
+                    for idx in len(freqlist)-1:
+                        util.assertTrue(freqlist[idx] <= freqlist[idx+1])
 
-        fmap_cpu_json = json.load(open(fmap_files[0], "r"))
+        #Check that desired CPU regions are in json
         #Check that CPU region frequency for sleep at phi=0 is
         #less than frequency for dgemm at phi=0 (in json)
-        assertTrue(fmap_cpu_json[self._app_regions['sleep']][0] <= fmap_cpu_json[self._app_regions['dgemm']][0])
+        assertTrue(fmap_jsons["cpu"][self._app_regions['sleep']][0] <= fmap_jsons["cpu"][self._app_regions['dgemm']][0])
 
         #Check that sleep's frequency increase (phi=0 to phi=1) is
         #less than dgemm's frequency increase (phi=0 to phi=1)
-            df_sleep = fmap_cpu_json[self._app_regions['sleep']][0]
-                     - fmap_cpu_json[self._app_regions['sleep']][-1]
+        df_sleep = fmap_jsons["cpu"][self._app_regions['sleep']][0] - fmap_jsons["cpu"][self._app_regions['sleep']][-1]
 
-            df_dgemm = fmap_cpu_json[self._app_regions['dgemm']][0]
-                     - fmap_cpu_json[self._app_regions['dgemm']][-1]
-            assertTrue(df_sleep <= df_dgemm)
+        df_dgemm = fmap_jsons["cpu"][self._app_regions['dgemm']][0] - fmap_jsons["cpu"][self._app_regions['dgemm']][-1]
+        assertTrue(df_sleep <= df_dgemm)
 
-
-    def test_ffnet_agent(self):
-
+        if self._do_gpu is True:
+            #TODO: If GPU exists, check app region names are correct when using parres benchmark
+            #TODO: Check that parres nstream's frequency at phi=0 is
+            #less than dgemm's frequency at phi=0
+            assertTrue(fmap_jsons["gpu"]["parres_dgemm"][0] > fmap_jsons["gpu"]["parres_nstream"][0])
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
