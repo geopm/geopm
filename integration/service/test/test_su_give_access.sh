@@ -15,7 +15,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     test.  Access to the control is removed from the list, and it is
     shown that the test user cannot successfully run the
     check_write_session.sh script.  Access to the control is granted
-    and it is shown that the test user can succefully change the
+    and it is shown that the test user can successfully change the
     value.
 
 "
