@@ -148,8 +148,8 @@ def main(output_prefix, frequency_sweep_dirs):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Generate HDFs from frequency sweep reports/traces, to use
-                     with ffnet agent integration infrastructure.'
+        description='''Generate HDFs from frequency sweep reports/traces, to use
+                     with ffnet agent integration infrastructure.'''
     )
     parser.add_argument('output',
                         help='Prefix name of the output HDF files.')
