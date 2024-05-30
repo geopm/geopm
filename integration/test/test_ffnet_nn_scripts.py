@@ -12,7 +12,10 @@ import json
 import sys
 import unittest
 import os
+from pathlib import Path
 import pandas as pd
+import shutil
+from types import SimpleNamespace
 
 import geopmpy.agent
 import geopmpy.io
@@ -51,7 +54,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Choosing the maximum many core frequency to remove redundant frequency sweep values
         cls._cpu_max_freq = mach.frequency_max_many_core()
         cls._cpu_min_freq = mach.frequency_min()
-        cls._cpu_freq_step = 2 * cls._machine.frequency_step()
+        cls._cpu_freq_step = 2 * mach.frequency_step()
 
         # The minimum and maximum values used rely on the system controls being properly configured
         # as there is no other mechanism to confirm uncore min & max at this time.  These values are
@@ -71,6 +74,8 @@ class TestIntegration_ffnet(unittest.TestCase):
             max_frequency = cls._cpu_max_freq,
             min_frequency = cls._cpu_min_freq,
             step_frequency = cls._cpu_freq_step,
+            trial_count = 1,
+            cool_off_time=3,
             run_max_turbo = False
         )
 
@@ -90,9 +95,9 @@ class TestIntegration_ffnet(unittest.TestCase):
                             'stream':"geopmbench-0xd691da00"}
 
         cpu_app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
-        cpu_app_conf.set_loop_count(loop_count)
+        cpu_app_conf.set_loop_count(cpu_test_app_params['loop_count'])
         for region in cls._cpu_app_regions:
-            cpu_app_conf.append_region(region, test_app_params[f"{region}_bigo"])
+            cpu_app_conf.append_region(region, cpu_test_app_params[f"{region}_bigo"])
         cpu_app_conf.write()
 
         #Launch CPU Frequency Sweeps for NN Generation - geopmbench
@@ -127,12 +132,15 @@ class TestIntegration_ffnet(unittest.TestCase):
                 max_gpu_frequency = cls._gpu_max_freq,
                 min_gpu_frequency = cls._gpu_min_freq,
                 step_gpu_frequency = cls._gpu_freq_step,
+                trial_count = 1,
                 run_max_turbo = False
             )
 
             # Configure the GPU test application - parres dgemm/nstream
             gpu_experiment_args = SimpleNamespace(
                 node_count=node_count,
+                trial_count = 1,
+                cool_off_time=3,
                 parres_cores_per_node=None,
                 parres_gpus_per_node=None,
                 parres_cores_per_rank=1,
@@ -199,30 +207,26 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Helpers #
         ###########
 
-        #Check if JSON is valid (used in tests below)
-        def is_valid_json(json_file):
-            try:
-                json.loads(json_file)
-            except ValueError:
-                return False
-            return True
+    #Check if JSON is valid (used in tests below)
+    def is_valid_json(json_file):
+        try:
+            json.loads(json_file)
+        except ValueError:
+            return False
+        return True
 
-        #Launch Helper for multiple job launches
-        def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args, init_control_cfg=None):
-            if not cls._skip_launch:
-                if init_control_cfg is not None:
-                    init_control_path = 'init_control_{}'.format(cls._run_count)
-                    cls._run_count += 1
-                    with open(init_control_path, 'w') as outfile:
-                        outfile.write(init_control_cfg)
-                    experiment_args.init_control = os.path.realpath(init_control_path)
+    #Launch Helper for multiple job launches
+    def launch_helper(self, experiment_type, experiment_args, app_conf, experiment_cli_args):
+        if not self._skip_launch:
+            self._run_count += 1
 
-                output_dir = experiment_args.output_dir
-                if output_dir.exists() and output_dir.is_dir():
-                    shutil.rmtree(output_dir)
+            output_dir = experiment_args.output_dir
+            if output_dir.exists() and output_dir.is_dir():
+                shutil.rmtree(output_dir)
 
-                experiment_type.launch(app_conf=app_conf, args=experiment_args,
-                                       experiment_cli_args=experiment_cli_args)
+            experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                   experiment_cli_args=experiment_cli_args)
+
 
     def test_hdf_generation(self):
         stats_hdf = pd.read_hdf(self._nn_stats_hdf)

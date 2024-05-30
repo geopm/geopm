@@ -97,6 +97,18 @@ def add_step_uncore_frequency(parser):
     parser.add_argument('--step-uncore-frequency', dest='step_uncore_frequency',
                         action='store', type=float, default=None,
                         help='increment in hertz between uncore frequency settings for the sweep')
+def add_max_gpu_frequency(parser):
+    parser.add_argument('--max-gpu-frequency', dest='max_gpu_frequency',
+                        action='store', type=float, default=None,
+                        help='top gpu frequency setting for the sweep')
+def add_min_gpu_frequency(parser):
+    parser.add_argument('--min-gpu-frequency', dest='min_gpu_frequency',
+                        action='store', type=float, default=None,
+                        help='bottom gpu frequency setting for the sweep')
+def add_step_gpu_frequency(parser):
+    parser.add_argument('--step-gpu-frequency', dest='step_gpu_frequency',
+                        action='store', type=float, default=None,
+                        help='increment in hertz between gpu frequency settings for the sweep')
 
 
 def add_run_max_turbo(parser):
