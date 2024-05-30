@@ -42,6 +42,10 @@ BuildRequires: bash-completion-devel
 %else
 BuildRequires: bash-completion
 %endif
+%if 0%{?fedora}
+BuildRequires: marshalparser
+%global debug_package %{nil}
+%endif
 
 %define completionsdir %(pkg-config --variable=completionsdir bash-completion)
 %if "x%{?completionsdir}" == "x"

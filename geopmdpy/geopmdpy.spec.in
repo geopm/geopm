@@ -20,8 +20,12 @@ Source0: @ARCHIVE@
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-
 BuildRequires: python-rpm-macros
+%if 0%{?fedora}
+BuildRequires: marshalparser
+%global debug_package %{nil}
+%endif
+
 
 %define python_bin %{__python3}
 

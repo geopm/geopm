@@ -34,6 +34,10 @@ Requires: python3-tables>=3.7.0
 Requires: python3-geopmdpy
 Requires: libgeopm2 = %{version}
 Recommends: python3-geopmpy-doc
+%if 0%{?fedora}
+BuildRequires: marshalparser
+%global debug_package %{nil}
+%endif
 
 %{?python_provide:%python_provide python3-geopmpy}
 
