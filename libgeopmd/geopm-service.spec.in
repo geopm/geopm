@@ -46,7 +46,6 @@ Requires: level-zero >= 1.8.1
 BuildRequires: fdupes
 %endif
 BuildRequires: systemd-rpm-macros
-Requires: python3-geopmdpy
 Recommends: geopm-service-doc
 
 %if %{defined suse_version}
@@ -56,6 +55,7 @@ Recommends: geopm-service-doc
 %endif
 
 Requires: libgeopmd2 = %{version}
+Requires: python3-geopmdpy = %{version}
 
 %description
 
