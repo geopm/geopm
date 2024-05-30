@@ -12,7 +12,7 @@ import argparse
 
 from integration.experiment.ffnet import ffnet
 from integration.experiment import machine
-from apps.geopmbench import geopmbench
+from integration.apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':
