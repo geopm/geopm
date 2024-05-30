@@ -59,7 +59,7 @@ Development package for GEOPM.
 
 %package -n libgeopm2
 Summary: Provides libgeopm shared object library
-%if 0%{?rhel_version} || 0%{?centos_version}
+%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?rocky_ver} || 0%{?fedora}
 # Deprecated for RHEL and CentOS
 Group: System Environment/Libraries
 %else
