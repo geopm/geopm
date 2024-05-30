@@ -52,13 +52,13 @@ def get_dl_geopm():
 # them together in this module.
 try:
     _dl_geopm = gffi.dlopen('libgeopm.so.2',
-                            gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
+                            gffi.RTLD_LOCAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopm = err
 
 # Load libgeopmd.so after libgeopm.so
 try:
     _dl_geopmd =  gffi.dlopen('libgeopmd.so.2',
-                              gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
+                              gffi.RTLD_LOCAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopmd = err
