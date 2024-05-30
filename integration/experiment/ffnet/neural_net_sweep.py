@@ -21,7 +21,16 @@ from integration.experiment.uncore_frequency_sweep import uncore_frequency_sweep
 from integration.experiment.gpu_frequency_sweep import gpu_frequency_sweep
 
 def setup_run_args(parser):
-    gpu_frequency_sweep.setup_run_args(parser)
+    common_args.setup_run_args(parser)
+    common_args.add_run_max_turbo(parser)
+    common_args.add_min_frequency(parser)
+    common_args.add_max_frequency(parser)
+    common_args.add_step_frequency(parser)
+    common_args.add_min_uncore_frequency(parser)
+    common_args.add_max_uncore_frequency(parser)
+    common_args.add_step_uncore_frequency(parser)
+
+    parser.set_defaults(agent_list='frequency_map')
 
 def explode_freq_settings(freq_range):
     freq_settings = [{}]
@@ -106,22 +115,24 @@ def launch(app_conf, args, experiment_cli_args):
     mach = machine.init_output_dir(args.output_dir)
     freq_range = {}
 
-    if args.min_frequency != args.max_frequency:
-        freq_range['cpu'] = frequency_sweep.setup_frequency_bounds(mach,
-                                                                 args.min_frequency,
-                                                                 args.max_frequency,
-                                                                 args.step_frequency,
-                                                                 args.run_max_turbo)
+    if hasattr(args, 'min_frequency') and hasattr(args, 'max_frequency'):
+        if args.min_frequency != args.max_frequency:
+            freq_range['cpu'] = frequency_sweep.setup_frequency_bounds(mach,
+                                                                       args.min_frequency,
+                                                                       args.max_frequency,
+                                                                       args.step_frequency,
+                                                                       args.run_max_turbo)
 
-    if args.min_uncore_frequency != args.max_uncore_frequency:
-        freq_range['cpu_uncore'] = uncore_frequency_sweep.setup_uncore_frequency_bounds(
-                                                                 mach,
-                                                                 args.min_uncore_frequency,
-                                                                 args.max_uncore_frequency,
-                                                                 args.step_uncore_frequency)
+    if hasattr(args, 'min_uncore_frequency') and hasattr(args, 'max_uncore_frequency'):
+        if args.min_uncore_frequency != args.max_uncore_frequency:
+            freq_range['cpu_uncore'] = uncore_frequency_sweep.setup_uncore_frequency_bounds(mach,
+                                                              args.min_uncore_frequency,
+                                                              args.max_uncore_frequency,
+                                                              args.step_uncore_frequency)
 
-    if args.min_gpu_frequency != args.max_gpu_frequency and machine.num_gpu() > 0:
-        freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(mach,
+    if hasattr(args, 'min_gpu_frequency') and hasattr(args, 'max_gpu_frequency'):
+        if args.min_gpu_frequency != args.max_gpu_frequency and machine.num_gpu() > 0:
+            freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(mach,
                                                     args.min_gpu_frequency,
                                                     args.max_gpu_frequency,
                                                     args.step_gpu_frequency)
@@ -148,8 +159,7 @@ def launch(app_conf, args, experiment_cli_args):
                                 extra_cli_args=extra_cli_args,
                                 output_dir=args.output_dir,
                                 cool_off_time=args.cool_off_time,
-                                enable_traces=args.enable_traces,
-                                enable_profile_traces=args.enable_profile_traces,
+                                enable_traces=True,
                                 init_control_path=init_control_path)
 
 def main(app_conf, **defaults):
