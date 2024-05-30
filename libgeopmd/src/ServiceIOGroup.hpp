@@ -57,7 +57,7 @@ namespace geopm
                                int domain_type,
                                int domain_idx,
                                double setting) override;
-            // NOTE: This IOGroup will not directlly implement a
+            // NOTE: This IOGroup will not directly implement a
             //       save/restore since it is a proxy.  Creating this
             //       IOGroup will start a session with the service,
             //       and save and restore will be managed by the
