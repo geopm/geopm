@@ -242,14 +242,14 @@ namespace geopm
                     register_iogroup(IOGroup::make_unique(it));
                 }
                 catch (const geopm::Exception &ex) {
-#ifdef GEOPM_DEBUG
-                    std::cerr << "Warning: <geopm> Failed to load " << it << " IOGroup.  "
-                              << "GEOPM may not work properly unless an alternate "
-                              << "IOGroup plugin is loaded to provide signals/controls "
-                              << "required by the Controller and Agent."
-                              << std::endl;
-                    std::cerr << "The error was: " << ex.what() << std::endl;
-#endif
+                    if (geopm::verbosity_level() > 0) {
+                        std::cerr << "Warning: <geopm> Failed to load " << it << " IOGroup.  "
+                                  << "GEOPM may not work properly unless an alternate "
+                                  << "IOGroup plugin is loaded to provide signals/controls "
+                                  << "required by the Controller and Agent."
+                                  << std::endl;
+                        std::cerr << "The error was: " << ex.what() << std::endl;
+                    }
                 }
             }
         }

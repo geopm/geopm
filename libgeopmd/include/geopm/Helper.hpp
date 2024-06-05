@@ -152,6 +152,22 @@ namespace geopm
     std::string GEOPM_PUBLIC
         get_env(const std::string &name);
 
+    /// @brief Query environment for verbosity level
+    ///
+    /// Read GEOPM_VERBOSITY environment variable.  If set, convert to
+    /// integer.  If unset, or conversion fails, returns default
+    /// value.  The default value is 0 unless the GEOPM software is
+    /// compiled with --enable-debug configuration.  When debug is
+    /// enabled at compile time, the default value is 2.
+    ///
+    /// Level 0: Print errors and critical warning messages
+    /// Level 1: Print warning messages
+    /// Level 2: Print diagnostic info messages
+    ///
+    /// @return Verbosity level for GEOPM messaging
+    int GEOPM_PUBLIC
+        verbosity_level(void);
+
     /// @brief Query for the user id associated with the process id.
     /// @param [in] pid The process id to query.
     /// @return The user id.
