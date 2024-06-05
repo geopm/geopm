@@ -272,6 +272,25 @@ namespace geopm
         return env_string;
     }
 
+    int verbosity_level(void)
+    {
+        int result = 0;
+#ifdef GEOPM_DEBUG
+        // Default verbosity is 2 when configured with --enable-debug
+        result = 2;
+#endif
+        std::string verb_str = geopm::get_env("GEOPM_VERBOSITY");
+        try {
+            result = std::stoi(verb_str);
+        }
+        catch (const std::invalid_argument &ex) {
+        }
+        catch (const std::out_of_range &ex) {
+        }
+        return result;
+    }
+
+
     unsigned int pid_to_uid(const int pid) {
         int err = 0;
         std::string proc_path = "/proc/" + std::to_string(pid);
