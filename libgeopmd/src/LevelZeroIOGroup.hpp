@@ -111,6 +111,7 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             const LevelZeroDevicePool &m_levelzero_device_pool;
             bool m_is_batch_read;
+            int m_native_domain;
 
             std::map<std::string, signal_info> m_signal_available;
             std::map<std::string, control_info> m_control_available;
@@ -125,6 +126,8 @@ namespace geopm
             std::vector<double> m_perf_factor;
 
             std::shared_ptr<SaveControl> m_mock_save_ctl;
+
+            bool m_is_perf_factor_enabled;
     };
 }
 #endif

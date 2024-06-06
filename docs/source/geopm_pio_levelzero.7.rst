@@ -143,7 +143,7 @@ Signals
     GPU Compute Hardware chip energy in joules.
 
     *  **Aggregation**: sum
-    *  **Domain**: gpu_chip
+    *  **Domain**: gpu_chip for multi-chip systems or gpu for single chip per gpu systems
     *  **Format**: double
     *  **Unit**: joules
 
@@ -151,7 +151,7 @@ Signals
     GPU compute hardware domain energy timestamp in seconds.  Value cached on LEVELZERO::GPU_CORE_ENERGY read.
 
     *  **Aggregation**: sum
-    *  **Domain**: gpu_chip
+    *  **Domain**: gpu_chip for multi-chip systems or gpu for single chip per gpu systems
     *  **Format**: double
     *  **Unit**: seconds
 
@@ -167,7 +167,7 @@ Signals
     Performance Factor of the GPU Compute Hardware Domain. Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units.  A value of 1 indicates a compute focused energy trade-off, a value of 0 indicates a memory focused energy trade-off.  Default value is 0.5
 
     *  **Aggregation**: averge
-    *  **Domain**: gpu_chip
+    *  **Domain**: gpu_chip for multi-chip systems or gpu for single chip per gpu systems
     *  **Format**: double
     *  **Unit**: none
 
