@@ -139,11 +139,12 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
 {
     // Expectations for domain_idx 0 on calls made in the constructor
     EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
-                performance_factor(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE)).Times(3);
-    // Times(3) explanation:
+                performance_factor(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE)).Times(4);
+    // Times(4) explanation:
     //   1. Per gpu-chip / signal pruning: GPU_CORE_PERFORMANCE_FACTOR
     //   2. Per gpu-chip / save_control: GPU_CORE_PERFORMANCE_FACTOR_CONTROL
     //   3. Per gpu-chip / control pruning: GPU_CORE_PERFORMANCE_FACTOR_CONTROL (Alias to PERFORMANCE_FACTOR)
+    //   4. Check if perf factor is enabled
 
     // The EXPECT_CALLS below are default Times(1) for the signal pruning code
     EXPECT_CALL(*m_device_pool, // GPU_ACTIVE_TIME
@@ -197,10 +198,6 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
     EXPECT_CALL(*m_device_pool,
                 frequency_control(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE,
                                   0, 0)).Times(3);
-    // Times(3) explanation:
-    // 1. Per gpu-chip / control_pruning: GPU_CORE_FREQUENCY_MAX_CONTROL
-    // 2. Per gpu-chip / control_pruning: GPU_CORE_FREQUENCY_MIN_CONTROL
-    // 3. Per_gpu-chip restore_control() call.
     EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
                 performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
 
@@ -750,23 +747,6 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
 TEST_F(LevelZeroIOGroupTest, error_path)
 {
     SetUpDefaultExpectCalls();
-    //Frequency
-    std::vector<double> mock_freq_gpu = {1530, 1320, 420, 135, 900, 927, 293, 400};
-    std::vector<double> mock_freq_mem = {130, 1020, 200, 150, 300, 442, 782, 1059};
-    std::vector<double> mock_freq_min_gpu = {200, 320, 400, 350, 111, 222, 333, 444};
-    std::vector<double> mock_freq_max_gpu = {2000, 3200, 4200, 1350, 555, 666, 777, 888};
-    std::vector<double> mock_freq_min_mem = {100, 220, 300, 450, 999, 1010, 1111, 1212};
-    std::vector<double> mock_freq_max_mem = {1000, 2200, 3200, 1450, 1313, 1414, 1515, 1616};
-    //Active time
-    std::vector<uint64_t> mock_active_time = {123, 970, 550, 20, 52, 567, 888, 923};
-    std::vector<uint64_t> mock_active_time_compute = {1, 90, 50, 0, 123, 144, 521, 445};
-    std::vector<uint64_t> mock_active_time_copy = {12, 20, 30, 40, 44, 55, 66, 77};
-    //Power & energy
-    std::vector<int32_t> mock_power_limit_min = {30000, 80000, 20000, 70000};
-    std::vector<int32_t> mock_power_limit_max = {310000, 280000, 320000, 270000};
-    std::vector<int32_t> mock_power_limit_tdp = {320000, 290000, 330000, 280000};
-    std::vector<uint64_t> mock_energy = {630000000, 280000000, 470000000, 950000000};
-
     LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
@@ -826,11 +806,12 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
     // BEGIN COPY/PASTE
     // Expectations for domain_idx 0 on calls made in the constructor
     EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
-                performance_factor(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE)).Times(3);
-    // Times(3) explanation:
+                performance_factor(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE)).Times(4);
+    // Times(4) explanation:
     //   1. Per gpu-chip / signal pruning: GPU_CORE_PERFORMANCE_FACTOR
     //   2. Per gpu-chip / save_control: GPU_CORE_PERFORMANCE_FACTOR_CONTROL
     //   3. Per gpu-chip / control pruning: GPU_CORE_PERFORMANCE_FACTOR_CONTROL (Alias to PERFORMANCE_FACTOR)
+    //   4. Check once at the beginning of the constructor to see if perf factor is supported
 
     // The EXPECT_CALLS below are default Times(1) for the signal pruning code
     EXPECT_CALL(*m_device_pool, // GPU_ACTIVE_TIME
@@ -935,9 +916,9 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
     EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_MEMORY)).
                 WillRepeatedly(Throw(geopm::Exception("Invalid", GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
 
+    EXPECT_CALL(*m_device_pool, frequency_control(GEOPM_DOMAIN_GPU_CHIP, _, MockLevelZero::M_DOMAIN_COMPUTE, _, _)).
+                WillRepeatedly(Throw(geopm::Exception("Not Supported", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
-        EXPECT_CALL(*m_device_pool, frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, _, _)).
-                    WillRepeatedly(Throw(geopm::Exception("Not Supported", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
         // frequency_range is called a non-standard number of times due to the implementation of the pruning code.
         // Only one chip is checked if there is a failure.
         EXPECT_CALL(*m_device_pool,

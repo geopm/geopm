@@ -564,12 +564,6 @@ namespace geopm
                                                       int l0_domain) const
     {
         double result = NAN;
-        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the performance factor domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
 
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
