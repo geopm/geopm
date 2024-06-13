@@ -14,6 +14,7 @@ import unittest
 import subprocess
 from io import StringIO
 import argparse
+import psutil
 
 from docutils.nodes import literal_block
 from docutils.core import publish_doctree
@@ -403,3 +404,12 @@ def get_scripts_from_readme(rst_readme_path):
 
 def get_num_node():
     return int(os.environ.get("GEOPM_NUM_NODE", os.environ.get("SLURM_NNODES", 4)))
+
+def terminate_process_and_children(pid):
+    try:
+        parent = psutil.Process(pid)
+        for child in parent.children(recursive=True):
+            child.terminate()
+        parent.terminate()
+    except psutil.NoSuchProcess:
+        pass
