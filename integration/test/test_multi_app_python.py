@@ -5,7 +5,7 @@
 #
 
 """Test the use case of running multiple apps running simultaneously.
-The test will launch an instance of geopmbench and a non-MPI app and
+The test will launch an instance of geopmbench and python and
 verify they're tracked/profiled correctly.
 
 """
@@ -20,8 +20,8 @@ import geopmpy.io
 from integration.test import util
 
 
-class TestIntegration_multi_app(unittest.TestCase):
-    TEST_NAME = 'test_multi_app'
+class TestIntegration_multi_app_python(unittest.TestCase):
+    TEST_NAME = 'test_multi_app_python'
     TIME_LIMIT = 480
     NUM_NODE = int(os.environ.get("GEOPM_NUM_NODE", 1))
     EXPECTED_REGIONS = {'MPI_Init_thread', 'model-init', 'stream', 'dgemm'}
@@ -31,7 +31,7 @@ class TestIntegration_multi_app(unittest.TestCase):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        script_path = os.path.join(script_dir,'test_multi_app.sh')
+        script_path = os.path.join(script_dir,'test_multi_app_python.sh')
         if util.do_launch():
             proc = subprocess.Popen(['/bin/bash', script_path])
             try:
