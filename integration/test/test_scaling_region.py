@@ -38,8 +38,7 @@ class AppConf(object):
         """Path to benchmark
 
         """
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_scaling_region')
+        return util.get_exec_path('test_scaling_region')
 
     def get_exec_args(self):
         return []
