@@ -41,8 +41,7 @@ class AppConf(object):
         """Path to benchmark filled in by template automatically.
 
         """
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_frequency_hint_usage')
+        return util.get_exec_path('test_frequency_hint_usage')
 
     def get_exec_args(self):
         """Returns a list of strings representing the command line arguments

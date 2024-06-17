@@ -38,8 +38,7 @@ class AppConf(object):
         """Path to bencmark
 
         """
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_omp_outer_loop')
+        return util.get_exec_path('test_omp_outer_loop')
 
     def get_exec_args(self):
         return []

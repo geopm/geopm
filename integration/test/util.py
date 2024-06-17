@@ -184,6 +184,7 @@ def get_exec_path(bin_name):
     int_dir = os.path.dirname(int_test_dir)
     # Look for out of place build from using apps/build_func.sh
     path_list.append(os.path.join(int_dir, 'build/integration/test/.libs'))
+    path_list.append(int_test_dir) # Required for out-of-tree builds
     bin_list = [os.path.join(pp, bin_name) for pp in path_list]
     for bb in bin_list:
         if os.path.isfile(bb):

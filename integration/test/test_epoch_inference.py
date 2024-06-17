@@ -57,8 +57,7 @@ class AppConf(object):
         """Path to benchmark filled in by template automatically.
 
         """
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_epoch_inference')
+        return util.get_exec_path('test_epoch_inference')
 
     def get_exec_args(self):
         """Returns a list of strings representing the command line arguments

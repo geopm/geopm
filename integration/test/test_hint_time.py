@@ -41,20 +41,7 @@ class AppConf(object):
         """Path to benchmark filled in by template automatically.
 
         """
-        bin_name = 'test_hint_time'
-        # Look for in place build
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        bin_path = os.path.join(script_dir, '.libs', bin_name)
-        if not os.path.exists(bin_path):
-            # Look for out of place build from using apps/build_func.sh
-            int_dir = os.path.dirname(script_dir)
-            bin_path_op = os.path.join(int_dir, 'build/integration/test/.libs', bin_name)
-            if not os.path.exists(bin_path_op):
-                msg = 'Could not find application binary, tried \n    "{}"\n    "{}"'.format(
-                      bin_path, bin_path_op)
-                raise RuntimeError(msg)
-            bin_path = bin_path_op
-        return bin_path
+        return util.get_exec_path('test_hint_time')
 
     def get_exec_args(self):
         """Returns a list of strings representing the command line arguments
