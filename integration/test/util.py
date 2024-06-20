@@ -136,16 +136,7 @@ def get_config_log():
     return path
 
 def get_service_config_log():
-    path = os.path.join(
-           os.path.dirname(
-            os.path.dirname(
-             os.path.dirname(
-              os.path.realpath(__file__)))),
-           'service/config.log')
-    if not os.path.isfile(path):
-        path = os.path.join(
-               os.path.dirname(path),
-                'integration/build/config.log')
+    path = os.path.join(os.environ['GEOPM_SOURCE'], 'libgeopmd', 'config.log')
     return path
 
 def get_config_value(key):
@@ -153,25 +144,35 @@ def get_config_value(key):
     if no such key is present.
     """
     path = get_config_log()
-    with open(path) as config_file:
-        for line in config_file:
-            line_start = "{}='".format(key)
-            line_end = "'\n"
-            if line.startswith(line_start) and line.endswith(line_end):
-                return line[len(line_start):-len(line_end)]
+    try:
+        with open(path) as config_file:
+            for line in config_file:
+                line_start = "{}='".format(key)
+                line_end = "'\n"
+                if line.startswith(line_start) and line.endswith(line_end):
+                    return line[len(line_start):-len(line_end)]
+    except FileNotFoundError:
+        # config.log checks are best effort to support out-of-tree builds
+        sys.stderr.write(f'Warning: <geopm> libgeopm config.log unavailable; ignoring check for {key}\n')
+        raise
     return None
 
 def get_service_config_value(key):
     """Get the value of an option from the service build configuration,
     returning None if no such key is present.
     """
-    path = get_service_config_log()
-    with open(path) as config_file:
-        for line in config_file:
-            line_start = "{}='".format(key)
-            line_end = "'\n"
-            if line.startswith(line_start) and line.endswith(line_end):
-                return line[len(line_start):-len(line_end)]
+    try:
+        path = get_service_config_log()
+        with open(path) as config_file:
+            for line in config_file:
+                line_start = "{}='".format(key)
+                line_end = "'\n"
+                if line.startswith(line_start) and line.endswith(line_end):
+                    return line[len(line_start):-len(line_end)]
+    except FileNotFoundError:
+        # config.log checks are best effort to support out-of-tree builds
+        sys.stderr.write(f'Warning: <geopm> libgeopmd config.log unavailable; ignoring check for {key}\n')
+        raise
     return None
 
 def get_exec_path(bin_name):
@@ -195,23 +196,33 @@ def get_exec_path(bin_name):
     raise RuntimeError(msg)
 
 def skip_unless_config_enable(feature):
-    if get_config_value('enable_{}'.format(feature)) == '1':
+    try:
+        if get_config_value('enable_{}'.format(feature)) == '1':
+            return lambda func: func
+        else:
+            return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
+    except FileNotFoundError:
         return lambda func: func
-    else:
-        return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
 
 def skip_unless_service_config_enable(feature):
-    if get_service_config_value('enable_{}'.format(feature)) == '1':
+    try:
+        if get_service_config_value('enable_{}'.format(feature)) == '1':
+            return lambda func: func
+        else:
+            return unittest.skip("Feature: {feature} is not enabled in service, configure with --enable-{feature} to run this test.".format(feature=feature))
+    except FileNotFoundError:
         return lambda func: func
-    else:
-        return unittest.skip("Feature: {feature} is not enabled in service, configure with --enable-{feature} to run this test.".format(feature=feature))
 
 def skip_unless_optimized():
     path = get_config_log()
-    with open(path) as fid:
-        for line in fid.readlines():
-            if line.startswith("enable_debug='1'"):
-                return unittest.skip("This performance test cannot be run when GEOPM is configured with --enable-debug")
+    try:
+        with open(path) as fid:
+            for line in fid.readlines():
+                if line.startswith("enable_debug='1'"):
+                    return unittest.skip("This performance test cannot be run when GEOPM is configured with --enable-debug")
+    except FileNotFoundError:
+        sys.stderr.write('Warning: <geopm> libgeopm config.log unavailable; ignoring check for enable_debug\n')
+        pass # config.log checks are best effort to support out-of-tree builds
     return lambda func: func
 
 
