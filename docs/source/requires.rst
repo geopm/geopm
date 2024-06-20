@@ -26,7 +26,7 @@ Upstream RHEL and CentOS Package Requirements
                 python3-sphinx python3-sphinx_rtd_theme \
                 python3-jsonschema python3-psutil python3-cffi \
                 python3-setuptools python3-dasbus \
-                systemd-devel liburing-devel
+                systemd-devel liburing-devel gobject-introspection
 
 Upstream SLES and OpenSUSE Package Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -38,7 +38,7 @@ Upstream SLES and OpenSUSE Package Requirements
                    python3-Sphinx python3-sphinx_rtd_theme \
                    python3-jsonschema python3-psutil python3-cffi \
                    python3-setuptools python3-dasbus \
-                   systemd-devel liburing-devel
+                   systemd-devel liburing-devel gobject-introspection
 
 Upstream Ubuntu Package Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
