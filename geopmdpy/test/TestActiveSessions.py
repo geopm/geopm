@@ -202,7 +202,7 @@ class TestActiveSessions(unittest.TestCase):
             mock_srf.assert_called_once_with(full_file_path)
 
             if is_valid:
-                mock_get_session_path.called_once_with(contents['client_pid'])
+                mock_get_session_path.assert_has_calls([mock.call('*'), mock.call(contents['client_pid'])])
                 mock_os_stat.assert_called_once_with(full_file_path)
                 mock_pid_valid.assert_called_once_with(contents['client_pid'], session_mock.st_ctime)
                 mock_smf.assert_called_once_with(full_file_path, string_contents)
