@@ -2,6 +2,9 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
+CLEAN_LOCAL_TARGETS += clean-local-googletest
+dist: dist-googletest
+
 AM_CPPFLAGS += -I$(googletest)/include
 AM_CPPFLAGS += -I$(googlemock)/include
 BUILT_SOURCES += $(googletest_suite)/VERSION

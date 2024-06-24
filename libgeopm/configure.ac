@@ -76,6 +76,18 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
+AC_ARG_ENABLE([build-gtest],
+  [AS_HELP_STRING([--disable-build-gtest], [Do not download and build google test and google mock, system install required])],
+[if test "x$enable_build_gtest" = "xno" ; then
+  enable_build_gtest="0"
+else
+  enable_build_gtest="1"
+fi
+],
+[enable_build_gtest="1"]
+)
+AC_SUBST([enable_build_gtest])
+AM_CONDITIONAL([BUILD_GTEST], [test "x$enable_build_gtest" = "x1"])
 
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
@@ -624,6 +636,7 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
+AC_MSG_RESULT([build_gtest        : ${enable_build_gtest}])
 AC_MSG_RESULT([overhead           : ${enable_overhead}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])

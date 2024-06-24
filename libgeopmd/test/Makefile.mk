@@ -98,10 +98,18 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/UniqueFdTest.cpp \
                           # end
 
-test_geopm_test_LDADD = libgeopmd.la \
-                        libgmock.a \
-                        libgtest.a \
-                        # end
+test_geopm_test_LDADD = libgeopmd.la
+
+if BUILD_GTEST
+include test/googletest.mk
+test_geopm_test_LDADD += libgtest.a \
+                         libgmock.a \
+                         # end
+else
+test_geopm_test_LDADD += -lgmock \
+                         -lgtest \
+                         # end
+endif
 
 test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
 test_geopm_test_CFLAGS = $(AM_CFLAGS)
@@ -119,4 +127,3 @@ coverage: init-coverage check
 	lcov -a coverage-service-initial.info -a coverage-service.info --output-file coverage-service-combined.info
 	genhtml coverage-service-combined.info --output-directory coverage-service --legend -t $(VERSION) -f
 
-include test/googletest.mk

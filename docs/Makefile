@@ -106,4 +106,4 @@ install_html:
 	cp -rp json_schemas/* $(GEOPM_GITHUB_IO)
 	VERSION=`cat VERSION` && cd $(GEOPM_GITHUB_IO) && git add -A && git commit -sm"Update to version $$VERSION"
 
-.PHONY: all man html geopmlint clean_all DATE VERSION MANIFEST dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json
+.PHONY: all man html geopmlint clean_all DATE MANIFEST dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json

@@ -168,10 +168,7 @@ test_geopm_test_SOURCES += src/Profile.cpp \
                            include/geopm/Profile.hpp \
                            # endif
 
-test_geopm_test_LDADD = libgeopm.la \
-                        libgmock.a \
-                        libgtest.a \
-                        # end
+test_geopm_test_LDADD = libgeopm.la
 
 test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
 test_geopm_test_CFLAGS = $(AM_CFLAGS)
@@ -209,4 +206,13 @@ coverage: init-coverage check
 	lcov --remove coverage-base-combined.info "$$(realpath $$(pwd))/src/geopm_pmpi_fortran.c" --output-file coverage-base-combined-filtered.info
 	genhtml coverage-base-combined-filtered.info --output-directory coverage-base --legend -t $(VERSION) -f
 
+if BUILD_GTEST
 include test/googletest.mk
+test_geopm_test_LDADD += libgtest.a \
+                         libgmock.a \
+                         # end
+else
+test_geopm_test_LDADD += -lgmock \
+                         -lgtest \
+                         # end
+endif
