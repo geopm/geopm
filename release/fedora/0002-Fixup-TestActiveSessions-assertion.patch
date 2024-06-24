@@ -1,0 +1,26 @@
+From a7f2e72aae1e890a4fc6c29844b198871962fdaf Mon Sep 17 00:00:00 2001
+From: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Date: Fri, 21 Jun 2024 15:34:20 -0700
+Subject: [PATCH 2/2] Fixup TestActiveSessions assertion
+
+Signed-off-by: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+---
+ geopmdpy/test/TestActiveSessions.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/geopmdpy/test/TestActiveSessions.py b/geopmdpy/test/TestActiveSessions.py
+index 79befcc91..02525b308 100755
+--- a/geopmdpy/test/TestActiveSessions.py
++++ b/geopmdpy/test/TestActiveSessions.py
+@@ -202,7 +202,7 @@ class TestActiveSessions(unittest.TestCase):
+             mock_srf.assert_called_once_with(full_file_path)
+ 
+             if is_valid:
+-                mock_get_session_path.called_once_with(contents['client_pid'])
++                mock_get_session_path.assert_has_calls([mock.call('*'), mock.call(contents['client_pid'])])
+                 mock_os_stat.assert_called_once_with(full_file_path)
+                 mock_pid_valid.assert_called_once_with(contents['client_pid'], session_mock.st_ctime)
+                 mock_smf.assert_called_once_with(full_file_path, string_contents)
+-- 
+2.26.2
+
