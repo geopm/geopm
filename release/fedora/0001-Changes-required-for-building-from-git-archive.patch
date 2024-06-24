@@ -1,0 +1,270 @@
+From 91d20b03954f41c05076e11b0d8feafafdc9abe1 Mon Sep 17 00:00:00 2001
+From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
+Date: Mon, 24 Jun 2024 09:34:51 -0700
+Subject: [PATCH 1/2] Changes required for building from git archive
+
+- Provide options to avoid other downloads
+
+Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+---
+ docs/Makefile                |  2 +-
+ geopmdpy/setup.py            |  5 ++++-
+ geopmpy/setup.py             |  5 ++++-
+ libgeopm/Makefile.am         |  2 --
+ libgeopm/configure.ac        | 13 +++++++++++++
+ libgeopm/test/Makefile.mk    | 14 ++++++++++----
+ libgeopmd/Makefile.am        |  6 +++---
+ libgeopmd/configure.ac       | 14 ++++++++++++++
+ libgeopmd/test/Makefile.mk   | 17 ++++++++++++-----
+ libgeopmd/test/googletest.mk |  3 +++
+ 10 files changed, 64 insertions(+), 17 deletions(-)
+
+diff --git a/docs/Makefile b/docs/Makefile
+index 6616a4312..2b1cba8e8 100644
+--- a/docs/Makefile
++++ b/docs/Makefile
+@@ -106,4 +106,4 @@ install_html:
+ 	cp -rp json_schemas/* $(GEOPM_GITHUB_IO)
+ 	VERSION=`cat VERSION` && cd $(GEOPM_GITHUB_IO) && git add -A && git commit -sm"Update to version $$VERSION"
+ 
+-.PHONY: all man html geopmlint clean_all DATE VERSION MANIFEST dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json
++.PHONY: all man html geopmlint clean_all DATE MANIFEST dist install_man install_completion install_html json_schemas json_schemas/active_sessions.schema.json json_schemas/const_config_io.schema.json
+diff --git a/geopmdpy/setup.py b/geopmdpy/setup.py
+index b3938baec..e2e090e52 100644
+--- a/geopmdpy/setup.py
++++ b/geopmdpy/setup.py
+@@ -4,6 +4,7 @@
+ 
+ import os
+ import setuptools
++import os
+ 
+ package_name = 'geopmdpy'
+ 
+@@ -14,7 +15,9 @@ try:
+     with open(f'{script_dir}/{package_name}/VERSION', 'w') as fid:
+         fid.write(version)
+ except (ImportError, LookupError):
+-    pass
++    with open(f'{script_dir}/{package_name}/VERSION', 'r') as fid:
++        version = fid.read().strip()
++    os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = version
+ 
+ setuptools.setup()
+ 
+diff --git a/geopmpy/setup.py b/geopmpy/setup.py
+index e07303374..719ab1405 100644
+--- a/geopmpy/setup.py
++++ b/geopmpy/setup.py
+@@ -4,6 +4,7 @@
+ 
+ import os
+ import setuptools
++import os
+ 
+ package_name = 'geopmpy'
+ 
+@@ -14,7 +15,9 @@ try:
+     with open(f'{script_dir}/{package_name}/VERSION', 'w') as fid:
+         fid.write(version)
+ except (ImportError, LookupError):
+-    pass
++    with open(f'{script_dir}/{package_name}/VERSION', 'r') as fid:
++        version = fid.read().strip()
++    os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = version
+ 
+ setuptools.setup()
+ 
+diff --git a/libgeopm/Makefile.am b/libgeopm/Makefile.am
+index 0a27cef9d..3d6cdf0f8 100644
+--- a/libgeopm/Makefile.am
++++ b/libgeopm/Makefile.am
+@@ -32,7 +32,6 @@ nodist_include_HEADERS =
+ EXTRA_DIST =
+ 
+ install-exec-hook: install-fortran
+-dist: dist-googletest
+ 
+ 
+ include_HEADERS = include/geopm_agent.h \
+@@ -394,7 +393,6 @@ DISTCLEANFILES = VERSION MANIFEST
+ 
+ CLEAN_LOCAL_TARGETS= clean-local-coverage \
+                      clean-local-fortran \
+-                     clean-local-googletest \
+                      # end
+ 
+ clean-local: $(CLEAN_LOCAL_TARGETS)
+diff --git a/libgeopm/configure.ac b/libgeopm/configure.ac
+index 7d7393e24..a6dd98c29 100644
+--- a/libgeopm/configure.ac
++++ b/libgeopm/configure.ac
+@@ -76,6 +76,18 @@ fi
+ AC_SUBST([enable_beta])
+ AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
+ 
++AC_ARG_ENABLE([build-gtest],
++  [AS_HELP_STRING([--disable-build-gtest], [Do not download and build google test and google mock, system install required])],
++[if test "x$enable_build_gtest" = "xno" ; then
++  enable_build_gtest="0"
++else
++  enable_build_gtest="1"
++fi
++],
++[enable_build_gtest="1"]
++)
++AC_SUBST([enable_build_gtest])
++AM_CONDITIONAL([BUILD_GTEST], [test "x$enable_build_gtest" = "x1"])
+ 
+ AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
+             [specify directory for installed sqlite3 package.])])
+@@ -624,6 +636,7 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
+ AC_MSG_RESULT([])
+ AC_MSG_RESULT([debug              : ${enable_debug}])
+ AC_MSG_RESULT([coverage           : ${enable_coverage}])
++AC_MSG_RESULT([build_gtest        : ${enable_build_gtest}])
+ AC_MSG_RESULT([overhead           : ${enable_overhead}])
+ AC_MSG_RESULT([mpi                : ${enable_mpi}])
+ AC_MSG_RESULT([openmp             : ${enable_openmp}])
+diff --git a/libgeopm/test/Makefile.mk b/libgeopm/test/Makefile.mk
+index 5058c3e44..d32e3cff4 100644
+--- a/libgeopm/test/Makefile.mk
++++ b/libgeopm/test/Makefile.mk
+@@ -168,10 +168,7 @@ test_geopm_test_SOURCES += src/Profile.cpp \
+                            include/geopm/Profile.hpp \
+                            # endif
+ 
+-test_geopm_test_LDADD = libgeopm.la \
+-                        libgmock.a \
+-                        libgtest.a \
+-                        # end
++test_geopm_test_LDADD = libgeopm.la
+ 
+ test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
+ test_geopm_test_CFLAGS = $(AM_CFLAGS)
+@@ -209,4 +206,13 @@ coverage: init-coverage check
+ 	lcov --remove coverage-base-combined.info "$$(realpath $$(pwd))/src/geopm_pmpi_fortran.c" --output-file coverage-base-combined-filtered.info
+ 	genhtml coverage-base-combined-filtered.info --output-directory coverage-base --legend -t $(VERSION) -f
+ 
++if BUILD_GTEST
+ include test/googletest.mk
++test_geopm_test_LDADD += libgtest.a \
++                         libgmock.a \
++                         # end
++else
++test_geopm_test_LDADD += -lgmock \
++                         -lgtest \
++                         # end
++endif
+diff --git a/libgeopmd/Makefile.am b/libgeopmd/Makefile.am
+index 6e40c48b2..979e97723 100644
+--- a/libgeopmd/Makefile.am
++++ b/libgeopmd/Makefile.am
+@@ -49,7 +49,6 @@ geopminclude_HEADERS = include/geopm/json11.hpp \
+                        # end
+ 
+ install-exec-hook: install-plugin-dir
+-dist: dist-googletest
+ 
+ install-plugin-dir:
+ 	$(INSTALL) -d $(DESTDIR)/$(libdir)/geopm
+@@ -257,8 +256,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
+                        src/geopm_version.cpp \
+                        # end
+ 
+-nodist_libgeopmd_la_SOURCES = \
+-                              $(msr_cpp_files) \
++nodist_libgeopmd_la_SOURCES = $(msr_cpp_files) \
+                               $(sysfs_cpp_files) \
+                               # end
+ 
+@@ -394,6 +392,8 @@ CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files)
+ 
+ include test/Makefile.mk
+ 
++if ENABLE_FUZZTESTS
+ include fuzz_test/Makefile.mk
++endif
+ 
+ .PHONY: $(PHONY_TARGETS)
+diff --git a/libgeopmd/configure.ac b/libgeopmd/configure.ac
+index 80e4d8abf..905ac1d67 100644
+--- a/libgeopmd/configure.ac
++++ b/libgeopmd/configure.ac
+@@ -242,6 +242,19 @@ else
+   AM_CFLAGS="$AM_CFLAGS $SANITIZE_CFI"
+ fi
+ 
++AC_ARG_ENABLE([build-gtest],
++  [AS_HELP_STRING([--disable-build-gtest], [Do not download and build google test and google mock, system install required])],
++[if test "x$enable_build_gtest" = "xno" ; then
++  enable_build_gtest="0"
++else
++  enable_build_gtest="1"
++fi
++],
++[enable_build_gtest="1"]
++)
++AC_SUBST([enable_build_gtest])
++AM_CONDITIONAL([BUILD_GTEST], [test "x$enable_build_gtest" = "x1"])
++
+ AC_SUBST([enable_asan])
+ AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
+ 
+@@ -536,6 +549,7 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
+ AC_MSG_RESULT([])
+ AC_MSG_RESULT([debug              : ${enable_debug}])
+ AC_MSG_RESULT([coverage           : ${enable_coverage}])
++AC_MSG_RESULT([build_gtest        : ${enable_build_gtest}])
+ AC_MSG_RESULT([dcgm               : ${enable_dcgm}])
+ AC_MSG_RESULT([nvml               : ${enable_nvml}])
+ AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
+diff --git a/libgeopmd/test/Makefile.mk b/libgeopmd/test/Makefile.mk
+index 06597860d..7256e9c8d 100644
+--- a/libgeopmd/test/Makefile.mk
++++ b/libgeopmd/test/Makefile.mk
+@@ -98,10 +98,18 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
+                           test/UniqueFdTest.cpp \
+                           # end
+ 
+-test_geopm_test_LDADD = libgeopmd.la \
+-                        libgmock.a \
+-                        libgtest.a \
+-                        # end
++test_geopm_test_LDADD = libgeopmd.la
++
++if BUILD_GTEST
++include test/googletest.mk
++test_geopm_test_LDADD += libgtest.a \
++                         libgmock.a \
++                         # end
++else
++test_geopm_test_LDADD += -lgmock \
++                         -lgtest \
++                         # end
++endif
+ 
+ test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
+ test_geopm_test_CFLAGS = $(AM_CFLAGS)
+@@ -119,4 +127,3 @@ coverage: init-coverage check
+ 	lcov -a coverage-service-initial.info -a coverage-service.info --output-file coverage-service-combined.info
+ 	genhtml coverage-service-combined.info --output-directory coverage-service --legend -t $(VERSION) -f
+ 
+-include test/googletest.mk
+diff --git a/libgeopmd/test/googletest.mk b/libgeopmd/test/googletest.mk
+index 6c03d08a3..611976fca 100644
+--- a/libgeopmd/test/googletest.mk
++++ b/libgeopmd/test/googletest.mk
+@@ -2,6 +2,9 @@
+ #  SPDX-License-Identifier: BSD-3-Clause
+ #
+ 
++CLEAN_LOCAL_TARGETS += clean-local-googletest
++dist: dist-googletest
++
+ AM_CPPFLAGS += -I$(googletest)/include
+ AM_CPPFLAGS += -I$(googlemock)/include
+ BUILT_SOURCES += $(googletest_suite)/VERSION
+-- 
+2.26.2
+

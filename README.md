@@ -194,7 +194,7 @@ changes in each release.
 * [integration](integration) contains integration test automation for GEOPM
 * [libgeopm](libgeopm) provides the C/C++ implementation of the GEOPM Runtime Service
 * [libgeopmd](libgeopmd) provides the C/C++ implementation of the GEOPM Access Service
-
+* [release](release) packaging files for latest release by distro
 ## Guide for Contributors
 We appreciate all feedback on our project. See our [contributing
 guide](https://geopm.github.io/contrib.html) for guidelines on
