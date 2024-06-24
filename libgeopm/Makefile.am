@@ -32,7 +32,6 @@ nodist_include_HEADERS =
 EXTRA_DIST =
 
 install-exec-hook: install-fortran
-dist: dist-googletest
 
 
 include_HEADERS = include/geopm_agent.h \
@@ -394,7 +393,6 @@ DISTCLEANFILES = VERSION MANIFEST
 
 CLEAN_LOCAL_TARGETS= clean-local-coverage \
                      clean-local-fortran \
-                     clean-local-googletest \
                      # end
 
 clean-local: $(CLEAN_LOCAL_TARGETS)

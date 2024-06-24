@@ -242,6 +242,19 @@ else
   AM_CFLAGS="$AM_CFLAGS $SANITIZE_CFI"
 fi
 
+AC_ARG_ENABLE([build-gtest],
+  [AS_HELP_STRING([--disable-build-gtest], [Do not download and build google test and google mock, system install required])],
+[if test "x$enable_build_gtest" = "xno" ; then
+  enable_build_gtest="0"
+else
+  enable_build_gtest="1"
+fi
+],
+[enable_build_gtest="1"]
+)
+AC_SUBST([enable_build_gtest])
+AM_CONDITIONAL([BUILD_GTEST], [test "x$enable_build_gtest" = "x1"])
+
 AC_SUBST([enable_asan])
 AM_CONDITIONAL([ENABLE_SANITIZERS], [test "x$enable_asan" = "x1"])
 
@@ -539,6 +552,7 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
+AC_MSG_RESULT([build_gtest        : ${enable_build_gtest}])
 AC_MSG_RESULT([dcgm               : ${enable_dcgm}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([levelzero          : ${enable_levelzero}])

@@ -4,6 +4,7 @@
 
 import os
 import setuptools
+import os
 
 package_name = 'geopmpy'
 
@@ -14,7 +15,9 @@ try:
     with open(f'{script_dir}/{package_name}/VERSION', 'w') as fid:
         fid.write(version)
 except (ImportError, LookupError):
-    pass
+    with open(f'{script_dir}/{package_name}/VERSION', 'r') as fid:
+        version = fid.read().strip()
+    os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = version
 
 setuptools.setup()
 
