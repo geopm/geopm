@@ -255,12 +255,13 @@ if test "x$enable_nvml" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board GPUs])
 else
   ENABLE_NVML=False
-    if test "x$enable_levelzero" = "x1" ; then
-        ENABLE_LEVELZERO=True
-        AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board GPUs])
-    else
-        ENABLE_LEVELZERO=False
-    fi
+fi
+
+if test "x$enable_levelzero" = "x1" ; then
+  ENABLE_LEVELZERO=True
+  AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board GPUs])
+else
+  ENABLE_LEVELZERO=False
 fi
 
 if test "x$enable_cnl_iogroup" = "x1" ; then
@@ -408,7 +409,9 @@ if test "x$enable_nvml" = "x1" ; then
     AC_CHECK_HEADER([nvml.h], [], [
         echo "missing nvml.h: NVML header is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
-else
+fi
+
+if test "x$enable_levelzero" = "x1" ; then
     AC_LANG_PUSH([C++])
     if test "x$enable_levelzero" = "x1" ; then
         AC_SEARCH_LIBS([zeInit], [ze_loader])

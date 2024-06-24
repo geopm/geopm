@@ -15,4 +15,7 @@ override_dh_auto_configure:
 	if [ "$(DEB_BUILD_ARCH)" = "amd64" ] || [ "$(DEB_BUILD_ARCH)" = "arm64" ]; then \
 	    CONFIG_OPTION="$$CONFIG_OPTION --enable-nvml"; \
 	fi; \
+	if [ -n "$(ENABLE_LEVELZERO)" ]; then \
+	    CONFIG_OPTION="$$CONFIG_OPTION --enable-levelzero"; \
+	fi; \
 	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d $$CONFIG_OPTION

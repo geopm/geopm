@@ -16,18 +16,30 @@ namespace geopm
 {
     static std::unique_ptr<GPUTopo> make_unique_gpu_topo(void)
     {
-        std::unique_ptr<GPUTopo> result;
-        try {
+        std::unique_ptr<GPUTopo> result = geopm::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> NVMLTopo = geopm::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> LevelZeroTopo = geopm::make_unique<GPUTopoNull>();
 #ifdef GEOPM_ENABLE_NVML
-            result = geopm::make_unique<NVMLGPUTopo>();
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-            result = geopm::make_unique<LevelZeroGPUTopo>();
-#else
-            result = geopm::make_unique<GPUTopoNull>();
-#endif
+        try {
+            NVMLTopo = geopm::make_unique<NVMLGPUTopo>();
         }
         catch (const Exception &ex) {
-            result = geopm::make_unique<GPUTopoNull>();
+
+        }
+#endif
+#ifdef GEOPM_ENABLE_LEVELZERO
+        try {
+            LevelZeroTopo = geopm::make_unique<LevelZeroGPUTopo>();
+        }
+        catch (const Exception &ex) {
+
+        }
+#endif
+        if (NVMLTopo->num_gpu() != 0) {
+            result = std::move(NVMLTopo);
+        }
+        else if (LevelZeroTopo->num_gpu() != 0) {
+            result = std::move(LevelZeroTopo);
         }
         return result;
     }
@@ -37,5 +49,4 @@ namespace geopm
         static std::unique_ptr<GPUTopo> instance = make_unique_gpu_topo();
         return *instance;
     }
-
 }
