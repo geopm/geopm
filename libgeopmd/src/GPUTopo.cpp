@@ -24,7 +24,7 @@ namespace geopm
             NVMLTopo = geopm::make_unique<NVMLGPUTopo>();
         }
         catch (const Exception &ex) {
-
+            // NVMLTopo cannot be created, already set to GPUTopoNull
         }
 #endif
 #ifdef GEOPM_ENABLE_LEVELZERO
@@ -32,9 +32,14 @@ namespace geopm
             LevelZeroTopo = geopm::make_unique<LevelZeroGPUTopo>();
         }
         catch (const Exception &ex) {
-
+            // LevelZeroTopo cannot be created, already set to GPUTopoNull
         }
 #endif
+        if (NVMLTopo->num_gpu() != 0 &&
+            LevelZeroTopo->num_gpu() != 0) {
+            throw Exception("GPUTopo: Discovered GPUs with both NVML and LevelZero, this configuration is not currently supported",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         if (NVMLTopo->num_gpu() != 0) {
             result = std::move(NVMLTopo);
         }
