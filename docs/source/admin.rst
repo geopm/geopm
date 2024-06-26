@@ -65,3 +65,24 @@ configures the service using the ``geopmaccess`` command line tool.
 This command line interface allows the administrator to set access
 permissions for all users, and may extend these default privileges for
 specific Unix groups.
+
+Configuring Systemd Unit File
+-----------------------------
+
+The GEOPM Systemd unit is configured with the ``geopm.service`` file that is
+installed as part of the ``geopm-service`` package.  This configuration file may
+be amended using the command ``systemctl edit geopm.service``. See
+`systemctl(1) <https://man7.org/linux/man-pages/man1/systemctl.1.html>`_ for
+more details.
+
+An administrator may wish to modify the ``GEOPM_VERBOSITY`` environment variable
+set in the configuration file.  Increasing this will cause more messages to be
+printed in the system journal which may assist in debugging problems where
+expected signals or controls are not available.
+
+- ``GEOPM_VERBOSITY=0``: Print errors and critical warning messages
+- ``GEOPM_VERBOSITY=1``: Print warning messages
+- ``GEOPM_VERBOSITY=2``: Print diagnostic info messages
+
+The scope of messages printed when ``GEOPM_VERBOSITY`` is non-zero may increase
+in the future.
