@@ -1,7 +1,7 @@
-From 91d20b03954f41c05076e11b0d8feafafdc9abe1 Mon Sep 17 00:00:00 2001
+From 2d73b8030ae787fe925b1859a81ac12b4d09192a Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Mon, 24 Jun 2024 09:34:51 -0700
-Subject: [PATCH 1/2] Changes required for building from git archive
+Subject: [PATCH 1/4] Changes required for building from git archive
 
 - Provide options to avoid other downloads
 
@@ -266,5 +266,5 @@ index 6c03d08a3..611976fca 100644
  AM_CPPFLAGS += -I$(googlemock)/include
  BUILT_SOURCES += $(googletest_suite)/VERSION
 -- 
-2.26.2
+2.34.1
 
