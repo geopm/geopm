@@ -82,7 +82,6 @@ def trace_signals(domains):
     return signals
 
 def launch_configs(output_dir, app_conf, freq_range):
-
     agent = 'frequency_map'
     targets = []
     policy_names = {'cpu':'FREQ_CPU_DEFAULT',
@@ -112,7 +111,8 @@ def launch(app_conf, args, experiment_cli_args):
     Run the application over a range of core, uncore, and gpu frequencies.
     '''
 
-    mach = machine.init_output_dir(args.output_dir)
+    output_dir = os.path.abspath(args.output_dir)
+    mach = machine.init_output_dir(output_dir)
     freq_range = {}
 
     if hasattr(args, 'min_frequency') and hasattr(args, 'max_frequency'):
@@ -137,27 +137,27 @@ def launch(app_conf, args, experiment_cli_args):
                                                     args.max_gpu_frequency,
                                                     args.step_gpu_frequency)
 
-    targets = launch_configs(args.output_dir, app_conf, freq_range)
+    targets = launch_configs(output_dir, app_conf, freq_range)
 
     extra_cli_args = launch_util.geopm_signal_args(report_signals=report_signals(freq_range.keys()),
                                                     trace_signals=trace_signals(freq_range.keys()))
     extra_cli_args += list(experiment_cli_args)
 
     #Set and initialize required counters for nn training
-    init_control_path = 'neural_net_init.controls'
+    init_control_path = os.path.join(output_dir, 'neural_net_init.controls')
     with open(init_control_path, 'w') as outfile:
-        outfile.write(f"""MSR::PQR_ASSOC:RMID board 0 0
-                      # Assigns all cores to resource monitoring association ID 0
-                      # Next, assign resource monitoring ID for QM events to match
-                      f"MSR::QM_EVTSEL:RMID board 0 0
-                      # Then determine Xeon Uncore Utilization
-                      f"MSR::QM_EVTSEL:EVENT_ID board 0 0""")
+        outfile.write("MSR::PQR_ASSOC:RMID board 0 0\n"
+                      "# Assigns all cores to resource monitoring association ID 0\n"
+                      "# Next, assign resource monitoring ID for QM events to match\n"
+                      "MSR::QM_EVTSEL:RMID board 0 0\n"
+                      "# Then determine Xeon Uncore Utilization\n"
+                      "MSR::QM_EVTSEL:EVENT_ID board 0 0")
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=args.output_dir,
+                                output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=True,
                                 init_control_path=init_control_path)
