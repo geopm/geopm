@@ -67,7 +67,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._run_count = 0
 
         # Setup Common Args
-        cls._nn_sweep_dir = Path(os.path.join('test_neural_net_sweep_output', 'gpu_frequency_sweep'))
+        cls._nn_sweep_dir = Path(os.path.join('test_neural_net_sweep_output', 'nn_frequency_sweep'))
         cpu_fsweep_experiment_args = SimpleNamespace(
             output_dir=cls._nn_sweep_dir,
             node_count=node_count,
@@ -94,11 +94,13 @@ class TestIntegration_ffnet(unittest.TestCase):
                             'dgemm':"geopmbench-0xa74bbf35",
                             'stream':"geopmbench-0xd691da00"}
 
-        cpu_app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
-        cpu_app_conf.set_loop_count(cpu_test_app_params['loop_count'])
+        bench_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
+        bench_conf.set_loop_count(cpu_test_app_params['loop_count'])
         for region in cls._cpu_app_regions:
-            cpu_app_conf.append_region(region, cpu_test_app_params[f"{region}_bigo"])
-        cpu_app_conf.write()
+            bench_conf.append_region(region, cpu_test_app_params[f"{region}_bigo"])
+        bench_conf.write()
+
+        cpu_app_conf = geopmbench.GeopmbenchAppConf(bench_conf.get_path(), 1)
 
         #Launch CPU Frequency Sweeps for NN Generation - geopmbench
         cls.launch_helper(cls, neural_net_sweep, cpu_fsweep_experiment_args, cpu_app_conf, experiment_cli_args)
