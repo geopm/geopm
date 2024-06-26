@@ -13,11 +13,20 @@ URL: https://geopm.github.io
 Source0: https://github.com/geopm/geopm/archive/v3.1.0/geopm-3.1.0.tar.gz
 Patch0: 0001-Changes-required-for-building-from-git-archive.patch
 Patch1: 0002-Fixup-TestActiveSessions-assertion.patch
+Patch2: 0003-Fix-import-error-handling-for-setuptools_scm.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 BuildRequires: python-rpm-macros
 BuildRequires: marshalparser
+
+# Packages required to run tests
+BuildRequires: python3-dasbus >= 1.6
+BuildRequires: python3-jsonschema
+BuildRequires: python3-psutil
+BuildRequires: python3-cffi
+BuildRequires: libgeopmd2
+
 %global debug_package %{nil}
 
 %define python_bin %{__python3}
@@ -49,6 +58,7 @@ configuring the service.
 %setup -n geopm-%{version}
 %patch -P0 -p1
 %patch -P1 -p1
+%patch -P2 -p1
 cd geopmdpy
 echo %{version} > geopmdpy/VERSION
 

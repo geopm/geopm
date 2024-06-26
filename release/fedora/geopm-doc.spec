@@ -24,6 +24,7 @@ License: BSD-3-Clause
 URL: https://geopm.github.io
 Source0: https://github.com/geopm/geopm/archive/v3.1.0/geopm-3.1.0.tar.gz
 Patch0: 0001-Changes-required-for-building-from-git-archive.patch
+Patch1: 0004-Remove-network-requirement-from-docs-build.patch
 BuildRoot: %{_tmppath}/geopm-doc-%{version}-%{release}-root
 Prefix: %{_prefix}
 BuildRequires: python3-sphinx >= 4.5.0
@@ -31,6 +32,7 @@ BuildRequires: python3-sphinx_rtd_theme >= 1.0.0
 BuildRequires: python3-sphinxemoji >= 0.2.0
 BuildRequires: python3-pygments >= 2.13.0
 BuildRequires: python3-sphinx-tabs >= 3.3.1
+BuildRequires: python3-setuptools >= 40.5.0
 BuildRequires: doxygen
 BuildRequires: graphviz
 Requires: geopm-service-doc
@@ -90,6 +92,7 @@ Man pages for python3-geopmpy package
 %prep
 %setup -n geopm-%{version}
 %patch -P0 -p1
+%patch -P1 -p1
 
 %build
 cd docs
