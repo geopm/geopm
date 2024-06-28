@@ -109,14 +109,9 @@ cd libgeopmd
 %define level_zero_option --enable-levelzero
 %endif
 %endif
-%if 0%{?fedora} != 0 && ! 0%{?fedora} <= 40
-# Our use of relro flag causes a configure test to fail on fedora rawhide
-%define relro_flags LDFLAGS=-Wl,-z,norelro
-%endif
 
 echo %{version} > VERSION
 ./autogen.sh
-%{?relro_flags} \
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
