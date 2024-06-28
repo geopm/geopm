@@ -42,8 +42,6 @@ Requires: geopm-runtime-doc
 Requires: libgeopm-doc
 Requires: python3-geopmpy-doc
 BuildRequires: bash-completion
-BuildRequires: marshalparser
-%global debug_package %{nil}
 
 %define completionsdir %(pkg-config --variable=completionsdir bash-completion)
 %if "x%{?completionsdir}" == "x"
@@ -102,9 +100,7 @@ echo %{version} > VERSION
 %install
 cd docs
 %{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} install_man
-%if 0%{?fedora} <= 40
 %{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} completionsdir=%{completionsdir} install_completion
-%endif
 
 %clean
 
@@ -141,10 +137,8 @@ cd docs
 %doc %{_mandir}/man7/geopm_pio_sysfs.7.gz
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
-%if 0%{?fedora} <= 40
 %doc %{completionsdir}/geopmread
 %doc %{completionsdir}/geopmwrite
-%endif
 
 %files -n libgeopmd-doc
 %doc %{_mandir}/man3/geopm::Agg.3.gz
@@ -189,9 +183,7 @@ cd docs
 %files -n python3-geopmpy-doc
 %doc %{_mandir}/man1/geopmlaunch.1.gz
 %doc %{_mandir}/man7/geopmpy.7.gz
-%if 0%{?fedora} <= 40
 %doc %{completionsdir}/geopmlaunch
-%endif
 
 %changelog
 * Fri May 17 2024 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.1.0

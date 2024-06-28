@@ -18,7 +18,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 BuildRequires: python-rpm-macros
-BuildRequires: marshalparser
 
 # Packages required to run tests
 BuildRequires: python3-dasbus >= 1.6
@@ -26,8 +25,6 @@ BuildRequires: python3-jsonschema
 BuildRequires: python3-psutil
 BuildRequires: python3-cffi
 BuildRequires: libgeopmd2
-
-%global debug_package %{nil}
 
 %define python_bin %{__python3}
 
