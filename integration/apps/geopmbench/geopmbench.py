@@ -4,6 +4,7 @@
 
 from .. import apps
 import geopmpy.io
+import os
 
 
 class DgemmAppConf(apps.AppConf):
