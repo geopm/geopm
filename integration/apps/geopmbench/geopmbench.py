@@ -4,6 +4,7 @@
 
 from .. import apps
 import geopmpy.io
+import os
 
 
 class DgemmAppConf(apps.AppConf):
@@ -69,7 +70,7 @@ class GeopmbenchAppConf(apps.AppConf):
         return 'geopmbench'
 
     def __init__(self, bench_conf_path, ranks_per_node):
-        self._bench_conf_path = bench_conf_path
+        self._bench_conf_path = os.path.abspath(bench_conf_path)
         self._ranks_per_node = ranks_per_node
 
     def get_rank_per_node(self):

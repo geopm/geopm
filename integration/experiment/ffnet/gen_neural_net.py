@@ -155,10 +155,10 @@ def train_model(df_traces, X_columns, y_columns, log=print):
 def main(input_list, output_name="nnet", describe_net="A neural net.", region_ignore=None):
     #Regions to ignore for training
     if region_ignore == None:
-        region_ignore = []
+        region_list = []
     else:
-        region_ignore.split(",")
-    region_ignore = ['NAN', '0x725e8066', '0x644f9787'] + region_ignore
+        region_list = region_ignore.split(",")
+    region_ignore = ['NAN', '0x725e8066', '0x644f9787'] + region_list
 
     dfs = []
 
