@@ -24,6 +24,7 @@ def process_report_files(input_dir):
         app_name = report["Profile"][:report["Profile"].find('_frequency_map')]
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
 
+        #Get Frequencies
         freqs = {"gpu":None, "cpu":None, "uncore":None}
         lookup_str = {"gpu":"FREQ_GPU_DEFAULT", "cpu":"FREQ_CPU_DEFAULT", "uncore":"FREQ_CPU_UNCORE"}
 
@@ -33,11 +34,15 @@ def process_report_files(input_dir):
 
         for nodename in report["Hosts"]:
             conf = {}
+            #node
             conf['node'] = nodename
+
+            #frequencies
             for device in freqs:
                 if freqs[device] is not None:
                     conf[f"{device}-frequency"] = freqs[device]
 
+            #app-config
             if "Regions" in report["Hosts"][nodename]:
                 for region_dict in report["Hosts"][nodename]["Regions"]:
                     region_dict['app-config'] = app_name + '-' + hex(region_dict['hash'])
@@ -47,15 +52,12 @@ def process_report_files(input_dir):
                 # Handle sweeps done with python infrastructure that does not have regions or a region hash
                 region_dict = report["Hosts"][nodename]["Application Totals"]
                 region_dict['app-config'] = app_name + '-' + "0xDEADBEEF"
-
                 region_dict.update(conf)
                 reports.append(region_dict)
 
             if "Unmarked Totals" in report['Hosts'][nodename]:
                 region_dict = report["Hosts"][nodename]["Unmarked Totals"]
-                region_dict['region'] = "Unmarked"
-                region_dict['hash'] = f"{app_name}_unmarked"
-                region_dict['app-config'] = app_name + '-' + region_dict['hash']
+                region_dict['app-config'] = f"{app_name}-unmarked"
                 region_dict.update(conf)
                 reports.append(region_dict)
 
@@ -99,14 +101,14 @@ def process_trace_files(sweep_dir):
 
 
 def main(output_prefix, frequency_sweep_dirs):
+    print(f"Output prefix: {output_prefix}")
+    print(f"Sweep dirs: {output_prefix}")
     reports_dfs = []
 
     #Determine which columns to keep for stats file, which is used to generate frequency
     #recommendations
     keep_columns = [
                 'node',
-                'hash',
-                'region',
                 'app-config',
                 'runtime (s)',
                 'cpu-frequency',
@@ -121,6 +123,9 @@ def main(output_prefix, frequency_sweep_dirs):
     #TODO: Catch situation where some report is empty
     #      Desired behavior: Skip if others are valid, output warning message w/ report path name
     #                        If all reports are invalid, output error message and quit
+
+    if type(frequency_sweep_dirs) is not list:
+        frequency_sweep_dirs = [frequency_sweep_dirs]
 
     for full_sweep_dir in frequency_sweep_dirs:
         reports_df = process_report_files(full_sweep_dir)
