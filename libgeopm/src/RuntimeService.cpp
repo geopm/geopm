@@ -22,7 +22,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm_version.h"
 #include "geopm/SharedMemoryScopedLock.hpp"
-#include "Waiter.hpp"
+#include "geopm/Waiter.hpp"
 #include "geopm_runtime.grpc.pb.h"
 
 
