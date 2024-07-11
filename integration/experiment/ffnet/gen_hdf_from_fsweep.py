@@ -45,7 +45,7 @@ def process_report_files(input_dir):
             #app-config
             if "Regions" in report["Hosts"][nodename]:
                 for region_dict in report["Hosts"][nodename]["Regions"]:
-                    region_dict['app-config'] = app_name + '-' + hex(region_dict['hash'])
+                    region_dict['app-config'] = app_name + '-' + format(region_dict['hash'], '#010x')
                     region_dict.update(conf)
                     reports.append(region_dict)
             else:
@@ -74,7 +74,8 @@ def process_trace_files(sweep_dir):
 
         #Capture header information from trace file without ingesting whole file
         trace_header = {}
-        for line in open(trace_file, "r"):
+        fd = open(trace_file, "r")
+        for line in fd:
             if line[0] != '#':
                 break
 
@@ -84,7 +85,7 @@ def process_trace_files(sweep_dir):
             trace_header[key.strip()] = value.strip()
 
         nodename = trace_header["node_name"]
-        app_name = trace_header["profile_name"][:trace_header["profile_name"].find('_frequency_map')]
+        app_name = trace_header["profile_name"][:trace_header["profile_name"].find('_frequency_map')].strip('"')
 
         #Filter out nan and "NAN" regions
         trace_df = trace_df[trace_df['REGION_HASH'].notna()]

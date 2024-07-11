@@ -158,7 +158,7 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
         region_list = []
     else:
         region_list = region_ignore.split(",")
-    region_ignore = ['NAN', '0x725e8066', '0x644f9787'] + region_list
+    region_ignore = ['NAN'] + region_list
 
     dfs = []
 
@@ -201,8 +201,7 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
         #TODO: Confirm we can delete the following
         # for parres, the region hash can't be determined by GEOPM
         #df = df[~df['REGION_HASH'].isna()]
-        #df = df[~df['REGION_HASH'].isin(region_ignore)]
-        #df["region_id"] = df["REGION_HASH"] + suffix
+        df = df[~df['app-config'].isin(region_ignore)]
 
         dfs.append(df)
 
@@ -242,6 +241,8 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
         is_missing_data = df_traces[X_columns_domain[domain] + y_columns].isna().sum(axis=1) > 0
         df_traces_domain = df_traces.loc[~is_missing_data]
 
+        #TODO: Check if GPU exist on system, offload training to them
+        #TODO: Check for CPU optimizations to speed up training if no GPU exists
         model = train_model(df_traces_domain, X_columns_domain[domain], y_columns)
 
         model_scripted = torch.jit.script(model)
