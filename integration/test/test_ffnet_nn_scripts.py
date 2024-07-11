@@ -82,20 +82,22 @@ class TestIntegration_ffnet(unittest.TestCase):
             'stream_bigo': 2.0,
             'loop_count': 2
         }
+        cls._app_regions = {}
         #TODO: Get hashes later from a report and assemble this info
-        cls._cpu_app_regions = {'spin':"geopmbench-0x120a248f",
-                            'sleep':"geopmbench-0xf33c2ac",
-                            'dgemm':"geopmbench-0xa12de8ee",
-                            'stream':"geopmbench-0xf0e9be1c"}
+        cls._app_regions['cpu'] = {'spin':"geopmbench-0x120a248f",
+                                   'sleep':"geopmbench-0x0f33c2ac",
+                                   'dgemm':"geopmbench-0xa12de8ee",
+                                   'stream':"geopmbench-0xf0e9be1c"}
 
         bench_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         bench_conf.set_loop_count(cpu_test_app_params['loop_count'])
-        for region in cls._cpu_app_regions:
+        for region in cls._app_regions['cpu']:
             bench_conf.append_region(region, cpu_test_app_params[f"{region}_bigo"])
         bench_conf.write()
 
         cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()), 1)
 
+        #TODO: Uncomment
         #Launch CPU Frequency Sweeps for NN Generation - geopmbench
         cls.launch_helper(cls, neural_net_sweep, cpu_fsweep_experiment_args, cpu_app_conf, experiment_cli_args)
 
@@ -117,7 +119,7 @@ class TestIntegration_ffnet(unittest.TestCase):
             cls._gpu_freq_min = mach.gpu_frequency_min()
             cls._gpu_freq_max = cls._gpu_frequency_max()
             cls._gpu_freq_step = mach.gpu_frequency_step()
-            course_step = round((cls._gpu_frequency_max() - mach.gpu_frequency_min())/10)
+            course_step = round((cls._gpu_frequency_max() - mach.gpu_frequency_min())/4)
             if course_step > cls._gpu_freq_step:
                 cls._gpu_freq_step = course_step
 
@@ -150,6 +152,8 @@ class TestIntegration_ffnet(unittest.TestCase):
                 step_gpu_frequency = cls._gpu_freq_step
             )
 
+            cls._app_regions['gpu'] = {'dgemm':'parres_dgemm-0xDEADBEEF',
+                                       'nstream':'parres_nstream-0xDEADBEEF'}
             #Get correct parres executables and set up app conf
             if util.get_service_config_value('enable_nvml') == '1':
                 app_exec_names = ["dgemm-mpi-cublas", "nstream-mpi-cuda"]
@@ -175,13 +179,14 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Set up HDF/neural net file info
         cls._nn_output_prefix = "test_nn"
         cls._nn_description = "test description"
-        cls._nn_region_ignore = "geopmbench-0x536c798f"
+        cls._nn_region_ignore = cls._app_regions['cpu']['spin']
         cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
         cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
         cls._nn_out = f"{cls._nn_output_prefix}_nn"
         cls._nn_fmap_out = f"{cls._nn_output_prefix}_fmap"
 
-        # Generate h5s
+        #TODO: Uncomment
+        #Generate h5s
         gen_hdf_from_fsweep.main(cls._nn_output_prefix, str(cls._nn_sweep_dir))
 
         # Generate neural nets
@@ -219,7 +224,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         trace_hdf = pd.read_hdf(self._nn_trace_hdf)
 
         cpu_stats_columns = ["node", "app-config", "runtime (s)",
-                         "cpu-frequency", "package-energy (J)"]
+                             "cpu-frequency", "package-energy (J)"]
         gpu_stats_columns = ["gpu-frequency", "gpu-energy (J)"]
 
         cpu_trace_columns = ['node', 'app-config', 'TIME', 'CPU_POWER-package-0',
@@ -278,11 +283,13 @@ class TestIntegration_ffnet(unittest.TestCase):
             for nn_field in nn_fields:
                 self.assertTrue(nn_field in nn_jsons[domain])
 
-            #Check that the appropriate region is ignored in trace_output
-            self.assertFalse(self._nn_region_ignore in nn_jsons["cpu"]["trace_outputs"])
+            #Check that the appropriate regions are present/ignored in trace_output
+            for region in self._app_regions[domain]:
+                if self._app_regions[domain][region] == self._nn_region_ignore:
+                    self.assertFalse(self._app_regions[domain][region] in nn_jsons[domain]["trace_outputs"])
+                else:
+                    self.assertTrue(self._app_regions[domain][region] in nn_jsons[domain]["trace_outputs"])
             fp.close()
-
-        #Check that other regions are in trace_output
 
     def test_freqmap_generation(self):
         #Region frequency map JSONs (with/without GPUs)
@@ -295,33 +302,38 @@ class TestIntegration_ffnet(unittest.TestCase):
         for domain in fmap_files:
             fp[domain] = open(fmap_files[domain], "r")
             fmap_jsons[domain] = self.get_json(fp[domain])
+
             #Check that the region frequency map file contains valid json
             self.assertTrue(fmap_jsons[domain] is not None)
+
             #Check that frequency values decrease monotonically with phi
             for region in fmap_jsons[domain]:
                 freq_list = fmap_jsons[domain][region]
                 self.assertTrue(all(x>=y for x,y in zip(freq_list, freq_list[1:])))
 
-        #Check that desired CPU regions are in json
-        #Check that CPU region frequency for sleep at phi=0 is
-        #less than frequency for dgemm at phi=0 (in json)
-        self.assertTrue(fmap_jsons["cpu"][self._cpu_app_regions['sleep']][0] <= fmap_jsons["cpu"][self._cpu_app_regions['dgemm']][0])
+            #Check that desired regions are present/ignored in json file
+            for region in self._app_regions[domain]:
+                self.assertTrue(self._app_regions[domain][region] in fmap_jsons[domain])
+
+
+        #Check that CPU region frequency for sleep is <= dgemm at phi=0 (could both be fmax)
+        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0] <= fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0])
+        #Check that CPU region frequency for sleep is < dgemm at phi=1 (strictly)
+        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1] < fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
 
         #Check that sleep's frequency decrease (phi=0 to phi=1) is
         #greater than dgemm's frequency decrease (phi=0 to phi=1)
-        #TODO: Visit this assumption and make sure it's sensible
-        df_sleep = fmap_jsons["cpu"][self._cpu_app_regions['sleep']][0] - fmap_jsons["cpu"][self._cpu_app_regions['sleep']][-1]
+        df_sleep = fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0] - fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1]
 
-        df_dgemm = fmap_jsons["cpu"][self._cpu_app_regions['dgemm']][0] - fmap_jsons["cpu"][self._cpu_app_regions['dgemm']][-1]
+        df_dgemm = fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0] - fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1]
         self.assertTrue(df_sleep >= df_dgemm)
         fp['cpu'].close()
 
         if self._do_gpu is True:
-            #TODO: If GPU exists, check app region names are correct when using
-            #      parres benchmark
-            #TODO: Check that parres nstream's frequency at phi=0 is
-            #      less than dgemm's frequency at phi=0
-            assertTrue(fmap_jsons["gpu"]["parres_dgemm"][0] > fmap_jsons["gpu"]["parres_nstream"][0])
+            #Check that parres nstream's frequency at phi=1 is less than dgemm's frequency at phi=1
+            dgemm_freq = fmap_jsons["gpu"][self._app_regions['gpu']['dgemm']][-1]
+            nstream_freq = fmap_jsons["gpu"][self._app_regions['gpu']['nstream']][-1]
+            assertTrue(dgemm_freq > nstream_freq)
             fp['gpu'].close()
 
 if __name__ == '__main__':
