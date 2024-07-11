@@ -6,13 +6,7 @@
 import json
 import pandas as pd
 from sklearn import datasets, linear_model
-
 import argparse
-#TODO: Figure out how to get info from machine
-#To get machine parameters
-#import os
-#from experiment import machine
-#from experiment import common_args
 
 def get_domains(table_stats):
     domains = []
@@ -92,12 +86,20 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
 
     return (float)(freq_subset[f'{domain}-frequency'].iloc[row_idx])
 
-def main(output_name, data_file):
+def main(output_name, data_file, region_ignore=None):
+
+    #Regions to ignore for training
+    if region_ignore == None:
+        region_list = []
+    else:
+        region_list = region_ignore.split(",")
+    region_ignore = ['NAN'] + region_list
 
     freq_range={}
     region_regression={}
     table_stats = pd.read_hdf(data_file)
     table_stats = table_stats[~table_stats['app-config'].isna()]
+    table_stats = table_stats[~table_stats['app-config'].isin(region_ignore)]
 
     domains = get_domains(table_stats)
 
@@ -121,7 +123,7 @@ def main(output_name, data_file):
                 freqs.append(freq)
 
             region_parameters[domain][region_name] = freqs
-        json.dump(region_parameters, params_out)
+        json.dump(region_parameters[domain], params_out)
         params_out.close()
         print(region_parameters)
 
@@ -134,9 +136,13 @@ if __name__ == '__main__':
     parser.add_argument('--data-file',
                         action='store',
                         help='HDF containing stats data.')
+    parser.add_argument('--ignore',
+                        help='Comma-separated hashes of any regions to ignore.',
+                        dest="region_ignore",
+                        default=None)
     args = parser.parse_args()
 
-    main(args.output, args.data_file)
+    main(args.output, args.data_file, args.region_ignore)
     #TODO: Determine if we want to gather this info from mach and
     #      use to modulate frequency range if we can switch to
     #      generating a freq - energy fit.
@@ -146,4 +152,3 @@ if __name__ == '__main__':
     #sys_min = mach.frequency_min()
     #sys_max = mach.frequency_max()
     #sys_sticker = mach.frequency_sticker()
-
