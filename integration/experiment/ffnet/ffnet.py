@@ -42,7 +42,6 @@ def trace_signals():
     return []
 
 def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_fmap_path=None):
-    #TODO: Determine if the env variables are set and point to a valid file
     if cpu_nn_path is None and gpu_nn_path is None:
         raise RuntimeError('Must specify cpu-nn-path and/or gpu-nn-path when running ffnet experiment')
 
