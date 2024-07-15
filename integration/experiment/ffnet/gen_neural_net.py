@@ -115,10 +115,6 @@ def train_model(df_traces, X_columns, y_columns, log=print):
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-    # TODONT write a custom loss function which is based
-    #        on the energy loss rather than the frequency
-    #        parking lot
-
     n_samples = len(train_set)
     n_test_samples = len(val_set)
 
@@ -147,7 +143,6 @@ def train_model(df_traces, X_columns, y_columns, log=print):
                 end_i = start_i + bs
                 xb, yb = val_set[start_i:end_i]
                 total_loss += loss_fn(model(xb), yb[:,0]) * len(xb)
-    #TODO add softmax accuracy
         log(epoch, train_loss/n_samples, total_loss/n_test_samples)
 
     return model
@@ -164,7 +159,6 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
 
     region_ids = []
 
-    #TODO: Test using config_name instead
     y_columns = ['region-id']
     X_columns_domain = {
             'cpu':['CPU_POWER-package-0',
@@ -190,23 +184,16 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
         input_list = [input_list]
 
     for inp in input_list:
-        #TODO: Check if hdf, if not, convert
         df = pd.read_hdf(inp)
-        if 'app-config' not in  df:
+        if 'app-config' not in df:
             sys.stderr.write('<geopm> Error: No app-config in input data. Have you used gen_hdf_from_fsweep.py to create this HDF?\n')
             sys.exit(1)
 
         df["region-id"] = df["app-config"]
-
-        #TODO: Confirm we can delete the following
-        # for parres, the region hash can't be determined by GEOPM
-        #df = df[~df['REGION_HASH'].isna()]
         df = df[~df['app-config'].isin(region_ignore)]
-
         dfs.append(df)
 
     df_traces = pd.concat(dfs)
-
     domains_to_train = []
 
 # Check traces to determine which domains we can train on
