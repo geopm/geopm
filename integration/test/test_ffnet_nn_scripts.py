@@ -97,7 +97,6 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()), 1)
 
-        #TODO: Uncomment
         #Launch CPU Frequency Sweeps for NN Generation - geopmbench
         cls.launch_helper(cls, neural_net_sweep, cpu_fsweep_experiment_args, cpu_app_conf, experiment_cli_args)
 
@@ -185,7 +184,6 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._nn_out = f"{cls._nn_output_prefix}_nn"
         cls._nn_fmap_out = f"{cls._nn_output_prefix}_fmap"
 
-        #TODO: Uncomment
         #Generate h5s
         gen_hdf_from_fsweep.main(cls._nn_output_prefix, str(cls._nn_sweep_dir))
 

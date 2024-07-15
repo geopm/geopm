@@ -143,12 +143,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.output, args.data_file, args.region_ignore)
-    #TODO: Determine if we want to gather this info from mach and
-    #      use to modulate frequency range if we can switch to
-    #      generating a freq - energy fit.
-
-    #output_dir = os.path.abspath(args.output_dir)
-    #mach = machine.init_output_dir(output_dir)
-    #sys_min = mach.frequency_min()
-    #sys_max = mach.frequency_max()
-    #sys_sticker = mach.frequency_sticker()
