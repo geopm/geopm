@@ -3,6 +3,10 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
+# For example of how to visualize the sqlite database see prototype visualizer
+# https://github.com/geopm/geopm.github.io/tree/master/geopmrt-www
+#
+
 if [[ ! $GEOPM_SOURCE ]]; then
     echo "Error: set GEOPM_SOURCE environment variable" 1>&2
     exit -1
