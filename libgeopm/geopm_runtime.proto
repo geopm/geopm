@@ -66,11 +66,4 @@ service GEOPMRuntime {
   rpc SetPolicy(Policy) returns(Policy);
   // Get statistics about sampled data since last call to GetReport()
   rpc GetReport(ReportRequest) returns(ReportList);
-  // Forward calls to SetPolicy() and GetReport() to children.  The
-  // host sections include reports from children, and Policy messages are
-  // forwarded.  The enacted policy is returned.
-  rpc AddChildHost(Url) returns(Policy);
-  // Stop forwarding calls to child host.  Returns reports since last
-  // call to GetReport().
-  rpc RemoveChildHost(Url) returns(ReportList);
 }
