@@ -110,4 +110,4 @@ def get_stats(metric):
     return jsonify({k: v for k, v in stats.items() if k not in ['name']})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
