@@ -117,6 +117,8 @@ def launch(app_conf, args, experiment_cli_args):
 
     if hasattr(args, 'min_frequency') and hasattr(args, 'max_frequency'):
         if args.min_frequency != args.max_frequency:
+            if not hasattr(args, 'step_frequency')
+                args.step_frequency = mach.frequency_step()
             freq_range['cpu'] = frequency_sweep.setup_frequency_bounds(mach,
                                                                        args.min_frequency,
                                                                        args.max_frequency,
@@ -125,6 +127,8 @@ def launch(app_conf, args, experiment_cli_args):
 
     if hasattr(args, 'min_uncore_frequency') and hasattr(args, 'max_uncore_frequency'):
         if args.min_uncore_frequency != args.max_uncore_frequency:
+            if not hasattr(args, 'step_uncore_frequency'):
+                args.step_uncore_frequency = mach.frequency_step()
             freq_range['cpu_uncore'] = uncore_frequency_sweep.setup_uncore_frequency_bounds(mach,
                                                               args.min_uncore_frequency,
                                                               args.max_uncore_frequency,
@@ -132,6 +136,8 @@ def launch(app_conf, args, experiment_cli_args):
 
     if hasattr(args, 'min_gpu_frequency') and hasattr(args, 'max_gpu_frequency'):
         if args.min_gpu_frequency != args.max_gpu_frequency and machine.num_gpu() > 0:
+            if not hasattr(args, 'step_gpu_frequency'):
+                args.step_gpu_frqeuency = mach.gpu_frequency_step()
             freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(mach,
                                                     args.min_gpu_frequency,
                                                     args.max_gpu_frequency,

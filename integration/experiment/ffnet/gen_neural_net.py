@@ -247,7 +247,8 @@ if __name__ == '__main__':
      parser = argparse.ArgumentParser()
      parser.add_argument('--output',
                          help='Prefix of the output json file(s).',
-                         dest="output_name")
+                         dest="output_name",
+                         default="neural_net")
      parser.add_argument('--description',
                         help='Description of the neural net, between quotes.',
                         dest="describe_net",

@@ -132,6 +132,7 @@ if __name__ == '__main__':
     #common_args.add_output_dir(parser)
     parser.add_argument('--output',
                         action='store',
+                        default="region_parameters",
                         help='Prefix of the output json file(s)')
     parser.add_argument('--data-file',
                         action='store',
