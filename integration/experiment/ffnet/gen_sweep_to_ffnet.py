@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('--output',
                        action='store',
                        help='Prefix of the output HDF and json file(s)',
-                       default="neural_net_file")
+                       default="ffnet")
     parser.add_argument('--description',
                        help='Description of the neural net, between quotes.',
                        dest="describe_net",
