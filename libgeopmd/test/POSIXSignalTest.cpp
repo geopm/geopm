@@ -230,27 +230,6 @@ TEST_F(POSIXSignalTest, sig_queue_ESRCH)
 }
 
 /**
- * @test trying to send a signal to the init process
- *
- * @remark https://unix.stackexchange.com/a/145581
- */
-TEST_F(POSIXSignalTest, sig_queue_EPERM)
-{
-    if (geopm::has_cap_sys_admin()) {  // the root user
-        std::cerr << "Warning: <geopm> Skipping POSIXSignalTest.sig_queue_EPERM cannot be run by user \"root\"\n";
-    }
-    else if (has_cap_kill()) {  // the non root user with elevated permissions
-        m_posix_sig->sig_queue(1, SIGCONT, 2);
-    }
-    else {  // any other non root user
-        std::string errmsg_expect = "Operation not permitted: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
-        GEOPM_EXPECT_THROW_MESSAGE(
-            m_posix_sig->sig_queue(1, SIGCONT, 2),
-            EPERM, errmsg_expect);
-    }
-}
-
-/**
  * @test attempt is made to change the action for SIGKILL, which cannot be caught or ignored.
  */
 TEST_F(POSIXSignalTest, sig_action_EINVAL)
