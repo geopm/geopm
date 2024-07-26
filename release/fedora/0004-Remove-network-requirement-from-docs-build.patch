@@ -1,7 +1,7 @@
 From 8c3d92433b1c76dde154484bfd3aeb02768e04db Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Wed, 26 Jun 2024 11:24:39 -0700
-Subject: [PATCH 4/4] Remove network requirement from docs build
+Subject: [PATCH 4/5] Remove network requirement from docs build
 
 Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 ---

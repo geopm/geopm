@@ -1,7 +1,7 @@
 From e6178b650da9b76686b294939dcee859479487d7 Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Tue, 25 Jun 2024 18:04:56 -0700
-Subject: [PATCH 3/4] Fix import error handling for setuptools_scm
+Subject: [PATCH 3/5] Fix import error handling for setuptools_scm
 
 Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 ---
