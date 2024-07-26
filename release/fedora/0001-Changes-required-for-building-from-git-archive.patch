@@ -1,7 +1,7 @@
 From 2d73b8030ae787fe925b1859a81ac12b4d09192a Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Mon, 24 Jun 2024 09:34:51 -0700
-Subject: [PATCH 1/4] Changes required for building from git archive
+Subject: [PATCH 1/5] Changes required for building from git archive
 
 - Provide options to avoid other downloads
 

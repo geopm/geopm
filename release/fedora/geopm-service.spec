@@ -24,6 +24,7 @@ License: BSD-3-Clause
 URL: https://geopm.github.io
 Source0: https://github.com/geopm/geopm/archive/v3.1.0/geopm-3.1.0.tar.gz
 Patch0: 0001-Changes-required-for-building-from-git-archive.patch
+Patch1: 0005-Delete-test-that-fails-in-pid-namespace.patch
 BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
 Prefix: %{_prefix}
 BuildRequires: gcc-c++
@@ -96,6 +97,7 @@ library which provides C and C++ interfaces.
 %prep
 %setup -n geopm-%{version}
 %patch -P0 -p1
+%patch -P1 -p1
 
 %build
 cd libgeopmd
@@ -131,7 +133,7 @@ echo %{version} > VERSION
 %check
 cd libgeopmd
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
-%{__make} %{?_smp_mflags} check
+%{__make} %{?_smp_mflags} check || (cat test-suite.log && false)
 
 %install
 cd libgeopmd
