@@ -42,13 +42,7 @@ Requires: python3-geopmdpy-doc
 Requires: geopm-runtime-doc
 Requires: libgeopm-doc
 Requires: python3-geopmpy-doc
-BuildRequires: bash-completion
 %global debug_package %{nil}
-
-%define completionsdir %(pkg-config --variable=completionsdir bash-completion)
-%if "x%{?completionsdir}" == "x"
-%define completionsdir "%{_sysconfdir}/bash_completion.d"
-%endif
 
 %description
 Man pages for geopm packages
@@ -102,7 +96,7 @@ echo %{version} > VERSION
 %install
 cd docs
 %{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} install_man
-%{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} completionsdir=%{completionsdir} install_completion
+%{__make} DESTDIR=%{buildroot} prefix=%{_prefix} datarootdir=%{_datarootdir} mandir=%{_mandir} completionsdir=%{bash_completions_dir} install_completion
 
 %clean
 
@@ -139,8 +133,8 @@ cd docs
 %doc %{_mandir}/man7/geopm_pio_sysfs.7.gz
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
-%doc %{completionsdir}/geopmread
-%doc %{completionsdir}/geopmwrite
+%{bash_completions_dir}/geopmread
+%{bash_completions_dir}/geopmwrite
 
 %files -n libgeopmd-doc
 %doc %{_mandir}/man3/geopm::Agg.3.gz
@@ -185,7 +179,7 @@ cd docs
 %files -n python3-geopmpy-doc
 %doc %{_mandir}/man1/geopmlaunch.1.gz
 %doc %{_mandir}/man7/geopmpy.7.gz
-%doc %{completionsdir}/geopmlaunch
+%{bash_completions_dir}/geopmlaunch
 
 %changelog
 * Fri May 17 2024 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.1.0
