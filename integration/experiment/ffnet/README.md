@@ -56,7 +56,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
   executes a CPU/GPU/uncore frequency sweep while gathering telemetry that is useful to 
   differentiate regions of interest.
 
-  In addition to command line arguments common to all runscripts, this script also accepts
+  In addition to command line arguments common to all run scripts, this script also accepts
   options used by the `gpu_frequency_sweep` experiment. Note that for each domain
   (CPU/GPU/uncore), a sweep will not run unless both minimum and maximum frequencies are
   supplied and unequal to one another.
@@ -69,12 +69,12 @@ frequency recommendation maps, optionally with a specified perf energy bias.
   - `--min-frequency`: the minimum CPU frequency setting for the sweep. If not
                        specified, a CPU frequency sweep will not run.
 
-  - `--step-frequency`: the step size in hertz between CPU frequency
+  - `--step-frequency`: (optional) the step size in hertz between CPU frequency
                         settings for the sweep. The default value is the CPU's
                         frequency step size.
  
-  - `--run-max-turbo`: executes additional runs with max turbo
-                       frequency as the limit for the core frequency.
+  - `--run-max-turbo`: (optional, default=False) executes additional runs with 
+                       max turbo frequency as the limit for the core frequency.
 
   **CPU Uncore Frequency Settings**
  
@@ -123,7 +123,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
   - `output`: Prefix for output files `[output]_stats.h5` and `[output]_traces.h5`
   - `frequency_sweep_dirs`: Directories containing reports and traces from frequency sweeps
 
-  E.g.:
+  Example:
 
    ```
    ./gen_hdf_from_fsweep.py example_output /path/to/fsweep
@@ -149,7 +149,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
    - `--ignore` : A comma-separated list of region hashes to ignore. Default=None
 
 
-   E.g.:
+   Example:
 
    ```
    ./gen_neural_net.py --output nnet --description "A neural net" --data example_output_traces.h5
@@ -174,7 +174,7 @@ frequency recommendation maps, optionally with a specified perf energy bias.
 
    - `--output`: Prefix of the output json file(s). Default="region_parameters"
 
-   E.g.:
+   Example:
 
    ```
     ./gen_region_parameters.py --output fmap --data-file example_output_stats.h5
@@ -199,7 +199,8 @@ frequency recommendation maps, optionally with a specified perf energy bias.
 
    This will generate all HDFs and json files referenced above.
 
-   E.g. 
+   Example:
+
    ```
    ./gen_sweep_to_ffnet.py --output test --description "Test" --frequency_sweep_dirs /path/to/fsweep
    ```
@@ -221,14 +222,16 @@ using the following steps.
    and the PARRES suite (DGEMM and STREAM) on GPU.
 
 2. Generate neural net json files and region frequency recommendation map files using
-   `gen_sweep_to_ffnet.py`. E.g.:
+   `gen_sweep_to_ffnet.py`. 
+
+   Example:
 
    ```
    ./gen_sweep_to_ffnet.py --output test --description "Test" --frequency_sweep_dirs /path/to/fsweep
    ```
 
    Resulting json files will output in the directory in which the script was executed
-   and filenames will be prepended with the user-provided prefix. E.g. output files:
+   and filenames will be prepended with the user-provided prefix. Example output files:
 
    - CPU Neural Net: `test_nn_cpu.json`
    - CPU Region Frequency Recommendation Map: `test_fmap_cpu.json`
@@ -236,7 +239,9 @@ using the following steps.
    - GPU Region Frequency Recommendation Map: `test_fmap_gpu.json`
 
 
-3. Set environment variables to point to the generated json files. E.g.:
+3. Set environment variables to point to the generated json files. 
+
+   Example:
 
 ```
     export GEOPM_CPU_NN_PATH=${GEOPM_SOURCE}/integration/experiment/ffnet/test_nn_cpu.json

@@ -39,8 +39,8 @@ file pointed to by environment variables ``GEOPM_CPU_FMAP_PATH`` and/or
 .. literalinclude:: ../json_schemas/regionhintrecommender_fmap.schema.json
     :language: json
 
-If you specify a neural net for a domain (CPU/GPU), you must specify a frequency 
-recommendation as well.
+If you specify a neural net file for a domain (CPU/GPU), you must specify a frequency 
+recommendation file as well.
 
 This agent can be used at the package scope to control CPU frequency
 and/or at the per-GPU scope to control GPU frequency.
@@ -93,7 +93,7 @@ Note that this infrastructure relies on pytorch.
   * [GPU] parres stream
 
 # Run ``gen_hdf_from_fsweep.py`` to generate HDF files from the frequency sweep reports
-  and traces
+  and traces (CPU and/or GPU).
 
 # Run ``gen_neural_net.py`` to generate the neural net(s). CPU/GPU nets will be generated
   automatically based on the existence of required trace signals for each domain.
@@ -104,6 +104,19 @@ Note that this infrastructure relies on pytorch.
 
 # Before running the FFNet agent, the environment variables detailed above must be set
   to the paths of the neural net and frequency recommendation files.
+
+Generalizability
+----------------
+
+The generalization power of these neural nets is not yet deeply understood. Preliminary 
+studies have shown decent performance across systems of the same architecture/SKU. Tests
+from one CPU type to the other have performed reasonably, albeit with diminished 
+performance and energy savings outcomes. The monotonicity of performance/energy savings
+with ``PERF_ENERGY_BIAS`` remains as expected, i.e. performance degradation and energy
+savings of an application both increase with increased PERF_ENERGY_BIAS.
+
+The FFNet agent works independently across different networks/fabric, as it executes
+independently on each package and does not rely on application-specific information.
 
 Report Extensions
 -----------------
