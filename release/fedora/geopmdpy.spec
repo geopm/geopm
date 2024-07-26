@@ -26,6 +26,8 @@ BuildRequires: python3-psutil
 BuildRequires: python3-cffi
 BuildRequires: libgeopmd2
 
+%global debug_package %{nil}
+
 %define python_bin %{__python3}
 
 %{!?python3_pkgversion:%global python3_pkgversion 3}

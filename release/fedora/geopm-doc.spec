@@ -27,6 +27,7 @@ Patch0: 0001-Changes-required-for-building-from-git-archive.patch
 Patch1: 0004-Remove-network-requirement-from-docs-build.patch
 BuildRoot: %{_tmppath}/geopm-doc-%{version}-%{release}-root
 Prefix: %{_prefix}
+BuildRequires: make
 BuildRequires: python3-sphinx >= 4.5.0
 BuildRequires: python3-sphinx_rtd_theme >= 1.0.0
 BuildRequires: python3-sphinxemoji >= 0.2.0
@@ -42,6 +43,7 @@ Requires: geopm-runtime-doc
 Requires: libgeopm-doc
 Requires: python3-geopmpy-doc
 BuildRequires: bash-completion
+%global debug_package %{nil}
 
 %define completionsdir %(pkg-config --variable=completionsdir bash-completion)
 %if "x%{?completionsdir}" == "x"
