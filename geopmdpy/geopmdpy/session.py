@@ -58,7 +58,7 @@ class Session:
                   zip(signals, signal_format)]
         return '{}\n'.format(','.join(result))
 
-    def run_read(self, requests, duration, period, pid, out_stream):
+    def run_read(self, requests, duration, period, pid, out_stream, update_function=None, is_quiet=False):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -101,8 +101,12 @@ class Session:
         for sample_idx in loop.TimedLoop(period, num_period):
             pio.read_batch()
             signals = [pio.sample(handle) for handle in signal_handles]
-            line = self.format_signals(signals, requests.get_formats())
-            out_stream.write(line)
+            if not is_quiet:
+                line = self.format_signals(signals, requests.get_formats())
+                out_stream.write(line)
+            if update_function is not None:
+                update_function(signals)
+
             if pid is not None:
                 try:
                     os.kill(pid, 0)
@@ -140,8 +144,13 @@ class Session:
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
 
+    def header_names(self):
+        header_names = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
+                        if topo.domain_name(domain) != 'board' else f'"{name}"'
+                            for name, domain, domain_idx in self._requests]
+
     def run(self, run_time, period, pid, print_header,
-            request_stream=sys.stdin, out_stream=sys.stdout):
+            request_stream=sys.stdin, out_stream=sys.stdout, update_function=None, is_quiet=False):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -168,14 +177,12 @@ class Session:
                                printed.
 
         """
-        requests = ReadRequestQueue(request_stream)
+        self._requests = ReadRequestQueue(request_stream)
         self.check_read_args(run_time, period)
         if print_header:
-            header_names = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
-                            if topo.domain_name(domain) != 'board' else f'"{name}"'
-                            for name, domain, domain_idx in requests]
+            header_names = self.header_names()
             print(','.join(header_names), file=out_stream)
-        self.run_read(requests, run_time, period, pid, out_stream)
+        self.run_read(requests, run_time, period, pid, out_stream, update_function, is_quiet)
 
 
 class RequestQueue:
@@ -323,14 +330,7 @@ class ReadRequestQueue(RequestQueue):
         """
         return self._formats
 
-def main():
-    """Command line interface for the geopm service batch read features.
-
-    This command can be used to read signals by opening a session with
-    the geopm service.
-
-    """
-    err = 0
+def get_parser():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-v', '--version', dest='version', action='store_true',
                         help='Print version and exit')
@@ -342,7 +342,17 @@ def main():
                         help='Stop the session when the given process PID ends')
     parser.add_argument('--print-header', action='store_true',
                         help='Print a CSV header before printing any sampled values')
-    args = parser.parse_args()
+    return parser
+
+def main():
+    """Command line interface for the geopm service batch read features.
+
+    This command can be used to read signals by opening a session with
+    the geopm service.
+
+    """
+    err = 0
+    args = get_parser().parse_args()
     try:
         if args.version:
             print(__version_str__)
