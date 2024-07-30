@@ -10,6 +10,7 @@ import sys
 import os
 import errno
 import math
+import yaml
 from argparse import ArgumentParser
 from . import topo
 from . import pio
@@ -58,7 +59,7 @@ class Session:
                   zip(signals, signal_format)]
         return '{}\n'.format(','.join(result))
 
-    def run_read(self, requests, duration, period, pid, out_stream, update_function=None, is_quiet=False):
+    def run_read(self, requests, duration, period, pid, out_stream, stats=None):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -97,15 +98,16 @@ class Session:
         signal_handles = []
         for name, dom, dom_idx in requests:
             signal_handles.append(pio.push_signal(name, dom, dom_idx))
+        if stats is not None:
+            stats.set_signal_handles(signal_handles)
 
         for sample_idx in loop.TimedLoop(period, num_period):
             pio.read_batch()
             signals = [pio.sample(handle) for handle in signal_handles]
-            if not is_quiet:
-                line = self.format_signals(signals, requests.get_formats())
-                out_stream.write(line)
-            if update_function is not None:
-                update_function(signals)
+            line = self.format_signals(signals, requests.get_formats())
+            out_stream.write(line)
+            if stats is not None:
+                stats.update()
 
             if pid is not None:
                 try:
@@ -150,7 +152,7 @@ class Session:
                             for name, domain, domain_idx in self._requests]
 
     def run(self, run_time, period, pid, print_header,
-            request_stream=sys.stdin, out_stream=sys.stdout, update_function=None, is_quiet=False):
+            request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -178,12 +180,15 @@ class Session:
 
         """
         self._requests = ReadRequestQueue(request_stream)
+        if report_stream is not None:
+            stats = Stats(self._requests)
         self.check_read_args(run_time, period)
         if print_header:
             header_names = self.header_names()
             print(','.join(header_names), file=out_stream)
-        self.run_read(requests, run_time, period, pid, out_stream, update_function, is_quiet)
-
+        self.run_read(requests, run_time, period, pid, out_stream, stats)
+        if report_stream is not None:
+            yaml.dump(stats.report(), report_stream)
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -342,6 +347,10 @@ def get_parser():
                         help='Stop the session when the given process PID ends')
     parser.add_argument('--print-header', action='store_true',
                         help='Print a CSV header before printing any sampled values')
+    parser.add_argument('--report-out', dest='report_out', default=None
+                        help='Output summary statistics into a yaml file')
+    parser.add_argument('--trace-out', dest='trace_out', default='-'
+                        help='Output trace data into a CSV file')
     return parser
 
 def main():
@@ -353,18 +362,33 @@ def main():
     """
     err = 0
     args = get_parser().parse_args()
+    report_out = None
+    if args.trace_out == "-":
+        trace_out = sys.stdout
+    else:
+        trace_out = open(args.trace_out, "w")
+    if args.report_out == "-":
+        report_out = sys.stdout
+    elif args.report_out is not None:
+        report_out = open(args.report_out, "w")
+
     try:
         if args.version:
             print(__version_str__)
             return 0
         sess = Session()
-        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header)
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header, out_stream=trace_out, report_stream=report_out)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
             raise ee
         sys.stderr.write('Error: {}\n\n'.format(ee))
         err = -1
+    finally:
+        if report_out is not None and args.report_out != "-":
+            report_out.close()
+        if args.trace_out != "-":
+            trace_out.close()
     return err
 
 if __name__ == '__main__':
