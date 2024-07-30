@@ -46,7 +46,7 @@ class TestIntegration_frequency_balancer(unittest.TestCase):
         """
         An imbalanced application gets rebalanced by the frequency_balancer agent.
         """
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cores_rebalance_output')
+        output_dir = Path('test_cores_rebalance_output')
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
 
