@@ -583,13 +583,13 @@ def start_batch_server(client_pid, signal_config, control_config):
         client_pid (int): Linux PID of the thread that will interact
                           with the batch server.
 
-        signal_config (list((str, int, int))): List of requested
-            signals where each tuple represents (signal_name,
-            domain_type, domain_idx).
+        signal_config (list((int, int, str))): List of requested
+            signals where each tuple represents
+            (domain_type, domain_idx, signal_name).
 
-        control_config (list((str, int, int))): List of requested
-            controlss where each tuple represents (control_name,
-            domain_type, domain_idx).
+        control_config (list((int, int, str))): List of requested
+            controls where each tuple represents
+            (domain_type, domain_idx, control_name).
 
     Returns:
         tuple(int, str): The server PID and the string key used by the
@@ -600,7 +600,7 @@ def start_batch_server(client_pid, signal_config, control_config):
         RuntimeError: Failure to start the batch server.
 
     """
-
+    global _dl
     num_signal = len(signal_config)
     num_control = len(control_config)
     if num_signal != 0:
