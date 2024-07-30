@@ -27,6 +27,7 @@ include_HEADERS = include/geopm_debug.hpp \
                   include/geopm_shmem.h \
                   include/geopm_time.h \
                   include/geopm_topo.h \
+                  include/geopm_stats_collector.h \
                   include/geopm_version.h \
                   # end
 
@@ -153,6 +154,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Cpuid.cpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
+                       src/StatsCollector.cpp \
                        src/SysfsIOGroup.cpp \
                        src/SysfsIOGroup.hpp \
                        src/CpufreqSysfsDriver.cpp \

@@ -10,11 +10,11 @@ import sys
 import os
 import errno
 import math
-import yaml
 from argparse import ArgumentParser
 from . import topo
 from . import pio
 from . import loop
+from . import stats
 from . import __version_str__
 
 
@@ -59,7 +59,7 @@ class Session:
                   zip(signals, signal_format)]
         return '{}\n'.format(','.join(result))
 
-    def run_read(self, requests, duration, period, pid, out_stream, stats=None):
+    def run_read(self, requests, duration, period, pid, out_stream, do_stats=False):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -98,16 +98,16 @@ class Session:
         signal_handles = []
         for name, dom, dom_idx in requests:
             signal_handles.append(pio.push_signal(name, dom, dom_idx))
-        if stats is not None:
-            stats.set_signal_handles(signal_handles)
+        if do_stats:
+            stats.collector([(rr[0], rr[1], rr[2]) for rr in requests])
 
         for sample_idx in loop.TimedLoop(period, num_period):
             pio.read_batch()
             signals = [pio.sample(handle) for handle in signal_handles]
             line = self.format_signals(signals, requests.get_formats())
             out_stream.write(line)
-            if stats is not None:
-                stats.update()
+            if do_stats:
+                stats.collector_update()
 
             if pid is not None:
                 try:
@@ -147,9 +147,9 @@ class Session:
             raise RuntimeError('Specified a negative run time or period')
 
     def header_names(self):
-        header_names = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
-                        if topo.domain_name(domain) != 'board' else f'"{name}"'
-                            for name, domain, domain_idx in self._requests]
+        return [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
+                if topo.domain_name(domain) != 'board' else f'"{name}"'
+                for name, domain, domain_idx in self._requests]
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None):
@@ -180,15 +180,14 @@ class Session:
 
         """
         self._requests = ReadRequestQueue(request_stream)
-        if report_stream is not None:
-            stats = Stats(self._requests)
+        do_stats = report_stream is not None
         self.check_read_args(run_time, period)
         if print_header:
             header_names = self.header_names()
             print(','.join(header_names), file=out_stream)
-        self.run_read(requests, run_time, period, pid, out_stream, stats)
-        if report_stream is not None:
-            yaml.dump(stats.report(), report_stream)
+        self.run_read(self._requests, run_time, period, pid, out_stream, do_stats)
+        if do_stats:
+            report_stream.write(stats.collector_report())
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -347,9 +346,9 @@ def get_parser():
                         help='Stop the session when the given process PID ends')
     parser.add_argument('--print-header', action='store_true',
                         help='Print a CSV header before printing any sampled values')
-    parser.add_argument('--report-out', dest='report_out', default=None
+    parser.add_argument('--report-out', dest='report_out', default=None,
                         help='Output summary statistics into a yaml file')
-    parser.add_argument('--trace-out', dest='trace_out', default='-'
+    parser.add_argument('--trace-out', dest='trace_out', default='-',
                         help='Output trace data into a CSV file')
     return parser
 
