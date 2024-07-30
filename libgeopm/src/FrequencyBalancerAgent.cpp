@@ -18,22 +18,22 @@
 #include <thread>
 #include <utility>
 
+#include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/FrequencyGovernor.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/PowerGovernor.hpp"
+#include "geopm/Waiter.hpp"
 #include "geopm_hash.h"
 #include "geopm_hint.h"
 #include "geopm_time.h"
 #include "geopm_topo.h"
 
-#include "Environment.hpp"
 #include "FrequencyLimitDetector.hpp"
 #include "FrequencyTimeBalancer.hpp"
 #include "SSTClosGovernor.hpp"
-#include "Waiter.hpp"
 #include "geopm_debug.hpp"
 
 // Minimum number of sampling wait periods before applying new epoch controls.
