@@ -17,6 +17,10 @@ from . import loop
 from . import stats
 from . import __version_str__
 
+try:
+    from mpi4py import MPI
+except ModuleNotFoundError as ex:
+    MPI = ex
 
 class Session:
     """Object responsible for creating a GEOPM batch read session
@@ -103,9 +107,10 @@ class Session:
 
         for sample_idx in loop.TimedLoop(period, num_period):
             pio.read_batch()
-            signals = [pio.sample(handle) for handle in signal_handles]
-            line = self.format_signals(signals, requests.get_formats())
-            out_stream.write(line)
+            if out_stream is not None:
+                signals = [pio.sample(handle) for handle in signal_handles]
+                line = self.format_signals(signals, requests.get_formats())
+                out_stream.write(line)
             if do_stats:
                 stats.collector_update()
 
@@ -152,7 +157,8 @@ class Session:
                 for name, domain, domain_idx in self._requests]
 
     def run(self, run_time, period, pid, print_header,
-            request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None):
+            request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None,
+            mpi_comm=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -182,12 +188,23 @@ class Session:
         self._requests = ReadRequestQueue(request_stream)
         do_stats = report_stream is not None
         self.check_read_args(run_time, period)
-        if print_header:
+        if out_stream is not None and print_header:
             header_names = self.header_names()
             print(','.join(header_names), file=out_stream)
         self.run_read(self._requests, run_time, period, pid, out_stream, do_stats)
         if do_stats:
-            report_stream.write(stats.collector_report())
+            report = stats.collector_report()
+            rank = 0
+            if mpi_comm is not None:
+                report_list = mpi_comm.gather(report, root=0)
+                rank = mpi_comm.Get_rank()
+                if rank == 0:
+                    tmp_list = [report_list[0]]
+                    report_list = [rr.replace('Hosts:\n', '') for rr in report_list[1:]]
+                    tmp_list.extend(report_list)
+                    report = ''.join(tmp_list)
+            if rank == 0:
+                report_stream.write(report)
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -350,6 +367,8 @@ def get_parser():
                         help='Output summary statistics into a yaml file')
     parser.add_argument('--trace-out', dest='trace_out', default='-',
                         help='Output trace data into a CSV file')
+    parser.add_argument('--mpi-report', dest='mpi_report', action='store_true',
+                        help='Gather reports over mpi and write to a single file')
     return parser
 
 def main():
@@ -364,6 +383,8 @@ def main():
     report_out = None
     if args.trace_out == "-":
         trace_out = sys.stdout
+    elif args.trace_out == "/dev/null":
+        trace_out = None
     else:
         trace_out = open(args.trace_out, "w")
     if args.report_out == "-":
@@ -376,7 +397,12 @@ def main():
             print(__version_str__)
             return 0
         sess = Session()
-        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header, out_stream=trace_out, report_stream=report_out)
+        mpi_comm = None
+        if args.mpi_report:
+            if type(MPI) == ModuleNotFoundError:
+                raise MPI
+            mpi_comm = MPI.COMM_WORLD
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header, out_stream=trace_out, report_stream=report_out, mpi_comm=mpi_comm)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
@@ -386,7 +412,7 @@ def main():
     finally:
         if report_out is not None and args.report_out != "-":
             report_out.close()
-        if args.trace_out != "-":
+        if trace_out is not None and args.trace_out != "-":
             trace_out.close()
     return err
 
