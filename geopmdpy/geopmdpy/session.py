@@ -36,11 +36,11 @@ class Session:
 
     """
 
-    def __init__(self):
+    def __init__(self, delimiter=','):
         """Constructor for Session class
 
         """
-        pass
+        self._delimiter=delimiter
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -61,7 +61,7 @@ class Session:
                 'Number of signal values does not match the number of requests')
         result = [pio.format_signal(ss, ff) for (ss, ff) in
                   zip(signals, signal_format)]
-        return '{}\n'.format(','.join(result))
+        return '{}\n'.format(self._delimiter.join(result))
 
     def run_read(self, requests, duration, period, pid, out_stream, do_stats=False):
         """Run a read mode session
@@ -190,7 +190,7 @@ class Session:
         self.check_read_args(run_time, period)
         if out_stream is not None and print_header:
             header_names = self.header_names()
-            print(','.join(header_names), file=out_stream)
+            print(self._delimiter.join(header_names), file=out_stream)
         self.run_read(self._requests, run_time, period, pid, out_stream, do_stats)
         if do_stats:
             report = stats.collector_report()
@@ -357,12 +357,14 @@ def get_parser():
                         help='Print version and exit')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
                         help='Total run time of the session to be opened in seconds')
-    parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
+    parser.add_argument('-p', '--period', dest='period', type=float, default=0.0,
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
     parser.add_argument('--pid', type=int,
                         help='Stop the session when the given process PID ends')
     parser.add_argument('--print-header', action='store_true',
                         help='Print a CSV header before printing any sampled values')
+    parser.add_argument('-d', '--delimter', dest='delimiter', default=',',
+                        help='Delimiter used to separate values in CSV output')
     parser.add_argument('--report-out', dest='report_out', default=None,
                         help='Output summary statistics into a yaml file')
     parser.add_argument('--trace-out', dest='trace_out', default='-',
@@ -396,7 +398,7 @@ def main():
         if args.version:
             print(__version_str__)
             return 0
-        sess = Session()
+        sess = Session(args.delimiter)
         mpi_comm = None
         if args.mpi_report:
             if type(MPI) == ModuleNotFoundError:
