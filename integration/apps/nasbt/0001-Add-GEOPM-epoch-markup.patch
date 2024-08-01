@@ -81,6 +81,7 @@ index 0000000..29960fd
 +#---------------------------------------------------------------------------
 +# This is the fortran compiler used for fortran programs
 +#---------------------------------------------------------------------------
++MPIF90 ?= mpif90
 +FC = $(MPIF90)
 +# This links fortran programs; usually the same as ${FC}
 +FLINK	= $(FC)
