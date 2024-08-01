@@ -16,6 +16,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm_time.h"
 
 
 namespace geopm
@@ -83,6 +84,7 @@ namespace geopm
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
             std::shared_ptr<RuntimeStats> m_stats;
+            std::string m_time_begin;
     };
 
     RuntimeStatsCollector &RuntimeStatsCollector::runtime_stats_collector(const std::vector<geopm_request_s> &requests)
@@ -122,6 +124,16 @@ namespace geopm
 
     void RuntimeStatsCollectorImp::update(void)
     {
+        if (m_time_begin.size() == 0) {
+            geopm_time_s time_begin = geopm::time_curr();
+            char time_begin_str[NAME_MAX];
+            int err = geopm_time_to_string(&time_begin, NAME_MAX, time_begin_str);
+            if (err != 0) {
+                throw Exception("RuntimeStatsCollectorImp::report(): Failed to convert time string",
+                                err, __FILE__, __LINE__);
+            }
+            m_time_begin = time_begin_str;
+        }
         // Caller is expected to have called platform_io().read_batch();
         std::vector<double> sample(m_pio_idx.size(), 0.0);
         auto sample_it = sample.begin();
@@ -135,18 +147,28 @@ namespace geopm
     std::string RuntimeStatsCollectorImp::report(void) const
     {
         std::ostringstream result;
-        result << "Hosts:\n";
+        geopm_time_s time_end = geopm::time_curr();
+        char time_end_str[NAME_MAX];
+        int err = geopm_time_to_string(&time_end, NAME_MAX, time_end_str);
+        if (err != 0) {
+            throw Exception("RuntimeStatsCollectorImp::report(): Failed to convert time string",
+                            err, __FILE__, __LINE__);
+        }
+        result << "hosts:\n";
         result << "  " << geopm::hostname() << ":\n";
+        result << "    " << "time-begin: \"" << m_time_begin << "\"\n";
+        result << "    " << "time-end: \"" <<  time_end_str << "\"\n";
+        result << "    " << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {
-            result << "    " << metric_name << ":\n";
-            result << "      " << "count: " << m_stats->count(metric_idx) << "\n";
-            result << "      " << "first: " << m_stats->first(metric_idx) << "\n";
-            result << "      " << "last: " << m_stats->last(metric_idx) << "\n";
-            result << "      " << "min: " << m_stats->min(metric_idx) << "\n";
-            result << "      " << "max: " << m_stats->max(metric_idx) << "\n";
-            result << "      " << "mean: " << m_stats->mean(metric_idx) << "\n";
-            result << "      " << "std: " << m_stats->std(metric_idx) << "\n";
+            result << "      " << metric_name << ":\n";
+            result << "        " << "count: " << m_stats->count(metric_idx) << "\n";
+            result << "        " << "first: " << m_stats->first(metric_idx) << "\n";
+            result << "        " << "last: " << m_stats->last(metric_idx) << "\n";
+            result << "        " << "min: " << m_stats->min(metric_idx) << "\n";
+            result << "        " << "max: " << m_stats->max(metric_idx) << "\n";
+            result << "        " << "mean: " << m_stats->mean(metric_idx) << "\n";
+            result << "        " << "std: " << m_stats->std(metric_idx) << "\n";
             ++metric_idx;
         }
         return result.str();
@@ -315,8 +337,8 @@ namespace geopm
                 moments_it->m_3 += mm;
                 mm *= ss;
                 moments_it->m_4 += mm;
-                ++moments_it;
             }
+            ++moments_it;
         }
     }
 }
