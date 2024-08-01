@@ -94,6 +94,7 @@ index 0000000..9265d07
 +#---------------------------------------------------------------------------
 +# This is the fortran compiler used for MPI programs
 +#---------------------------------------------------------------------------
++MPIF90 ?= mpif90
 +MPIFC = $(MPIF90)
 +# This links MPI fortran programs; usually the same as ${MPIFC}
 +FLINK	= $(MPIFC)
