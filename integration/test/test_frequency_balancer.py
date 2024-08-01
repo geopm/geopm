@@ -30,6 +30,7 @@ from apps.arithmetic_intensity import arithmetic_intensity
 
 
 @util.skip_unless_do_launch()
+@util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_avx2")
 class TestIntegration_frequency_balancer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
