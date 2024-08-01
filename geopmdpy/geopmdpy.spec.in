@@ -46,6 +46,7 @@ Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
 Requires: libgeopmd2 = %{version}
+Recommends: python3-mpi4py # Enables geopmsession --mpi-report option, otherwise not used
 Recommends: python3-geopmdpy-doc
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
