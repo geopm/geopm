@@ -8,7 +8,7 @@ Synopsis
 .. code-block:: none
 
     geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID] [--print-header]
-                 [-d DELIMETER] [--report-out REPORT_OUT]
+                 [-d DELIMITER] [--report-out REPORT_OUT]
                  [--trace-out TRACE_OUT] [--mpi-report MPI_REPORT]
 
 Command line interface for the geopm service batch read features. This command
@@ -86,9 +86,9 @@ Options
 
     Print a CSV header before printing any sampled values
 
---delimeter .. _delimeter DELIMETER .. option:
+--delimiter .. _delimiter DELIMITER .. option:
 
-    Delimeter used to separate values in CSV output
+    Delimiter used to separate values in CSV output
 
 --report-out .. _reportout REPORT_OUT option:
 

@@ -363,7 +363,7 @@ def get_parser():
                         help='Stop the session when the given process PID ends')
     parser.add_argument('--print-header', action='store_true',
                         help='Print a CSV header before printing any sampled values')
-    parser.add_argument('-d', '--delimter', dest='delimiter', default=',',
+    parser.add_argument('-d', '--delimiter', dest='delimiter', default=',',
                         help='Delimiter used to separate values in CSV output')
     parser.add_argument('--report-out', dest='report_out', default=None,
                         help='Output summary statistics into a yaml file')
