@@ -8,6 +8,8 @@ Synopsis
 .. code-block:: none
 
     geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID] [--print-header]
+                 [-d DELIMETER] [--report-out REPORT_OUT]
+                 [--trace-out TRACE_OUT] [--mpi-report MPI_REPORT]
 
 Command line interface for the geopm service batch read features. This command
 can be used to read signals by opening a session with the geopm service.
@@ -84,6 +86,25 @@ Options
 
     Print a CSV header before printing any sampled values
 
+--delimeter .. _delimeter DELIMETER .. option:
+
+    Delimeter used to separate values in CSV output
+
+--report-out .. _reportout REPORT_OUT option:
+
+    Output summary statistics into a yaml file. Note if ``--report-out=-``
+    is specified, the report will output to stdout.
+
+--trace-out .. _traceout TRACE_OUT option:
+
+    Output trace data into a CSV file. Note if ``--trace_out=-`` is specified,
+    the trace will output to stdout. To avoid gathering trace data,
+    set this parameter to ``/dev/null``
+
+--mpi-report .. _mpireport option:
+
+    Gather reports over mpi and write to a single file
+
 
 Examples
 --------
@@ -93,7 +114,6 @@ provided.
 
 Reading a signal
 ~~~~~~~~~~~~~~~~
-
 The input to the command line tool has one request per line.  A
 request for reading is made of up three strings separated by white
 space.  The first string is the signal name, the second string is the
@@ -132,6 +152,49 @@ Multiple signals may be specified by separating them with a newline.
     echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' | geopmsession
     70.250978379,2434090909.090909,2775000000,198575.8842163086,88752.19470214844
 
+Reading a set of signals and getting summary statistics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary statistics may be output to stdout by setting ``--report-out=-``.
+Otherwise, the statistics will be output to the specified file path. If
+unspecified, no statistics will be gathered.
+
+.. code-block:: none
+
+    printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' | geopmsession -t 2 -p 0.01 --print-header --report-out=- "TIME","CPU_POWER","CPU_FREQUENCY_STATUS"
+
+An example report is shown below:
+
+.. code-block:: none
+
+   hosts:
+     localhost:
+       time-begin: "Thu Aug 01 11:50:42 2024"
+       time-end: "Thu Aug 01 11:50:43 2024"
+       metrics:
+         TIME:
+           count: 201
+           first: 0.165067
+           last: 2.04619
+           min: 0.165067
+           max: 2.04619
+           mean: 1.05035
+           std: 0.575056
+         CPU_POWER:
+           count: 200
+           first: 109.982
+           last: 73.0664
+           min: 67.2973
+           max: 109.982
+           mean: 74.319
+           std: 6.90355
+         CPU_FREQUENCY_STATUS:
+           count: 201
+           first: 1.02625e+09
+           last: 1e+09
+           min: 1e+09
+           max: 1.0525e+09
+           mean: 1.00371e+09
+           std: 1.32582e+07
 
 See Also
 --------
