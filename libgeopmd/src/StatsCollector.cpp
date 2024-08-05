@@ -125,9 +125,9 @@ namespace geopm
     void RuntimeStatsCollectorImp::update(void)
     {
         if (m_time_begin.size() == 0) {
-            geopm_time_s time_begin = geopm::time_curr();
+            geopm_time_s time_begin = geopm::time_curr_real();
             char time_begin_str[NAME_MAX];
-            int err = geopm_time_to_string(&time_begin, NAME_MAX, time_begin_str);
+            int err = geopm_time_real_to_iso_string(&time_begin, NAME_MAX, time_begin_str);
             if (err != 0) {
                 throw Exception("RuntimeStatsCollectorImp::report(): Failed to convert time string",
                                 err, __FILE__, __LINE__);
@@ -147,9 +147,9 @@ namespace geopm
     std::string RuntimeStatsCollectorImp::report(void) const
     {
         std::ostringstream result;
-        geopm_time_s time_end = geopm::time_curr();
+        geopm_time_s time_end = geopm::time_curr_real();
         char time_end_str[NAME_MAX];
-        int err = geopm_time_to_string(&time_end, NAME_MAX, time_end_str);
+        int err = geopm_time_real_to_iso_string(&time_end, NAME_MAX, time_end_str);
         if (err != 0) {
             throw Exception("RuntimeStatsCollectorImp::report(): Failed to convert time string",
                             err, __FILE__, __LINE__);

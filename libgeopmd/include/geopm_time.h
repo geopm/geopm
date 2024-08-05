@@ -94,6 +94,9 @@ static inline int geopm_time_to_string(const struct geopm_time_s *time, int buf_
     return err;
 }
 
+int GEOPM_PUBLIC
+    geopm_time_real_to_iso_string(const struct geopm_time_s *time, int buf_size, char *buf);
+
 static inline int geopm_time_string(int buf_size, char *buf)
 {
     struct geopm_time_s time;
@@ -119,6 +122,8 @@ namespace geopm
         time_zero(void);
     struct geopm_time_s GEOPM_PUBLIC
         time_curr(void);
+    struct geopm_time_s GEOPM_PUBLIC
+        time_curr_real(void);
     void GEOPM_PUBLIC
         time_zero_reset(const geopm_time_s &zero);
 }

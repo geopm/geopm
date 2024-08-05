@@ -6,6 +6,7 @@
 
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
+#include <string>
 
 namespace geopm
 {
@@ -70,6 +71,13 @@ namespace geopm
         geopm_time(&result);
         return result;
     }
+
+    struct geopm_time_s time_curr_real(void)
+    {
+        struct geopm_time_s result;
+        geopm_time_real(&result);
+        return result;
+    }
 }
 
 extern "C"
@@ -78,5 +86,41 @@ extern "C"
     {
         *time = geopm::TimeZero::time_zero().time();
         return geopm::TimeZero::time_zero().error();
+    }
+
+    int geopm_time_real_to_iso_string(const struct geopm_time_s *time, int buf_size, char *buf)
+    {
+        int err = 0;
+        struct tm local;
+        size_t buf_size_u = buf_size;
+        localtime_r(&(time->t.tv_sec), &local);
+        char *buf_ptr = buf;
+        if (buf_size_u == 0) {
+            return EINVAL;
+        }
+        size_t buf_off = strftime(buf_ptr, buf_size_u, "%FT%T", &local);
+        if (buf_off == 0 || buf_off >= buf_size_u) {
+            err = EINVAL;
+        }
+        else {
+            buf_size_u -= buf_off;
+            buf_ptr += buf_off;
+            int buf_off_s;
+            int buf_size_s = buf_size_u;
+            buf_off_s = snprintf(buf_ptr, buf_size_u, ".%.9ld", time->t.tv_nsec);
+            if (buf_off_s < 0 || buf_off_s >= buf_size_s) {
+                err = EINVAL;
+            }
+            buf_off = buf_off_s;
+        }
+        if (err == 0) {
+            buf_size_u -= buf_off;
+            buf_ptr += buf_off;
+            buf_off = strftime(buf_ptr, buf_size_u, "%z", &local);
+            if (buf_off == 0) {
+                err = EINVAL;
+            }
+        }
+        return err;
     }
 }
