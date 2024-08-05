@@ -22,6 +22,7 @@ compile_commands.json
 /geopm.mod
 /geopm.o
 /geopmpolicy
+/geopmrtd
 /gmock-all.o
 /googletest-release-*/
 /googletest-release-*.tar.gz
@@ -43,6 +44,10 @@ compile_commands.json
 /plugin/*.lo
 /plugin/*.o
 /geopm-runtime.spec
+/src/geopm_runtime.grpc.pb.cc
+/src/geopm_runtime.grpc.pb.h
+/src/geopm_runtime.pb.cc
+/src/geopm_runtime.pb.h
 /stamp-h1
 /test-driver
 !/test/fortran/*.f90

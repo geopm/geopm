@@ -18,6 +18,7 @@ lib_LTLIBRARIES = libgeopm.la \
 bin_PROGRAMS = geopmadmin \
                geopmagent \
                geopmctl \
+               geopmrtd \
                #end
 
 if ENABLE_OPENMP
@@ -122,6 +123,7 @@ EXTRA_DIST += .gitignore \
               m4/openmp.m4 \
               geopm-runtime.spec \
               geopm-runtime.spec.in \
+	      geopm_runtime.proto \
               # end
 
 if HAVE_ICX
@@ -138,6 +140,7 @@ geopmbench_CXXFLAGS = $(AM_CXXFLAGS) -D_GNU_SOURCE -std=c++17 $(MATH_CFLAGS)
 geopmagent_LDADD = libgeopm.la
 geopmadmin_LDADD = libgeopm.la
 geopmctl_LDADD = libgeopm.la
+geopmrtd_LDADD = libgeopm.la
 geopmbench_LDADD = libgeopm.la $(MATH_LIB)
 if ENABLE_MPI
 geopmctl_LDADD += $(MPI_CLIBS)
@@ -245,6 +248,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/ProxyEpochRecordFilter.hpp \
                       src/ProcessRegionAggregator.cpp \
                       src/ProcessRegionAggregator.hpp \
+                      src/RuntimeService.cpp \
+                      src/RuntimeService.hpp \
                       src/RecordFilter.cpp \
                       src/RecordFilter.hpp \
                       src/RegionHintRecommender.cpp \
@@ -277,6 +282,10 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/geopm_lib_init.cpp \
                       src/record.cpp \
                       src/record.hpp \
+                      src/geopm_runtime.grpc.pb.cc \
+                      src/geopm_runtime.grpc.pb.h \
+                      src/geopm_runtime.pb.cc \
+                      src/geopm_runtime.pb.h \
                       # end
 
 beta_source_files = src/CPUActivityAgent.cpp \
@@ -301,6 +310,9 @@ endif
 
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
+geopmctl_SOURCES = src/geopmctl_main.c
+geopmrtd_SOURCES = src/geopmrtd_main.cpp
+
 
 pmpi_source_files = src/geopm_ctl.h \
                     src/geopm_pmpi.c \
@@ -318,20 +330,13 @@ ompt_source_files = src/OMPT.cpp \
                     src/ompt_callback.cpp \
                     # end
 
-geopmctl_SOURCES = src/geopmctl_main.c
-
 if ENABLE_MPI
-    libgeopm_la_SOURCES +=$(mpi_source_files)
+    libgeopm_la_SOURCES += $(mpi_source_files) \
+                           $(pmpi_source_files) \
+                           # end
 else
     EXTRA_DIST += $(mpi_source_files)
-endif # ENABLE_MPI
-
-
-
-if ENABLE_MPI
-libgeopm_la_SOURCES += $(pmpi_source_files)
-else
-EXTRA_DIST += $(pmpi_source_files)
+    EXTRA_DIST += $(pmpi_source_files)
 endif # ENABLE_MPI
 
 if ENABLE_OMPT

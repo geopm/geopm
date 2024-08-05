@@ -34,6 +34,7 @@ License:   __NO_COPYRIGHT_NOR_LICENSE__
 Files:     geopmlaunch
            geopmpy/__init__.py
            geopmpy/agent.py
+           geopmpy/geopm_runtime_pb2.py
            geopmpy/endpoint.py
            geopmpy/hash.py
            geopmpy/io.py
