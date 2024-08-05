@@ -162,7 +162,7 @@ class TestSession(unittest.TestCase):
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, False)
 
     def test_run_with_header(self):
         """geopmsession prints signal-domain-idx header fields."""
@@ -181,7 +181,7 @@ class TestSession(unittest.TestCase):
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, False)
         self.assertEqual('"signal1","signal2-package-1"\n', out_stream.getvalue())
 
 
