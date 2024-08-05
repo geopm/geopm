@@ -14,49 +14,77 @@ from . import gffi
 
 gffi.gffi.cdef("""
 
-int geopm_stats_collector(int num_requests, struct geopm_request_s *requests);
-int geopm_stats_collector_update(void);
-int geopm_stats_collector_report(size_t max_report_size, char *report);
+struct geopm_stats_collector_s;
+
+int geopm_stats_collector_create(size_t num_requests, const struct geopm_request_s *requests,
+                                 struct geopm_stats_collector_s **collector);
+
+int geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
+
+// If *max_report_size is zero, update it with the required size for the report
+// and do not modify report
+int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
+                                      size_t *max_report_size, char *report_yaml);
+
+int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector);
+
+int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
 
 """)
 _dl = gffi.get_dl_geopmd()
 
-def collector(signal_config):
-    """Create stats collector
+class Collector:
+    def __init__(self, signal_config):
+        """Create stats collector
 
-    Args:
-        signal_config (list((str, int, int))): List of requested
-            signals where each tuple represents
-            (signal_name, domain_type, domain_idx).
+        Args:
+            signal_config (list((str, int, int))): List of requested
+                signals where each tuple represents
+                (signal_name, domain_type, domain_idx).
 
-    """
-    global _dl
-    num_signal = len(signal_config)
-    if num_signal == 0:
-        raise RuntimeError('geopm_stats_collector() failed: length of input is zero')
+        """
+        global _dl
+        self._collector_ptr = None
+        signal_config = [(rr[0], rr[1], rr[2]) for rr in signal_config]
+        num_signal = len(signal_config)
+        if num_signal == 0:
+            raise RuntimeError('geopm_stats_collector() failed: length of input is zero')
 
-    signal_config_carr = gffi.gffi.new(f'struct geopm_request_s[{num_signal}]')
-    for idx, req in enumerate(signal_config):
-        signal_config_carr[idx].domain = req[1]
-        signal_config_carr[idx].domain_idx = req[2]
-        signal_config_carr[idx].name = req[0].encode()
+        signal_config_carr = gffi.gffi.new(f'struct geopm_request_s[{num_signal}]')
+        for idx, req in enumerate(signal_config):
+            signal_config_carr[idx].domain = req[1]
+            signal_config_carr[idx].domain_idx = req[2]
+            signal_config_carr[idx].name = req[0].encode()
 
-    err = _dl.geopm_stats_collector(num_signal,
-                                    signal_config_carr)
-    if err < 0:
-        raise RuntimeError('geopm_stats_collector() failed: {}'.format(error.message(err)))
+        collector_ptr = gffi.gffi.new('struct geopm_stats_collector_s **');
 
-def collector_update():
-    global _dl
-    err = _dl.geopm_stats_collector_update()
-    if err < 0:
-        raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
+        err = _dl.geopm_stats_collector_create(num_signal, signal_config_carr, collector_ptr)
+        if err < 0:
+            raise RuntimeError('geopm_stats_collector() failed: {}'.format(error.message(err)))
+        self._collector_ptr = collector_ptr[0];
 
-def collector_report():
-    global _dl
-    report_max = 262144
-    report_cstr = gffi.gffi.new("char[]", report_max)
-    err = _dl.geopm_stats_collector_report(report_max, report_cstr)
-    if err < 0:
-        raise RuntimeError('geopm_stats_collector_report() failed: {}'.format(error.message(err)))
-    return gffi.gffi.string(report_cstr).decode()
+    def __del__(self):
+        if (self._collector_ptr is not None):
+            _dl.geopm_stats_collector_free(self._collector_ptr)
+
+    def update(self):
+        global _dl
+        err = _dl.geopm_stats_collector_update(self._collector_ptr)
+        if err < 0:
+            raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
+
+    def report_yaml(self):
+        global _dl
+        report_max = gffi.gffi.new("size_t *", 0)
+        _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, gffi.gffi.NULL)
+        report_cstr = gffi.gffi.new("char[]", report_max[0])
+        err = _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, report_cstr)
+        if err < 0:
+            raise RuntimeError('geopm_stats_collector_report_yaml() failed: {}'.format(error.message(err)))
+        return gffi.gffi.string(report_cstr).decode()
+
+    def reset(self):
+        global _dl
+        err = _dl.geopm_stats_collector_reset(self._collector_ptr)
+        if err < 0:
+            raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))

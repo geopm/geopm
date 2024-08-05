@@ -41,6 +41,7 @@ class Session:
 
         """
         self._delimiter=delimiter
+        self._stats_collector = None
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -63,7 +64,7 @@ class Session:
                   zip(signals, signal_format)]
         return '{}\n'.format(self._delimiter.join(result))
 
-    def run_read(self, requests, duration, period, pid, out_stream, do_stats=False):
+    def run_read(self, requests, duration, period, pid, out_stream, stats_collector=None):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -102,17 +103,14 @@ class Session:
         signal_handles = []
         for name, dom, dom_idx in requests:
             signal_handles.append(pio.push_signal(name, dom, dom_idx))
-        if do_stats:
-            stats.collector([(rr[0], rr[1], rr[2]) for rr in requests])
-
         for sample_idx in loop.TimedLoop(period, num_period):
             pio.read_batch()
             if out_stream is not None:
                 signals = [pio.sample(handle) for handle in signal_handles]
                 line = self.format_signals(signals, requests.get_formats())
                 out_stream.write(line)
-            if do_stats:
-                stats.collector_update()
+            if stats_collector is not None:
+                stats_collector.update()
 
             if pid is not None:
                 try:
@@ -188,12 +186,14 @@ class Session:
         self._requests = ReadRequestQueue(request_stream)
         do_stats = report_stream is not None
         self.check_read_args(run_time, period)
+        if do_stats:
+            self._stats_collector = stats.Collector(self._requests)
         if out_stream is not None and print_header:
             header_names = self.header_names()
             print(self._delimiter.join(header_names), file=out_stream)
-        self.run_read(self._requests, run_time, period, pid, out_stream, do_stats)
+        self.run_read(self._requests, run_time, period, pid, out_stream, self._stats_collector)
         if do_stats:
-            report = stats.collector_report()
+            report = self._stats_collector.report_yaml()
             rank = 0
             if mpi_comm is not None:
                 report_list = mpi_comm.gather(report, root=0)
