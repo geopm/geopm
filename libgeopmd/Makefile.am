@@ -155,6 +155,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
                        src/StatsCollector.cpp \
+                       src/StatsCollector.hpp \
                        src/SysfsIOGroup.cpp \
                        src/SysfsIOGroup.hpp \
                        src/CpufreqSysfsDriver.cpp \
@@ -170,6 +171,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DrmSysfsDriver.hpp \
                        src/RatioSignal.cpp \
                        src/RatioSignal.hpp \
+                       src/RuntimeStats.cpp \
+                       src/RuntimeStats.hpp \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \

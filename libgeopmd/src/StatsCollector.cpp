@@ -3,82 +3,23 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "StatsCollector.hpp"
+
 #include "geopm_stats_collector.h"
 
-#include <string>
-#include <vector>
-#include <memory>
 #include <sstream>
 #include <cmath>
-#include <string.h>
+#include <cstring>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_time.h"
-
+#include "RuntimeStats.hpp"
 
 namespace geopm
 {
-    class RuntimeStats
-    {
-        public:
-            RuntimeStats() = default;
-            RuntimeStats(const std::vector<std::string> &metric_names);
-            virtual ~RuntimeStats() = default;
-            int num_metric(void) const;
-            std::string metric_name(int metric_idx) const;
-            uint64_t count(int metric_idx) const;
-            double first(int metric_idx) const;
-            double last(int metric_idx) const;
-            double min(int metric_idx) const;
-            double max(int metric_idx) const;
-            double mean(int metric_idx) const;
-            double std(int metric_idx) const;
-            double skew(int metric_idx) const;
-            double kurt(int metric_idx) const;
-            double lse_linear_0(int metric_idx) const;
-            double lse_linear_1(int metric_idx) const;
-            void reset(void);
-            void update(const std::vector<double> &sample);
-        private:
-            void check_index(int metric_idx, const std::string &func, int line) const;
-            struct stats_s {
-                stats_s &operator=(const stats_s &other);
-                uint64_t count;
-                double first;
-                double last;
-                double min;
-                double max;
-                double m_1;
-                double m_2;
-                double m_3;
-                double m_4;
-            };
-            const std::vector<std::string> m_metric_names;
-            std::vector<stats_s> m_moments;
-    };
-
-    class StatsCollector
-    {
-        public:
-            static std::unique_ptr<StatsCollector> make_unique(const std::vector<geopm_request_s> &requests);
-            StatsCollector() = default;
-            virtual ~StatsCollector() = default;
-            StatsCollector(const std::vector<geopm_request_s> &requests);
-            StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
-            void update(void);
-            std::string report_yaml(void) const;
-            void reset(void);
-        private:
-            PlatformIO &m_pio;
-            std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
-            std::vector<std::string> m_metric_names;
-            std::vector<int> m_pio_idx;
-            std::shared_ptr<RuntimeStats> m_stats;
-            std::string m_time_begin;
-    };
 
     std::unique_ptr<StatsCollector> StatsCollector::make_unique(const std::vector<geopm_request_s> &requests)
     {
@@ -173,172 +114,6 @@ namespace geopm
         m_stats->reset();
     }
 
-    RuntimeStats::RuntimeStats(const std::vector<std::string> &metric_names)
-        : m_metric_names(metric_names)
-        , m_moments(m_metric_names.size())
-    {
-        reset();
-    }
-
-    int RuntimeStats::num_metric(void) const
-    {
-        return m_metric_names.size();
-    }
-
-    void RuntimeStats::check_index(int metric_idx, const std::string &func, int line) const
-    {
-        if (metric_idx < 0 || (size_t)metric_idx >= m_metric_names.size()) {
-            throw Exception("RuntimeStats::" + func  + "(): metric_idx out of range: " + std::to_string(metric_idx),
-                            GEOPM_ERROR_INVALID, __FILE__, line);
-        }
-    }
-
-    std::string RuntimeStats::metric_name(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        return m_metric_names[metric_idx];
-    }
-
-    uint64_t RuntimeStats::count(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        return m_moments[metric_idx].count;
-    }
-
-    double RuntimeStats::first(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].first;
-        }
-        return result;
-    }
-
-    double RuntimeStats::last(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].last;
-        }
-        return result;
-    }
-
-    double RuntimeStats::min(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].min;
-        }
-        return result;
-    }
-
-    double RuntimeStats::max(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].max;
-        }
-        return result;
-    }
-
-    double RuntimeStats::mean(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].m_1 /
-                     m_moments[metric_idx].count;
-        }
-        return result;
-    }
-
-    double RuntimeStats::std(int metric_idx) const
-    {
-        check_index(metric_idx, __func__, __LINE__);
-        double result = NAN;
-        if (m_moments[metric_idx].count > 1) {
-            result = std::sqrt(
-                         (m_moments[metric_idx].m_2 -
-                          m_moments[metric_idx].m_1 *
-                          m_moments[metric_idx].m_1 / m_moments[metric_idx].count) /
-                         (m_moments[metric_idx].count - 1));
-        }
-        return result;
-    }
-
-    double RuntimeStats::skew(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    double RuntimeStats::kurt(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    double RuntimeStats::lse_linear_0(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    double RuntimeStats::lse_linear_1(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    void RuntimeStats::reset(void)
-    {
-        for (auto &it : m_moments) {
-            it.count = 0;
-            it.m_1 = 0.0;
-            it.m_2 = 0.0;
-            it.m_3 = 0.0;
-            it.m_4 = 0.0;
-        }
-    }
-
-    void RuntimeStats::update(const std::vector<double> &sample)
-    {
-        if (sample.size() != m_moments.size()) {
-            throw Exception("RuntimeStats::update(): invalid input vector size: " + std::to_string(sample.size()),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        auto moments_it = m_moments.begin();
-        for (const auto &ss : sample) {
-            if (PlatformIO::is_valid_value(ss)) {
-                moments_it->count += 1;
-                if (moments_it->count == 1) {
-                    moments_it->first = ss;
-                    moments_it->min = ss;
-                    moments_it->max = ss;
-                }
-                moments_it->last = ss;
-                if (moments_it->min > ss) {
-                    moments_it->min = ss;
-                }
-                if (moments_it->max < ss) {
-                    moments_it->max = ss;
-                }
-                double mm = ss;
-                moments_it->m_1 += mm;
-                mm *= ss;
-                moments_it->m_2 += mm;
-                mm *= ss;
-                moments_it->m_3 += mm;
-                mm *= ss;
-                moments_it->m_4 += mm;
-            }
-            ++moments_it;
-        }
-    }
 }
 
 int geopm_stats_collector_create(size_t num_requests, const struct geopm_request_s *requests,
