@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-"""Implementation for the geopmstats command line tool
+"""Wrapper for the geopm_stats_collector_*() C APIs
 
 """
 
@@ -21,8 +21,6 @@ int geopm_stats_collector_create(size_t num_requests, const struct geopm_request
 
 int geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
 
-// If *max_report_size is zero, update it with the required size for the report
-// and do not modify report
 int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
                                       size_t *max_report_size, char *report_yaml);
 
@@ -37,8 +35,13 @@ import json
 import yaml
 
 class Collector:
+    """ Object for aggregating statistics gathered from the PlatformIO interface of GEOPM
+
+    """
     def __init__(self, signal_config):
         """Create stats collector
+
+        Provide a list of read requests for PlatformIO.
 
         Args:
             signal_config (list((str, int, int))): List of requested
@@ -67,16 +70,31 @@ class Collector:
         self._collector_ptr = collector_ptr[0];
 
     def __del__(self):
+        """Free stats collector resources
+
+        """
         if (self._collector_ptr is not None):
             _dl.geopm_stats_collector_free(self._collector_ptr)
 
     def update(self):
+        """Update the collector with new values
+
+        User is expected to call geopmdpy.pio.read_batch() prior to calling this
+        interface.  The sampled values will be used to update the report statistics.
+
+        """
         global _dl
         err = _dl.geopm_stats_collector_update(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
 
     def report_yaml(self):
+        """Create a yaml report
+
+        Return a yaml string containing a report that shows all statistics
+        gathered by calls to update().
+
+        """
         global _dl
         report_max = gffi.gffi.new("size_t *", 0)
         _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, gffi.gffi.NULL)
@@ -87,11 +105,24 @@ class Collector:
         return gffi.gffi.string(report_cstr).decode()
 
     def report_json(self):
+        """Create a json report
+
+        Return a json string containing a report that shows all statistics
+        gathered by calls to update().
+
+        """
         result_yaml = self.report_yaml()
         result_obj = yaml.safe_load(result_yaml)
         return json.dumps(result_obj)
 
     def reset(self):
+        """Reset statistics
+
+        Called by user to zero all statistics galthered.  This may be called
+        after a call to report_yaml() and before the next call to update() so
+        that the next report that is generated is independent of the last.
+
+        """
         global _dl
         err = _dl.geopm_stats_collector_reset(self._collector_ptr)
         if err < 0:
