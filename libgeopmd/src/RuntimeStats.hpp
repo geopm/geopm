@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef RUNTIMESTATS_HPP_INCLUDE
+#define RUNTIMESTATS_HPP_INCLUDE
+
 #include <vector>
 #include <string>
 
@@ -47,3 +50,5 @@ namespace geopm
             std::vector<stats_s> m_moments;
     };
 }
+
+#endif
