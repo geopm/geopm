@@ -9,7 +9,7 @@ Synopsis
 
     geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID] [--print-header]
                  [-d DELIMITER] [--report-out REPORT_OUT]
-                 [--trace-out TRACE_OUT] [--mpi-report MPI_REPORT]
+                 [--trace-out TRACE_OUT] [--mpi-report]
 
 Command line interface for the geopm service batch read features. This command
 can be used to read signals by opening a session with the geopm service.
@@ -164,37 +164,37 @@ unspecified, no statistics will be gathered.
 
 An example report is shown below:
 
-.. code-block:: none
+.. code-block:: yaml
 
    hosts:
      localhost:
-       time-begin: "Thu Aug 01 11:50:42 2024"
-       time-end: "Thu Aug 01 11:50:43 2024"
+       time-begin: "2024-08-06T11:43:33.795328712-0700"
+       time-end: "2024-08-06T11:43:35.670129776-0700"
        metrics:
          TIME:
            count: 201
-           first: 0.165067
-           last: 2.04619
-           min: 0.165067
-           max: 2.04619
-           mean: 1.05035
-           std: 0.575056
+           first: 0.175729
+           last: 2.05037
+           min: 0.175729
+           max: 2.05037
+           mean: 1.05502
+           std: 0.574284
          CPU_POWER:
            count: 200
-           first: 109.982
-           last: 73.0664
-           min: 67.2973
-           max: 109.982
-           mean: 74.319
-           std: 6.90355
+           first: 87.2023
+           last: 70.0256
+           min: 67.9781
+           max: 97.1403
+           mean: 74.3168
+           std: 5.06087
          CPU_FREQUENCY_STATUS:
            count: 201
-           first: 1.02625e+09
+           first: 1.035e+09
            last: 1e+09
            min: 1e+09
-           max: 1.0525e+09
-           mean: 1.00371e+09
-           std: 1.32582e+07
+           max: 1.055e+09
+           mean: 1.00394e+09
+           std: 1.36988e+07
 
 See Also
 --------

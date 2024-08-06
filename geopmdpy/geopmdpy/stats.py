@@ -51,7 +51,7 @@ class Collector:
         signal_config = [(rr[0], rr[1], rr[2]) for rr in signal_config]
         num_signal = len(signal_config)
         if num_signal == 0:
-            raise RuntimeError('geopm_stats_collector() failed: length of input is zero')
+            raise RuntimeError('Collector creation failed: length of input is zero')
 
         signal_config_carr = gffi.gffi.new(f'struct geopm_request_s[{num_signal}]')
         for idx, req in enumerate(signal_config):
