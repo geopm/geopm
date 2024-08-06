@@ -22,6 +22,5 @@ Depends: python3 (>= 3.6~),
  python3:any
 Recommends: libgeopmd2 (= ${binary:Version}),
             python3-geopmdpy-doc (= ${binary:Version}),
-            python3-mpi4py (>=3.1.1) # Enables geopmsession --mpi-report option, otherwise not used
 Description: GEOPM - Global Extensible Open Power Manager Daemon
  Python support for the GEOPM Service
