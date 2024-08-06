@@ -67,10 +67,12 @@ namespace geopm
             StatsCollector() = default;
             virtual ~StatsCollector() = default;
             StatsCollector(const std::vector<geopm_request_s> &requests);
+            StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
             void update(void);
             std::string report_yaml(void) const;
             void reset(void);
         private:
+            PlatformIO &m_pio;
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
@@ -83,8 +85,16 @@ namespace geopm
         return std::make_unique<StatsCollector>(requests);
     }
 
+
     StatsCollector::StatsCollector(const std::vector<geopm_request_s> &requests)
-        : m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
+        : StatsCollector(requests, platform_io())
+    {
+
+    }
+
+    StatsCollector::StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio)
+        : m_pio(pio)
+        , m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
     {
 
     }
@@ -93,7 +103,7 @@ namespace geopm
     {
         m_metric_names.clear();
         for (const auto &req : requests) {
-            m_pio_idx.push_back(platform_io().push_signal(req.name, req.domain_type, req.domain_idx));
+            m_pio_idx.push_back(m_pio.push_signal(req.name, req.domain_type, req.domain_idx));
             if (req.domain_type == GEOPM_DOMAIN_BOARD && req.domain_idx == 0) {
                 m_metric_names.push_back(req.name);
             }
@@ -122,7 +132,7 @@ namespace geopm
         std::vector<double> sample(m_pio_idx.size(), 0.0);
         auto sample_it = sample.begin();
         for (auto pio_idx : m_pio_idx) {
-            *sample_it = platform_io().sample(pio_idx);
+            *sample_it = m_pio.sample(pio_idx);
             ++sample_it;
         }
         m_stats->update(sample);
@@ -303,7 +313,7 @@ namespace geopm
         }
         auto moments_it = m_moments.begin();
         for (const auto &ss : sample) {
-            if (platform_io().is_valid_value(ss)) {
+            if (PlatformIO::is_valid_value(ss)) {
                 moments_it->count += 1;
                 if (moments_it->count == 1) {
                     moments_it->first = ss;
