@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef STATSCOLLECTOR_HPP_INCLUDE
+#define STATSCOLLECTOR_HPP_INCLUDE
+
 #include <vector>
 #include <string>
 #include <memory>
@@ -34,3 +37,5 @@ namespace geopm
             std::string m_time_begin;
     };
 }
+
+#endif
