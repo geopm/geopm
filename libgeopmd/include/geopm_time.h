@@ -100,9 +100,9 @@ int GEOPM_PUBLIC
 static inline int geopm_time_string(int buf_size, char *buf)
 {
     struct geopm_time_s time;
-    int err = geopm_time(&time);
+    int err = geopm_time_real(&time);
     if (!err) {
-        err = geopm_time_to_string(&time, buf_size, buf);
+        err = geopm_time_real_to_iso_string(&time, buf_size, buf);
     }
     return err;
 }
