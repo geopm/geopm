@@ -63,23 +63,13 @@ namespace geopm
     class RuntimeStatsCollector
     {
         public:
+            static std::unique_ptr<RuntimeStatsCollector> make_unique(const std::vector<geopm_request_s> &requests);
             RuntimeStatsCollector() = default;
             virtual ~RuntimeStatsCollector() = default;
-            static std::unique_ptr<RuntimeStatsCollector> make_unique(const std::vector<geopm_request_s> &requests);
-            virtual void update(void) = 0;
-            virtual std::string report_yaml(void) const = 0;
-            virtual void reset(void) = 0;
-    };
-
-    class RuntimeStatsCollectorImp : public RuntimeStatsCollector
-    {
-        public:
-            RuntimeStatsCollectorImp() = default;
-            virtual ~RuntimeStatsCollectorImp() = default;
-            RuntimeStatsCollectorImp(const std::vector<geopm_request_s> &requests);
-            void update(void) override;
-            std::string report_yaml(void) const override;
-            void reset(void) override;
+            RuntimeStatsCollector(const std::vector<geopm_request_s> &requests);
+            void update(void);
+            std::string report_yaml(void) const;
+            void reset(void);
         private:
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
             std::vector<std::string> m_metric_names;
@@ -90,16 +80,16 @@ namespace geopm
 
     std::unique_ptr<RuntimeStatsCollector> RuntimeStatsCollector::make_unique(const std::vector<geopm_request_s> &requests)
     {
-        return std::make_unique<RuntimeStatsCollectorImp>(requests);
+        return std::make_unique<RuntimeStatsCollector>(requests);
     }
 
-    RuntimeStatsCollectorImp::RuntimeStatsCollectorImp(const std::vector<geopm_request_s> &requests)
+    RuntimeStatsCollector::RuntimeStatsCollector(const std::vector<geopm_request_s> &requests)
         : m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
     {
 
     }
 
-    std::vector<std::string> RuntimeStatsCollectorImp::register_requests(const std::vector<geopm_request_s> &requests)
+    std::vector<std::string> RuntimeStatsCollector::register_requests(const std::vector<geopm_request_s> &requests)
     {
         m_metric_names.clear();
         for (const auto &req : requests) {
@@ -116,14 +106,14 @@ namespace geopm
         return m_metric_names;
     }
 
-    void RuntimeStatsCollectorImp::update(void)
+    void RuntimeStatsCollector::update(void)
     {
         if (m_time_begin.size() == 0) {
             geopm_time_s time_begin = geopm::time_curr_real();
             char time_begin_str[NAME_MAX];
             int err = geopm_time_real_to_iso_string(&time_begin, NAME_MAX, time_begin_str);
             if (err != 0) {
-                throw Exception("RuntimeStatsCollectorImp::update(): Failed to convert time string",
+                throw Exception("RuntimeStatsCollector::update(): Failed to convert time string",
                                 err, __FILE__, __LINE__);
             }
             m_time_begin = time_begin_str;
@@ -138,14 +128,14 @@ namespace geopm
         m_stats->update(sample);
     }
 
-    std::string RuntimeStatsCollectorImp::report_yaml(void) const
+    std::string RuntimeStatsCollector::report_yaml(void) const
     {
         std::ostringstream result;
         geopm_time_s time_end = geopm::time_curr_real();
         char time_end_str[NAME_MAX];
         int err = geopm_time_real_to_iso_string(&time_end, NAME_MAX, time_end_str);
         if (err != 0) {
-            throw Exception("RuntimeStatsCollectorImp::report_yaml(): Failed to convert time string",
+            throw Exception("RuntimeStatsCollector::report_yaml(): Failed to convert time string",
                             err, __FILE__, __LINE__);
         }
         result << "hosts:\n";
@@ -168,7 +158,7 @@ namespace geopm
         return result.str();
     }
 
-    void RuntimeStatsCollectorImp::reset(void)
+    void RuntimeStatsCollector::reset(void)
     {
         m_stats->reset();
     }
@@ -348,7 +338,7 @@ int geopm_stats_collector_create(size_t num_requests, const struct geopm_request
     try {
         std::vector<geopm_request_s> request_vec(requests, requests + num_requests);
         auto result = geopm::RuntimeStatsCollector::make_unique(request_vec);
-        *collector = (geopm_stats_collector_s *)(result.release());
+        *collector = reinterpret_cast<geopm_stats_collector_s *>(result.release());
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
@@ -361,7 +351,7 @@ int geopm_stats_collector_update(struct geopm_stats_collector_s *collector)
 {
     int err = 0;
     try {
-        geopm::RuntimeStatsCollectorImp *collector_cpp = (geopm::RuntimeStatsCollectorImp *)collector;
+        geopm::RuntimeStatsCollector *collector_cpp = reinterpret_cast<geopm::RuntimeStatsCollector *>(collector);
         collector_cpp->update();
     }
     catch (...) {
@@ -378,7 +368,7 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
 {
     int err = 0;
     try {
-        geopm::RuntimeStatsCollectorImp *collector_cpp = (geopm::RuntimeStatsCollectorImp *)collector;
+        const geopm::RuntimeStatsCollector *collector_cpp = reinterpret_cast<const geopm::RuntimeStatsCollector *>(collector);
         std::string report_str = collector_cpp->report_yaml();
         if (report_str.size() >= *max_report_size) {
             *max_report_size = report_str.size() + 1;
@@ -398,7 +388,7 @@ int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector)
 {
     int err = 0;
     try {
-        geopm::RuntimeStatsCollectorImp *collector_cpp = (geopm::RuntimeStatsCollectorImp *)collector;
+        geopm::RuntimeStatsCollector *collector_cpp = reinterpret_cast<geopm::RuntimeStatsCollector *>(collector);
         collector_cpp->reset();
     }
     catch (...) {
@@ -412,7 +402,7 @@ int geopm_stats_collector_free(geopm_stats_collector_s *collector)
 {
     int err = 0;
     try {
-        geopm::RuntimeStatsCollectorImp *collector_cpp = (geopm::RuntimeStatsCollectorImp *)collector;
+        geopm::RuntimeStatsCollector *collector_cpp = reinterpret_cast<geopm::RuntimeStatsCollector *>(collector);
         delete collector_cpp;
     }
     catch (...) {
