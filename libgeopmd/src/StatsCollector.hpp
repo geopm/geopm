@@ -21,7 +21,7 @@ namespace geopm
     {
         public:
             static std::unique_ptr<StatsCollector> make_unique(const std::vector<geopm_request_s> &requests);
-            StatsCollector() = default;
+            StatsCollector() = delete;
             virtual ~StatsCollector() = default;
             StatsCollector(const std::vector<geopm_request_s> &requests);
             StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
