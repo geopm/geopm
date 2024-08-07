@@ -93,6 +93,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/SSTIOGroupTest.cpp \
                           test/SSTSignalTest.cpp \
                           test/SSTIOTest.cpp \
+                          test/StatsCollectorTest.cpp \
                           test/SysfsIOGroupTest.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/UniqueFdTest.cpp \

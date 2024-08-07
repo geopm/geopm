@@ -7,6 +7,8 @@
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include <string>
+#include <limits.h>
+
 
 namespace geopm
 {
@@ -76,6 +78,17 @@ namespace geopm
     {
         struct geopm_time_s result;
         geopm_time_real(&result);
+        return result;
+    }
+
+    std::string time_curr_string(void)
+    {
+        char result[NAME_MAX];
+        int err = geopm_time_string(NAME_MAX, result);
+        if (err != 0) {
+            throw Exception("geopm_time_to_string() call failed",
+                            err, __FILE__, __LINE__);
+        }
         return result;
     }
 }

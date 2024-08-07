@@ -61,6 +61,8 @@ C++ interfaces:
 
        struct geopm_time_s geopm::time_curr_real(void);
 
+       std::string geopm::time_curr_string(void);
+
        void geopm::time_zero_reset(const geopm_time_s &zero);
 
 
@@ -129,18 +131,17 @@ time values.
   approximate date string.
 
 ``geopm::time_curr_real()``
-  Returns the current time in seconds since system boot
-  (CLOCK_MONOTONIC_RAW). This can be used with geopm_time_to_string() to get a an
-  approximate date string.
+  Returns the current time in seconds since the epoch (CLOCK_REALTIME).
+  This can be used with geopm_time_real_to_iso_string() for an accurate ISO
+  8601 standard date string representation.
 
-``geopm_time_real()``
-   Returns the current time in seconds since the epoch (CLOCK_REALTIME).
-   This can be used with geopm_time_real_to_iso_string() for an accurate ISO
-   8601 standard date string representation.
+``geopm::time_curr_string()``
+  Returns an accurate ISO 8601 standard date string representation of
+  the current (real) time.
 
 ``geopm::time_zero_reset()``
-   Override the reference time for the ``geopm_time_zero()`` and
-   ``geopm::time_zero()`` with the value *zero*.
+  Override the reference time for the ``geopm_time_zero()`` and
+  ``geopm::time_zero()`` with the value *zero*.
 
 
 Structure Type
