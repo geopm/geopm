@@ -69,12 +69,29 @@ class Collector:
             raise RuntimeError('geopm_stats_collector() failed: {}'.format(error.message(err)))
         self._collector_ptr = collector_ptr[0];
 
-    def __del__(self):
-        """Free stats collector resources
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+    def close(self):
+        """Free all resources by deleting the StatsCollector
+
+        The object cannot be used after this call.  Must be called on
+        all Collector objects created without context management when
+        they are no longer in use.
 
         """
+        global _dl
         if (self._collector_ptr is not None):
-            _dl.geopm_stats_collector_free(self._collector_ptr)
+            collector_ptr = self._collector_ptr
+            self._collector_ptr = None
+            _dl.geopm_stats_collector_free(collector_ptr)
+
+    def _check_ptr(self, func_name):
+        if self._collector_ptr is None:
+            raise RuntimeError(f'Called Collector.{func_name}() after calling Collector.close()')
 
     def update(self):
         """Update the collector with new values
@@ -84,6 +101,7 @@ class Collector:
 
         """
         global _dl
+        self._check_ptr('update')
         err = _dl.geopm_stats_collector_update(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
@@ -96,7 +114,9 @@ class Collector:
 
         """
         global _dl
-        report_max = gffi.gffi.new("size_t *", 0)
+        self._check_ptr('report_yaml')
+        report_max = gffi.gffi.new("size_t *")
+        report_max[0] = 0
         _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, gffi.gffi.NULL)
         report_cstr = gffi.gffi.new("char[]", report_max[0])
         err = _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, report_cstr)
@@ -111,6 +131,7 @@ class Collector:
         gathered by calls to update().
 
         """
+        self._check_ptr('report_json')
         result_yaml = self.report_yaml()
         result_obj = yaml.safe_load(result_yaml)
         return json.dumps(result_obj)
@@ -124,6 +145,7 @@ class Collector:
 
         """
         global _dl
+        self._check_ptr('reset')
         err = _dl.geopm_stats_collector_reset(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))

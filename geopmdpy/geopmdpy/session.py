@@ -22,6 +22,15 @@ try:
 except ModuleNotFoundError as ex:
     MPI = ex
 
+from contextlib import contextmanager
+@contextmanager
+def _nullcontext():
+    yield None
+try:
+    from contextlib import nullcontext
+except ImportError as ex:
+    nullcontext = _nullcontext
+
 class Session:
     """Object responsible for creating a GEOPM batch read session
 
@@ -41,7 +50,6 @@ class Session:
 
         """
         self._delimiter=delimiter
-        self._stats_collector = None
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -186,25 +194,24 @@ class Session:
         self._requests = ReadRequestQueue(request_stream)
         do_stats = report_stream is not None
         self.check_read_args(run_time, period)
-        if do_stats:
-            self._stats_collector = stats.Collector(self._requests)
         if out_stream is not None and print_header:
             header_names = self.header_names()
             print(self._delimiter.join(header_names), file=out_stream)
-        self.run_read(self._requests, run_time, period, pid, out_stream, self._stats_collector)
-        if do_stats:
-            report = self._stats_collector.report_yaml()
-            rank = 0
-            if mpi_comm is not None:
-                report_list = mpi_comm.gather(report, root=0)
-                rank = mpi_comm.Get_rank()
-                if rank == 0:
-                    tmp_list = [report_list[0]]
-                    report_list = [rr.replace('Hosts:\n', '') for rr in report_list[1:]]
-                    tmp_list.extend(report_list)
-                    report = ''.join(tmp_list)
+        with stats.Collector(self._requests) if do_stats else nullcontext() as stats_collector:
+            self.run_read(self._requests, run_time, period, pid, out_stream, stats_collector)
+            if do_stats:
+                report = stats_collector.report_yaml()
+        rank = 0
+        if do_stats and mpi_comm is not None:
+            report_list = mpi_comm.gather(report, root=0)
+            rank = mpi_comm.Get_rank()
             if rank == 0:
-                report_stream.write(report)
+                tmp_list = [report_list[0]]
+                report_list = [rr.replace('Hosts:\n', '') for rr in report_list[1:]]
+                tmp_list.extend(report_list)
+                report = ''.join(tmp_list)
+        if do_stats and rank == 0:
+            report_stream.write(report)
 
 class RequestQueue:
     """Object derived from user input that provides request information
