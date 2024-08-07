@@ -141,9 +141,10 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
         const geopm::StatsCollector *collector_cpp = reinterpret_cast<const geopm::StatsCollector *>(collector);
         std::string report_str = collector_cpp->report_yaml();
         if (report_str.size() >= *max_report_size) {
+            std::string err_str = "geopm_stats_collector_report_yaml(): max_report_size is too small, provided: " +
+                                  std::to_string(*max_report_size) + " required: " + std::to_string(report_str.size() + 1);
             *max_report_size = report_str.size() + 1;
-            throw geopm::Exception("geopm_stats_collector_report(): max_report_size is too small",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw geopm::Exception(err_str, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         strncpy(report_yaml, report_str.c_str(), report_str.size());
     }
