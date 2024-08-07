@@ -14,6 +14,7 @@
 #ifndef __cplusplus
 #include <stdbool.h>
 #else
+#include <string>
 extern "C"
 {
 #endif
@@ -124,6 +125,8 @@ namespace geopm
         time_curr(void);
     struct geopm_time_s GEOPM_PUBLIC
         time_curr_real(void);
+    std::string GEOPM_PUBLIC
+        time_curr_string(void);
     void GEOPM_PUBLIC
         time_zero_reset(const geopm_time_s &zero);
 }

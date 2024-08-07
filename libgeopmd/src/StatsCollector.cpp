@@ -36,6 +36,7 @@ namespace geopm
     StatsCollector::StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio)
         : m_pio(pio)
         , m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
+        , m_time_begin(geopm::time_curr_string())
     {
 
     }
@@ -59,16 +60,6 @@ namespace geopm
 
     void StatsCollector::update(void)
     {
-        if (m_time_begin.size() == 0) {
-            geopm_time_s time_begin = geopm::time_curr_real();
-            char time_begin_str[NAME_MAX];
-            int err = geopm_time_real_to_iso_string(&time_begin, NAME_MAX, time_begin_str);
-            if (err != 0) {
-                throw Exception("StatsCollector::update(): Failed to convert time string",
-                                err, __FILE__, __LINE__);
-            }
-            m_time_begin = time_begin_str;
-        }
         // Caller is expected to have called platform_io().read_batch();
         std::vector<double> sample(m_pio_idx.size(), 0.0);
         auto sample_it = sample.begin();
@@ -82,13 +73,7 @@ namespace geopm
     std::string StatsCollector::report_yaml(void) const
     {
         std::ostringstream result;
-        geopm_time_s time_end = geopm::time_curr_real();
-        char time_end_str[NAME_MAX];
-        int err = geopm_time_real_to_iso_string(&time_end, NAME_MAX, time_end_str);
-        if (err != 0) {
-            throw Exception("StatsCollector::report_yaml(): Failed to convert time string",
-                            err, __FILE__, __LINE__);
-        }
+        std::string time_end_str = geopm::time_curr_string();
         result << "hosts:\n";
         result << "  " << geopm::hostname() << ":\n";
         result << "    " << "time-begin: \"" << m_time_begin << "\"\n";
