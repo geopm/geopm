@@ -20,11 +20,10 @@ namespace geopm
     class StatsCollector
     {
         public:
-            static std::unique_ptr<StatsCollector> make_unique(const std::vector<geopm_request_s> &requests);
-            StatsCollector() = delete;
-            virtual ~StatsCollector() = default;
+            StatsCollector();
             StatsCollector(const std::vector<geopm_request_s> &requests);
             StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
+            virtual ~StatsCollector() = default;
             void update(void);
             std::string report_yaml(void) const;
             void reset(void);
