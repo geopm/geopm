@@ -96,6 +96,7 @@ namespace geopm
 
     void StatsCollector::reset(void)
     {
+        m_time_begin = geopm::time_curr_string();
         m_stats->reset();
     }
 
