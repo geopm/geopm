@@ -371,13 +371,14 @@ def get_parser():
     parser.add_argument('--print-header', action='store_true',
                         help='Print a CSV header before printing any sampled values')
     parser.add_argument('-d', '--delimiter', dest='delimiter', default=',',
-                        help='Delimiter used to separate values in CSV output')
+                        help='Delimiter used to separate values in CSV output. Default: %(default)s')
     parser.add_argument('--report-out', dest='report_out', default=None,
-                        help='Output summary statistics into a yaml file')
+                        help='Output summary statistics into a yaml file. Default: No summary statistics are generated.')
     parser.add_argument('--trace-out', dest='trace_out', default='-',
-                        help='Output trace data into a CSV file')
+                        help='Output trace data into a CSV file. Default: trace data is printed to stdout.')
     parser.add_argument('--mpi-report', dest='mpi_report', action='store_true',
-                        help='Gather reports over mpi and write to a single file')
+                        help='Gather reports over mpi and write to a single file specified by '
+                        'MPI_REPORT. Default: Reports are generated local to each host executing %(prog)s')
     return parser
 
 def main():

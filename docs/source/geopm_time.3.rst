@@ -114,7 +114,7 @@ time values.
 ``geopm_time_real_to_iso_string()``
   Convert a time representation returned by ``geopm_time_real()`` or
   ``geopm::time_curr_real()`` into an ISO 8601 standard date string with
-  nan-second resolution.
+  nanosecond resolution.
 
 ``geopm_time_string()``
   Provide a date string for the current time in the format returned by
