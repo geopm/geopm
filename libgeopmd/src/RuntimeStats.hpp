@@ -26,10 +26,6 @@ namespace geopm
             double max(int metric_idx) const;
             double mean(int metric_idx) const;
             double std(int metric_idx) const;
-            double skew(int metric_idx) const;
-            double kurt(int metric_idx) const;
-            double lse_linear_0(int metric_idx) const;
-            double lse_linear_1(int metric_idx) const;
             void reset(void);
             void update(const std::vector<double> &sample);
         private:
@@ -43,11 +39,9 @@ namespace geopm
                 double max;
                 double m_1;
                 double m_2;
-                double m_3;
-                double m_4;
             };
             const std::vector<std::string> m_metric_names;
-            std::vector<stats_s> m_moments;
+            std::vector<stats_s> m_metric_stats;
     };
 }
 

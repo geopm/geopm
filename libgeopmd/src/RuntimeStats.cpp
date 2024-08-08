@@ -14,7 +14,7 @@ namespace geopm
 
     RuntimeStats::RuntimeStats(const std::vector<std::string> &metric_names)
         : m_metric_names(metric_names)
-        , m_moments(m_metric_names.size())
+        , m_metric_stats(m_metric_names.size())
     {
         reset();
     }
@@ -41,15 +41,15 @@ namespace geopm
     uint64_t RuntimeStats::count(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
-        return m_moments[metric_idx].count;
+        return m_metric_stats[metric_idx].count;
     }
 
     double RuntimeStats::first(int metric_idx) const
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].first;
+        if (m_metric_stats[metric_idx].count != 0) {
+            result = m_metric_stats[metric_idx].first;
         }
         return result;
     }
@@ -58,8 +58,8 @@ namespace geopm
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].last;
+        if (m_metric_stats[metric_idx].count != 0) {
+            result = m_metric_stats[metric_idx].last;
         }
         return result;
     }
@@ -68,8 +68,8 @@ namespace geopm
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].min;
+        if (m_metric_stats[metric_idx].count != 0) {
+            result = m_metric_stats[metric_idx].min;
         }
         return result;
     }
@@ -78,8 +78,8 @@ namespace geopm
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].max;
+        if (m_metric_stats[metric_idx].count != 0) {
+            result = m_metric_stats[metric_idx].max;
         }
         return result;
     }
@@ -88,9 +88,9 @@ namespace geopm
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
-        if (m_moments[metric_idx].count != 0) {
-            result = m_moments[metric_idx].m_1 /
-                     m_moments[metric_idx].count;
+        if (m_metric_stats[metric_idx].count != 0) {
+            result = m_metric_stats[metric_idx].m_1 /
+                     m_metric_stats[metric_idx].count;
         }
         return result;
     }
@@ -99,58 +99,32 @@ namespace geopm
     {
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
-        if (m_moments[metric_idx].count > 1) {
+        if (m_metric_stats[metric_idx].count > 1) {
             result = std::sqrt(
-                         (m_moments[metric_idx].m_2 -
-                          m_moments[metric_idx].m_1 *
-                          m_moments[metric_idx].m_1 / m_moments[metric_idx].count) /
-                         (m_moments[metric_idx].count - 1));
+                         (m_metric_stats[metric_idx].m_2 -
+                          m_metric_stats[metric_idx].m_1 *
+                          m_metric_stats[metric_idx].m_1 / m_metric_stats[metric_idx].count) /
+                         (m_metric_stats[metric_idx].count - 1));
         }
         return result;
     }
 
-    double RuntimeStats::skew(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    double RuntimeStats::kurt(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    double RuntimeStats::lse_linear_0(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
-    double RuntimeStats::lse_linear_1(int metric_idx) const
-    {
-        throw Exception("RuntimeStats::" + std::string(__func__) + " not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
     void RuntimeStats::reset(void)
     {
-        for (auto &it : m_moments) {
+        for (auto &it : m_metric_stats) {
             it.count = 0;
             it.m_1 = 0.0;
             it.m_2 = 0.0;
-            it.m_3 = 0.0;
-            it.m_4 = 0.0;
         }
     }
 
     void RuntimeStats::update(const std::vector<double> &sample)
     {
-        if (sample.size() != m_moments.size()) {
+        if (sample.size() != m_metric_stats.size()) {
             throw Exception("RuntimeStats::update(): invalid input vector size: " + std::to_string(sample.size()),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto moments_it = m_moments.begin();
+        auto moments_it = m_metric_stats.begin();
         for (const auto &ss : sample) {
             if (!std::isnan(ss)) {
                 moments_it->count += 1;
@@ -170,10 +144,6 @@ namespace geopm
                 moments_it->m_1 += mm;
                 mm *= ss;
                 moments_it->m_2 += mm;
-                mm *= ss;
-                moments_it->m_3 += mm;
-                mm *= ss;
-                moments_it->m_4 += mm;
             }
             ++moments_it;
         }
