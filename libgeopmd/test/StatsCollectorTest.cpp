@@ -58,41 +58,46 @@ TEST_F(StatsCollectorTest, time_report)
         .WillOnce(Return(pio_idx));
     EXPECT_CALL(*m_pio_mock, sample(pio_idx))
         .WillOnce(Return(0.0))
+        .WillOnce(Return(1.0))
+        .WillOnce(Return(0.0))
         .WillOnce(Return(1.0));
     std::vector<geopm_request_s> req {{0, 0, "TIME"}};
     auto coll = StatsCollector(req, *m_pio_mock);
-    coll.update();
-    coll.update();
-    std::string report = coll.report_yaml();
-    std::vector<std::string> expected_begin = {
-        "hosts",
-        "  " + geopm::hostname(),
-        "    time-begin",
-        "    time-end",
-        "    metrics",
-        "      TIME",
-        "        count",
-        "        first",
-        "        last",
-        "        min",
-        "        max",
-        "        mean",
-        "        std",
-    };
-    auto eb_it = expected_begin.begin();
-    for (const auto &line : geopm::string_split(report, "\n")) {
-        if (eb_it == expected_begin.end()) {
-            break;
+    for (int reset_idx = 0; reset_idx < 2; ++reset_idx) {
+        coll.update();
+        coll.update();
+        std::string report = coll.report_yaml();
+        std::vector<std::string> expected_begin = {
+            "hosts",
+            "  " + geopm::hostname(),
+            "    time-begin",
+            "    time-end",
+            "    metrics",
+            "      TIME",
+            "        count",
+            "        first",
+            "        last",
+            "        min",
+            "        max",
+            "        mean",
+            "        std",
+        };
+        auto eb_it = expected_begin.begin();
+        for (const auto &line : geopm::string_split(report, "\n")) {
+            if (eb_it == expected_begin.end()) {
+                break;
+            }
+            auto line_split = geopm::string_split(line, ":");
+            EXPECT_EQ(*eb_it, line_split[0]);
+            ++eb_it;
         }
-        auto line_split = geopm::string_split(line, ":");
-        EXPECT_EQ(*eb_it, line_split[0]);
-        ++eb_it;
+        EXPECT_NE(std::string::npos, report.find("count: 2\n"));
+        EXPECT_NE(std::string::npos, report.find("first: 0\n"));
+        EXPECT_NE(std::string::npos, report.find("last: 1\n"));
+        EXPECT_NE(std::string::npos, report.find("min: 0\n"));
+        EXPECT_NE(std::string::npos, report.find("max: 1\n"));
+        EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
+        EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
+        coll.reset();
     }
-    EXPECT_NE(std::string::npos, report.find("count: 2\n"));
-    EXPECT_NE(std::string::npos, report.find("first: 0\n"));
-    EXPECT_NE(std::string::npos, report.find("last: 1\n"));
-    EXPECT_NE(std::string::npos, report.find("min: 0\n"));
-    EXPECT_NE(std::string::npos, report.find("max: 1\n"));
-    EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
-    EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
 }
