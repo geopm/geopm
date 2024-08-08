@@ -11,6 +11,7 @@ import os
 import errno
 import math
 from . import gffi
+from . import error
 
 gffi.gffi.cdef("""
 
