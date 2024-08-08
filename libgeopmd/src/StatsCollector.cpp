@@ -140,13 +140,23 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
     try {
         const geopm::StatsCollector *collector_cpp = reinterpret_cast<const geopm::StatsCollector *>(collector);
         std::string report_str = collector_cpp->report_yaml();
-        if (report_str.size() >= *max_report_size) {
-            std::string err_str = "geopm_stats_collector_report_yaml(): max_report_size is too small, provided: " +
-                                  std::to_string(*max_report_size) + " required: " + std::to_string(report_str.size() + 1);
-            *max_report_size = report_str.size() + 1;
-            throw geopm::Exception(err_str, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (report_str.size() < *max_report_size) {
+            strncpy(report_yaml, report_str.c_str(), report_str.size());
         }
-        strncpy(report_yaml, report_str.c_str(), report_str.size());
+        else {
+            err = ENOBUFS;
+            std::ostringstream err_str;
+            size_t report_str_size = report_str.size() + 1;
+            if (*max_report_size != 0) {
+                err_str << "geopm_stats_collector_report_yaml(): max_report_size is too small, provided: "
+                        << *max_report_size << " required: " << report_str_size;
+            }
+            else {
+                err_str << "geopm_stats_collector_report_yaml(): max_report_size required: " << report_str_size;
+            }
+            *max_report_size = report_str_size;
+            throw geopm::Exception(err_str.str(), err, __FILE__, __LINE__);
+        }
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
