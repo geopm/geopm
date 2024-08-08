@@ -21,11 +21,11 @@
 namespace geopm
 {
 
-    std::unique_ptr<StatsCollector> StatsCollector::make_unique(const std::vector<geopm_request_s> &requests)
+    StatsCollector::StatsCollector()
+        : StatsCollector(std::vector<geopm_request_s> {})
     {
-        return std::make_unique<StatsCollector>(requests);
-    }
 
+    }
 
     StatsCollector::StatsCollector(const std::vector<geopm_request_s> &requests)
         : StatsCollector(requests, platform_io())
@@ -107,7 +107,7 @@ int geopm_stats_collector_create(size_t num_requests, const struct geopm_request
     int err = 0;
     try {
         std::vector<geopm_request_s> request_vec(requests, requests + num_requests);
-        auto result = geopm::StatsCollector::make_unique(request_vec);
+        auto result = std::make_unique<geopm::StatsCollector>(request_vec);
         *collector = reinterpret_cast<geopm_stats_collector_s *>(result.release());
     }
     catch (...) {
