@@ -3,11 +3,7 @@
 
 
 geopm_time(3) -- helper methods for time
-==========================================
-
-
-
-
+========================================
 
 
 Synopsis
@@ -55,13 +51,13 @@ C++ interfaces:
 
 .. code-block:: c++
 
-       struct geopm_time_s geopm::time_zero(void);
-
        struct geopm_time_s geopm::time_curr(void);
 
        struct geopm_time_s geopm::time_curr_real(void);
 
        std::string geopm::time_curr_string(void);
+
+       struct geopm_time_s geopm::time_zero(void);
 
        void geopm::time_zero_reset(const geopm_time_s &zero);
 
@@ -74,6 +70,25 @@ header defines GEOPM interfaces for measuring time in seconds relative to a
 fixed arbitrary reference point. The ``geopm_time_s`` structure is used to hold
 time values.
 
+The default clock used is Linux ``CLOCK_MONTONIC_RAW``.  In general, these
+interfaces use this as the time reference.  This clock is the most precise for
+calculating time differences.
+
+There are some times when absolute time accuracy is preferred over time
+difference accuracy. For these cases, the GEOPM provides time functions that use
+``CLOCK_REALTIME`` as the reference time.  There is a C accessor for real time:
+``geopm_time_real()``, and there is also a C++ accessor:
+``geopm::time_curr_real()``.  Only ``geopm_time_s`` values created with these
+accessors may be passed to ``geopm_time_to_iso_string()`` which provides a
+nano-second precision absolute date string.
+
+The last time reference is useful when comparing against the values returned by
+PlatformIO for the ``TIME`` signal.  The reference time (0.0) for this signal is
+a ``CLOCK_MONOTONIC_RAW`` time value that can be accessed in C with
+``geopm_time_zero()`` and in C++ with ``geopm::time_zero()``.  There is also a
+way to reset this reference with ``geopm_time_zero_reset()`` and
+``geopm:time_zero_reset()`` by providing a ``CLOCK_MONOTONIC_RAW`` time value.
+
 
 ``geopm_time_string()``
   Fills *buf* with the current date and time as a string.  The
@@ -81,14 +96,13 @@ time values.
   must be at least 26 characters as required by `asctime_r(3) <https://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
 
 ``geopm_time()``
-  Sets *time* to the current time in seconds since system boot
-  (CLOCK_MONOTONIC_RAW). This can be used with geopm_time_to_string() to get a an
-  approximate date string.
+  Sets *time* to the current time using Linux CLOCK_MONOTONIC_RAW clock. This
+  can be used with geopm_time_to_string() to get a an approximate date string.
 
 ``geopm_time_real()``
-   Sets *time* to the current time in seconds since the epoch (CLOCK_REALTIME).
-   This can be used with geopm_time_real_to_iso_string() for an accurate ISO
-   8601 standard date string representation.
+  Sets *time* to the current time using the Linux CLOCK_REALTIME clock.
+  This can be used with geopm_time_real_to_iso_string() for an accurate ISO
+  8601 standard date string representation.
 
 ``geopm_time_diff()``
   Returns the difference in seconds between *begin* and *end*.
@@ -108,12 +122,12 @@ time values.
   See also: ``geopm::time_zero_reset()``.
 
 ``geopm_time_to_string()``
-  Convert a time representation returned by ``geopm_time()`` or
-  ``geopm::time_curr()`` into an approximate date string.
+  Convert a CLOCK_MONOTONIC_RAW time representation returned by ``geopm_time()``
+  or ``geopm::time_curr()`` into an approximate date string.
 
 ``geopm_time_real_to_iso_string()``
-  Convert a time representation returned by ``geopm_time_real()`` or
-  ``geopm::time_curr_real()`` into an ISO 8601 standard date string with
+  Convert a CLOCK_REALTIME time representation returned by ``geopm_time_real()``
+  or ``geopm::time_curr_real()`` into an ISO 8601 standard date string with
   nanosecond resolution.
 
 ``geopm_time_string()``
@@ -126,18 +140,17 @@ time values.
   See also: ``geopm::time_zero_reset()``.
 
 ``geopm::time_curr()``
-  Returns the current time in seconds since system boot
-  (CLOCK_MONOTONIC_RAW). This can be used with geopm_time_to_string() to get a an
-  approximate date string.
+  Returns the current time using Linux CLOCK_MONOTONIC_RAW clock. This can be
+  used with geopm_time_to_string() to get a an approximate date string.
 
 ``geopm::time_curr_real()``
-  Returns the current time in seconds since the epoch (CLOCK_REALTIME).
-  This can be used with geopm_time_real_to_iso_string() for an accurate ISO
-  8601 standard date string representation.
+  Returns the current time using the Linux CLOCK_REALTIME clock.  This can be
+  used with geopm_time_real_to_iso_string() for an accurate ISO 8601 standard
+  date string representation.
 
 ``geopm::time_curr_string()``
   Returns an accurate ISO 8601 standard date string representation of
-  the current (real) time.
+  the current time using Linux CLOCK_REALTIME clock..
 
 ``geopm::time_zero_reset()``
   Override the reference time for the ``geopm_time_zero()`` and
