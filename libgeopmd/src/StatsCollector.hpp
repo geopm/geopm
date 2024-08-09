@@ -10,11 +10,10 @@
 #include <string>
 #include <memory>
 
-struct geopm_request_s;
+#include "geopm/PlatformIO.hpp"
 
 namespace geopm
 {
-    class PlatformIO;
     class RuntimeStats;
 
     /// @brief Class that accumulates statistics based on PlatformIO requests
