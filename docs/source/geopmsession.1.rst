@@ -166,35 +166,34 @@ An example report is shown below:
 
 .. code-block:: yaml
 
-   hosts:
-     localhost:
-       time-begin: "2024-08-06T11:43:33.795328712-0700"
-       time-end: "2024-08-06T11:43:35.670129776-0700"
-       metrics:
-         TIME:
-           count: 201
-           first: 0.175729
-           last: 2.05037
-           min: 0.175729
-           max: 2.05037
-           mean: 1.05502
-           std: 0.574284
-         CPU_POWER:
-           count: 200
-           first: 87.2023
-           last: 70.0256
-           min: 67.9781
-           max: 97.1403
-           mean: 74.3168
-           std: 5.06087
-         CPU_FREQUENCY_STATUS:
-           count: 201
-           first: 1.035e+09
-           last: 1e+09
-           min: 1e+09
-           max: 1.055e+09
-           mean: 1.00394e+09
-           std: 1.36988e+07
+host: "123.45.6.7"
+time-begin: "2024-08-09T16:39:13.378279712-0700"
+time-end: "2024-08-09T16:39:23.385100904-0700"
+metrics:
+  TIME:
+    count: 2001
+    first: 0.207557
+    last: 10.0613
+    min: 0.207557
+    max: 10.0613
+    mean: 5.06262
+    std: 2.8867
+  CPU_POWER:
+    count: 2000
+    first: 87.0568
+    last: 83.0846
+    min: 77.2518
+    max: 99.1282
+    mean: 81.4213
+    std: 1.86577
+  CPU_FREQUENCY_STATUS:
+    count: 2001
+    first: 1.05875e+09
+    last: 1e+09
+    min: 1e+09
+    max: 1.1275e+09
+    mean: 1.00198e+09
+    std: 1.20525e+07
 
 
 Gathering Reports using MPI
