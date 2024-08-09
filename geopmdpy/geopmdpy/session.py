@@ -10,6 +10,7 @@ import sys
 import os
 import errno
 import math
+from socket import gethostname
 from argparse import ArgumentParser
 from . import topo
 from . import pio
@@ -162,7 +163,7 @@ class Session:
                 if topo.domain_name(domain) != 'board' else f'"{name}"'
                 for name, domain, domain_idx in self._requests]
 
-    def run(self, run_time, period, pid, print_header,
+    def run(self, run_time, period, pid, omit_header,
             request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None,
             mpi_comm=None):
         """"Create a GEOPM session with values parsed from the command line
@@ -181,20 +182,20 @@ class Session:
             pid (int or None): If not None, stop monitoring when the
                                       given process finishes.
 
-            print_header (bool): Whether to print a row of headers before printing
-                                 CSV data.
+            omit_header (bool): Whether to omit a row of headers before printing
+                                CSV data.
 
             request_stream (typing.IO): Input from user describing the
-                                   requests to read.
+                                        requests to read.
 
             out_stream (typing.IO): Stream where output from will be
-                               printed.
+                                    printed.
 
         """
         self._requests = ReadRequestQueue(request_stream)
         do_stats = report_stream is not None
         self.check_read_args(run_time, period)
-        if out_stream is not None and print_header:
+        if out_stream is not None and not omit_header:
             header_names = self.header_names()
             print(self._delimiter.join(header_names), file=out_stream)
         with stats.Collector(self._requests) if do_stats else nullcontext() as stats_collector:
@@ -361,24 +362,25 @@ class ReadRequestQueue(RequestQueue):
 def get_parser():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-v', '--version', dest='version', action='store_true',
-                        help='Print version and exit')
+                        help='Print version and exit.')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
-                        help='Total run time of the session to be opened in seconds')
+                        help='Total run time of the session to be opened in seconds.')
     parser.add_argument('-p', '--period', dest='period', type=float, default=0.0,
-                        help='When used with a read mode session reads all values out periodically with the specified period in seconds')
+                        help='When used with a read mode session reads all values out periodically with the specified period in seconds.')
     parser.add_argument('--pid', type=int,
-                        help='Stop the session when the given process PID ends')
+                        help='Stop the session when the given process PID ends.')
     parser.add_argument('--print-header', action='store_true',
-                        help='Print a CSV header before printing any sampled values')
+                        help='Deprecated now this option is the default, see --omit-header.')
+    parser.add_argument('--omit-header', action='store_true',
+                        help='Do not print a CSV header before printing any sampled values.')
     parser.add_argument('-d', '--delimiter', dest='delimiter', default=',',
-                        help='Delimiter used to separate values in CSV output. Default: %(default)s')
+                        help='Delimiter used to separate values in CSV output. Default: %(default)s.')
     parser.add_argument('--report-out', dest='report_out', default=None,
                         help='Output summary statistics into a yaml file. Default: No summary statistics are generated.')
     parser.add_argument('--trace-out', dest='trace_out', default='-',
                         help='Output trace data into a CSV file. Default: trace data is printed to stdout.')
-    parser.add_argument('--mpi-report', dest='mpi_report', action='store_true',
-                        help='Gather reports over mpi and write to a single file specified by '
-                        'MPI_REPORT. Default: Reports are generated local to each host executing %(prog)s')
+    parser.add_argument('--enable-mpi', dest='enable_mpi', action='store_true',
+                        help='Gather reports over MPI and write to a single file. Append hostname to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
     return parser
 
 def main():
@@ -391,30 +393,44 @@ def main():
 
     """
     err = 0
-    args = get_parser().parse_args()
+    trace_out = None
     report_out = None
-    if args.trace_out == "-":
-        trace_out = sys.stdout
-    elif args.trace_out == "/dev/null":
-        trace_out = None
-    else:
-        trace_out = open(args.trace_out, "w")
-    if args.report_out == "-":
-        report_out = sys.stdout
-    elif args.report_out is not None:
-        report_out = open(args.report_out, "w")
-
     try:
+        args = get_parser().parse_args()
         if args.version:
             print(__version_str__)
             return 0
-        sess = Session(args.delimiter)
+        rank = 0
         mpi_comm = None
-        if args.mpi_report:
+        if args.enable_mpi:
             if type(MPI) == ModuleNotFoundError:
                 raise MPI
             mpi_comm = MPI.COMM_WORLD
-        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=args.print_header, out_stream=trace_out, report_stream=report_out, mpi_comm=mpi_comm)
+            rank =  mpi_comm.Get_rank()
+
+        if args.trace_out != "/dev/null":
+            if args.trace_out == "-":
+                if args.enable_mpi:
+                    raise RuntimeError('Cannot write trace to standard output when specifying the --enable-mpi option')
+                trace_out = sys.stdout
+            else:
+                if args.enable_mpi:
+                    args.trace_out += f'-{gethostname()}'
+                trace_out = open(args.trace_out, "w")
+        if args.report_out == "-":
+            if rank == 0:
+                report_out = sys.stdout
+            else:
+                report_out = True
+        elif args.report_out is not None:
+            if rank == 0:
+                report_out = open(args.report_out, "w")
+            else:
+                report_out = True
+
+        sess = Session(args.delimiter)
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, omit_header=args.omit_header,
+                 out_stream=trace_out, report_stream=report_out, mpi_comm=mpi_comm)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set

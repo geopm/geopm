@@ -82,9 +82,9 @@ Options
 
     Stop the session when the given process PID ends
 
---print-header  .. _header option:
+--omit-header  .. _header option:
 
-    Print a CSV header before printing any sampled values
+    Do not print the CSV header before printing any sampled values
 
 --delimiter .. _delimiter DELIMITER .. option:
 
@@ -195,6 +195,20 @@ An example report is shown below:
            max: 1.055e+09
            mean: 1.00394e+09
            std: 1.36988e+07
+
+
+Gathering Reports using MPI
+---------------------------
+The ``--mpi-report`` command line option can be used to aggregate reports using
+an MPI communicator.  This can be helpful when running sessions on more than one
+compute node.  To use this option, the user must install the optional ``mpi4py``
+package using their OS package manager or PyPi.  When running in this way the
+``geopmsession`` command line tool must be launched with a mpi launch wrapper
+like mpiexec or mpirun.  The user should run this command specifying one
+``geopmsession`` process per compute node.  When using this option, trace output
+is disabled.  The aggregated report is generated only by the "rank 0" process of
+the geopmsession MPI communicator.
+
 
 See Also
 --------
