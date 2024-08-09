@@ -198,7 +198,8 @@ class Session:
         if out_stream is not None and not omit_header:
             header_names = self.header_names()
             print(self._delimiter.join(header_names), file=out_stream)
-        with stats.Collector(self._requests) if do_stats else nullcontext() as stats_collector:
+        signal_config = [(rr[0], rr[1], rr[2]) for rr in self._requests]
+        with stats.Collector(signal_config) if do_stats else nullcontext() as stats_collector:
             self.run_read(self._requests, run_time, period, pid, out_stream, stats_collector)
             if do_stats:
                 report = stats_collector.report_yaml()
