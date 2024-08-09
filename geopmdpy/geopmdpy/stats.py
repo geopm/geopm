@@ -56,7 +56,7 @@ class Collector:
         if num_signal == 0:
             raise ValueError('Collector creation failed: length of input is zero')
 
-        signal_config_carr = gffi.gffi.new(f'struct geopm_request_s[{num_signal}]')
+        signal_config_carr = gffi.gffi.new('struct geopm_request_s[]', num_signal)
         for idx, req in enumerate(signal_config):
             signal_config_carr[idx].domain = req[1]
             signal_config_carr[idx].domain_idx = req[2]
