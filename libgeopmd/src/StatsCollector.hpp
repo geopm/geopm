@@ -33,8 +33,8 @@ namespace geopm
             StatsCollector(const std::vector<geopm_request_s> &requests);
             /// @brief Test constructor used to mock PlatformIO
             StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
-            /// @brief Default virtual destructor
-            virtual ~StatsCollector() = default;
+            /// @brief Default destructor
+            ~StatsCollector() = default;
             /// @brief Sample PlatformIO and update all tracked signals
             void update(void);
             /// @brief Generate a YAML report of statistics
