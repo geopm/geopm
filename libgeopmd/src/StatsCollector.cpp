@@ -74,21 +74,20 @@ namespace geopm
     {
         std::ostringstream result;
         std::string time_end_str = geopm::time_curr_string();
-        result << "hosts:\n";
-        result << "  " << geopm::hostname() << ":\n";
-        result << "    " << "time-begin: \"" << m_time_begin << "\"\n";
-        result << "    " << "time-end: \"" <<  time_end_str << "\"\n";
-        result << "    " << "metrics:\n";
+        result << "host: \"" << geopm::hostname() << "\"\n";
+        result << "time-begin: \"" << m_time_begin << "\"\n";
+        result << "time-end: \"" <<  time_end_str << "\"\n";
+        result << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {
-            result << "      " << metric_name << ":\n";
-            result << "        " << "count: " << m_stats->count(metric_idx) << "\n";
-            result << "        " << "first: " << m_stats->first(metric_idx) << "\n";
-            result << "        " << "last: " << m_stats->last(metric_idx) << "\n";
-            result << "        " << "min: " << m_stats->min(metric_idx) << "\n";
-            result << "        " << "max: " << m_stats->max(metric_idx) << "\n";
-            result << "        " << "mean: " << m_stats->mean(metric_idx) << "\n";
-            result << "        " << "std: " << m_stats->std(metric_idx) << "\n";
+            result << "  " << metric_name << ":\n";
+            result << "    " << "count: " << m_stats->count(metric_idx) << "\n";
+            result << "    " << "first: " << m_stats->first(metric_idx) << "\n";
+            result << "    " << "last: " << m_stats->last(metric_idx) << "\n";
+            result << "    " << "min: " << m_stats->min(metric_idx) << "\n";
+            result << "    " << "max: " << m_stats->max(metric_idx) << "\n";
+            result << "    " << "mean: " << m_stats->mean(metric_idx) << "\n";
+            result << "    " << "std: " << m_stats->std(metric_idx) << "\n";
             ++metric_idx;
         }
         return result.str();

@@ -11,6 +11,7 @@ import os
 import errno
 import math
 from socket import gethostname
+from io import StringIO
 from argparse import ArgumentParser
 from . import topo
 from . import pio
@@ -192,7 +193,18 @@ class Session:
                                     printed.
 
         """
-        self._requests = ReadRequestQueue(request_stream)
+        rank = 0
+        if mpi_comm is not None:
+            rank = mpi_comm.Get_rank()
+        if rank == 0:
+            self._requests = ReadRequestQueue(request_stream)
+            request_raw = self._requests.get_raw()
+        else:
+            request_raw = None
+        if mpi_comm is not None:
+            request_raw = mpi_comm.bcast(request_raw, root=0)
+        if rank != 0:
+            self._requests = ReadRequestQueue(StringIO(request_raw))
         do_stats = report_stream is not None
         self.check_read_args(run_time, period)
         if out_stream is not None and not omit_header:
@@ -203,15 +215,10 @@ class Session:
             self.run_read(self._requests, run_time, period, pid, out_stream, stats_collector)
             if do_stats:
                 report = stats_collector.report_yaml()
-        rank = 0
         if do_stats and mpi_comm is not None:
             report_list = mpi_comm.gather(report, root=0)
-            rank = mpi_comm.Get_rank()
             if rank == 0:
-                tmp_list = [report_list[0]]
-                report_list = [rr.replace('Hosts:\n', '') for rr in report_list[1:]]
-                tmp_list.extend(report_list)
-                report = ''.join(tmp_list)
+                report = '\n---\n\n'.join(report_list)
         if do_stats and rank == 0:
             report_stream.write(report)
 
@@ -318,7 +325,9 @@ class ReadRequestQueue(RequestQueue):
 
         """
         requests = []
+        raw = []
         for line in self.iterate_stream(request_stream):
+            raw.append(line)
             words = line.split()
             if len(words) != 3:
                 raise RuntimeError('Read request must be three words: "{}"'.format(line))
@@ -331,6 +340,7 @@ class ReadRequestQueue(RequestQueue):
             requests.append((signal_name, domain_type, domain_idx))
         if len(requests) == 0:
             raise RuntimeError('Empty request stream.')
+        self._raw = '\n'.join(raw)
         return requests
 
     def query_formats(self, signal_names):
@@ -359,6 +369,9 @@ class ReadRequestQueue(RequestQueue):
 
         """
         return self._formats
+
+    def get_raw(self):
+        return self._raw
 
 def get_parser():
     parser = ArgumentParser(description=main.__doc__)
@@ -394,6 +407,7 @@ def main():
 
     """
     err = 0
+    rank = 0
     trace_out = None
     report_out = None
     try:
@@ -401,7 +415,6 @@ def main():
         if args.version:
             print(__version_str__)
             return 0
-        rank = 0
         mpi_comm = None
         if args.enable_mpi:
             if type(MPI) == ModuleNotFoundError:
@@ -439,7 +452,7 @@ def main():
         sys.stderr.write('Error: {}\n\n'.format(ee))
         err = -1
     finally:
-        if report_out is not None and args.report_out != "-":
+        if report_out is not None and rank == 0 and args.report_out != "-":
             report_out.close()
         if trace_out is not None and args.trace_out != "-":
             trace_out.close()
