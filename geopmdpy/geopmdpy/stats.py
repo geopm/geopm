@@ -126,7 +126,7 @@ class Collector:
     def reset(self):
         """Reset statistics
 
-        Called by user to zero all statistics galthered.  This may be called
+        Called by user to zero all statistics gathered.  This may be called
         after a call to report_yaml() and before the next call to update() so
         that the next report that is generated is independent of the last.
 
