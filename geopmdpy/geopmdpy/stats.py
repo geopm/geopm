@@ -52,7 +52,6 @@ class Collector:
         """
         global _dl
         self._collector_ptr = None
-        signal_config = [(rr[0], rr[1], rr[2]) for rr in signal_config]
         num_signal = len(signal_config)
         if num_signal == 0:
             raise ValueError('Collector creation failed: length of input is zero')
