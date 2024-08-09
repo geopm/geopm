@@ -32,7 +32,6 @@ int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
 """)
 _dl = gffi.get_dl_geopmd()
 
-import json
 import yaml
 
 class Collector:
@@ -123,18 +122,6 @@ class Collector:
         if err < 0:
             raise RuntimeError('geopm_stats_collector_report_yaml() failed: {}'.format(error.message(err)))
         return gffi.gffi.string(report_cstr).decode()
-
-    def report_json(self):
-        """Create a json report
-
-        Return a json string containing a report that shows all statistics
-        gathered by calls to update().
-
-        """
-        self._check_ptr('report_json')
-        result_yaml = self.report_yaml()
-        result_obj = yaml.safe_load(result_yaml)
-        return json.dumps(result_obj)
 
     def reset(self):
         """Reset statistics
