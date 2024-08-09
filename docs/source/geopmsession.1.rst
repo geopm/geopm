@@ -160,7 +160,7 @@ unspecified, no statistics will be gathered.
 
 .. code-block:: none
 
-    printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' | geopmsession -t 2 -p 0.01 --print-header --report-out=- "TIME","CPU_POWER","CPU_FREQUENCY_STATUS"
+    printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' | geopmsession -t 2 -p 0.01 --print-header --report-out=-
 
 An example report is shown below:
 
