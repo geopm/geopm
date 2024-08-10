@@ -158,7 +158,7 @@ class TestSession(unittest.TestCase):
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
              mock.patch('geopmdpy.session.Session.run_read') as srr:
-            self._session.run(runtime, period, None, False, request_stream, out_stream)
+            self._session.run(runtime, period, None, True, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)

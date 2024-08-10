@@ -159,12 +159,12 @@ class Session:
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
 
-    def header_names(self):
+    def header_names(self, requests):
         return [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
                 if topo.domain_name(domain) != 'board' else f'"{name}"'
-                for name, domain, domain_idx in self._requests]
+                for name, domain, domain_idx in requests]
 
-    def run(self, run_time, period, pid, omit_header,
+    def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None,
             mpi_comm=None):
         """"Create a GEOPM session with values parsed from the command line
@@ -183,8 +183,8 @@ class Session:
             pid (int or None): If not None, stop monitoring when the
                                       given process finishes.
 
-            omit_header (bool): Whether to omit a row of headers before printing
-                                CSV data.
+            print_header (bool): Whether to print a row of headers before printing
+                                 CSV data.
 
             request_stream (typing.IO): Input from user describing the
                                         requests to read.
@@ -197,22 +197,22 @@ class Session:
         if mpi_comm is not None:
             rank = mpi_comm.Get_rank()
         if rank == 0:
-            self._requests = ReadRequestQueue(request_stream)
-            request_raw = self._requests.get_raw()
-        else:
-            request_raw = None
+            requests = ReadRequestQueue(request_stream)
+        request_raw = None
+        if rank == 0 and mpi_comm is not None:
+            request_raw = requests.get_raw()
         if mpi_comm is not None:
             request_raw = mpi_comm.bcast(request_raw, root=0)
         if rank != 0:
-            self._requests = ReadRequestQueue(StringIO(request_raw))
+            requests = ReadRequestQueue(StringIO(request_raw))
         do_stats = report_stream is not None
         self.check_read_args(run_time, period)
-        if out_stream is not None and not omit_header:
-            header_names = self.header_names()
+        signal_config = [(rr[0], rr[1], rr[2]) for rr in requests]
+        if out_stream is not None and print_header:
+            header_names = self.header_names(signal_config)
             print(self._delimiter.join(header_names), file=out_stream)
-        signal_config = [(rr[0], rr[1], rr[2]) for rr in self._requests]
         with stats.Collector(signal_config) if do_stats else nullcontext() as stats_collector:
-            self.run_read(self._requests, run_time, period, pid, out_stream, stats_collector)
+            self.run_read(requests, run_time, period, pid, out_stream, stats_collector)
             if do_stats:
                 report = stats_collector.report_yaml()
         if do_stats and mpi_comm is not None:
@@ -443,7 +443,7 @@ def main():
                 report_out = True
 
         sess = Session(args.delimiter)
-        sess.run(run_time=args.time, period=args.period, pid=args.pid, omit_header=args.omit_header,
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.omit_header,
                  out_stream=trace_out, report_stream=report_out, mpi_comm=mpi_comm)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
