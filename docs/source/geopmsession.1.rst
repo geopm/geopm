@@ -101,10 +101,11 @@ Options
     the trace will output to stdout. To avoid gathering trace data,
     set this parameter to ``/dev/null``
 
---mpi-report .. _mpireport option:
+--enable-mpi .. _enablempi option:
 
-    Gather reports over mpi and write to a single file
-
+    Gather reports over MPI and write to a single file. Append MPI rank to trace
+    output file if specified (trace output to stdout not permitted). Requires
+    mpi4py module.
 
 Examples
 --------
@@ -198,15 +199,15 @@ metrics:
 
 Gathering Reports using MPI
 ---------------------------
-The ``--mpi-report`` command line option can be used to aggregate reports using
+The ``--enable-mpi`` command line option can be used to aggregate reports using
 an MPI communicator.  This can be helpful when running sessions on more than one
 compute node.  To use this option, the user must install the optional ``mpi4py``
 package using their OS package manager or PyPi.  When running in this way the
 ``geopmsession`` command line tool must be launched with a mpi launch wrapper
 like mpiexec or mpirun.  The user should run this command specifying one
 ``geopmsession`` process per compute node.  When using this option, trace output
-is disabled.  The aggregated report is generated only by the "rank 0" process of
-the geopmsession MPI communicator.
+to stdout is disabled.  The aggregated report is created by the "rank 0" process
+of the geopmsession MPI communicator.
 
 
 See Also
