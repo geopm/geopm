@@ -479,7 +479,7 @@ def get_parser():
     parser.add_argument('--trace-out', dest='trace_out', default='-',
                         help='Output trace data into a CSV file. Default: trace data is printed to stdout.')
     parser.add_argument('--enable-mpi', dest='enable_mpi', action='store_true',
-                        help='Gather reports over MPI and write to a single file. Append hostname to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
+                        help='Gather reports over MPI and write to a single file. Append MPI rank to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
     return parser
 
 def main():
