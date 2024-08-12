@@ -34,11 +34,10 @@ TEST_F(StatsCollectorTest, empty_report)
     auto coll = StatsCollector(req, *m_pio_mock);
     std::string report = coll.report_yaml();
     std::vector<std::string> expected_begin = {
-        "hosts",
-        "  " + geopm::hostname(),
-        "    time-begin",
-        "    time-end",
-        "    metrics",
+        "host",
+        "time-begin",
+        "time-end",
+        "metrics",
     };
     auto eb_it = expected_begin.begin();
     for (const auto &line : geopm::string_split(report, "\n")) {
@@ -68,19 +67,18 @@ TEST_F(StatsCollectorTest, time_report)
         coll.update();
         std::string report = coll.report_yaml();
         std::vector<std::string> expected_begin = {
-            "hosts",
-            "  " + geopm::hostname(),
-            "    time-begin",
-            "    time-end",
-            "    metrics",
-            "      TIME",
-            "        count",
-            "        first",
-            "        last",
-            "        min",
-            "        max",
-            "        mean",
-            "        std",
+            "host",
+            "time-begin",
+            "time-end",
+            "metrics",
+            "  TIME",
+            "    count",
+            "    first",
+            "    last",
+            "    min",
+            "    max",
+            "    mean",
+            "    std",
         };
         auto eb_it = expected_begin.begin();
         for (const auto &line : geopm::string_split(report, "\n")) {
