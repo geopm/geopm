@@ -33,6 +33,99 @@ try:
 except ImportError as ex:
     nullcontext = _nullcontext
 
+def _write_report(report_path, report):
+    if report_path == '-':
+        sys.stdout.write(report)
+    else:
+        with open(report_path, "w") as fid:
+            fid.write(report)
+
+def _check_valid_output(path):
+    return path is not None and path != '/dev/null'
+
+class SessionIO:
+    def __init__(self, request_stream, trace_path, report_path):
+        self._request_stream = request_stream
+        self._trace_path = trace_path
+        self._report_path = report_path
+        # Fail early if report cannot be written
+        self.write_report("")
+
+    def get_request_queue(self):
+        return ReadRequestQueue(self._request_stream)
+
+    def open_trace_stream(self):
+        if not self._do_trace():
+            return None
+        elif self._trace_path == '-':
+            return sys.stdout
+        else:
+            return open(self._trace_path, "w")
+
+    def close_trace_stream(self, fid):
+        if fid is not None and self._trace_path != '-':
+            close(fid)
+
+    def do_report(self):
+        return _check_valid_output(self._report_path)
+
+    def do_trace(self):
+        return _check_valid_output(self._trace_path)
+
+    def write_report(self, report):
+        if self.do_report():
+            _write_report(self._report_path, report)
+
+class MPISessionIO:
+    def __init__(self, request_stream, trace_path, report_path):
+        if type(MPI) == ModuleNotFoundError:
+            raise MPI
+        if trace_path == "-":
+            raise RuntimeError('Cannot write trace to standard output when specifying the --enable-mpi option')
+        self._request_stream = request_stream
+        self._trace_path = trace_path
+        self._report_path = report_path
+        self._comm = MPI.COMM_WORLD
+        self._rank = self._comm.Get_rank()
+        # Fail early if report cannot be written
+        self.write_report("", do_gather=False)
+
+    def get_request_queue(self):
+        request_raw = None
+        if self._rank == 0:
+            result = ReadRequestQueue(self._request_stream)
+            request_raw = result.get_raw()
+        request_raw = self._comm.bcast(request_raw, root=0)
+        if self._rank != 0:
+            result = ReadRequestQueue(StringIO(request_raw))
+        return result
+
+    def open_trace_stream(self):
+        if not self.do_trace():
+            return None
+        else:
+            return open(f'{self._trace_path}.{self._rank}', "w")
+
+    def close_trace_stream(self, fid):
+        if fid is not None:
+            close(fid)
+
+    def do_report(self):
+        return _check_valid_output(self._report_path)
+
+    def do_trace(self):
+        return _check_valid_output(self._trace_path)
+
+    def write_report(self, report, do_gather=True):
+        if not self.do_report():
+            return
+        if do_gather:
+            report_list = self._comm.gather(report, root=0)
+            if self._rank == 0:
+                report = '\n---\n\n'.join(report_list)
+        if self._rank == 0:
+            _write_report(self._report_path, report)
+
 class Session:
     """Object responsible for creating a GEOPM batch read session
 
@@ -166,7 +259,7 @@ class Session:
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None,
-            mpi_comm=None):
+            session_io=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -193,19 +286,12 @@ class Session:
                                     printed.
 
         """
-        rank = 0
-        if mpi_comm is not None:
-            rank = mpi_comm.Get_rank()
-        if rank == 0:
+        if session_io is not None:
+            requests = session_io.get_request_queue()
+            do_stats = session_io.do_report()
+        else:
             requests = ReadRequestQueue(request_stream)
-        request_raw = None
-        if rank == 0 and mpi_comm is not None:
-            request_raw = requests.get_raw()
-        if mpi_comm is not None:
-            request_raw = mpi_comm.bcast(request_raw, root=0)
-        if rank != 0:
-            requests = ReadRequestQueue(StringIO(request_raw))
-        do_stats = report_stream is not None
+            do_stats = report_stream is not None
         self.check_read_args(run_time, period)
         signal_config = [(rr[0], rr[1], rr[2]) for rr in requests]
         if out_stream is not None and print_header:
@@ -215,12 +301,11 @@ class Session:
             self.run_read(requests, run_time, period, pid, out_stream, stats_collector)
             if do_stats:
                 report = stats_collector.report_yaml()
-        if do_stats and mpi_comm is not None:
-            report_list = mpi_comm.gather(report, root=0)
-            if rank == 0:
-                report = '\n---\n\n'.join(report_list)
-        if do_stats and rank == 0:
-            report_stream.write(report)
+        if do_stats:
+            if session_io is not None:
+                session_io.write_report(report)
+            else:
+                report_stream.write(report)
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -415,36 +500,14 @@ def main():
         if args.version:
             print(__version_str__)
             return 0
-        mpi_comm = None
         if args.enable_mpi:
-            if type(MPI) == ModuleNotFoundError:
-                raise MPI
-            mpi_comm = MPI.COMM_WORLD
-            rank =  mpi_comm.Get_rank()
-
-        if args.trace_out != "/dev/null":
-            if args.trace_out == "-":
-                if args.enable_mpi:
-                    raise RuntimeError('Cannot write trace to standard output when specifying the --enable-mpi option')
-                trace_out = sys.stdout
-            else:
-                if args.enable_mpi:
-                    args.trace_out += f'-{gethostname()}'
-                trace_out = open(args.trace_out, "w")
-        if args.report_out == "-":
-            if rank == 0:
-                report_out = sys.stdout
-            else:
-                report_out = True
-        elif args.report_out is not None:
-            if rank == 0:
-                report_out = open(args.report_out, "w")
-            else:
-                report_out = True
-
+            session_io = MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
+        else:
+            session_io = SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
+        trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.omit_header,
-                 out_stream=trace_out, report_stream=report_out, mpi_comm=mpi_comm)
+                 out_stream=trace_out, report_stream=None, session_io=session_io)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
