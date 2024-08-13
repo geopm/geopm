@@ -39,6 +39,8 @@ TEST_F(StatsCollectorTest, empty_report)
         "host",
         "sample-time-first",
         "sample-time-total",
+        "sample-period-mean",
+        "sample-period-std",
         "metrics",
     };
     auto eb_it = expected_begin.begin();
@@ -80,6 +82,8 @@ TEST_F(StatsCollectorTest, time_report)
             "host",
             "sample-time-first",
             "sample-time-total",
+            "sample-period-mean",
+            "sample-period-std",
             "metrics",
             "  TIME",
             "    count",
