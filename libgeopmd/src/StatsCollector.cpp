@@ -222,7 +222,7 @@ int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector)
     return err;
 }
 
-int geopm_stats_collector_free(geopm_stats_collector_s *collector)
+int geopm_stats_collector_free(struct geopm_stats_collector_s *collector)
 {
     int err = 0;
     try {
