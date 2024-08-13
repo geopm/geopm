@@ -90,8 +90,8 @@ namespace geopm
         std::ostringstream result;
         std::string time_end_str = geopm::time_curr_string();
         result << "host: \"" << geopm::hostname() << "\"\n";
-        result << "time-begin: \"" << m_time_begin_str << "\"\n";
-        result << "duration: " <<  m_time_sample - m_time_begin << "\n";
+        result << "sample-time-first: \"" << m_time_begin_str << "\"\n";
+        result << "sample-time-total: " <<  m_time_sample - m_time_begin << "\n";
         result << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {
@@ -101,7 +101,7 @@ namespace geopm
             result << "    " << "last: " << m_stats->last(metric_idx) << "\n";
             result << "    " << "min: " << m_stats->min(metric_idx) << "\n";
             result << "    " << "max: " << m_stats->max(metric_idx) << "\n";
-            result << "    " << "mean: " << m_stats->mean(metric_idx) << "\n";
+            result << "    " << "mean-arithmetic: " << m_stats->mean(metric_idx) << "\n";
             result << "    " << "std: " << m_stats->std(metric_idx) << "\n";
             ++metric_idx;
         }
