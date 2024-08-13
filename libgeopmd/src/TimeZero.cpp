@@ -103,14 +103,14 @@ extern "C"
 
     int geopm_time_real_to_iso_string(const struct geopm_time_s *time, int buf_size, char *buf)
     {
-        int err = 0;
-        struct tm local;
-        size_t buf_size_u = buf_size;
-        localtime_r(&(time->t.tv_sec), &local);
-        char *buf_ptr = buf;
-        if (buf_size_u == 0) {
+        if (buf_size == 0) {
             return EINVAL;
         }
+        int err = 0;
+        size_t buf_size_u = buf_size;
+        char *buf_ptr = buf;
+        struct tm local;
+        localtime_r(&(time->t.tv_sec), &local);
         size_t buf_off = strftime(buf_ptr, buf_size_u, "%FT%T", &local);
         if (buf_off == 0 || buf_off >= buf_size_u) {
             err = EINVAL;
