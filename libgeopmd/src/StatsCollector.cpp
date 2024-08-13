@@ -155,7 +155,6 @@ int geopm_stats_collector_create(size_t num_requests, const struct geopm_request
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
     }
     return err;
 }
@@ -169,7 +168,6 @@ int geopm_stats_collector_update(struct geopm_stats_collector_s *collector)
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
     }
     return err;
 }
@@ -202,7 +200,6 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
     }
     return err;
 }
@@ -216,7 +213,6 @@ int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector)
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
     }
     return err;
 }
@@ -230,7 +226,6 @@ int geopm_stats_collector_free(struct geopm_stats_collector_s *collector)
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());
-        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
     }
     return err;
 }
