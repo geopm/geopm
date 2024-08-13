@@ -120,10 +120,11 @@ TEST_F(StatsCollectorTest, time_report)
     EXPECT_EQ(0, geopm_stats_collector_update(coll_ptr));
     EXPECT_EQ(0, geopm_stats_collector_update(coll_ptr));
     size_t max_size = 0;
-    geopm_stats_collector_report_yaml(coll_ptr, &max_size, NULL);
+    ASSERT_EQ(0, geopm_stats_collector_report_yaml(coll_ptr, &max_size, nullptr));
+    ASSERT_NE(0ULL, max_size);
     char *report_cstr = (char *)malloc(max_size);
     ASSERT_NE(nullptr, report_cstr);
-    geopm_stats_collector_report_yaml(coll_ptr, &max_size, report_cstr);
+    ASSERT_EQ(0, geopm_stats_collector_report_yaml(coll_ptr, &max_size, report_cstr));
     report = report_cstr;
     free(report_cstr);
     eb_it = expected_begin.begin();
