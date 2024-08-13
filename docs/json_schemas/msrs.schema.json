@@ -16,7 +16,7 @@
             "enum": ["scale", "log_half", "7_bit_float", "overflow", "logic"]
           },
           "units": {
-            "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]
+            "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius", "amperes", "volts"]
           },
           "scalar": {
             "type": "number"

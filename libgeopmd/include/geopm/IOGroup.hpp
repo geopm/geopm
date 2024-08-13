@@ -27,6 +27,8 @@ namespace geopm
                 M_UNITS_WATTS,
                 M_UNITS_JOULES,
                 M_UNITS_CELSIUS,
+                M_UNITS_AMPERES,
+                M_UNITS_VOLTS,
                 M_NUM_UNITS
             };
 

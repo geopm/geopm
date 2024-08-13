@@ -84,7 +84,7 @@ GEOPM_CONST_CONFIG_IO_SCHEMA = """
                         "type": "string"
                     },
                     "units": {
-                        "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]
+                        "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius", "amperes", "volts"]
                     },
                     "domain": {
                         "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]

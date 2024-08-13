@@ -50,7 +50,9 @@ namespace geopm
         "hertz",
         "watts",
         "joules",
-        "celsius"
+        "celsius",
+        "amperes",
+        "volts"
     };
 
     const std::string IOGroup::M_BEHAVIORS[IOGroup::M_NUM_SIGNAL_BEHAVIOR] = {
@@ -66,7 +68,9 @@ namespace geopm
         {IOGroup::M_UNITS[M_UNITS_HERTZ], M_UNITS_HERTZ},
         {IOGroup::M_UNITS[M_UNITS_WATTS], M_UNITS_WATTS},
         {IOGroup::M_UNITS[M_UNITS_JOULES], M_UNITS_JOULES},
-        {IOGroup::M_UNITS[M_UNITS_CELSIUS], M_UNITS_CELSIUS}
+        {IOGroup::M_UNITS[M_UNITS_CELSIUS], M_UNITS_CELSIUS},
+        {IOGroup::M_UNITS[M_UNITS_AMPERES], M_UNITS_AMPERES},
+        {IOGroup::M_UNITS[M_UNITS_VOLTS], M_UNITS_VOLTS}
     };
 
     const std::map<std::string, IOGroup::m_signal_behavior_e> IOGroup::M_BEHAVIOR_STRING = {
