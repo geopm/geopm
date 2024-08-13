@@ -76,7 +76,7 @@ class SessionIO:
         if self.do_report():
             _write_report(self._report_path, report)
 
-class MPISessionIO:
+class _MPISessionIO:
     def __init__(self, request_stream, trace_path, report_path):
         if type(MPI) == ModuleNotFoundError:
             raise MPI
@@ -258,7 +258,7 @@ class Session:
                 for name, domain, domain_idx in requests]
 
     def run(self, run_time, period, pid, print_header,
-            request_stream=sys.stdin, out_stream=sys.stdout, report_stream=None,
+            request_stream=sys.stdin, out_stream=sys.stdout,
             session_io=None):
         """"Create a GEOPM session with values parsed from the command line
 
@@ -287,11 +287,15 @@ class Session:
 
         """
         if session_io is not None:
+            if request_stream is not None:
+                raise RuntimeError('Using a request_stream is incompatible with using session_io')
+            if out_stream is not None:
+                raise RuntimeError('Using a out_stream is incompatible with using session_io')
             requests = session_io.get_request_queue()
             do_stats = session_io.do_report()
         else:
             requests = ReadRequestQueue(request_stream)
-            do_stats = report_stream is not None
+            do_stats = False
         self.check_read_args(run_time, period)
         signal_config = [(rr[0], rr[1], rr[2]) for rr in requests]
         if out_stream is not None and print_header:
@@ -302,10 +306,7 @@ class Session:
             if do_stats:
                 report = stats_collector.report_yaml()
         if do_stats:
-            if session_io is not None:
-                session_io.write_report(report)
-            else:
-                report_stream.write(report)
+            session_io.write_report(report)
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -494,20 +495,19 @@ def main():
     err = 0
     rank = 0
     trace_out = None
-    report_out = None
     try:
         args = get_parser().parse_args()
         if args.version:
             print(__version_str__)
             return 0
         if args.enable_mpi:
-            session_io = MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
+            session_io = _MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         else:
             session_io = SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.omit_header,
-                 out_stream=trace_out, report_stream=None, session_io=session_io)
+                 request_stream=None, out_stream=trace_out, session_io=session_io)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
@@ -515,8 +515,6 @@ def main():
         sys.stderr.write('Error: {}\n\n'.format(ee))
         err = -1
     finally:
-        if report_out is not None and rank == 0 and args.report_out != "-":
-            report_out.close()
         if trace_out is not None and args.trace_out != "-":
             trace_out.close()
     return err
