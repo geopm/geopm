@@ -153,12 +153,12 @@ class TestSession(unittest.TestCase):
         period = 0
         request_stream = [1, 2, 3, 4, 5]
         out_stream = mock.MagicMock()
-        rrq_return_value = [4, 5, 6]
+        rrq_return_value = [('signal1', 'board', 0), ('signal2', 'package', 1)]
         with mock.patch('geopmdpy.session.ReadRequestQueue',
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
              mock.patch('geopmdpy.session.Session.run_read') as srr:
-            self._session.run(runtime, period, None, True, request_stream, out_stream)
+            self._session.run(runtime, period, None, False, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period)
