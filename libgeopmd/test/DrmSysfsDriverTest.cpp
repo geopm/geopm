@@ -29,6 +29,14 @@ using geopm::DrmSysfsDriver;
 using geopm::IOGroup;
 using geopm::SysfsDriver;
 using testing::Return;
+using testing::Matches;
+using testing::StartsWith;
+using testing::EndsWith;
+using testing::Not;
+using testing::ResultOf;
+using testing::AllOf;
+using testing::AnyOf;
+using testing::Eq;
 
 class DrmFakeDirManager
 {
@@ -78,6 +86,34 @@ class DrmFakeDirManager
             m_created_dirs.push_back(new_path);
         }
 
+        void create_card_hwmon(int card_idx, int hwmon_idx) {
+            std::ostringstream oss;
+            oss << m_base_dir_path << "/card" << card_idx << "/device";
+            auto new_path = oss.str();
+            errno = 0;
+            if (mkdir(new_path.c_str(), 0755) == -1 && errno != EEXIST) {
+                throw std::system_error(errno, std::generic_category(), "Could not create directory at " + new_path);
+            }
+            if (errno != EEXIST) {
+                m_created_dirs.push_back(new_path);
+            }
+            oss << "/hwmon";
+            new_path = oss.str();
+            errno = 0;
+            if (mkdir(new_path.c_str(), 0755) == -1 && errno != EEXIST) {
+                throw std::system_error(errno, std::generic_category(), "Could not create directory at " + new_path);
+            }
+            if (errno != EEXIST) {
+                m_created_dirs.push_back(new_path);
+            }
+            oss << "/hwmon" << hwmon_idx;
+            new_path = oss.str();
+            if (mkdir(new_path.c_str(), 0755) == -1) {
+                throw std::system_error(errno, std::generic_category(), "Could not create directory at " + new_path);
+            }
+            m_created_dirs.push_back(new_path);
+        }
+
         void create_tile_in_card(int card_idx, int tile_idx) {
             std::ostringstream oss;
             oss << m_base_dir_path << "/card" << card_idx << "/gt/gt" << tile_idx;
@@ -95,6 +131,18 @@ class DrmFakeDirManager
             auto file_path = oss.str();
             geopm::write_file(file_path, contents);
             m_created_files.insert(file_path);
+        }
+
+        void write_hwmon_name_and_attribute(int card_index, int hwmon_index, const std::string &name,
+                                            const std::string &attribute, const std::string &contents)
+        {
+            std::ostringstream oss;
+            oss << m_base_dir_path << "/card" << card_index << "/device/hwmon/hwmon" << hwmon_index;
+            auto hwmon_dir_path = oss.str();
+            geopm::write_file(hwmon_dir_path + "/name", name);
+            m_created_files.insert(hwmon_dir_path + "/name");
+            geopm::write_file(hwmon_dir_path + "/" + attribute, contents);
+            m_created_files.insert(hwmon_dir_path + "/" + attribute);
         }
 
         std::string get_driver_dir() const
@@ -142,11 +190,16 @@ TEST_F(DrmSysfsDriverTest, iogroup_plugin_name_matches_driver_name)
     EXPECT_EQ("DRM", DrmSysfsDriver::plugin_name());
 }
 
-TEST_F(DrmSysfsDriverTest, domain_type_is_gpu_chip)
+TEST_F(DrmSysfsDriverTest, domain_type)
 {
     m_driver = std::make_unique<DrmSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
     for (const auto &attribute_properties : m_driver->properties()) {
-        EXPECT_EQ(GEOPM_DOMAIN_GPU_CHIP, m_driver->domain_type(attribute_properties.first));
+        auto domain_type = [this](const std::string &s) { return m_driver->domain_type(s); };
+        EXPECT_THAT(attribute_properties.first,
+                    AnyOf(AllOf(StartsWith("DRM::HWMON::"), Not(EndsWith("::GPU_CHIP")), Not(EndsWith("::GPU")), ResultOf("domain type", domain_type, Eq(GEOPM_DOMAIN_GPU))),
+                          AllOf(Not(StartsWith("DRM::HWMON::")), Not(EndsWith("::GPU_CHIP")), Not(EndsWith("::GPU")), ResultOf("domain type", domain_type, Eq(GEOPM_DOMAIN_GPU_CHIP))),
+                          AllOf(EndsWith("::GPU_CHIP"), ResultOf("domain type", domain_type, Eq(GEOPM_DOMAIN_GPU_CHIP))),
+                          AllOf(EndsWith("::GPU"), ResultOf("domain type", domain_type, Eq(GEOPM_DOMAIN_GPU)))));
     }
 }
 
@@ -159,6 +212,44 @@ TEST_F(DrmSysfsDriverTest, attribute_path)
         << "Should fail to get a path for an attribute that does not exist";
     EXPECT_THROW(m_driver->attribute_path("DRM::RPS_CUR_FREQ", 12345), geopm::Exception)
         << "Should fail to get a path for an attribute at a domain that does not exist";
+}
+
+TEST_F(DrmSysfsDriverTest, hwmon_attribute_paths)
+{
+    m_dir_manager->create_card_hwmon(0, 123);
+    m_dir_manager->write_hwmon_name_and_attribute(0, 123, "i915\n", "curr1_crit", "12125");
+
+    // Try a few on card 1 for more coverage of multi-card/multi-tile enumeration
+    ON_CALL(*m_topo, num_domain(GEOPM_DOMAIN_GPU)).WillByDefault(Return(2));
+    ON_CALL(*m_topo, num_domain(GEOPM_DOMAIN_GPU_CHIP)).WillByDefault(Return(4));
+    m_dir_manager->create_card(1);
+    m_dir_manager->create_tile_in_card(1, 0);
+    m_dir_manager->create_tile_in_card(1, 1);
+    m_dir_manager->create_card_hwmon(1, 45);
+    m_dir_manager->create_card_hwmon(1, 6);
+    m_dir_manager->create_card_hwmon(1, 7);
+    m_dir_manager->write_hwmon_name_and_attribute(1, 45, "i915_gt0\n", "energy1_input", "123456");
+    m_dir_manager->write_hwmon_name_and_attribute(1, 6, "i915_gt1\n", "energy1_input", "234567");
+    m_dir_manager->write_hwmon_name_and_attribute(1, 7, "i915\n", "energy1_input", "345678");
+
+    m_driver = std::make_unique<DrmSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir());
+
+    EXPECT_EQ(m_dir_manager->get_driver_dir() + "/card0/device/hwmon/hwmon123/curr1_crit",
+              m_driver->attribute_path("DRM::HWMON::CURR1_CRIT", 0))
+        << "Should successfully get a DRM->HWMON path for a card-scoped hwmon";
+
+    // Card1/GT0: gpu_chip 2
+    EXPECT_EQ(m_dir_manager->get_driver_dir() + "/card1/device/hwmon/hwmon45/energy1_input",
+              m_driver->attribute_path("DRM::HWMON::ENERGY1_INPUT::GPU_CHIP", 2))
+        << "Should successfully get a DRM->HWMON path for a tile-scoped hwmon";
+    // Card1/GT1: gpu_chip 3
+    EXPECT_EQ(m_dir_manager->get_driver_dir() + "/card1/device/hwmon/hwmon6/energy1_input",
+              m_driver->attribute_path("DRM::HWMON::ENERGY1_INPUT::GPU_CHIP", 3))
+        << "Should successfully get a DRM->HWMON path for a tile-scoped hwmon";
+    // Card1: gpu 1
+    EXPECT_EQ(m_dir_manager->get_driver_dir() + "/card1/device/hwmon/hwmon7/energy1_input",
+              m_driver->attribute_path("DRM::HWMON::ENERGY1_INPUT::GPU", 1))
+        << "Should successfully get a DRM->HWMON path for a card hwmon";
 }
 
 TEST_F(DrmSysfsDriverTest, signal_parse)
