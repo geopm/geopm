@@ -92,18 +92,25 @@ Options
 
 --report-out .. _reportout REPORT_OUT option:
 
-    Output summary statistics into a yaml file. Note if ``--report-out=-``
-    is specified, the report will output to stdout.
+    Output summary statistics into a yaml file. Note if ``--report-out=-`` is
+    specified, the report will output to stdout. When used with the
+    ``--enable-mpi`` option, reports from all hosts will be combined using the
+    ``---`` line separator, and the output is written (stdout or to file) solely
+    by the MPI process "rank 0".
 
 --trace-out .. _traceout TRACE_OUT option:
 
     Output trace data into a CSV file. Note if ``--trace_out=-`` is specified,
-    the trace will output to stdout. To avoid gathering trace data,
-    set this parameter to ``/dev/null``
+    the trace will output to stdout which is also the default behavior. To avoid
+    gathering trace data, set this parameter to ``/dev/null``.  When used with
+    the ``--enable-mpi`` option, trace file names will be appended with the
+    hostname combined with the ``-`` separator.  It is not possible to write the
+    trace output to stdout when specifying ``--enable-mpi``, this will result in
+    an error.
 
 --enable-mpi .. _enablempi option:
 
-    Gather reports over MPI and write to a single file. Append MPI rank to trace
+    Gather reports over MPI and write to a single file. Append hostname to trace
     output file if specified (trace output to stdout not permitted). Requires
     mpi4py module.
 
@@ -199,12 +206,14 @@ metrics:
 
 Gathering Reports using MPI
 ---------------------------
+
 The ``--enable-mpi`` command line option can be used to aggregate reports using
 an MPI communicator.  This can be helpful when running sessions on more than one
-compute node.  To use this option, the user must install the optional ``mpi4py``
-package using their OS package manager or PyPi.  When running in this way the
+compute node in an MPI enabled environment.  The user must install the optional
+``mpi4py`` package to use the ``--enable-mpi`` command line option .  This can
+be done using the OS package manager or PyPi.  When running in this way the
 ``geopmsession`` command line tool must be launched with a mpi launch wrapper
-like mpiexec or mpirun.  The user should run this command specifying one
+like ``mpiexec`` or ``mpirun``.  The user should run this command specifying one
 ``geopmsession`` process per compute node.  When using this option, trace output
 to stdout is disabled.  The aggregated report is created by the "rank 0" process
 of the geopmsession MPI communicator.
