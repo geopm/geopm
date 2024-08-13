@@ -110,7 +110,7 @@ namespace geopm
         return [scaling_factor](const std::string &content) {
             double result = static_cast<double>(NAN);
             try {
-                result = static_cast<double>(std::stoi(content) * scaling_factor);
+                result = static_cast<double>(std::stol(content) * scaling_factor);
             }
             catch (const std::invalid_argument &ex) {}
             catch (const std::out_of_range &ex) {}
