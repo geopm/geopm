@@ -104,7 +104,7 @@ class MPISessionIO:
         if not self.do_trace():
             return None
         else:
-            return open(f'{self._trace_path}.{self._rank}', "w")
+            return open(f'{self._trace_path}-{gethostname()}', "w")
 
     def close_trace_stream(self, fid):
         if fid is not None:
