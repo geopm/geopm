@@ -36,7 +36,7 @@ namespace geopm
     StatsCollector::StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio)
         : m_pio(pio)
         , m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
-        , m_time_begin(geopm::time_curr_string())
+        , m_time_pio_idx(m_pio.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
     {
 
     }
@@ -61,6 +61,21 @@ namespace geopm
     void StatsCollector::update(void)
     {
         // Caller is expected to have called platform_io().read_batch();
+        m_time_sample = m_pio.sample(m_time_pio_idx);
+        if (m_time_begin_str == "") {
+            m_time_begin = m_time_sample;
+            double time_curr = m_pio.read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+            geopm_time_s time_curr_real = geopm::time_curr_real();
+            geopm_time_s time_begin_real;
+            geopm_time_add(&time_curr_real, m_time_sample - time_curr, &time_begin_real);
+            char time_begin_cstr[NAME_MAX];
+            int err = geopm_time_real_to_iso_string(&time_begin_real, NAME_MAX, time_begin_cstr);
+            if (err != 0) {
+                throw Exception("StatsCollector::update(): geopm_time_real_to_iso_string() call failed",
+                                err, __FILE__, __LINE__);
+            }
+            m_time_begin_str = time_begin_cstr;
+        }
         std::vector<double> sample(m_pio_idx.size(), 0.0);
         auto sample_it = sample.begin();
         for (auto pio_idx : m_pio_idx) {
@@ -75,8 +90,8 @@ namespace geopm
         std::ostringstream result;
         std::string time_end_str = geopm::time_curr_string();
         result << "host: \"" << geopm::hostname() << "\"\n";
-        result << "time-begin: \"" << m_time_begin << "\"\n";
-        result << "time-end: \"" <<  time_end_str << "\"\n";
+        result << "time-begin: \"" << m_time_begin_str << "\"\n";
+        result << "duration: " <<  m_time_sample - m_time_begin << "\n";
         result << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {
@@ -95,7 +110,7 @@ namespace geopm
 
     void StatsCollector::reset(void)
     {
-        m_time_begin = geopm::time_curr_string();
+        m_time_begin_str = "";
         m_stats->reset();
     }
 

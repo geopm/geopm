@@ -31,12 +31,14 @@ void StatsCollectorTest::SetUp()
 TEST_F(StatsCollectorTest, empty_report)
 {
     std::vector<geopm_request_s> req;
+    EXPECT_CALL(*m_pio_mock, push_signal("TIME", 0, 0))
+        .WillOnce(Return(0));
     auto coll = StatsCollector(req, *m_pio_mock);
     std::string report = coll.report_yaml();
     std::vector<std::string> expected_begin = {
         "host",
         "time-begin",
-        "time-end",
+        "duration",
         "metrics",
     };
     auto eb_it = expected_begin.begin();
@@ -54,11 +56,19 @@ TEST_F(StatsCollectorTest, time_report)
 {
     int pio_idx = 3;
     EXPECT_CALL(*m_pio_mock, push_signal("TIME", 0, 0))
+        .WillOnce(Return(pio_idx))
         .WillOnce(Return(pio_idx));
+    EXPECT_CALL(*m_pio_mock, read_signal("TIME", 0, 0))
+        .WillOnce(Return(0.0))
+        .WillOnce(Return(1.0));
     EXPECT_CALL(*m_pio_mock, sample(pio_idx))
         .WillOnce(Return(0.0))
+        .WillOnce(Return(0.0))
+        .WillOnce(Return(1.0))
         .WillOnce(Return(1.0))
         .WillOnce(Return(0.0))
+        .WillOnce(Return(0.0))
+        .WillOnce(Return(1.0))
         .WillOnce(Return(1.0));
     std::vector<geopm_request_s> req {{0, 0, "TIME"}};
     auto coll = StatsCollector(req, *m_pio_mock);
@@ -69,7 +79,7 @@ TEST_F(StatsCollectorTest, time_report)
         std::vector<std::string> expected_begin = {
             "host",
             "time-begin",
-            "time-end",
+            "duration",
             "metrics",
             "  TIME",
             "    count",
