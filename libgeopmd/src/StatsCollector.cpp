@@ -174,8 +174,8 @@ int geopm_stats_collector_update(struct geopm_stats_collector_s *collector)
     return err;
 }
 
-// If *max_report_size is zero, update it with the required size for the report
-// and do not modify report
+// If report_yaml == NULL and *max_report_size is zero, update it with the
+// required size for the report and do not modify report
 int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
                                       size_t *max_report_size, char *report_yaml)
 {
@@ -183,20 +183,19 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
     try {
         const geopm::StatsCollector *collector_cpp = reinterpret_cast<const geopm::StatsCollector *>(collector);
         std::string report_str = collector_cpp->report_yaml();
-        if (report_str.size() < *max_report_size) {
+        if (*max_report_size == 0 && report_yaml == nullptr) {
+            // This call is querying the size of the buffer
+            *max_report_size = report_str.size() + 1;
+        }
+        else if (report_str.size() < *max_report_size) {
             strncpy(report_yaml, report_str.c_str(), report_str.size());
         }
         else {
             err = ENOBUFS;
             std::ostringstream err_str;
             size_t report_str_size = report_str.size() + 1;
-            if (*max_report_size != 0) {
-                err_str << "geopm_stats_collector_report_yaml(): max_report_size is too small, provided: "
-                        << *max_report_size << " required: " << report_str_size;
-            }
-            else {
-                err_str << "geopm_stats_collector_report_yaml(): max_report_size required: " << report_str_size;
-            }
+            err_str << "geopm_stats_collector_report_yaml(): max_report_size is too small, provided: "
+                    << *max_report_size << " required: " << report_str_size;
             *max_report_size = report_str_size;
             throw geopm::Exception(err_str.str(), err, __FILE__, __LINE__);
         }
