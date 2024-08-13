@@ -43,7 +43,7 @@ def _write_report(report_path, report):
 def _check_valid_output(path):
     return path is not None and path != '/dev/null'
 
-class SessionIO:
+class _SessionIO:
     def __init__(self, request_stream, trace_path, report_path):
         self._request_stream = request_stream
         self._trace_path = trace_path
@@ -507,7 +507,7 @@ def main():
         if args.enable_mpi:
             session_io = _MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         else:
-            session_io = SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
+            session_io = _SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.omit_header,
