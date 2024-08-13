@@ -188,7 +188,7 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
             *max_report_size = report_str.size() + 1;
         }
         else if (report_str.size() < *max_report_size) {
-            strncpy(report_yaml, report_str.c_str(), report_str.size());
+            strncpy(report_yaml, report_str.c_str(), report_str.size() + 1);
         }
         else {
             err = ENOBUFS;
