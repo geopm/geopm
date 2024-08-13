@@ -28,7 +28,7 @@
           "format": { "description": "How to present read values",
                       "enum": ["double", "integer", "hex", "raw64"] },
           "units": { "description": "Which units are represented by the attribute's read values",
-                      "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"] },
+                      "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius", "amperes", "volts"] },
           "writeable": { "description": "True if the attribute is also writeable as a control",
                          "type": "boolean" },
           "alias": { "description": "An alias signal/control to create for this attribute. An empty string if no alias is desired.",
