@@ -37,8 +37,8 @@ TEST_F(StatsCollectorTest, empty_report)
     std::string report = coll.report_yaml();
     std::vector<std::string> expected_begin = {
         "host",
-        "time-begin",
-        "duration",
+        "sample-time-first",
+        "sample-time-total",
         "metrics",
     };
     auto eb_it = expected_begin.begin();
@@ -78,8 +78,8 @@ TEST_F(StatsCollectorTest, time_report)
         std::string report = coll.report_yaml();
         std::vector<std::string> expected_begin = {
             "host",
-            "time-begin",
-            "duration",
+            "sample-time-first",
+            "sample-time-total",
             "metrics",
             "  TIME",
             "    count",
@@ -87,7 +87,7 @@ TEST_F(StatsCollectorTest, time_report)
             "    last",
             "    min",
             "    max",
-            "    mean",
+            "    mean-arithmetic",
             "    std",
         };
         auto eb_it = expected_begin.begin();
@@ -104,7 +104,7 @@ TEST_F(StatsCollectorTest, time_report)
         EXPECT_NE(std::string::npos, report.find("last: 1\n"));
         EXPECT_NE(std::string::npos, report.find("min: 0\n"));
         EXPECT_NE(std::string::npos, report.find("max: 1\n"));
-        EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
+        EXPECT_NE(std::string::npos, report.find("mean-arithmetic: 0.5\n"));
         EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
         coll.reset();
     }
