@@ -217,7 +217,7 @@ class GeopmSysfsJson(SphinxDirective):
             logger.error('Unable to parse %s. Error: %s', json_path, e, location=self.get_location())
             return []
 
-        attribute_regex = re.compile('(' + driver_name + r'::\w+)', flags=re.ASCII)
+        attribute_regex = re.compile('(' + driver_name + r'::[\w:]+)', flags=re.ASCII)
         doc_nodes = nodes.definition_list()
         alias_map = collections.defaultdict(list)
         attribute_definitions = []

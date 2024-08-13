@@ -1,5 +1,101 @@
 {
     "attributes": {
+        "HWMON::IN0_INPUT": {
+            "attribute": "in0_input",
+            "scalar": 1e-3,
+            "description": "The current voltage",
+            "doc_domain": "gpu",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "volts",
+            "writeable": false,
+            "alias": ""
+        },
+        "HWMON::POWER1_MAX": {
+            "attribute": "power1_max",
+            "scalar": 1e-6,
+            "description": "Requested power limit, sustained on average over DRM::HWMON::POWER1_MAX_INTERVAL",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "watts",
+            "writeable": true,
+            "alias": "GPU_POWER_LIMIT_CONTROL"
+        },
+        "HWMON::POWER1_RATED_MAX": {
+            "attribute": "power1_max",
+            "scalar": 1e-6,
+            "description": "Default thermal design power limit",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "watts",
+            "writeable": false,
+            "alias": "GPU_POWER_LIMIT_DEFAULT"
+        },
+        "HWMON::POWER1_MAX_INTERVAL": {
+            "attribute": "power1_max_interval",
+            "scalar": 1e-3,
+            "description": "Requested time window over which DRM::HWMON::POWER1_MAX is sustained on average",
+            "doc_domain": "gpu",
+            "aggregation": "expect_same",
+            "behavior": "variable",
+            "format": "double",
+            "units": "seconds",
+            "writeable": true,
+            "alias": "GPU_POWER_TIME_WINDOW_CONTROL"
+        },
+        "HWMON::POWER1_CRIT": {
+            "attribute": "power1_crit",
+            "scalar": 1e-6,
+            "description": "Critical power limit, influencing the power manager's throttling decisions",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "watts",
+            "writeable": true,
+            "alias": ""
+        },
+        "HWMON::CURR1_CRIT": {
+            "attribute": "curr1_crit",
+            "scalar": 1e-3,
+            "description": "Critical current limit, influencing the power manager's throttling decisions",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "amperes",
+            "writeable": true,
+            "alias": ""
+        },
+        "HWMON::ENERGY1_INPUT::GPU": {
+            "attribute": "energy1_input",
+            "scalar": 1e-6,
+            "description": "GPU card-level energy counter",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "monotone",
+            "format": "double",
+            "units": "joules",
+            "writeable": false,
+            "alias": "GPU_ENERGY"
+        },
+        "HWMON::ENERGY1_INPUT::GPU_CHIP": {
+            "attribute": "energy1_input",
+            "scalar": 1e-6,
+            "description": "GPU tile-level energy counter",
+            "doc_domain": "gpu_chip",
+            "aggregation": "sum",
+            "behavior": "monotone",
+            "format": "double",
+            "units": "joules",
+            "writeable": false,
+            "alias": "GPU_CHIP_ENERGY"
+        },
         "RPS_MIN_FREQ": {
             "attribute": "rps_min_freq_mhz",
             "scalar": 1e6,

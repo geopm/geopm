@@ -37,8 +37,8 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
+            const std::map<std::pair<geopm_domain_e, int>, std::string> M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN;
             const std::map<int, std::string> M_DRM_RESOURCE_BY_GPU_TILE;
-            geopm_domain_e m_domain;
     };
 }
 

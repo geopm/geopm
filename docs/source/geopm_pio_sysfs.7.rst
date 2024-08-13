@@ -39,6 +39,10 @@ Some signals and controls are made available to GEOPM through the sysfs interfac
 to the ``i915 DRM`` (Direct Rendering Manager) driver. For more information, see the
 `i915 documentation <https://www.kernel.org/doc/html/next/gpu/i915.html>`_ and the
 `oneAPI GPU Optimization Guide <https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/2024-0/configuring-gpu-device.html>`_.
+Furthermore, the i915 DRM devices may link to i915 hwmon devices. If the hwmon
+links are present, this IOGroup also exposes signals and controls from the
+`i915 hwmon interface <https://www.kernel.org/doc/html/latest/admin-guide/abi-testing.html#file-testing-sysfs-driver-intel-i915-hwmon>`_.
+
 The i915 driver is available in `upstream Linux <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915>`_.
 Additional features are available in the `out-of-tree version of the driver <https://github.com/intel-gpu/intel-gpu-i915-backports>`_.
 This IOGroup is intended for use with either version of the driver.
