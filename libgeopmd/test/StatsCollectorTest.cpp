@@ -28,6 +28,7 @@ void StatsCollectorTest::SetUp()
     m_pio_mock = std::make_shared<MockPlatformIO>();
 }
 
+/// @brief test report generation with no updates
 TEST_F(StatsCollectorTest, empty_report)
 {
     std::vector<geopm_request_s> req;
@@ -54,6 +55,7 @@ TEST_F(StatsCollectorTest, empty_report)
     }
 }
 
+/// @brief Create two reports with a restart between
 TEST_F(StatsCollectorTest, time_report)
 {
     int pio_idx = 3;
