@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
@@ -125,6 +126,8 @@ TEST_F(StatsCollectorTest, time_report)
     char *report_cstr = (char *)malloc(max_size);
     ASSERT_NE(nullptr, report_cstr);
     ASSERT_EQ(0, geopm_stats_collector_report_yaml(coll_ptr, &max_size, report_cstr));
+    --max_size;
+    ASSERT_EQ(ENOBUFS, geopm_stats_collector_report_yaml(coll_ptr, &max_size, report_cstr));
     report = report_cstr;
     free(report_cstr);
     eb_it = expected_begin.begin();
