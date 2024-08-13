@@ -50,16 +50,20 @@ int GEOPM_PUBLIC
 ///
 /// Create a report that shows all statistics gathered by calls to
 /// geopm_stats_collector_update().  To determine the size of the report string,
-/// call with *max_report_size == 0.  If *max_report_size provided by the user is
-/// not sufficient, EINVAL is returned and the value of *max_report_size is set
-/// to the required size and report_yaml is unmodified.
+/// call with *max_report_size == 0 and report_yaml == NULL.  In this case
+/// max_report_size will be updated with the required string length and zero is
+/// returned.  Otherwise, if *max_report_size provided by the user is not
+/// sufficient, EINVAL is returned and the value of *max_report_size is set to
+/// the required size and report_yaml is unmodified.
 ///
 /// @param [in] collector Handle created with a call to geopm_stats_collector_create()
 ///
 /// @param [in,out] max_report_size Set to the length of the report_yaml string
-///        provided by the user.  If too small, will be updated with required value.
+///        provided by the user, set to zero to query value.  If too small, will
+///        be updated with required value.
 ///
-/// @param [out] report_yaml Generated report string allocated by the user
+/// @param [out] report_yaml Generated report string allocated by the user, set
+///              to NULL to query max_report_size without error.
 ///
 /// @returns 0 upon success, or error code upon failure
 int GEOPM_PUBLIC
