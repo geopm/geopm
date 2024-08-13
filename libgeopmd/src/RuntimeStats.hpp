@@ -99,8 +99,8 @@ namespace geopm
                 double last;
                 double min;
                 double max;
-                double m_1;
-                double m_2;
+                double m_1; // sum of all sampled values
+                double m_2; // sum of the square of all sampled values
             };
             const std::vector<std::string> m_metric_names;
             std::vector<stats_s> m_metric_stats;
