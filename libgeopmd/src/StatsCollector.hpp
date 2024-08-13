@@ -56,7 +56,10 @@ namespace geopm
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
             std::shared_ptr<RuntimeStats> m_stats;
-            std::string m_time_begin;
+            int m_time_pio_idx;
+            std::string m_time_begin_str;
+            double m_time_begin;
+            double m_time_sample;
     };
 }
 

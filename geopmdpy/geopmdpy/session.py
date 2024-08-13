@@ -55,7 +55,7 @@ class SessionIO:
         return ReadRequestQueue(self._request_stream)
 
     def open_trace_stream(self):
-        if not self._do_trace():
+        if not self.do_trace():
             return None
         elif self._trace_path == '-':
             return sys.stdout
@@ -259,7 +259,7 @@ class Session:
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
-            session_io=None):
+            report_path=None, session_io=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -289,13 +289,13 @@ class Session:
         if session_io is not None:
             if request_stream is not None:
                 raise RuntimeError('Using a request_stream is incompatible with using session_io')
-            if out_stream is not None:
-                raise RuntimeError('Using a out_stream is incompatible with using session_io')
+            if report_path is not None:
+                raise RuntimeError('Using a report_path is incompatible with using session_io')
             requests = session_io.get_request_queue()
             do_stats = session_io.do_report()
         else:
             requests = ReadRequestQueue(request_stream)
-            do_stats = False
+            do_stats = report_path is not None
         self.check_read_args(run_time, period)
         signal_config = [(rr[0], rr[1], rr[2]) for rr in requests]
         if out_stream is not None and print_header:
@@ -306,7 +306,11 @@ class Session:
             if do_stats:
                 report = stats_collector.report_yaml()
         if do_stats:
-            session_io.write_report(report)
+            if session_io is not None:
+                session_io.write_report(report)
+            else:
+                with open(report_path, "w") as fid:
+                    fid.write(report)
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -507,7 +511,7 @@ def main():
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.omit_header,
-                 request_stream=None, out_stream=trace_out, session_io=session_io)
+                 request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
