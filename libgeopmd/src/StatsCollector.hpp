@@ -51,15 +51,18 @@ namespace geopm
             /// statistics and resetting the begin time.
             void reset(void);
         private:
-            PlatformIO &m_pio;
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
+            PlatformIO &m_pio;
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
             std::shared_ptr<RuntimeStats> m_stats;
             int m_time_pio_idx;
+            int m_sample_count;
+            double m_time_sample;
+            double m_time_delta_m_1;
+            double m_time_delta_m_2;
             std::string m_time_begin_str;
             double m_time_begin;
-            double m_time_sample;
     };
 }
 

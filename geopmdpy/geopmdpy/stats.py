@@ -65,7 +65,7 @@ class Collector:
 
         err = _dl.geopm_stats_collector_create(num_signal, signal_config_carr, collector_ptr)
         if err < 0:
-            raise RuntimeError('geopm_stats_collector() failed: {}'.format(error.message(err)))
+            raise RuntimeError('geopm_stats_collector_create() failed: {}'.format(error.message(err)))
         self._collector_ptr = collector_ptr[0];
 
     def __enter__(self):

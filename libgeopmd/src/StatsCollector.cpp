@@ -37,6 +37,10 @@ namespace geopm
         : m_pio(pio)
         , m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
         , m_time_pio_idx(m_pio.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
+        , m_sample_count(0)
+        , m_time_sample(0.0)
+        , m_time_delta_m_1(0.0)
+        , m_time_delta_m_2(0.0)
     {
 
     }
@@ -61,6 +65,8 @@ namespace geopm
     void StatsCollector::update(void)
     {
         // Caller is expected to have called platform_io().read_batch();
+        ++m_sample_count;
+        double time_last = m_time_sample;
         m_time_sample = m_pio.sample(m_time_pio_idx);
         if (m_time_begin_str == "") {
             m_time_begin = m_time_sample;
@@ -76,6 +82,11 @@ namespace geopm
             }
             m_time_begin_str = time_begin_cstr;
         }
+        else {
+            double time_delta = m_time_sample - time_last;
+            m_time_delta_m_1 += time_delta;
+            m_time_delta_m_2 += time_delta * time_delta;
+        }
         std::vector<double> sample(m_pio_idx.size(), 0.0);
         auto sample_it = sample.begin();
         for (auto pio_idx : m_pio_idx) {
@@ -89,9 +100,21 @@ namespace geopm
     {
         std::ostringstream result;
         std::string time_end_str = geopm::time_curr_string();
+        double time_delta_mean = 0;
+        double time_delta_std = 0;
+        if (m_sample_count > 3) {
+            time_delta_mean = m_time_delta_m_1 / (m_sample_count - 1);
+            time_delta_std = std::sqrt(
+                (m_time_delta_m_2 -
+                 m_time_delta_m_1 *
+                 m_time_delta_m_1 / (m_sample_count - 1)) /
+                (m_sample_count - 2));
+        }
         result << "host: \"" << geopm::hostname() << "\"\n";
         result << "sample-time-first: \"" << m_time_begin_str << "\"\n";
         result << "sample-time-total: " <<  m_time_sample - m_time_begin << "\n";
+        result << "sample-period-mean: " << time_delta_mean << "\n";
+        result << "sample-period-std: " << time_delta_std << "\n";
         result << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {
@@ -111,6 +134,11 @@ namespace geopm
     void StatsCollector::reset(void)
     {
         m_time_begin_str = "";
+        m_time_begin = 0;
+        m_sample_count = 0;
+        m_time_sample = 0.0;
+        m_time_delta_m_1 = 0.0;
+        m_time_delta_m_2 = 0.0;
         m_stats->reset();
     }
 
