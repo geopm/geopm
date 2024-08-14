@@ -309,17 +309,18 @@ TEST_F(NVMLGPUTopoTest, high_cpu_count_gaps_config)
     NVMLGPUTopo topo(*m_device_pool, num_cpu);
 
     EXPECT_EQ(num_gpu, topo.num_gpu());
-    std::set<int> cpus_allowed_set[num_gpu];
-    cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,6 ,7};
-    cpus_allowed_set[1] = {8 ,9 ,10,11,12,13,14,15};
-    cpus_allowed_set[2] = {16,17,18,19,20,21,22,23};
-    cpus_allowed_set[3] = {24,25,26,27,64,65,66,67};
-    cpus_allowed_set[4] = {28,29,30,31,32,33,34,35,127};
-    cpus_allowed_set[5] = {36,37,38,39,40,41,42,43};
-    cpus_allowed_set[6] = {44,45,46,47,48,49,50,51};
-    cpus_allowed_set[7] = {52,53,54,55,123,124,125,126};
+    std::vector<std::set<int>> cpus_allowed_set = {
+        {0 ,1 ,2 ,3 ,4 ,5 ,6 ,7},
+        {8 ,9 ,10,11,12,13,14,15},
+        {16,17,18,19,20,21,22,23},
+        {24,25,26,27,64,65,66,67},
+        {28,29,30,31,32,33,34,35,127},
+        {36,37,38,39,40,41,42,43},
+        {44,45,46,47,48,49,50,51},
+        {52,53,54,55,123,124,125,126}
+    };
 
-    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+    for (int gpu_idx = 0; gpu_idx < static_cast<int>(cpus_allowed_set.size()); ++gpu_idx) {
         ASSERT_THAT(topo.cpu_affinity_ideal(gpu_idx), cpus_allowed_set[gpu_idx]);
     }
 }

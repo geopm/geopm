@@ -93,20 +93,21 @@ TEST_F(LevelZeroGPUTopoTest, four_forty_config)
     EXPECT_EQ(num_gpu, topo_sub.num_gpu());
     EXPECT_EQ(num_gpu_subdevice, topo_sub.num_gpu(GEOPM_DOMAIN_GPU_CHIP));
 
-    std::set<int> cpus_allowed_set_subdevice[num_gpu_subdevice];
-    cpus_allowed_set_subdevice[0] = {0,2,4,6,8};
-    cpus_allowed_set_subdevice[1] = {1,3,5,7,9};
-    cpus_allowed_set_subdevice[2] = {10,12,14,16,18};
-    cpus_allowed_set_subdevice[3] = {11,13,15,17,19};
-    cpus_allowed_set_subdevice[4] = {20,22,24,26,28};
-    cpus_allowed_set_subdevice[5] = {21,23,25,27,29};
-    cpus_allowed_set_subdevice[6] = {30,32,34,36,38};
-    cpus_allowed_set_subdevice[7] = {31,33,35,37,39};
+    std::vector<std::set<int>> cpus_allowed_set_subdevice = {
+        {0,2,4,6,8},
+        {1,3,5,7,9},
+        {10,12,14,16,18},
+        {11,13,15,17,19},
+        {20,22,24,26,28},
+        {21,23,25,27,29},
+        {30,32,34,36,38},
+        {31,33,35,37,39}
+    };
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         ASSERT_THAT(topo_sub.cpu_affinity_ideal(gpu_idx), cpus_allowed_set[gpu_idx]);
     }
-    for (int gpu_idx = 0; gpu_idx < num_gpu_subdevice; ++gpu_idx) {
+    for (int gpu_idx = 0; gpu_idx < static_cast<int>(cpus_allowed_set_subdevice.size()); ++gpu_idx) {
         ASSERT_THAT(topo_sub.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, gpu_idx), cpus_allowed_set_subdevice[gpu_idx]);
     }
 }
