@@ -475,13 +475,13 @@ def get_parser():
                         help='Stop the session when the given process PID ends.')
     parser.add_argument('--print-header', action='store_true',
                         help='Deprecated now this option is the default, see --no-header.')
-    parser.add_argument('--no-header', action='store_true',
+    parser.add_argument('-n', '--no-header', action='store_true',
                         help='Do not print a CSV header before printing any sampled values.')
     parser.add_argument('-d', '--delimiter', dest='delimiter', default=',',
                         help='Delimiter used to separate values in CSV output. Default: %(default)s.')
-    parser.add_argument('--report-out', dest='report_out', default=None,
+    parser.add_argument('-r', '--report-out', dest='report_out', default=None,
                         help='Output summary statistics into a yaml file. Default: No summary statistics are generated.')
-    parser.add_argument('--trace-out', dest='trace_out', default='-',
+    parser.add_argument('-o', '--trace-out', dest='trace_out', default='-',
                         help='Output trace data into a CSV file. Default: trace data is printed to stdout.')
     parser.add_argument('--enable-mpi', dest='enable_mpi', action='store_true',
                         help='Gather reports over MPI and write to a single file. Append MPI rank to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')

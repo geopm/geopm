@@ -5,27 +5,29 @@ geopmsession(1) -- Command line interface for the GEOPM service batch read featu
 Synopsis
 --------
 
-.. code-block:: none
+.. code-block:: bash
 
-    geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID] [--print-header]
-                 [-d DELIMITER] [--report-out REPORT_OUT]
-                 [--trace-out TRACE_OUT] [--mpi-report]
+   usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
+                       [--print-header] [-n] [-d DELIMITER] [-r REPORT_OUT]
+                       [-o TRACE_OUT] [--enable-mpi]
 
-Command line interface for the geopm service batch read features. This command
-can be used to read signals by opening a session with the geopm service.
-
+Command line interface for the geopm service batch read features. The input to
+the command line tool has one request per line. A request for reading is made
+of up three strings separated by white space. The first string is the signal
+name, the second string is the domain name, and the third string is the domain
+index.
 
 Read a signal
 ~~~~~~~~~~~~~
 
-.. code-block:: none
+.. code-block:: bash
 
     echo "SIGNAL_NAME DOMAIN DOMAIN_IDX" | geopmsession
 
 Read a signal at a specific period for a specific timeout
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: none
+.. code-block:: bash
 
     geopmsession -p PERIOD_IN_SECONDS -t TIMEOUT_IN_SECONDS
     geopmsession --period PERIOD_IN_SECONDS --time TIMEOUT_IN_SECONDS
@@ -33,15 +35,16 @@ Read a signal at a specific period for a specific timeout
 Read a set of signals
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: none
+.. code-block:: bash
 
-    echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession
+    echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' |\
+        geopmsession -n
     70.250978379,2434090909.090909
 
 Get Help or Version
 ~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: none
+.. code-block:: bash
 
     geopmsession -h
     geopmsession --help
@@ -63,34 +66,38 @@ Options
 
 -h, --help  .. _help option:
 
-    Print help message and exit
+    Print help message and exit.
 
 -v, --version  .. _version option:
 
-    Print version and exit
+    Print version and exit.
 
 -t TIME, --time TIME  .. _time option:
 
-    Total run time of the session to be opened in seconds
+    Total run time of the session to be opened in seconds.
 
 -p PERIOD, --period PERIOD  .. _period option:
 
     When used with a read mode session reads all values out periodically with
-    the specified period in seconds
+    the specified period in seconds.
 
 --pid PID  .. _pid option:
 
-    Stop the session when the given process PID ends
+    Stop the session when the given process PID ends.
 
---no-header  .. _header option:
+--print-header  .. _printheader option:
 
-    Do not print the CSV header before printing any sampled values
+    Deprecated now this option is the default, see --no-header.
 
---delimiter .. _delimiter DELIMITER .. option:
+-n, --no-header  .. _header option:
 
-    Delimiter used to separate values in CSV output
+    Do not print the CSV header before printing any sampled values.
 
---report-out .. _reportout REPORT_OUT option:
+-d, --delimiter  .. _delimiter DELIMITER .. option:
+
+    Delimiter used to separate values in CSV output. Default: ",".
+
+-r, --report-out  .. _reportout REPORT_OUT option:
 
     Output summary statistics into a yaml file. Note if ``--report-out=-`` is
     specified, the report will output to stdout. When used with the
@@ -98,7 +105,7 @@ Options
     ``---`` line separator, and the output is written (stdout or to file) solely
     by the MPI process "rank 0".
 
---trace-out .. _traceout TRACE_OUT option:
+-o, --trace-out  .. _traceout TRACE_OUT option:
 
     Output trace data into a CSV file. Note if ``--trace_out=-`` is specified,
     the trace will output to stdout which is also the default behavior. To avoid
@@ -108,7 +115,7 @@ Options
     trace output to stdout when specifying ``--enable-mpi``, this will result in
     an error.
 
---enable-mpi .. _enablempi option:
+--enable-mpi  .. _enablempi option:
 
     Gather reports over MPI and write to a single file. Append hostname to trace
     output file if specified (trace output to stdout not permitted). Requires
@@ -131,7 +138,7 @@ core zero:
 
 .. code-block:: bash
 
-    $ echo "MSR::THERM_STATUS# core 0" | geopmsession
+    echo "MSR::THERM_STATUS# core 0" | geopmsession -n
     0x0000000088430800
 
 This will execute one read of the signal.
@@ -143,9 +150,9 @@ The polling period must be shorter than the timeout specified.
 
 A 100ms polling period with a 300ms timeout is shown below:
 
-.. code-block:: none
+.. code-block:: bash
 
-    echo -e 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3
+    echo 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3 -n
     0x0000000088410000
     0x0000000088420000
     0x0000000088420000
@@ -155,10 +162,10 @@ Reading a set of signals
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Multiple signals may be specified by separating them with a newline.
 
-.. code-block:: none
+.. code-block:: bash
 
     printf 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' |\
-        geopmsession --no-header
+        geopmsession -n
     70.250978379,2434090909.090909,2775000000,198575.8842163086,88752.19470214844
 
 Reading a set of signals and getting summary statistics
@@ -167,7 +174,7 @@ Summary statistics may be output to stdout by setting ``--report-out=-``.
 Otherwise, the statistics will be output to the specified file path. If
 unspecified, no statistics will be gathered.
 
-.. code-block:: none
+.. code-block:: bash
 
     printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' |\
         geopmsession -t 10 -p 0.005 --report-out=- --trace-out=/dev/null
