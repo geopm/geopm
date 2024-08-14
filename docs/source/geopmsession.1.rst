@@ -11,12 +11,6 @@ Synopsis
                        [--print-header] [-n] [-d DELIMITER] [-r REPORT_OUT]
                        [-o TRACE_OUT] [--enable-mpi]
 
-Command line interface for the geopm service batch read features. The input to
-the command line tool has one request per line. A request for reading is made
-of up three strings separated by white space. The first string is the signal
-name, the second string is the domain name, and the third string is the domain
-index.
-
 Read a signal
 ~~~~~~~~~~~~~
 
@@ -51,13 +45,15 @@ Get Help or Version
 Description
 -----------
 
-Command line interface for the GEOPM service read features.
+Command line interface for the GEOPM service batch read features. The input to
+the command line tool has one request per line. A request for reading is made
+of up of three strings separated by white space. The first string is the signal
+name, the second string is the domain name, and the third string is the domain
+index.
 
-This command can be used to read signals by opening a session with the
-geopm service.  The user specifies which signals to read with standard
-input. When no command line options are provided, a single read of the
-signals requested though standard input is made and the results are
-printed to the screen.
+Unless the ``-n`` option is specified, a descriptive header is written
+first and then the output from reading the requests.  Unless ``-p`` is
+specified, only one line of output after the header is printed..
 
 Options
 -------
