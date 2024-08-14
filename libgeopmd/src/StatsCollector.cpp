@@ -102,8 +102,10 @@ namespace geopm
         std::string time_end_str = geopm::time_curr_string();
         double time_delta_mean = 0;
         double time_delta_std = 0;
-        if (m_sample_count > 3) {
+        if (m_sample_count > 1) {
             time_delta_mean = m_time_delta_m_1 / (m_sample_count - 1);
+        }
+        if (m_sample_count > 2) {
             time_delta_std = std::sqrt(
                 (m_time_delta_m_2 -
                  m_time_delta_m_1 *
