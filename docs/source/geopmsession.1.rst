@@ -82,7 +82,7 @@ Options
 
     Stop the session when the given process PID ends
 
---omit-header  .. _header option:
+--no-header  .. _header option:
 
     Do not print the CSV header before printing any sampled values
 
@@ -157,7 +157,8 @@ Multiple signals may be specified by separating them with a newline.
 
 .. code-block:: none
 
-    echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' | geopmsession
+    printf 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' |\
+        geopmsession --no-header
     70.250978379,2434090909.090909,2775000000,198575.8842163086,88752.19470214844
 
 Reading a set of signals and getting summary statistics
@@ -168,7 +169,8 @@ unspecified, no statistics will be gathered.
 
 .. code-block:: none
 
-    printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' | geopmsession -t 2 -p 0.01 --print-header --report-out=-
+    printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' |\
+        geopmsession -t 10 -p 0.005 --report-out=- --trace-out=/dev/null
 
 An example report is shown below:
 
@@ -214,7 +216,7 @@ an MPI communicator.  This can be helpful when running sessions on more than one
 compute node in an MPI enabled environment.  The user must install the optional
 ``mpi4py`` package to use the ``--enable-mpi`` command line option .  This can
 be done using the OS package manager or PyPi.  When running in this way the
-``geopmsession`` command line tool must be launched with a mpi launch wrapper
+``geopmsession`` command line tool must be launched with an MPI launch wrapper
 like ``mpiexec`` or ``mpirun``.  The user should run this command specifying one
 ``geopmsession`` process per compute node.  When using this option, trace output
 to stdout is disabled.  The aggregated report is created by the "rank 0" process
