@@ -474,8 +474,8 @@ def get_parser():
     parser.add_argument('--pid', type=int,
                         help='Stop the session when the given process PID ends.')
     parser.add_argument('--print-header', action='store_true',
-                        help='Deprecated now this option is the default, see --omit-header.')
-    parser.add_argument('--omit-header', action='store_true',
+                        help='Deprecated now this option is the default, see --no-header.')
+    parser.add_argument('--no-header', action='store_true',
                         help='Do not print a CSV header before printing any sampled values.')
     parser.add_argument('-d', '--delimiter', dest='delimiter', default=',',
                         help='Delimiter used to separate values in CSV output. Default: %(default)s.')
@@ -510,7 +510,7 @@ def main():
             session_io = _SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
-        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.omit_header,
+        sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
