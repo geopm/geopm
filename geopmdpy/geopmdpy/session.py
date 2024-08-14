@@ -206,8 +206,10 @@ class Session:
         signal_handles = []
         for name, dom, dom_idx in requests:
             signal_handles.append(pio.push_signal(name, dom, dom_idx))
+        pio.read_batch()
         for sample_idx in loop.TimedLoop(period, num_period):
-            pio.read_batch()
+            if sample_idx != 0:
+                pio.read_batch()
             if out_stream is not None:
                 signals = [pio.sample(handle) for handle in signal_handles]
                 line = self.format_signals(signals, requests.get_formats())
