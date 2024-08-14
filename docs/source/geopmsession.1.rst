@@ -37,9 +37,7 @@ Read a set of signals
 
 .. code-block:: bash
 
-    echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' |\
-        geopmsession -n
-    70.250978379,2434090909.090909
+    echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession -n
 
 Get Help or Version
 ~~~~~~~~~~~~~~~~~~~
@@ -138,7 +136,7 @@ core zero:
 
 .. code-block:: bash
 
-    echo "MSR::THERM_STATUS# core 0" | geopmsession -n
+    $ echo "MSR::THERM_STATUS# core 0" | geopmsession -n
     0x0000000088430800
 
 This will execute one read of the signal.
@@ -152,7 +150,7 @@ A 100ms polling period with a 300ms timeout is shown below:
 
 .. code-block:: bash
 
-    echo 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3 -n
+    $ echo 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3 -n
     0x0000000088410000
     0x0000000088420000
     0x0000000088420000
@@ -164,7 +162,7 @@ Multiple signals may be specified by separating them with a newline.
 
 .. code-block:: bash
 
-    printf 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' |\
+    $ printf 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' |\
         geopmsession -n
     70.250978379,2434090909.090909,2775000000,198575.8842163086,88752.19470214844
 
@@ -176,7 +174,7 @@ unspecified, no statistics will be gathered.
 
 .. code-block:: bash
 
-    printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' |\
+    $ printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' |\
         geopmsession -t 10 -p 0.005 --report-out=- --trace-out=/dev/null
 
 An example report is shown below:
