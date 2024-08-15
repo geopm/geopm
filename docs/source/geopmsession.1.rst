@@ -8,7 +8,7 @@ Synopsis
 .. code-block:: bash
 
    usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
-                       [--print-header] [-n] [-d DELIMITER] [-r REPORT_OUT]
+                       [--print-header | -n] [-d DELIMITER] [-r REPORT_OUT]
                        [-o TRACE_OUT] [--enable-mpi]
 
 Read a signal

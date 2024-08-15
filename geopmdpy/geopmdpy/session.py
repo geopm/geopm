@@ -475,10 +475,11 @@ def get_parser():
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds.')
     parser.add_argument('--pid', type=int,
                         help='Stop the session when the given process PID ends.')
-    parser.add_argument('--print-header', action='store_true',
-                        help='Deprecated now this option is the default, see --no-header.')
-    parser.add_argument('-n', '--no-header', action='store_true',
-                        help='Do not print a CSV header before printing any sampled values.')
+    header_group = parser.add_mutually_exclusive_group()
+    header_group.add_argument('--print-header', action='store_true',
+                              help='Deprecated now this option is the default, see --no-header.')
+    header_group.add_argument('-n', '--no-header', action='store_true',
+                              help='Do not print a CSV header before printing any sampled values.')
     parser.add_argument('-d', '--delimiter', dest='delimiter', default=',',
                         help='Delimiter used to separate values in CSV output. Default: %(default)s.')
     parser.add_argument('-r', '--report-out', dest='report_out', default=None,
