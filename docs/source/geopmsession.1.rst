@@ -53,7 +53,7 @@ index.
 
 Unless the ``-n`` option is specified, a descriptive header is written
 first and then the output from reading the requests.  Unless ``-p`` is
-specified, only one line of output after the header is printed..
+specified, only one line of output after the header is printed.
 
 Options
 -------
@@ -81,7 +81,7 @@ Options
 
 --print-header  .. _printheader option:
 
-    Deprecated now this option is the default, see --no-header.
+    Deprecated. Now this option is the default, see --no-header.
 
 -n, --no-header  .. _header option:
 
@@ -96,7 +96,7 @@ Options
     Output summary statistics into a yaml file. Note if ``--report-out=-`` is
     specified, the report will output to stdout. When used with the
     ``--enable-mpi`` option, reports from all hosts will be combined using the
-    ``---`` line separator, and the output is written (stdout or to file) solely
+    ``---`` document separator, and the output is written (stdout or to file) solely
     by the MPI process "rank 0".
 
 -o, --trace-out  .. _traceout TRACE_OUT option:
@@ -130,7 +130,7 @@ domain name, and the third string is the domain index.  An example
 where the entire ``THERM_STATUS`` model specific register is read from
 core zero:
 
-.. code-block:: bash
+.. code-block:: shell-session
 
     $ echo "MSR::THERM_STATUS# core 0" | geopmsession -n
     0x0000000088430800
@@ -144,7 +144,7 @@ The polling period must be shorter than the timeout specified.
 
 A 100ms polling period with a 300ms timeout is shown below:
 
-.. code-block:: bash
+.. code-block:: shell-session
 
     $ echo 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3 -n
     0x0000000088410000
@@ -156,7 +156,7 @@ Reading a set of signals
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Multiple signals may be specified by separating them with a newline.
 
-.. code-block:: bash
+.. code-block:: shell-session
 
     $ printf 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' |\
         geopmsession -n
@@ -168,7 +168,7 @@ Summary statistics may be output to stdout by setting ``--report-out=-``.
 Otherwise, the statistics will be output to the specified file path. If
 unspecified, no statistics will be gathered.
 
-.. code-block:: bash
+.. code-block:: shell-session
 
     $ printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' |\
         geopmsession -t 10 -p 0.005 --report-out=- --trace-out=/dev/null

@@ -290,16 +290,16 @@ class Session:
         """
         if session_io is not None:
             if request_stream is not None:
-                raise RuntimeError('Using a request_stream is incompatible with using session_io')
+                raise ValueError('Using a request_stream is incompatible with using session_io')
             if report_path is not None:
-                raise RuntimeError('Using a report_path is incompatible with using session_io')
+                raise ValueError('Using a report_path is incompatible with using session_io')
             requests = session_io.get_request_queue()
             do_stats = session_io.do_report()
         else:
             requests = ReadRequestQueue(request_stream)
             do_stats = report_path is not None
         self.check_read_args(run_time, period)
-        signal_config = [(rr[0], rr[1], rr[2]) for rr in requests]
+        signal_config = list(requests)
         if out_stream is not None and print_header:
             header_names = self.header_names(signal_config)
             print(self._delimiter.join(header_names), file=out_stream)
