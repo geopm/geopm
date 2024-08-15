@@ -136,7 +136,7 @@ namespace geopm
     {
         // So far, all of the supported i915 DRM signals are tile-scoped and
         // most of the i915 hwmon signals are card-scoped.
-        if (signal_name_is_from_hwmon(name) && !string_ends_with(name, TILE_SIGNAL_NAME_SUFFIX)) {
+        if (signal_name_is_from_hwmon(name) && !geopm::string_ends_with(name, TILE_SIGNAL_NAME_SUFFIX)) {
             return GEOPM_DOMAIN_GPU;
         }
         else {
