@@ -22,9 +22,10 @@ namespace geopm
     class DrmSysfsDriver: public SysfsDriver
     {
         public:
-            DrmSysfsDriver();
+            DrmSysfsDriver() = delete;
             DrmSysfsDriver(const PlatformTopo &topo,
-                           const std::string &drm_directory);
+                           const std::string &drm_directory,
+                           const std::string &driver_signal_prefix);
             virtual ~DrmSysfsDriver() = default;
             int domain_type(const std::string &name) const override;
             std::string attribute_path(const std::string &name,
@@ -33,9 +34,16 @@ namespace geopm
             std::function<std::string(double)> control_gen(const std::string &control_name) const override;
             std::string driver(void) const override;
             std::map<std::string, SysfsDriver::properties_s> properties(void) const override;
-            static std::string plugin_name(void);
-            static std::unique_ptr<IOGroup> make_plugin(void);
+
+            static std::string plugin_name_drm(void);
+            static std::unique_ptr<IOGroup> make_plugin_drm(void);
+
+            static std::string plugin_name_accel(void);
+            static std::unique_ptr<IOGroup> make_plugin_accel(void);
         private:
+            // Prefix to use at the start of signal names exported by this SysfsDriver
+            // E.g., "DRM" or "ACCEL"
+            const std::string M_DRIVER_SIGNAL_PREFIX;
             // Map of signal names to sysfs signal properties
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
             // Map of (GEOPM signal domain, GEOPM signal index) pairs to hwmon sysfs directory paths symlinked via drm paths

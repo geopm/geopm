@@ -19,6 +19,7 @@
 #include "SysfsIOGroup.hpp"
 
 static const std::string DRM_DIRECTORY = "/sys/class/drm";
+static const std::string ACCEL_DIRECTORY = "/sys/class/accel";
 static const std::string GPU_CARD_PREFIX = "card";
 static const std::string GPU_TILE_PREFIX = "gt";
 static const std::string HWMON_PREFIX = "hwmon";
@@ -102,23 +103,20 @@ static std::map<int, std::string> load_resources_by_gpu_tile(const std::string &
     return result;
 }
 
-static bool signal_name_is_from_hwmon(const std::string &signal_name)
+static bool signal_name_is_from_hwmon(const std::string &signal_name, const std::string &driver_signal_prefix)
 {
-    return geopm::string_begins_with(signal_name, geopm::DrmSysfsDriver::plugin_name() + "::HWMON::");
+    return geopm::string_begins_with(signal_name, driver_signal_prefix + "::HWMON::");
 }
 
 namespace geopm
 {
     const std::string drm_sysfs_json(void);
 
-    DrmSysfsDriver::DrmSysfsDriver()
-        : DrmSysfsDriver(platform_topo(), DRM_DIRECTORY)
-    {
-    }
-
     DrmSysfsDriver::DrmSysfsDriver(const PlatformTopo &topo,
-                                   const std::string &drm_directory)
-        : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), drm_sysfs_json())}
+                                   const std::string &drm_directory,
+                                   const std::string &driver_signal_prefix)
+        : M_DRIVER_SIGNAL_PREFIX(driver_signal_prefix)
+        , M_PROPERTIES{SysfsDriver::parse_properties_json(M_DRIVER_SIGNAL_PREFIX, drm_sysfs_json())}
         , M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN(map_geopm_index_to_hwmon_path(
               drm_directory,
               (topo.num_domain(GEOPM_DOMAIN_GPU) > 0) ? (topo.num_domain(GEOPM_DOMAIN_GPU_CHIP) /
@@ -136,7 +134,7 @@ namespace geopm
     {
         // So far, all of the supported i915 DRM signals are tile-scoped and
         // most of the i915 hwmon signals are card-scoped.
-        if (signal_name_is_from_hwmon(name) && !geopm::string_ends_with(name, TILE_SIGNAL_NAME_SUFFIX)) {
+        if (signal_name_is_from_hwmon(name, M_DRIVER_SIGNAL_PREFIX) && !geopm::string_ends_with(name, TILE_SIGNAL_NAME_SUFFIX)) {
             return GEOPM_DOMAIN_GPU;
         }
         else {
@@ -150,7 +148,7 @@ namespace geopm
         std::string attribute_directory;
         auto signal_domain_type = static_cast<geopm_domain_e>(domain_type(name));
 
-        if (signal_name_is_from_hwmon(name)) {
+        if (signal_name_is_from_hwmon(name, M_DRIVER_SIGNAL_PREFIX)) {
             auto resource_it = M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN.find(std::make_pair(signal_domain_type, domain_idx));
             if (resource_it == M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN.end()) {
                 throw Exception("DrmSysfsDriver::attribute_path(): domain " + std::to_string(signal_domain_type) + " domain_idx " + std::to_string(domain_idx) + " does not have a hwinfo entry.",
@@ -215,7 +213,7 @@ namespace geopm
 
     std::string DrmSysfsDriver::driver(void) const
     {
-        return plugin_name();
+        return M_DRIVER_SIGNAL_PREFIX;
     }
 
     std::map<std::string, SysfsDriver::properties_s> DrmSysfsDriver::properties(void) const
@@ -223,13 +221,23 @@ namespace geopm
         return M_PROPERTIES;
     }
 
-    std::string DrmSysfsDriver::plugin_name(void)
+    std::string DrmSysfsDriver::plugin_name_drm(void)
     {
         return "DRM";
     }
 
-    std::unique_ptr<IOGroup> DrmSysfsDriver::make_plugin(void)
+    std::unique_ptr<IOGroup> DrmSysfsDriver::make_plugin_drm(void)
     {
-        return std::make_unique<SysfsIOGroup>(std::make_shared<DrmSysfsDriver>());
+        return std::make_unique<SysfsIOGroup>(std::make_shared<DrmSysfsDriver>(platform_topo(), DRM_DIRECTORY, plugin_name_drm()));
+    }
+
+    std::string DrmSysfsDriver::plugin_name_accel(void)
+    {
+        return "ACCEL";
+    }
+
+    std::unique_ptr<IOGroup> DrmSysfsDriver::make_plugin_accel(void)
+    {
+        return std::make_unique<SysfsIOGroup>(std::make_shared<DrmSysfsDriver>(platform_topo(), ACCEL_DIRECTORY, plugin_name_accel()));
     }
 }
