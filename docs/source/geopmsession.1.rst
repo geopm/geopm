@@ -180,6 +180,7 @@ An example report is shown below:
    host: "cluster-node-11"
    sample-time-first: "2024-08-13T13:22:20.719602459-0700"
    sample-time-total: 9.87273
+   sample-count: 2001
    sample-period-mean: 0.00493637
    sample-period-std: 0.000535206
    metrics:

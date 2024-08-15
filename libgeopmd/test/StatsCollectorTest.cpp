@@ -43,6 +43,7 @@ TEST_F(StatsCollectorTest, empty_report)
         "host",
         "sample-time-first",
         "sample-time-total",
+        "sample-count",
         "sample-period-mean",
         "sample-period-std",
         "metrics",
@@ -77,12 +78,13 @@ TEST_F(StatsCollectorTest, time_report)
         .WillOnce(Return(0.0))
         .WillOnce(Return(1.0))
         .WillOnce(Return(1.0));
-    std::vector<geopm_request_s> req {{0, 0, "TIME"}};
+    std::vector<geopm_request_s> req {geopm_request_s{0, 0, "TIME"}};
     auto coll = StatsCollector(req, *m_pio_mock);
     std::vector<std::string> expected_begin = {
         "host",
         "sample-time-first",
         "sample-time-total",
+        "sample-count",
         "sample-period-mean",
         "sample-period-std",
         "metrics",
