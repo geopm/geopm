@@ -225,6 +225,82 @@ to stdout is disabled.  The aggregated report is created by the "rank 0" process
 of the geopmsession MPI communicator.
 
 
+.. code-block:: shell-session
+
+   $ printf "TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0" |\
+         srun -n 2 -N 2 geopmsession -t 10 -p 0.005  -r- -o
+	 /dev/null --enable-mpi
+
+An example report is shown below:
+
+.. code-block:: yaml
+
+   host: "cluster-node-11"
+   sample-time-first: "2024-08-14T17:50:00.895968647-0700"
+   sample-time-total: 9.99973
+   sample-count: 2001
+   sample-period-mean: 0.00499987
+   sample-period-std: 5.22108e-05
+   metrics:
+     TIME:
+       count: 2001
+       first: 0.0849912
+       last: 10.0847
+       min: 0.0849912
+       max: 10.0847
+       mean-arithmetic: 5.08514
+       std: 2.88873
+     CPU_POWER:
+       count: 2000
+       first: 58.2713
+       last: 63.4941
+       min: 41.1496
+       max: 89.1348
+       mean-arithmetic: 55.8502
+       std: 6.41338
+     CPU_FREQUENCY_STATUS:
+       count: 2001
+       first: 2.17727e+09
+       last: 1.75341e+09
+       min: 1e+09
+       max: 2.58636e+09
+       mean-arithmetic: 1.55674e+09
+       std: 3.7101e+08
+
+   ---
+
+   host: "cluster-node-12"
+   sample-time-first: "2024-08-14T17:50:01.033367154-0700"
+   sample-time-total: 10.0003
+   sample-count: 2001
+   sample-period-mean: 0.00500015
+   sample-period-std: 5.06152e-05
+   metrics:
+     TIME:
+       count: 2001
+       first: 0.0846359
+       last: 10.0849
+       min: 0.0846359
+       max: 10.0849
+       mean-arithmetic: 5.085
+       std: 2.88887
+     CPU_POWER:
+       count: 2000
+       first: 60.455
+       last: 70.6912
+       min: 46.394
+       max: 89.6428
+       mean-arithmetic: 61.7341
+       std: 5.20186
+     CPU_FREQUENCY_STATUS:
+       count: 2001
+       first: 1.70568e+09
+       last: 1.69773e+09
+       min: 1e+09
+       max: 2.56136e+09
+       mean-arithmetic: 1.54734e+09
+       std: 3.63195e+08
+
 See Also
 --------
 
