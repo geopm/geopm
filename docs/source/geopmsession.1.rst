@@ -178,36 +178,36 @@ An example report is shown below:
 .. code-block:: yaml
 
    host: "cluster-node-11"
-   sample-time-first: "2024-08-13T13:22:20.719602459-0700"
-   sample-time-total: 9.87273
+   sample-time-first: "2024-08-14T18:23:58.545153099-0700"
+   sample-time-total: 9.99976
    sample-count: 2001
-   sample-period-mean: 0.00493637
-   sample-period-std: 0.000535206
+   sample-period-mean: 0.00499988
+   sample-period-std: 5.43807e-05
    metrics:
      TIME:
        count: 2001
-       first: 0.187639
-       last: 10.0604
-       min: 0.187639
-       max: 10.0604
-       mean-arithmetic: 5.06119
-       std: 2.88731
+       first: 0.0825453
+       last: 10.0823
+       min: 0.0825453
+       max: 10.0823
+       mean-arithmetic: 5.08268
+       std: 2.88873
      CPU_POWER:
        count: 2000
-       first: 74.91
-       last: 77.5113
-       min: 73.1154
-       max: 104.44
-       mean-arithmetic: 77.3586
-       std: 2.12181
+       first: 71.9161
+       last: 54.9997
+       min: 36.8681
+       max: 75.2159
+       mean-arithmetic: 50.1323
+       std: 6.61714
      CPU_FREQUENCY_STATUS:
        count: 2001
-       first: 1.02625e+09
-       last: 1e+09
+       first: 1.69773e+09
+       last: 1.75341e+09
        min: 1e+09
-       max: 1.05625e+09
-       mean-arithmetic: 1.00109e+09
-       std: 7.25891e+06
+       max: 2.49659e+09
+       mean-arithmetic: 1.5542e+09
+       std: 3.72332e+08
 
 
 Gathering Reports using MPI
