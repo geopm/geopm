@@ -75,7 +75,7 @@ interfaces use this as the time reference.  This clock is the most precise for
 calculating time differences.
 
 There are some times when absolute time accuracy is preferred over time
-difference accuracy. For these cases, the GEOPM provides time functions that use
+difference accuracy. For these cases, GEOPM provides time functions that use
 ``CLOCK_REALTIME`` as the reference time.  There is a C accessor for real time:
 ``geopm_time_real()``, and there is also a C++ accessor:
 ``geopm::time_curr_real()``.  Only ``geopm_time_s`` values created with these
