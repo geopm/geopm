@@ -65,9 +65,9 @@ namespace geopm
     void StatsCollector::update(void)
     {
         // Caller is expected to have called platform_io().read_batch();
-        ++m_sample_count;
         double time_last = m_time_sample;
         m_time_sample = m_pio.sample(m_time_pio_idx);
+        ++m_sample_count;
         if (m_time_begin_str == "") {
             m_time_begin = m_time_sample;
             double time_curr = m_pio.read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
@@ -102,9 +102,16 @@ namespace geopm
         std::string time_end_str = geopm::time_curr_string();
         double time_delta_mean = 0;
         double time_delta_std = 0;
+        // Two samples are required to measure one time difference, so we must
+        // have at least two samples to estimate the mean time difference.  One
+        // degree of freedom is lost due to the differencing.
         if (m_sample_count > 1) {
             time_delta_mean = m_time_delta_m_1 / (m_sample_count - 1);
         }
+        // Three samples are required to measure two time differences, so we
+        // must have at least three samples to estimate the standard deviation
+        // of the time difference.  One degree of freedom is lost due to the
+        // differencing.
         if (m_sample_count > 2) {
             time_delta_std = std::sqrt(
                 (m_time_delta_m_2 -
@@ -115,6 +122,7 @@ namespace geopm
         result << "host: \"" << geopm::hostname() << "\"\n";
         result << "sample-time-first: \"" << m_time_begin_str << "\"\n";
         result << "sample-time-total: " <<  m_time_sample - m_time_begin << "\n";
+        result << "sample-count: " << m_sample_count << "\n";
         result << "sample-period-mean: " << time_delta_mean << "\n";
         result << "sample-period-std: " << time_delta_std << "\n";
         result << "metrics:\n";
