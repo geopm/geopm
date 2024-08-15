@@ -36,8 +36,11 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
+            // Map of signal names to sysfs signal properties
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
+            // Map of (GEOPM signal domain, GEOPM signal index) pairs to hwmon sysfs directory paths symlinked via drm paths
             const std::map<std::pair<geopm_domain_e, int>, std::string> M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN;
+            // Map of GEOPM gpu_chip index to drm sysfs directory paths
             const std::map<int, std::string> M_DRM_RESOURCE_BY_GPU_TILE;
     };
 }
