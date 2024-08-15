@@ -162,8 +162,10 @@ namespace geopm
 #endif
         register_plugin(ConstConfigIOGroup::plugin_name(),
                         ConstConfigIOGroup::make_plugin);
-        register_plugin(DrmSysfsDriver::plugin_name(),
-                        DrmSysfsDriver::make_plugin);
+        register_plugin(DrmSysfsDriver::plugin_name_drm(),
+                        DrmSysfsDriver::make_plugin_drm);
+        register_plugin(DrmSysfsDriver::plugin_name_accel(),
+                        DrmSysfsDriver::make_plugin_accel);
     }
 
     IOGroupFactory &iogroup_factory(void)
