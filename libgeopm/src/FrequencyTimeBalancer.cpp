@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2022, Intel Corporation
+ * Copyright (c) 2015 - 2024, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -21,7 +21,8 @@ namespace geopm
             FrequencyTimeBalancerImp() = delete;
             FrequencyTimeBalancerImp(
                 double minimum_frequency,
-                double maximum_frequency);
+                double maximum_frequency,
+                double frequency_step_size);
             virtual ~FrequencyTimeBalancerImp() = default;
 
             std::vector<double> balance_frequencies_by_time(
@@ -35,10 +36,12 @@ namespace geopm
 
             static std::unique_ptr<FrequencyTimeBalancer> make_unique(
                 double minimum_frequency,
-                double maximum_frequency);
+                double maximum_frequency,
+                double frequency_step_size);
             static std::shared_ptr<FrequencyTimeBalancer> make_shared(
                 double minimum_frequency,
-                double maximum_frequency);
+                double maximum_frequency,
+                double frequency_step_size);
 
         private:
             void update_balance_targets(
@@ -56,9 +59,10 @@ namespace geopm
             std::vector<std::vector<int> > m_domain_index_groups;
             double m_minimum_frequency;
             double m_maximum_frequency;
+            double m_frequency_step_size;
             // Target balancing time
             double m_target_time;
-            // High/Low priority cutoff frequenciy
+            // High/Low priority cutoff frequency
             double m_cutoff_frequency;
             // Index order for argsorting each monitored domain by application
             // lagginess of processes running in that domain.
@@ -67,9 +71,11 @@ namespace geopm
 
     FrequencyTimeBalancerImp::FrequencyTimeBalancerImp(
         double minimum_frequency,
-        double maximum_frequency)
+        double maximum_frequency,
+        double frequency_step_size)
         : m_minimum_frequency(minimum_frequency)
         , m_maximum_frequency(maximum_frequency)
+        , m_frequency_step_size(frequency_step_size)
         , m_target_time(NAN)
         , m_cutoff_frequency(NAN)
     {
@@ -238,19 +244,16 @@ namespace geopm
             auto frequency_scale = m_maximum_frequency / max_group_frequency;
             // Scale up only the cores that we want to be high priority.
             // Scale them far enough that the highest-frequency one is at
-            // the maximum allowed frequency
+            // the maximum allowed frequency.
+            // If none of the cores exceed the high/low priority threshold,
+            // ensure at least the cores with the highest requested frequency
+            // are not limited.
             for (size_t ctl_idx = 0; ctl_idx < m_lagginess_idx.size(); ++ctl_idx) {
                 const auto ordered_ctl_idx = m_lagginess_idx[ctl_idx];
                 if (!std::isnan(previous_times[ordered_ctl_idx]) && !std::isnan(desired_frequencies[ordered_ctl_idx])) {
-                    if (desired_frequencies[ordered_ctl_idx] > m_cutoff_frequency) {
+                    if (desired_frequencies[ordered_ctl_idx] > m_cutoff_frequency || (max_group_frequency - desired_frequencies[ordered_ctl_idx] < m_frequency_step_size)) {
                         desired_frequencies[ordered_ctl_idx] =
                             std::min(m_maximum_frequency,
-                                     std::max(m_minimum_frequency,
-                                              desired_frequencies[ordered_ctl_idx] * frequency_scale));
-                    }
-                    else {
-                        desired_frequencies[ordered_ctl_idx] =
-                            std::min(m_cutoff_frequency,
                                      std::max(m_minimum_frequency,
                                               desired_frequencies[ordered_ctl_idx] * frequency_scale));
                     }
@@ -268,19 +271,23 @@ namespace geopm
 
     std::unique_ptr<FrequencyTimeBalancer> FrequencyTimeBalancer::make_unique(
         double minimum_frequency,
-        double maximum_frequency)
+        double maximum_frequency,
+        double frequency_step_size)
     {
         return geopm::make_unique<FrequencyTimeBalancerImp>(
             minimum_frequency,
-            maximum_frequency);
+            maximum_frequency,
+            frequency_step_size);
     }
 
     std::shared_ptr<FrequencyTimeBalancer> FrequencyTimeBalancer::make_shared(
         double minimum_frequency,
-        double maximum_frequency)
+        double maximum_frequency,
+        double frequency_step_size)
     {
         return std::make_shared<FrequencyTimeBalancerImp>(
             minimum_frequency,
-            maximum_frequency);
+            maximum_frequency,
+            frequency_step_size);
     }
 }

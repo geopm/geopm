@@ -32,7 +32,7 @@ class TestAgent(unittest.TestCase):
     def test_agent_names(self):
         agent_names = set(geopmpy.agent.names())
         expected_agent_names = {'power_balancer', 'power_governor',
-                                'frequency_map', 'monitor'}
+                                'frequency_map', 'monitor', 'frequency_balancer'}
         self.assertTrue(expected_agent_names.issubset(agent_names))
 
     def test_json(self):

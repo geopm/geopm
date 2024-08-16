@@ -1,3 +1,4 @@
+/apps/arithmetic_intensity/ARITHMETIC_INTENSITY*.tgz
 /apps/hpcg/hpcg/
 /apps/hpl_netlib/hpl-2.3/
 /apps/nasft/nasft/nas_ft
@@ -11,6 +12,7 @@
 /test/*.h5
 /test/*.log
 /test/*.report
+/test/test_cores_rebalance_output/
 /test/test_ee_short_region_slop
 /test/test_ee_timed_scaling_mix
 /test/test_enforce_policy

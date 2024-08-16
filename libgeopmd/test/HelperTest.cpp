@@ -99,3 +99,18 @@ TEST(HelperTest, has_cap_sys_admin)
         EXPECT_TRUE(geopm::has_cap_sys_admin(getpid()));
     }
 }
+
+TEST(HelperTest, is_all_nan)
+{
+    EXPECT_TRUE(geopm::is_all_nan({NAN}));
+    EXPECT_TRUE(geopm::is_all_nan({NAN, NAN}));
+    EXPECT_TRUE(geopm::is_all_nan({}));
+    EXPECT_TRUE(geopm::is_all_nan({std::nan("1")}));
+    EXPECT_TRUE(geopm::is_all_nan({std::nanf("2")}));
+
+    EXPECT_FALSE(geopm::is_all_nan({1.0}));
+    EXPECT_FALSE(geopm::is_all_nan({1.0, 2.0}));
+    EXPECT_FALSE(geopm::is_all_nan({1.0, NAN, 2.0}));
+    EXPECT_FALSE(geopm::is_all_nan({NAN, NAN, 2.0}));
+    EXPECT_FALSE(geopm::is_all_nan({1.0, NAN, NAN}));
+}
