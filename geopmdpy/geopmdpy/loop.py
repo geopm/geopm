@@ -67,13 +67,8 @@ class TimedLoop:
             if not isinstance(num_period, int):
                 raise ValueError('num_period must be a whole number.')
         self._period = period
-        self._num_loop = num_period
         self._max_time = time.time() + period * num_period
-        # Add one to ensure:
-        #     total_time == num_loop * period
-        # because we do not delay the start iteration
-        if self._num_loop is not None:
-            self._num_loop += 1
+        self._stop_iteration = False
 
     def __iter__(self):
         """Set up a timed loop
@@ -92,12 +87,15 @@ class TimedLoop:
         """
         result = self._loop_idx
         curr_time = time.time()
-        if curr_time >= self._max_time:
+        if self._stop_iteration:
             raise StopIteration
         if self._loop_idx != 0:
             sleep_time = self._target_time - curr_time
             if sleep_time > 0:
                 self.wait(sleep_time)
+            if time.time() >= self._max_time:
+                self._stop_iteration = True
+
         self._target_time += self._period
         self._loop_idx += 1
         return result
