@@ -100,11 +100,16 @@ namespace geopm
         check_index(metric_idx, __func__, __LINE__);
         double result = NAN;
         if (m_metric_stats[metric_idx].count > 1) {
-            result = std::sqrt(
-                         (m_metric_stats[metric_idx].m_2 -
-                          m_metric_stats[metric_idx].m_1 *
-                          m_metric_stats[metric_idx].m_1 / m_metric_stats[metric_idx].count) /
-                         (m_metric_stats[metric_idx].count - 1));
+            result = (m_metric_stats[metric_idx].m_2 -
+                      m_metric_stats[metric_idx].m_1 *
+                      m_metric_stats[metric_idx].m_1 / m_metric_stats[metric_idx].count) /
+                     (m_metric_stats[metric_idx].count - 1);
+            if (result > 0) {
+                result = std::sqrt(result);
+            }
+            else {
+                result = 0; // Can only be negative due to a rounding error
+            }
         }
         return result;
     }
