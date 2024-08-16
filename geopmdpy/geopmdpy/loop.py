@@ -68,6 +68,7 @@ class TimedLoop:
                 raise ValueError('num_period must be a whole number.')
         self._period = period
         self._num_loop = num_period
+        self._max_time = time.time() + period * num_period
         # Add one to ensure:
         #     total_time == num_loop * period
         # because we do not delay the start iteration
@@ -90,10 +91,11 @@ class TimedLoop:
 
         """
         result = self._loop_idx
-        if self._loop_idx == self._num_loop:
+        curr_time = time.time()
+        if curr_time >= self._max_time:
             raise StopIteration
         if self._loop_idx != 0:
-            sleep_time = self._target_time - time.time()
+            sleep_time = self._target_time - curr_time
             if sleep_time > 0:
                 self.wait(sleep_time)
         self._target_time += self._period
