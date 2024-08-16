@@ -57,7 +57,7 @@ namespace geopm
             std::vector<int> m_pio_idx;
             std::shared_ptr<RuntimeStats> m_stats;
             int m_time_pio_idx;
-            int m_sample_count; // Number of times m_pio.sample() has been called
+            int m_update_count; // Number of times update() has been called
             double m_time_sample;
             double m_time_delta_m_1;
             double m_time_delta_m_2;

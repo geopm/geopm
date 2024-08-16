@@ -37,7 +37,7 @@ namespace geopm
         : m_pio(pio)
         , m_stats(std::make_shared<RuntimeStats>(register_requests(requests)))
         , m_time_pio_idx(m_pio.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-        , m_sample_count(0)
+        , m_update_count(0)
         , m_time_sample(0.0)
         , m_time_delta_m_1(0.0)
         , m_time_delta_m_2(0.0)
@@ -64,10 +64,10 @@ namespace geopm
 
     void StatsCollector::update(void)
     {
+        ++m_update_count;
         // Caller is expected to have called platform_io().read_batch();
         double time_last = m_time_sample;
         m_time_sample = m_pio.sample(m_time_pio_idx);
-        ++m_sample_count;
         if (m_time_begin_str == "") {
             m_time_begin = m_time_sample;
             double time_curr = m_pio.read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
@@ -105,24 +105,24 @@ namespace geopm
         // Two samples are required to measure one time difference, so we must
         // have at least two samples to estimate the mean time difference.  One
         // degree of freedom is lost due to the differencing.
-        if (m_sample_count > 1) {
-            time_delta_mean = m_time_delta_m_1 / (m_sample_count - 1);
+        if (m_update_count > 1) {
+            time_delta_mean = m_time_delta_m_1 / (m_update_count - 1);
         }
         // Three samples are required to measure two time differences, so we
         // must have at least three samples to estimate the standard deviation
         // of the time difference.  One degree of freedom is lost due to the
         // differencing.
-        if (m_sample_count > 2) {
+        if (m_update_count > 2) {
             time_delta_std = std::sqrt(
                 (m_time_delta_m_2 -
                  m_time_delta_m_1 *
-                 m_time_delta_m_1 / (m_sample_count - 1)) /
-                (m_sample_count - 2));
+                 m_time_delta_m_1 / (m_update_count - 1)) /
+                (m_update_count - 2));
         }
         result << "host: \"" << geopm::hostname() << "\"\n";
         result << "sample-time-first: \"" << m_time_begin_str << "\"\n";
         result << "sample-time-total: " <<  m_time_sample - m_time_begin << "\n";
-        result << "sample-count: " << m_sample_count << "\n";
+        result << "sample-count: " << m_update_count << "\n";
         result << "sample-period-mean: " << time_delta_mean << "\n";
         result << "sample-period-std: " << time_delta_std << "\n";
         result << "metrics:\n";
@@ -145,7 +145,7 @@ namespace geopm
     {
         m_time_begin_str = "";
         m_time_begin = 0;
-        m_sample_count = 0;
+        m_update_count = 0;
         m_time_sample = 0.0;
         m_time_delta_m_1 = 0.0;
         m_time_delta_m_2 = 0.0;
