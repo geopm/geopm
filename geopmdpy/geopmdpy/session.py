@@ -48,8 +48,6 @@ class _SessionIO:
         self._request_stream = request_stream
         self._trace_path = trace_path
         self._report_path = report_path
-        # Fail early if report cannot be written
-        self.write_report("")
 
     def get_request_queue(self):
         return ReadRequestQueue(self._request_stream)
@@ -87,8 +85,6 @@ class _MPISessionIO:
         self._report_path = report_path
         self._comm = MPI.COMM_WORLD
         self._rank = self._comm.Get_rank()
-        # Fail early if report cannot be written
-        self.write_report("", do_gather=False)
 
     def get_request_queue(self):
         request_raw = None
