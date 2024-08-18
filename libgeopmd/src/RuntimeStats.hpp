@@ -15,8 +15,7 @@ namespace geopm
     class RuntimeStats
     {
         public:
-            /// @brief Default null RuntimeStats with no signals
-            RuntimeStats() = default;
+            RuntimeStats() = delete;
             /// @brief Constructor that records the names of all metrics
             RuntimeStats(const std::vector<std::string> &metric_names);
             /// @brief Default virtual destructor
