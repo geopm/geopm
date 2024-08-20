@@ -28,6 +28,8 @@ class DrmFakeDirManager
                                             const std::string &contents);
 
         std::string get_driver_dir() const;
+        void write_local_cpus(int card_index, const std::string &cpu_mask);
+
     private:
         std::vector<std::string> m_created_dirs;
         std::set<std::string> m_created_files;

@@ -67,18 +67,8 @@ void DrmFakeDirManager::create_card(int card_idx)
 void DrmFakeDirManager::create_card_hwmon(int card_idx, int hwmon_idx)
 {
     std::ostringstream oss;
-    oss << m_base_dir_path << "/card" << card_idx << "/device";
+    oss << m_base_dir_path << "/card" << card_idx << "/device/hwmon";
     auto new_path = oss.str();
-    errno = 0;
-    if (mkdir(new_path.c_str(), 0755) == -1 && errno != EEXIST) {
-        throw std::system_error(errno, std::generic_category(),
-                                "Could not create directory at " + new_path);
-    }
-    if (errno != EEXIST) {
-        m_created_dirs.push_back(new_path);
-    }
-    oss << "/hwmon";
-    new_path = oss.str();
     errno = 0;
     if (mkdir(new_path.c_str(), 0755) == -1 && errno != EEXIST) {
         throw std::system_error(errno, std::generic_category(),
@@ -134,4 +124,11 @@ void DrmFakeDirManager::write_hwmon_name_and_attribute(int card_index, int hwmon
 std::string DrmFakeDirManager::get_driver_dir() const
 {
     return m_base_dir_path;
+}
+
+void DrmFakeDirManager::write_local_cpus(int card_index, const std::string &cpu_mask)
+{
+    std::ostringstream oss;
+    oss << m_base_dir_path << "/card" << card_index << "/device/local_cpus";
+    geopm::write_file(oss.str(), cpu_mask);
 }
