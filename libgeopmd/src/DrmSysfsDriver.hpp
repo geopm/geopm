@@ -11,6 +11,7 @@
 
 #include "geopm_topo.h"
 
+#include "DrmGpuTopo.hpp"
 #include "SysfsDriver.hpp"
 
 namespace geopm
@@ -23,8 +24,7 @@ namespace geopm
     {
         public:
             DrmSysfsDriver() = delete;
-            DrmSysfsDriver(const PlatformTopo &topo,
-                           const std::string &drm_directory,
+            DrmSysfsDriver(const std::string &drm_directory,
                            const std::string &driver_signal_prefix);
             virtual ~DrmSysfsDriver() = default;
             int domain_type(const std::string &name) const override;
@@ -41,6 +41,7 @@ namespace geopm
             static std::string plugin_name_accel(void);
             static std::unique_ptr<IOGroup> make_plugin_accel(void);
         private:
+            DrmGpuTopo m_drm_topo;
             // Prefix to use at the start of signal names exported by this SysfsDriver
             // E.g., "DRM" or "ACCEL"
             const std::string M_DRIVER_SIGNAL_PREFIX;
@@ -48,8 +49,6 @@ namespace geopm
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
             // Map of (GEOPM signal domain, GEOPM signal index) pairs to hwmon sysfs directory paths symlinked via drm paths
             const std::map<std::pair<geopm_domain_e, int>, std::string> M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN;
-            // Map of GEOPM gpu_chip index to drm sysfs directory paths
-            const std::map<int, std::string> M_DRM_RESOURCE_BY_GPU_TILE;
     };
 }
 

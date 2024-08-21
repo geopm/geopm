@@ -55,6 +55,26 @@ void DrmFakeDirManager::create_card(int card_idx)
                                 "Could not create directory at " + new_path);
     }
     m_created_dirs.push_back(new_path);
+
+    new_path += "/device";
+    if (mkdir(new_path.c_str(), 0755) == -1) {
+        throw std::system_error(errno, std::generic_category(),
+                                "Could not create directory at " + new_path);
+    }
+    m_created_dirs.push_back(new_path);
+
+    auto driver_path = new_path + "/driver";
+    if (symlink("../test_driver", driver_path.c_str()) == -1)
+    {
+        throw std::system_error(errno, std::generic_category(),
+                                "Could not create symlink at " + driver_path);
+    }
+    m_created_files.insert(driver_path);
+
+    auto cpu_map_path = new_path + "/local_cpus";
+    geopm::write_file(cpu_map_path, "00000001");
+    m_created_files.insert(cpu_map_path);
+
     oss << "/gt";
     new_path = oss.str();
     if (mkdir(new_path.c_str(), 0755) == -1) {

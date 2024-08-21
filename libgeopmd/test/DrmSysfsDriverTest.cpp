@@ -9,9 +9,7 @@
 #include "gtest/gtest.h"
 
 #include "geopm/IOGroup.hpp"
-#include "geopm_topo.h"
 
-#include "test/MockPlatformTopo.hpp"
 #include "DrmFakeDirManager.hpp"
 
 using geopm::DrmSysfsDriver;
@@ -31,7 +29,6 @@ class DrmSysfsDriverTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        std::shared_ptr<MockPlatformTopo> m_topo;
         std::unique_ptr<DrmFakeDirManager> m_dir_manager;
         std::unique_ptr<SysfsDriver> m_driver;
         std::map<std::string, SysfsDriver::properties_s> m_driver_properties;
@@ -39,10 +36,6 @@ class DrmSysfsDriverTest : public ::testing::Test
 
 void DrmSysfsDriverTest::SetUp()
 {
-    m_topo = make_topo(1 /*packages*/, 2 /*cores*/, 4 /*cpus*/);
-    ON_CALL(*m_topo, num_domain(GEOPM_DOMAIN_GPU)).WillByDefault(Return(1));
-    ON_CALL(*m_topo, num_domain(GEOPM_DOMAIN_GPU_CHIP)).WillByDefault(Return(2));
-
     m_dir_manager = std::make_unique<DrmFakeDirManager>("/tmp/DrmsysfsDriverTest_XXXXXX");
     m_dir_manager->create_card(0);
     m_dir_manager->create_tile_in_card(0, 0);
@@ -51,20 +44,20 @@ void DrmSysfsDriverTest::SetUp()
     m_dir_manager->write_file_in_card_tile(0, 1, "rps_cur_freq_mhz", "2345");
     m_dir_manager->write_file_in_card_tile(0, 0, "rps_act_freq_mhz", "1230");
     m_dir_manager->write_file_in_card_tile(0, 1, "rps_act_freq_mhz", "2340");
-    m_driver = std::make_unique<DrmSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir(), "TEST_DRIVER_PREFIX");
+    m_driver = std::make_unique<DrmSysfsDriver>(m_dir_manager->get_driver_dir(), "TEST_DRIVER_PREFIX");
     m_driver_properties = m_driver->properties();
 }
 
 TEST_F(DrmSysfsDriverTest, iogroup_plugin_name_matches_driver_name)
 {
-    EXPECT_EQ("TEST_DRIVER_PREFIX", m_driver->driver());
+    EXPECT_EQ("TEST_DRIVER_PREFIX from driver: test_driver", m_driver->driver());
     EXPECT_EQ("DRM", DrmSysfsDriver::plugin_name_drm());
     EXPECT_EQ("ACCEL", DrmSysfsDriver::plugin_name_accel());
 }
 
 TEST_F(DrmSysfsDriverTest, domain_type)
 {
-    m_driver = std::make_unique<DrmSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir(), "TEST_DRIVER_PREFIX");
+    m_driver = std::make_unique<DrmSysfsDriver>(m_dir_manager->get_driver_dir(), "TEST_DRIVER_PREFIX");
     for (const auto &attribute_properties : m_driver->properties()) {
         auto domain_type = [this](const std::string &s) { return m_driver->domain_type(s); };
         EXPECT_THAT(attribute_properties.first,
@@ -92,8 +85,6 @@ TEST_F(DrmSysfsDriverTest, hwmon_attribute_paths)
     m_dir_manager->write_hwmon_name_and_attribute(0, 123, "i915\n", "curr1_crit", "12125");
 
     // Try a few on card 1 for more coverage of multi-card/multi-tile enumeration
-    ON_CALL(*m_topo, num_domain(GEOPM_DOMAIN_GPU)).WillByDefault(Return(2));
-    ON_CALL(*m_topo, num_domain(GEOPM_DOMAIN_GPU_CHIP)).WillByDefault(Return(4));
     m_dir_manager->create_card(1);
     m_dir_manager->create_tile_in_card(1, 0);
     m_dir_manager->create_tile_in_card(1, 1);
@@ -104,7 +95,7 @@ TEST_F(DrmSysfsDriverTest, hwmon_attribute_paths)
     m_dir_manager->write_hwmon_name_and_attribute(1, 6, "i915_gt1\n", "energy1_input", "234567");
     m_dir_manager->write_hwmon_name_and_attribute(1, 7, "i915\n", "energy1_input", "345678");
 
-    m_driver = std::make_unique<DrmSysfsDriver>(*m_topo, m_dir_manager->get_driver_dir(), "TEST_DRIVER_PREFIX");
+    m_driver = std::make_unique<DrmSysfsDriver>(m_dir_manager->get_driver_dir(), "TEST_DRIVER_PREFIX");
 
     EXPECT_EQ(m_dir_manager->get_driver_dir() + "/card0/device/hwmon/hwmon123/curr1_crit",
               m_driver->attribute_path("TEST_DRIVER_PREFIX::HWMON::CURR1_CRIT", 0))

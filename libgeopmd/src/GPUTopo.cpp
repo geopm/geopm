@@ -3,25 +3,45 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
-#include <geopm/Helper.hpp>
+#include <iostream>
 
 #include "geopm/Exception.hpp"
-#include "GPUTopoNull.hpp"
 
-#include "NVMLGPUTopo.hpp"
+#include "DrmGpuTopo.hpp"
+#include "GPUTopoNull.hpp"
 #include "LevelZeroGPUTopo.hpp"
+#include "NVMLGPUTopo.hpp"
+
+#include <geopm/Helper.hpp>
 
 namespace geopm
 {
     static std::unique_ptr<GPUTopo> make_unique_gpu_topo(void)
     {
-        std::unique_ptr<GPUTopo> result = geopm::make_unique<GPUTopoNull>();
-        std::unique_ptr<GPUTopo> NVMLTopo = geopm::make_unique<GPUTopoNull>();
-        std::unique_ptr<GPUTopo> LevelZeroTopo = geopm::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> result = std::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> NVMLTopo = std::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> LevelZeroTopo = std::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> DrmTopo = std::make_unique<GPUTopoNull>();
+        std::unique_ptr<GPUTopo> AccelTopo = std::make_unique<GPUTopoNull>();
+
+        try {
+            DrmTopo = std::make_unique<DrmGpuTopo>("/sys/class/drm");
+        }
+        catch (const Exception &ex) {
+            std::cerr << "Warning: <geopm> Unable to get /sys/class/drm topology. Reason: "
+                      << ex.what() << std::endl;
+        }
+
+        try {
+            AccelTopo = std::make_unique<DrmGpuTopo>("/sys/class/accel");
+        }
+        catch (const Exception &ex) {
+            std::cerr << "Warning: <geopm> Unable to get /sys/class/accel topology. Reason: "
+                      << ex.what() << std::endl;
+        }
 #ifdef GEOPM_ENABLE_NVML
         try {
-            NVMLTopo = geopm::make_unique<NVMLGPUTopo>();
+            NVMLTopo = std::make_unique<NVMLGPUTopo>();
         }
         catch (const Exception &ex) {
             // NVMLTopo cannot be created, already set to GPUTopoNull
@@ -29,7 +49,7 @@ namespace geopm
 #endif
 #ifdef GEOPM_ENABLE_LEVELZERO
         try {
-            LevelZeroTopo = geopm::make_unique<LevelZeroGPUTopo>();
+            LevelZeroTopo = std::make_unique<LevelZeroGPUTopo>();
         }
         catch (const Exception &ex) {
             // LevelZeroTopo cannot be created, already set to GPUTopoNull
@@ -46,6 +66,13 @@ namespace geopm
         else if (LevelZeroTopo->num_gpu() != 0) {
             result = std::move(LevelZeroTopo);
         }
+        else if (AccelTopo->num_gpu() != 0) {
+            result = std::move(AccelTopo);
+        }
+        else if (DrmTopo->num_gpu() != 0) {
+            result = std::move(DrmTopo);
+        }
+
         return result;
     }
 
