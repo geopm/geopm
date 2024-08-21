@@ -401,4 +401,31 @@ namespace geopm
     {
         std::cerr << "Warning: " << function << " has been deprecated: " << message << ".\n";
     }
+
+    std::string read_symlink_target(const std::string &symlink_path)
+    {
+        std::string target;
+        int err = 0;
+        struct stat stat_buf;
+
+        err = lstat(symlink_path.c_str(), &stat_buf);
+        if (err) {
+            throw Exception("read_symlink_target(): failed to lstat " + symlink_path,
+                            errno ? errno : GEOPM_ERROR_RUNTIME,
+                            __FILE__, __LINE__);
+        }
+
+
+        size_t symlink_strlen = stat_buf.st_size > 0
+            ? stat_buf.st_size
+            : PATH_MAX; // May happen for symlinks in sysfs
+        target.resize(symlink_strlen);
+        err = readlink(symlink_path.c_str(), &target[0], symlink_strlen);
+        if (err == -1) {
+            throw Exception("read_symlink_target(): failed to readlink " + symlink_path,
+                            errno ? errno : GEOPM_ERROR_RUNTIME,
+                            __FILE__, __LINE__);
+        }
+        return target;
+    }
 }

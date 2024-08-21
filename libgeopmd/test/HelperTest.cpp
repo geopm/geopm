@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 
+#include <fcntl.h>
 #include <string>
 #include <vector>
 #include <unistd.h>
@@ -98,4 +99,28 @@ TEST(HelperTest, has_cap_sys_admin)
         EXPECT_TRUE(geopm::has_cap_sys_admin());
         EXPECT_TRUE(geopm::has_cap_sys_admin(getpid()));
     }
+}
+
+TEST(HelperTest, read_symlink_target)
+{
+    static const std::string SYMLINK_PATH = "/tmp/HelperTest_read_symlink_target_" +
+                                            std::to_string(getpid());
+    int err = symlink("/some/made/up/path", SYMLINK_PATH.c_str());
+    ASSERT_EQ(0, err) << "Unable to create symlink at " << SYMLINK_PATH;
+    EXPECT_NO_THROW({
+        EXPECT_EQ("/some/made/up/path", geopm::read_symlink_target(SYMLINK_PATH));
+    });
+    err = unlink(SYMLINK_PATH.c_str());
+    ASSERT_NE(-1, err) << "Unable to remove symlink at " << SYMLINK_PATH;
+
+    err = open(SYMLINK_PATH.c_str(), O_RDWR|O_CREAT, 0644);
+    ASSERT_NE(-1, err) << "Unable to create non-symlink file at " << SYMLINK_PATH
+                       << " Reason: " << strerror(errno);
+    EXPECT_THROW(geopm::read_symlink_target(SYMLINK_PATH), geopm::Exception)
+        << "Expect an exception when reading a symlink target of a non-symlink";
+    err = unlink(SYMLINK_PATH.c_str());
+    ASSERT_NE(-1, err) << "Unable to remove non-symlink file at " << SYMLINK_PATH;
+
+    EXPECT_THROW(geopm::read_symlink_target(SYMLINK_PATH), geopm::Exception)
+        << "Expect an exception when reading an absent symlink";
 }

@@ -206,6 +206,11 @@ namespace geopm
             DeprecationWarning(const std::string &function, const std::string &message);
             virtual ~DeprecationWarning() = default;
     };
+
+    /// Read a symlink, returning the target path contained in the symlink.
+    /// @param [in] symlink_path Path to the symlink
+    std::string GEOPM_PUBLIC
+        read_symlink_target(const std::string &symlink_path);
 }
 
 #endif
