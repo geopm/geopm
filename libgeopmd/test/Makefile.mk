@@ -38,6 +38,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/DifferenceSignalTest.cpp \
                           test/DrmFakeDirManager.cpp \
                           test/DrmFakeDirManager.hpp \
+                          test/DrmGpuTopoTest.cpp \
                           test/DrmSysfsDriverTest.cpp \
                           test/RatioSignalTest.cpp \
                           test/DomainControlTest.cpp \

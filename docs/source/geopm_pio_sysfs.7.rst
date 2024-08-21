@@ -47,6 +47,21 @@ The i915 driver is available in `upstream Linux <https://git.kernel.org/pub/scm/
 Additional features are available in the `out-of-tree version of the driver <https://github.com/intel-gpu/intel-gpu-i915-backports>`_.
 This IOGroup is intended for use with either version of the driver.
 
+If a GEOPM sysfs-based signal came from the DRM system, then its name begins
+with ``DRM``. The driver (e.g., ``i915`` that made that signal available to
+``DRM`` can be viewed by running ``geopmread --info SIGNAL_NAME``. For example:
+
+.. code-block:: shell-session
+
+   $ geopmread --info DRM::HWMON::ENERGY1_INPUT::GPU
+   DRM::HWMON::ENERGY1_INPUT::GPU:
+       description: GPU card-level energy counter
+       units: joules
+       aggregation: sum
+       domain: gpu
+       iogroup: DRM from driver: i915
+
+
 Signals
 -------
 .. contents:: Categories of sysfs signals:

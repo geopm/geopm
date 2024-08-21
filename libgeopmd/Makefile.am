@@ -167,6 +167,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
                        src/DifferenceSignal.hpp \
+                       src/DrmGpuTopo.cpp \
+                       src/DrmGpuTopo.hpp \
                        src/DrmSysfsDriver.cpp \
                        src/DrmSysfsDriver.hpp \
                        src/RatioSignal.cpp \

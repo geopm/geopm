@@ -143,7 +143,14 @@ namespace geopm
     {
         std::set<std::string> result;
         for (const auto &it : m_signals) {
-            if (do_have_read_access(m_driver->attribute_path(it.second.get().name, 0))) {
+            std::string attribute_path;
+            try {
+                attribute_path = m_driver->attribute_path(it.second.get().name, 0);
+            }
+            catch (const Exception &e) {
+                continue;
+            }
+            if (do_have_read_access(attribute_path)) {
                 result.insert(it.first);
             }
         }
@@ -155,7 +162,14 @@ namespace geopm
     {
         std::set<std::string> result;
         for (const auto &it : m_controls) {
-            if (do_have_write_access(m_driver->attribute_path(it.second.get().name, 0))) {
+            std::string attribute_path;
+            try {
+                attribute_path = m_driver->attribute_path(it.second.get().name, 0);
+            }
+            catch (const Exception &e) {
+                continue;
+            }
+            if (do_have_write_access(attribute_path)) {
                 result.insert(it.first);
             }
         }
