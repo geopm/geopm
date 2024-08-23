@@ -8,7 +8,7 @@
 # Run this script as a cron job.  An example cron entry could be:
 #
 # */5 * * * * /path/to/geopm_report_cron.sh 300 1 /output/path/geopm-report &>> /output/path/geopm-report.log
-# * 1 */1 * * /path/to/geopm_report_cron.py --static-html /output/path/geopm-report/$(date --date=yesterday '+%Y-%m-%d').html /output/path/geopm-report/$(date --date=yesterday '+%Y-%m-%d')/geopm-report-*.yml
+# 5 0 */1 * * python3 /path/to/geopm_report_cron_plot.py --static-html /output/path/geopm-report/$(date --date=yesterday '+\%Y-\%m-\%d').html /output/path/geopm-report/$(date --date=yesterday '+\%Y-\%m-\%d')/geopm-report-*.yml
 #
 # In the above example, the cron job runs every 5 minutes (*/5) and the sampler
 # runs for 300 seconds (i.e. 5 minutes).  The reports generated in this way may
