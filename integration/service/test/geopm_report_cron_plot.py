@@ -2,25 +2,24 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-import yaml
+from yaml import load as yaml_load
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
 import sys
 import os
-from glob import glob
 from pandas import DataFrame, to_datetime, to_timedelta
 import plotly.graph_objs as go
 from dash import Dash, dcc, html
 from argparse import ArgumentParser
 
 class CronReport:
-    def __init__(self, reports='geopm-report-*.yml'):
-        if type(reports) is str:
-            report_names = glob(reports)
-        else:
-            report_names = reports
+    def __init__(self, report_paths):
         report_list = []
-        for rn in report_names:
+        for rn in report_paths:
             with open(rn) as fid:
-                report = yaml.load(fid, Loader=yaml.CSafeLoader)
+                report = yaml_load(fid, Loader=SafeLoader)
             if report is None:
                 sys.stderr.write(f'Warning: {rn} is empty, could not be parsed\n')
                 continue
@@ -36,6 +35,8 @@ class CronReport:
                 for m_key, m_value in metrics.items():
                     df_row[m_key] = m_value
                 report_list.append(df_row.copy())
+        if len(report_list) == 0:
+            raise RuntimeError(f'No files could be parsed')
         self._df = DataFrame(report_list)
         self._df.sort_values('sample-time-first', inplace=True)
         if len(self._df) == 0:
@@ -58,19 +59,38 @@ class CronReport:
 
 
     def calculate_energy(self, domain, begin_date, end_date):
+        """Return an estimate of energy for all reports that begin within the time range
+        specified.  Only includes time prior to the beginning of the last report
+        that matches.
+
+        """
+        # This calculation uses only the start time of each report and the
+        # average power measured between report start times.  This avoids any
+        # double counting in case reports overlap, and avoids undercounting when
+        # there are gaps between the reports.
+        #
+        # TODO A side effect is that power measurements from the last report are
+        # ignored, and not used in the calculation, this could be corrected.
+        # Also consider that partial reports are also not used in this method.
         domain = domain.upper()
         metric_name = f'{domain}_POWER'
         time = self.get_stat(begin_date, end_date, metric_name, 'sample-time-first')
         time_total = self.get_stat(begin_date, end_date, metric_name, 'sample-time-total')
         power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic')
         kwh_factor = 1.0 / 3.6e6
-        # TODO include energy from last report as well
         return kwh_factor * sum((power.shift(1) * (time - time.shift(1)).dt.total_seconds()).dropna())
 
     def dataframe(self):
         return self._df
 
     def date_range(self):
+        """Return oldest and newest report 'sample-time-first'.
+
+        Does not infer the ISO date that the last report extends to based on
+        'sample-time-total'.
+        """
+        # TODO: Consider returning last report's last sample time as the second
+        # value instead of the last report's first sample time
         return (min(self._df['sample-time-first']),
                 max(self._df['sample-time-first']))
 
@@ -161,7 +181,7 @@ class CronReport:
         fig.update_layout(title=f'Energy - kWh ({begin_string} - {end_string})', hovermode='x')
         return fig
 
-    def run_webpage(self, begin_date, end_date, port):
+    def run_webpage(self, begin_date, end_date, port, host_mask):
         app = Dash('geopmsession')
         style={
             'textAlign': 'center',
@@ -179,7 +199,7 @@ class CronReport:
             dcc.Graph(id='energy-pie',
                       figure=self.plot_energy(begin_date, end_date)),
         ])
-        app.run(host='0.0.0.0', port=port)
+        app.run(host=host_mask, port=port)
 
     def static_webpage(self, begin_date, end_date, output_html):
         if (not output_html.endswith('.html')):
@@ -198,12 +218,14 @@ class CronReport:
 
 def get_parser():
     parser = ArgumentParser(description=main.__doc__)
-    parser.add_argument('report', nargs='*')
+    parser.add_argument('report', nargs='+')
     static_group = parser.add_mutually_exclusive_group()
     static_group.add_argument('-s', '--static-html', dest='static_html', default=None,
                               help='Do not run web server, output static html into directory provided')
     static_group.add_argument('-p', '--port', dest='port', type=int, default=10850,
-                              help='Port opened by server to provide visualization')
+                              help='Port opened by server to provide visualization. Default: %(default)s')
+    parser.add_argument('-m', '--host-mask', dest='host_mask', default='0.0.0.0',
+                        help='Restrict connections based on IP address. Default: no restrictions')
     return parser
 
 def main():
@@ -217,17 +239,10 @@ def main():
     err = 0
     try:
         args = get_parser().parse_args()
-        if len(args.report) == 0:
-            args.print_help()
-            return -1
-        if len(args.report) == 1:
-            files = args.report[0]
-        else:
-            files = args.report
-        cron_report = CronReport(files)
+        cron_report = CronReport(args.report)
         begin_date, end_date = cron_report.date_range()
         if args.static_html is None:
-            cron_report.run_webpage(begin_date, end_date, args.port)
+            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask)
         else:
             cron_report.static_webpage(begin_date, end_date, args.static_html)
     except RuntimeError as ee:
