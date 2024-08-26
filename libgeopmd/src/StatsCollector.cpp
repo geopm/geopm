@@ -42,6 +42,7 @@ namespace geopm
         , m_time_delta_m_1(0.0)
         , m_time_delta_m_2(0.0)
         , m_time_begin(0.0)
+        , m_is_cached(false)
     {
 
     }
@@ -65,6 +66,7 @@ namespace geopm
 
     void StatsCollector::update(void)
     {
+        m_is_cached = false;
         ++m_update_count;
         // Caller is expected to have called platform_io().read_batch();
         double time_last = m_time_sample;
@@ -98,6 +100,15 @@ namespace geopm
     }
 
     std::string StatsCollector::report_yaml(void) const
+    {
+        if (!m_is_cached) {
+            m_report_cache = report_yaml_curr();
+            m_is_cached = true;
+        }
+        return m_report_cache;
+    }
+
+    std::string StatsCollector::report_yaml_curr(void) const
     {
         std::ostringstream result;
         std::string time_end_str = geopm::time_curr_string();
@@ -144,6 +155,7 @@ namespace geopm
 
     void StatsCollector::reset(void)
     {
+        m_is_cached = false;
         m_time_begin_str = "";
         m_time_begin = 0;
         m_update_count = 0;
