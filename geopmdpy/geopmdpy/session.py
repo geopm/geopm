@@ -13,6 +13,8 @@ import math
 from socket import gethostname
 from io import StringIO
 from argparse import ArgumentParser
+from signal import signal
+from signal import SIGTERM
 from . import topo
 from . import pio
 from . import loop
@@ -32,6 +34,12 @@ try:
     from contextlib import nullcontext
 except ImportError as ex:
     nullcontext = _nullcontext
+
+g_session_handler = None
+
+def term_handler(signum, frame):
+    if signum == SIGTERM and g_session_handler is not None:
+        g_session_handler.stop()
 
 def _write_report(report_path, report):
     if report_path == '-':
@@ -212,7 +220,6 @@ class Session:
                 out_stream.write(line)
             if stats_collector is not None:
                 stats_collector.update()
-
             if pid is not None:
                 try:
                     os.kill(pid, 0)
@@ -284,6 +291,7 @@ class Session:
                                     printed.
 
         """
+        global g_session_handler
         if session_io is not None:
             if request_stream is not None:
                 raise ValueError('Using a request_stream is incompatible with using session_io')
@@ -300,15 +308,32 @@ class Session:
             header_names = self.header_names(signal_config)
             print(self._delimiter.join(header_names), file=out_stream)
         with stats.Collector(signal_config) if do_stats else nullcontext() as stats_collector:
-            self.run_read(requests, run_time, period, pid, out_stream, stats_collector)
-            if do_stats:
-                report = stats_collector.report_yaml()
-        if do_stats:
-            if session_io is not None:
-                session_io.write_report(report)
+            try:
+                g_session_handler = SessionHandler(do_stats, stats_collector, out_stream, report_path, session_io)
+                self.run_read(requests, run_time, period, pid, out_stream, stats_collector)
+            finally:
+                g_session_handler.stop()
+                g_session_handler = None
+
+class SessionHandler:
+    def __init__(self, do_stats, stats_collector, out_stream, report_path, session_io):
+        self.do_stats = do_stats
+        self.stats_collector = stats_collector
+        self.out_stream = out_stream
+        self.report_path = report_path
+        self.session_io = session_io
+
+    def stop(self):
+        if self.out_stream is not None:
+            self.out_stream.flush()
+        if self.do_stats:
+            report = self.stats_collector.report_yaml()
+            if self.session_io is not None:
+                self.session_io.write_report(report)
             else:
-                with open(report_path, "w") as fid:
+                with open(self.report_path, "w") as fid:
                     fid.write(report)
+
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -498,6 +523,7 @@ def main():
     err = 0
     rank = 0
     trace_out = None
+    signal(SIGTERM, term_handler)
     try:
         args = get_parser().parse_args()
         if args.version:

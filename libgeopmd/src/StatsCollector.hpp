@@ -52,6 +52,7 @@ namespace geopm
             void reset(void);
         private:
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
+            std::string report_yaml_curr(void) const;
             PlatformIO &m_pio;
             std::vector<std::string> m_metric_names;
             std::vector<int> m_pio_idx;
@@ -63,6 +64,8 @@ namespace geopm
             double m_time_delta_m_2;
             std::string m_time_begin_str;
             double m_time_begin;
+            mutable bool m_is_cached;
+            mutable std::string m_report_cache;
     };
 }
 

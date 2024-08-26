@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-from yaml import load as yaml_load
+from yaml import load_all as yaml_load_all
 try:
     from yaml import CSafeLoader as SafeLoader
 except ImportError:
@@ -19,22 +19,23 @@ class CronReport:
         report_list = []
         for rn in report_paths:
             with open(rn) as fid:
-                report = yaml_load(fid, Loader=SafeLoader)
-            if report is None:
+                report_docs = yaml_load_all(fid, Loader=SafeLoader)
+                report_docs = list(report_docs)
+            if len(report_docs) == 0:
                 sys.stderr.write(f'Warning: {rn} is empty, could not be parsed\n')
-                continue
-            df_row_keys = set(report) - {'metrics'}
-            df_row = dict()
-            for df_key in df_row_keys:
-                if df_key == 'sample-time-first':
-                    df_row[df_key] = to_datetime(report[df_key])
-                else:
-                    df_row[df_key] = report[df_key]
-            for metric_name, metrics in report['metrics'].items():
-                df_row['metric-name'] = metric_name
-                for m_key, m_value in metrics.items():
-                    df_row[m_key] = m_value
-                report_list.append(df_row.copy())
+            for report in report_docs:
+                df_row_keys = set(report) - {'metrics'}
+                df_row = dict()
+                for df_key in df_row_keys:
+                    if df_key == 'sample-time-first':
+                        df_row[df_key] = to_datetime(report[df_key])
+                    else:
+                        df_row[df_key] = report[df_key]
+                for metric_name, metrics in report['metrics'].items():
+                    df_row['metric-name'] = metric_name
+                    for m_key, m_value in metrics.items():
+                        df_row[m_key] = m_value
+                    report_list.append(df_row.copy())
         if len(report_list) == 0:
             raise RuntimeError(f'No files could be parsed')
         self._df = DataFrame(report_list)
