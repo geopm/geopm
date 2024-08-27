@@ -41,6 +41,7 @@ namespace geopm
         , m_time_sample(0.0)
         , m_time_delta_m_1(0.0)
         , m_time_delta_m_2(0.0)
+        , m_time_begin(0.0)
     {
 
     }
