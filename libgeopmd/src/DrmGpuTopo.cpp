@@ -36,7 +36,7 @@ static std::set<int> linux_cpumask_buf_to_int_set(const std::string &cpumask_buf
     int cpu_offset = 0;
     auto hex_segments = geopm::string_split(cpumask_buf, ",");
     for (auto it = hex_segments.rbegin(); it != hex_segments.rend(); ++it) {
-        auto bitmask_segment = std::stoul(*it, nullptr, 16);
+        auto bitmask_segment = std::stoull(*it, nullptr, 16);
         if (bitmask_segment >> MAX_CPUS_PER_CPUMASK_SEGMENT) {
             throw geopm::Exception("linux_cpumask_buf_to_int_set: malformed cpumask: " + cpumask_buf,
                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
