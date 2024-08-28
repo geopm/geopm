@@ -35,11 +35,7 @@ void DrmGpuTopoTest::TearDown()
 
 TEST_F(DrmGpuTopoTest, num_gpu)
 {
-    {
-        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
-        EXPECT_EQ(0, topo.num_gpu());
-        EXPECT_EQ(0, topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP));
-    }
+    EXPECT_THROW(DrmGpuTopo(m_dir_manager->get_driver_dir()), geopm::Exception);
 
     m_dir_manager->create_card(0);
     {
@@ -146,15 +142,7 @@ TEST_F(DrmGpuTopoTest, non_zero_card)
 
 TEST_F(DrmGpuTopoTest, driver_name)
 {
-    {
-        // No GPUs --> no GPU drivers
-        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
-        EXPECT_THROW(topo.driver_name(), geopm::Exception);
-    }
-
-    {
-        m_dir_manager->create_card(0);
-        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
-        EXPECT_EQ("test_driver", topo.driver_name());
-    }
+    m_dir_manager->create_card(0);
+    DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+    EXPECT_EQ("test_driver", topo.driver_name());
 }
