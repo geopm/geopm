@@ -127,6 +127,11 @@ namespace geopm
             m_driver_name = driver_cards.first;
             drm_card_paths = driver_cards.second;
         }
+        else {
+            throw Exception("DrmGpuTopo::" + std::string(__func__) +
+                            ": No supported drm cards are detected",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
 
         int tiles_per_card = -1;
         for (size_t gpu_idx = 0; gpu_idx < drm_card_paths.size(); ++gpu_idx) {
@@ -238,11 +243,6 @@ namespace geopm
 
     std::string DrmGpuTopo::driver_name() const
     {
-        if (m_driver_name.empty()) {
-            throw Exception("DrmGpuTopo::" + std::string(__func__) +
-                            ": No supported drm drivers are detected",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         return m_driver_name;
     }
 }
