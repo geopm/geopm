@@ -48,11 +48,7 @@ periodically to alleviate load imbalance at a larger timescale. It is important
 to avoid defining regions so that they are nested, as nested regions are ignored,
 and only the outermost region is used for tuning when nesting occurs.
 
-**WARNING:** All of the functions described herein require that MPI has
-been initialized (via ``MPI_Init()`` or ``MPI_Init_thread()``) and is properly
-functioning before they are invoked.  These functions make use of various
-MPI calls in their implementations and will return errors if MPI is not
-initialized.
+**Note:** The functions described herein do not require MPI.
 
 ``geopm_prof_region()``
   Registers an application region.  The *region_name* and *hint* are
