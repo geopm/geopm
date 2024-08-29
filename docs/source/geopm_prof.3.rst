@@ -28,35 +28,31 @@ Description
 -----------
 
 The functions described here enable application feedback to the GEOPM
-control algorithm for identifying regions of code, progress within
-regions, and iterations through loops that contain inter-node
-synchronization points in the application.  Regions of code define
-periods in the application during which control parameters are tuned
-with the expectation that control parameters for a region can be
-optimized independently of other regions.  In this way a region is
-associated with a set of control parameters which can be optimized,
-and future time intervals associated with the same region will benefit
-from the application of control parameters which were determined from
-tuning within previous occurrences of the region.  There are two
-competing motivations for defining a region within the application.
-The first is to identify a section of code that has distinct compute,
-memory or network characteristics.  The second is to avoid defining
-these regions such that they are nested within each other, as nested
-regions are ignored, and only the outer most region is used for tuning
-when nesting occurs.  Identifying progress within a region can be used
-to alleviate load imbalance in the application under the assumption
-that the region is bulk synchronous.  Under the assumption that the
-application employs an iterative algorithm which synchronizes
-periodically the user can alleviate load imbalance on larger time
-scales than the regions provide.  This is done by marking iterations
-through an outer loop in the application, the *epoch*.
+control algorithm for:
+
+* identifying regions of code
+* determining progress within regions
+* counting iterations through loops that contain inter-node synchronization
+  points in the application.
+
+A region is defined here as a demarcated section of code, typically
+with distinct compute, memory, or network characteristics. Defining
+regions of code can be useful for understanding the behavior of a section
+of code, tuning control parameters to optimize the behavior of a region
+independently of the rest of the code, to alleviate load imbalance in the
+application (under the assumption that the region is bulk synchronous), etc.
+Often, a set of regions will be marked up within an outer loop, executed a
+fixed number of times per *epoch*. This can be leveraged to learn and optimize
+control parameters, e.g. employing an iterative algorithm which synchronizes
+periodically to alleviate load imbalance at a larger timescale. It is important
+to avoid defining regions so that they are nested, as nested regions are ignored,
+and only the outermost region is used for tuning when nesting occurs.
 
 **WARNING:** All of the functions described herein require that MPI has
 been initialized (via ``MPI_Init()`` or ``MPI_Init_thread()``) and is properly
 functioning before they are invoked.  These functions make use of various
 MPI calls in their implementations and will return errors if MPI is not
 initialized.
-
 
 ``geopm_prof_region()``
   Registers an application region.  The *region_name* and *hint* are
@@ -146,6 +142,17 @@ initialized.
   is called after a thread has completed each work unit to report
   progress.  This method signals the completion of one work unit out
   of the total passed to ``geopm_tprof_init()``.
+
+OMPT Integration
+----------------
+
+Integrating with OMPT provides automation for region identification, entry,
+and exit. With OMPT support, a geopm report can provide per-region metrics
+(such as region runtime, CPU/GPU frequency, power/energy consumption, etc,
+without the need to mark up the application. However, for each region where
+region progress is desired, the application must be explicitly marked up with
+``geopm_tprof_post()``.
+
 
 Example
 -------
