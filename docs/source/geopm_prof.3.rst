@@ -30,19 +30,19 @@ Description
 The functions described here enable application feedback to the GEOPM
 control algorithm for:
 
-* identifying regions of code
-* determining progress within regions
-* counting iterations through loops that contain inter-node synchronization
-  points in the application.
+* Identifying regions of code
+* Determining progress within regions
+* Counting iterations through loops that contain inter-node synchronization
+  points in the application
 
 A region is defined here as a demarcated section of code, typically
 with distinct compute, memory, or network characteristics. Defining
-regions of code can be useful for understanding the behavior of a section
+regions of code can be useful for: understanding the behavior of a section
 of code, tuning control parameters to optimize the behavior of a region
 independently of the rest of the code, to alleviate load imbalance in the
 application (under the assumption that the region is bulk synchronous), etc.
-Often, a set of regions will be marked up within an outer loop, executed a
-fixed number of times per *epoch*. This can be leveraged to learn and optimize
+Often, a set of regions will be marked up within an *epoch* (i.e. outer loop), and
+will execute a fixed number of times per *epoch*. This can be leveraged to learn and optimize
 control parameters, e.g. employing an iterative algorithm which synchronizes
 periodically to alleviate load imbalance at a larger timescale. It is important
 to avoid defining regions so that they are nested, as nested regions are ignored,
@@ -139,11 +139,13 @@ and only the outermost region is used for tuning when nesting occurs.
   progress.  This method signals the completion of one work unit out
   of the total passed to ``geopm_tprof_init()``.
 
-OMPT Integration
+OMP Integration
 ----------------
 
-Integrating with OMPT provides automation for region identification, entry,
-and exit. With OMPT support, a geopm report can provide per-region metrics
+GEOPM is able to track OMP offload calls from OMP enabled applications
+via the OMPT interface.  OMPT integration in GEOPM provides automation
+for region identification, entry, and exit. With OMPT support, a GEOPM 
+report can provide per-region metrics
 (such as region runtime, CPU/GPU frequency, power/energy consumption, etc,
 without the need to mark up the application. However, for each region where
 region progress is desired, the application must be explicitly marked up with
