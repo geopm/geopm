@@ -145,17 +145,49 @@ OMP Integration
 GEOPM is able to track OMP offload calls from OMP enabled applications
 via the OMPT interface.  OMPT integration in GEOPM provides automation
 for region identification, entry, and exit. With OMPT support, a GEOPM 
-report can provide per-region metrics
-(such as region runtime, CPU/GPU frequency, power/energy consumption, etc,
-without the need to mark up the application. However, for each region where
-region progress is desired, the application must be explicitly marked up with
-``geopm_tprof_post()``.
+report can provide per-region metrics (such as region runtime, CPU/GPU
+frequency, power/energy consumption, etc, without the need to mark up the
+application. However, for each region where region progress is desired, the
+application must be explicitly marked up with ``geopm_tprof_post()``.
 
-Examples of progress markup with/without OMP are provided here: 
+Examples of progress markup with/without OMP are provided here.
 `geopm/integration/test/test_progress.cpp <https://github.com/geopm/geopm/blob/dev/integration/test/test_progress.cpp>`_
 
-Example
--------
+Note that there can be a non-negligible overhead for using OMPT callbacks on
+regions that are quick to execute, particularly when using
+``geopm_tprof_post()``
+
+Examples
+--------
+
+Obtaining region progress, identification, entry, and exit while using OpenMP:
+
+.. code-block:: c
+
+   #pragma omp parallel for
+           for (idx = 0; idx < num_iter; ++idx) {
+               example_function();
+               geopm_tprof_post();
+           }
+   }
+
+Obtaining region progress, identification, entry, and exit without OpenMP:
+
+.. code-block:: c
+
+    uint64_t region_id
+    geopm_prof_region("region_name", GEOPM_REGION_HINT_COMPUTE, &region_id);
+    geopm_tprof_init(num_iter);
+
+    geopm_prof_enter(region_id);
+    for (idx = 0; idx < num_iter; ++idx) {
+        example_function();
+        geopm_tprof_post();
+    }
+    geopm_prof_exit(region_id);
+
+
+Full example:
 
 .. code-block:: c
 
