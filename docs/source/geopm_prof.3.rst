@@ -152,7 +152,7 @@ region progress is desired, the application must be explicitly marked up with
 ``geopm_tprof_post()``.
 
 Examples of progress markup with/without OMP are provided here: 
-`<geopm/integration/test/test_progress.cpp><https://github.com/geopm/geopm/blob/dev/integration/test/test_progress.cpp>`_
+`geopm/integration/test/test_progress.cpp <https://github.com/geopm/geopm/blob/dev/integration/test/test_progress.cpp>`_
 
 Example
 -------
