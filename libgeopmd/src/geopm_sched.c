@@ -155,8 +155,8 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
         memcpy(cpuset, proc_cpuset, num_read * sizeof(*proc_cpuset));
     }
     else if (cpuset) {
-        for (int i = 0; i < num_cpu; ++i) {
-            CPU_SET_S(i, cpuset_size, cpuset);
+        for (size_t cpu_idx = 0; cpu_idx < (size_t)num_cpu; ++cpu_idx) {
+            CPU_SET_S(cpu_idx, cpuset_size, cpuset);
         }
     }
     if (proc_cpuset) {
@@ -167,6 +167,9 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
 
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
 {
+    if (num_cpu <= 0) {
+        return GEOPM_ERROR_INVALID;
+    }
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
     if (g_proc_cpuset == NULL) {
         return ENOMEM;
@@ -186,8 +189,8 @@ int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
          */
         CPU_ZERO_S(cpuset_size, proc_cpuset);
         memcpy(proc_cpuset, g_proc_cpuset, g_proc_cpuset_size);
-        for (int i = sched_num_cpu; i < num_cpu; ++i) {
-            CPU_CLR_S(i, cpuset_size, proc_cpuset);
+        for (size_t cpu_idx = sched_num_cpu; cpu_idx < (size_t)num_cpu; ++cpu_idx) {
+            CPU_CLR_S(cpu_idx, cpuset_size, proc_cpuset);
         }
     }
     return err;
@@ -201,6 +204,9 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
                CPUs allocated for the process are used by OpenMP, then
                the woomp mask will have all bits set. */
 
+    if (num_cpu <= 0) {
+        return GEOPM_ERROR_INVALID;
+    }
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
     if (g_proc_cpuset == NULL) {
         return ENOMEM;
@@ -239,15 +245,15 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
 #endif /* _OPENMP */
     }
     if (!err) {
-        for (int i = sched_num_cpu; i < num_cpu; ++i) {
-            CPU_CLR_S(i, req_alloc_size, woomp);
+        for (size_t cpu_idx = sched_num_cpu; cpu_idx < (size_t)num_cpu; ++cpu_idx) {
+            CPU_CLR_S(cpu_idx, req_alloc_size, woomp);
         }
     }
     if (err || CPU_COUNT_S(g_proc_cpuset_size, woomp) == 0) {
         /* If all CPUs are used by the OpenMP gang, then leave the
            mask open and allow the Linux scheduler to choose. */
-        for (int i = 0; i < num_cpu; ++i) {
-            CPU_SET_S(i, g_proc_cpuset_size, woomp);
+        for (size_t cpu_idx = 0; cpu_idx < (size_t)num_cpu; ++cpu_idx) {
+            CPU_SET_S(cpu_idx, g_proc_cpuset_size, woomp);
         }
     }
     return err;
