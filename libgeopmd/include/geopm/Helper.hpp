@@ -20,6 +20,7 @@
 
 namespace geopm
 {
+    class PlatformIO;
     /// @brief Implementation of std::make_unique (C++14) for C++11.
     ///        Note that this version will only work for non-array
     ///        types.
@@ -211,6 +212,13 @@ namespace geopm
     /// @param [in] symlink_path Path to the symlink
     std::string GEOPM_PUBLIC
         read_symlink_target(const std::string &symlink_path);
+
+    /// Enable MSR fixed counters.
+    /// @param [in] pio Reference to the PlatformIO object used to write the
+    ///        registers.
+    void GEOPM_PUBLIC
+        enable_fixed_counters(PlatformIO &pio);
+
 }
 
 #endif

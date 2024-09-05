@@ -20,6 +20,7 @@
 #include "geopm_sched.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "MSRIOImp.hpp"
 #include "MSR.hpp"
 #include "Signal.hpp"
@@ -146,20 +147,18 @@ namespace geopm
     MSRIOGroup::MSRIOGroup(bool use_msr_safe)
         : MSRIOGroup(platform_topo(),
                      MSRIO::make_unique(use_msr_safe ? MSRIO::M_DRIVER_MSRSAFE : MSRIO::M_DRIVER_MSR),
-                     Cpuid::make_unique(), geopm_sched_num_cpu(), nullptr)
+                     Cpuid::make_unique(), nullptr)
     {
 
     }
 
-    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, std::shared_ptr<Cpuid> cpuid, int num_cpu, std::shared_ptr<SaveControl> save_control)
+    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, std::shared_ptr<Cpuid> cpuid, std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(topo)
         , m_msrio(std::move(msrio))
         , m_save_restore_ctx(m_msrio->create_batch_context())
         , m_cpuid(std::move(cpuid))
-        , m_num_cpu(num_cpu)
         , m_is_active(false)
         , m_is_read(false)
-        , m_is_fixed_enabled(false)
         , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
         , m_is_hwp_enabled(false)
@@ -262,8 +261,8 @@ namespace geopm
         register_signal_alias("CPU_ENERGY", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_signal_alias("DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY");
         register_signal_alias("CPU_INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
-        register_signal_alias("CPU_CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
-        register_signal_alias("CPU_CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
+        register_signal_alias("CPU_CYCLES_THREAD", "MSR::APERF:ACNT");
+        register_signal_alias("CPU_CYCLES_REFERENCE", "MSR::MPERF:MCNT");
         register_signal_alias("CPU_POWER_MIN_AVAIL", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_signal_alias("CPU_POWER_MAX_AVAIL", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_signal_alias("CPU_POWER_LIMIT_DEFAULT", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
@@ -287,6 +286,8 @@ namespace geopm
         register_control_alias("CPU_POWER_TIME_WINDOW_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
         register_control_alias("BOARD_POWER_LIMIT_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("BOARD_POWER_TIME_WINDOW_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW");
+
+        check_control_pwrite();
     }
 
     void MSRIOGroup::register_frequency_signals(void)
@@ -748,9 +749,6 @@ namespace geopm
             throw Exception("MSRIOGroup::push_signal(): cannot push a signal after read_batch() or adjust() has been called.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (!m_is_fixed_enabled) {
-            enable_fixed_counters();
-        }
         if (!is_valid_signal(signal_name)) {
             throw Exception("MSRIOGroup::push_signal(): signal name \"" +
                             signal_name + "\" not found",
@@ -890,9 +888,6 @@ namespace geopm
 
     double MSRIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
-        if (!m_is_fixed_enabled) {
-            enable_fixed_counters();
-        }
         if (!is_valid_signal(signal_name)) {
             throw Exception("MSRIOGroup::read_signal(): signal name \"" +
                             signal_name + "\" not found",
@@ -1053,29 +1048,12 @@ namespace geopm
         return geopm::make_unique<MSRIOGroup>(true);
     }
 
-    void MSRIOGroup::enable_fixed_counters(void)
+    void MSRIOGroup::check_control_pwrite(void)
     {
         try {
-            for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-                write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN0_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN0_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-
-                write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN1_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN1_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-
-                write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN2_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN2_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-                write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-
-                write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-                write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-                write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-            }
+            std::string test_control = "MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0";
+            double value = read_signal(test_control, GEOPM_DOMAIN_CPU, 0);
+            write_control(test_control, GEOPM_DOMAIN_CPU, 0, value);
         }
         catch (const Exception &ex) {
             if (std::string(ex.what()).find("pwrite() failed") == std::string::npos) {
@@ -1083,7 +1061,6 @@ namespace geopm
             }
             m_control_available.clear();
         }
-        m_is_fixed_enabled = true;
     }
 
     std::function<double(const std::vector<double> &)> MSRIOGroup::agg_function(const std::string &signal_name) const

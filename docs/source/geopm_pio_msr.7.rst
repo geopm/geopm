@@ -159,10 +159,10 @@ Signal Aliases
     Maps to ``MSR::THERM_STATUS:DIGITAL_READOUT``
 
 ``CPU_CYCLES_REFERENCE``
-    Maps to ``MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC``
+    Maps to ``MSR::MPERF:MCNT``
 
 ``CPU_CYCLES_THREAD``
-    Maps to ``MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD``
+    Maps to ``MSR::APERF:ACNT``
 
 ``CPU_ENERGY``
     Maps to ``MSR::PKG_ENERGY_STATUS:ENERGY``
@@ -180,7 +180,7 @@ Signal Aliases
     Maps to ``MSR::PERF_STATUS:FREQ``
 
 ``CPU_INSTRUCTIONS_RETIRED``
-    Maps to ``MSR::FIXED_CTR0:INST_RETIRED_ANY``
+    Maps to ``MSR::FIXED_CTR0:INST_RETIRED_ANY``.  Requires the fixed counters to be enabled (``geopmwrite -e``).
 
 ``CPU_PACKAGE_TEMPERATURE``
     Maps to ``MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT``

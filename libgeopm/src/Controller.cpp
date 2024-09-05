@@ -289,6 +289,15 @@ namespace geopm
         if (m_do_init_control) {
             m_init_control->parse_input(environment().init_control());
         }
+        try {
+            geopm::enable_fixed_counters(m_platform_io);
+        }
+        catch (const geopm::Exception &ex) {
+            // Fixed counter enabling may fail if not on an MSR based platform,
+            // or if user does not have permission to write to the enalbing
+            // MSRs.  When not enabled on MSR based platforms, reads from fixed
+            // counters will return zero.
+        }
     }
 
     Controller::~Controller()

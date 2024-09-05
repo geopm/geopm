@@ -22,6 +22,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 
 
 using geopm::PlatformIO;
@@ -48,7 +49,7 @@ static int main_imp(int argc, char **argv)
     const char *usage = "\nUsage:\n"
                         "       geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE\n"
                         "       geopmwrite [--info [CONTROL_NAME]]\n"
-                        "       geopmwrite [--help] [--version] [--cache] [--info-all] [--domain]\n"
+                        "       geopmwrite [--help] [--version] [--cache] [--info-all] [--domain] [--enable-fixed]\n"
                         "\n"
                         "  CONTROL_NAME:  name of the control\n"
                         "  DOMAIN_TYPE:  name of the domain for which the control should be written\n"
@@ -59,6 +60,7 @@ static int main_imp(int argc, char **argv)
                         "  -i, --info                       print longer description of a control\n"
                         "  -I, --info-all                   print longer description of all controls\n"
                         "  -c, --cache                      create geopm topo cache if it does not exist\n"
+                        "  -e, --enable-fixed               enable msr fixed counters\n"
                         "  -h, --help                       print brief summary of the command line\n"
                         "                                   usage information, then exit\n"
                         "  -v, --version                    print version of GEOPM to standard output,\n"
@@ -72,6 +74,7 @@ static int main_imp(int argc, char **argv)
         {"info", no_argument, NULL, 'i'},
         {"info-all", no_argument, NULL, 'I'},
         {"cache", no_argument, NULL, 'c'},
+        {"enable-fixed", no_argument, NULL, 'e'},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
         {NULL, 0, NULL, 0}
@@ -94,7 +97,10 @@ static int main_imp(int argc, char **argv)
                 is_all_info = true;
                 break;
             case 'c':
-                geopm::PlatformTopo::create_cache();
+                PlatformTopo::create_cache();
+                return 0;
+            case 'e':
+                geopm::enable_fixed_counters(geopm::platform_io());
                 return 0;
             case 'h':
                 printf("%s", usage);

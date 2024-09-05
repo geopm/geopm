@@ -29,6 +29,7 @@ namespace geopm
 {
     class MSRIO;
     class PlatformTopo;
+    class PlatformIO;
     class Signal;
     class Control;
     class SaveControl;
@@ -53,7 +54,6 @@ namespace geopm
             MSRIOGroup(const PlatformTopo &platform_topo,
                        std::shared_ptr<MSRIO> msrio,
                        std::shared_ptr<Cpuid> cpuid,
-                       int num_cpu,
                        std::shared_ptr<SaveControl> save_control);
             virtual ~MSRIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
@@ -104,6 +104,7 @@ namespace geopm
             static std::string msr_allowlist(int cpuid,
                                              const PlatformTopo &topo,
                                              std::shared_ptr<MSRIO> msrio);
+
             /// @brief **DEPRECATED** Get the cpuid of the current platform.
             static int cpuid(void);
             static std::string plugin_name(void);
@@ -167,11 +168,11 @@ namespace geopm
             /// @brief Add support for frequency control aliases if underlying
             ///        controls are available.
             void register_frequency_controls(void);
-            /// @brief Write to enable bits for all fixed counters.
-            void enable_fixed_counters(void);
             /// @brief Check system configuration and warn if it ma
             ///        interfere with the given control.
             void check_control(const std::string &control_name);
+
+            void check_control_pwrite(void);
 
             /// @brief Check control lock and error if locked
             void check_control_lock(const std::string &lock_name, const std::string &error);
@@ -211,10 +212,8 @@ namespace geopm
             std::shared_ptr<MSRIO> m_msrio;
             int m_save_restore_ctx;
             std::shared_ptr<Cpuid> m_cpuid;
-            int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
-            bool m_is_fixed_enabled;
             std::vector<bool> m_is_adjusted;
 
             // time for derivative signals

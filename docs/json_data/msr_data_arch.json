@@ -1066,7 +1066,7 @@
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
-                    "description": "The count of the number of instructions executed."
+                    "description": "The count of the number of instructions executed. Requires geopmwrite -e."
                 }
             }
         },
@@ -1083,7 +1083,7 @@
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
-                    "description": "The count of the number of cycles while the logical processor is not in a halt state.  The count rate may change based on core frequency."
+                    "description": "The count of the number of cycles while the logical processor is not in a halt state.  The count rate may change based on core frequency.  Requires geopmwrite -e."
                 }
             }
         },
@@ -1100,7 +1100,7 @@
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
-                    "description": "The count of the number of cycles while the logical processor is not in a halt state and not in a stop-clock state.  The count rate is fixed at the TIMESTAMP_COUNT rate."
+                    "description": "The count of the number of cycles while the logical processor is not in a halt state and not in a stop-clock state.  The count rate is fixed at the TIMESTAMP_COUNT rate.  Requires geopmwrite -e."
                 }
             }
         },
@@ -1116,7 +1116,7 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.  Requires geopmwrite -e.",
                     "aggregation": "sum"
                 },
                 "EN0_USR": {

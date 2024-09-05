@@ -134,9 +134,16 @@ void MSRIOGroupTest::SetUp()
     // suppress mock calls from initializing MSR fields from JSON config
     EXPECT_CALL(*m_msrio, add_read(_, _, _)).Times(AnyNumber());
     EXPECT_CALL(*m_msrio, add_write(_, _, _)).Times(AnyNumber());
+    EXPECT_CALL(*m_msrio, create_batch_context())
+        .WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mock_cpuid, rdt_info())
+        .WillRepeatedly(Return(geopm::Cpuid::rdt_info_s{}));
+    EXPECT_CALL(*m_mock_cpuid, pmc_bit_width())
+        .WillRepeatedly(Return(48));
+    EXPECT_CALL(*m_mock_cpuid, is_hwp_supported())
+        .WillRepeatedly(Return(false));
     m_msrio_group = geopm::make_unique<MSRIOGroup>(*m_topo, m_msrio,
                                                    m_mock_cpuid,
-                                                   m_num_cpu,
                                                    m_mock_save_ctl);
 }
 
@@ -158,10 +165,13 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
             EXPECT_CALL(*cpuid_ptr, cpuid())
                 .WillRepeatedly(Return(id));
             EXPECT_CALL(*cpuid_ptr, rdt_info())
-                .WillOnce(Return(geopm::Cpuid::rdt_info_s{}));
+                .WillRepeatedly(Return(geopm::Cpuid::rdt_info_s{}));
             EXPECT_CALL(*cpuid_ptr, pmc_bit_width())
-                .WillOnce(Return(0));
-            MSRIOGroup(*m_topo, m_msrio, cpuid_ptr, m_num_cpu, nullptr);
+                .WillRepeatedly(Return(48));
+            EXPECT_CALL(*cpuid_ptr, is_hwp_supported())
+                .WillRepeatedly(Return(false));
+            MSRIOGroup(*m_topo, m_msrio, cpuid_ptr, nullptr);
+
         }
         catch (const std::exception &ex) {
             FAIL() << "Could not construct MSRIOGroup for cpuid 0x"
@@ -562,8 +572,8 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
 {
     uint64_t tsc_offset = 0x10;
     uint64_t fixed0_offset = 0x309;
-    uint64_t fixed1_offset = 0x30A;
-    uint64_t fixed2_offset = 0x30B;
+    uint64_t aperf_offset = 0xE8;
+    uint64_t mperf_offset = 0xE7;
     double result;
 
     EXPECT_CALL(*m_msrio, read_msr(0, tsc_offset))
@@ -582,18 +592,18 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
     result = m_msrio_group->read_signal("CPU_INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(8888, result);
 
-    EXPECT_CALL(*m_msrio, read_msr(0, fixed1_offset))
+    EXPECT_CALL(*m_msrio, read_msr(0, aperf_offset))
         .WillOnce(Return(33333))
         .WillOnce(Return(44444));
-    result = m_msrio_group->read_signal("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("MSR::APERF:ACNT", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(33333, result);
     result = m_msrio_group->read_signal("CPU_CYCLES_THREAD", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(44444, result);
 
-    EXPECT_CALL(*m_msrio, read_msr(0, fixed2_offset))
+    EXPECT_CALL(*m_msrio, read_msr(0, mperf_offset))
         .WillOnce(Return(55555))
         .WillOnce(Return(66666));
-    result = m_msrio_group->read_signal("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("MSR::MPERF:MCNT", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(55555, result);
     result = m_msrio_group->read_signal("CPU_CYCLES_REFERENCE", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(66666, result);
@@ -1475,7 +1485,7 @@ TEST_F(MSRIOGroupTest, turbo_ratio_limit_writability)
             .WillRepeatedly(Return(1 << trl_writable_bit_in_platform_info));
 
         m_msrio_group = geopm::make_unique<MSRIOGroup>(
-            *m_topo, m_msrio, cpuid_ptr, m_num_cpu, m_mock_save_ctl);
+            *m_topo, m_msrio, cpuid_ptr, m_mock_save_ctl);
         for (int i = 0; i < 7; ++i) {
             std::ostringstream signal_name_oss;
             signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
@@ -1492,7 +1502,7 @@ TEST_F(MSRIOGroupTest, turbo_ratio_limit_writability)
             .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
 
         m_msrio_group = geopm::make_unique<MSRIOGroup>(
-            *m_topo, m_msrio, cpuid_ptr, m_num_cpu, m_mock_save_ctl);
+            *m_topo, m_msrio, cpuid_ptr, m_mock_save_ctl);
         for (int i = 0; i < 7; ++i) {
             std::ostringstream signal_name_oss;
             signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
@@ -1509,7 +1519,7 @@ TEST_F(MSRIOGroupTest, turbo_ratio_limit_writability)
             .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
 
         m_msrio_group = geopm::make_unique<MSRIOGroup>(
-            *m_topo, m_msrio, cpuid_ptr, m_num_cpu, m_mock_save_ctl);
+            *m_topo, m_msrio, cpuid_ptr, m_mock_save_ctl);
         for (int i = 0; i < 7; ++i) {
             std::ostringstream signal_name_oss;
             signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
