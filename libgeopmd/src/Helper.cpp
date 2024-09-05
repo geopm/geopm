@@ -31,6 +31,8 @@
 #include <iostream>
 #include "geopm_field.h"
 #include "geopm/Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 
 namespace geopm
@@ -428,4 +430,32 @@ namespace geopm
         }
         return target;
     }
+
+    void enable_fixed_counters(PlatformIO &pio)
+    {
+        pio.write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN0_OS", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN0_USR", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", GEOPM_DOMAIN_BOARD, 0, 0);
+
+        pio.write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN1_OS", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN1_USR", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", GEOPM_DOMAIN_BOARD, 0, 0);
+
+        pio.write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN2_OS", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN2_USR", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", GEOPM_DOMAIN_BOARD, 0, 0);
+
+        pio.write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR3", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN3_OS", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN3_USR", GEOPM_DOMAIN_BOARD, 0, 1);
+        pio.write_control("MSR::FIXED_CTR_CTRL:EN3_PMI", GEOPM_DOMAIN_BOARD, 0, 0);
+
+        pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", GEOPM_DOMAIN_BOARD, 0, 0);
+        pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", GEOPM_DOMAIN_BOARD, 0, 0);
+        pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_BOARD, 0, 0);
+    }
+
 }

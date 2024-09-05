@@ -702,3 +702,32 @@ def reset():
     """
     global _dl
     _dl.geopm_pio_reset()
+
+def enable_fixed_counters():
+    """Enable MSR fixed counter signals.
+
+    Write to the registers that enable the fixed counters.  Enabling the fixed
+    counters is required for the signals starting with ``MSR::FIXED_CTR`` to
+    report non-zero values.  The signal ``CPU_INSTRUCTIONS_RETIRED`` also
+    requires the fixed counters to be enabled.
+
+    """
+    write_control('MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN0_OS', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN0_USR', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN0_PMI', 'board', 0, 0)
+    write_control('MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN1_OS', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN1_USR', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN1_PMI', 'board', 0, 0)
+    write_control('MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN2_OS', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN2_USR', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN2_PMI', 'board', 0, 0)
+    write_control('MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR3', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN3_OS', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN3_USR', 'board', 0, 1)
+    write_control('MSR::FIXED_CTR_CTRL:EN3_PMI', 'board', 0, 0)
+    write_control('MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0', 'board', 0, 0)
+    write_control('MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1', 'board', 0, 0)
+    write_control('MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2', 'board', 0, 0)
