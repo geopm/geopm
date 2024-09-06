@@ -811,6 +811,10 @@ namespace geopm
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
                                      signal_domain_type(sv.first)); ++domain_idx) {
                 try {
+                    if (sv.first.find("_PERFORMANCE_") != std::string::npos && !m_is_perf_factor_enabled) {
+                        unsupported_signal_names.push_back(sv.first);
+                        break;
+                    }
                     // Skip the RAS counters because they are very slow
                     // (0.5 seconds to read each).
                     // Note: only check signals on GPU zero.
@@ -820,10 +824,6 @@ namespace geopm
                             unsupported_signal_names.push_back(sv.first);
                             break;
                         }
-                    }
-                    if (sv.first.find("_PERFORMANCE_") != std::string::npos && !m_is_perf_factor_enabled) {
-                        unsupported_signal_names.push_back(sv.first);
-                        break;
                     }
                     std::shared_ptr<Signal> signal =
                             std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
