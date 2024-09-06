@@ -69,6 +69,7 @@ class TimedLoop:
         self._period = period
         self._max_time = time.time() + period * num_period
         self._stop_iteration = False
+        self._one_shot = (num_period == 0)
 
     def __iter__(self):
         """Set up a timed loop
@@ -98,6 +99,8 @@ class TimedLoop:
 
         self._target_time += self._period
         self._loop_idx += 1
+        if self._one_shot:
+            self._stop_iteration = True
         return result
 
     def wait(self, timeout):
