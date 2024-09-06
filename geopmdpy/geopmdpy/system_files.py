@@ -1277,7 +1277,7 @@ class WriteLock(object):
     effective.
 
     """
-    def __init__(self, run_path):
+    def __init__(self, run_path, lock_name="CONTROL_LOCK"):
         """Set up initial state
 
         The WriteLock must be used within a context manager.  Use a
@@ -1289,7 +1289,7 @@ class WriteLock(object):
 
         """
         self._RUN_PATH = run_path
-        self._LOCK_PATH = os.path.join(self._RUN_PATH, "CONTROL_LOCK")
+        self._LOCK_PATH = os.path.join(self._RUN_PATH, lock_name)
         self._fid = None
         secure_make_dirs(self._RUN_PATH,
                          perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)

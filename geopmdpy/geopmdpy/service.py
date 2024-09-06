@@ -45,6 +45,7 @@ class PlatformService(object):
         self._pio = pio
         self._RUN_PATH = system_files.GEOPM_SERVICE_RUN_PATH
         self._SAVE_DIR = 'SAVE_FILES'
+        self._PROFILER_LOCK_NAME = 'PROFILER_LOCK'
         self._WATCH_INTERVAL_SEC = 1
         self._active_sessions = system_files.ActiveSessions(self._RUN_PATH)
         self._access_lists = system_files.AccessLists(system_files.get_config_path())
@@ -59,6 +60,10 @@ class PlatformService(object):
             write_pid = lock.try_lock()
             if write_pid is not None and not self._is_client_active(write_pid):
                 self._close_session_write(lock, write_pid)
+        with system_files.WriteLock(self._RUN_PATH, self._PROFILER_LOCK_NAME) as lock:
+            profiler_pid = lock.try_lock()
+            if profiler_pid is not None and not self._is_client_active(profiler_pid):
+                lock.unlock(profiler_pid)
 
     def get_group_access(self, group):
         """Get the signal and control access lists
@@ -516,6 +521,9 @@ class PlatformService(object):
             with system_files.WriteLock(self._RUN_PATH) as lock:
                 if lock.try_lock() == client_pid:
                     self._close_session_write(lock, client_pid)
+            with system_files.WriteLock(self._RUN_PATH, self._PROFILER_LOCK_NAME) as lock:
+                if lock.try_lock() == client_pid:
+                    lock.unlock(client_pid)
 
     def _close_session_write(self, lock, pid):
         save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
@@ -787,7 +795,7 @@ class PlatformService(object):
         self._active_sessions.stop_profile(client_pid, region_names)
         self.close_session(client_pid)
 
-    def get_profile_pids(self, profile_name):
+    def get_profile_pids(self, client_pid, profile_name):
         """Get PIDs associated with an application
 
         Called by a profiling thread to find all PIDs associated with
@@ -801,13 +809,14 @@ class PlatformService(object):
                        list if profile_name is not registered.
 
         """
+        self._profiler_mode(client_pid)
         result = []
         pids = self._active_sessions.get_profile_pids(profile_name)
         if pids is not None:
             result = [pid for pid in pids if psutil.pid_exists(pid)]
         return result
 
-    def pop_profile_region_names(self, profile_name):
+    def pop_profile_region_names(self, client_pid, profile_name):
         """Get region names associated with an application
 
         Called by a profiling thread to find all region names
@@ -823,11 +832,24 @@ class PlatformService(object):
 
         """
         result = []
+        with system_files.WriteLock(self._RUN_PATH, self._PROFILER_LOCK_NAME) as lock:
+            profiler_pid = lock.try_lock()
+            if profiler_pid != client_pid:
+                raise RuntimeError(f'The PID {client_pid} requested profile region names, but the profiling PID is {profiler_pid}')
+            lock.unlock(client_pid)
         region_names = self._active_sessions.pop_profile_region_names(profile_name)
         if region_names is not None:
             result = list(region_names)
             result.sort()
         return result
+
+    def _profiler_mode(self, client_pid):
+        with system_files.WriteLock(self._RUN_PATH, self._PROFILER_LOCK_NAME) as lock:
+            lock_pid = lock.try_lock()
+            if lock_pid is None:
+                lock.try_lock(client_pid)
+            elif lock_pid != client_pid:
+                raise RuntimeError(f'The PID {client_pid} requested control of application profile, but the geopm service already has a application profile controlling client with PID {lock_pid}')
 
     def _write_mode(self, client_pid):
         write_pid = client_pid
@@ -1043,12 +1065,14 @@ class GEOPMService(object):
         return self._platform.stop_profile(self._get_pid(**call_info), region_names)
 
     # TODO: This method should check credentials
-    def PlatformGetProfilePids(self, profile_name):
-        return self._platform.get_profile_pids(profile_name)
+    @accepts_additional_arguments
+    def PlatformGetProfilePids(self, profile_name, **call_info):
+        return self._platform.get_profile_pids(self._get_pid(**call_info), profile_name)
 
     # TODO: This method should check credentials
-    def PlatformPopProfileRegionNames(self, profile_name):
-        return self._platform.pop_profile_region_names(profile_name)
+    @accepts_additional_arguments
+    def PlatformPopProfileRegionNames(self, profile_name, **call_info):
+        return self._platform.pop_profile_region_names(self._get_pid(**call_info), profile_name)
 
     def topo_rm_cache(self):
         """Remove an existing topo cache file if it exists
