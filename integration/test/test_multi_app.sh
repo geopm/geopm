@@ -25,6 +25,22 @@ GEOPM_REPORT_SIGNALS=TIME@package \
 GEOPM_NUM_PROC=2 \
 GEOPM_CTL_LOCAL=true \
 setsid geopmctl &
+sleep 1
+# Check that second controller startup fails with correct error message
+TEMP_LOG=$(mktemp)
+geopmctl &> ${TEMP_LOG}
+if [ $? -eq 0 ]; then
+    echo "Error: Attempt to create second GEOPM Controller succeeded" 1>&2
+    cat ${TEMP_LOG}
+    rm ${TEMP_LOG}
+    exit -1
+fi
+if ! grep -q "requested control of application profile, but the geopm service already has a application profile controlling client" ${TEMP_LOG}; then
+    cat ${TEMP_LOG} 1>&2
+    echo "Error: Error message did not match expected" 1>&2
+    rm ${TEMP_LOG}
+    exit -1
+fi
 
 # geopmbench
 numactl --cpunodebind=0 -- geopmbench temp_config.json &
