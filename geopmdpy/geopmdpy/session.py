@@ -70,7 +70,7 @@ class _SessionIO:
 
     def close_trace_stream(self, fid):
         if fid is not None and self._trace_path != '-':
-            close(fid)
+            fid.close()
 
     def do_report(self):
         return _check_valid_output(self._report_path)
@@ -112,7 +112,7 @@ class _MPISessionIO:
 
     def close_trace_stream(self, fid):
         if fid is not None:
-            close(fid)
+            fid.close()
 
     def do_report(self):
         return _check_valid_output(self._report_path)
@@ -523,6 +523,7 @@ def main():
     err = 0
     rank = 0
     trace_out = None
+    session_io = None
     signal(SIGTERM, term_handler)
     try:
         args = get_parser().parse_args()
@@ -544,8 +545,8 @@ def main():
         sys.stderr.write('Error: {}\n\n'.format(ee))
         err = -1
     finally:
-        if trace_out is not None and args.trace_out != "-":
-            trace_out.close()
+        if session_io is not None:
+            session_io.close_trace_stream(trace_out)
     return err
 
 if __name__ == '__main__':
