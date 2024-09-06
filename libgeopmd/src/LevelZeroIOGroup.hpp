@@ -128,6 +128,7 @@ namespace geopm
             std::shared_ptr<SaveControl> m_mock_save_ctl;
 
             bool m_is_perf_factor_enabled;
+            std::vector<bool> m_is_hbm_pushed_in_gpu_chip;
     };
 }
 #endif

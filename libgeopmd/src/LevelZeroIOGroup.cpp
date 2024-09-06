@@ -721,8 +721,89 @@ namespace geopm
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
                                   1
-                                  }}
-
+                                  }},
+                              {M_NAME_PREFIX + "HBM_BYTES_WRITTEN", {
+                                  "Total bytes written to memory",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.cached_memory_write_bytes(
+                                              GEOPM_DOMAIN_GPU_CHIP,
+                                              domain_idx,
+                                              geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  1
+                                  }},
+                              {M_NAME_PREFIX + "HBM_BYTES_READ", {
+                                  "Total bytes read from memory",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.cached_memory_read_bytes(
+                                              GEOPM_DOMAIN_GPU_CHIP,
+                                              domain_idx,
+                                              geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  1
+                                  }},
+                              {M_NAME_PREFIX + "HBM_BYTES_PER_SECOND_MAXIMUM", {
+                                  "Maximum bytes per second that can be read and written from memory",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.cached_memory_max_bytes_per_sec(
+                                              GEOPM_DOMAIN_GPU_CHIP,
+                                              domain_idx,
+                                              geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  1
+                                  }},
+                              {M_NAME_PREFIX + "HBM_BYTES_READ_TIMESTAMP", {
+                                  "The LevelZero internal timestamp associated with "
+                                      + M_NAME_PREFIX + "HBM_BYTES_READ.",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.cached_memory_timestamp_microsec(
+                                              GEOPM_DOMAIN_GPU_CHIP,
+                                              domain_idx,
+                                              geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  1e-6
+                                  }},
+                              {M_NAME_PREFIX + "HBM_BYTES_WRITTEN_TIMESTAMP", {
+                                  "The LevelZero internal timestamp associated with "
+                                      + M_NAME_PREFIX + "HBM_BYTES_WRITTEN.",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.cached_memory_timestamp_microsec(
+                                              GEOPM_DOMAIN_GPU_CHIP,
+                                              domain_idx,
+                                              geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  1e-6
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                     "Sets the minimum frequency request for the GPU Compute Hardware.",
@@ -790,10 +871,23 @@ namespace geopm
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+            {M_NAME_PREFIX + "HBM_READ_BANDWIDTH",
+                    {"Bytes read from memory per second.",
+                     M_NAME_PREFIX + "HBM_BYTES_READ",
+                     M_NAME_PREFIX + "HBM_BYTES_READ_TIMESTAMP",
+                     Agg::average,
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+            {M_NAME_PREFIX + "HBM_WRITE_BANDWIDTH",
+                    {"Bytes written to memory per second.",
+                     M_NAME_PREFIX + "HBM_BYTES_WRITTEN",
+                     M_NAME_PREFIX + "HBM_BYTES_WRITTEN_TIMESTAMP",
+                     Agg::average,
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
         })
         , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
         , m_perf_factor(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), 0.5)
         , m_mock_save_ctl(std::move(save_control_test))
+        , m_is_hbm_pushed_in_gpu_chip(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), false)
     {
         std::vector <std::string> unsupported_signal_names;
         m_is_perf_factor_enabled = false;
@@ -805,12 +899,20 @@ namespace geopm
 
         }
 
+        bool is_memory_transfer_domain_0_cached = false;
+
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
             std::vector<std::shared_ptr<Signal> > result;
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
                                      signal_domain_type(sv.first)); ++domain_idx) {
                 try {
+                    if (domain_idx == 0 && sv.first.find("HBM_") != std::string::npos && !is_memory_transfer_domain_0_cached) {
+                        m_levelzero_device_pool.refresh_memory_transfer_cache(
+                                GEOPM_DOMAIN_GPU_CHIP, domain_idx, geopm::LevelZero::M_DOMAIN_MEMORY);
+                        is_memory_transfer_domain_0_cached = true;
+                    }
+
                     // Skip the RAS counters because they are very slow
                     // (0.5 seconds to read each).
                     // Note: only check signals on GPU zero.
@@ -825,6 +927,7 @@ namespace geopm
                         unsupported_signal_names.push_back(sv.first);
                         break;
                     }
+
                     std::shared_ptr<Signal> signal =
                             std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
                                                               domain_idx,
@@ -1085,6 +1188,10 @@ namespace geopm
             }
         }
 
+        if (signal_name.find("::HBM_") != std::string::npos) {
+            m_is_hbm_pushed_in_gpu_chip.at(domain_idx) = true;
+        }
+
         // Reset is_found for next search
         is_found = false;
 
@@ -1171,6 +1278,12 @@ namespace geopm
     // Parse and update saved values for signals
     void LevelZeroIOGroup::read_batch(void)
     {
+        for (int gpu_chip = 0; gpu_chip < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++gpu_chip) {
+            if (m_is_hbm_pushed_in_gpu_chip.at(gpu_chip)) {
+                m_levelzero_device_pool.refresh_memory_transfer_cache(
+                        GEOPM_DOMAIN_GPU_CHIP, gpu_chip, geopm::LevelZero::M_DOMAIN_MEMORY);
+            }
+        }
         m_is_batch_read = true;
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
             // If the current signal index (ii) is in the derivative_signal_pushed_set do not read().
@@ -1283,6 +1396,10 @@ namespace geopm
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
+            if (signal_name.find("::HBM_") != std::string::npos && domain_type == GEOPM_DOMAIN_GPU_CHIP) {
+                m_levelzero_device_pool.refresh_memory_transfer_cache(
+                        GEOPM_DOMAIN_GPU_CHIP, domain_idx, geopm::LevelZero::M_DOMAIN_MEMORY);
+            }
             result = (it->second.m_signals.at(domain_idx))->read();
         }
         else {

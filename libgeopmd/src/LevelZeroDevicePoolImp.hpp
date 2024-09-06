@@ -95,6 +95,17 @@ namespace geopm
                                       int l0_domain) const override;
             double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
                                         int l0_domain) const override;
+            void refresh_memory_transfer_cache(int domain, unsigned int domain_idx,
+                                               int l0_domain) const override;
+            uint64_t cached_memory_read_bytes(int domain, unsigned int domain_idx,
+                                              int l0_domain) const override;
+            uint64_t cached_memory_write_bytes(int domain, unsigned int domain_idx,
+                                               int l0_domain) const override;
+            uint64_t cached_memory_max_bytes_per_sec(int domain, unsigned int domain_idx,
+                                                     int l0_domain) const override;
+            uint64_t cached_memory_timestamp_microsec(int domain,
+                                                      unsigned int domain_idx,
+                                                      int l0_domain) const override;
         private:
             const LevelZero &m_levelzero;
 

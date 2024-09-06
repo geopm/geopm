@@ -164,6 +164,7 @@ namespace geopm
             perf_domain_cache(gpu_idx);
             engine_domain_cache(gpu_idx);
             temperature_domain_cache(gpu_idx);
+            memory_domain_cache(gpu_idx);
             ras_domain_cache(gpu_idx);
         }
     }
@@ -479,6 +480,53 @@ namespace geopm
         }
     }
 
+    // Cache the LevelZero memory. Only caches the HBM subdomain for now.
+    void LevelZeroImp::memory_domain_cache(unsigned int device_idx)
+    {
+        uint32_t num_domain = 0;
+        ze_result_t ze_result = zesDeviceEnumMemoryModules(m_devices.at(device_idx).device_handle,
+                                                           &num_domain, nullptr);
+        if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> LevelZero: Memory domain detection is "
+                      << "not supported.\n";
+#endif
+        }
+        else {
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": Sysman failed to get number of temperature domains.", __LINE__);
+            std::vector<zes_mem_handle_t> hbm_domain(num_domain);
+            check_ze_result(zesDeviceEnumMemoryModules(m_devices.at(device_idx).device_handle,
+                                                       &num_domain, hbm_domain.data()),
+                            GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                            ": Sysman failed to get memory domain handles.", __LINE__);
+
+            m_devices.at(device_idx).subdevice.hbm_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+            m_devices.at(device_idx).subdevice.cached_bandwidth_snapshot.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+
+            for (auto handle : hbm_domain) {
+                zes_mem_properties_t property = {};
+                check_ze_result(zesMemoryGetProperties(handle, &property),
+                                GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                                ": Sysman failed to get memory domain properties.", __LINE__);
+
+                if (property.onSubdevice == 0) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: <geopm> LevelZero: A device level "
+                              << "memory domain was found but is not currently supported.\n";
+#endif
+                }
+                else {
+                    if (property.type == ZES_MEM_TYPE_HBM) {
+                        m_devices.at(device_idx).
+                            subdevice.hbm_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY).push_back(handle);
+                    }
+                }
+            }
+        }
+    }
+
     void LevelZeroImp::ras_domain_cache(unsigned int device_idx)
     {
         uint32_t ras_handle_count = 0;
@@ -615,6 +663,11 @@ namespace geopm
     int LevelZeroImp::temperature_domain_count(unsigned int l0_device_idx, int l0_domain) const
     {
         return m_devices.at(l0_device_idx).subdevice.temp_domain_max.at(l0_domain).size();
+    }
+
+    int LevelZeroImp::hbm_domain_count(unsigned int l0_device_idx, int l0_domain) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.hbm_domain.at(l0_domain).size();
     }
 
     double LevelZeroImp::performance_factor(unsigned int l0_device_idx,
@@ -1083,5 +1136,44 @@ namespace geopm
             throw Exception(message + " Level Zero Error: " + error_string,
                             error, __FILE__, line);
         }
+    }
+
+    void LevelZeroImp::refresh_memory_transfer_cache(
+            unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const
+    {
+        zes_mem_bandwidth_t bandwidth_snapshot;
+        zes_mem_handle_t handle = m_devices.at(l0_device_idx).subdevice.hbm_domain.at(l0_domain).at(l0_domain_idx);
+        check_ze_result(zesMemoryGetBandwidth(handle, &bandwidth_snapshot),
+                        GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                        ": Sysman failed to get bandwidth snapshot values", __LINE__);
+        auto& cached_snapshot = m_devices.at(l0_device_idx).subdevice.cached_bandwidth_snapshot.at(l0_domain_idx);
+        cached_snapshot.read_bytes = bandwidth_snapshot.readCounter;
+        cached_snapshot.write_bytes = bandwidth_snapshot.writeCounter;
+        cached_snapshot.max_bytes_per_sec = bandwidth_snapshot.maxBandwidth;
+        cached_snapshot.timestamp_microsec = bandwidth_snapshot.timestamp;
+    }
+
+    uint64_t LevelZeroImp::cached_memory_read_bytes(
+            unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.cached_bandwidth_snapshot.at(l0_domain_idx).read_bytes;
+    }
+
+    uint64_t LevelZeroImp::cached_memory_write_bytes(
+            unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.cached_bandwidth_snapshot.at(l0_domain_idx).write_bytes;
+    }
+
+    uint64_t LevelZeroImp::cached_memory_max_bytes_per_sec(
+            unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.cached_bandwidth_snapshot.at(l0_domain_idx).max_bytes_per_sec;
+    }
+
+    uint64_t LevelZeroImp::cached_memory_timestamp_microsec(
+            unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.cached_bandwidth_snapshot.at(l0_domain_idx).timestamp_microsec;
     }
 }
