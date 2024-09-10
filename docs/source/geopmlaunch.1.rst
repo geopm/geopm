@@ -563,9 +563,9 @@ GEOPM Options
                    effect if ``--geopm-ctl`` or ``--geopm-ctl-disable``
                    are provided. This is especially useful when launching
                    non-MPI applications.
---geopm-ompt-disable  .. _geopm-ompt-disable option:
+--geopm-ompt-enable  .. _geopm-ompt-enable option:
 
-                      Disable OMPT detection of OpenMP regions.
+                      Enable OMPT detection of OpenMP regions.
                       See the :ref:`INTEGRATION WITH OMPT section of geopm(7)<geopm.7:Integration With OMPT>`
                       for more information about OpenMP region detection.
 --geopm-period  .. _geopm-period option:

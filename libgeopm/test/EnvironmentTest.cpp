@@ -583,10 +583,10 @@ TEST_F(EnvironmentTest, user_policy_and_endpoint)
     EXPECT_EQ("policy-user_value", m_env->policy());
 }
 
-TEST_F(EnvironmentTest, user_disable_ompt)
+TEST_F(EnvironmentTest, user_enable_ompt)
 {
     std::map<std::string, std::string> default_vars;
-    setenv("GEOPM_OMPT_DISABLE", "is_set", 1);
+    setenv("GEOPM_OMPT_ENABLE", "is_set", 1);
     std::map<std::string, std::string> override_vars;
 
     vars_to_json(default_vars, M_DEFAULT_PATH);
@@ -594,7 +594,7 @@ TEST_F(EnvironmentTest, user_disable_ompt)
 
     m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
 
-    EXPECT_FALSE(m_env->do_ompt());
+    EXPECT_TRUE(m_env->do_ompt());
 }
 
 TEST_F(EnvironmentTest, record_filter_on)

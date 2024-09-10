@@ -72,8 +72,8 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                                                             time_limit=6000)
                 launcher.set_num_node(num_node)
                 launcher.set_num_rank(num_rank)
-                if config == '_without_ompt':
-                    launcher.disable_ompt()
+                if config == '_with_ompt':
+                    launcher.enable_ompt()
                 launcher.run(curr_run)
 
 

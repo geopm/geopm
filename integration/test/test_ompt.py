@@ -40,6 +40,7 @@ class TestIntegration_ompt(unittest.TestCase):
                                                     cls._report_path)
         launcher.set_num_node(cls._num_node)
         launcher.set_num_rank(num_rank)
+        launcher.enable_ompt()
         # Run the test application
         launcher.run(test_name)
 

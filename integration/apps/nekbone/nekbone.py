@@ -76,8 +76,7 @@ class NekboneAppConf(apps.AppConf):
         return ['ex1']
 
     def get_custom_geopm_args(self):
-        return ['--geopm-ompt-disable',
-                '--geopm-hyperthreads-disable']
+        return ['--geopm-hyperthreads-disable']
 
     def parse_fom(self, log_path):
         result = None

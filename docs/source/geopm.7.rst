@@ -163,9 +163,9 @@ runtime configured to support OMPT if the default OpenMP runtime does
 not support the OMPT callbacks.  Note that your compiler must be
 compatible with the LLVM OpenMP ABI for extending it in this way.
 
-This feature can be disabled on a per-run basis by setting the
-``GEOPM_OMPT_DISABLE`` environment variable, or by using the
-``--geopm-ompt-disable`` option in :doc:`geopmlaunch(1) <geopmlaunch.1>`
+This feature can be enabled on a per-run basis by setting the
+``GEOPM_OMPT_ENABLE`` environment variable, or by using the
+``--geopm-ompt-enable`` option in :doc:`geopmlaunch(1) <geopmlaunch.1>`
 
 Choosing An Agent And Policy
 ----------------------------
@@ -347,10 +347,10 @@ GEOPM Environment Variables
   hyperthreads per CPU core. See the ``--geopm-hyperthreads-disable``
   :ref:`option description <geopm-hyperthreads-disable option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_OMPT_DISABLE``
-  Set to any value to disable OpenMP region detection as described in
-  :ref:`geopm.7:integration with ompt`.  See the ``--geopm-ompt-disable``
-  :ref:`option description <geopm-ompt-disable option>` in :doc:`geopmlaunch(1)
+``GEOPM_OMPT_ENABLE``
+  Set to any value to enable OpenMP region detection as described in
+  :ref:`geopm.7:integration with ompt`.  See the ``--geopm-ompt-enable``
+  :ref:`option description <geopm-ompt-enable option>` in :doc:`geopmlaunch(1)
   <geopmlaunch.1>` for more details.
 ``GEOPM_INIT_CONTROL``
   The path to the control initialization file.  See the ``--geopm-init-control``

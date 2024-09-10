@@ -141,7 +141,9 @@ class Config(object):
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
-        parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
+        ompt_group = parser.add_mutually_exclusive_group()
+        ompt_group.add_argument('--geopm-ompt-enable', dest='ompt_enable', action='store_true', default=False)
+        ompt_group.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
         parser.add_argument('--geopm-record-filter', dest='record_filter', type=str)
         parser.add_argument('--geopm-affinity-enable', dest='do_affinity', action='store_true', default=False)
         parser.add_argument('--geopm-launch-verbose', dest='quiet', action='store_false', default=True)
@@ -154,6 +156,8 @@ class Config(object):
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
             raise SyntaxError('<geopm> geopmpy.launcher: --geopm-ctl must be one of: "process", "pthread", or "application"')
+        if opts.ompt_disable:
+            print('Warning: --geopm-ompt-disable is deprecated since OMPT regions are now disabled by default. The option may be removed in future releases.', file=sys.stderr)
         # copy opts object into self
         self.ctl = opts.ctl
         self.policy = opts.policy
@@ -172,7 +176,7 @@ class Config(object):
         self.preload = opts.preload
         self.omp_num_threads = None
         self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
-        self.ompt_disable = opts.ompt_disable
+        self.ompt_enable = opts.ompt_enable
         self.record_filter = opts.record_filter
         self.do_affinity = opts.do_affinity
         self.quiet = opts.quiet
@@ -239,8 +243,8 @@ class Config(object):
             result['GEOPM_DEBUG_ATTACH'] = self.debug_attach
         if self.omp_num_threads:
             result['OMP_NUM_THREADS'] = self.omp_num_threads
-        if self.ompt_disable:
-            result['GEOPM_OMPT_DISABLE'] = 'true'
+        if self.ompt_enable:
+            result['GEOPM_OMPT_ENABLE'] = 'true'
         if self.record_filter:
             result['GEOPM_RECORD_FILTER'] = self.record_filter
         if self.init_control:
@@ -1786,7 +1790,9 @@ GEOPM_OPTIONS:
                                do not allow pinning to HTs
       --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
-      --geopm-ompt-disable     disable automatic OpenMP region detection
+      --geopm-ompt-enable      enable automatic OpenMP region detection
+      --geopm-ompt-disable     *DEPRECATED* automatic OpenMP region detection disabled
+                               by default, using option prints warning.
       --geopm-affinity-enable  Emit CPU affinity settings
       --geopm-launch-verbose   emit launch script and affinity configuration to stderr
       --geopm-launch-script=output_file
