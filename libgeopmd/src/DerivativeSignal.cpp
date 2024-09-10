@@ -26,6 +26,7 @@ namespace geopm
         , m_is_batch_ready(false)
         , m_sleep_time(sleep_time)
         , m_last_result(NAN)
+        , m_nan_replace(0)
     {
         GEOPM_DEBUG_ASSERT(m_time_sig && m_y_sig,
                            "Signal pointers for time_sig and y_sig cannot be null.");
@@ -75,6 +76,9 @@ namespace geopm
             if (ssxx != 0) {
                 result = ssxy / ssxx;
             }
+            else {
+                result = m_nan_replace;
+	    }
         }
         return result;
     }

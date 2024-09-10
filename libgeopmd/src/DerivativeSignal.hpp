@@ -45,6 +45,7 @@ namespace geopm
             int m_derivative_num_fit;
             bool m_is_batch_ready;
             double m_sleep_time;
+            double m_nan_replace;
             double m_last_result;
     };
 }
