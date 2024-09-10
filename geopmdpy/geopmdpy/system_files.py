@@ -1260,13 +1260,12 @@ class AccessLists(object):
 
 
 class WriteLock(object):
-    """Class for interacting with control lock file
+    """Class for interacting with lock files
 
-    This class provides the interface to query and set the PID that owns the
-    GEOPM Service control write lock.  The state of this lock is stored in the
-    file path:
-
-        /run/geopm/CONTROL_LOCK
+    This class provides the interface to query and set the PID
+    associated with a lock file.  This is used to support the GEOPM
+    Service control write lock and the application profile monitoring
+    lock.
 
     This file is empty when the lock is free, and contains the PID of the
     controlling process when the lock is held.  The class manages the advisory
@@ -1275,6 +1274,10 @@ class WriteLock(object):
     permissions.  Manipulations of the control lock file should be done
     exclusively with the WriteLock object to insure that the advisory lock is
     effective.
+
+    The default name of the lock file is "CONTROL_LOCK", however, this path name
+    can be overridden with the "lock_name" construction argument to support
+    other lock files used by the GEOPM Service.
 
     """
     def __init__(self, run_path, lock_name="CONTROL_LOCK"):
@@ -1285,7 +1288,10 @@ class WriteLock(object):
         securely create the run_path if it does not exist.
 
         Args:
-            run_path: Directory to create control lock within
+            run_path (str): Directory to create control lock within
+
+            lock_name (str): Optional name for lock file within run_path
+                             directory.  Default: "CONTROL_LOCK".
 
         """
         self._RUN_PATH = run_path
