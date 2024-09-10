@@ -849,7 +849,7 @@ class PlatformService(object):
             if lock_pid is None:
                 lock.try_lock(client_pid)
             elif lock_pid != client_pid:
-                raise RuntimeError(f'The PID {client_pid} requested control of application profile, but the geopm service already has an application profile controlling client with PID {lock_pid}')
+                raise RuntimeError(f'The PID {client_pid} requested control of application profile, but the geopm service already has an application profile controlling client with PID {lock_pid}.  To start a new controller kill {lock_pid} and retry.')
 
     def _write_mode(self, client_pid):
         write_pid = client_pid
