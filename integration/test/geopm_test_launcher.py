@@ -74,7 +74,7 @@ class TestLauncher(object):
             self._pmpi_ctl = 'process'
         self._job_name = 'geopm_int_test'
         self._timeout = 120
-        self._disable_ompt = False
+        self._enable_ompt = False
         self.set_num_cpu()
         self.set_num_rank(4 * test_util.get_num_node())
         self.set_num_node(test_util.get_num_node())
@@ -136,8 +136,8 @@ class TestLauncher(object):
                 argv.extend(['--geopm-report', self._report_path])
             if self._trace_path is not None:
                 argv.extend(['--geopm-trace', self._trace_path])
-            if self._disable_ompt:
-                argv.append('--geopm-ompt-disable')
+            if self._enable_ompt:
+                argv.append('--geopm-ompt-enable')
             if self._trace_profile_path:
                 argv.extend(['--geopm-trace-profile', self._trace_profile_path])
             if self._report_signals:
@@ -262,5 +262,5 @@ class TestLauncher(object):
                                                          self._time_limit, 'msr_save', self._node_list, self._exclude_list, self._host_file)
             launcher.run()
 
-    def disable_ompt(self):
-        self._disable_ompt = True
+    def enable_ompt(self):
+        self._enable_ompt = True

@@ -117,7 +117,7 @@ class PennantAppConf(apps.AppConf):
         return self._cores_per_rank
 
     def get_custom_geopm_args(self):
-        return ['--geopm-hyperthreads-disable', '--geopm-ompt-disable']
+        return ['--geopm-hyperthreads-disable']
 
     def parse_fom(self, log_path):
         with open(log_path) as fid:

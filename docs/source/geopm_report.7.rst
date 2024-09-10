@@ -19,8 +19,8 @@ The application regions and epoch are defined by use of the
 :doc:`geopm_prof(3) <geopm_prof.3>` interface to mark up the user application, or
 through automatic inference of regions based on interposing on the MPI
 or OpenMP interfaces (interposing on OpenMP requires that OMPT is
-enabled at GEOPM compile time, and the ``--geopm-ompt-disable`` option
-is not provided to ``geopmlaunch``). Alternatively, epochs may be
+enabled at GEOPM compile time, and the ``--geopm-ompt-enable`` option
+is provided to ``geopmlaunch``). Alternatively, epochs may be
 inserted automatically when ``--geopm-record-filter`` is used, as
 described in :doc:`geopmlaunch(1) <geopmlaunch.1>`.
 

@@ -231,7 +231,7 @@ class AppConf(object):
 
     def get_custom_geopm_args(self):
         ''' Additional geopmlaunch arguments required for the app, such as
-            --geopm-ompt-disable.
+            --geopm-ompt-enable.
 
             Returns:
                 list of str: list of geopmlaunch command line arguments.

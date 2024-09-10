@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <iostream>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -100,6 +101,11 @@ namespace geopm
             m_name_value_map["GEOPM_ENDPOINT"] = std::move(default_endpoint);
         }
         parse_environment_file(m_override_config_path, m_all_names, m_user_defined_names, m_name_value_map);
+#ifdef GEOPM_DEBUG
+        if (is_set("GEOPM_OMPT_DISABLE")) {
+            std::cerr << "Warning: GEOPM_OMPT_DISABLE environment variable is set, but use is deprecated. OMPT detection is disabled by default, use GEOPM_OMPT_ENABLE to enable OMPT detection.\n";
+        }
+#endif
     }
 
     std::set<std::string> EnvironmentImp::get_all_vars()
@@ -120,6 +126,7 @@ namespace geopm
                 "GEOPM_PROFILE",
                 "GEOPM_FREQUENCY_MAP",
                 "GEOPM_MAX_FAN_OUT",
+                "GEOPM_OMPT_ENABLE",
                 "GEOPM_OMPT_DISABLE",
                 "GEOPM_RECORD_FILTER",
                 "GEOPM_INIT_CONTROL",
@@ -462,7 +469,7 @@ namespace geopm
 
     bool EnvironmentImp::do_ompt(void) const
     {
-        return !is_set("GEOPM_OMPT_DISABLE");
+        return is_set("GEOPM_OMPT_ENABLE");
     }
 
     std::string EnvironmentImp::default_config_path(void) const
