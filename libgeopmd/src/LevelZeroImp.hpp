@@ -126,6 +126,17 @@ namespace geopm
             double ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
                                                       int l0_domain,
                                                       int l0_domain_idx) const override;
+            int hbm_domain_count(unsigned int l0_device_idx, int l0_domain) const override;
+            void refresh_memory_transfer_cache(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
+            uint64_t cached_memory_read_bytes(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
+            uint64_t cached_memory_write_bytes(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
+            uint64_t cached_memory_max_bytes_per_sec(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
+            uint64_t cached_memory_timestamp_microsec(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
 
         private:
             enum m_error_type {
@@ -147,11 +158,18 @@ namespace geopm
                 int32_t min = 0;
                 int32_t max = 0;
             };
+            struct bandwidth_snapshot_s {
+                uint64_t read_bytes;
+                uint64_t write_bytes;
+                uint64_t max_bytes_per_sec;
+                uint64_t timestamp_microsec;
+            };
 
             struct m_subdevice_s {
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_temp_handle_t> > temp_domain_max;
+                std::vector<std::vector<zes_mem_handle_t> > hbm_domain;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
                 mutable std::vector<std::vector<uint64_t> > cached_timestamp;
 
@@ -161,6 +179,7 @@ namespace geopm
                 uint32_t num_subdevice_power_domain;
                 std::vector<zes_pwr_handle_t> power_domain;
                 mutable std::vector<uint64_t> cached_energy_timestamp;
+                mutable std::vector<bandwidth_snapshot_s> cached_bandwidth_snapshot;
 
             	// Note: For RAS counters, as of LevelZero ver 1.9, can't be neatly
                 //       categorized as being specific to compute/memory domains.
@@ -196,6 +215,7 @@ namespace geopm
             void perf_domain_cache(unsigned int l0_device_idx);
             void engine_domain_cache(unsigned int l0_device_idx);
             void temperature_domain_cache(unsigned int l0_device_idx);
+            void memory_domain_cache(unsigned int l0_device_idx);
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
 

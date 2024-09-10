@@ -746,5 +746,88 @@ namespace geopm
                                                 dev_subdev_idx_pair.second);
     }
 
+    void LevelZeroDevicePoolImp::refresh_memory_transfer_cache(
+            int domain, unsigned int domain_idx, int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the memory domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.hbm_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+        m_levelzero.refresh_memory_transfer_cache(dev_subdev_idx_pair.first, l0_domain,
+                                                  dev_subdev_idx_pair.second);
+    }
 
+
+    uint64_t LevelZeroDevicePoolImp::cached_memory_read_bytes(
+            int domain, unsigned int domain_idx, int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the memory domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+        return m_levelzero.cached_memory_read_bytes(dev_subdev_idx_pair.first, l0_domain,
+                                                    dev_subdev_idx_pair.second);
+    }
+
+    uint64_t LevelZeroDevicePoolImp::cached_memory_write_bytes(
+            int domain, unsigned int domain_idx, int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the memory domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+        return m_levelzero.cached_memory_write_bytes(dev_subdev_idx_pair.first, l0_domain,
+                                                     dev_subdev_idx_pair.second);
+    }
+
+    uint64_t LevelZeroDevicePoolImp::cached_memory_max_bytes_per_sec(
+            int domain, unsigned int domain_idx, int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the memory domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+        return m_levelzero.cached_memory_max_bytes_per_sec(dev_subdev_idx_pair.first, l0_domain,
+                                                           dev_subdev_idx_pair.second);
+    }
+
+    uint64_t LevelZeroDevicePoolImp::cached_memory_timestamp_microsec(
+            int domain, unsigned int domain_idx, int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the memory domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.ras_domain_count(dev_subdev_idx_pair.first, l0_domain),
+                            __func__, __LINE__);
+        return m_levelzero.cached_memory_timestamp_microsec(dev_subdev_idx_pair.first, l0_domain,
+                                                            dev_subdev_idx_pair.second);
+    }
 }

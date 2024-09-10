@@ -312,6 +312,27 @@ namespace geopm
             /// @return Display Error Count
             virtual double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
                                                 int l0_domain) const = 0;
+
+            /// @brief Query LevelZero for the latest count of bytes transferred to and from memory.
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            virtual void refresh_memory_transfer_cache(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const = 0;
+
+            virtual uint64_t cached_memory_read_bytes(int domain, unsigned int domain_idx,
+                                                      int l0_domain) const = 0;
+
+            virtual uint64_t cached_memory_write_bytes(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const = 0;
+
+            virtual uint64_t cached_memory_max_bytes_per_sec(int domain, unsigned int domain_idx,
+                                                             int l0_domain) const = 0;
+
+            virtual uint64_t cached_memory_timestamp_microsec(int domain,
+                                                              unsigned int domain_idx,
+                                                              int l0_domain) const = 0;
         private:
     };
 

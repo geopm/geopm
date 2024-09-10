@@ -352,7 +352,19 @@ namespace geopm
             /// @return Display Error Count
             virtual double ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
                                                 int l0_domain, int l0_domain_idx) const = 0;
-    };
+
+            virtual int hbm_domain_count(unsigned int l0_device_idx, int l0_domain) const = 0;
+            virtual void refresh_memory_transfer_cache(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const = 0;
+            virtual uint64_t cached_memory_read_bytes(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const = 0;
+            virtual uint64_t cached_memory_write_bytes(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const = 0;
+            virtual uint64_t cached_memory_max_bytes_per_sec(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const = 0;
+            virtual uint64_t cached_memory_timestamp_microsec(
+                    unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const = 0;
+            };
 
     const LevelZero &levelzero();
 }
