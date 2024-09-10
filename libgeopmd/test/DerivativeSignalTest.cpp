@@ -35,9 +35,11 @@ class DerivativeSignalTest : public ::testing::Test
         double m_exp_slope_1;
         std::vector<double> m_sample_values_2;
         double m_exp_slope_2;
+	std::vector<double> m_sample_values_nan;
 
         int m_num_history_sample = 8;
         double m_sleep_time = 0.001;
+	double m_nan_replace = 1.5;
 };
 
 void DerivativeSignalTest::SetUp(void)
@@ -46,6 +48,8 @@ void DerivativeSignalTest::SetUp(void)
     m_y_sig = std::make_shared<MockSignal>();
     m_sig = geopm::make_unique<DerivativeSignal>(m_time_sig, m_y_sig,
                                                  m_num_history_sample, m_sleep_time);
+    m_sig_nan = geopm::make_unique<DerivativeSignal>(m_time_sig, m_y_sig,
+                                                 m_num_history_sample, m_sleep_time, m_nan_replace);
 
     // should have slope of 0.0
     m_sample_values_0 = {5.5, 5.5, 5.5, 5.5};
@@ -61,6 +65,7 @@ void DerivativeSignalTest::SetUp(void)
     // should have slope of .238 with least squares fit
     m_sample_values_2 = {0, 1, 2, 3, 0, 1, 2, 3};
     m_exp_slope_2 = 0.238;
+
 }
 
 TEST_F(DerivativeSignalTest, read_flat)
@@ -150,6 +155,16 @@ TEST_F(DerivativeSignalTest, read_batch_slope_2)
         result = m_sig->sample();
     }
     EXPECT_NEAR(m_exp_slope_2, result, 0.0001);
+}
+TEST_F(DerivativeSignalTest, read_nan)
+{
+    EXPECT_CALL(*m_time_sig, read()).Times(m_num_history_sample)
+        .WillRepeatedly(Return(2));
+    EXPECT_CALL(*m_y_sig, read()).Times(m_num_history_sample)
+        .WillRepeatedly(Return(5));
+
+    double result = m_sig->read();
+    EXPECT_EQ(0, result);
 }
 
 TEST_F(DerivativeSignalTest, setup_batch)
