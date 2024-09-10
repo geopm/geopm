@@ -35,7 +35,7 @@ if [ $? -eq 0 ]; then
     rm ${TEMP_LOG}
     exit -1
 fi
-if ! grep -q "requested control of application profile, but the geopm service already has a application profile controlling client" ${TEMP_LOG}; then
+if ! grep -q "requested control of application profile, but the geopm service already has an application profile controlling client" ${TEMP_LOG}; then
     cat ${TEMP_LOG} 1>&2
     echo "Error: Error message did not match expected" 1>&2
     rm ${TEMP_LOG}
