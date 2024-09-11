@@ -35,7 +35,8 @@ namespace geopm
             /// The read() and sample() methods have separate history.
             static double compute_next(CircularBuffer<m_sample_s> &history,
                                        int &num_fit,
-                                       double time, double signal);
+                                       double time, double signal,
+                                       double nan_replace);
 
             std::shared_ptr<Signal> m_time_sig;
             std::shared_ptr<Signal> m_y_sig;

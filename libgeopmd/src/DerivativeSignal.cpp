@@ -43,7 +43,8 @@ namespace geopm
 
     double DerivativeSignal::compute_next(CircularBuffer<m_sample_s> &history,
                                           int &num_fit,
-                                          double time, double signal)
+                                          double time, double signal,
+                                          double nan_replace)
     {
         // insert time and signal
         history.insert({time, signal});
@@ -77,8 +78,8 @@ namespace geopm
                 result = ssxy / ssxx;
             }
             else {
-                result = m_nan_replace;
-	    }
+                result = nan_replace;
+            }
         }
         return result;
     }
@@ -96,7 +97,7 @@ namespace geopm
         if (history_size == 0ULL ||
             time != m_history.value(m_history.size() - 1).time) {
             double signal = m_y_sig->sample();
-            m_last_result = compute_next(m_history, m_derivative_num_fit, time, signal);
+            m_last_result = compute_next(m_history, m_derivative_num_fit, time, signal, m_nan_replace);
         }
         return m_last_result;
     }
@@ -109,7 +110,7 @@ namespace geopm
         for (int ii = 0; ii < M_NUM_SAMPLE_HISTORY; ++ii) {
             double signal = m_y_sig->read();
             double time = m_time_sig->read();
-            result = compute_next(temp_history, num_fit, time, signal);
+            result = compute_next(temp_history, num_fit, time, signal, m_nan_replace);
             if (ii < M_NUM_SAMPLE_HISTORY - 1) {
                 usleep(m_sleep_time * 1e6);
             }
