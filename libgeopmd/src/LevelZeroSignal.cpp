@@ -18,6 +18,7 @@ namespace geopm
         , m_scalar(scalar)
         , m_is_batch_ready(false)
         , m_value(NAN)
+        , m_is_sampled(false)
     {
     }
 
@@ -31,6 +32,12 @@ namespace geopm
     void LevelZeroSignal::set_sample(double value)
     {
         m_value = value;
+        m_is_sampled = false;
+    }
+
+    bool LevelZeroSignal::is_sampled(void) const
+    {
+        return m_is_sampled;
     }
 
     double LevelZeroSignal::sample(void)
@@ -39,11 +46,13 @@ namespace geopm
             throw Exception("setup_batch() must be called before sample().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        m_is_sampled = true;
         return m_value;
     }
 
     double LevelZeroSignal::read(void) const
     {
+        m_is_sampled = true;
         return m_devpool_func(m_domain_idx) * m_scalar;
     }
 }
