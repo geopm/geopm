@@ -30,6 +30,8 @@ namespace geopm
             virtual double read(void) const = 0;
             /// @brief Set the value to be returned by sample()
             virtual void set_sample(double) {};
+            /// @brief True if the signal has been sampled during this batch
+            virtual bool is_sampled(void) const {return false;};
     };
 }
 

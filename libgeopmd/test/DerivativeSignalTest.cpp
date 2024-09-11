@@ -106,12 +106,38 @@ TEST_F(DerivativeSignalTest, read_nan)
     EXPECT_EQ(0, result);
 }
 
+TEST_F(DerivativeSignalTest, read_batch_nan)
+{
+    EXPECT_CALL(*m_time_sig, setup_batch());
+    EXPECT_CALL(*m_y_sig, setup_batch());
+    m_sig->setup_batch();
+
+    double result = NAN;
+
+    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
+    EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
+
+    //First call returns NAN
+    result = m_sig->sample();
+    EXPECT_TRUE(std::isnan(result));
+
+    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
+    EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
+
+    //Second call replaces NAN with 0
+    result = m_sig->sample();
+    EXPECT_EQ(0, result);
+}
+
 TEST_F(DerivativeSignalTest, read_batch_first)
 {
     EXPECT_CALL(*m_time_sig, setup_batch());
     EXPECT_CALL(*m_y_sig, setup_batch());
     m_sig->setup_batch();
 
+    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
     EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
     EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
     double result = m_sig->sample();
@@ -126,6 +152,7 @@ TEST_F(DerivativeSignalTest, read_batch_flat)
 
     double result = NAN;
     for (size_t ii = 0; ii < m_sample_values_0.size(); ++ii) {
+        EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
         EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
         EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(m_sample_values_0[ii]));
         result = m_sig->sample();
@@ -141,6 +168,7 @@ TEST_F(DerivativeSignalTest, read_batch_slope_1)
 
     double result = NAN;
     for (size_t ii = 0; ii < m_sample_values_1.size(); ++ii) {
+        EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
         EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
         EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(m_sample_values_1[ii]));
         result = m_sig->sample();
@@ -156,6 +184,7 @@ TEST_F(DerivativeSignalTest, read_batch_slope_2)
 
     double result = NAN;
     for (size_t ii = 0; ii < m_sample_values_2.size(); ++ii) {
+        EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
         EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
         EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(m_sample_values_2[ii]));
         result = m_sig->sample();
