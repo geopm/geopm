@@ -35,11 +35,9 @@ class DerivativeSignalTest : public ::testing::Test
         double m_exp_slope_1;
         std::vector<double> m_sample_values_2;
         double m_exp_slope_2;
-	std::vector<double> m_sample_values_nan;
 
         int m_num_history_sample = 8;
         double m_sleep_time = 0.001;
-	double m_nan_replace = 1.5;
 };
 
 void DerivativeSignalTest::SetUp(void)
@@ -105,7 +103,7 @@ TEST_F(DerivativeSignalTest, read_nan)
         .WillRepeatedly(Return(5));
 
     double result = m_sig->read();
-    EXPECT_EQ(m_nan_replace, result);
+    EXPECT_EQ(0, result);
 }
 
 TEST_F(DerivativeSignalTest, read_batch_first)
