@@ -174,6 +174,13 @@ TEST_F(DerivativeSignalTest, read_batch_slope_1)
         result = m_sig->sample();
     }
     EXPECT_NEAR(m_exp_slope_1, result, 0.0001);
+
+    //Read again without an updated signal, check that data is preserved
+    size_t ii = m_sample_values_1.size()-1;
+    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(true));
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
+    result = m_sig->sample();
+    EXPECT_NEAR(m_exp_slope_1, result, 0.0001);
 }
 
 TEST_F(DerivativeSignalTest, read_batch_slope_2)

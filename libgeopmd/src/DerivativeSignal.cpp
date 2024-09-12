@@ -27,7 +27,6 @@ namespace geopm
         , m_sleep_time(sleep_time)
         , m_last_result(NAN)
         , m_nan_replace(0)
-        , m_is_first_sample(false)
     {
         GEOPM_DEBUG_ASSERT(m_time_sig && m_y_sig,
                            "Signal pointers for time_sig and y_sig cannot be null.");
@@ -100,7 +99,6 @@ namespace geopm
             double signal = m_y_sig->sample();
             m_last_result = compute_next(m_history, m_derivative_num_fit, time, signal, m_nan_replace);
         }
-        m_is_first_sample = false;
         return m_last_result;
     }
 
@@ -117,7 +115,6 @@ namespace geopm
                 usleep(m_sleep_time * 1e6);
             }
         }
-        m_is_first_sample = true;
         return result;
     }
 
