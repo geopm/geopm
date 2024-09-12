@@ -27,6 +27,7 @@ class DerivativeSignalTest : public ::testing::Test
         std::shared_ptr<MockSignal> m_time_sig;
         std::shared_ptr<MockSignal> m_y_sig;
         std::unique_ptr<Signal> m_sig;
+        std::unique_ptr<Signal> m_sig_nan;
 
         // example data
         std::vector<double> m_sample_values_0;
@@ -38,6 +39,7 @@ class DerivativeSignalTest : public ::testing::Test
 
         int m_num_history_sample = 8;
         double m_sleep_time = 0.001;
+        double m_nan_replace = 5.2;
 };
 
 void DerivativeSignalTest::SetUp(void)
@@ -46,6 +48,9 @@ void DerivativeSignalTest::SetUp(void)
     m_y_sig = std::make_shared<MockSignal>();
     m_sig = geopm::make_unique<DerivativeSignal>(m_time_sig, m_y_sig,
                                                  m_num_history_sample, m_sleep_time);
+    m_sig_nan = geopm::make_unique<DerivativeSignal>(m_time_sig, m_y_sig,
+                                                 m_num_history_sample, m_sleep_time,
+                                                 m_nan_replace);
 
     // should have slope of 0.0
     m_sample_values_0 = {5.5, 5.5, 5.5, 5.5};
@@ -102,15 +107,15 @@ TEST_F(DerivativeSignalTest, read_nan)
     EXPECT_CALL(*m_y_sig, read()).Times(m_num_history_sample)
         .WillRepeatedly(Return(5));
 
-    double result = m_sig->read();
-    EXPECT_EQ(0, result);
+    double result = m_sig_nan->read();
+    EXPECT_EQ(m_nan_replace, result);
 }
 
 TEST_F(DerivativeSignalTest, read_batch_nan)
 {
     EXPECT_CALL(*m_time_sig, setup_batch());
     EXPECT_CALL(*m_y_sig, setup_batch());
-    m_sig->setup_batch();
+    m_sig_nan->setup_batch();
 
     double result = NAN;
 
@@ -119,16 +124,16 @@ TEST_F(DerivativeSignalTest, read_batch_nan)
     EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
 
     //First call returns NAN
-    result = m_sig->sample();
+    result = m_sig_nan->sample();
     EXPECT_TRUE(std::isnan(result));
 
     EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
     EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
     EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
 
-    //Second call replaces NAN with 0
-    result = m_sig->sample();
-    EXPECT_EQ(0, result);
+    //Second call replaces NAN with m_nan_replace
+    result = m_sig_nan->sample();
+    EXPECT_EQ(m_nan_replace, result);
 }
 
 TEST_F(DerivativeSignalTest, read_batch_first)
