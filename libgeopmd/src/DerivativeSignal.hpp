@@ -48,9 +48,6 @@ namespace geopm
             double m_sleep_time;
             double m_last_result;
             double m_nan_replace;
-            //Set to true when batch is read. Set to false when sample is
-            //called.
-            mutable bool m_is_first_sample;
     };
 }
 
