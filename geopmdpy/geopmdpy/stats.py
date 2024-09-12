@@ -32,8 +32,6 @@ int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
 """)
 _dl = gffi.get_dl_geopmd()
 
-import yaml
-
 class Collector:
     """ Object for aggregating statistics gathered from the PlatformIO interface of GEOPM
 
