@@ -192,53 +192,56 @@ class CronReport:
         return fig
 
     def plot_host_energy(self, begin_date, end_date):
-        pub_host = hostname()
-        pub_path_format = '/~test/geopm-report/{host}/{date}.html'
-        host_list = self._df['host'].unique()
-        host_list.sort()
+        host_list = self.get_hosts()
         host_energy = dict()
-        dates = [datetime.combine(begin_date.date(), datetime.min.time(), tzinfo=begin_date.tzinfo)]
+        dates = self.get_days(begin_date, end_date)
         delta = timedelta(hours=24)
-        while dates[-1] < end_date:
-            dates.append(dates[-1] + delta)
+        pub_path_format = '<a href="http://mcfly.ra.intel.com/~cmcantal/geopm-report-test/{host}/{date}.html">{value}</a>'
+        host_url = []
         host_energy = []
         for host in host_list:
             date_energy = []
+            date_url = []
             for begin_interval in dates:
                 end_interval = begin_interval + delta
                 date_energy.append(self.calculate_energy("gpu", begin_interval, end_interval, host) +
                                    self.calculate_energy("cpu",  begin_interval, end_interval, host) +
                                    self.calculate_energy("dram",  begin_interval, end_interval, host))
+                date_url.append(pub_path_format.format(host=host, date=begin_interval.date(), value=f'{date_energy[-1]:.2f}'))
             host_energy.append(list(date_energy))
-        fig = go.Figure(data=go.Heatmap(z=host_energy, x=dates, y=host_list, colorscale='Viridis'))
+            host_url.append(date_url)
+
+        fig = go.Figure(data=go.Heatmap(z=host_energy, x=dates, y=host_list, text=host_url, texttemplate="%{text}", textfont={"size":20}, colorscale='pinkyl'))
         fig.update_layout(title='Daily energy use per host (kWh)')
         return fig
 
-    def run_webpage(self, begin_date, end_date, port, host_mask, host_select=None):
+    def get_hosts(self):
+        host_list = self._df['host'].unique()
+        host_list.sort()
+        return host_list
+
+    def get_days(self, begin_date, end_date):
+        dates = [datetime.combine(begin_date.date(), datetime.min.time(), tzinfo=begin_date.tzinfo)]
+        delta = timedelta(hours=24)
+        # trim last two days
+        end_date = end_date - 2 * delta
+        while dates[-1] < end_date:
+            dates.append(dates[-1] + delta)
+        return dates
+
+    def run_webpage(self, begin_date, end_date, port, host_mask):
         app = Dash('geopmsession')
         style={
             'textAlign': 'center',
             'color': self._colors['page_text'],
             'font-family': self._font_family
         }
-        if host_select is None:
-            app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
-                html.H1(children='GEOPM Energy Report', style=style),
-                dcc.Graph(id='host-energy',
-                          figure=self.plot_host_energy(begin_date, end_date)),
-            ])
-        else:
-            app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
-                html.H1(children='GEOPM Energy Report', style=style),
-                dcc.Graph(id='energy-pie',
-                          figure=self.plot_energy(begin_date, end_date)),
-                dcc.Graph(id='gpu-power',
-                          figure=self.plot_power('gpu', begin_date, end_date)),
-                dcc.Graph(id='cpu-power',
-                          figure=self.plot_power('cpu', begin_date, end_date)),
-                dcc.Graph(id='dram-power',
-                          figure=self.plot_power('dram', begin_date, end_date)),
-            ])
+        app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
+            html.H1(children='GEOPM Energy Report', style=style),
+            dcc.Graph(id='host-energy',
+                      figure=self.plot_host_energy(begin_date, end_date)),
+        ])
+
         app.run(host=host_mask, port=port)
 
     def static_webpage(self, begin_date, end_date, output_html, host_select=None):
@@ -255,7 +258,7 @@ class CronReport:
             else:
                 fig = self.plot_energy(begin_date, end_date, host_select)
                 fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
-                for domain in ('gpu', 'cpu', 'dram'):
+                for domain in ('cpu', 'dram','gpu'):
                     fig = self.plot_power(domain, begin_date, end_date, host_select)
                     fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
 
@@ -291,7 +294,7 @@ def main():
         cron_report = CronReport(args.report)
         begin_date, end_date = cron_report.date_range()
         if args.static_html is None:
-            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask, args.host_select)
+            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask)
         else:
             cron_report.static_webpage(begin_date, end_date, args.static_html, args.host_select)
     except RuntimeError as ee:
