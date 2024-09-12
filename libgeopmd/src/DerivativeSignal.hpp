@@ -19,6 +19,10 @@ namespace geopm
             DerivativeSignal(std::shared_ptr<Signal> time_sig,
                              std::shared_ptr<Signal> y_sig,
                              int read_loops, double sleep_time);
+            DerivativeSignal(std::shared_ptr<Signal> time_sig,
+                             std::shared_ptr<Signal> y_sig,
+                             int read_loops, double sleep_time,
+                             double nan_replace);
             DerivativeSignal(const DerivativeSignal &other) = delete;
             DerivativeSignal &operator=(const DerivativeSignal &other) = delete;
             virtual ~DerivativeSignal() = default;

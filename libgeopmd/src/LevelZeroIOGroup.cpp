@@ -759,13 +759,15 @@ namespace geopm
                      M_NAME_PREFIX + "GPU_ENERGY",
                      M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
                      Agg::sum,
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                     NAN}},
             {M_NAME_PREFIX + "GPU_CORE_POWER",
                     {"Average GPU power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP",
                     Agg::sum,
-                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                    NAN}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
@@ -773,7 +775,8 @@ namespace geopm
                      M_NAME_PREFIX + "GPU_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP",
                      Agg::average,
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                     0}},
             {M_NAME_PREFIX + "GPU_CORE_UTILIZATION",
                     {"Utilization of the GPU Compute engines (EUs). Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
@@ -781,7 +784,8 @@ namespace geopm
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
                      Agg::average,
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                     0}},
             {M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION",
                     {"Utilization of the GPU Copy engines. Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
@@ -789,7 +793,8 @@ namespace geopm
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
                      Agg::average,
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                     0}},
         })
         , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
         , m_perf_factor(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), 0.5)
@@ -961,7 +966,8 @@ namespace geopm
                     result[domain_idx] =
                         std::make_shared<DerivativeSignal>(time, read,
                                                            derivative_window,
-                                                           sleep_time);
+                                                           sleep_time,
+                                                           ds.second.m_nan_replace);
                 }
                 m_signal_available[ds.first] = {ds.second.m_description + "\n    alias_for: " +
                                                 ds.second.m_base_name + " rate of change",

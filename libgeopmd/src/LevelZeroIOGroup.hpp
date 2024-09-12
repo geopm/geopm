@@ -104,6 +104,7 @@ namespace geopm
                 std::string m_time_name;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 int m_behavior;
+                double m_nan_replace;
             };
 
             static const std::string M_PLUGIN_NAME;
