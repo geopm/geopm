@@ -10,10 +10,12 @@ except ImportError:
     from yaml import SafeLoader
 import sys
 import os
+from glob import glob
 from pandas import DataFrame, to_datetime, to_timedelta
 import plotly.graph_objs as go
 from dash import Dash, dcc, html
 from argparse import ArgumentParser
+from datetime import timedelta
 
 class CronReport:
     def __init__(self, report_paths):
@@ -60,7 +62,7 @@ class CronReport:
         self._font_family = 'Lato, proxima-nova, Helvetica Neue, Arial, sans-serif'
 
 
-    def calculate_energy(self, domain, begin_date, end_date):
+    def calculate_energy(self, domain, begin_date, end_date, host=None):
         """Return an estimate of energy for all reports that begin within the time range
         specified.  Only includes time prior to the beginning of the last report
         that matches.
@@ -76,9 +78,9 @@ class CronReport:
         # Also consider that partial reports are also not used in this method.
         domain = domain.upper()
         metric_name = f'{domain}_POWER'
-        time = self.get_stat(begin_date, end_date, metric_name, 'sample-time-first')
-        time_total = self.get_stat(begin_date, end_date, metric_name, 'sample-time-total')
-        power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic')
+        time = self.get_stat(begin_date, end_date, metric_name, 'sample-time-first', host)
+        time_total = self.get_stat(begin_date, end_date, metric_name, 'sample-time-total', host)
+        power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic', host)
         kwh_factor = 1.0 / 3.6e6
         return kwh_factor * sum((power.shift(1) * (time - time.shift(1)).dt.total_seconds()).dropna())
 
@@ -96,20 +98,25 @@ class CronReport:
         return (min(self._df['sample-time-first']),
                 max(self._df['sample-time-first']))
 
-    def get_stat(self, begin_date, end_date, metric_name, stat_name):
-        return self._df.loc[self._df['sample-time-first'].between(begin_date, end_date) & \
-                            (self._df['metric-name'] == metric_name), stat_name]
+    def get_stat(self, begin_date, end_date, metric_name, stat_name, host=None):
+        if host is None:
+            return self._df.loc[self._df['sample-time-first'].between(begin_date, end_date) & \
+                                (self._df['metric-name'] == metric_name), stat_name]
+        else:
+            return self._df.loc[self._df['sample-time-first'].between(begin_date, end_date) & \
+                                (self._df['metric-name'] == metric_name) & \
+                                (self._df['host'] == host), stat_name]
 
-    def plot_power(self, domain, begin_date, end_date):
+    def plot_power(self, domain, begin_date, end_date, host=None):
         domain = domain.upper()
         metric_name = f'{domain}_POWER'
-        sample_time_first = self.get_stat(begin_date, end_date, metric_name, 'sample-time-first')
-        sample_time_total = self.get_stat(begin_date, end_date, metric_name, 'sample-time-total')
+        sample_time_first = self.get_stat(begin_date, end_date, metric_name, 'sample-time-first', host)
+        sample_time_total = self.get_stat(begin_date, end_date, metric_name, 'sample-time-total', host)
         record_mean_time = sample_time_first + to_timedelta(sample_time_total / 2.0, unit='s')
-        record_min_power = self.get_stat(begin_date, end_date, metric_name, 'min')
-        record_max_power = self.get_stat(begin_date, end_date, metric_name, 'max')
-        record_mean_power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic')
-        record_std_power = self.get_stat(begin_date, end_date, metric_name, 'std')
+        record_min_power = self.get_stat(begin_date, end_date, metric_name, 'min', host)
+        record_max_power = self.get_stat(begin_date, end_date, metric_name, 'max', host)
+        record_mean_power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic', host)
+        record_std_power = self.get_stat(begin_date, end_date, metric_name, 'std', host)
         record_plus_std = [min((a, b)) for (a, b) in zip(record_mean_power + record_std_power, record_max_power)]
         record_minus_std = [max((a, b)) for (a, b) in zip(record_mean_power - record_std_power, record_min_power)]
         fig = go.Figure([
@@ -166,11 +173,11 @@ class CronReport:
         )
         return fig
 
-    def plot_energy(self, begin_date, end_date):
+    def plot_energy(self, begin_date, end_date, host=None):
         labels = ['GPU', 'CPU', 'DRAM']
-        values = [self.calculate_energy("gpu", begin_date, end_date),
-                  self.calculate_energy("cpu", begin_date, end_date),
-                  self.calculate_energy("dram", begin_date, end_date)]
+        values = [self.calculate_energy("gpu", begin_date, end_date, host),
+                  self.calculate_energy("cpu", begin_date, end_date, host),
+                  self.calculate_energy("dram", begin_date, end_date, host)]
         colors = [self._colors['pie_gpu'],
                   self._colors['pie_cpu'],
                   self._colors['pie_dram']]
@@ -183,39 +190,71 @@ class CronReport:
         fig.update_layout(title=f'Energy - kWh ({begin_string} - {end_string})', hovermode='x')
         return fig
 
-    def run_webpage(self, begin_date, end_date, port, host_mask):
+    def plot_host_energy(self, begin_date, end_date):
+        host_list = self._df['host'].unique()
+        host_energy = dict()
+        dates = [begin_date]
+        delta = timedelta(hours=24)
+        while dates[-1] < end_date:
+            dates.append(dates[-1] + delta)
+        host_energy = []
+        for host in host_list:
+            date_energy = []
+            for begin_interval in dates:
+                end_interval = begin_interval + delta
+                date_energy.append(self.calculate_energy("gpu", begin_interval, end_interval, host) +
+                                   self.calculate_energy("cpu",  begin_interval, end_interval, host) +
+                                   self.calculate_energy("dram",  begin_interval, end_interval, host))
+            host_energy.append(list(date_energy))
+        fig = go.Figure(data=go.Heatmap(z=host_energy, x=dates, y=host_list, colorscale='Viridis'))
+        fig.update_layout(title='Energy used by host per day')
+        return fig
+
+    def run_webpage(self, begin_date, end_date, port, host_mask, host_select=None):
         app = Dash('geopmsession')
         style={
             'textAlign': 'center',
             'color': self._colors['page_text'],
             'font-family': self._font_family
         }
-        app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
-            html.H1(children='GEOPM Power Report', style=style),
-            dcc.Graph(id='gpu-power',
-                      figure=self.plot_power('gpu', begin_date, end_date)),
-            dcc.Graph(id='cpu-power',
-                      figure=self.plot_power('cpu', begin_date, end_date)),
-            dcc.Graph(id='dram-power',
-                      figure=self.plot_power('dram', begin_date, end_date)),
-            dcc.Graph(id='energy-pie',
-                      figure=self.plot_energy(begin_date, end_date)),
-        ])
+        if host_select is None:
+            app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
+                html.H1(children='GEOPM Energy Report', style=style),
+                dcc.Graph(id='host-energy',
+                          figure=self.plot_host_energy(begin_date, end_date)),
+            ])
+        else:
+            app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
+                html.H1(children='GEOPM Energy Report', style=style),
+                dcc.Graph(id='energy-pie',
+                          figure=self.plot_energy(begin_date, end_date)),
+                dcc.Graph(id='gpu-power',
+                          figure=self.plot_power('gpu', begin_date, end_date)),
+                dcc.Graph(id='cpu-power',
+                          figure=self.plot_power('cpu', begin_date, end_date)),
+                dcc.Graph(id='dram-power',
+                          figure=self.plot_power('dram', begin_date, end_date)),
+            ])
         app.run(host=host_mask, port=port)
 
-    def static_webpage(self, begin_date, end_date, output_html):
+    def static_webpage(self, begin_date, end_date, output_html, host_select=None):
         if (not output_html.endswith('.html')):
             raise RuntimeError(f'Output file {output_html} does not end in .html')
         header = f'<h1 style="text-align: center; color: {self._colors["page_text"]}; background-color: {self._colors["background"]}; '\
-                 f'font-family: {self._font_family};">GEOPM Power Report</h1>'
+                 f'font-family: {self._font_family};">GEOPM Energy Report</h1>'
         with open(output_html, 'w') as fid:
             fid.write('<html>\n    <body>\n')
             fid.write(header)
-            for domain in ('gpu', 'cpu', 'dram'):
-                fig = self.plot_power(domain, begin_date, end_date)
+            if host_select is None:
+                fig = self.plot_host_energy(begin_date, end_date)
+            else:
+                fig = self.plot_energy(begin_date, end_date, host_select)
                 fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
-            fig = self.plot_energy(begin_date, end_date)
+                for domain in ('gpu', 'cpu', 'dram'):
+                    fig = self.plot_power(domain, begin_date, end_date, host_select)
+                    fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
             fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
+
             fid.write('    </body>\n</html>\n')
 
 def get_parser():
@@ -228,6 +267,8 @@ def get_parser():
                               help='Port opened by server to provide visualization. Default: %(default)s')
     parser.add_argument('-m', '--host-mask', dest='host_mask', default='0.0.0.0',
                         help='Restrict connections based on IP address. Default: no restrictions')
+    parser.add_argument('-d', '--host-select', dest='host_select', default=None,
+                        help='Only plot data gathered from one host')
     return parser
 
 def main():
@@ -241,12 +282,14 @@ def main():
     err = 0
     try:
         args = get_parser().parse_args()
+        if len(args.report) == 1 and '*' in args.report[0]:
+            args.report = glob(args.report[0])
         cron_report = CronReport(args.report)
         begin_date, end_date = cron_report.date_range()
         if args.static_html is None:
-            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask)
+            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask, args.host_select)
         else:
-            cron_report.static_webpage(begin_date, end_date, args.static_html)
+            cron_report.static_webpage(begin_date, end_date, args.static_html, args.host_select)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
