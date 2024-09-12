@@ -211,6 +211,12 @@ class CronReport:
             host_energy.append(list(date_energy))
             host_url.append(date_url)
 
+        host_totals = [sum(he) for he in host_energy]
+        # sort host_energy, host_list, and host_url in  order of total energy
+        host_energy = [he for _, he in sorted(zip(host_totals, host_energy))]
+        host_list = [hl for _, hl in sorted(zip(host_totals, host_list))]
+        host_url = [hu for _, hu in sorted(zip(host_totals, host_url))]
+
         fig = go.Figure(data=go.Heatmap(z=host_energy, x=dates, y=host_list, text=host_url, texttemplate="%{text}", textfont={"size":20}, colorscale='pinkyl'))
         fig.update_layout(title='Daily energy use per host (kWh)')
         return fig
