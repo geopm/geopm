@@ -16,6 +16,7 @@ import plotly.graph_objs as go
 from dash import Dash, dcc, html
 from argparse import ArgumentParser
 from datetime import timedelta
+from datetime import datetime
 
 class CronReport:
     def __init__(self, report_paths):
@@ -191,9 +192,12 @@ class CronReport:
         return fig
 
     def plot_host_energy(self, begin_date, end_date):
+        pub_host = hostname()
+        pub_path_format = '/~test/geopm-report/{host}/{date}.html'
         host_list = self._df['host'].unique()
+        host_list.sort()
         host_energy = dict()
-        dates = [begin_date]
+        dates = [datetime.combine(begin_date.date(), datetime.min.time(), tzinfo=begin_date.tzinfo)]
         delta = timedelta(hours=24)
         while dates[-1] < end_date:
             dates.append(dates[-1] + delta)
@@ -207,7 +211,7 @@ class CronReport:
                                    self.calculate_energy("dram",  begin_interval, end_interval, host))
             host_energy.append(list(date_energy))
         fig = go.Figure(data=go.Heatmap(z=host_energy, x=dates, y=host_list, colorscale='Viridis'))
-        fig.update_layout(title='Energy used by host per day')
+        fig.update_layout(title='Daily energy use per host (kWh)')
         return fig
 
     def run_webpage(self, begin_date, end_date, port, host_mask, host_select=None):
@@ -247,13 +251,13 @@ class CronReport:
             fid.write(header)
             if host_select is None:
                 fig = self.plot_host_energy(begin_date, end_date)
+                fid.write(fig.to_html(full_html=False, include_plotlyjs='cdn'))
             else:
                 fig = self.plot_energy(begin_date, end_date, host_select)
                 fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
                 for domain in ('gpu', 'cpu', 'dram'):
                     fig = self.plot_power(domain, begin_date, end_date, host_select)
                     fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
-            fid.write(fig.to_html(full_html=False, default_height='450px', include_plotlyjs='cdn'))
 
             fid.write('    </body>\n</html>\n')
 
