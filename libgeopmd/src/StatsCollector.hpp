@@ -7,10 +7,12 @@
 #define STATSCOLLECTOR_HPP_INCLUDE
 
 #include <vector>
+#include <array>
 #include <string>
 #include <memory>
 
 #include "geopm/PlatformIO.hpp"
+#include "geopm_stats_collector.h"
 
 namespace geopm
 {
@@ -20,6 +22,33 @@ namespace geopm
     class StatsCollector
     {
         public:
+            enum sample_stats_e {
+                SAMPLE_TIME_TOTAL,
+                SAMPLE_COUNT,
+                SAMPLE_PERIOD_MEAN,
+                SAMPLE_PERIOD_STD,
+                NUM_SAMPLE_STATS,
+            };
+
+            enum metric_stats_e {
+                METRIC_COUNT,
+                METRIC_FIRST,
+                METRIC_LAST,
+                METRIC_MIN,
+                METRIC_MAX,
+                METRIC_MEAN_ARITHMETIC,
+                METRIC_STD,
+                NUM_METRIC_STATS,
+            };
+
+            struct report_s {
+                std::string host;
+                std::string sample_time_first;
+                std::array<double, NUM_SAMPLE_STATS> sample_stats;
+                std::vector<std::string> metric_names;
+                std::vector<std::array<double, NUM_METRIC_STATS> > metric_stats;
+            };
+
             /// @brief Default null constructor without requests
             StatsCollector();
             /// @brief Standard constructor with requests
@@ -50,6 +79,7 @@ namespace geopm
             /// Used to generate independent reports by clearing all gathered
             /// statistics and resetting the begin time.
             void reset(void);
+            report_s report_struct(void) const;
         private:
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
             std::string report_yaml_curr(void) const;
@@ -58,7 +88,7 @@ namespace geopm
             std::vector<int> m_pio_idx;
             std::shared_ptr<RuntimeStats> m_stats;
             int m_time_pio_idx;
-            int m_update_count; // Number of times update() has been called
+            size_t m_update_count; // Number of times update() has been called
             double m_time_sample;
             double m_time_delta_m_1;
             double m_time_delta_m_2;

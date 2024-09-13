@@ -17,6 +17,19 @@ gffi.gffi.cdef("""
 
 struct geopm_stats_collector_s;
 
+struct geopm_metric_stats_s {
+    char name[255];
+    double stats[7];
+};
+
+struct geopm_report_s {
+    char host[255];
+    char sample_time_first[255];
+    double sample_stats[4];
+    size_t num_metric;
+    struct geopm_metric_stats_s *metric_stats;
+};
+
 int geopm_stats_collector_create(size_t num_requests, const struct geopm_request_s *requests,
                                  struct geopm_stats_collector_s **collector);
 
@@ -25,12 +38,18 @@ int geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
 int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
                                       size_t *max_report_size, char *report_yaml);
 
+int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector,
+                                 size_t num_requests, struct geopm_report_s *report);
+
 int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector);
 
 int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
 
+
+
 """)
 _dl = gffi.get_dl_geopmd()
+
 
 class Collector:
     """ Object for aggregating statistics gathered from the PlatformIO interface of GEOPM
@@ -49,11 +68,11 @@ class Collector:
         """
         global _dl
         self._collector_ptr = None
-        num_signal = len(signal_config)
-        if num_signal == 0:
+        self._num_signal = len(signal_config)
+        if self._num_signal == 0:
             raise ValueError('Collector creation failed: length of input is zero')
 
-        signal_config_carr = gffi.gffi.new('struct geopm_request_s[]', num_signal)
+        signal_config_carr = gffi.gffi.new('struct geopm_request_s[]', self._num_signal)
         for idx, req in enumerate(signal_config):
             signal_config_carr[idx].domain = req[1]
             signal_config_carr[idx].domain_idx = req[2]
@@ -61,7 +80,7 @@ class Collector:
 
         collector_ptr = gffi.gffi.new('struct geopm_stats_collector_s **');
 
-        err = _dl.geopm_stats_collector_create(num_signal, signal_config_carr, collector_ptr)
+        err = _dl.geopm_stats_collector_create(self._num_signal, signal_config_carr, collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_create() failed: {}'.format(error.message(err)))
         self._collector_ptr = collector_ptr[0];
@@ -112,14 +131,42 @@ class Collector:
         """
         global _dl
         self._check_ptr('report_yaml')
-        report_max = gffi.gffi.new("size_t *")
+        report_max = gffi.gffi.new('size_t *')
         report_max[0] = 0
         _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, gffi.gffi.NULL)
-        report_cstr = gffi.gffi.new("char[]", report_max[0])
+        report_cstr = gffi.gffi.new('char[]', report_max[0])
         err = _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, report_cstr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_report_yaml() failed: {}'.format(error.message(err)))
         return gffi.gffi.string(report_cstr).decode()
+
+    def report(self):
+        global _dl
+        self._check_ptr('report')
+        report_ptr = gffi.gffi.new('struct geopm_report_s *')
+        metric_stats = gffi.gffi.new('struct geopm_metric_stats_s[]', self._num_signal)
+        report_ptr.metric_stats = metric_stats
+        err = _dl.geopm_stats_collector_report(self._collector_ptr, self._num_signal, report_ptr)
+        if err < 0:
+            raise RuntimeError('geopm_stats_collector_report() failed: {}'.format(error.message(err)))
+        result = dict()
+        result['host'] = gffi.gffi.string(report_ptr.host).decode()
+        result['sample-time-first'] = gffi.gffi.string(report_ptr.sample_time_first).decode()
+        result['sample-time-total'] = report_ptr.sample_stats[0]
+        result['sample-count'] = int(report_ptr.sample_stats[1])
+        result['sample-period-mean'] = report_ptr.sample_stats[2]
+        result['sample-period-std'] = report_ptr.sample_stats[3]
+        result['metrics'] = dict()
+        for metric_idx in range(report_ptr.num_metric):
+            name = gffi.gffi.string(report_ptr.metric_stats[metric_idx].name).decode()
+            result['metrics'][name] = {"count": int(report_ptr.metric_stats[metric_idx].stats[0]),
+                                       "first": report_ptr.metric_stats[metric_idx].stats[1],
+                                       "last": report_ptr.metric_stats[metric_idx].stats[2],
+                                       "min": report_ptr.metric_stats[metric_idx].stats[3],
+                                       "max": report_ptr.metric_stats[metric_idx].stats[4],
+                                       "mean-arithmetic": report_ptr.metric_stats[metric_idx].stats[5],
+                                       "std": report_ptr.metric_stats[metric_idx].stats[6]}
+        return result
 
     def reset(self):
         """Reset statistics
@@ -134,3 +181,4 @@ class Collector:
         err = _dl.geopm_stats_collector_reset(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))
+

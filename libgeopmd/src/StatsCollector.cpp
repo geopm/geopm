@@ -18,8 +18,13 @@
 #include "geopm_time.h"
 #include "RuntimeStats.hpp"
 
+
 namespace geopm
 {
+    static_assert(static_cast<size_t>(StatsCollector::NUM_SAMPLE_STATS) == static_cast<size_t>(GEOPM_NUM_SAMPLE_STATS),
+                  "C++ enum NUM_SAMPLE_STATS does not match C enum geopm::StatsCollector::NUM_SAMPLE_STATS");
+    static_assert(static_cast<size_t>(StatsCollector::NUM_METRIC_STATS) == static_cast<size_t>(GEOPM_NUM_METRIC_STATS),
+                  "C++ enum NUM_METRIC_STATS does not match C enum geopm::StatsCollector::NUM_METRIC_STATS");
 
     StatsCollector::StatsCollector()
         : StatsCollector(std::vector<geopm_request_s> {})
@@ -108,35 +113,67 @@ namespace geopm
         return m_report_cache;
     }
 
-    std::string StatsCollector::report_yaml_curr(void) const
+    StatsCollector::report_s StatsCollector::report_struct(void) const
     {
-        std::ostringstream result;
         std::string time_end_str = geopm::time_curr_string();
         double time_delta_mean = 0;
         double time_delta_std = 0;
         // Two samples are required to measure one time difference, so we must
         // have at least two samples to estimate the mean time difference.  One
         // degree of freedom is lost due to the differencing.
-        if (m_update_count > 1) {
-            time_delta_mean = m_time_delta_m_1 / (m_update_count - 1);
+        if (m_update_count > 1ULL) {
+            time_delta_mean = m_time_delta_m_1 / (m_update_count - 1ULL);
         }
         // Three samples are required to measure two time differences, so we
         // must have at least three samples to estimate the standard deviation
         // of the time difference.  One degree of freedom is lost due to the
         // differencing.
-        if (m_update_count > 2) {
+        if (m_update_count > 2ULL) {
             time_delta_std = std::sqrt(
                 (m_time_delta_m_2 -
                  m_time_delta_m_1 *
-                 m_time_delta_m_1 / (m_update_count - 1)) /
-                (m_update_count - 2));
+                 m_time_delta_m_1 / (m_update_count - 1ULL)) /
+                (m_update_count - 2ULL));
         }
-        result << "host: \"" << geopm::hostname() << "\"\n";
-        result << "sample-time-first: \"" << m_time_begin_str << "\"\n";
-        result << "sample-time-total: " <<  m_time_sample - m_time_begin << "\n";
-        result << "sample-count: " << m_update_count << "\n";
-        result << "sample-period-mean: " << time_delta_mean << "\n";
-        result << "sample-period-std: " << time_delta_std << "\n";
+
+        report_s result {
+            geopm::hostname(),
+            m_time_begin_str,
+            std::array<double, NUM_SAMPLE_STATS> {
+                m_time_sample - m_time_begin,
+                static_cast<double>(m_update_count),
+                time_delta_mean,
+                time_delta_std,
+            },
+            m_metric_names,
+            std::vector<std::array<double, NUM_METRIC_STATS> > {},
+        };
+        result.metric_stats.reserve(m_metric_names.size());
+        size_t num_metric = m_metric_names.size();
+        for (size_t metric_idx = 0; metric_idx < num_metric; ++metric_idx) {
+            result.metric_stats.push_back(std::array<double, NUM_METRIC_STATS> {
+                static_cast<double>(m_stats->count(metric_idx)),
+                m_stats->first(metric_idx),
+                m_stats->last(metric_idx),
+                m_stats->min(metric_idx),
+                m_stats->max(metric_idx),
+                m_stats->mean(metric_idx),
+                m_stats->std(metric_idx),
+            });
+        }
+        return result;
+    }
+
+    std::string StatsCollector::report_yaml_curr(void) const
+    {
+        std::ostringstream result;
+        report_s report = report_struct();
+        result << "host: \"" << report.host << "\"\n";
+        result << "sample-time-first: \"" << report.sample_time_first << "\"\n";
+        result << "sample-time-total: " <<  report.sample_stats[SAMPLE_TIME_TOTAL] << "\n";
+        result << "sample-count: " << report.sample_stats[SAMPLE_COUNT] << "\n";
+        result << "sample-period-mean: " << report.sample_stats[SAMPLE_PERIOD_MEAN] << "\n";
+        result << "sample-period-std: " << report.sample_stats[SAMPLE_PERIOD_STD] << "\n";
         result << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {
@@ -164,7 +201,6 @@ namespace geopm
         m_time_delta_m_2 = 0.0;
         m_stats->reset();
     }
-
 }
 
 int geopm_stats_collector_create(size_t num_requests, const struct geopm_request_s *requests,
@@ -226,6 +262,46 @@ int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *coll
     }
     return err;
 }
+
+int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector,
+                                 size_t num_requests, geopm_report_s *report)
+{
+    int err = 0;
+    try {
+        const geopm::StatsCollector *collector_cpp = reinterpret_cast<const geopm::StatsCollector *>(collector);
+        geopm::StatsCollector::report_s report_cpp = collector_cpp->report_struct();
+        if (report_cpp.metric_names.size() != num_requests) {
+            throw geopm::Exception("geopm_stats_collector_report(): Report not correctly allocated num_request provided: " +
+                                   std::to_string(num_requests) + " required: " + std::to_string(report_cpp.metric_names.size()),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (report_cpp.host.size() >= NAME_MAX) {
+            throw geopm::Exception("geopm_stats_collector_report(): Host name too long: " + report_cpp.host,
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        strncpy(report->host, report_cpp.host.c_str(), NAME_MAX - 1);
+        if (report_cpp.sample_time_first.size() >= NAME_MAX) {
+            throw geopm::Exception("geopm_stats_collector_report(): Date too long: " + report_cpp.sample_time_first,
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        strncpy(report->sample_time_first, report_cpp.sample_time_first.c_str(), NAME_MAX - 1);
+        memcpy(report->sample_stats, report_cpp.sample_stats.data(), sizeof(double) * GEOPM_NUM_SAMPLE_STATS);
+        report->num_metric = report_cpp.metric_names.size();
+        for (size_t metric_idx = 0; metric_idx < report->num_metric; ++metric_idx) {
+            if (report_cpp.metric_names[metric_idx].size() >= NAME_MAX) {
+                throw geopm::Exception("geopm_stats_collector_report(): Metric name too long: " + report_cpp.metric_names[metric_idx],
+                                       GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            strncpy(report->metric_stats[metric_idx].name, report_cpp.metric_names[metric_idx].c_str(), NAME_MAX - 1);
+            memcpy(report->metric_stats[metric_idx].stats, report_cpp.metric_stats[metric_idx].data(), sizeof(double) * GEOPM_NUM_METRIC_STATS);
+        }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception());
+    }
+    return err;
+}
+
 
 int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector)
 {
