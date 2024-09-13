@@ -188,15 +188,25 @@ class CronReport:
         begin_string = f'{begin_date.year}/{begin_date.month}/{begin_date.day}'
         end_string = f'{end_date.year}/{end_date.month}/{end_date.day}'
         fig.update_traces(texttemplate='%{value:.3}')
-        fig.update_layout(title=f'Energy - kWh ({begin_string} - {end_string})', hovermode='x')
+        if host is not None:
+            title_host = f'{host} - '
+        else:
+            title_host = ''
+        if begin_string != end_string:
+            title_date = f'{begin_string} - {end_string}'
+        else:
+            title_date = begin_string
+        fig.update_layout(title=f'{title_host}Energy (kWh): {title_date}', hovermode='x')
         return fig
 
-    def plot_host_energy(self, begin_date, end_date):
+    def plot_host_energy(self, begin_date, end_date, daily_url):
         host_list = self.get_hosts()
         host_energy = dict()
         dates = self.get_days(begin_date, end_date)
         delta = timedelta(hours=24)
-        pub_path_format = '<a href="http://mcfly.ra.intel.com/~cmcantal/geopm-report-test/{host}/{date}.html">{value}</a>'
+        if daily_url is None:
+            raise ValueError('daily_url option must be provided when creating a host energy heatmap')
+        pub_path_format = '<a href="{daily_url}/{host}/{date}.html">{value}</a>'
         host_url = []
         host_energy = []
         for host in host_list:
@@ -207,7 +217,7 @@ class CronReport:
                 date_energy.append(self.calculate_energy("gpu", begin_interval, end_interval, host) +
                                    self.calculate_energy("cpu",  begin_interval, end_interval, host) +
                                    self.calculate_energy("dram",  begin_interval, end_interval, host))
-                date_url.append(pub_path_format.format(host=host, date=begin_interval.date(), value=f'{date_energy[-1]:.2f}'))
+                date_url.append(pub_path_format.format(daily_url=daily_url, host=host, date=begin_interval.date(), value=f'{date_energy[-1]:.2f}'))
             host_energy.append(list(date_energy))
             host_url.append(date_url)
 
@@ -218,7 +228,7 @@ class CronReport:
         host_url = [hu for _, hu in sorted(zip(host_totals, host_url))]
 
         fig = go.Figure(data=go.Heatmap(z=host_energy, x=dates, y=host_list, text=host_url, texttemplate="%{text}", textfont={"size":20}, colorscale='pinkyl'))
-        fig.update_layout(title='Daily energy use per host (kWh)')
+        fig.update_layout(title='Daily Energy by Host (kWh)')
         return fig
 
     def get_hosts(self):
@@ -235,7 +245,7 @@ class CronReport:
             dates.append(dates[-1] + delta)
         return dates
 
-    def run_webpage(self, begin_date, end_date, port, host_mask):
+    def run_webpage(self, begin_date, end_date, port, host_mask, daily_url):
         app = Dash('geopmsession')
         style={
             'textAlign': 'center',
@@ -245,12 +255,12 @@ class CronReport:
         app.layout = html.Div(style={'backgroundColor': self._colors['background']}, children=[
             html.H1(children='GEOPM Energy Report', style=style),
             dcc.Graph(id='host-energy',
-                      figure=self.plot_host_energy(begin_date, end_date)),
+                      figure=self.plot_host_energy(begin_date, end_date, daily_url)),
         ])
 
         app.run(host=host_mask, port=port)
 
-    def static_webpage(self, begin_date, end_date, output_html, host_select=None):
+    def static_webpage(self, begin_date, end_date, output_html, host_select=None, daily_url=None):
         if (not output_html.endswith('.html')):
             raise RuntimeError(f'Output file {output_html} does not end in .html')
         header = f'<h1 style="text-align: center; color: {self._colors["page_text"]}; background-color: {self._colors["background"]}; '\
@@ -259,7 +269,7 @@ class CronReport:
             fid.write('<html>\n    <body>\n')
             fid.write(header)
             if host_select is None:
-                fig = self.plot_host_energy(begin_date, end_date)
+                fig = self.plot_host_energy(begin_date, end_date, daily_url)
                 fid.write(fig.to_html(full_html=False, include_plotlyjs='cdn'))
             else:
                 fig = self.plot_energy(begin_date, end_date, host_select)
@@ -280,8 +290,11 @@ def get_parser():
                               help='Port opened by server to provide visualization. Default: %(default)s')
     parser.add_argument('-m', '--host-mask', dest='host_mask', default='0.0.0.0',
                         help='Restrict connections based on IP address. Default: no restrictions')
-    parser.add_argument('-d', '--host-select', dest='host_select', default=None,
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-d', '--host-select', dest='host_select', default=None,
                         help='Only plot data gathered from one host')
+    group.add_argument('-u', '--daily-url', dest='daily_url', default=None,
+                       help="URL of directory containing a subdirectory for each host, e.g. if a report URL for my-host-1 is http://my.cluster.io/geopm-report/my-host-1/2024-08-28.html then specify --daily-url=http://my.cluster.io/geopm-report"
     return parser
 
 def main():
@@ -300,9 +313,9 @@ def main():
         cron_report = CronReport(args.report)
         begin_date, end_date = cron_report.date_range()
         if args.static_html is None:
-            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask)
+            cron_report.run_webpage(begin_date, end_date, args.port, args.host_mask, args.daily_url)
         else:
-            cron_report.static_webpage(begin_date, end_date, args.static_html, args.host_select)
+            cron_report.static_webpage(begin_date, end_date, args.static_html, args.host_select, args.daily_url)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
