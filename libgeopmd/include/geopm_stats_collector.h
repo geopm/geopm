@@ -15,6 +15,24 @@ extern "C" {
 struct geopm_request_s;
 struct geopm_stats_collector_s;
 
+enum geopm_report_sizes_e {
+    GEOPM_NUM_SAMPLE_STATS = 4,
+    GEOPM_NUM_METRIC_STATS = 7,
+};
+
+struct geopm_metric_stats_s {
+    char name[NAME_MAX];
+    double stats[GEOPM_NUM_METRIC_STATS];
+};
+
+struct geopm_report_s {
+    char host[NAME_MAX];
+    char sample_time_first[NAME_MAX];
+    double sample_stats[GEOPM_NUM_SAMPLE_STATS];
+    size_t num_metric;
+    struct geopm_metric_stats_s *metric_stats;
+};
+
 /// @brief Create a stats collector handle
 ///
 /// Provide a list of PlatformIO signal requests and construct a stats collector
@@ -69,6 +87,11 @@ int GEOPM_PUBLIC
 int GEOPM_PUBLIC
     geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
                                       size_t *max_report_size, char *report_yaml);
+
+int GEOPM_PUBLIC
+    geopm_stats_collector_report(const struct geopm_stats_collector_s *collector,
+                                 size_t num_requests, struct geopm_report_s *report);
+
 /// @brief Reset statistics
 ///
 /// Called by user to zero all statistics gathered.  This may be called after a
