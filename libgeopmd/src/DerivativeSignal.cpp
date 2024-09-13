@@ -18,19 +18,11 @@ namespace geopm
                                        std::shared_ptr<Signal> y_sig,
                                        int num_sample_history,
                                        double sleep_time)
-        : m_time_sig(std::move(time_sig))
-        , m_y_sig(std::move(y_sig))
-        , M_NUM_SAMPLE_HISTORY(num_sample_history)
-        , m_history(M_NUM_SAMPLE_HISTORY)
-        , m_derivative_num_fit(0)
-        , m_is_batch_ready(false)
-        , m_sleep_time(sleep_time)
-        , m_last_result(NAN)
-        , m_nan_replace(NAN)
+        : DerivativeSignal(time_sig, y_sig, num_sample_history, sleep_time, NAN)
     {
-        GEOPM_DEBUG_ASSERT(m_time_sig && m_y_sig,
-                           "Signal pointers for time_sig and y_sig cannot be null.");
+
     }
+
     DerivativeSignal::DerivativeSignal(std::shared_ptr<Signal> time_sig,
                                        std::shared_ptr<Signal> y_sig,
                                        int num_sample_history,
