@@ -104,7 +104,7 @@ namespace geopm
         double time = m_time_sig->sample();
         size_t history_size = m_history.size();
         // Check if this is the first call ever to sample() (history_size == 0)
-        // Or check if this is the first call to sample() since the last call to read_batch() (last element of history buffer does not match the sampled time)
+        // Or check if this is the first call to sample() since the last call to read_batch()
         if (history_size == 0ULL || ! is_sampled) {
             double signal = m_y_sig->sample();
             m_last_result = compute_next(m_history, m_derivative_num_fit, time, signal, m_nan_replace);
