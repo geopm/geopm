@@ -37,16 +37,9 @@ except ImportError as ex:
 
 g_session_handler = None
 
-def term_handler(signum, frame):
+def _term_handler(signum, frame):
     if signum == SIGTERM and g_session_handler is not None:
         g_session_handler.stop()
-
-def _write_report(report_path, report):
-    if report_path == '-':
-        sys.stdout.write(report)
-    else:
-        with open(report_path, "w") as fid:
-            fid.write(report)
 
 def _check_valid_output(path):
     return path is not None and path != '/dev/null'
@@ -56,6 +49,9 @@ class _SessionIO:
         self._request_stream = request_stream
         self._trace_path = trace_path
         self._report_path = report_path
+        self._report_fid = None
+        if self._report_path is not None and self._report_path != '-':
+            self._report_fid = open(self._report_path, 'w')
 
     def get_request_queue(self):
         return ReadRequestQueue(self._request_stream)
@@ -72,6 +68,10 @@ class _SessionIO:
         if fid is not None and self._trace_path != '-':
             fid.close()
 
+    def close_report_stream(self):
+        if self._report_fid is not None and self._report_path != '-':
+            self._report_fid.close()
+
     def do_report(self):
         return _check_valid_output(self._report_path)
 
@@ -80,10 +80,10 @@ class _SessionIO:
 
     def write_report(self, report):
         if self.do_report():
-            _write_report(self._report_path, report)
+            self._report_fid.write(report)
 
 class _MPISessionIO:
-    def __init__(self, request_stream, trace_path, report_path):
+    def __init__(self, request_stream, trace_path, report_path, report_format):
         if type(MPI) == ModuleNotFoundError:
             raise MPI
         if trace_path == "-":
@@ -93,6 +93,15 @@ class _MPISessionIO:
         self._report_path = report_path
         self._comm = MPI.COMM_WORLD
         self._rank = self._comm.Get_rank()
+        self._join_str = ''
+        if report_format == 'yaml':
+            self._join_str = '\n---\n\n'
+        self._report_fid = None
+        if self._rank == 0:
+            if self._report_path == '-':
+                self._report_fid = sys.stdout
+            elif self._report_path is not None:
+                self._report_fid = open(self._report_path, 'w')
 
     def get_request_queue(self):
         request_raw = None
@@ -114,6 +123,10 @@ class _MPISessionIO:
         if fid is not None:
             fid.close()
 
+    def close_report_stream(self):
+        if self._report_fid is not None and self._report_path != '-':
+            self._report_fid.close()
+
     def do_report(self):
         return _check_valid_output(self._report_path)
 
@@ -126,9 +139,13 @@ class _MPISessionIO:
         if do_gather:
             report_list = self._comm.gather(report, root=0)
             if self._rank == 0:
-                report = '\n---\n\n'.join(report_list)
-        if self._rank == 0:
-            _write_report(self._report_path, report)
+                report = self._join_str.join(report_list)
+        if self._report_fid is not None:
+            self._report_fid.write(report)
+            self._report_fid.flush()
+        elif self._rank == 0 and self._report_path == '-':
+            sys.stdout.write(report)
+            sys.stdout.flush()
 
 class Session:
     """Object responsible for creating a GEOPM batch read session
@@ -171,7 +188,8 @@ class Session:
                   zip(signals, signal_format)]
         return '{}\n'.format(self._delimiter.join(result))
 
-    def run_read(self, requests, duration, period, pid, out_stream, stats_collector=None):
+    def run_read(self, requests, duration, period, pid, out_stream,
+                 stats_collector=None, report_samples=None, report_stream=None):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -220,22 +238,30 @@ class Session:
                 out_stream.write(line)
             if stats_collector is not None:
                 stats_collector.update()
-            if pid is not None:
-                try:
-                    os.kill(pid, 0)
-                except OSError as e:
-                    if e.errno == errno.ESRCH:
-                        # No such process. Stop watching.
-                        break
-                    elif e.errno == errno.EPERM:
-                        # There's a still a process, but we aren't allowed to
-                        # signal it. Since there's still a process, keep going.
-                        pass
-                    else:
-                        # Any other error. Bubble up the exception.
-                        raise
+            if pid is not None and not self.is_pid_active(pid):
+                break;
+            if report_samples is not None and report_stream is not None and sample_idx != 0 and sample_idx % report_samples == 0:
+                report_stream.write()
+                stats_collector.reset()
 
-    def check_read_args(self, run_time, period):
+    def is_pid_active(self, pid):
+        try:
+            os.kill(pid, 0)
+            result = True
+        except OSError as e:
+            if e.errno == errno.ESRCH:
+                # No such process. Stop watching.
+                result = False
+            elif e.errno == errno.EPERM:
+                # There's a still a process, but we aren't allowed to
+                # signal it. Since there's still a process, keep going.
+                result = True
+            else:
+                # Any other error. Bubble up the exception.
+                raise
+        return result
+
+    def check_read_args(self, run_time, period, report_samples):
         """Check that the run time and period are valid for a read session
 
         Args:
@@ -256,6 +282,11 @@ class Session:
             raise RuntimeError('Specified a period greater than 24 hours')
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
+        if report_samples is not None:
+            if report_samples < 0:
+                raise RuntimeError('Specified report samples is negative')
+            if int(report_samples) != report_samples:
+                raise RuntimeError(f'Specified report samples is non-integer: {report_samples}')
 
     def header_names(self, requests):
         return [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
@@ -264,7 +295,8 @@ class Session:
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
-            report_path=None, session_io=None, delimiter=',', report_format='yaml'):
+            report_path=None, session_io=None, delimiter=',', report_format='yaml',
+            report_samples=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -302,47 +334,56 @@ class Session:
         else:
             requests = ReadRequestQueue(request_stream)
             do_stats = report_path is not None
-        self.check_read_args(run_time, period)
+        self.check_read_args(run_time, period, report_samples)
         signal_config = list(requests)
         if out_stream is not None and print_header:
             header_names = self.header_names(signal_config)
             print(self._delimiter.join(header_names), file=out_stream)
         with stats.Collector(signal_config) if do_stats else nullcontext() as stats_collector:
+            report_stream = None
+            if do_stats:
+                report_stream = _ReportStream(stats_collector, session_io, print_header, delimiter, report_format)
             try:
-                g_session_handler = SessionHandler(do_stats, stats_collector, out_stream, report_path, session_io, print_header, delimiter, report_format)
-                self.run_read(requests, run_time, period, pid, out_stream, stats_collector)
+                g_session_handler = _SessionHandler(out_stream, report_stream)
+                self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream)
             finally:
                 g_session_handler.stop()
                 g_session_handler = None
 
-
-class SessionHandler:
-    def __init__(self, do_stats, stats_collector, out_stream, report_path, session_io, print_header, delimiter, report_format):
-        self.do_stats = do_stats
+class _ReportStream:
+    def __init__(self, stats_collector, session_io, print_header, delimiter, report_format):
+        if report_format not in ('yaml', 'csv'):
+            raise ValueError(f'Invalid report format: {report_format}')
         self.stats_collector = stats_collector
-        self.out_stream = out_stream
-        self.report_path = report_path
         self.session_io = session_io
         self.print_header = print_header
         self.delimiter = delimiter
         self.report_format = report_format
+        self.is_first_write = True
+
+    def write(self):
+        if self.stats_collector.is_reset():
+            return
+        if self.report_format == 'yaml':
+            report = self.stats_collector.report_yaml()
+            if not self.is_first_write:
+                report = f'\n---\n\n{report}'
+        elif self.report_format == 'csv':
+            report = self.stats_collector.report_csv(self.delimiter, self.print_header)
+        self.session_io.write_report(report)
+        self.is_first_write = False
+        self.print_header = False
+
+class _SessionHandler:
+    def __init__(self, out_stream, report_stream):
+        self.out_stream = out_stream
+        self.report_stream = report_stream
 
     def stop(self):
         if self.out_stream is not None:
             self.out_stream.flush()
-        if self.do_stats:
-            if self.report_format == 'yaml':
-                report = self.stats_collector.report_yaml()
-            elif self.report_format == 'csv':
-                report = self.stats_collector.report_csv(self.delimiter, self.print_header)
-            else:
-                raise ValueError(f'Invalid report format: {report_format}')
-            if self.session_io is not None:
-                self.session_io.write_report(report)
-            else:
-                with open(self.report_path, "w") as fid:
-                    fid.write(report)
-
+        if self.report_stream is not None:
+            self.report_stream.write()
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -520,6 +561,8 @@ def get_parser():
                         help='Gather reports over MPI and write to a single file. Append MPI rank to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
     parser.add_argument('-f', '--report-format', dest='report_format', default='yaml',
                         help='Format for report: "csv" or "yaml".  Default: %(default)s.')
+    parser.add_argument('-s', '--report-samples', dest='report_samples', type=int, default=None,
+                        help='Create reports each time the specified number of periods have elapsed')
     return parser
 
 def main():
@@ -535,7 +578,7 @@ def main():
     rank = 0
     trace_out = None
     session_io = None
-    signal(SIGTERM, term_handler)
+    signal(SIGTERM, _term_handler)
     try:
         args = get_parser().parse_args()
         if args.version:
@@ -543,16 +586,17 @@ def main():
             return 0
         if args.report_format not in ('yaml', 'csv'):
             raise RuntimeError(f'Invalid report format: {args.report_format}')
-
+        if args.report_samples is not None and args.trace_out == args.report_out:
+            raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
         if args.enable_mpi:
-            session_io = _MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
+            session_io = _MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out, report_format=args.report_format)
         else:
             session_io = _SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
-                 report_format=args.report_format, delimiter=args.delimiter)
+                 report_format=args.report_format, delimiter=args.delimiter, report_samples=args.report_samples)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
@@ -562,6 +606,7 @@ def main():
     finally:
         if session_io is not None:
             session_io.close_trace_stream(trace_out)
+            session_io.close_report_stream()
     return err
 
 if __name__ == '__main__':

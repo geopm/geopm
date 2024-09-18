@@ -130,22 +130,31 @@ class TestSession(unittest.TestCase):
     def test_check_read_args(self):
         err_msg = 'Specified a period that is greater than the total run time'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(1, 2)
+            self._session.check_read_args(1, 2, None)
 
         day = 24 * 60 * 60
         err_msg = 'Specified a period greater than 24 hours'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(7 * day, day + 1,)
+            self._session.check_read_args(7 * day, day + 1, None)
 
         err_msg = 'Specified a negative run time or period'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(-1, -1)
+            self._session.check_read_args(-1, -1, None)
 
         err_msg = 'Specified a negative run time or period'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(1, -1)
+            self._session.check_read_args(1, -1, None)
 
-        self._session.check_read_args(1, 1)
+        err_msg = 'Specified report samples is negative'
+        with self.assertRaisesRegex(RuntimeError, err_msg):
+            self._session.check_read_args(1, 0.01, -10)
+
+        err_msg = 'Specified report samples is non-integer'
+        with self.assertRaisesRegex(RuntimeError, err_msg):
+            self._session.check_read_args(1, 0.01, 0.1)
+
+        self._session.check_read_args(1, 1, None)
+        self._session.check_read_args(1, .01, 10)
 
     def test_run(self):
         period = 7
@@ -161,8 +170,8 @@ class TestSession(unittest.TestCase):
             self._session.run(runtime, period, None, False, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
-            scra.assert_called_once_with(runtime, period)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None)
+            scra.assert_called_once_with(runtime, period, None)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None)
 
     def test_run_with_header(self):
         """geopmsession prints signal-domain-idx header fields."""
@@ -180,8 +189,8 @@ class TestSession(unittest.TestCase):
             self._session.run(runtime, period, None, True, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
-            scra.assert_called_once_with(runtime, period)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None)
+            scra.assert_called_once_with(runtime, period, None)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None)
         self.assertEqual('"signal1","signal2-package-1"\n', out_stream.getvalue())
 
 
