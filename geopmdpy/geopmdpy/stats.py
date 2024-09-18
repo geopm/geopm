@@ -168,6 +168,24 @@ class Collector:
                                        "std": report_ptr.metric_stats[metric_idx].stats[6]}
         return result
 
+    def report_csv(self, delimiter, print_header):
+        report = self.report()
+        result = []
+        header = ['host', 'sample-time-first', 'sample-time-total', 'sample-count', 'sample-period-mean', 'sample-period-std']
+        data = [f'"{report[kk]}"' if type(report[kk]) is str else str(report[kk]) for kk in header]
+
+        metric_stat_names = ['count', 'first', 'last', 'min', 'max', 'mean-arithmetic', 'std']
+        for metric_name in sorted(report['metrics'].keys()):
+            for stat_name in metric_stat_names:
+                data.append(str(report['metrics'][metric_name][stat_name]))
+                if print_header:
+                    header.append(f'{metric_name}-{stat_name}')
+        if print_header:
+            result.append(delimiter.join(header))
+        result.append(delimiter.join(data))
+        result.append('')
+        return '\n'.join(result)
+
     def reset(self):
         """Reset statistics
 
@@ -181,4 +199,3 @@ class Collector:
         err = _dl.geopm_stats_collector_reset(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))
-
