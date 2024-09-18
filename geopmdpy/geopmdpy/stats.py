@@ -84,6 +84,7 @@ class Collector:
         if err < 0:
             raise RuntimeError('geopm_stats_collector_create() failed: {}'.format(error.message(err)))
         self._collector_ptr = collector_ptr[0];
+        self._is_reset = True
 
     def __enter__(self):
         return self
@@ -121,6 +122,7 @@ class Collector:
         err = _dl.geopm_stats_collector_update(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
+        self._is_reset = False
 
     def report_yaml(self):
         """Create a yaml report
@@ -197,5 +199,9 @@ class Collector:
         global _dl
         self._check_ptr('reset')
         err = _dl.geopm_stats_collector_reset(self._collector_ptr)
+        self._is_reset = True
         if err < 0:
             raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))
+
+    def is_reset(self):
+        return self._is_reset
