@@ -264,7 +264,7 @@ class Session:
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
-            report_path=None, session_io=None):
+            report_path=None, session_io=None, delimiter=',', report_format='yaml'):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -309,25 +309,34 @@ class Session:
             print(self._delimiter.join(header_names), file=out_stream)
         with stats.Collector(signal_config) if do_stats else nullcontext() as stats_collector:
             try:
-                g_session_handler = SessionHandler(do_stats, stats_collector, out_stream, report_path, session_io)
+                g_session_handler = SessionHandler(do_stats, stats_collector, out_stream, report_path, session_io, print_header, delimiter, report_format)
                 self.run_read(requests, run_time, period, pid, out_stream, stats_collector)
             finally:
                 g_session_handler.stop()
                 g_session_handler = None
 
+
 class SessionHandler:
-    def __init__(self, do_stats, stats_collector, out_stream, report_path, session_io):
+    def __init__(self, do_stats, stats_collector, out_stream, report_path, session_io, print_header, delimiter, report_format):
         self.do_stats = do_stats
         self.stats_collector = stats_collector
         self.out_stream = out_stream
         self.report_path = report_path
         self.session_io = session_io
+        self.print_header = print_header
+        self.delimiter = delimiter
+        self.report_format = report_format
 
     def stop(self):
         if self.out_stream is not None:
             self.out_stream.flush()
         if self.do_stats:
-            report = self.stats_collector.report_yaml()
+            if self.report_format == 'yaml':
+                report = self.stats_collector.report_yaml()
+            elif self.report_format == 'csv':
+                report = self.stats_collector.report_csv(self.delimiter, self.print_header)
+            else:
+                raise ValueError(f'Invalid report format: {report_format}')
             if self.session_io is not None:
                 self.session_io.write_report(report)
             else:
@@ -509,6 +518,8 @@ def get_parser():
                         help='Output trace data into a CSV file. Default: trace data is printed to stdout.')
     parser.add_argument('--enable-mpi', dest='enable_mpi', action='store_true',
                         help='Gather reports over MPI and write to a single file. Append MPI rank to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
+    parser.add_argument('-f', '--report-format', dest='report_format', default='yaml',
+                        help='Format for report: "csv" or "yaml".  Default: %(default)s.')
     return parser
 
 def main():
@@ -530,6 +541,9 @@ def main():
         if args.version:
             print(__version_str__)
             return 0
+        if args.report_format not in ('yaml', 'csv'):
+            raise RuntimeError(f'Invalid report format: {args.report_format}')
+
         if args.enable_mpi:
             session_io = _MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
         else:
@@ -537,7 +551,8 @@ def main():
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
-                 request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io)
+                 request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
+                 report_format=args.report_format, delimiter=args.delimiter)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
