@@ -6,6 +6,7 @@
 
 #include "Accumulator.hpp"
 #include "geopm/Helper.hpp"
+#include <cmath>
 
 namespace geopm
 {
@@ -30,8 +31,10 @@ namespace geopm
 
     void SumAccumulatorImp::update(double delta_signal)
     {
-        m_total += delta_signal;
-        m_current += delta_signal;
+        if (!std::isnan(delta_signal)) {
+            m_total += delta_signal;
+            m_current += delta_signal;
+        }
     }
 
     void SumAccumulatorImp::enter(void)
@@ -66,10 +69,12 @@ namespace geopm
 
     void AvgAccumulatorImp::update(double delta_time, double signal)
     {
-        m_total += delta_time * signal;
-        m_weight += delta_time;
-        m_curr_total += delta_time * signal;
-        m_curr_weight += delta_time;
+        if (!std::isnan(signal) && !std::isnan(delta_time)) {
+            m_curr_total += delta_time * signal;
+            m_total += delta_time * signal;
+            m_curr_weight += delta_time;
+            m_weight += delta_time;
+        }
     }
 
     void AvgAccumulatorImp::enter(void)

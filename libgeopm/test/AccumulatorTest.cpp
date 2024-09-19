@@ -77,7 +77,6 @@ TEST_F(AccumulatorTest, sum_ones)
     m_accum_sum->exit();
 }
 
-
 TEST_F(AccumulatorTest, sum_idx)
 {
     m_accum_sum->enter();
@@ -109,6 +108,34 @@ TEST_F(AccumulatorTest, sum_idx)
     EXPECT_EQ(28.0, m_accum_sum->interval_total());
 }
 
+TEST_F(AccumulatorTest, sum_nan)
+{
+    m_accum_sum->enter();
+    for (int idx = 0; idx < 5; ++idx) {
+       m_accum_sum->update(idx);
+    }
+
+    EXPECT_EQ(10.0, m_accum_sum->total());
+    EXPECT_EQ(0.0, m_accum_sum->interval_total());
+
+    m_accum_sum->update(NAN);
+
+    EXPECT_EQ(10.0, m_accum_sum->total());
+    EXPECT_EQ(0.0, m_accum_sum->interval_total());
+
+    for (int idx = 5; idx < 10; ++idx) {
+       m_accum_sum->update(idx);
+    }
+
+    EXPECT_EQ(45.0, m_accum_sum->total());
+    EXPECT_EQ(0.0, m_accum_sum->interval_total());
+
+    m_accum_sum->exit();
+
+    EXPECT_EQ(45.0, m_accum_sum->total());
+    EXPECT_EQ(45.0, m_accum_sum->interval_total());
+}
+
 
 TEST_F(AccumulatorTest, avg_ones)
 {
@@ -133,6 +160,38 @@ TEST_F(AccumulatorTest, avg_ones)
        EXPECT_EQ(1.0, m_accum_avg->interval_average());
     }
     m_accum_avg->exit();
+}
+
+TEST_F(AccumulatorTest, avg_nan)
+{
+    m_accum_avg->enter();
+    m_accum_avg->update(1.0, 1.0);
+    EXPECT_EQ(1.0, m_accum_avg->average());
+    EXPECT_EQ(0.0, m_accum_avg->interval_average());
+
+    m_accum_avg->update(7.2, NAN);
+    EXPECT_EQ(1.0, m_accum_avg->average());
+    EXPECT_EQ(0.0, m_accum_avg->interval_average());
+
+    m_accum_avg->update(1.0, 2.0);
+    EXPECT_EQ(1.5, m_accum_avg->average());
+    EXPECT_EQ(0.0, m_accum_avg->interval_average());
+
+    m_accum_avg->update(NAN, 5.1);
+    EXPECT_EQ(1.5, m_accum_avg->average());
+    EXPECT_EQ(0.0, m_accum_avg->interval_average());
+    
+    m_accum_avg->update(1.0, 3.0);
+    EXPECT_EQ(2.0, m_accum_avg->average());
+    EXPECT_EQ(0.0, m_accum_avg->interval_average());
+
+    m_accum_avg->update(NAN, NAN);
+    EXPECT_EQ(2.0, m_accum_avg->average());
+    EXPECT_EQ(0.0, m_accum_avg->interval_average());
+
+    m_accum_avg->exit();
+    EXPECT_EQ(2.0, m_accum_avg->average());
+    EXPECT_EQ(2.0, m_accum_avg->interval_average());
 }
 
 
