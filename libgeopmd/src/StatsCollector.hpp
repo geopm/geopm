@@ -80,6 +80,7 @@ namespace geopm
             /// statistics and resetting the begin time.
             void reset(void);
             report_s report_struct(void) const;
+            size_t update_count(void) const;
         private:
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
             std::string report_yaml_curr(void) const;

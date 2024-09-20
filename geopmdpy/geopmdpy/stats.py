@@ -35,6 +35,9 @@ int geopm_stats_collector_create(size_t num_requests, const struct geopm_request
 
 int geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
 
+int geopm_stats_collector_update_count(const struct geopm_stats_collector_s *collector,
+                                       size_t *update_count);
+
 int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
                                       size_t *max_report_size, char *report_yaml);
 
@@ -44,8 +47,6 @@ int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector
 int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector);
 
 int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
-
-
 
 """)
 _dl = gffi.get_dl_geopmd()
@@ -84,7 +85,6 @@ class Collector:
         if err < 0:
             raise RuntimeError('geopm_stats_collector_create() failed: {}'.format(error.message(err)))
         self._collector_ptr = collector_ptr[0];
-        self._is_reset = True
 
     def __enter__(self):
         return self
@@ -122,7 +122,15 @@ class Collector:
         err = _dl.geopm_stats_collector_update(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
-        self._is_reset = False
+
+    def update_count(self):
+        global _dl
+        self._check_ptr('update_count')
+        result = gffi.gffi.new('size_t *')
+        err = _dl.geopm_stats_collector_update_count(self._collector_ptr, result)
+        if err < 0:
+            raise RuntimeError('geopm_stats_collector_update_count() failed: {}'.format(error.message(err)))
+        return result[0]
 
     def report_yaml(self):
         """Create a yaml report
@@ -199,9 +207,5 @@ class Collector:
         global _dl
         self._check_ptr('reset')
         err = _dl.geopm_stats_collector_reset(self._collector_ptr)
-        self._is_reset = True
         if err < 0:
             raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))
-
-    def is_reset(self):
-        return self._is_reset

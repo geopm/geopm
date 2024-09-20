@@ -64,6 +64,10 @@ int GEOPM_PUBLIC
 int GEOPM_PUBLIC
     geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
 
+int GEOPM_PUBLIC
+    geopm_stats_collector_update_count(const struct geopm_stats_collector_s *collector,
+                                       size_t *update_count);
+
 /// @brief Create a yaml report
 ///
 /// Create a report that shows all statistics gathered by calls to
