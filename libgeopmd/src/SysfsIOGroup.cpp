@@ -183,15 +183,18 @@ namespace geopm
 
     bool SysfsIOGroup::is_valid_signal_domain(const std::string &signal_name, int domain_idx) const
     {
+        bool result = false;
         auto it = m_signals.find(signal_name);
-        if (it == m_signals.end()) {
-            // The IOGroup is not aware of this signal.
-            return false;
-        }
-        else {
+        if (it != m_signals.end()) {
             // The IOGroup is aware of this signal. But is the signal readable right now?
-            return do_have_read_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+            try {
+                 result = do_have_read_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+            }
+            catch (const Exception &e) {
+
+            }
         }
+        return result;
     }
 
     bool SysfsIOGroup::is_valid_control(const std::string &control_name) const
@@ -201,15 +204,18 @@ namespace geopm
 
     bool SysfsIOGroup::is_valid_control_domain(const std::string &control_name, int domain_idx) const
     {
+        bool result = false;
         auto it = m_controls.find(control_name);
-        if (it == m_controls.end()) {
-            // The IOGroup is not aware of this control.
-            return false;
-        }
-        else {
+        if (it != m_controls.end()) {
             // The IOGroup is aware of this control. But is the control writable right now?
-            return do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+            try {
+                result = do_have_write_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+            }
+            catch (const Exception &e) {
+
+            }
         }
+        return result;
     }
 
     // Return domain for all valid signals
