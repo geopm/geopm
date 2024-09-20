@@ -201,6 +201,11 @@ namespace geopm
         m_time_delta_m_2 = 0.0;
         m_stats->reset();
     }
+
+    size_t StatsCollector::update_count(void) const
+    {
+        return m_update_count;
+    }
 }
 
 int geopm_stats_collector_create(size_t num_requests, const struct geopm_request_s *requests,
@@ -224,6 +229,19 @@ int geopm_stats_collector_update(struct geopm_stats_collector_s *collector)
     try {
         geopm::StatsCollector *collector_cpp = reinterpret_cast<geopm::StatsCollector *>(collector);
         collector_cpp->update();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception());
+    }
+    return err;
+}
+
+int geopm_stats_collector_update_count(const struct geopm_stats_collector_s *collector, size_t *update_count)
+{
+    int err = 0;
+    try {
+        const geopm::StatsCollector *collector_cpp = reinterpret_cast<const geopm::StatsCollector *>(collector);
+        *update_count = collector_cpp->update_count();
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception());

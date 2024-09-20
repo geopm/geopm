@@ -50,7 +50,9 @@ class _SessionIO:
         self._trace_path = trace_path
         self._report_path = report_path
         self._report_fid = None
-        if self._report_path is not None and self._report_path != '-':
+        if self._report_path == '-':
+            self._report_fid = sys.stdout
+        elif self._report_path is not None:
             self._report_fid = open(self._report_path, 'w')
 
     def get_request_queue(self):
@@ -362,7 +364,7 @@ class _ReportStream:
         self.is_first_write = True
 
     def write(self):
-        if self.stats_collector.is_reset():
+        if self.stats_collector.update_count() == 0:
             return
         if self.report_format == 'yaml':
             report = self.stats_collector.report_yaml()
