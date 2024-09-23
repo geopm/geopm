@@ -231,22 +231,51 @@ class Collector:
                                  name of each column as a string.
 
         """
-        report = self.report()
+        header, data = self.report_table()
+        header = [f'"{name}"' for name in header]
+        data = [f'"{dd}"' if type(dd) is str else str(dd) for dd in data]
         result = []
-        header = ['host', 'sample-time-first', 'sample-time-total', 'sample-count', 'sample-period-mean', 'sample-period-std']
-        data = [f'"{report[kk]}"' if type(report[kk]) is str else str(report[kk]) for kk in header]
-
-        metric_stat_names = ['count', 'first', 'last', 'min', 'max', 'mean-arithmetic', 'std']
-        for metric_name in sorted(report['metrics'].keys()):
-            for stat_name in metric_stat_names:
-                data.append(str(report['metrics'][metric_name][stat_name]))
-                if print_header:
-                    header.append(f'{metric_name}-{stat_name}')
         if print_header:
             result.append(delimiter.join(header))
         result.append(delimiter.join(data))
         result.append('')
         return '\n'.join(result)
+
+    def report_table(self):
+        """Create report in tabular data format
+
+        Flatten the report structure into tabular data.  Returns a tuple of
+        (header, data) where the header is a list of names for each of the
+        values stored in the list data.
+
+        The hierarchical report is flattened by combining the metric name and
+        the metric statistic name into a single column header, for example a
+        metric may appear in a report with name 'CPU_FREQUENCY_STATUS'.  In the
+        CSV representation this metric will have a column for each statistic:
+
+        ``...,"CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last",...``
+
+        Args:
+            delimiter (str): Delimiter used to separate values in CSV output.
+
+            print_header (bool): If true output will include a first line with
+                                 name of each column as a string.
+
+        Returns:
+            (list, list): List of data names, and data values
+
+        """
+        report = self.report()
+        result = []
+        header = ['host', 'sample-time-first', 'sample-time-total', 'sample-count', 'sample-period-mean', 'sample-period-std']
+        data = [report[kk] for kk in header]
+
+        metric_stat_names = ['count', 'first', 'last', 'min', 'max', 'mean-arithmetic', 'std']
+        for metric_name in sorted(report['metrics'].keys()):
+            for stat_name in metric_stat_names:
+                header.append(f'{metric_name}-{stat_name}')
+                data.append(report['metrics'][metric_name][stat_name])
+        return header, data
 
     def reset(self):
         """Reset statistics
