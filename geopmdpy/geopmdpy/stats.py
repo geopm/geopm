@@ -87,9 +87,15 @@ class Collector:
         self._collector_ptr = collector_ptr[0];
 
     def __enter__(self):
+        """Enter context management for allocated geopm_stats_collector_s
+
+        """
         return self
 
     def __exit__(self, type, value, traceback):
+        """Exit context management for allocated geopm_stats_collector_s
+
+        """
         self.close()
 
     def close(self):
@@ -124,6 +130,12 @@ class Collector:
             raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
 
     def update_count(self):
+        """Number of updates since last reset
+
+        Get number of calls to the update() method since object construction, or
+        last call to the reset() method.
+
+        """
         global _dl
         self._check_ptr('update_count')
         result = gffi.gffi.new('size_t *')
@@ -136,7 +148,14 @@ class Collector:
         """Create a yaml report
 
         Return a yaml string containing a report that shows all statistics
-        gathered by calls to update().
+        gathered by calls to update() since last reset().  This gives a more
+        efficient way to create a yaml report than converting a report object
+        with the pyyaml module.  The structure of the ``report_a`` and
+        ``report_b`` yaml strings is the same in the following example.
+
+        >>> import yaml
+        >>> report_a = stats.report_yaml()
+        >>> report_b = yaml.dump(stats.report())
 
         """
         global _dl
@@ -151,6 +170,19 @@ class Collector:
         return gffi.gffi.string(report_cstr).decode()
 
     def report(self):
+        """Create a report object
+
+        Return a dictionary containing a report that shows all statistics
+        gathered by calls to update() since last reset().  This gives more
+        efficient access to the full resolution data than the report_yaml()
+        method.  The structure of the ``report_a`` and ``report_b`` objects is
+        the same in the following example:
+
+        >>> import yaml
+        >>> report_a = yaml.safe_load(stats.report_yaml())
+        >>> report_b = stats.report()
+
+        """
         global _dl
         self._check_ptr('report')
         report_ptr = gffi.gffi.new('struct geopm_report_s *')
@@ -178,7 +210,27 @@ class Collector:
                                        "std": report_ptr.metric_stats[metric_idx].stats[6]}
         return result
 
-    def report_csv(self, delimiter, print_header):
+    def report_csv(self, delimiter=',', print_header=True):
+        """Create a report CSV string
+
+        Flatten the report structure into tabular data in CSV format.  The
+        output is a single line of CSV with or without a header line depending
+        on the value of ``print_header`` parameter.
+
+        The hierarchical report is flattened by combining the metric name and
+        the metric statistic name into a single column header, for example a
+        metric may appear in a report with name 'CPU_FREQUENCY_STATUS'.  In the
+        CSV representation this metric will have a column for each statistic:
+
+        ``...,"CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last",...``
+
+        Args:
+            delimiter (str): Delimiter used to separate values in CSV output.
+
+            print_header (bool): If true output will include a first line with
+                                 name of each column as a string.
+
+        """
         report = self.report()
         result = []
         header = ['host', 'sample-time-first', 'sample-time-total', 'sample-count', 'sample-period-mean', 'sample-period-std']

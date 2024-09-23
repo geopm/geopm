@@ -79,7 +79,21 @@ namespace geopm
             /// Used to generate independent reports by clearing all gathered
             /// statistics and resetting the begin time.
             void reset(void);
+            /// @brief Return report of statistics in a structure representation
+            ///
+            /// Creates a report_s structure providing statistics about all
+            /// samples gathered since object construction or since last call to
+            /// reset().
+            ///
+            /// @return report_s structure containing vectors of metric_names
+            ///         and metric_stats based on constructor requests.
             report_s report_struct(void) const;
+            /// @brief Number of updates since last reset
+            ///
+            /// Returns the number of times the update() method has been called
+            /// since object construction or last call to reset().
+            ///
+            /// @return Number of updates
             size_t update_count(void) const;
         private:
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
