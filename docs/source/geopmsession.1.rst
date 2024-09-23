@@ -9,7 +9,8 @@ Synopsis
 
    usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
                        [--print-header | -n] [-d DELIMITER] [-r REPORT_OUT]
-                       [-o TRACE_OUT] [--enable-mpi]
+                       [-o TRACE_OUT] [--enable-mpi] [-f REPORT_FORMAT]
+                       [-s REPORT_SAMPLES]
 
 Read a signal
 ~~~~~~~~~~~~~
@@ -114,6 +115,18 @@ Options
     Gather reports over MPI and write to a single file. Append hostname to trace
     output file if specified (trace output to stdout not permitted). Requires
     mpi4py module.
+
+-f, --report-format  .. _reporformat REPORT_FORMAT option:
+
+    Generate reports in the specified format, either "csv" or "yaml".
+    Default: "yaml".
+
+-s, --report-samples  .. _reportsamples REPORT_SAMPLES option:
+
+    Create reports each time the specified number of periods have
+    elapsed.  When in YAML format, the reports are YAML documents
+    separated with the document separator string: ``"---"``.  When
+    in CSV format, each report is one line of the CSV output.
 
 Examples
 --------
@@ -228,8 +241,7 @@ of the geopmsession MPI communicator.
 .. code-block:: shell-session
 
    $ printf "TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0" |\
-         srun -n 2 -N 2 geopmsession -t 10 -p 0.005  -r- -o
-	 /dev/null --enable-mpi
+        srun -n 2 -N 2 geopmsession -t 10 -p 0.005  -r- -o /dev/null --enable-mpi
 
 An example report is shown below:
 

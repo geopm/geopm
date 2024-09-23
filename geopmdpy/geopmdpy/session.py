@@ -273,9 +273,12 @@ class Session:
             period (float): The user specified period between samples
                             in units of seconds.
 
+            report_samples (int): Number of samples gathered between periodic
+                                  reports.
+
         Raises:
-            RuntimeError: The period is greater than the total time or
-                          either is negative.
+            RuntimeError: The period is greater than the total time, or any
+                          option is negative, or report_samples is non-integer.
 
         """
         if period > run_time:
@@ -291,6 +294,14 @@ class Session:
                 raise RuntimeError(f'Specified report samples is non-integer: {report_samples}')
 
     def header_names(self, requests):
+        """Format trace CSV header strings for the set of requests
+
+        Args:
+            requests (list(tuple(str, int, int))):
+                List of request tuples. Each request comprises a signal name,
+                domain type, and domain index.
+
+        """
         return [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
                 if topo.domain_name(domain) != 'board' else f'"{name}"'
                 for name, domain, domain_idx in requests]
@@ -318,11 +329,27 @@ class Session:
             print_header (bool): Whether to print a row of headers before printing
                                  CSV data.
 
-            request_stream (typing.IO): Input from user describing the
-                                        requests to read.
+            request_stream (typing.IO): Input from user describing the requests
+                                        to read, invalid if using session_io
+                                        argument.
 
-            out_stream (typing.IO): Stream where output from will be
-                                    printed.
+            out_stream (typing.IO): Stream where output from will be printed,
+                                    not valid if using session_io argument.
+
+            report_path (str): Path to output report file, invalid if using
+                                  session_io argument.
+
+            session_io (object):
+                Object with _SessionIO interface to get request stream and
+                create report and trace output.
+
+            delimiter (str): CSV delimiter for traces and reports.
+
+            report_format (str): Format for output report, either 'yaml' or
+                                    'csv'.
+
+            report_samples (int): If not None, enable periodic reporting after
+                                  this many samples.
 
         """
         global g_session_handler

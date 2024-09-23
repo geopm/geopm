@@ -32,6 +32,10 @@ class TestCollector(unittest.TestCase):
 
     @unittest.skipIf(_skip_yaml, 'yaml module could not be imported, to resolve "pip install yaml"')
     def test_yaml(self):
+        """Check that yaml and object reports have the same data structure and
+        close values.
+
+        """
         config = [('TIME', 0, 0)]
         with Collector(config) as coll:
             for loop_idx in loop.TimedLoop(0.01, num_period=10):

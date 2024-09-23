@@ -64,6 +64,20 @@ int GEOPM_PUBLIC
 int GEOPM_PUBLIC
     geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
 
+/// @brief Number of updates since last reset
+///
+/// Sets update_count to the number of times that the
+/// geopm_stats_collector_update() function has been called on the collector
+/// object since it was created, or since the last call to
+/// geopm_stats_collector_reset().
+///
+/// @param [in] collector Handle created with a call to
+///        geopm_stats_collector_create()
+///
+/// @param [out] update_count Set to the number of updates upon successful
+///        completion
+///
+/// @returns 0 upon success, or error code upon failure
 int GEOPM_PUBLIC
     geopm_stats_collector_update_count(const struct geopm_stats_collector_s *collector,
                                        size_t *update_count);
