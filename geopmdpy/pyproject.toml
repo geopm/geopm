@@ -52,12 +52,14 @@ dependencies = ["cffi>=1.14.5",
                 "pygobject>=3.42.0",
                 "docstring-parser>0.13",
                 "importlib_metadata>=4.0.0",
+                "prometheus_client>=0.9.0",
 ]
 
 [project.scripts]
 geopmd = "geopmdpy.__main__:main"
 geopmaccess = "geopmdpy.access:main"
 geopmsession = "geopmdpy.session:main"
+geopmexporter = "geopmdpy.exporter:main"
 
 [project.urls]
 "Homepage" = "https://geopm.github.io"

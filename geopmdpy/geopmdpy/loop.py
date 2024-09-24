@@ -67,7 +67,9 @@ class TimedLoop:
             if not isinstance(num_period, int):
                 raise ValueError('num_period must be a whole number.')
         self._period = period
-        self._max_time = time.time() + period * num_period
+        self._max_time = None
+        if num_period is not None:
+            self._max_time = time.time() + period * num_period
         self._stop_iteration = False
         self._one_shot = (num_period == 0)
 
@@ -94,7 +96,7 @@ class TimedLoop:
             sleep_time = self._target_time - curr_time
             if sleep_time > 0:
                 self.wait(sleep_time)
-            if time.time() >= self._max_time:
+            if self._max_time is not None and time.time() >= self._max_time:
                 self._stop_iteration = True
 
         self._target_time += self._period

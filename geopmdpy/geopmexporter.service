@@ -1,0 +1,28 @@
+#  Copyright (c) 2015 - 2024 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+[Unit]
+Description=Prometheus GEOPM Exporter
+StartLimitIntervalSec=0
+StartLimitBurst=3
+Wants=geopm.service
+After=geopm.service
+After=network-online.target
+
+[Service]
+Environment=PYTHONUNBUFFERED=true
+# Create a user and group to run the service before enabling:
+# sudo groupadd --system prometheus
+# sudo useradd -s /sbin/nologin --system -g prometheus prometheus
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/bin/geopmexporter
+SyslogIdentifier=geopmexporter
+Restart=always
+RestartSec=1
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
