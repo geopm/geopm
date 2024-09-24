@@ -2,3 +2,4 @@ matplotlib>=2.2.2
 docutils>=0.14
 plotly>=5.18.0
 dash>=2.15.0
+seaborn>=0.11.2
