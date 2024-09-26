@@ -255,12 +255,6 @@ class Collector:
 
         ``...,"CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last",...``
 
-        Args:
-            delimiter (str): Delimiter used to separate values in CSV output.
-
-            print_header (bool): If true output will include a first line with
-                                 name of each column as a string.
-
         Returns:
             (list, list): List of data names, and data values
 

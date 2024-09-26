@@ -22,7 +22,7 @@ class PrometheusExporter:
         self._stats_collector.report_table()
         sleep(_STARTUP_SLEEP) # Take two samples to enable derivative signals
         self._metric_names, self._metric_data = self._stats_collector.report_table()
-        self._gauges = [None if type(metric_val) is str else Gauge(metric_name.replace('-', '_'), metric_name)
+        self._gauges = [None if type(metric_val) is str else _create_prom_metric(metric_name.replace('-', '_'), metric_name, 'Gauge')
                         for metric_name, metric_val in zip(self._metric_names, self._metric_data)]
         self._num_metric = 0
         for metric_idx, gauge in enumerate(self._gauges):
@@ -33,7 +33,7 @@ class PrometheusExporter:
         self._is_fresh = len(self._metric_names) * [True]
 
     def run(self, period, port):
-        start_http_server(port)
+        _start_http_server(port)
         for _ in loop.TimedLoop(period):
             pio.read_batch()
             self._stats_collector.update()
@@ -70,26 +70,45 @@ class PrometheusMetricExporter:
                 metric_name = f'{rr[0]}_{topo.domain_name(rr[1])}_{rr[2]}'
                 metric_desc = f'{rr[0]}-{topo.domain_name(rr[1])}-{rr[2]}'
             if behavior == 1: # Use Counter for monotone behavior
-                self._metrics.append(Counter(metric_name, metric_desc))
+                self._metrics.append(_create_prom_metric(metric_name, metric_desc, 'Counter'))
             elif behavior == 2: # Use Summary for variable behavior
-                self._metrics.append(Summary(metric_name, metric_desc))
+                self._metrics.append(_create_prom_metric(metric_name, metric_desc, 'Summary'))
             else: # error condition for constant or label signals
                 raise RuntimeError(f'Invalid behavior for signal {metric_name}, only support for monotone or variable signals')
 
     def run(self, period, port):
-        start_http_server(port)
+        _start_http_server(port)
         sample_last = [None] * len(self._metrics)
         sleep(_STARTUP_SLEEP) # Take two samples to enable derivative signals
         for sample_idx in loop.TimedLoop(period):
             pio.read_batch()
             for metric_idx, metric in enumerate(self._metrics):
-                if type(metric) == Counter:
-                    sample = pio.sample(self._pio_idx[metric_idx])
+                sample = pio.sample(self._pio_idx[metric_idx])
+                if hasattr(metric, 'observe'):
+                    metric.observe(sample)
+                elif hasattr(metric, 'inc'):
                     if sample_last[metric_idx] != None:
                         metric.inc(sample - sample_last[metric_idx])
                     sample_last[metric_idx] = sample
-                elif type(metric) == Summary:
-                    metric.observe(pio.sample(self._pio_idx[metric_idx]))
+
+def _start_http_server(port):
+    """Wrapper to enable easier mocking in unit tests
+
+    """
+    start_http_server(port)
+
+def _create_prom_metric(name, descr, prom_name):
+    """Wrapper to enable easier mocking in unit tests
+
+    """
+    if prom_name == 'Gauge':
+        return Gauge(name, descr)
+    elif prom_name == 'Summary':
+        return Summary(name, descr)
+    elif prom_name == 'Counter':
+        return Counter(name, descr)
+    raise ValueError(f'Unknown prom_name: {prom_name}')
+
 
 def default_requests():
     """Default configuration exposes all high level non-constant signals related to
@@ -127,7 +146,7 @@ def run(period, port, config_path=None, summary='geopm'):
         exporter = PrometheusMetricExporter(requests)
         exporter.run(period, port)
     else:
-        raise RuntimeError(f'Unknown summary type: "{summary}".  Must be "geopm" or "prometheus"')
+        raise ValueError(f'Unknown summary type: "{summary}".  Must be "geopm" or "prometheus"')
 
 def main():
     """Prometheus exporter for GEOPM metrics
