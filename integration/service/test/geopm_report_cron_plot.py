@@ -78,7 +78,7 @@ class CronReport:
         metric_name = f'{domain}_POWER'
         time = self.get_stat(begin_date, end_date, metric_name, 'sample-time-first')
         time_total = self.get_stat(begin_date, end_date, metric_name, 'sample-time-total')
-        power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic')
+        power = self.get_stat(begin_date, end_date, metric_name, 'mean')
         kwh_factor = 1.0 / 3.6e6
         return kwh_factor * sum((power.shift(1) * (time - time.shift(1)).dt.total_seconds()).dropna())
 
@@ -108,7 +108,7 @@ class CronReport:
         record_mean_time = sample_time_first + to_timedelta(sample_time_total / 2.0, unit='s')
         record_min_power = self.get_stat(begin_date, end_date, metric_name, 'min')
         record_max_power = self.get_stat(begin_date, end_date, metric_name, 'max')
-        record_mean_power = self.get_stat(begin_date, end_date, metric_name, 'mean-arithmetic')
+        record_mean_power = self.get_stat(begin_date, end_date, metric_name, 'mean')
         record_std_power = self.get_stat(begin_date, end_date, metric_name, 'std')
         record_plus_std = [min((a, b)) for (a, b) in zip(record_mean_power + record_std_power, record_max_power)]
         record_minus_std = [max((a, b)) for (a, b) in zip(record_mean_power - record_std_power, record_min_power)]

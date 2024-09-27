@@ -94,7 +94,7 @@ TEST_F(StatsCollectorTest, time_report)
         "    last",
         "    min",
         "    max",
-        "    mean-arithmetic",
+        "    mean",
         "    std",
     };
 
@@ -116,7 +116,7 @@ TEST_F(StatsCollectorTest, time_report)
     EXPECT_NE(std::string::npos, report.find("last: 1\n"));
     EXPECT_NE(std::string::npos, report.find("min: 0\n"));
     EXPECT_NE(std::string::npos, report.find("max: 1\n"));
-    EXPECT_NE(std::string::npos, report.find("mean-arithmetic: 0.5\n"));
+    EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
     EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
     struct geopm_stats_collector_s *coll_ptr = reinterpret_cast<geopm_stats_collector_s *>(&coll);
     EXPECT_EQ(0, geopm_stats_collector_reset(coll_ptr));
@@ -146,6 +146,6 @@ TEST_F(StatsCollectorTest, time_report)
     EXPECT_NE(std::string::npos, report.find("last: 1\n"));
     EXPECT_NE(std::string::npos, report.find("min: 0\n"));
     EXPECT_NE(std::string::npos, report.find("max: 1\n"));
-    EXPECT_NE(std::string::npos, report.find("mean-arithmetic: 0.5\n"));
+    EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
     EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
 }

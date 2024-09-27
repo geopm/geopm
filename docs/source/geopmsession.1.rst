@@ -203,7 +203,7 @@ An example report is shown below:
        last: 10.0823
        min: 0.0825453
        max: 10.0823
-       mean-arithmetic: 5.08268
+       mean: 5.08268
        std: 2.88873
      CPU_POWER:
        count: 2000
@@ -211,7 +211,7 @@ An example report is shown below:
        last: 54.9997
        min: 36.8681
        max: 75.2159
-       mean-arithmetic: 50.1323
+       mean: 50.1323
        std: 6.61714
      CPU_FREQUENCY_STATUS:
        count: 2001
@@ -219,7 +219,7 @@ An example report is shown below:
        last: 1.75341e+09
        min: 1e+09
        max: 2.49659e+09
-       mean-arithmetic: 1.5542e+09
+       mean: 1.5542e+09
        std: 3.72332e+08
 
 
@@ -260,7 +260,7 @@ An example report is shown below:
        last: 10.0847
        min: 0.0849912
        max: 10.0847
-       mean-arithmetic: 5.08514
+       mean: 5.08514
        std: 2.88873
      CPU_POWER:
        count: 2000
@@ -268,7 +268,7 @@ An example report is shown below:
        last: 63.4941
        min: 41.1496
        max: 89.1348
-       mean-arithmetic: 55.8502
+       mean: 55.8502
        std: 6.41338
      CPU_FREQUENCY_STATUS:
        count: 2001
@@ -276,7 +276,7 @@ An example report is shown below:
        last: 1.75341e+09
        min: 1e+09
        max: 2.58636e+09
-       mean-arithmetic: 1.55674e+09
+       mean: 1.55674e+09
        std: 3.7101e+08
 
    ---
@@ -294,7 +294,7 @@ An example report is shown below:
        last: 10.0849
        min: 0.0846359
        max: 10.0849
-       mean-arithmetic: 5.085
+       mean: 5.085
        std: 2.88887
      CPU_POWER:
        count: 2000
@@ -302,7 +302,7 @@ An example report is shown below:
        last: 70.6912
        min: 46.394
        max: 89.6428
-       mean-arithmetic: 61.7341
+       mean: 61.7341
        std: 5.20186
      CPU_FREQUENCY_STATUS:
        count: 2001
@@ -310,7 +310,7 @@ An example report is shown below:
        last: 1.69773e+09
        min: 1e+09
        max: 2.56136e+09
-       mean-arithmetic: 1.54734e+09
+       mean: 1.54734e+09
        std: 3.63195e+08
 
 See Also

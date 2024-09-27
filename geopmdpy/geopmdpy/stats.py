@@ -206,7 +206,7 @@ class Collector:
                                        "last": report_ptr.metric_stats[metric_idx].stats[2],
                                        "min": report_ptr.metric_stats[metric_idx].stats[3],
                                        "max": report_ptr.metric_stats[metric_idx].stats[4],
-                                       "mean-arithmetic": report_ptr.metric_stats[metric_idx].stats[5],
+                                       "mean": report_ptr.metric_stats[metric_idx].stats[5],
                                        "std": report_ptr.metric_stats[metric_idx].stats[6]}
         return result
 
@@ -264,7 +264,7 @@ class Collector:
         header = ['host', 'sample-time-first', 'sample-time-total', 'sample-count', 'sample-period-mean', 'sample-period-std']
         data = [report[kk] for kk in header]
 
-        metric_stat_names = ['count', 'first', 'last', 'min', 'max', 'mean-arithmetic', 'std']
+        metric_stat_names = ['count', 'first', 'last', 'min', 'max', 'mean', 'std']
         for metric_name in sorted(report['metrics'].keys()):
             for stat_name in metric_stat_names:
                 header.append(f'{metric_name}-{stat_name}')
