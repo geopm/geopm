@@ -27,24 +27,35 @@ class PrometheusExporter:
         self._num_metric = 0
         for metric_idx, gauge in enumerate(self._gauges):
             if gauge is not None:
-                 gauge.set_function(lambda exporter=self, metric_idx=metric_idx: exporter._get_metric(metric_idx))
+                 gauge.set_function(lambda exporter=self, metric_idx=metric_idx: \
+                                    exporter._get_metric(metric_idx))
                  self._num_metric += 1
         self._num_fresh = self._num_metric
         self._is_fresh = len(self._metric_names) * [True]
 
     def run(self, period, port):
+        """Run the GEOPM Prometheus exporter with geopm.stats.Collector
+
+        """
         _start_http_server(port)
         for _ in loop.TimedLoop(period):
             pio.read_batch()
             self._stats_collector.update()
 
     def _refresh(self):
+        """Refresh all values in report cache
+
+        """
         _, self._metric_data = self._stats_collector.report_table()
         self._stats_collector.reset()
         self._num_fresh = self._num_metric
         self._is_fresh = len(self._metric_names) * [True]
 
     def _get_metric(self, metric_idx):
+        """Get metric from cached report and update cache if all metrics have
+        been sampled at least once.
+
+        """
         if self._num_fresh == 0:
             self._refresh()
         if self._is_fresh[metric_idx]:
@@ -74,9 +85,14 @@ class PrometheusMetricExporter:
             elif behavior == 2: # Use Summary for variable behavior
                 self._metrics.append(_create_prom_metric(metric_name, metric_desc, 'Summary'))
             else: # error condition for constant or label signals
-                raise RuntimeError(f'Invalid behavior for signal {metric_name}, only support for monotone or variable signals')
+                raise RuntimeError(f'Invalid behavior for signal {metric_name}, '
+                                   'only support for monotone or variable signals')
 
     def run(self, period, port):
+        """Run the GEOPM Prometheus exporter with prometheus Summary and
+        Counter metrics
+
+        """
         _start_http_server(port)
         sample_last = [None] * len(self._metrics)
         sleep(_STARTUP_SLEEP) # Take two samples to enable derivative signals
@@ -160,7 +176,9 @@ def main():
         parser.add_argument('-p', '--port', dest='port', type=int, default=8000,
                             help='Port to publish Prometheus metrics. Default: %(default)s')
         parser.add_argument('-i', '--signal-config', dest='config_path', default=None,
-                            help='Input file containing GEOPM signal requests, specify "-" to use standard input. Default: All power, energy, frequency and temperature signals at the board domain')
+                            help='Input file containing GEOPM signal requests, specify "-" to use '
+                                 'standard input. Default: All power, energy, frequency and '
+                                 'temperature signals at the board domain')
         parser.add_argument('--summary', dest='summary', default='geopm',
                             help='Summary method, one of "geopm", or "prometheus". Default: %(default)s')
 
