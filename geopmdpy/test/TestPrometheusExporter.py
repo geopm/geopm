@@ -111,13 +111,15 @@ class TestPrometheusMetricExporter(TestCase):
         period = 0.1
         port = 8000
         num_calls = 10
-        with mock.patch('geopmdpy.exporter._create_prom_metric', return_value=mock.create_autospec(Counter)), \
+        mock_counter = mock.create_autospec(Counter)
+        with mock.patch('geopmdpy.exporter._create_prom_metric', return_value=mock_counter), \
              mock.patch('geopmdpy.loop.TimedLoop', return_value=range(num_calls)) as mtl, \
              mock.patch('geopmdpy.exporter._start_http_server') as mshs:
             prom_exp = PrometheusMetricExporter(self._requests)
             prom_exp.run(period, port)
             mtl.assert_called_with(period)
             mshs.assert_called_with(port)
+            mock_counter.inc.assert_called()
 
 class TestExporterCli(TestCase):
     def test_default(self):

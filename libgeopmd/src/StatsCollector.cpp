@@ -183,7 +183,7 @@ namespace geopm
             result << "    " << "last: " << m_stats->last(metric_idx) << "\n";
             result << "    " << "min: " << m_stats->min(metric_idx) << "\n";
             result << "    " << "max: " << m_stats->max(metric_idx) << "\n";
-            result << "    " << "mean-arithmetic: " << m_stats->mean(metric_idx) << "\n";
+            result << "    " << "mean: " << m_stats->mean(metric_idx) << "\n";
             result << "    " << "std: " << m_stats->std(metric_idx) << "\n";
             ++metric_idx;
         }
