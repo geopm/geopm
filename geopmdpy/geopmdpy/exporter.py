@@ -7,7 +7,7 @@ import sys
 import os
 from time import sleep
 from argparse import ArgumentParser
-from . import pio, topo, stats, loop, session
+from . import pio, topo, stats, loop, session, __version_str__
 from prometheus_client import start_http_server, Gauge, Counter, Summary
 
 _STARTUP_SLEEP = 0.005
@@ -171,6 +171,8 @@ def main():
     err = 0
     try:
         parser = ArgumentParser(description=main.__doc__)
+        parser.add_argument('-v', '--version', dest='version', action='store_true',
+                            help='Print version and exit')
         parser.add_argument('-t', '--period', dest='period', type=float, default=0.1,
                             help='Sample period for fast loop in seconds. Default: %(default)s')
         parser.add_argument('-p', '--port', dest='port', type=int, default=8000,
@@ -183,7 +185,10 @@ def main():
                             help='Summary method, one of "geopm", or "prometheus". Default: %(default)s')
 
         args = parser.parse_args()
-        run(args.period, args.port, args.config_path, args.summary)
+        if args.version:
+            print(__version_str__)
+        else:
+            run(args.period, args.port, args.config_path, args.summary)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
