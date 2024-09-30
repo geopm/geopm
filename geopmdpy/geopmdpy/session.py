@@ -526,10 +526,14 @@ class ReadRequestQueue(RequestQueue):
             try:
                 signal_name = words[0]
                 domain_type = topo.domain_type(words[1])
-                domain_idx = int(words[2])
+                if words[2] == '*':
+                    requests.extend([(signal_name, domain_type, domain_idx) for domain_idx in range(topo.num_domain(domain_type))])
+                else :
+                    domain_idx = int(words[2])
+                    requests.append((signal_name, domain_type, domain_idx))
             except (RuntimeError, ValueError):
                 raise RuntimeError('Unable to convert values into a read request: "{}"'.format(line))
-            requests.append((signal_name, domain_type, domain_idx))
+
         if len(requests) == 0:
             raise RuntimeError('Empty request stream.')
         self._raw = '\n'.join(raw)
