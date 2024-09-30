@@ -41,5 +41,6 @@ Command Line Tools
 ------------------
 - Read a single value: :doc:`geopmread(1) <geopmread.1>`
 - Write a single value: :doc:`geopmwrite(1) <geopmwrite.1>`
+- Prometheus exporter :doc:`geopmsession(1) <geopmexporter.1>`
 - Read time series of values :doc:`geopmsession(1) <geopmsession.1>`
 - Manage access :doc:`geopmaccess(1) <geopmaccess.1>`

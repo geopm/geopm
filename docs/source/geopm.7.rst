@@ -457,5 +457,6 @@ See Also
 :doc:`geopmread(1) <geopmread.1>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`,
 :doc:`geopmaccess(1) <geopmaccess.1>`,
+:doc:`geopmsession(1) <geopmexporter.1>`,
 :doc:`geopmsession(1) <geopmsession.1>`,
 `ld.so(8) <https://man7.org/linux/man-pages/man8/ld.so.8.html>`_
