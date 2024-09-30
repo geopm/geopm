@@ -75,5 +75,17 @@ class TestRequestQueue(unittest.TestCase):
             self.assertEqual(requests, parsed_reqs)
 
 
+    def test_read_request_queue_glob(self):
+        request_stream = StringIO("TIME cpu *")
+        num_cpu = 8
+        expected_requests = [("TIME", 3, cpu_idx) for cpu_idx in range(num_cpu)]
+        psi_return_value = [1, 2, 3]
+
+        with mock.patch('geopmdpy.topo.domain_type', return_value = 3) as domain_type_mock, \
+             mock.patch('geopmdpy.topo.num_domain', return_value = num_cpu) as num_domain_mock, \
+             mock.patch('geopmdpy.pio.signal_info', return_value = psi_return_value):
+            actual_requests = list(ReadRequestQueue(request_stream))
+            self.assertEqual(expected_requests, actual_requests)
+
 if __name__ == '__main__':
     unittest.main()
