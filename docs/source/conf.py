@@ -209,6 +209,7 @@ rst_files = [
     "geopm_version.3",
     "geopmwrite.1",
     "geopmaccess.1",
+    "geopmexporter.1",
     "geopmsession.1",
     "geopmdpy.7",
     "geopm_agent_ffnet.7",

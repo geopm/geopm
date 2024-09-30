@@ -124,6 +124,7 @@ Files:     .gitignore
            source/geopmlaunch.1.rst
            source/geopmpy.7.rst
            source/geopmread.1.rst
+           source/geopmexporter.1.rst
            source/geopmsession.1.rst
            source/geopmwrite.1.rst
            source/index.rst
