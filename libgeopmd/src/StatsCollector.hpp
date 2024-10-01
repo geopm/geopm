@@ -22,31 +22,12 @@ namespace geopm
     class StatsCollector
     {
         public:
-            enum sample_stats_e {
-                SAMPLE_TIME_TOTAL,
-                SAMPLE_COUNT,
-                SAMPLE_PERIOD_MEAN,
-                SAMPLE_PERIOD_STD,
-                NUM_SAMPLE_STATS,
-            };
-
-            enum metric_stats_e {
-                METRIC_COUNT,
-                METRIC_FIRST,
-                METRIC_LAST,
-                METRIC_MIN,
-                METRIC_MAX,
-                METRIC_MEAN_ARITHMETIC,
-                METRIC_STD,
-                NUM_METRIC_STATS,
-            };
-
             struct report_s {
                 std::string host;
                 std::string sample_time_first;
-                std::array<double, NUM_SAMPLE_STATS> sample_stats;
+                std::array<double, GEOPM_NUM_SAMPLE_STATS> sample_stats;
                 std::vector<std::string> metric_names;
-                std::vector<std::array<double, NUM_METRIC_STATS> > metric_stats;
+                std::vector<std::array<double, GEOPM_NUM_METRIC_STATS> > metric_stats;
             };
 
             /// @brief Default null constructor without requests
