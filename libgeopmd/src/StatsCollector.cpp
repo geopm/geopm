@@ -21,11 +21,6 @@
 
 namespace geopm
 {
-    static_assert(static_cast<size_t>(StatsCollector::NUM_SAMPLE_STATS) == static_cast<size_t>(GEOPM_NUM_SAMPLE_STATS),
-                  "C++ enum NUM_SAMPLE_STATS does not match C enum geopm::StatsCollector::NUM_SAMPLE_STATS");
-    static_assert(static_cast<size_t>(StatsCollector::NUM_METRIC_STATS) == static_cast<size_t>(GEOPM_NUM_METRIC_STATS),
-                  "C++ enum NUM_METRIC_STATS does not match C enum geopm::StatsCollector::NUM_METRIC_STATS");
-
     StatsCollector::StatsCollector()
         : StatsCollector(std::vector<geopm_request_s> {})
     {
@@ -139,19 +134,19 @@ namespace geopm
         report_s result {
             geopm::hostname(),
             m_time_begin_str,
-            std::array<double, NUM_SAMPLE_STATS> {
+            std::array<double, GEOPM_NUM_SAMPLE_STATS> {
                 m_time_sample - m_time_begin,
                 static_cast<double>(m_update_count),
                 time_delta_mean,
                 time_delta_std,
             },
             m_metric_names,
-            std::vector<std::array<double, NUM_METRIC_STATS> > {},
+            std::vector<std::array<double, GEOPM_NUM_METRIC_STATS> > {},
         };
         result.metric_stats.reserve(m_metric_names.size());
         size_t num_metric = m_metric_names.size();
         for (size_t metric_idx = 0; metric_idx < num_metric; ++metric_idx) {
-            result.metric_stats.push_back(std::array<double, NUM_METRIC_STATS> {
+            result.metric_stats.push_back(std::array<double, GEOPM_NUM_METRIC_STATS> {
                 static_cast<double>(m_stats->count(metric_idx)),
                 m_stats->first(metric_idx),
                 m_stats->last(metric_idx),
@@ -170,10 +165,10 @@ namespace geopm
         report_s report = report_struct();
         result << "host: \"" << report.host << "\"\n";
         result << "sample-time-first: \"" << report.sample_time_first << "\"\n";
-        result << "sample-time-total: " <<  report.sample_stats[SAMPLE_TIME_TOTAL] << "\n";
-        result << "sample-count: " << report.sample_stats[SAMPLE_COUNT] << "\n";
-        result << "sample-period-mean: " << report.sample_stats[SAMPLE_PERIOD_MEAN] << "\n";
-        result << "sample-period-std: " << report.sample_stats[SAMPLE_PERIOD_STD] << "\n";
+        result << "sample-time-total: " <<  report.sample_stats[GEOPM_SAMPLE_TIME_TOTAL] << "\n";
+        result << "sample-count: " << report.sample_stats[GEOPM_SAMPLE_COUNT] << "\n";
+        result << "sample-period-mean: " << report.sample_stats[GEOPM_SAMPLE_PERIOD_MEAN] << "\n";
+        result << "sample-period-std: " << report.sample_stats[GEOPM_SAMPLE_PERIOD_STD] << "\n";
         result << "metrics:\n";
         int metric_idx = 0;
         for (const auto &metric_name : m_metric_names) {

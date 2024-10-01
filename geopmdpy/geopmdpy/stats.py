@@ -17,6 +17,25 @@ gffi.gffi.cdef("""
 
 struct geopm_stats_collector_s;
 
+enum geopm_sample_stats_e {
+    GEOPM_SAMPLE_TIME_TOTAL,
+    GEOPM_SAMPLE_COUNT,
+    GEOPM_SAMPLE_PERIOD_MEAN,
+    GEOPM_SAMPLE_PERIOD_STD,
+    GEOPM_NUM_SAMPLE_STATS
+};
+
+enum geopm_metric_stats_e {
+    GEOPM_METRIC_COUNT,
+    GEOPM_METRIC_FIRST,
+    GEOPM_METRIC_LAST,
+    GEOPM_METRIC_MIN,
+    GEOPM_METRIC_MAX,
+    GEOPM_METRIC_MEAN,
+    GEOPM_METRIC_STD,
+    GEOPM_NUM_METRIC_STATS
+};
+
 struct geopm_metric_stats_s {
     char name[255];
     double stats[7];
@@ -51,6 +70,19 @@ int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
 """)
 _dl = gffi.get_dl_geopmd()
 
+SAMPLE_TIME_TOTAL = _dl.GEOPM_SAMPLE_TIME_TOTAL
+SAMPLE_COUNT = _dl.GEOPM_SAMPLE_COUNT
+SAMPLE_PERIOD_MEAN = _dl.GEOPM_SAMPLE_PERIOD_MEAN
+SAMPLE_PERIOD_STD = _dl.GEOPM_SAMPLE_PERIOD_STD
+NUM_SAMPLE_STATS = _dl.GEOPM_NUM_SAMPLE_STATS
+METRIC_COUNT = _dl.GEOPM_METRIC_COUNT
+METRIC_FIRST = _dl.GEOPM_METRIC_FIRST
+METRIC_LAST = _dl.GEOPM_METRIC_LAST
+METRIC_MIN = _dl.GEOPM_METRIC_MIN
+METRIC_MAX = _dl.GEOPM_METRIC_MAX
+METRIC_MEAN = _dl.GEOPM_METRIC_MEAN
+METRIC_STD = _dl.GEOPM_METRIC_STD
+NUM_METRIC_STATS = _dl.GEOPM_NUM_METRIC_STATS
 
 class Collector:
     """ Object for aggregating statistics gathered from the PlatformIO interface of GEOPM
@@ -194,20 +226,20 @@ class Collector:
         result = dict()
         result['host'] = gffi.gffi.string(report_ptr.host).decode()
         result['sample-time-first'] = gffi.gffi.string(report_ptr.sample_time_first).decode()
-        result['sample-time-total'] = report_ptr.sample_stats[0]
-        result['sample-count'] = int(report_ptr.sample_stats[1])
-        result['sample-period-mean'] = report_ptr.sample_stats[2]
-        result['sample-period-std'] = report_ptr.sample_stats[3]
+        result['sample-time-total'] = report_ptr.sample_stats[SAMPLE_TIME_TOTAL]
+        result['sample-count'] = int(report_ptr.sample_stats[SAMPLE_COUNT])
+        result['sample-period-mean'] = report_ptr.sample_stats[SAMPLE_PERIOD_MEAN]
+        result['sample-period-std'] = report_ptr.sample_stats[SAMPLE_PERIOD_STD]
         result['metrics'] = dict()
         for metric_idx in range(report_ptr.num_metric):
             name = gffi.gffi.string(report_ptr.metric_stats[metric_idx].name).decode()
-            result['metrics'][name] = {"count": int(report_ptr.metric_stats[metric_idx].stats[0]),
-                                       "first": report_ptr.metric_stats[metric_idx].stats[1],
-                                       "last": report_ptr.metric_stats[metric_idx].stats[2],
-                                       "min": report_ptr.metric_stats[metric_idx].stats[3],
-                                       "max": report_ptr.metric_stats[metric_idx].stats[4],
-                                       "mean": report_ptr.metric_stats[metric_idx].stats[5],
-                                       "std": report_ptr.metric_stats[metric_idx].stats[6]}
+            result['metrics'][name] = {"count": int(report_ptr.metric_stats[metric_idx].stats[METRIC_COUNT]),
+                                       "first": report_ptr.metric_stats[metric_idx].stats[METRIC_FIRST],
+                                       "last": report_ptr.metric_stats[metric_idx].stats[METRIC_LAST],
+                                       "min": report_ptr.metric_stats[metric_idx].stats[METRIC_MIN],
+                                       "max": report_ptr.metric_stats[metric_idx].stats[METRIC_MAX],
+                                       "mean": report_ptr.metric_stats[metric_idx].stats[METRIC_MEAN],
+                                       "std": report_ptr.metric_stats[metric_idx].stats[METRIC_STD]}
         return result
 
     def report_csv(self, delimiter=',', print_header=True):

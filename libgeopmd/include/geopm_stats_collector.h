@@ -15,9 +15,23 @@ extern "C" {
 struct geopm_request_s;
 struct geopm_stats_collector_s;
 
-enum geopm_report_sizes_e {
-    GEOPM_NUM_SAMPLE_STATS = 4,
-    GEOPM_NUM_METRIC_STATS = 7,
+enum geopm_sample_stats_e {
+    GEOPM_SAMPLE_TIME_TOTAL,
+    GEOPM_SAMPLE_COUNT,
+    GEOPM_SAMPLE_PERIOD_MEAN,
+    GEOPM_SAMPLE_PERIOD_STD,
+    GEOPM_NUM_SAMPLE_STATS
+};
+
+enum geopm_metric_stats_e {
+    GEOPM_METRIC_COUNT,
+    GEOPM_METRIC_FIRST,
+    GEOPM_METRIC_LAST,
+    GEOPM_METRIC_MIN,
+    GEOPM_METRIC_MAX,
+    GEOPM_METRIC_MEAN,
+    GEOPM_METRIC_STD,
+    GEOPM_NUM_METRIC_STATS
 };
 
 struct geopm_metric_stats_s {
