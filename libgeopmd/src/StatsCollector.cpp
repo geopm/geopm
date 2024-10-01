@@ -283,8 +283,8 @@ int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector
     try {
         const geopm::StatsCollector *collector_cpp = reinterpret_cast<const geopm::StatsCollector *>(collector);
         geopm::StatsCollector::report_s report_cpp = collector_cpp->report_struct();
-        if (report_cpp.metric_names.size() != num_requests) {
-            throw geopm::Exception("geopm_stats_collector_report(): Report not correctly allocated num_request provided: " +
+        if (report_cpp.metric_names.size() > num_requests) {
+            throw geopm::Exception("geopm_stats_collector_report(): Report memory allocation is insufficient, num_request provided: " +
                                    std::to_string(num_requests) + " required: " + std::to_string(report_cpp.metric_names.size()),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -292,11 +292,13 @@ int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector
             throw geopm::Exception("geopm_stats_collector_report(): Host name too long: " + report_cpp.host,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        report->host[NAME_MAX - 1] = '\0';
         strncpy(report->host, report_cpp.host.c_str(), NAME_MAX - 1);
         if (report_cpp.sample_time_first.size() >= NAME_MAX) {
             throw geopm::Exception("geopm_stats_collector_report(): Date too long: " + report_cpp.sample_time_first,
                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        report->sample_time_first[NAME_MAX - 1] = '\0';
         strncpy(report->sample_time_first, report_cpp.sample_time_first.c_str(), NAME_MAX - 1);
         memcpy(report->sample_stats, report_cpp.sample_stats.data(), sizeof(double) * GEOPM_NUM_SAMPLE_STATS);
         report->num_metric = report_cpp.metric_names.size();
@@ -305,6 +307,7 @@ int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector
                 throw geopm::Exception("geopm_stats_collector_report(): Metric name too long: " + report_cpp.metric_names[metric_idx],
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
+            report->metric_stats[metric_idx].name[NAME_MAX - 1] = '\0';
             strncpy(report->metric_stats[metric_idx].name, report_cpp.metric_names[metric_idx].c_str(), NAME_MAX - 1);
             memcpy(report->metric_stats[metric_idx].stats, report_cpp.metric_stats[metric_idx].data(), sizeof(double) * GEOPM_NUM_METRIC_STATS);
         }
