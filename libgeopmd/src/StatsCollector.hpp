@@ -30,22 +30,22 @@ namespace geopm
                 std::vector<std::array<double, GEOPM_NUM_METRIC_STATS> > metric_stats;
             };
 
-            /// @brief Default null constructor without requests
-            StatsCollector();
-            /// @brief Standard constructor with requests
+            /// @brief Factory access method
             ///
             /// User specifies a vector of PlatformIO signal requests to be
             /// accumulated.  The report will generate statistics about each
             /// signal request.
             ///
             /// @param [in] requests All signals for monitoring and reporting
-            StatsCollector(const std::vector<geopm_request_s> &requests);
-            /// @brief Test constructor used to mock PlatformIO
-            StatsCollector(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
+            ///
+            /// @return Unique pointer to StatCollector object
+            static std::unique_ptr<StatsCollector> make_unique(const std::vector<geopm_request_s> &requests);
+            /// @brief Default null constructor without requests
+            StatsCollector() = default;
             /// @brief Default destructor
-            ~StatsCollector() = default;
+            virtual ~StatsCollector() = default;
             /// @brief Sample PlatformIO and update all tracked signals
-            void update(void);
+            virtual void update(void) = 0;
             /// @brief Generate a YAML report of statistics
             ///
             /// Returns a YAML formatted report providing statisics about all
@@ -54,12 +54,12 @@ namespace geopm
             ///
             /// @return YAML report string that includes hostname, start date,
             ///         end date, and signal statistics
-            std::string report_yaml(void) const;
+            virtual std::string report_yaml(void) const = 0;
             /// @brief May be called after report_yaml() to reset statistics
             ///
             /// Used to generate independent reports by clearing all gathered
             /// statistics and resetting the begin time.
-            void reset(void);
+            virtual void reset(void) = 0;
             /// @brief Return report of statistics in a structure representation
             ///
             /// Creates a report_s structure providing statistics about all
@@ -68,14 +68,39 @@ namespace geopm
             ///
             /// @return report_s structure containing vectors of metric_names
             ///         and metric_stats based on constructor requests.
-            report_s report_struct(void) const;
+            virtual report_s report_struct(void) const = 0;
             /// @brief Number of updates since last reset
             ///
             /// Returns the number of times the update() method has been called
             /// since object construction or last call to reset().
             ///
             /// @return Number of updates
-            size_t update_count(void) const;
+            virtual size_t update_count(void) const = 0;
+    };
+
+
+    class StatsCollectorImp : public StatsCollector
+    {
+        public:
+            /// @brief Default null constructor without requests
+            StatsCollectorImp();
+            /// @brief Standard constructor with requests
+            ///
+            /// User specifies a vector of PlatformIO signal requests to be
+            /// accumulated.  The report will generate statistics about each
+            /// signal request.
+            ///
+            /// @param [in] requests All signals for monitoring and reporting
+            StatsCollectorImp(const std::vector<geopm_request_s> &requests);
+            /// @brief Test constructor used to mock PlatformIO
+            StatsCollectorImp(const std::vector<geopm_request_s> &requests, PlatformIO &pio);
+            /// @brief Default destructor
+            ~StatsCollectorImp() = default;
+            void update(void) override;
+            std::string report_yaml(void) const override;
+            void reset(void) override;
+            report_s report_struct(void) const override;
+            size_t update_count(void) const override;
         private:
             std::vector<std::string> register_requests(const std::vector<geopm_request_s> &requests);
             std::string report_yaml_curr(void) const;
@@ -93,6 +118,7 @@ namespace geopm
             mutable bool m_is_cached;
             mutable std::string m_report_cache;
     };
+
 }
 
 #endif
