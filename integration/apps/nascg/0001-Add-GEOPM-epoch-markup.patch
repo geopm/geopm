@@ -3,7 +3,7 @@ From: Daniel Wilson <daniel1.wilson@intel.com>
 Date: Fri, 19 Aug 2022 09:20:13 -0700
 Subject: [PATCH] Add GEOPM epoch markup
 
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 ---

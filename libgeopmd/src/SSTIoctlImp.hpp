@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+ * Copyright (c) 2015 - 2024 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef SSTIOCTLIMP_HPP_INCLUDE
