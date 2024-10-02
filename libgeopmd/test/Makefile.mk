@@ -73,6 +73,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockSaveControl.hpp \
+                          test/MockStatsCollector.hpp \
                           test/MockSDBus.hpp \
                           test/MockSDBusMessage.hpp \
                           test/MockServiceProxy.hpp \
