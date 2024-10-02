@@ -3,7 +3,7 @@ From: Daniel Wilson <daniel1.wilson@intel.com>
 Date: Mon, 10 Jan 2022 20:57:06 -0500
 Subject: [PATCH] Add geopm markup to build NPB MG
 
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 ---
