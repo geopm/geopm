@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: geopm-service-pod
+spec:
+  selector:
+    matchLabels:
+      name: geopm-service
+  template:
+    metadata:
+      labels:
+        name: geopm-service
+    spec:
+      hostPID: true
+      tolerations:
+      containers:
+      - name: geopm-service
+        image: cmcantal/geopm-prometheus:latest
+        env:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: geopm-mount
+            mountPath: /run/geopm
+          - name: dev-mount
+            mountPath: /dev
+          - name: sys-mount
+            mountPath: /sys
+        command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
+      - name: geopm-prometheus-client
+        image: cmcantal/geopm-prometheus:latest
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        ports:
+        - containerPort: 8000
+          hostPort: 8000
+        command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; /usr/bin/geopmexporter']
+      - name: geopm-client
+        image: cmcantal/geopm-prometheus:latest
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        - name: tmp-mount
+          mountPath: /tmp
+        command: ['sleep', 'infinity']
+      volumes:
+      - name: geopm-mount
+        emptyDir: {}
+      - name: dev-mount
+        hostPath:
+          path: /dev
+      - name: sys-mount
+        hostPath:
+          path: /sys
+      - name: tmp-mount
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopm-metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8000"
+spec:
+  ports:
+    - name: metrics
+      port: 8000
+      protocol: TCP
+      targetPort: 8000

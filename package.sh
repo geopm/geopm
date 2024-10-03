@@ -27,6 +27,10 @@ cd geopmdpy
 ./make_$pkg.sh
 cd -
 
+cd geopmdrs
+./build.sh
+cd -
+
 cd docs
 ./make_$pkg.sh
 cd -

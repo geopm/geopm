@@ -11,10 +11,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src -I$(top_srcdir)/include \
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmd.la
 
-bin_PROGRAMS = geopmread \
-               geopmwrite \
-               geopmbatch \
-               # end
+bin_PROGRAMS = geopmbatch
 
 include_HEADERS = include/geopm_access.h \
                   include/geopm_debug.hpp \
@@ -98,12 +95,6 @@ EXTRA_DIST = .gitignore \
              # end
 
 
-geopmread_SOURCES = src/geopmread_main.cpp
-geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
-geopmread_LDADD = libgeopmd.la
-geopmwrite_SOURCES = src/geopmwrite_main.cpp
-geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
-geopmwrite_LDADD = libgeopmd.la
 geopmbatch_SOURCES = src/geopmbatch_main.cpp
 geopmbatch_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmbatch_LDADD = libgeopmd.la
