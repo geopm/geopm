@@ -90,6 +90,7 @@ TEST(HelperTest, pid_to)
 
 TEST(HelperTest, has_cap_sys_admin)
 {
+    GEOPM_TEST_EXTENDED("Capabilities requirements");
     if (getuid() != 0) {
         EXPECT_FALSE(geopm::has_cap_sys_admin());
         EXPECT_FALSE(geopm::has_cap_sys_admin(getpid()));

@@ -68,6 +68,7 @@ TEST_F(SecurePathTest, umask)
 
 TEST_F(SecurePathTest, bad_file)
 {
+    GEOPM_TEST_EXTENDED("The system file /etc/shadow may not be present");
     std::string bad_file = m_file_name + "-link";
     (void)!symlink(m_file_name.c_str(), bad_file.c_str());
 
