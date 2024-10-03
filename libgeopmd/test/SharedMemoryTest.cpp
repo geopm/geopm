@@ -287,11 +287,13 @@ void SharedMemoryTest::chown_test(const std::string &shm_key)
 
 TEST_F(SharedMemoryTest, chown_shm)
 {
+    GEOPM_TEST_EXTENDED("Requires use of UID 0");
     chown_test(m_key_shm);
 }
 
 TEST_F(SharedMemoryTest, chown_file)
 {
+    GEOPM_TEST_EXTENDED("Requires use of UID 0");
     chown_test(m_key_file);
 }
 
