@@ -61,6 +61,32 @@ use ``yum``, ``zypper``, or ``apt`` to install the package.
    The ``level-zero-devel`` package is optional unless building GEOPM from
    source with GPU support.
 
+.. warning::
+
+   In order to avoid a race condition that exists between the availability
+   of the Level Zero interfaces and GEOPM, the kernel graphics driver that
+   provides the backing for these interfaces, i915, must be loaded before
+   the GEOPM systemd service starts.  Otherwise no GPU signals nor controls
+   will be available if the GEOPM systemd service starts before i915 has
+   completed initialization.
+
+   The correct load order can be enforced via the systemd-modules-load
+   service.  Simply add a file in ``/etc/modules-load.d`` called
+   ``i915.conf`` with the only contents being ``i915``.  This forces i915
+   to load before the GEOPM systemd service, and resolves the race
+   condition.
+
+   The kernel command line can be modified instead for this purpose if
+   modifying the file system is not an option.  More information:
+
+   * `modules-load.d <https://www.freedesktop.org/software/systemd/man/latest/modules-load.d.html>`__
+
+   * `systemd-modules-load.service
+     <https://www.freedesktop.org/software/systemd/man/latest/systemd-modules-load.service.html>`__
+
+   * `SLES 15-SP4 - Loading kernel modules automatically on boot
+     <https://documentation.suse.com/sles/15-SP4/html/SLES-all/cha-mod.html#sec-mod-modprobe-d>`__
+
 Prerequisites for NVML
 ^^^^^^^^^^^^^^^^^^^^^^
 
