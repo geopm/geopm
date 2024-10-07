@@ -278,7 +278,7 @@ class Session:
 
         Raises:
             RuntimeError: The period is greater than the total time, or any
-                          option is negative, or report_samples is non-integer.
+                          option is negative.
 
         """
         if period > run_time:
@@ -287,11 +287,8 @@ class Session:
             raise RuntimeError('Specified a period greater than 24 hours')
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
-        if report_samples is not None:
-            if report_samples < 0:
-                raise RuntimeError('Specified report samples is negative')
-            if int(report_samples) != report_samples:
-                raise RuntimeError(f'Specified report samples is non-integer: {report_samples}')
+        if report_samples is not None and report_samples < 0:
+            raise RuntimeError('Specified report samples is negative')
 
     def header_names(self, requests):
         """Format trace CSV header strings for the set of requests
