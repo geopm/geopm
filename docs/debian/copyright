@@ -121,10 +121,10 @@ Files:     .gitignore
            source/geopmctl.1.rst
            source/geopmdpy.7.rst
            source/geopmendpoint.1.rst
+           source/geopmexporter.1.rst
            source/geopmlaunch.1.rst
            source/geopmpy.7.rst
            source/geopmread.1.rst
-           source/geopmexporter.1.rst
            source/geopmsession.1.rst
            source/geopmwrite.1.rst
            source/index.rst

@@ -111,7 +111,7 @@ samples over time.  In this way the batch of signals read from the GEOPM is used
 to update a ``Summary`` metric for GEOPM signals with variable behavior, or a
 ``Counter`` metric for signals with monotone behavior.  Each metric provides
 slightly different statistics for the Prometheus server on the port opened by
-``geopmexporter``.  the ``Summary`` metric exports the **count** and **sum**
+``geopmexporter``.  The ``Summary`` metric exports the **count** and **sum**
 statistics, where as the ``Counter`` metric exports the **count** and **total**
 statistics.  GEOPM calls into the Prometheus metrics through a Python interface.
 This means that the quartile metrics are not currently supported for ``Summary``

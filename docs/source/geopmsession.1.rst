@@ -53,9 +53,12 @@ the second string is the domain name, and the third string is the domain index.
 Provide the "``*``" character as the third string to request all domains
 available on the system.
 
-Unless the ``-n`` option is specified, a descriptive header is written first and
-then the output from reading the requests.  Unless ``-p`` is specified, only one
-line of output after the header is printed.
+A descriptive header is written first, unless the ``-n`` option is specified, in
+which case the header omitted.  The output from reading values is printed
+subsequently in CSV format.  By default, only one line of CSV will be generated.
+Use ``-p`` to create a CSV with multiple rows providing a time series of
+measurements.
+
 
 Options
 -------
