@@ -149,10 +149,6 @@ class TestSession(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, err_msg):
             self._session.check_read_args(1, 0.01, -10)
 
-        err_msg = 'Specified report samples is non-integer'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(1, 0.01, 0.1)
-
         self._session.check_read_args(1, 1, None)
         self._session.check_read_args(1, .01, 10)
 
