@@ -31,7 +31,6 @@ class PrometheusExporter:
                                     exporter._get_metric(metric_idx))
                  self._num_metric += 1
         self._num_fresh = self._num_metric
-        self._is_fresh = len(self._metric_names) * [True]
 
     def run(self, period, port):
         """Run the GEOPM Prometheus exporter with geopm.stats.Collector
@@ -49,7 +48,6 @@ class PrometheusExporter:
         _, self._metric_data = self._stats_collector.report_table()
         self._stats_collector.reset()
         self._num_fresh = self._num_metric
-        self._is_fresh = len(self._metric_names) * [True]
 
     def _get_metric(self, metric_idx):
         """Get metric from cached report and update cache if all metrics have
@@ -58,9 +56,7 @@ class PrometheusExporter:
         """
         if self._num_fresh == 0:
             self._refresh()
-        if self._is_fresh[metric_idx]:
-            self._num_fresh -= 1
-            self._is_fresh[metric_idx] = False
+        self._num_fresh -= 1
         return self._metric_data[metric_idx]
 
 class PrometheusMetricExporter:
