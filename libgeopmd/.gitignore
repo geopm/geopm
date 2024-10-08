@@ -27,6 +27,7 @@ const_config_test.json
 /geopm-service-*/
 /geopmread
 /geopmwrite
+/geopmbatch
 /googletest-release-*/
 /googletest-release-*.tar.gz
 /integration/test/test_batch_interface
@@ -52,3 +53,7 @@ src/sysfs_attributes_*.cpp
 /test/*.trs
 /test-suite.log
 /gen-src
+/src/geopm_service.grpc.pb.cc
+/src/geopm_service.grpc.pb.h
+/src/geopm_service.pb.cc
+/src/geopm_service.pb.h

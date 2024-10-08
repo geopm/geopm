@@ -5,3 +5,5 @@
 /make_sdist.log
 /geopmdpy-*/
 /debian/changelog
+/geopmdpy/geopm_service_pb2.py
+/geopmdpy/geopm_service_pb2_grpc.py

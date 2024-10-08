@@ -64,11 +64,12 @@ jobs:
       CXX: ${{ matrix.config.cxx }}
       FC: gfortran-9
       F77: gfortran-9
+      CXXFLAGS: -Wno-array-bounds
 
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev gobject-introspection python3-gi python3-yaml libcap-dev zlib1g-dev doxygen graphviz
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev gobject-introspection python3-gi python3-yaml libcap-dev zlib1g-dev doxygen graphviz cargo libgrpc++-dev libgrpc-dev libgrpc++-dev libprotoc-dev libprotobuf-dev protobuf-compiler protobuf-compiler-grpc zstd
     - name: install geopmpy and geopmdpy along with their development dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
@@ -151,7 +152,7 @@ jobs:
     - name: show failure logs
       if: ${{ failure() }}
       run: |
-           cat ./*/test/test-suite.log || true
+           cat ./test-suite.log || true
            cat integration/service/open_pbs/*.log || true
 
   publish_obs:

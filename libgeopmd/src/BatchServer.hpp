@@ -78,21 +78,18 @@ namespace geopm
                 const std::string &server_key);
             /// @return The Unix process ID of the server process
             ///        created.
+            static int main(int argc, char **argv);
+            static void main(int client_pid, std::istream &input_stream);
             virtual int server_pid(void) const = 0;
             /// @return The key used to identify the server
             ///        connection: a substring in interprocess shared
             ///        memory keys used for communication.
             virtual std::string server_key(void) const = 0;
-            /// @brief Supports the D-Bus interface for stopping a
-            ///        batch server.
-            ///
-            /// This function is called directly by geopmd in order to
-            /// end a batch session and kill the batch server process
-            /// created by start_batch_server().
-            virtual void stop_batch(void) = 0;
             /// @brief Returns true if the batch server is running
             virtual bool is_active(void) = 0;
-
+            virtual void run_batch(void) = 0;
+            virtual void create_shmem(void) = 0;
+            virtual void register_handler(void) = 0;
         protected:
             static constexpr const char* M_SHMEM_PREFIX =
                 "/run/geopm/batch-buffer-";
@@ -120,17 +117,10 @@ namespace geopm
             virtual ~BatchServerImp();
             int server_pid(void) const override;
             std::string server_key(void) const override;
-            void stop_batch(void) override;
             bool is_active(void) override;
-            void run_batch(void);
-            void create_shmem(void);
-            /// @brief Fork a process that runs two functions and
-            ///        block until the first function completes.
-            int fork_with_setup(std::function<char(void)> setup,
-                                std::function<void(void)> run);
-            void child_register_handler(void);
-            void parent_register_handler(void);
-
+            void run_batch(void) override;
+            void create_shmem(void) override;
+            void register_handler(void) override;
         private:
             void push_requests(void);
             void read_and_update(void);

@@ -1,3 +1,4 @@
+usr/bin/geopmbatch
 usr/bin/geopmread
 usr/bin/geopmwrite
 geopm.service lib/systemd/system

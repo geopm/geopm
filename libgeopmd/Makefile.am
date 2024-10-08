@@ -13,6 +13,7 @@ lib_LTLIBRARIES = libgeopmd.la
 
 bin_PROGRAMS = geopmread \
                geopmwrite \
+               geopmbatch \
                # end
 
 include_HEADERS = include/geopm_debug.hpp \
@@ -101,6 +102,9 @@ geopmread_LDADD = libgeopmd.la
 geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmwrite_LDADD = libgeopmd.la
+geopmbatch_SOURCES = src/geopmbatch_main.cpp
+geopmbatch_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
+geopmbatch_LDADD = libgeopmd.la
 
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
@@ -179,6 +183,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
                        src/GEOPMHint.cpp \
+                       src/GRPCServiceProxy.cpp \
+                       src/GRPCServiceProxy.hpp \
                        src/Helper.cpp \
                        src/IOGroup.cpp \
                        src/IOUring.cpp \
@@ -260,6 +266,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
                        src/geopm_shmem.cpp \
+                       src/geopm_service.grpc.pb.cc \
+                       src/geopm_service.grpc.pb.h \
+                       src/geopm_service.pb.cc \
+                       src/geopm_service.pb.h \
                        src/geopm_version.cpp \
                        # end
 
