@@ -2,10 +2,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: geopm-service-pod
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /metrics
-    prometheus.io/port: "8000"
 spec:
   selector:
     matchLabels:
@@ -58,3 +54,18 @@ spec:
       - name: sys-mount
         hostPath:
           path: /sys
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopm-metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8000"
+spec:
+  ports:
+    - name: metrics
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
