@@ -15,6 +15,7 @@ from io import StringIO
 from argparse import ArgumentParser
 from signal import signal
 from signal import SIGTERM
+from time import sleep
 from . import topo
 from . import pio
 from . import loop
@@ -36,6 +37,7 @@ except ImportError as ex:
     nullcontext = _nullcontext
 
 g_session_handler = None
+_STARTUP_SLEEP = 0.005
 
 def _term_handler(signum, frame):
     if signum == SIGTERM and g_session_handler is not None:
@@ -231,6 +233,10 @@ class Session:
         for name, dom, dom_idx in requests:
             signal_handles.append(pio.push_signal(name, dom, dom_idx))
         pio.read_batch()
+        if any([math.isnan(pio.sample(handle)) for handle in signal_handles]):
+            # Purge first sample for derivative based signals
+            sleep(_STARTUP_SLEEP)
+            pio.read_batch()
         for sample_idx in loop.TimedLoop(period, num_period):
             if sample_idx != 0:
                 pio.read_batch()
