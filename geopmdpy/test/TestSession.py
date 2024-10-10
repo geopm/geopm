@@ -53,7 +53,7 @@ class TestSession(unittest.TestCase):
         format_return_value = "1.234, 2.345, 3.456"
         mock_requests.get_formats.return_value = format_return_value
         signal_handle = list(range(3))
-        signal_expect = num_period * [1.234, 2.345, 3.456]
+        signal_expect = (1 + num_period) * [1.234, 2.345, 3.456]
 
         with mock.patch('geopmdpy.loop.TimedLoop', return_value=[0, 1]) as mock_timed_loop, \
              mock.patch('geopmdpy.pio.push_signal', side_effect=signal_handle) as mock_push_signal, \
@@ -66,6 +66,25 @@ class TestSession(unittest.TestCase):
             calls = [mock.call(*req) for req in pio_requests]
             mock_push_signal.assert_has_calls(calls)
             calls = num_period * [mock.call()]
+            mock_read_batch.assert_has_calls(calls)
+            calls = num_period * [mock.call(idx) for idx in signal_handle]
+            mock_sample.assert_has_calls(calls)
+            calls = num_period * [mock.call(format_return_value)]
+            out_stream.write.assert_has_calls(calls)
+
+        # Check that resample occurs when first returned value is nan
+        signal_expect[1] = float('nan')
+        with mock.patch('geopmdpy.loop.TimedLoop', return_value=[0, 1]) as mock_timed_loop, \
+             mock.patch('geopmdpy.pio.push_signal', side_effect=signal_handle) as mock_push_signal, \
+             mock.patch('geopmdpy.pio.read_batch') as mock_read_batch, \
+             mock.patch('geopmdpy.pio.sample', side_effect=signal_expect) as mock_sample, \
+             mock.patch('geopmdpy.session.Session.format_signals', return_value=format_return_value):
+            # Call tested method
+            self._session.run_read(mock_requests, duration, period, pid=None, out_stream=out_stream)
+            # Check mocks calls
+            calls = [mock.call(*req) for req in pio_requests]
+            mock_push_signal.assert_has_calls(calls)
+            calls = (1 + num_period) * [mock.call()]
             mock_read_batch.assert_has_calls(calls)
             calls = num_period * [mock.call(idx) for idx in signal_handle]
             mock_sample.assert_has_calls(calls)
