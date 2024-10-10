@@ -45,6 +45,21 @@ spec:
         - containerPort: 8000
           hostPort: 8000
         command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; /usr/bin/geopmexporter']
+      - name: geopm-client
+        image: cmcantal/geopm-prometheus:latest
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        - name: tmp-mount
+          mountPath: /tmp
+        command: ['sleep', 'infinity']
       volumes:
       - name: geopm-mount
         emptyDir: {}
@@ -54,6 +69,8 @@ spec:
       - name: sys-mount
         hostPath:
           path: /sys
+      - name: tmp-mount
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
