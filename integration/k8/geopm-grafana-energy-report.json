@@ -81,7 +81,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 3,
         "x": 0,
         "y": 0
       },
@@ -157,7 +157,7 @@
           "useBackend": false
         }
       ],
-      "title": "Energy breakdown",
+      "title": "Energy",
       "type": "piechart"
     },
     {
@@ -224,8 +224,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 8
+        "x": 3,
+        "y": 0
       },
       "id": 1,
       "options": {
@@ -358,8 +358,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 16
+        "x": 3,
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -492,8 +492,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 24
+        "x": 3,
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -577,6 +577,6 @@
   "timezone": "browser",
   "title": "GEOPM Energy Report",
   "uid": "edz0j06i345j4b",
-  "version": 8,
+  "version": 9,
   "weekStart": ""
 }
