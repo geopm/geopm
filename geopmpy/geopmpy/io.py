@@ -19,6 +19,10 @@ import sys
 import subprocess # nosec
 import psutil
 import copy
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
 import yaml
 import io
 import hashlib
@@ -706,7 +710,7 @@ class RawReport(object):
         # the decimal point is missing.
         # See PR: https://github.com/yaml/pyyaml/pull/174
         # for upstream fix to pyyaml
-        yaml.SafeLoader.add_implicit_resolver(
+        SafeLoader.add_implicit_resolver(
             u'tag:yaml.org,2002:float',
             re.compile(r'''^(?:[-+]?(?:[0-9][0-9_]*)\.[0-9_]*(?:[eE][-+]?[0-9]+)?
                            |[-+]?(?:[0-9][0-9_]*)(?:[eE][-+]?[0-9]+)
@@ -716,7 +720,7 @@ class RawReport(object):
                            |\.(?:nan|NaN|NAN))$''', re.X),
             list(u'-+0123456789.'))
         with open(path) as fid:
-            self._raw_dict = yaml.safe_load(fid)
+            self._raw_dict = yaml.load(fid, Loader=SafeLoader)
 
     def raw_report(self):
         return copy.deepcopy(self._raw_dict)
