@@ -230,6 +230,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_includedir}/geopm/ServiceProxy.hpp
 %{_includedir}/geopm/SharedMemory.hpp
 %{_includedir}/geopm/SharedMemoryScopedLock.hpp
+%{_includedir}/geopm_access.h
 %{_includedir}/geopm_debug.hpp
 %{_includedir}/geopm_error.h
 %{_includedir}/geopm_field.h
