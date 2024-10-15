@@ -23,9 +23,10 @@ from . import stats
 from . import __version_str__
 
 try:
-    from mpi4py import MPI
+    import mpi4py
+    mpi_ex = None
 except ModuleNotFoundError as ex:
-    MPI = ex
+    _MPI_EX = ex
 
 from contextlib import contextmanager
 @contextmanager
@@ -88,14 +89,14 @@ class _SessionIO:
 
 class _MPISessionIO:
     def __init__(self, request_stream, trace_path, report_path, report_format):
-        if type(MPI) == ModuleNotFoundError:
-            raise MPI
+        if _MPI_EX is not None:
+            raise _MPI_EX
         if trace_path == "-":
             raise RuntimeError('Cannot write trace to standard output when specifying the --enable-mpi option')
         self._request_stream = request_stream
         self._trace_path = trace_path
         self._report_path = report_path
-        self._comm = MPI.COMM_WORLD
+        self._comm = mpi4py.MPI.COMM_WORLD
         self._rank = self._comm.Get_rank()
         self._join_str = ''
         if report_format == 'yaml':
