@@ -84,6 +84,7 @@ class TestIntegration_progress(unittest.TestCase):
                                                     trace_signals=trace_signals)
         launcher.set_num_node(cls._num_node)
         launcher.set_num_rank(cls._num_rank)
+        launcher.enable_ompt()
         # Run the test application
         geopm_args = ['--geopm-period=0.005', '--geopm-ctl=process']
         launcher.run(cls._test_name, add_geopm_args=geopm_args)
