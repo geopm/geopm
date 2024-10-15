@@ -4,10 +4,11 @@
  */
 
 
+#include <unistd.h>
 #include <string>
 #include <iostream>
 #include <map>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -32,7 +33,32 @@ namespace geopm
                             "variable is set, must use service to access LevelZero in this case.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-
+        if (geopm::has_cap_sys_admin()) {
+            // LevelZeroIOGroup is only loaded when PID has CAP_SYS_ADMIN
+            bool do_warn = false;
+            if (getenv("ZE_ENABLE_SYSMAN") == nullptr ||
+                std::string(getenv("ZE_ENABLE_SYSMAN")) != "1") {
+                do_warn = true;
+                std::cerr << "Warning: <geopm> LevelZero features require the environment variable setting \"ZE_ENABLE_SYSMAN=1\".\n";
+            }
+            if (getenv("ZE_FLAT_DEVICE_HIERARCHY") == nullptr ||
+                std::string(getenv("ZE_FLAT_DEVICE_HIERARCHY")) != "COMPOSITE") {
+                if (do_warn == false) {
+                    std::cerr << "Warning: <geopm> ";
+                }
+                else {
+                    std::cerr << "                 ";
+                }
+                do_warn = true;
+                std::cerr << "LevelZero features require the environment variable setting \"ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE\".\n";
+            }
+            if (do_warn) {
+                std::cerr << "                 This process may corrupt the topology cache file if LevelZero enabled GPUs are present.\n"
+                          << "                 Run the following commands to fix:\n"
+                          << "                     sudo rm -f /run/geopm/geopm-topo-cache\n"
+                          << "                     sudo env ZE_ENABLE_SYSMAN=1 ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE geopmread --cache\n";
+            }
+        }
         //Initialize
         check_ze_result(zeInit(ZE_INIT_FLAG_GPU_ONLY),
                         GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
