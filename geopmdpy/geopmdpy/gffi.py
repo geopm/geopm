@@ -4,23 +4,7 @@
 #
 
 '''The gffi module provides a wrapper around the cffi interface
-
-This module enables a single cffi.FFI() object to be used throughout
-all of the GEOPM python modules and also enables us to enforce that
-the libgeopm.so dynamic library is opened prior to libgeopmd.so.
-This is required because libgeopmd.so allocates static objects that
-depend on static objects defined in libgeopm.so (in particular
-the geopm::ApplicationSampler).
-
 '''
-
-import cffi
-import os
-
-'''gffi is the global FFI object used by all geopm python modules
-
-'''
-gffi = cffi.FFI()
 
 def get_dl_geopmd():
     '''Get the FFILibrary instance for libgeopmd.so
@@ -31,8 +15,9 @@ def get_dl_geopmd():
 
     '''
     global _dl_geopmd
-    if type(_dl_geopmd) is OSError:
-        raise _dl_geopmd
+    if isinstance(_dl_geopmd, Exception):
+        raise RuntimeError('Attempted to use libgeopmd.so, which is not loaded. Make sure it is available '
+                           'in your system installs or in LD_LIBRARY_PATH') from _dl_geopmd
     return _dl_geopmd
 
 def get_dl_geopm():
@@ -44,21 +29,19 @@ def get_dl_geopm():
 
     '''
     global _dl_geopm
-    if type(_dl_geopm) is OSError:
-        raise _dl_geopm
+    if isinstance(_dl_geopm, Exception):
+        raise RuntimeError('Attempted to use libgeopm.so, which is not loaded. Make sure it is available '
+                           'in your system installs or in LD_LIBRARY_PATH') from _dl_geopm
     return _dl_geopm
 
-# Enforce load order of libgeopm.so and libgeopmd.so by loading
-# them together in this module.
 try:
-    _dl_geopm = gffi.dlopen('libgeopm.so.2',
-                            gffi.RTLD_LOCAL|gffi.RTLD_LAZY)
-except OSError as err:
+    from _libgeopm_py_cffi import ffi as gffi, lib as _dl_geopm
+    libgeopm_ffi = gffi
+except Exception as err:
     _dl_geopm = err
 
-# Load libgeopmd.so after libgeopm.so
 try:
-    _dl_geopmd =  gffi.dlopen('libgeopmd.so.2',
-                              gffi.RTLD_LOCAL|gffi.RTLD_LAZY)
-except OSError as err:
+    from _libgeopmd_py_cffi import ffi as gffi, lib as _dl_geopmd
+    libgeopmd_ffi = gffi
+except Exception as err:
     _dl_geopmd = err

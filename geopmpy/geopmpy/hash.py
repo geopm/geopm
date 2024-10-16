@@ -5,13 +5,10 @@
 
 
 from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopm
+from geopmdpy.gffi import get_dl_geopmd
 
-gffi.cdef("""
-uint64_t geopm_crc32_str(const char *key);
-""")
 try:
-    _dl = get_dl_geopm()
+    _dl = get_dl_geopmd()
 except OSError as ee:
     raise OSError('This module requires libgeopm.so to be present in your LD_LIBRARY_PATH.') from ee
 
