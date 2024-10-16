@@ -13,99 +13,6 @@ signals and writing controls from system components.
 from . import gffi
 from . import topo
 from . import error
-
-gffi.gffi.cdef("""
-
-struct geopm_request_s {
-    int domain;
-    int domain_idx;
-    char name[255];
-};
-
-int geopm_pio_num_signal_name(void);
-
-int geopm_pio_signal_name(int name_idx,
-                          size_t result_max,
-                          char *result);
-
-int geopm_pio_num_control_name(void);
-
-int geopm_pio_control_name(int name_index,
-                           size_t result_max,
-                           char *result);
-
-int geopm_pio_signal_domain_type(const char *signal_name);
-
-int geopm_pio_control_domain_type(const char *control_name);
-
-int geopm_pio_read_signal(const char *signal_name,
-                          int domain_type,
-                          int domain_idx,
-                          double *result);
-
-int geopm_pio_write_control(const char *control_name,
-                            int domain_type,
-                            int domain_idx,
-                            double setting);
-
-int geopm_pio_push_signal(const char *signal_name,
-                          int domain_type,
-                          int domain_idx);
-
-int geopm_pio_push_control(const char *control_name,
-                           int domain_type,
-                           int domain_idx);
-
-int geopm_pio_sample(int signal_idx,
-                     double *result);
-
-int geopm_pio_adjust(int control_idx,
-                     double setting);
-
-int geopm_pio_read_batch(void);
-
-int geopm_pio_write_batch(void);
-
-int geopm_pio_save_control(void);
-
-int geopm_pio_save_control_dir(const char *save_dir);
-
-int geopm_pio_restore_control(void);
-
-int geopm_pio_restore_control_dir(const char *save_dir);
-
-int geopm_pio_signal_description(const char *signal_name,
-                                 size_t description_max,
-                                 char *description);
-
-int geopm_pio_control_description(const char *control_name,
-                                  size_t description_max,
-                                  char *description);
-
-int geopm_pio_signal_info(const char *signal_name,
-                          int *aggregation_type,
-                          int *format_type,
-                          int *behavior_type);
-
-int geopm_pio_start_batch_server(int client_pid,
-                                 int num_signal,
-                                 const struct geopm_request_s *signal_config,
-                                 int num_control,
-                                 const struct geopm_request_s *control_config,
-                                 int *server_pid,
-                                 int key_size,
-                                 char *server_key);
-
-int geopm_pio_stop_batch_server(int server_pid);
-
-int geopm_pio_format_signal(double signal,
-                            int format_type,
-                            size_t result_max,
-                            char *result);
-
-void geopm_pio_reset(void);
-
-""")
 _dl = gffi.get_dl_geopmd()
 
 def signal_names():
@@ -613,12 +520,12 @@ def start_batch_server(client_pid, signal_config, control_config):
         control_config_carr = gffi.gffi.NULL
 
     for idx, req in enumerate(signal_config):
-        signal_config_carr[idx].domain = req[0]
+        signal_config_carr[idx].domain_type = req[0]
         signal_config_carr[idx].domain_idx = req[1]
         signal_config_carr[idx].name = req[2].encode()
 
     for idx, req in enumerate(control_config):
-        control_config_carr[idx].domain = req[0]
+        control_config_carr[idx].domain_type = req[0]
         control_config_carr[idx].domain_idx = req[1]
         control_config_carr[idx].name = req[2].encode()
 
@@ -699,7 +606,6 @@ def reset():
     cleared, any batch servers that had been started will be stopped,
     and all registered IOGroups will be reset.
     """
-    global _dl
     _dl.geopm_pio_reset()
 
 def enable_fixed_counters():

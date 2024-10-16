@@ -27,6 +27,18 @@ instructions in the directory for that library as part of setting up a geopmdpy
 development environment. Either install that builds somewhere on your path, or
 manually add it to your `LD_LIBRARY_PATH` (examples in the next section).
 
+Building Against Non-System-Installed Libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you want to build geopmdpy against non-system-installed headers and ``libgeopmd``
+binaries, you need to set your compiler's environment variables to tell it
+where to search for GEOPM. For example, if you built and installed ``libgeopmd``
+with ``--prefix=$HOME/build/geopm`` and your python extensions are compiled
+with gcc, then run:
+
+    CC=gcc LIBRARY_PATH=$HOME/build/geopm/lib C_INCLUDE_PATH=$HOME/build/geopm/include pip install ./
+
+to build and install this package.
+
 Executing Tests
 ---------------
 Run `LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopmd/.libs" python3 test`

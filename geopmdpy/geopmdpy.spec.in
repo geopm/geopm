@@ -70,7 +70,7 @@ configuring the service.
 # Installed files
 %files
 %defattr(-,root,root,-)
-%{python3_sitelib}/*
+%{python3_sitearch}/*
 %{_bindir}/geopmd
 %{_bindir}/geopmaccess
 %{_bindir}/geopmexporter

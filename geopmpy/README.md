@@ -17,6 +17,18 @@ The `geopmpy` package depends on `geopmdpy`, so also be sure to install that pac
 
 The `geopmpy` package wraps `libgeopm`, which also depends on `libgeopmd`. Be sure to follow the build instructions in the directories for those libraries as part of setting up a geopmpy development environment. Either install those builds somewhere on your path, or manually add them to your `LD_LIBRARY_PATH` (examples in the next section).
 
+Building Against Non-System-Installed Libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you want to build geopmpy against non-system-installed headers and ``libgeopm``
+binaries, you need to set your compiler's environment variables to tell it
+where to search for GEOPM. For example, if you built and installed ``libgeopm``
+with ``--prefix=$HOME/build/geopm`` and your python extensions are compiled
+with gcc, then run:
+
+    CC=gcc LIBRARY_PATH=$HOME/build/geopm/lib C_INCLUDE_PATH=$HOME/build/geopm/include pip install ./
+
+to build and install this package.
+
 Executing Tests
 ---------------
 Run `LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopm/.libs" python3 test` from this directory to launch the entire test suite. Some of the tests depend on `libgeopm`, so it should be built before running tests.

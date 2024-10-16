@@ -10,39 +10,6 @@ from geopmdpy import error
 import json
 
 
-gffi.cdef("""
-
-int geopm_agent_supported(const char *agent_name);
-
-int geopm_agent_num_policy(const char *agent_name,
-                           int *num_policy);
-
-int geopm_agent_policy_name(const char *agent_name,
-                            int policy_idx,
-                            size_t policy_name_max,
-                            char *policy_name);
-
-int geopm_agent_policy_json(const char *agent_name,
-                            const double *policy_array,
-                            size_t json_string_max,
-                            char *json_string);
-
-int geopm_agent_num_sample(const char *agent_name,
-                           int *num_sample);
-
-int geopm_agent_sample_name(const char *agent_name,
-                            int sample_idx,
-                            size_t sample_name_max,
-                            char *sample_name);
-
-int geopm_agent_num_avail(int *num_agent);
-
-int geopm_agent_name(int agent_idx,
-                     size_t agent_name_max,
-                     char *agent_name);
-
-int geopm_agent_enforce_policy(void);
-""")
 _dl = get_dl_geopm()
 _name_max = 1024
 _policy_max = 8192

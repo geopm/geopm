@@ -5,3 +5,4 @@
 /make_sdist.log
 /geopmpy-*/
 /debian/changelog
+__pycache__

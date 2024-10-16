@@ -69,15 +69,13 @@ jobs:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev gobject-introspection python3-gi python3-yaml libcap-dev zlib1g-dev doxygen graphviz
-    - name: install geopmpy and geopmdpy along with their development dependencies
+    - name: install geopmpy and geopmdpy development dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r geopmdpy/requirements.txt
            python3 -m pip install -r geopmpy/requirements.txt
            python3 -m pip install -r docs/requirements.txt
            python3 -m pip install -r requirements.txt
-           python3 -m pip install ./geopmdpy
-           python3 -m pip install ./geopmpy
     - name: check include guards
       shell: bash
       run: .github/include_guards.sh
@@ -122,7 +120,19 @@ jobs:
         LD_LIBRARY_PATH: .libs:../libgeopmd/.libs:${LD_LIBRARY_PATH}
       if: matrix.service-asan-flag != 'enable-asan'
       run: make check
-
+    - name: install geopmdpy
+      env:
+        # Set absolute paths on these in case any nested build steps change directories
+        LIBRARY_PATH: ${{ github.workspace }}/libgeopmd/.libs
+        C_INCLUDE_PATH: ${{ github.workspace }}/libgeopmd/include
+      run: python3 -m pip install ./geopmdpy
+    - name: install geopmpy
+      env:
+        # Set absolute paths on these in case any nested build steps change directories
+        LIBRARY_PATH: ${{ github.workspace }}/libgeopm/.libs:${{ github.workspace }}/libgeopmd/.libs
+        C_INCLUDE_PATH: ${{ github.workspace }}/libgeopm/include:${{ github.workspace }}/libgeopmd/include
+      if: matrix.service-asan-flag != 'enable-asan'
+      run: python3 -m pip install ./geopmpy
     - name: test geopmdpy
       if: matrix.service-asan-flag != 'enable-asan'
       working-directory: geopmdpy
@@ -172,8 +182,6 @@ jobs:
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r docs/requirements.txt
-           python3 -m pip install ./geopmdpy
-           python3 -m pip install ./geopmpy
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure || (cat config.log && false)
@@ -317,7 +325,7 @@ jobs:
       run: |
         sudo mk-build-deps --install
         python3 -m pip install -r requirements.txt
-        ./make_deb.sh
+        ./make_deb.sh --no-local
         sudo apt-get purge --auto-remove python3-geopmdpy-build-deps
         sudo mv ./*.deb $TEST_DEBS_DIR
         sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
