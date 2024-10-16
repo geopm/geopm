@@ -19,5 +19,7 @@ except (ImportError, LookupError):
         version = fid.read().strip()
     os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = version
 
-setuptools.setup()
+setuptools.setup(
+    cffi_modules=["build_libgeopm_wrapper.py:ffibuilder"]
+)
 

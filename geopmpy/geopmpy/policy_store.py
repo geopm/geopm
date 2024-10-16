@@ -9,28 +9,12 @@ from geopmdpy.gffi import gffi
 from geopmdpy.gffi import get_dl_geopm
 from geopmdpy import error
 
-gffi.cdef("""
-int geopm_policystore_connect(const char *data_path);
-
-int geopm_policystore_disconnect();
-
-int geopm_policystore_get_best(const char* agent_name, const char* profile_name,
-                               size_t max_policy_vals, double* policy_vals);
-
-int geopm_policystore_set_best(const char* agent_name, const char* profile_name,
-                               size_t num_policy_vals, const double* policy_vals);
-
-int geopm_policystore_set_default(const char* agent_name,
-                                  size_t num_policy_vals, const double* policy_vals);
-""")
 _dl = get_dl_geopm()
-
-
-def is_implemented():
-    """Check whether the optional PolicyStore feature is implemented in this
-    deployment of GEOPM.
-    """
-    return hasattr(_dl, 'geopm_policystore_connect')
+if not hasattr(_dl, 'geopm_policystore_connect'):
+    raise ImportError('geopmpy.policy_store cannot be imported because the installed '
+                      'libgeopm does not include the PolicyStore feature. '
+                      'Rebuild libgeopm with the --enable-beta configuration flag '
+                      'then reinstall geopmpy.')
 
 
 def connect(database_path):

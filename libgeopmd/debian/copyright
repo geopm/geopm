@@ -26,6 +26,7 @@ Files:     autogen.sh
            include/geopm/ServiceProxy.hpp
            include/geopm/SharedMemory.hpp
            include/geopm/SharedMemoryScopedLock.hpp
+           include/geopm_access.h
            include/geopm_debug.hpp
            include/geopm_error.h
            include/geopm_field.h

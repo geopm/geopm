@@ -469,7 +469,9 @@ AC_CHECK_LIB([geopmd], [geopm_pio_read_signal], [], [
 
 AC_CHECK_HEADER([geopm_pio.h], [], [
     echo "missing geopm_pio.h: Install the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
-    exit -1])
+    exit -1],
+    [#define _POSIX_C_SOURCE 200809L
+     #include <geopm_pio.h>])
 
 AC_SEARCH_LIBS([elf_begin], [elf])
 AC_CHECK_LIB([elf], [elf_begin], [], [

@@ -1832,7 +1832,7 @@ namespace geopm
 
 
 extern "C" {
-    int geopm_allowlist(size_t result_max, char *result)
+    int geopm_msr_allowlist(size_t result_max, char *result)
     {
         int err = 0;
         result[result_max - 1] = '\0';
@@ -1849,5 +1849,16 @@ extern "C" {
             err = err < 0 ? err : GEOPM_ERROR_INVALID;
         }
         return err;
+    }
+
+    // Deprecated: Previously used externally by geopmdpy but was undocumented.
+    // This implementation exists to handle CFFI users that were coded against
+    // the old ABI.
+    int geopm_allowlist(size_t result_max, char *result)
+    {
+        std::cerr << "warning: <geopm> geopm_allowlist() is deprecated and may "
+                     "be removed in future releases. Use geopm_msr_allowlist instead"
+                  << std::endl;
+        return geopm_msr_allowlist(result_max, result);
     }
 }

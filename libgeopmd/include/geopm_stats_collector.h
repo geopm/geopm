@@ -11,6 +11,7 @@ extern "C" {
 
 #include "geopm_public.h"
 #include <stddef.h>
+#include <limits.h>
 
 struct geopm_request_s;
 struct geopm_stats_collector_s;

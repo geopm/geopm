@@ -18,10 +18,6 @@ from . import gffi
 from . import error
 from . import __version_str__
 
-gffi.gffi.cdef("""
-int geopm_allowlist(size_t result_max,
-                    char *result);
-""")
 _dl = gffi.get_dl_geopmd()
 
 
@@ -323,7 +319,7 @@ class Access:
         global _dl
         data_max = 2097152 # 2 MiB
         allowlist_cstr = gffi.gffi.new("char[]", data_max)
-        err = _dl.geopm_allowlist(data_max, allowlist_cstr)
+        err = _dl.geopm_msr_allowlist(data_max, allowlist_cstr)
         if err < 0:
             raise RuntimeError('geopm_allowlist() failed: {}'.format(error.message(err)))
         return gffi.gffi.string(allowlist_cstr).decode()
