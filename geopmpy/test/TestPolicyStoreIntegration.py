@@ -6,12 +6,17 @@
 
 
 import unittest
-import geopmpy.policy_store
+try:
+    import geopmpy.policy_store
+except ImportError:
+    have_policy_store = False
+else:
+    have_policy_store = True
 import geopmpy.version
 
 
 class TestPolicyStoreIntegration(unittest.TestCase):
-    @unittest.skipIf(not geopmpy.policy_store.is_implemented(), "PolicyStore is not enabled. Skipping its tests.")
+    @unittest.skipIf(not have_policy_store, "PolicyStore is not enabled. Skipping its tests.")
     def test_all_interfaces(self):
         geopmpy.policy_store.connect(':memory:')
 

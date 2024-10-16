@@ -7,26 +7,6 @@
 import sys
 from . import gffi
 
-gffi.gffi.cdef("""
-enum geopm_error_e {
-    GEOPM_ERROR_RUNTIME = -1,
-    GEOPM_ERROR_LOGIC = -2,
-    GEOPM_ERROR_INVALID = -3,
-    GEOPM_ERROR_FILE_PARSE = -4,
-    GEOPM_ERROR_LEVEL_RANGE = -5,
-    GEOPM_ERROR_NOT_IMPLEMENTED = -6,
-    GEOPM_ERROR_PLATFORM_UNSUPPORTED = -7,
-    GEOPM_ERROR_MSR_OPEN = -8,
-    GEOPM_ERROR_MSR_READ = -9,
-    GEOPM_ERROR_MSR_WRITE = -10,
-    GEOPM_ERROR_AGENT_UNSUPPORTED = -11,
-    GEOPM_ERROR_AFFINITY = -12,
-    GEOPM_ERROR_NO_AGENT = -13,
-};
-
-void geopm_error_message(int err, char *msg, size_t size);
-
-""")
 _dl = gffi.get_dl_geopmd()
 
 ERROR_RUNTIME = _dl.GEOPM_ERROR_RUNTIME

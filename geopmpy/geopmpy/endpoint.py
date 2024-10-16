@@ -8,51 +8,12 @@ from geopmdpy import error
 import geopmpy.agent
 from typing import Union, Mapping, List, Dict, Tuple
 
-gffi.cdef("""
-struct geopm_endpoint_c;
+if not hasattr(_dl, 'geopm_endpoint_create'):
+    raise ImportError('geopmpy.endpoint cannot be imported because the installed '
+                      'libgeopm does not include the Endpoint feature. '
+                      'Rebuild libgeopm with the --enable-beta configuration flag '
+                      'then reinstall geopmpy.')
 
-int geopm_endpoint_create(const char *endpoint_name,
-                          struct geopm_endpoint_c **endpoint);
-
-int geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
-
-int geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
-
-int geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
-
-int geopm_endpoint_agent(struct geopm_endpoint_c *endpoint,
-                         size_t agent_name_max,
-                         char *agent_name);
-
-int geopm_endpoint_wait_for_agent_attach(struct geopm_endpoint_c *endpoint,
-                                         double timeout);
-
-int geopm_endpoint_stop_wait_loop(struct geopm_endpoint_c *endpoint);
-
-int geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint);
-
-int geopm_endpoint_profile_name(struct geopm_endpoint_c *endpoint,
-                                size_t profile_name_max,
-                                char *profile_name);
-
-int geopm_endpoint_num_node(struct geopm_endpoint_c *endpoint,
-                            int *num_node);
-
-int geopm_endpoint_node_name(struct geopm_endpoint_c *endpoint,
-                             int node_idx,
-                             size_t node_name_max,
-                             char *node_name);
-
-int geopm_endpoint_write_policy(struct geopm_endpoint_c *endpoint,
-                                size_t num_policy,
-                                const double *policy_array);
-
-int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
-                               size_t num_sample,
-                               double *sample_array,
-                               double *sample_age_sec);
-""")
-_dl = get_dl_geopm()
 _name_max = 1024
 _policy_max = 8192
 
