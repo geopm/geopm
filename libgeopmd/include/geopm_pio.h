@@ -377,7 +377,11 @@ int GEOPM_PUBLIC
     geopm_pio_signal_info(const char *signal_name, int *aggregation_type,
                           int *format_type, int *behavior_type);
 
-struct geopm_request_s;
+struct GEOPM_PUBLIC geopm_request_s {
+    int domain_type;
+    int domain_idx;
+    char name[NAME_MAX];
+};
 
 /// @brief Creates a batch server with the following signals and
 ///        controls.  It would be an error to create a batch server

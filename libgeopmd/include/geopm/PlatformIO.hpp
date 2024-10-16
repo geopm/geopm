@@ -6,7 +6,6 @@
 #ifndef PLATFORMIO_HPP_INCLUDE
 #define PLATFORMIO_HPP_INCLUDE
 
-#include <climits>
 #include <functional>
 #include <memory>
 #include <set>
@@ -15,12 +14,6 @@
 
 #include "geopm_pio.h"
 #include "geopm_public.h"
-
-struct GEOPM_PUBLIC geopm_request_s {
-    int domain_type;
-    int domain_idx;
-    char name[NAME_MAX];
-};
 
 namespace geopm
 {
