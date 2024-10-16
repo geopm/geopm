@@ -36,10 +36,10 @@ namespace geopm
         if (geopm::has_cap_sys_admin()) {
             // LevelZeroIOGroup is only loaded when PID has CAP_SYS_ADMIN
             bool do_warn = false;
-            if (getenv("ZE_ENABLE_SYSMAN") == nullptr ||
-                std::string(getenv("ZE_ENABLE_SYSMAN")) != "1") {
+            if (getenv("ZES_ENABLE_SYSMAN") == nullptr ||
+                std::string(getenv("ZES_ENABLE_SYSMAN")) != "1") {
                 do_warn = true;
-                std::cerr << "Warning: <geopm> LevelZero features require the environment variable setting \"ZE_ENABLE_SYSMAN=1\".\n";
+                std::cerr << "Warning: <geopm> LevelZero features require the environment variable setting \"ZES_ENABLE_SYSMAN=1\".\n";
             }
             if (getenv("ZE_FLAT_DEVICE_HIERARCHY") == nullptr ||
                 std::string(getenv("ZE_FLAT_DEVICE_HIERARCHY")) != "COMPOSITE") {
@@ -56,7 +56,7 @@ namespace geopm
                 std::cerr << "                 This process may corrupt the topology cache file if LevelZero enabled GPUs are present.\n"
                           << "                 Run the following commands to fix:\n"
                           << "                     sudo rm -f /run/geopm/geopm-topo-cache\n"
-                          << "                     sudo env ZE_ENABLE_SYSMAN=1 ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE geopmread --cache\n";
+                          << "                     sudo env ZES_ENABLE_SYSMAN=1 ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE geopmread --cache\n";
             }
         }
         //Initialize

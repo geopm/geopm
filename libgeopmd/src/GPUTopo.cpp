@@ -53,8 +53,8 @@ namespace geopm
         }
 #endif
 #ifdef GEOPM_ENABLE_LEVELZERO
-        if (getenv("ZE_ENABLE_SYSMAN") != nullptr &&
-            std::string(getenv("ZE_ENABLE_SYSMAN")) == "1" &&
+        if (getenv("ZES_ENABLE_SYSMAN") != nullptr &&
+            std::string(getenv("ZES_ENABLE_SYSMAN")) == "1" &&
             getenv("ZE_FLAT_DEVICE_HIERARCHY") != nullptr &&
             std::string(getenv("ZE_FLAT_DEVICE_HIERARCHY")) == "COMPOSITE") {
             try {
