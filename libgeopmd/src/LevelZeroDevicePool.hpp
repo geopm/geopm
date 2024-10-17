@@ -96,16 +96,16 @@ namespace geopm
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
             /// @brief Get the LevelZero device active time in microseconds
             /// @return GPU active time in microseconds.
-            virtual uint64_t active_time(int domain, unsigned int domain_idx,
-                                         int l0_domain) const = 0;
+            virtual double active_time(int domain, unsigned int domain_idx,
+                                       int l0_domain) const = 0;
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
             ///             (i.e. GPU being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @return GPU device timestamp for the active time value in microseconds.
-            virtual uint64_t active_time_timestamp(int domain, unsigned int domain_idx,
-                                                   int l0_domain) const = 0;
+            virtual double active_time_timestamp(int domain, unsigned int domain_idx,
+                                                 int l0_domain) const = 0;
             // POWER SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device default power limit in milliwatts
             /// @param [in] domain The GEOPM domain type being targeted

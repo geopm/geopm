@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <string>
+#include <cmath>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -516,20 +517,20 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch_reverse)
         double active_time = levelzero_io.sample(active_time_batch_idx.at(sub_idx)-1);
         double active_time_timestamp = levelzero_io.sample(active_time_batch_idx.at(sub_idx));
 
-        EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx)/1e6);
-        EXPECT_DOUBLE_EQ(active_time_timestamp, mock_active_time_timestamp.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx));
+        EXPECT_DOUBLE_EQ(active_time_timestamp, mock_active_time_timestamp.at(sub_idx));
 
         double active_time_gpu = levelzero_io.sample(active_time_batch_idx.at(sub_idx)-1);
         double active_time_timestamp_gpu = levelzero_io.sample(active_time_batch_idx.at(sub_idx));
 
-        EXPECT_DOUBLE_EQ(active_time_gpu, mock_active_time.at(sub_idx)/1e6);
-        EXPECT_DOUBLE_EQ(active_time_timestamp_gpu, mock_active_time_timestamp.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time_gpu, mock_active_time.at(sub_idx));
+        EXPECT_DOUBLE_EQ(active_time_timestamp_gpu, mock_active_time_timestamp.at(sub_idx));
 
         double active_time_copy = levelzero_io.sample(active_time_batch_idx.at(sub_idx)-1);
         double active_time_timestamp_copy = levelzero_io.sample(active_time_batch_idx.at(sub_idx));
 
-        EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time.at(sub_idx)/1e6);
-        EXPECT_DOUBLE_EQ(active_time_timestamp_copy, mock_active_time_timestamp.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time.at(sub_idx));
+        EXPECT_DOUBLE_EQ(active_time_timestamp_copy, mock_active_time_timestamp.at(sub_idx));
     }
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         double energy = levelzero_io.sample(energy_batch_idx.at(gpu_idx)-1);
@@ -586,20 +587,20 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
         double active_time = levelzero_io.sample(active_time_batch_idx.at(sub_idx));
         double active_time_timestamp = levelzero_io.sample(active_time_batch_idx.at(sub_idx)+1);
 
-        EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx)/1e6);
-        EXPECT_DOUBLE_EQ(active_time_timestamp, mock_active_time_timestamp.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx));
+        EXPECT_DOUBLE_EQ(active_time_timestamp, mock_active_time_timestamp.at(sub_idx));
 
         double active_time_gpu = levelzero_io.sample(active_time_batch_idx.at(sub_idx));
         double active_time_timestamp_gpu = levelzero_io.sample(active_time_batch_idx.at(sub_idx)+1);
 
-        EXPECT_DOUBLE_EQ(active_time_gpu, mock_active_time.at(sub_idx)/1e6);
-        EXPECT_DOUBLE_EQ(active_time_timestamp_gpu, mock_active_time_timestamp.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time_gpu, mock_active_time.at(sub_idx));
+        EXPECT_DOUBLE_EQ(active_time_timestamp_gpu, mock_active_time_timestamp.at(sub_idx));
 
         double active_time_copy = levelzero_io.sample(active_time_batch_idx.at(sub_idx));
         double active_time_timestamp_copy = levelzero_io.sample(active_time_batch_idx.at(sub_idx)+1);
 
-        EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time.at(sub_idx)/1e6);
-        EXPECT_DOUBLE_EQ(active_time_timestamp_copy, mock_active_time_timestamp.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time.at(sub_idx));
+        EXPECT_DOUBLE_EQ(active_time_timestamp_copy, mock_active_time_timestamp.at(sub_idx));
     }
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         double energy = levelzero_io.sample(energy_batch_idx.at(gpu_idx));
@@ -701,11 +702,11 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
 
         //Active time
         double active_time = levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx));
         double active_time_compute = levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        EXPECT_DOUBLE_EQ(active_time_compute, mock_active_time_compute.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time_compute, mock_active_time_compute.at(sub_idx));
         double active_time_copy = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time_copy.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time_copy.at(sub_idx));
 
         //Power & energy
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
@@ -791,11 +792,11 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_GPU_CHIP, -1, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
 }
 
 TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
