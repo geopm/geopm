@@ -65,9 +65,9 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 
         MOCK_METHOD((std::pair<uint64_t, uint64_t>), active_time_pair,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(uint64_t, active_time,
+        MOCK_METHOD(double, active_time,
                     (int, unsigned int, int), (const, override));
-        MOCK_METHOD(uint64_t, active_time_timestamp,
+        MOCK_METHOD(double, active_time_timestamp,
                     (int, unsigned int, int), (const, override));
 
         MOCK_METHOD(int32_t, power_limit_tdp,
