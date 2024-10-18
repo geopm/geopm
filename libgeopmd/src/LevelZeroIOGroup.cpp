@@ -359,7 +359,7 @@ namespace geopm
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
-                                  1 / 1e6
+                                  1
                                   }},
                               {M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME read in seconds."
@@ -377,7 +377,7 @@ namespace geopm
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
-                                  1 / 1e6
+                                  1
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME", {
                                   "Time in seconds that the GPU compute engines (EUs) are actively running a workload."
@@ -394,7 +394,7 @@ namespace geopm
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
-                                  1 / 1e6
+                                  1
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read in seconds."
@@ -412,7 +412,7 @@ namespace geopm
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
-                                  1 / 1e6
+                                  1
                                   }},
                               {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME", {
                                   "Time in seconds that the GPU copy engines are actively running a workload."
@@ -429,7 +429,7 @@ namespace geopm
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
-                                  1 / 1e6
+                                  1
                                   }},
                               {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read in seconds."
@@ -447,7 +447,7 @@ namespace geopm
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
-                                  1 / 1e6
+                                  1
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR", {
                                   "Performance Factor of the GPU Compute Hardware Domain.\n"
