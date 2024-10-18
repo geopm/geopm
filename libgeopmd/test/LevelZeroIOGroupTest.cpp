@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <string>
+#include <cmath>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -791,11 +792,11 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_GPU_CHIP, -1, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, 0)));
+    EXPECT_TRUE(std::isnan(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0)));
 }
 
 TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)

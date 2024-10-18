@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <unistd.h>
+#include <iostream>
 
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
@@ -90,6 +91,17 @@ namespace geopm
             else {
                 result = nan_replace;
             }
+        }
+        if (result > 1e10) {
+            std::cerr << "DEBUG: derivative: " << result << " t = [";
+            for (int idx = 0; idx < history.size() - 1; ++idx) {
+                std::cerr << history.value(idx).time << ",";
+            }
+            std::cerr << history.value(history.size() - 1).time << "], y = [";
+            for (int idx = 0; idx < history.size() - 1; ++idx) {
+                std::cerr << history.value(idx).sample << ",";
+            }
+            std::cerr << history.value(history.size() - 1).sample << "]\n";
         }
         return result;
     }

@@ -18,6 +18,13 @@
 
 namespace geopm
 {
+    static double convert_nan(double result)
+    {
+        if (result < 0) {
+            result = NAN;
+        }
+        return result;
+    }
     const LevelZero &levelzero()
     {
         static LevelZeroImp instance;
@@ -807,13 +814,13 @@ namespace geopm
     double LevelZeroImp::frequency_status(unsigned int l0_device_idx,
                                           int l0_domain, int l0_domain_idx) const
     {
-        return frequency_status_helper(l0_device_idx, l0_domain, l0_domain_idx).actual;
+        return convert_nan(frequency_status_helper(l0_device_idx, l0_domain, l0_domain_idx).actual);
     }
 
     double LevelZeroImp::frequency_efficient(unsigned int l0_device_idx,
                                              int l0_domain, int l0_domain_idx) const
     {
-        return frequency_status_helper(l0_device_idx, l0_domain, l0_domain_idx).efficient;
+        return convert_nan(frequency_status_helper(l0_device_idx, l0_domain, l0_domain_idx).efficient);
     }
 
     uint32_t LevelZeroImp::frequency_throttle_reasons(unsigned int l0_device_idx,
