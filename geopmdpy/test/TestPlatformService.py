@@ -12,6 +12,7 @@ import copy
 import math
 from unittest import mock
 import tempfile
+from io import StringIO
 from geopmdpy.system_files import GEOPM_SERVICE_LOG_REQUEST
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.system_files import ActiveSessions, AccessLists, WriteLock
@@ -316,8 +317,12 @@ class TestPlatformService(unittest.TestCase):
         expected_result = (1234, "1234")
 
         self._mock_write_lock.try_lock.return_value = client_pid
-        with mock.patch('geopmdpy.pio.start_batch_server', return_value=expected_result), \
-             mock.patch('geopmdpy.pio.save_control_dir'), \
+        mock_subp = mock.MagicMock()
+        mock_subp.pid = 1234
+        mock_subp.stdout = StringIO("1234")
+        mock_subp.returncode = 0
+        mock_subp.communicate = mock.MagicMock(return_value=(None, StringIO()))
+        with mock.patch('subprocess.Popen', return_value=mock_subp) as mock_popen, \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             actual_result = self._platform_service.start_batch(client_pid, signal_config,
                                                                control_config)

@@ -218,6 +218,19 @@ fi
 AC_SUBST([enable_io_uring])
 AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
+AC_PATH_PROG([PROTOC], [protoc], [])
+AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
+PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
+AC_SUBST([PROTOBUF_CFLAGS])
+AC_SUBST([PROTOBUF_LIBS])
+PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
+AC_SUBST([GRPC_CFLAGS])
+AC_SUBST([GRPC_LIBS])
+AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+AS_IF([test "x$GRPC_CPP_PLUGIN" = x], [
+  AC_MSG_ERROR([grpc_cpp_plugin not found])
+])
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -Og -g"
@@ -500,13 +513,14 @@ AC_LANG_POP([C++])
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 
-[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE -include config.h"]
-[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -fPIE -include config.h"]
+[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -include config.h"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -include config.h"]
 [AM_LDFLAGS="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
 if test "x$enable_debug" != "x1" ; then
     [AM_CFLAGS="$AM_CFLAGS -flto"]
     [AM_CXXFLAGS="$AM_CXXFLAGS -flto"]
 fi
+[LIBS="$LIBS $GRPC_LIBS $PROTOBUF_LIBS"]
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([FASTMATH])
