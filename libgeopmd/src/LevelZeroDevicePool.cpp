@@ -25,8 +25,6 @@ namespace geopm
 
     LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const LevelZero &levelzero)
         : m_levelzero(levelzero)
-        , m_active_time_last(num_gpu(GEOPM_DOMAIN_GPU_CHIP), 0ULL)
-        , m_active_time_rollover(m_active_time_last.size(), 0)
     {
     }
 
@@ -321,7 +319,10 @@ namespace geopm
         uint64_t active_time = m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
                                                        dev_subdev_idx_pair.second);
 
-        return convert_active_time(active_time, m_active_time_last[domain_idx], m_active_time_rollover[domain_idx]);
+        auto &active_time_last = m_active_time_last.try_emplace(l0_domain, num_gpu(GEOPM_DOMAIN_GPU_CHIP), 0ULL).first->second;
+        auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, active_time_last.size(), 0).first->second;
+
+        return convert_active_time(active_time, active_time_last[domain_idx], active_time_rollover[domain_idx]);
     }
 
     int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,
