@@ -41,10 +41,56 @@
           "mappings": [],
           "unit": "kwatth"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GPU Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "DRAM Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 17,
+        "h": 13,
         "w": 3,
         "x": 0,
         "y": 0
@@ -136,7 +182,7 @@
         "type": "prometheus",
         "uid": "de0dsqt2s8hs0f"
       },
-      "description": "GPU average, min and max power",
+      "description": "Total power consumed by all GPUs on host",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -214,8 +260,24 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "super-light-red",
                   "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
                 }
               }
             ]
@@ -229,9 +291,21 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "#ffffff",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "custom.pointSize",
+                "value": 10
+              },
+              {
+                "id": "displayName",
+                "value": "Mean"
               }
             ]
           },
@@ -244,7 +318,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "super-light-blue",
+                  "fixedColor": "super-light-green",
                   "mode": "fixed"
                 }
               },
@@ -267,10 +341,14 @@
               {
                 "id": "custom.hideFrom",
                 "value": {
-                  "legend": true,
+                  "legend": false,
                   "tooltip": false,
                   "viz": false
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Mean +/- one std. dev."
               }
             ]
           },
@@ -345,7 +423,7 @@
             "properties": [
               {
                 "id": "custom.fillOpacity",
-                "value": 20
+                "value": 35
               },
               {
                 "id": "custom.fillBelowTo",
@@ -354,9 +432,21 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "dark-red",
+                  "fixedColor": "dark-green",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "displayName",
+                "value": "Max/Min"
               }
             ]
           }
@@ -520,6 +610,7 @@
         "type": "prometheus",
         "uid": "de0dsqt2s8hs0f"
       },
+      "description": "Total power consumed by all CPUs on host",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -633,8 +724,24 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "super-light-blue",
                   "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
                 }
               }
             ]
@@ -648,9 +755,21 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "#ffffff",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "custom.pointSize",
+                "value": 10
+              },
+              {
+                "id": "displayName",
+                "value": "Mean"
               }
             ]
           },
@@ -686,10 +805,14 @@
               {
                 "id": "custom.hideFrom",
                 "value": {
-                  "legend": true,
+                  "legend": false,
                   "tooltip": false,
                   "viz": false
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Mean +/- one std. dev."
               }
             ]
           },
@@ -732,7 +855,7 @@
             "properties": [
               {
                 "id": "custom.fillOpacity",
-                "value": 20
+                "value": 35
               },
               {
                 "id": "custom.fillBelowTo",
@@ -741,9 +864,21 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "dark-red",
+                  "fixedColor": "dark-blue",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "displayName",
+                "value": "Max/Min"
               }
             ]
           }
@@ -905,6 +1040,7 @@
         "type": "prometheus",
         "uid": "de0dsqt2s8hs0f"
       },
+      "description": "Total power consumed by all DRAM on host",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1018,8 +1154,24 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "super-light-orange",
                   "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
                 }
               }
             ]
@@ -1033,9 +1185,21 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "#ffffff",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "custom.pointSize",
+                "value": 10
+              },
+              {
+                "id": "displayName",
+                "value": "Mean"
               }
             ]
           },
@@ -1048,7 +1212,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "super-light-blue",
+                  "fixedColor": "super-light-orange",
                   "mode": "fixed"
                 }
               },
@@ -1071,10 +1235,14 @@
               {
                 "id": "custom.hideFrom",
                 "value": {
-                  "legend": true,
+                  "legend": false,
                   "tooltip": false,
                   "viz": false
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Mean +/- one std. dev."
               }
             ]
           },
@@ -1117,11 +1285,30 @@
             "properties": [
               {
                 "id": "custom.fillOpacity",
-                "value": 20
+                "value": 35
               },
               {
                 "id": "custom.fillBelowTo",
                 "value": "DRAM Power (min)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "displayName",
+                "value": "Max/Min"
               }
             ]
           }
@@ -1285,13 +1472,13 @@
     "list": []
   },
   "time": {
-    "from": "2024-10-22T20:09:20.372Z",
-    "to": "2024-10-22T22:09:20.374Z"
+    "from": "now-5m",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "GEOPM Profile Report",
   "uid": "cc4dab2898f9430885ebac5422d3f336",
-  "version": 10,
+  "version": 17,
   "weekStart": ""
 }
