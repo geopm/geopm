@@ -7,6 +7,7 @@
 """
 
 import time
+from subprocess import TimeoutExpired # nosec
 
 class TimedLoop:
     """Object that can be iterated over to run a timed loop
@@ -163,6 +164,6 @@ class PIDTimedLoop(TimedLoop):
         try:
             self._pid.wait(timeout=timeout)
             self._is_active = False
-        except subprocess.TimeoutExpired:
+        except TimeoutExpired:
             pass
 

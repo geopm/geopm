@@ -13,6 +13,7 @@ _module_doc=__doc__
 try:
     from docstring_parser import google
     _use_docstring_parser = True
+    _use_docstring_parser_err = None
 except ImportError as ex:
     _use_docstring_parser = False
     _use_docstring_parser_err = str(ex)

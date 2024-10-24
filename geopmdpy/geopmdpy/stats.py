@@ -292,7 +292,6 @@ class Collector:
 
         """
         report = self.report()
-        result = []
         header = ['host', 'sample-time-first', 'sample-time-total', 'sample-count', 'sample-period-mean', 'sample-period-std']
         data = [report[kk] for kk in header]
 
