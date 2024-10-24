@@ -31,6 +31,7 @@ import pwd
 import fcntl
 import subprocess # nosec
 import tempfile
+import locale
 from functools import lru_cache
 
 from . import pio
@@ -476,7 +477,7 @@ class ActiveSessions(object):
                 if session_gid != gid:
                     warn += f' gid_orig={session_gid} gid_new={gid}'
                 if session_time != create_time:
-                    warn += f' PID creation time has changed'
+                    warn += ' PID creation time has changed'
                 raise InvalidClientError(warn)
         else:
             session_path = self._get_session_path(client_pid)
@@ -1230,7 +1231,7 @@ class AccessLists(object):
         if user != '':
             try:
                 user_groups = self._get_user_groups(user)
-            except KeyError as e:
+            except KeyError:
                 raise RuntimeError("Specified user '{}' does not exist.".format(user))
         user_groups.append('') # Default access list
         signal_set = set()

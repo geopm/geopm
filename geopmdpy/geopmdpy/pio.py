@@ -683,7 +683,6 @@ def format_signal(signal, format_type):
     """
     global _dl
 
-    result = ''
     name_max = 1024
     result_cstr = gffi.gffi.new("char[]", name_max)
     err = _dl.geopm_pio_format_signal(signal, format_type, name_max, result_cstr)
