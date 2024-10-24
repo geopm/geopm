@@ -7,46 +7,6 @@
 from . import gffi
 from . import error
 
-
-gffi.gffi.cdef("""
-enum geopm_domain_e {
-    GEOPM_DOMAIN_INVALID = -1,
-    GEOPM_DOMAIN_BOARD = 0,
-    GEOPM_DOMAIN_PACKAGE = 1,
-    GEOPM_DOMAIN_CORE = 2,
-    GEOPM_DOMAIN_CPU = 3,
-    GEOPM_DOMAIN_MEMORY = 4,
-    GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY = 5,
-    GEOPM_DOMAIN_NIC = 6,
-    GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC = 7,
-    GEOPM_DOMAIN_GPU = 8,
-    GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU = 9,
-    GEOPM_DOMAIN_GPU_CHIP = 10,
-    GEOPM_NUM_DOMAIN = 11,
-};
-
-int geopm_topo_num_domain(int domain_type);
-
-int geopm_topo_domain_idx(int domain_type,
-                          int cpu_idx);
-
-int geopm_topo_num_domain_nested(int inner_domain,
-                                 int outer_domain);
-
-int geopm_topo_domain_nested(int inner_domain,
-                             int outer_domain,
-                             int outer_idx,
-                             size_t num_domain_nested,
-                             int *domain_nested);
-
-int geopm_topo_domain_name(int domain_type,
-                           size_t domain_name_max,
-                           char *domain_name);
-
-int geopm_topo_domain_type(const char *domain_name);
-
-int geopm_topo_create_cache(void);
-""")
 _dl = gffi.get_dl_geopmd()
 
 DOMAIN_INVALID = _dl.GEOPM_DOMAIN_INVALID

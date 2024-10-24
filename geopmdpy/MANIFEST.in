@@ -1,1 +1,2 @@
 include debian/changelog
+include build_libgeopmd_wrapper.py

@@ -5,3 +5,6 @@
 /make_sdist.log
 /geopmdpy-*/
 /debian/changelog
+/libgeopmd-deps-tmp-*
+geopmdpy/_libgeopmd.*
+__pycache__

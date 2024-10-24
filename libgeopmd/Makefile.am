@@ -15,7 +15,8 @@ bin_PROGRAMS = geopmread \
                geopmwrite \
                # end
 
-include_HEADERS = include/geopm_debug.hpp \
+include_HEADERS = include/geopm_access.h \
+                  include/geopm_debug.hpp \
                   include/geopm_error.h \
                   include/geopm_field.h \
                   include/geopm_hash.h \

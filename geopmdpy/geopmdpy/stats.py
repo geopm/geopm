@@ -13,61 +13,6 @@ import math
 from . import gffi
 from . import error
 
-gffi.gffi.cdef("""
-
-struct geopm_stats_collector_s;
-
-enum geopm_sample_stats_e {
-    GEOPM_SAMPLE_TIME_TOTAL,
-    GEOPM_SAMPLE_COUNT,
-    GEOPM_SAMPLE_PERIOD_MEAN,
-    GEOPM_SAMPLE_PERIOD_STD,
-    GEOPM_NUM_SAMPLE_STATS
-};
-
-enum geopm_metric_stats_e {
-    GEOPM_METRIC_COUNT,
-    GEOPM_METRIC_FIRST,
-    GEOPM_METRIC_LAST,
-    GEOPM_METRIC_MIN,
-    GEOPM_METRIC_MAX,
-    GEOPM_METRIC_MEAN,
-    GEOPM_METRIC_STD,
-    GEOPM_NUM_METRIC_STATS
-};
-
-struct geopm_metric_stats_s {
-    char name[255];
-    double stats[7];
-};
-
-struct geopm_report_s {
-    char host[255];
-    char sample_time_first[255];
-    double sample_stats[4];
-    size_t num_metric;
-    struct geopm_metric_stats_s *metric_stats;
-};
-
-int geopm_stats_collector_create(size_t num_requests, const struct geopm_request_s *requests,
-                                 struct geopm_stats_collector_s **collector);
-
-int geopm_stats_collector_update(struct geopm_stats_collector_s *collector);
-
-int geopm_stats_collector_update_count(const struct geopm_stats_collector_s *collector,
-                                       size_t *update_count);
-
-int geopm_stats_collector_report_yaml(const struct geopm_stats_collector_s *collector,
-                                      size_t *max_report_size, char *report_yaml);
-
-int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector,
-                                 size_t num_requests, struct geopm_report_s *report);
-
-int geopm_stats_collector_reset(struct geopm_stats_collector_s *collector);
-
-int geopm_stats_collector_free(struct geopm_stats_collector_s *collector);
-
-""")
 _dl = gffi.get_dl_geopmd()
 
 SAMPLE_TIME_TOTAL = _dl.GEOPM_SAMPLE_TIME_TOTAL
@@ -107,7 +52,7 @@ class Collector:
 
         signal_config_carr = gffi.gffi.new('struct geopm_request_s[]', self._num_signal)
         for idx, req in enumerate(signal_config):
-            signal_config_carr[idx].domain = req[1]
+            signal_config_carr[idx].domain_type = req[1]
             signal_config_carr[idx].domain_idx = req[2]
             signal_config_carr[idx].name = req[0].encode()
 

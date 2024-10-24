@@ -17,13 +17,9 @@
 
 #include "geopm/Cpuid.hpp"
 #include "geopm_time.h"
+#include "geopm_access.h"
 
 #include "geopm/IOGroup.hpp"
-
-extern "C"
-{
-    int geopm_allowlist(size_t result_max, char *result);
-}
 
 namespace geopm
 {
