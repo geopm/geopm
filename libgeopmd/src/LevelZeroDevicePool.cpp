@@ -266,9 +266,23 @@ namespace geopm
                                             dev_subdev_idx_pair.second);
     }
 
-    uint64_t LevelZeroDevicePoolImp::active_time_timestamp(int domain,
-                                                           unsigned int domain_idx,
-                                                           int l0_domain) const
+    static double convert_active_time(uint64_t value, uint64_t &last_value, int &rollover_count)
+    {
+        static const int num_bits = 32;
+        static const uint64_t overflow = (1ULL << num_bits);
+        static const double overflow_d = overflow;
+        static const uint64_t mask = overflow - 1;
+        value &= mask;
+        if (last_value > value) {
+            ++rollover_count;
+        }
+        last_value = value;
+        return rollover_count * overflow_d + value;
+    }
+
+    double LevelZeroDevicePoolImp::active_time_timestamp(int domain,
+                                                         unsigned int domain_idx,
+                                                         int l0_domain) const
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
@@ -287,8 +301,8 @@ namespace geopm
                                                  dev_subdev_idx_pair.second);
     }
 
-    uint64_t LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
-                                                 int l0_domain) const
+    double LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
+                                               int l0_domain) const
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
@@ -302,8 +316,13 @@ namespace geopm
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
         check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
                             __func__, __LINE__);
-        return m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
-                                       dev_subdev_idx_pair.second);
+        uint64_t active_time = m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
+                                                       dev_subdev_idx_pair.second);
+
+        auto &active_time_last = m_active_time_last.try_emplace(l0_domain, num_gpu(GEOPM_DOMAIN_GPU_CHIP), 0ULL).first->second;
+        auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, active_time_last.size(), 0).first->second;
+
+        return convert_active_time(active_time, active_time_last[domain_idx], active_time_rollover[domain_idx]);
     }
 
     int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,

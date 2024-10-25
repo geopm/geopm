@@ -8,6 +8,7 @@
 
 #include <string>
 #include <cstdint>
+#include <map>
 
 #include "LevelZeroDevicePool.hpp"
 #include "LevelZero.hpp"
@@ -43,10 +44,10 @@ namespace geopm
             std::pair<uint64_t, uint64_t> active_time_pair(int domain,
                                                            unsigned int device_idx,
                                                            int l0_domain) const override;
-            uint64_t active_time(int domain, unsigned int device_idx,
-                                 int l0_domain) const override;
-            uint64_t active_time_timestamp(int domain, unsigned int device_idx,
-                                           int l0_domain) const override;
+            double active_time(int domain, unsigned int device_idx,
+                               int l0_domain) const override;
+            double active_time_timestamp(int domain, unsigned int device_idx,
+                                         int l0_domain) const override;
             int32_t power_limit_tdp(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;
             int32_t power_limit_min(int domain, unsigned int domain_idx,
@@ -101,6 +102,8 @@ namespace geopm
             void check_idx_range(int domain, unsigned int domain_idx) const;
             void check_domain_exists(int size, const char *func, int line) const;
             std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
+            mutable std::map<int, std::vector<uint64_t> > m_active_time_last; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector<int> > m_active_time_rollover; // Map from l0_domain to vector over gpu chips
     };
 }
 #endif
