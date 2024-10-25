@@ -26,7 +26,7 @@ then
     exit 1
 fi
 
-for rpm_path in $HOME/rpmbuild/RPMS/$(uname -m)/{geopm-service,libgeopmd2}*"$(cat ../../libgeopmd/VERSION)"*.rpm
+for rpm_path in ${RPM_TOPDIR}/RPMS/$(uname -m)/{geopm-service,libgeopmd2}*"$(cat ../../libgeopmd/VERSION)"*.rpm
 do
     rpm2cpio "$rpm_path" | cpio -idmv
 done
