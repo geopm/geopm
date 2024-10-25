@@ -81,6 +81,9 @@ class _SessionIO:
         if self.do_report():
             self._report_fid.write(report)
 
+    def is_rank_zero(self):
+        return true
+
 class _MPISessionIO:
     def __init__(self, request_stream, trace_path, report_path, report_format):
         try:
@@ -147,6 +150,9 @@ class _MPISessionIO:
         elif self._rank == 0 and self._report_path == '-':
             sys.stdout.write(report)
             sys.stdout.flush()
+
+    def is_rank_zero(self):
+        return self._rank == 0
 
 class Session:
     """Object responsible for creating a GEOPM batch read session
@@ -385,7 +391,7 @@ class _ReportStream:
             raise ValueError(f'Invalid report format: {report_format}')
         self.stats_collector = stats_collector
         self.session_io = session_io
-        self.print_header = print_header
+        self.print_header = print_header and session_io.is_rank_zero()
         self.delimiter = delimiter
         self.report_format = report_format
         self.is_first_write = True
