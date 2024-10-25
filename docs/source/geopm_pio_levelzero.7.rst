@@ -282,52 +282,52 @@ Signals
     *  **Unit**: none
 
 ``LEVELZERO::GPU_ACTIVE_TIME``
-    Time in seconds that this resource is actively running a workload.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    Time that this resource is actively running a workload in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
-    *  **Unit**: seconds
+    *  **Unit**: none
 
 ``LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP``
-    The timestamp for the ``LEVELZERO::GPU_ACTIVE_TIME`` read in seconds.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    The timestamp for the ``LEVELZERO::GPU_ACTIVE_TIME`` read in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
-    *  **Unit**: seconds
+    *  **Unit**: none
 
 ``LEVELZERO::GPU_CORE_ACTIVE_TIME``
-    Time in seconds that the GPU compute engines (EUs) are actively running a workload.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    Time that the GPU compute engines (EUs) are actively running a workload in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
-    *  **Unit**: seconds
+    *  **Unit**: none
 
 ``LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP``
-    The timestamp for the ``LEVELZERO::GPU_CORE_ACTIVE_TIME`` signal read in seconds.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    The timestamp for the ``LEVELZERO::GPU_CORE_ACTIVE_TIME`` signal read in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
-    *  **Unit**: seconds
+    *  **Unit**: none
 
 ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME``
-    Time in seconds that the GPU copy engines are actively running a workload.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    Time that the GPU copy engines are actively running a workload in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
-    *  **Unit**: seconds
+    *  **Unit**: none
 
 ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP``
-    The timestamp for the ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME`` signal read in seconds.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    The timestamp for the ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME`` signal read in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
-    *  **Unit**: seconds
+    *  **Unit**: none
 
 ``LEVELZERO::GPU_POWER``
     Average GPU power over 40ms (via geopmread) or 8 control loop iterations.  Derivative signal based on ``LEVELZERO::GPU_ENERGY``.
