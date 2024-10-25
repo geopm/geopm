@@ -266,7 +266,7 @@ namespace geopm
                                             dev_subdev_idx_pair.second);
     }
 
-    static double convert_active_time(uint64_t value, uint64_t &last_value, int &rollover_count)
+    static double convert_active_time(uint64_t value, uint64_t &last_value, uint64_t &rollover_count)
     {
         static const int num_bits = 32;
         static const uint64_t overflow = (1ULL << num_bits);
@@ -320,7 +320,7 @@ namespace geopm
                                                        dev_subdev_idx_pair.second);
 
         auto &active_time_last = m_active_time_last.try_emplace(l0_domain, num_gpu(GEOPM_DOMAIN_GPU_CHIP), 0ULL).first->second;
-        auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, active_time_last.size(), 0).first->second;
+        auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, active_time_last.size(), 0ULL).first->second;
 
         return convert_active_time(active_time, active_time_last[domain_idx], active_time_rollover[domain_idx]);
     }
