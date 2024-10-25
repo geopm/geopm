@@ -401,7 +401,7 @@ class _ReportStream:
             return
         if self.report_format == 'yaml':
             report = self.stats_collector.report_yaml()
-            if not self.is_first_write:
+            if not self.is_first_write and self.session_io.is_rank_zero():
                 report = f'\n---\n\n{report}'
         elif self.report_format == 'csv':
             report = self.stats_collector.report_csv(self.delimiter, self.print_header)
