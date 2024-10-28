@@ -5,6 +5,11 @@
 
 set -xe
 
+die() {
+    1>&2 printf "%s\n" "$@"
+    exit 1
+}
+
 ./make_sdist.sh
 
 PACKAGE_NAME=geopmdpy
@@ -22,13 +27,22 @@ export CC=gcc
 deps_tmp_root="${PWD}/$(mktemp -d libgeopmd-deps-tmp.XXXXXX)"
 if ! pushd "$deps_tmp_root"
 then
-    1>&2 echo "Error: failed to use a temporary directory for libgeopmd dependencies"
-    exit 1
+    die "Error: failed to use a temporary directory for libgeopmd dependencies"
 fi
 
-for rpm_path in ${RPM_TOPDIR}/RPMS/$(uname -m)/{geopm-service,libgeopmd2}*"$(cat ../../libgeopmd/VERSION)"*.rpm
+libgeopmd_version="$(cat ../../libgeopmd/VERSION)"
+if [ -z "${libgeopmd_version}" ]
+then
+    die "Error: ../../libgeopmd/VERSION is not set"
+fi
+
+for rpm_path in ${RPM_TOPDIR}/RPMS/$(uname -m)/{geopm-service,libgeopmd2}*"${libgeopmd_version}"*.rpm
 do
-    rpm2cpio "$rpm_path" | cpio -idmv
+    if ! rpm2cpio "$rpm_path" | cpio -idmv
+    then
+        die "Error: Unable to unpack libgeopmd version ${libgeopmd_version} RPMs" \
+            "       Ensure that RPMs have been built in libgeopmd (e.g., run 'make rpm' in libgeopmd)"
+    fi
 done
 popd
 export C_INCLUDE_PATH="$deps_tmp_root/usr/include"
