@@ -181,7 +181,7 @@ jobs:
     - name: install geopmpy and geopmdpy python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
-           python3 -m pip install -r docs/requirements.txt
+           python3 -m pip install -r docs/requirements.txt -r geopmdpy/requirements.txt -r geopmpy/requirements.txt
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure || (cat config.log && false)
@@ -204,6 +204,7 @@ jobs:
       working-directory: geopmpy
       run: ./make_sdist.sh
     - name: make docs dist
+
       working-directory: docs
       run: make dist
     - name: set OSC credentials
