@@ -14,7 +14,6 @@ import subprocess
 
 import geopmpy.launcher
 import geopmpy.io
-import geopmpy.policy_store
 
 from integration.test import util
 from integration.test import geopm_test_launcher
@@ -22,8 +21,11 @@ from integration.test import geopm_test_launcher
 
 @util.skip_unless_do_launch()
 @util.skip_unless_batch()
+@util.skip_unless_config_enable('beta')
 class TestIntegrationProfilePolicy(unittest.TestCase):
     def setUp(self):
+        import geopmpy.policy_store
+
         # clean up stale keys
         try:
             os.unlink("/dev/shm/geopm*")
@@ -82,7 +84,6 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         except:
             pass
 
-    @util.skip_unless_config_enable('beta')
     def test_policy_default(self):
         profile = 'unknown'
         report_path = profile + '.report'
@@ -105,7 +106,6 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         csv_data = pandas.read_csv(policy_trace, delimiter='|', comment='#')
         self.assertEqual(csv_data['CPU_POWER_LIMIT'][0], self.default_power_cap)
 
-    @util.skip_unless_config_enable('beta')
     @unittest.expectedFailure # Suite needs to be updated to be run out-of-tree
     def test_policy_custom(self):
         profile = 'power_custom'
