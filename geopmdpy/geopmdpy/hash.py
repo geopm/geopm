@@ -4,8 +4,8 @@
 #
 
 
-from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopmd
+from . import gffi.libgeopmd_ffi as gffi
+from . import gffi.get_dl_geopmd as get_dl_geopmd
 
 try:
     _dl = get_dl_geopmd()

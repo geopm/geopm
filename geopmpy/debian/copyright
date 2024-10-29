@@ -35,7 +35,6 @@ Files:     geopmlaunch
            geopmpy/__init__.py
            geopmpy/agent.py
            geopmpy/endpoint.py
-           geopmpy/hash.py
            geopmpy/io.py
            geopmpy/launcher.py
            geopmpy/policy_store.py

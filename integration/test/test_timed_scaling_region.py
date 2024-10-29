@@ -18,7 +18,7 @@ import glob
 import geopmpy.io
 import geopmpy.agent
 import geopmdpy.error
-import geopmpy.hash
+import geopmdpy.hash
 from integration.test import geopm_test_launcher
 from integration.test import util
 
@@ -61,7 +61,7 @@ class TestIntegrationTimedsScalingRegion(unittest.TestCase):
         cls._agent_conf_path = test_name + '-agent-config.json'
         # region_hash() of the sequence:
         # timed_scaling_region_0, timed_scaling_region_1, ... , timed_scaling_region_30
-        cls._region_hash = [geopmpy.hash.hash_str('timed_scaling_region_{}'.format(ii))
+        cls._region_hash = [geopmdpy.hash.hash_str('timed_scaling_region_{}'.format(ii))
                             for ii in range(31)]
         if not cls._skip_launch:
             num_node = util.get_num_node()

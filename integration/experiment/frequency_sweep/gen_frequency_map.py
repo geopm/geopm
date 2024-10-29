@@ -14,7 +14,7 @@ import argparse
 import json
 
 import geopmpy.io
-import geopmpy.hash
+import geopmdpy.hash
 
 from integration.experiment import common_args
 
@@ -71,7 +71,7 @@ def format_region_freq_map(df, perf_margin, show_details):
     idx = 0
     policy = {"FREQ_CPU_DEFAULT": max_freq}
     for region_name in df['region'].unique():
-        region_hash = geopmpy.hash.hash_str(region_name)
+        region_hash = geopmdpy.hash.hash_str(region_name)
         region_freq = freq_map[region_name]
         policy['HASH_{}'.format(idx)] = region_hash
         policy['FREQ_{}'.format(idx)] = region_freq

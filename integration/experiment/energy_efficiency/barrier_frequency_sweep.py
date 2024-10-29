@@ -9,7 +9,7 @@ import argparse
 import os
 
 import geopmpy.agent
-import geopmpy.hash
+import geopmdpy.hash
 from integration.experiment import util
 from integration.experiment import launch_util
 from integration.experiment import machine
@@ -73,7 +73,7 @@ def launch(app_conf_ref, app_conf, args, experiment_cli_args):
                                                         args.max_frequency,
                                                         args.step_frequency,
                                                         add_turbo_step=True)
-    barrier_hash = geopmpy.hash.hash_str('MPI_Barrier')
+    barrier_hash = geopmdpy.hash.hash_str('MPI_Barrier')
     default_freq = max(freq_range)
     targets = launch_configs(output_dir=output_dir,
                              app_conf_ref=app_conf_ref,

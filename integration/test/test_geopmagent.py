@@ -10,7 +10,7 @@ import subprocess
 import json
 
 import geopmpy.io
-import geopmpy.hash
+import geopmdpy.hash
 
 
 class TestIntegrationGeopmagent(unittest.TestCase):
@@ -102,7 +102,7 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         # hashing works for frequency map agent
         self.check_json_output(['--agent', 'frequency_map', '--policy', '1e9,nan,nan,hello,2e9'],
                                {'FREQ_CPU_DEFAULT': 1e9, 'FREQ_CPU_UNCORE': 'NAN', 'FREQ_GPU_DEFAULT': 'NAN',
-                                'HASH_0': geopmpy.hash.hash_str('hello'), 'FREQ_0': 2e9})
+                                'HASH_0': geopmdpy.hash.hash_str('hello'), 'FREQ_0': 2e9})
         # errors
         self.check_output(['--agent', 'power_governor', '--policy', 'None'],
                           ['not a valid floating-point number', 'Invalid argument'])

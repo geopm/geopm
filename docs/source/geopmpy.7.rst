@@ -81,13 +81,6 @@ geopmpy.agent
    :undoc-members:
    :show-inheritance:
 
-geopmpy.hash
-^^^^^^^^^^^^
-.. automodule:: geopmpy.hash
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 geopmpy.io
 ^^^^^^^^^^
 .. automodule:: geopmpy.io

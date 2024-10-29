@@ -18,7 +18,6 @@ import numpy
 import matplotlib.pyplot as plt
 
 import geopmpy.io
-import geopmpy.hash
 from integration.experiment import common_args
 from integration.experiment import report
 from integration.experiment import plotting

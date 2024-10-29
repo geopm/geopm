@@ -12,7 +12,6 @@ import socket
 
 import geopmpy.agent
 import geopmpy.io
-import geopmpy.hash
 from integration.test import util
 from integration.test import geopm_test_launcher
 

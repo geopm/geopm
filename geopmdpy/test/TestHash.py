@@ -9,7 +9,7 @@
 import unittest
 from importlib import reload
 
-import geopmpy.hash
+import geopmdpy.hash
 from geopmdpy import gffi
 
 
@@ -17,13 +17,13 @@ class TestHash(unittest.TestCase):
     def setUp(self):
         # Ensures that mocks do not leak into this test
         reload(gffi)
-        reload(geopmpy.hash)
+        reload(geopmdpy.hash)
 
     def test_hash(self):
-        hash_val = geopmpy.hash.hash_str('abcdefg')
-        self.assertEqual(geopmpy.hash.hash_str('abcdefg'), hash_val)
-        hash_val = geopmpy.hash.hash_str('MPI_Bcast')
-        self.assertEqual(geopmpy.hash.hash_str('MPI_Bcast'), hash_val)
+        hash_val = geopmdpy.hash.hash_str('abcdefg')
+        self.assertEqual(geopmdpy.hash.hash_str('abcdefg'), hash_val)
+        hash_val = geopmdpy.hash.hash_str('MPI_Bcast')
+        self.assertEqual(geopmdpy.hash.hash_str('MPI_Bcast'), hash_val)
 
 if __name__ == '__main__':
     unittest.main()
