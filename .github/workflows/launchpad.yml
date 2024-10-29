@@ -31,14 +31,6 @@ jobs:
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r docs/requirements.txt
-           python3 -m pip install ./geopmdpy
-           python3 -m pip install ./geopmpy
-    - name: make and install geopmdpy deb
-      working-directory: geopmdpy
-      run: |
-           ./make_deb.sh
-           sudo apt-get install ./*deb
-           git clean -ffdx
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure || (cat config.log && false)
@@ -46,6 +38,12 @@ jobs:
       working-directory: libgeopmd
       run: |
            make deb
+           sudo apt-get install ./libgeopmd*deb
+           git clean -ffdx
+    - name: make and install geopmdpy deb
+      working-directory: geopmdpy
+      run: |
+           ./make_deb.sh --no-local
            sudo apt-get install ./*deb
            git clean -ffdx
     - name: configure GPG key
