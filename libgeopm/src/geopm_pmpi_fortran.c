@@ -8,7 +8,6 @@
 #include <mpi.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <limits.h>
 #include <stdint.h>
 
 #include "geopm_pmpi.h"

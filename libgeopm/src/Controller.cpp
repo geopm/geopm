@@ -7,7 +7,6 @@
 #include "Controller.hpp"
 
 #include <cmath>
-#include <climits>
 
 #include <algorithm>
 #include <memory>
@@ -352,17 +351,17 @@ namespace geopm
         int rank = m_comm->rank();
         // resize hostname string to fixed size buffer
         std::string temp = hostname;
-        temp.resize(NAME_MAX, 0);
-        std::vector<char> name_buffer(num_rank * NAME_MAX, 0);
-        m_comm->gather((void*)temp.c_str(), NAME_MAX,
-                     (void*)name_buffer.data(), NAME_MAX, 0);
+        temp.resize(GEOPM_NAME_MAX, 0);
+        std::vector<char> name_buffer(num_rank * GEOPM_NAME_MAX, 0);
+        m_comm->gather((void*)temp.c_str(), GEOPM_NAME_MAX,
+                     (void*)name_buffer.data(), GEOPM_NAME_MAX, 0);
         if (rank == 0) {
             auto ind = name_buffer.begin();
             for (int rr = 0; rr < num_rank; ++rr) {
-                auto term = std::find(ind, ind + NAME_MAX, '\0');
+                auto term = std::find(ind, ind + GEOPM_NAME_MAX, '\0');
                 std::string host(ind, term);
                 hostnames.insert(host);
-                ind += NAME_MAX;
+                ind += GEOPM_NAME_MAX;
             }
         }
         return hostnames;

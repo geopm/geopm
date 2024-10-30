@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <limits.h>
 #include "geopm_public.h"
+#include "geopm_limits.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +31,7 @@ int GEOPM_PUBLIC
 ///        signal name an error will occur.
 ///
 /// @param [out] result Sets the result string to the name of the
-///        signal indexed by name_idx. Providing a string of NAME_MAX
+///        signal indexed by name_idx. Providing a string of GEOPM_NAME_MAX
 ///        length will be sufficient for storing any result.
 ///
 /// @result Zero is returned on success and
@@ -54,7 +55,7 @@ int GEOPM_PUBLIC
 ///        control name an error will occur.
 ///
 /// @param [out] result Sets the result string to the name of the
-///        control indexed by name_idx. Providing a string of NAME_MAX
+///        control indexed by name_idx. Providing a string of GEOPM_NAME_MAX
 ///        length will be sufficient for storing any result.
 ///
 /// @result Zero is returned on success and
@@ -329,7 +330,7 @@ int GEOPM_PUBLIC
 ///
 /// @param [out] description Sets the description string to the signal
 ///        description associated with signal_name. Providing a string
-///        of NAME_MAX length will be sufficient for storing any
+///        of GEOPM_NAME_MAX length will be sufficient for storing any
 ///        description.
 ///
 /// @result Zero is returned on success and a negative error code is
@@ -346,7 +347,7 @@ int GEOPM_PUBLIC
 ///
 /// @param [out] description Sets the description string to the control description
 ///                          associated with control_name. Providing a string of
-///                          NAME_MAX length will be sufficient for storing any description.
+///                          GEOPM_NAME_MAX length will be sufficient for storing any description.
 ///
 /// @result Zero is returned on success and a negative error code is
 ///         returned if any error occurs.
@@ -380,7 +381,7 @@ int GEOPM_PUBLIC
 struct GEOPM_PUBLIC geopm_request_s {
     int domain_type;
     int domain_idx;
-    char name[NAME_MAX];
+    char name[GEOPM_NAME_MAX];
 };
 
 /// @brief Creates a batch server with the following signals and
@@ -412,7 +413,7 @@ struct GEOPM_PUBLIC geopm_request_s {
 ///
 /// @param [out] server_key The key used to identify the server
 ///        connection: a substring in interprocess shared memory keys
-///        used for communication.  Providing a string of NAME_MAX
+///        used for communication.  Providing a string of GEOPM_NAME_MAX
 ///        length will be sufficient for storing any server_key.
 ///
 /// @result Zero is returned on success and
@@ -453,7 +454,7 @@ int GEOPM_PUBLIC
 ///
 /// @param [out] result Sets the result string to the value of the
 ///        signal formatted as specified by the format_type. Providing
-///        a string of NAME_MAX length will be sufficient for storing
+///        a string of GEOPM_NAME_MAX length will be sufficient for storing
 ///        any result.
 ///
 /// @return Zero on success, error value on failure.

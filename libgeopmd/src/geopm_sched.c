@@ -14,10 +14,10 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
-#include <limits.h>
 
 #include "geopm_sched.h"
 #include "geopm_error.h"
+#include "geopm_limits.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -118,9 +118,9 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
     uint32_t *proc_cpuset = NULL;
     FILE *fid = NULL;
 
-    char status_path[NAME_MAX];
-    int nprint = snprintf(status_path, NAME_MAX, "/proc/%d/status", pid);
-    if (nprint == NAME_MAX) {
+    char status_path[GEOPM_NAME_MAX];
+    int nprint = snprintf(status_path, GEOPM_NAME_MAX, "/proc/%d/status", pid);
+    if (nprint == GEOPM_NAME_MAX) {
         err = EINVAL;
     }
     if (!err) {

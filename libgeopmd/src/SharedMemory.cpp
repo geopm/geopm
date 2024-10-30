@@ -6,7 +6,6 @@
 
 #include "SharedMemoryImp.hpp"
 
-#include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>

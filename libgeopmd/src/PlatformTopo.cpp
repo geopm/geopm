@@ -14,7 +14,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <limits.h>
 #include <stdio.h>
 
 #include <map>
@@ -25,6 +24,7 @@
 
 #include "geopm_sched.h"
 #include "geopm_time.h"
+#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "GPUTopo.hpp"
@@ -454,9 +454,9 @@ namespace geopm
 
         if (is_file_ok == false) {
             std::string tmp_string = cache_file_name + "XXXXXX";
-            char tmp_path[NAME_MAX];
-            tmp_path[NAME_MAX - 1] = '\0';
-            strncpy(tmp_path, tmp_string.c_str(), NAME_MAX - 1);
+            char tmp_path[GEOPM_NAME_MAX];
+            tmp_path[GEOPM_NAME_MAX - 1] = '\0';
+            strncpy(tmp_path, tmp_string.c_str(), GEOPM_NAME_MAX - 1);
             mode_t orig_mask = umask(S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH);
             int tmp_fd = mkstemp(tmp_path);
             umask(orig_mask);

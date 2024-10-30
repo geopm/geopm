@@ -13,9 +13,10 @@
 #include "geopm/Helper.hpp"
 #include "geopm_time.h"
 #include "geopm_imbalancer.h"
+#include "geopm_limits.h"
 
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 255
+#ifndef HOST_GEOPM_NAME_MAX
+#define HOST_GEOPM_NAME_MAX 255
 #endif
 
 class Imbalancer

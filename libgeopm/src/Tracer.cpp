@@ -6,7 +6,6 @@
 #include "Tracer.hpp"
 
 #include <unistd.h>
-#include <limits.h>
 #include <string.h>
 #include <cctype>
 #include <iomanip>

@@ -7,7 +7,6 @@
 #include "ServiceIOGroup.hpp"
 
 #include <cmath>
-#include <climits>
 #include <cstring>
 #include <unistd.h>
 #include "geopm/Agg.hpp"
@@ -17,6 +16,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm_debug.hpp"
+#include "geopm_limits.h"
 
 namespace geopm
 {
@@ -157,15 +157,15 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::string signal_name_strip = strip_plugin_name(signal_name);
-        if (signal_name_strip.size() >= NAME_MAX) {
+        if (signal_name_strip.size() >= GEOPM_NAME_MAX) {
             throw Exception("ServiceIOGroup::push_signal(): signal_name: " + signal_name + " is too long",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         geopm_request_s request;
         request.domain_type = domain_type;
         request.domain_idx = domain_idx;
-        request.name[NAME_MAX - 1] = '\0';
-        strncpy(request.name, signal_name_strip.c_str(), NAME_MAX - 1);
+        request.name[GEOPM_NAME_MAX - 1] = '\0';
+        strncpy(request.name, signal_name_strip.c_str(), GEOPM_NAME_MAX - 1);
         m_signal_requests.push_back(request);
         return m_signal_requests.size() - 1;
     }
@@ -188,15 +188,15 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::string control_name_strip = strip_plugin_name(control_name);
-        if (control_name_strip.size() >= NAME_MAX) {
+        if (control_name_strip.size() >= GEOPM_NAME_MAX) {
             throw Exception("ServiceIOGroup::push_control(): control_name: " + control_name + " is too long",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         geopm_request_s request;
         request.domain_type = domain_type;
         request.domain_idx = domain_idx;
-        request.name[NAME_MAX - 1] = '\0';
-        strncpy(request.name, control_name_strip.c_str(), NAME_MAX - 1);
+        request.name[GEOPM_NAME_MAX - 1] = '\0';
+        strncpy(request.name, control_name_strip.c_str(), GEOPM_NAME_MAX - 1);
         m_control_requests.push_back(request);
         return m_control_requests.size() - 1;
     }

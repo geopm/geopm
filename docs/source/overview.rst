@@ -287,11 +287,12 @@ Reading Signals
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
+        #include <geopm_limits.h>
 
         int main (int argc, char** argv)
         {
             double curr_frequency = 0;
-            char err_msg[PATH_MAX];
+            char err_msg[GEOPM_MESSAGE_MAX];
 
             int err = geopm_pio_read_signal("CPU_FREQUENCY_STATUS",
                                             GEOPM_DOMAIN_CPU,
@@ -299,7 +300,7 @@ Reading Signals
                                             &curr_frequency);
 
             if (err != 0) {
-                geopm_error_message(err, err_msg, PATH_MAX);
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
                 printf("Err msg = %s\n", err_msg);
             }
             printf("Current CPU frequency for core 0 = %f\n", curr_frequency);
@@ -401,6 +402,7 @@ To fetch platform telemetry and output it to the console or a file:
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
+        #include <geopm_limits.h>
 
         int read_signals ()
         {
@@ -436,10 +438,10 @@ To fetch platform telemetry and output it to the console or a file:
 
         int main (int argc, char** argv)
         {
-            char err_msg[PATH_MAX];
+            char err_msg[GEOPM_MESSAGE_MAX];
             int err = read_signals();
             if (err < 0) {
-                geopm_error_message(err, err_msg, PATH_MAX);
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
                 fprintf(stderr, "Err msg = %s\n", err_msg);
             }
 
@@ -519,6 +521,7 @@ interface.
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
+        #include <geopm_limits.h>
 
         int read_signals ()
         {
@@ -558,10 +561,10 @@ interface.
 
         int main (int argc, char** argv)
         {
-            char err_msg[PATH_MAX];
+            char err_msg[GEOPM_MESSAGE_MAX];
             int err = read_signals();
             if (err < 0) {
-                geopm_error_message(err, err_msg, PATH_MAX);
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
                 fprintf(stderr, "Err msg = %s\n", err_msg);
             }
 
@@ -697,10 +700,11 @@ Writing Controls
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
+        #include <geopm_limits.h>
 
         int main (int argc, char** argv)
         {
-            char err_msg[PATH_MAX];
+            char err_msg[GEOPM_MESSAGE_MAX];
 
             int err = geopm_pio_write_control("CPU_FREQUENCY_MAX_CONTROL",
                                               GEOPM_DOMAIN_CORE,
@@ -708,7 +712,7 @@ Writing Controls
                                               3.0e9);
 
             if (err != 0) {
-                geopm_error_message(err, err_msg, PATH_MAX);
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
                 printf("Err msg = %s\n", err_msg);
             }
 

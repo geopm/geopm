@@ -236,6 +236,7 @@ ln -s -r %{buildroot}%{_sbindir}/service %{buildroot}%{_sbindir}/rcgeopm
 %{_includedir}/geopm_field.h
 %{_includedir}/geopm_hash.h
 %{_includedir}/geopm_hint.h
+%{_includedir}/geopm_limits.h
 %{_includedir}/geopm_pio.h
 %{_includedir}/geopm_plugin.hpp
 %{_includedir}/geopm_public.h

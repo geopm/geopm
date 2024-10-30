@@ -40,11 +40,11 @@ LD_LIBRARY_PATH=$HOME/build/geopm/lib:$LD_LIBRARY_PATH ./a.out
 */
 
 #include <stdio.h>
-#include <limits.h>
 #include <unistd.h>
 #include "geopm_topo.h"
 #include "geopm_pio.h"
 #include "geopm_error.h"
+#include "geopm_limits.h"
 
 int main(int argc, char **argv)
 {
@@ -66,8 +66,8 @@ int main(int argc, char **argv)
         printf("Total energy for package 0: %0.2f (joules)\n", total_energy);
     }
     if (err) {
-        char error_string[PATH_MAX];
-        geopm_error_message(err, error_string, PATH_MAX);
+        char error_string[GEOPM_MESSAGE_MAX];
+        geopm_error_message(err, error_string, GEOPM_MESSAGE_MAX);
         fprintf(stderr, "Error: %s\n", error_string);
     }
     return err;

@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
-#include <limits.h>
 
 #include "geopm/Environment.hpp"
 #include "geopm/Exception.hpp"
@@ -34,6 +33,7 @@ extern "C"
 #include "geopm_sched.h"
 #include "geopm_time.h"
 #include "geopm_mpi_comm_split.h"
+#include "geopm_limits.h"
 }
 
 using geopm::Exception;
@@ -122,7 +122,7 @@ static int geopm_pmpi_init(const char *exec_name)
     if (geopm::environment().do_debug_attach_all() ||
         (geopm::environment().do_debug_attach_one() &&
          geopm::environment().debug_attach_process() == rank)) {
-        char hostname[NAME_MAX];
+        char hostname[GEOPM_NAME_MAX];
         gethostname(hostname, sizeof(hostname));
         printf("PID %d on %s ready for attach\n", getpid(), hostname);
         fflush(stdout);
@@ -214,8 +214,8 @@ static int geopm_pmpi_init(const char *exec_name)
         }
 #ifdef GEOPM_DEBUG
         if (err) {
-            char err_msg[PATH_MAX];
-            geopm_error_message(err, err_msg, PATH_MAX);
+            char err_msg[GEOPM_MESSAGE_MAX];
+            geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
             fprintf(stderr, "%s", err_msg);
         }
 #endif

@@ -8,7 +8,6 @@
 #include <cmath>
 #include <unistd.h>
 #include <fstream>
-#include <limits.h>
 
 #include "geopm/json11.hpp"
 

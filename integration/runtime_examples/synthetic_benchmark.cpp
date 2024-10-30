@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <float.h>  //DBL_MAX
 #include <fstream>  //ifstream
-#include <limits.h>  // INT_MAX
 #include <sched.h>
 #include <signal.h> //SIGALRM
 #include <sstream>  //istringstream

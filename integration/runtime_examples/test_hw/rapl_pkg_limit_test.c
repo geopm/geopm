@@ -17,6 +17,7 @@
 #include <signal.h>
 
 #include "geopm_time.h"
+#include "geopm_limits.h"
 
 #ifndef MATRIX_SIZE
 #define MATRIX_SIZE 10240ULL
@@ -26,9 +27,6 @@
 #endif
 #ifndef NUM_REP
 #define NUM_REP 10
-#endif
-#ifndef NAME_MAX
-#define NAME_MAX 512
 #endif
 
 #define MAX_NUM_SOCKET 16
@@ -73,10 +71,10 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
     struct geopm_time_s begin_time = {{0,0}};
     struct geopm_time_s end_time = {{0,0}};
     struct sigaction save_action;
-    char hostname[NAME_MAX] = {0};
-    char outfile_name[NAME_MAX] = {0};
-    char lscpu_buffer[NAME_MAX] = {0};
-    char msr_path[NAME_MAX] = {0};
+    char hostname[GEOPM_NAME_MAX] = {0};
+    char outfile_name[GEOPM_NAME_MAX] = {0};
+    char lscpu_buffer[GEOPM_NAME_MAX] = {0};
+    char msr_path[GEOPM_NAME_MAX] = {0};
     int msr_fd[MAX_NUM_SOCKET] = {0};
     double power_used[MAX_NUM_SOCKET] = {0};
     uint64_t save_limit[MAX_NUM_SOCKET] = {0};
@@ -88,7 +86,7 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
 
     if (!err) {
         /* Get hostname to insert in output file name */
-        err = gethostname(hostname, NAME_MAX);
+        err = gethostname(hostname, GEOPM_NAME_MAX);
         if (err) {
             err = errno ? errno : -1;
         }
@@ -118,7 +116,7 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
 
         }
         g_is_popen_complete = 0;
-        num_read = fread(lscpu_buffer, 1, NAME_MAX - 1, lscpu_fid);
+        num_read = fread(lscpu_buffer, 1, GEOPM_NAME_MAX - 1, lscpu_fid);
         err = pclose(lscpu_fid);
         if (err) {
             err = errno ? errno : -1;
@@ -139,8 +137,8 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
         }
     }
     if (!err) {
-        int outlen = snprintf(outfile_name, NAME_MAX, "rapl_pkg_limit_test_%s.out", hostname);
-        if (outlen >= NAME_MAX) {
+        int outlen = snprintf(outfile_name, GEOPM_NAME_MAX, "rapl_pkg_limit_test_%s.out", hostname);
+        if (outlen >= GEOPM_NAME_MAX) {
             err = ENAMETOOLONG;
         }
     }
@@ -178,10 +176,10 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
     }
     for (socket = 0; !err && socket < num_socket; ++socket) {
         /* Open msr device, try to use msr_safe if available */
-        snprintf(msr_path, NAME_MAX, "/dev/cpu/%d/msr_safe", socket * num_core_per_socket);
+        snprintf(msr_path, GEOPM_NAME_MAX, "/dev/cpu/%d/msr_safe", socket * num_core_per_socket);
         msr_fd[socket] = open(msr_path, O_RDWR);
         if (msr_fd[socket] == -1) {
-            snprintf(msr_path, NAME_MAX, "/dev/cpu/%d/msr", socket * num_core_per_socket);
+            snprintf(msr_path, GEOPM_NAME_MAX, "/dev/cpu/%d/msr", socket * num_core_per_socket);
             errno = 0;
             msr_fd[socket] = open(msr_path, O_RDWR);
         }

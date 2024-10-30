@@ -10,7 +10,6 @@
 #include <streambuf>
 #include <string>
 #include <unistd.h>
-#include <limits.h>
 
 #include "geopm_prof.h"
 #include "geopm/ModelRegion.hpp"

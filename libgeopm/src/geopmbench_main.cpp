@@ -12,13 +12,14 @@
 #ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
 #endif
-#include <limits.h>
+
 #include <unistd.h>
 #include <algorithm>
 
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm_error.h"
+#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 #include "GEOPMBenchConfig.hpp"
 #include "ModelApplication.hpp"
@@ -189,8 +190,8 @@ static int main_imp(int argc, char **argv)
     }
 
     if (err) {
-        char err_msg[PATH_MAX] = {};
-        geopm_error_message(err, err_msg, PATH_MAX);
+        char err_msg[GEOPM_MESSAGE_MAX] = {};
+        geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
 

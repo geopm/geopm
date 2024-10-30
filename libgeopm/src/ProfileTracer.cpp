@@ -6,7 +6,6 @@
 
 #include <string.h>
 #include <errno.h>
-#include <limits.h>
 #include <iostream>
 #include <iomanip>
 #include "ProfileTracerImp.hpp"

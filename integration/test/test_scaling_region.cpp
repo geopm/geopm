@@ -4,7 +4,6 @@
  */
 
 #include <string.h>
-#include <limits.h>
 #include <mpi.h>
 #include <unistd.h>
 #include <cmath>

@@ -4,10 +4,12 @@
  */
 
 
+#include <string>
+
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
-#include <string>
-#include <limits.h>
+#include "geopm_limits.h"
+
 
 
 namespace geopm
@@ -83,8 +85,8 @@ namespace geopm
 
     std::string time_curr_string(void)
     {
-        char result[NAME_MAX];
-        int err = geopm_time_string(NAME_MAX, result);
+        char result[GEOPM_NAME_MAX];
+        int err = geopm_time_string(GEOPM_NAME_MAX, result);
         if (err != 0) {
             throw Exception("geopm_time_to_string() call failed",
                             err, __FILE__, __LINE__);

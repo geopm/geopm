@@ -120,7 +120,7 @@ and the domain index. This structure is used as a parameter to interface functio
        struct geopm_request_s {
            int domain_type;
            int domain_idx;
-           char name[NAME_MAX];
+           char name[GEOPM_NAME_MAX];
        };
 
 Singleton Accessor

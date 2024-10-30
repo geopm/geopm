@@ -17,6 +17,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_time.h"
 #include "RuntimeStats.hpp"
+#include "geopm_limits.h"
 
 
 namespace geopm
@@ -82,8 +83,8 @@ namespace geopm
             geopm_time_s time_curr_real = geopm::time_curr_real();
             geopm_time_s time_begin_real;
             geopm_time_add(&time_curr_real, m_time_sample - time_curr, &time_begin_real);
-            char time_begin_cstr[NAME_MAX];
-            int err = geopm_time_real_to_iso_string(&time_begin_real, NAME_MAX, time_begin_cstr);
+            char time_begin_cstr[GEOPM_NAME_MAX];
+            int err = geopm_time_real_to_iso_string(&time_begin_real, GEOPM_NAME_MAX, time_begin_cstr);
             if (err != 0) {
                 throw Exception("StatsCollectorImp::update(): geopm_time_real_to_iso_string() call failed",
                                 err, __FILE__, __LINE__);
@@ -293,27 +294,27 @@ int geopm_stats_collector_report(const struct geopm_stats_collector_s *collector
                                    std::to_string(num_requests) + " required: " + std::to_string(report_cpp.metric_names.size()),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (report_cpp.host.size() >= NAME_MAX) {
+        if (report_cpp.host.size() >= GEOPM_NAME_MAX) {
             throw geopm::Exception("geopm_stats_collector_report(): Host name too long: " + report_cpp.host,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        report->host[NAME_MAX - 1] = '\0';
-        strncpy(report->host, report_cpp.host.c_str(), NAME_MAX - 1);
-        if (report_cpp.sample_time_first.size() >= NAME_MAX) {
+        report->host[GEOPM_NAME_MAX - 1] = '\0';
+        strncpy(report->host, report_cpp.host.c_str(), GEOPM_NAME_MAX - 1);
+        if (report_cpp.sample_time_first.size() >= GEOPM_NAME_MAX) {
             throw geopm::Exception("geopm_stats_collector_report(): Date too long: " + report_cpp.sample_time_first,
                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        report->sample_time_first[NAME_MAX - 1] = '\0';
-        strncpy(report->sample_time_first, report_cpp.sample_time_first.c_str(), NAME_MAX - 1);
+        report->sample_time_first[GEOPM_NAME_MAX - 1] = '\0';
+        strncpy(report->sample_time_first, report_cpp.sample_time_first.c_str(), GEOPM_NAME_MAX - 1);
         memcpy(report->sample_stats, report_cpp.sample_stats.data(), sizeof(double) * GEOPM_NUM_SAMPLE_STATS);
         report->num_metric = report_cpp.metric_names.size();
         for (size_t metric_idx = 0; metric_idx < report->num_metric; ++metric_idx) {
-            if (report_cpp.metric_names[metric_idx].size() >= NAME_MAX) {
+            if (report_cpp.metric_names[metric_idx].size() >= GEOPM_NAME_MAX) {
                 throw geopm::Exception("geopm_stats_collector_report(): Metric name too long: " + report_cpp.metric_names[metric_idx],
                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            report->metric_stats[metric_idx].name[NAME_MAX - 1] = '\0';
-            strncpy(report->metric_stats[metric_idx].name, report_cpp.metric_names[metric_idx].c_str(), NAME_MAX - 1);
+            report->metric_stats[metric_idx].name[GEOPM_NAME_MAX - 1] = '\0';
+            strncpy(report->metric_stats[metric_idx].name, report_cpp.metric_names[metric_idx].c_str(), GEOPM_NAME_MAX - 1);
             memcpy(report->metric_stats[metric_idx].stats, report_cpp.metric_stats[metric_idx].data(), sizeof(double) * GEOPM_NUM_METRIC_STATS);
         }
     }

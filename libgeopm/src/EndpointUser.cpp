@@ -16,6 +16,7 @@
 #include "geopm/Agent.hpp"
 #include "geopm/Environment.hpp"
 #include "geopm/SharedMemory.hpp"
+#include "geopm_limits.h"
 
 
 namespace geopm
@@ -79,7 +80,7 @@ namespace geopm
         /// write hostnames to file
         m_hostlist_path = hostlist_path;
         if (m_hostlist_path == "") {
-            char temp_path[NAME_MAX] = "/tmp/geopm_hostlist_XXXXXX";
+            char temp_path[GEOPM_NAME_MAX] = "/tmp/geopm_hostlist_XXXXXX";
             mode_t orig_mask = umask(S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH);
             int hostlist_fd = mkstemp(temp_path);
             umask(orig_mask);

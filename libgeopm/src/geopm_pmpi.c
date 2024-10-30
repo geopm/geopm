@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
-#include <limits.h>
 
 #ifndef GEOPM_TEST
 #include <mpi.h>

@@ -10,7 +10,6 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <limits.h>
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
@@ -26,6 +25,7 @@
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "geopm_field.h"
+#include "geopm_limits.h"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "MSRIOImp.hpp"
@@ -75,7 +75,7 @@ class ScopedPluginPath final
             : m_env_var_name(env_var_name)
             , m_old_path(geopm::get_env(env_var_name))
         {
-            char tmp_path[NAME_MAX] = "/tmp/MSRIOGroupTestPluginPath_XXXXXX";
+            char tmp_path[GEOPM_NAME_MAX] = "/tmp/MSRIOGroupTestPluginPath_XXXXXX";
             char *rc = mkdtemp(tmp_path);
             if (rc == nullptr) {
                 throw geopm::Exception("MSRIOGroupTest:ScopedPluginPath: mkdtemp() failed",
@@ -1067,7 +1067,7 @@ TEST_F(MSRIOGroupTest, allowlist)
     for (const auto &config_env_var : config_env_vars) {
         SCOPED_TRACE(std::string("MSR config from ") + config_env_var); // For more informative test logs
         ScopedPluginPath scoped_plugin_path(config_env_var);
-        char file_name[NAME_MAX] = __FILE__;
+        char file_name[GEOPM_NAME_MAX] = __FILE__;
         std::ifstream file(std::string(dirname(file_name)) + "/legacy_allowlist.out");
         std::string line;
         uint64_t offset;

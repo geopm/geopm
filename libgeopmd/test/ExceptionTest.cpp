@@ -4,11 +4,11 @@
  */
 
 #include <errno.h>
-#include <limits.h>
 #include <string>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
+#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 
 
@@ -46,7 +46,7 @@ TEST_F(ExceptionTest, hello)
 
 TEST_F(ExceptionTest, last_message)
 {
-    char message_cstr[PATH_MAX];
+    char message_cstr[GEOPM_MESSAGE_MAX];
     std::string message;
     std::string expect("<geopm> Invalid argument: ExceptionTest: Detail: at ExceptionTest.cpp:1234");
     try {
@@ -78,7 +78,7 @@ TEST_F(ExceptionTest, last_message)
     EXPECT_EQ(expect_new, message);
 
     // Make sure long exception messages are handled and truncated properly
-    std::string too_long(2 * NAME_MAX, 'X');
+    std::string too_long(2 * GEOPM_NAME_MAX, 'X');
     try {
         throw geopm::Exception(too_long, GEOPM_ERROR_RUNTIME, "ExceptionTest.cpp", 1234);
     }
@@ -92,15 +92,15 @@ TEST_F(ExceptionTest, last_message)
     EXPECT_EQ(expect_long, message);
 
     // Make sure long exception messages are handled and fully returned if the size is adequate
-    // geopm_error_message() will handle messages up to PATH_MAX (4096) in length
-    // NAME_MAX is 255
+    // geopm_error_message() will handle messages up to GEOPM_MESSAGE_MAX (4096) in length
+    // GEOPM_NAME_MAX is 255
     try {
         throw geopm::Exception(too_long, GEOPM_ERROR_RUNTIME, "ExceptionTest.cpp", 1234);
     }
     catch (...) {
         geopm::exception_handler(std::current_exception(), false);
     }
-    geopm_error_message(GEOPM_ERROR_RUNTIME, message_cstr, PATH_MAX);
+    geopm_error_message(GEOPM_ERROR_RUNTIME, message_cstr, GEOPM_MESSAGE_MAX);
     message = message_cstr;
     expect_long = message_prefix + too_long + ": at ExceptionTest.cpp:1234";
     EXPECT_EQ(expect_long, message);

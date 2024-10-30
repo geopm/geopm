@@ -8,13 +8,13 @@
 #include <cstdlib>
 #include <cerrno>
 #include <sstream>
-#include <limits.h>
 #include <unistd.h>
 #include <wait.h>
 #include <iostream>
 
 #include "geopm_error.h"
 #include "geopm_sched.h"
+#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/SharedMemory.hpp"
@@ -308,8 +308,8 @@ namespace geopm
             m_is_active = false;
             --g_sigchld_count;
             if (g_wait_status != 0) {
-                char err_msg[PATH_MAX];
-                geopm_error_message(g_wait_status, err_msg, PATH_MAX);
+                char err_msg[GEOPM_MESSAGE_MAX];
+                geopm_error_message(g_wait_status, err_msg, GEOPM_MESSAGE_MAX);
                 std::cerr << "Warning: <geopm> " << __FILE__ << ":" << __LINE__
                           << " :  Received SIGCHLD but wait() failed: "
                           << g_wait_status << " : \"" << err_msg << "\"\n";

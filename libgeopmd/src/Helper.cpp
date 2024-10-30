@@ -7,7 +7,6 @@
 #include "geopm/Helper.hpp"
 
 #include <unistd.h>
-#include <limits.h>
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
@@ -21,7 +20,6 @@
 #endif
 
 #include <cmath>
-#include <climits>
 #include <cinttypes>
 #include <fstream>
 #include <sstream>
@@ -30,6 +28,7 @@
 #include <string>
 #include <iostream>
 #include "geopm_field.h"
+#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
@@ -130,9 +129,9 @@ namespace geopm
 
     std::string hostname(void)
     {
-        char hostname[NAME_MAX];
-        hostname[NAME_MAX - 1] = '\0';
-        int err = gethostname(hostname, NAME_MAX - 1);
+        char hostname[GEOPM_NAME_MAX];
+        hostname[GEOPM_NAME_MAX - 1] = '\0';
+        int err = gethostname(hostname, GEOPM_NAME_MAX - 1);
         if (err) {
             throw Exception("Helper::hostname() gethostname() failed", err, __FILE__, __LINE__);
         }
@@ -173,26 +172,26 @@ namespace geopm
 
     std::string string_format_double(double signal)
     {
-        char result[NAME_MAX];
-        snprintf(result, NAME_MAX, "%.16g", signal);
+        char result[GEOPM_NAME_MAX];
+        snprintf(result, GEOPM_NAME_MAX, "%.16g", signal);
         return result;
     }
 
     std::string string_format_float(double signal)
     {
-        char result[NAME_MAX];
-        snprintf(result, NAME_MAX, "%g", signal);
+        char result[GEOPM_NAME_MAX];
+        snprintf(result, GEOPM_NAME_MAX, "%g", signal);
         return result;
     }
 
     std::string string_format_integer(double signal)
     {
-        char result[NAME_MAX];
+        char result[GEOPM_NAME_MAX];
         if (std::isnan(signal)) {
-            snprintf(result, NAME_MAX, "%g", signal);
+            snprintf(result, GEOPM_NAME_MAX, "%g", signal);
         }
         else {
-            snprintf(result, NAME_MAX, "%lld", (long long)signal);
+            snprintf(result, GEOPM_NAME_MAX, "%lld", (long long)signal);
         }
         return result;
     }
@@ -202,15 +201,15 @@ namespace geopm
         if (std::isnan(signal)) {
             return "NAN";
         }
-        char result[NAME_MAX];
-        snprintf(result, NAME_MAX, "0x%08" PRIx64, (uint64_t)signal);
+        char result[GEOPM_NAME_MAX];
+        snprintf(result, GEOPM_NAME_MAX, "0x%08" PRIx64, (uint64_t)signal);
         return result;
     }
 
     std::string string_format_raw64(double signal)
     {
-        char result[NAME_MAX];
-        snprintf(result, NAME_MAX, "0x%016" PRIx64, geopm_signal_to_field(signal));
+        char result[GEOPM_NAME_MAX];
+        snprintf(result, GEOPM_NAME_MAX, "0x%016" PRIx64, geopm_signal_to_field(signal));
         return result;
     }
 
@@ -420,7 +419,7 @@ namespace geopm
 
         size_t symlink_strlen = stat_buf.st_size > 0
             ? stat_buf.st_size
-            : PATH_MAX; // May happen for symlinks in sysfs
+            : GEOPM_MESSAGE_MAX; // May happen for symlinks in sysfs
         target.resize(symlink_strlen);
         err = readlink(symlink_path.c_str(), &target[0], symlink_strlen);
         if (err == -1) {

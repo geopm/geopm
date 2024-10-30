@@ -9,7 +9,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdint.h>
-#include <limits.h>
 
 #include "gtest/gtest.h"
 

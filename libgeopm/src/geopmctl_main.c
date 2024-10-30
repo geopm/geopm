@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
-#include <limits.h>
 #ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
 #endif
@@ -29,7 +28,7 @@ int main(int argc, char **argv)
 {
     int opt;
     int err0 = 0;
-    char error_str[NAME_MAX] = {0};
+    char error_str[GEOPM_NAME_MAX] = {0};
     const char *usage = "    %s [--help] [--version]\n"
                         "\n"
                         "DESCRIPTION\n"

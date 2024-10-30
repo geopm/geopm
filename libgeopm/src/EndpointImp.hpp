@@ -7,7 +7,6 @@
 #define ENDPOINTIMP_HPP_INCLUDE
 
 #include <pthread.h>
-#include <limits.h>
 
 #include "geopm_endpoint.h"
 #include "geopm_time.h"

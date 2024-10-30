@@ -15,6 +15,7 @@
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Helper.hpp"
 #include "MockSharedMemory.hpp"
+#include "geopm_limits.h"
 
 using geopm::EndpointUserImp;
 using geopm::SharedMemory;

@@ -5,7 +5,6 @@
 
 
 #include <unistd.h>
-#include <limits.h>
 #include <utime.h>
 #include <sys/sysinfo.h>
 #include <sys/stat.h>
@@ -24,6 +23,7 @@
 #include "LevelZero.hpp"
 #include "geopm_test.hpp"
 #include "geopm_time.h"
+#include "geopm_limits.h"
 
 using geopm::PlatformTopo;
 using geopm::PlatformTopoImp;
@@ -969,12 +969,12 @@ TEST_F(PlatformTopoTest, call_c_wrappers)
     }
     EXPECT_EQ(0, geopm_topo_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, 0, num_cpu, actual_cpu.data()));
     EXPECT_EQ(expect_cpu, actual_cpu);
-    char domain_name[NAME_MAX];
+    char domain_name[GEOPM_NAME_MAX];
     std::string domain_name_str;
     // negative test for domain_name()
-    EXPECT_GT(0, geopm_topo_domain_name(GEOPM_NUM_DOMAIN, NAME_MAX, domain_name));
+    EXPECT_GT(0, geopm_topo_domain_name(GEOPM_NUM_DOMAIN, GEOPM_NAME_MAX, domain_name));
     // simple test for domain_name()
-    EXPECT_EQ(0, geopm_topo_domain_name(GEOPM_DOMAIN_CPU, NAME_MAX, domain_name));
+    EXPECT_EQ(0, geopm_topo_domain_name(GEOPM_DOMAIN_CPU, GEOPM_NAME_MAX, domain_name));
     domain_name_str = domain_name;
     EXPECT_EQ("cpu", domain_name_str);
     // negative test for domain_type()

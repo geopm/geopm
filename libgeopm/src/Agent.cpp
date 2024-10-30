@@ -12,7 +12,6 @@
 #include <sstream>
 #include <iostream>
 #include <mutex>
-#include <limits.h>
 
 #include "geopm_agent.h"
 #include "geopm_plugin.hpp"
@@ -22,6 +21,7 @@
 #include "FrequencyMapAgent.hpp"
 #include "geopm/Environment.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm_limits.h"
 
 #ifdef GEOPM_ENABLE_BETA
 #include "CPUActivityAgent.hpp"
@@ -381,7 +381,7 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                                     char *json_string)
 {
     std::stringstream output_str;
-    char policy_name[PATH_MAX];
+    char policy_name[GEOPM_MESSAGE_MAX];
     std::string policy_value;
     int num_policy = 0;
     int err = geopm_agent_num_policy(agent_name, &num_policy);
@@ -395,7 +395,7 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                 if (i > 0) {
                     output_str << ", ";
                 }
-                err = geopm_agent_policy_name(agent_name, i, PATH_MAX, policy_name);
+                err = geopm_agent_policy_name(agent_name, i, GEOPM_MESSAGE_MAX, policy_name);
                 if (std::isnan(policy_array[i])) {
                     policy_value = "\"NAN\"";
                 }

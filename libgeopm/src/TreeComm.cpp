@@ -5,7 +5,6 @@
 
 #include "TreeComm.hpp"
 
-#include <limits.h>
 #include <string.h>
 #include <algorithm>
 #include <memory>

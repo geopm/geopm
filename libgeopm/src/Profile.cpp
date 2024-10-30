@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <limits.h>
 
 #include <algorithm>
 #include <iostream>
@@ -35,6 +34,7 @@
 #include "geopm_debug.hpp"
 #include "geopm_shmem.h"
 #include "geopm_sched.h"
+#include "geopm_limits.h"
 
 
 namespace geopm
@@ -112,9 +112,9 @@ namespace geopm
             std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm. "
                       << "Error: " << ex.what() << "." << std::endl;
             int err = ex.err_value();
-            char tmp_msg[PATH_MAX];
+            char tmp_msg[GEOPM_MESSAGE_MAX];
             geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
-            tmp_msg[PATH_MAX - 1] = '\0';
+            tmp_msg[GEOPM_MESSAGE_MAX - 1] = '\0';
             std::cerr << tmp_msg << std::endl;
         }
     }

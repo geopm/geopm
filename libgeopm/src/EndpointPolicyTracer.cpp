@@ -8,7 +8,6 @@
 
 #include <cstdlib>
 #include <cstddef>
-#include <climits>
 
 #include "CSV.hpp"
 #include "geopm/Agent.hpp"
@@ -18,7 +17,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_time.h"
-
+#include "geopm_limits.h"
 
 namespace geopm
 {
@@ -48,9 +47,9 @@ namespace geopm
         , m_num_policy(policy_names.size())
     {
         if (m_is_trace_enabled) {
-            char time_cstr[NAME_MAX];
+            char time_cstr[GEOPM_NAME_MAX];
             geopm_time_s time_0 = time_zero();
-            int err = geopm_time_to_string(&time_0, NAME_MAX, time_cstr);
+            int err = geopm_time_to_string(&time_0, GEOPM_NAME_MAX, time_cstr);
             if (err) {
                 throw Exception("geopm_time_to_string() failed",
                                 err, __FILE__, __LINE__);

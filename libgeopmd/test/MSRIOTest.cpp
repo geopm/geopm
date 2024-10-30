@@ -6,7 +6,6 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iterator>
-#include <limits.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <sstream>
@@ -25,6 +24,7 @@
 #include "MSRIOImp.hpp"
 #include "MSRPath.hpp"
 #include "geopm_test.hpp"
+#include "geopm_limits.h"
 
 using geopm::MSRIO;
 using geopm::MSRIOImp;
@@ -65,7 +65,7 @@ MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
     , m_num_cpu(num_cpu)
 {
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-        char tmp_path[NAME_MAX] = "/tmp/test_msrio_dev_cpu_XXXXXX";
+        char tmp_path[GEOPM_NAME_MAX] = "/tmp/test_msrio_dev_cpu_XXXXXX";
         int fd = mkstemp(tmp_path);
         if (fd == -1) {
             throw geopm::Exception("MSRIOMockFiles: mkstemp() failed",

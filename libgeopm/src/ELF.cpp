@@ -12,12 +12,12 @@
 #include <gelf.h>
 #include <dlfcn.h>
 #include <cxxabi.h>
-#include <limits.h>
 #include <iostream>
 
 #include "ELF.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm_limits.h"
 
 namespace geopm
 {
@@ -108,9 +108,9 @@ namespace geopm
                 if (file_name.find('/') == std::string::npos &&
                     file_name.find(".so") == std::string::npos) {
                     file_name = "/proc/self/exe";
-                    char file_name_cstr[NAME_MAX];
-                    int name_len = readlink(file_name.c_str(), file_name_cstr, NAME_MAX - 1);
-                    if (name_len > 0 && name_len < NAME_MAX) {
+                    char file_name_cstr[GEOPM_NAME_MAX];
+                    int name_len = readlink(file_name.c_str(), file_name_cstr, GEOPM_NAME_MAX - 1);
+                    if (name_len > 0 && name_len < GEOPM_NAME_MAX) {
                         file_name_cstr[name_len] = '\0';
                         file_name = file_name_cstr;
                     }

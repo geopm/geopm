@@ -11,7 +11,6 @@ extern "C" {
 
 #include "geopm_public.h"
 #include <stddef.h>
-#include <limits.h>
 
 struct geopm_request_s;
 struct geopm_stats_collector_s;
@@ -36,13 +35,13 @@ enum geopm_metric_stats_e {
 };
 
 struct geopm_metric_stats_s {
-    char name[NAME_MAX];
+    char name[GEOPM_NAME_MAX];
     double stats[GEOPM_NUM_METRIC_STATS];
 };
 
 struct geopm_report_s {
-    char host[NAME_MAX];
-    char sample_time_first[NAME_MAX];
+    char host[GEOPM_NAME_MAX];
+    char sample_time_first[GEOPM_NAME_MAX];
     double sample_stats[GEOPM_NUM_SAMPLE_STATS];
     size_t num_metric;
     struct geopm_metric_stats_s *metric_stats;

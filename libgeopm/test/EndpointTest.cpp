@@ -24,6 +24,7 @@
 #include "geopm_field.h"
 #include "geopm_time.h"
 #include "geopm_endpoint.h"
+#include "geopm_limits.h"
 #include "MockSharedMemory.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
