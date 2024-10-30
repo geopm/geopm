@@ -129,7 +129,7 @@ interface.
   Sets the *domain_name* string to the name associated with the
   *domain_type* selected from the ``geopm_domain_e`` enum.  At most
   *result_max* bytes are written to the *domain_name* string.
-  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_limits.h``) will be
+  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_pio.h``) will be
   sufficient for storing any result.  If *result_max* is too small
   to contain the domain name an error will occur.  Zero is returned
   on success and a negative error code is returned if any error

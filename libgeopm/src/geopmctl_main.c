@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 {
     int opt;
     int err0 = 0;
-    char error_str[GEOPM_NAME_MAX] = {0};
+    char error_str[GEOPM_MESSAGE_MAX] = {0};
     const char *usage = "    %s [--help] [--version]\n"
                         "\n"
                         "DESCRIPTION\n"
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     if (!err0) {
         err0 = geopmctl_main(argc, argv);
         if (err0) {
-            geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);
+            geopm_error_message(err0, error_str, GEOPM_MESSAGE_MAX);
             fprintf(stderr, "Error: %s\n", error_str);
         }
     }

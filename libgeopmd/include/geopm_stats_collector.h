@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include "geopm_public.h"
+#include "geopm_pio.h"
 #include <stddef.h>
 
 struct geopm_request_s;

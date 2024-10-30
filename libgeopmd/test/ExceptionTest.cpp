@@ -8,7 +8,6 @@
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
-#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 
 
@@ -78,7 +77,8 @@ TEST_F(ExceptionTest, last_message)
     EXPECT_EQ(expect_new, message);
 
     // Make sure long exception messages are handled and truncated properly
-    std::string too_long(2 * GEOPM_NAME_MAX, 'X');
+    static const size_t TEST_STRING_MAX = 255;
+    std::string too_long(2 * TEST_STRING_MAX, 'X');
     try {
         throw geopm::Exception(too_long, GEOPM_ERROR_RUNTIME, "ExceptionTest.cpp", 1234);
     }
@@ -93,7 +93,7 @@ TEST_F(ExceptionTest, last_message)
 
     // Make sure long exception messages are handled and fully returned if the size is adequate
     // geopm_error_message() will handle messages up to GEOPM_MESSAGE_MAX (4096) in length
-    // GEOPM_NAME_MAX is 255
+    // TEST_STRING_MAX is 255
     try {
         throw geopm::Exception(too_long, GEOPM_ERROR_RUNTIME, "ExceptionTest.cpp", 1234);
     }

@@ -23,7 +23,7 @@
 #include "LevelZero.hpp"
 #include "geopm_test.hpp"
 #include "geopm_time.h"
-#include "geopm_limits.h"
+#include "geopm_pio.h"
 
 using geopm::PlatformTopo;
 using geopm::PlatformTopoImp;

@@ -13,6 +13,8 @@ Link with ``-lgeopmd``
 
 .. code-block:: c
 
+       #define GEOPM_NAME_MAX 255ULL
+
        int geopm_pio_num_signal_name(void);
 
        int geopm_pio_signal_name(int name_idx,
@@ -114,6 +116,9 @@ enum for the *domain_type* parameter to many functions in the
 ``geopm_pio_signal_domain_type()`` and ``geopm_pio_control_domain_type()``
 is also a value from the ``geopm_domain_e`` enum.
 
+The constant ``GEOPM_NAME_MAX`` defines the maximum string size for signals
+names, control names, agent names.
+
 Inspection Functions
 --------------------
 
@@ -130,7 +135,7 @@ Inspection Functions
   *result* string.  The value of *name_idx* must be greater than
   zero and less than the return value from
   ``geopm_pio_num_signal_name()`` or else an error will occur.
-  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_limits.h``\ ) will be
+  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_pio.h``\ ) will be
   sufficient for storing any *result*.  If *result_max* is too small
   to contain the signal name an error will occur.  Zero is returned
   on success and a negative error code is returned if any error
@@ -148,7 +153,7 @@ Inspection Functions
   *result* string.  The value of *name_idx* must be greater than
   zero and less than the return value from
   ``geopm_pio_num_control_name()`` or else an error will occur.
-  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_limits.h``\ ) will be
+  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_pio.h``\ ) will be
   sufficient for storing any *result*.  If *result_max* is too small
   to contain the control name an error will occur.  Zero is returned
   on success and a negative error code is returned if any error
@@ -158,7 +163,7 @@ Inspection Functions
   Sets the *description* string to the signal description associated with
   *signal_name*.  At most *description_max* bytes are written to the
   *description* string.  Providing a string of ``GEOPM_NAME_MAX`` length (from
-  ``geopm_limits.h``\ ) will be sufficient for storing any description.  If
+  ``geopm_pio.h``\ ) will be sufficient for storing any description.  If
   *description_max* is too small to contain the description an error will
   occur.  Zero is returned on success and a negative error code is
   returned if any error occurs.
@@ -167,7 +172,7 @@ Inspection Functions
   Sets the *description* string to the control description associated with
   *control_name*.  At most *description_max* bytes are written to the
   *description* string.  Providing a string of ``GEOPM_NAME_MAX`` length (from
-  ``geopm_limits.h``\ ) will be sufficient for storing any description.  If
+  ``geopm_pio.h``\ ) will be sufficient for storing any description.  If
   *description_max* is too small to contain the description an error will
   occur.  Zero is returned on success and a negative error code is
   returned if any error occurs.
@@ -209,7 +214,7 @@ Inspection Functions
   **in** *result_max* At most *result_max* bytes are written to the *result* string.
   If *result_max* is too small  to contain the written output string an error will occur.
   **out** *result* Sets the *result* string to the value of the signal formatted as specified by the *format_type*.
-  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_limits.h``\ ) will be sufficient for storing any *result*.
+  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_pio.h``\ ) will be sufficient for storing any *result*.
   Returns zero on success, error value on failure.
 
 ``geopm_pio_reset()``
@@ -376,7 +381,7 @@ Batch Functions
   and the *server_key* with a key used to identify the server connection:
   a substring in interprocess shared memory keys used for communication.
   At most *key_size* bytes are written to the *server_key* string.
-  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_limits.h``\ ) will be sufficient for storing any *server_key*.
+  Providing a string of ``GEOPM_NAME_MAX`` length (from ``geopm_pio.h``\ ) will be sufficient for storing any *server_key*.
   If *key_size* is too small to contain the *server_key* an error will
   occur.  Zero is returned on success and a negative error code is
   returned if any error occurs.

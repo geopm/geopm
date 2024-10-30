@@ -19,7 +19,6 @@
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm_error.h"
-#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 #include "GEOPMBenchConfig.hpp"
 #include "ModelApplication.hpp"

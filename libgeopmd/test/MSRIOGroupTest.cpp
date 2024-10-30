@@ -25,7 +25,6 @@
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "geopm_field.h"
-#include "geopm_limits.h"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "MSRIOImp.hpp"
@@ -39,6 +38,7 @@
 #include "MockCpuid.hpp"
 #include "geopm_test.hpp"
 #include "geopm/Cpuid.hpp"
+#include "geopm_pio.h"
 
 using geopm::MSRIOGroup;
 using geopm::PlatformTopo;

@@ -23,8 +23,8 @@
 #include "MockIOUring.hpp"
 #include "MSRIOImp.hpp"
 #include "MSRPath.hpp"
+#include "geopm_pio.h"
 #include "geopm_test.hpp"
-#include "geopm_limits.h"
 
 using geopm::MSRIO;
 using geopm::MSRIOImp;

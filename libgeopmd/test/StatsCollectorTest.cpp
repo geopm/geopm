@@ -17,7 +17,6 @@
 #include "geopm_test.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockStatsCollector.hpp"
-#include "geopm_limits.h"
 
 using geopm::StatsCollectorImp;
 using testing::Return;
@@ -196,7 +195,8 @@ TEST_F(StatsCollectorTest, time_report)
 TEST_F(StatsCollectorTest, c_strings)
 {
     MockStatsCollector mock_coll;
-    std::vector<char> too_big(GEOPM_NAME_MAX, '*');
+    static const size_t TEST_NAME_MAX = 255ULL;
+    std::vector<char> too_big(TEST_NAME_MAX, '*');
     too_big.push_back('\0');
     std::string too_big_str(too_big.data());
     geopm::StatsCollector::report_s too_big_report {
@@ -214,8 +214,8 @@ TEST_F(StatsCollectorTest, c_strings)
     };
     EXPECT_CALL(mock_coll, report_struct()).WillOnce(Return(max_report));
     EXPECT_EQ(0, geopm_stats_collector_report((geopm_stats_collector_s *)(&mock_coll), 1, &report_c));
-    EXPECT_EQ('*', report_c.host[GEOPM_NAME_MAX-2]);
-    EXPECT_EQ('\0', report_c.host[GEOPM_NAME_MAX-1]);
+    EXPECT_EQ('*', report_c.host[TEST_NAME_MAX - 2]);
+    EXPECT_EQ('\0', report_c.host[TEST_NAME_MAX - 1]);
     free(report_c.metric_stats);
 
     geopm::StatsCollector::report_s mixed_report {

@@ -13,6 +13,8 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 .. code-block:: c
 
+       #define GEOPM_MESSAGE_MAX 4096ULL
+
        void geopm_error_message(int err,
                                 char *msg,
                                 size_t size);
@@ -46,6 +48,8 @@ information about the failure that most recently occurred.  The
 details may include the source file, line number, and a detailed
 description of the error condition.  If possible, please provide this
 message when reporting a bug to the GEOPM developers.
+
+The constant ``GEOPM_MESSAGE_MAX`` may be used to allocate *msg* buffer.
 
 Error Numbers
 -------------

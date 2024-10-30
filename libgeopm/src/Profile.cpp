@@ -34,7 +34,6 @@
 #include "geopm_debug.hpp"
 #include "geopm_shmem.h"
 #include "geopm_sched.h"
-#include "geopm_limits.h"
 
 
 namespace geopm

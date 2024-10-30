@@ -21,7 +21,6 @@ include_HEADERS = include/geopm_access.h \
                   include/geopm_field.h \
                   include/geopm_hash.h \
                   include/geopm_hint.h \
-                  include/geopm_limits.h \
                   include/geopm_pio.h \
                   include/geopm_plugin.hpp \
                   include/geopm_public.h \

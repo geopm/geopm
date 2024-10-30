@@ -31,6 +31,13 @@ enum geopm_error_e {
     GEOPM_ERROR_DATA_STORE = -14,
 };
 
+/*
+ * String length allocated for GEOPM messages (like C error messages
+ * derived from C++ exceptions).  Has same value as PATH_MAX from
+ * linux/limits.h for historical reasons.
+ */
+#define GEOPM_MESSAGE_MAX 4096ULL
+
 /* Convert error number into an error message */
 void GEOPM_PUBLIC
     geopm_error_message(int err, char *msg, size_t size);

@@ -15,7 +15,6 @@
 #include "geopm_agent.h"
 #include "geopm_error.h"
 #include "geopm_hash.h"
-#include "geopm_limits.h"
 #include "geopm/Agent.hpp"
 #include "OptionParser.hpp"
 
@@ -68,7 +67,7 @@ static int main_imp(int argc, char **argv)
     char error_str[GEOPMAGENT_STRING_LENGTH] = {0};
     char agent_str[GEOPMAGENT_STRING_LENGTH] = {0};
     char policy_vals_str[GEOPMAGENT_STRING_LENGTH] = {0};
-    char output_str[GEOPM_NAME_MAX * GEOPMAGENT_DOUBLE_LENGTH];
+    char output_str[255 * GEOPMAGENT_DOUBLE_LENGTH];
     const char *agent_ptr = NULL;
     char *policy_vals_ptr = NULL;
 

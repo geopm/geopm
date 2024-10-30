@@ -19,6 +19,9 @@ extern "C"
 {
 #endif
 
+/// @brief String allocation size sufficient for results of geopm_time function calls
+#define GEOPM_TIME_STRING_MAX 255ULL
+
 struct geopm_time_s;
 
 static inline int geopm_time_string(int buf_size, char *buf);

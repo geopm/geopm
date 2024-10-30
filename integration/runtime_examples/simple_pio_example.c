@@ -44,7 +44,6 @@ LD_LIBRARY_PATH=$HOME/build/geopm/lib:$LD_LIBRARY_PATH ./a.out
 #include "geopm_topo.h"
 #include "geopm_pio.h"
 #include "geopm_error.h"
-#include "geopm_limits.h"
 
 int main(int argc, char **argv)
 {

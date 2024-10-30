@@ -21,7 +21,7 @@
 #include "FrequencyMapAgent.hpp"
 #include "geopm/Environment.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm_limits.h"
+#include "geopm/Exception.hpp"
 
 #ifdef GEOPM_ENABLE_BETA
 #include "CPUActivityAgent.hpp"

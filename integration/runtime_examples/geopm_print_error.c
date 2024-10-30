@@ -9,7 +9,6 @@
 #include <errno.h>
 
 #include "geopm_error.h"
-#include "geopm_limits.h"
 
 int main(int argc, char **argv)
 {

@@ -287,7 +287,6 @@ Reading Signals
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
-        #include <geopm_limits.h>
 
         int main (int argc, char** argv)
         {
@@ -402,7 +401,6 @@ To fetch platform telemetry and output it to the console or a file:
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
-        #include <geopm_limits.h>
 
         int read_signals ()
         {
@@ -521,7 +519,6 @@ interface.
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
-        #include <geopm_limits.h>
 
         int read_signals ()
         {
@@ -700,7 +697,6 @@ Writing Controls
         #include <geopm_topo.h>
         #include <geopm_pio.h>
         #include <geopm_error.h>
-        #include <geopm_limits.h>
 
         int main (int argc, char** argv)
         {

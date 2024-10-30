@@ -13,7 +13,6 @@
 #include <mutex>
 #include <algorithm>
 #include <map>
-#include "geopm_limits.h"
 
 
 namespace geopm

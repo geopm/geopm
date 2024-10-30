@@ -17,6 +17,8 @@ C interfaces:
 
 .. code-block:: c
 
+       #define GEOPM_TIME_STRING_MAX 255ULL
+
        static inline int geopm_time_string(int buf_size,
                                            char *buf);
 
@@ -89,6 +91,9 @@ a ``CLOCK_MONOTONIC_RAW`` time value that can be accessed in C with
 way to reset this reference with ``geopm_time_zero_reset()`` and
 ``geopm:time_zero_reset()`` by providing a ``CLOCK_MONOTONIC_RAW`` time value.
 
+The constant ``GEOPM_TIME_STRING_MAX`` may be used to allocate *buf* results
+for any of the C geopm_time_* function calls, although this value is larger than
+is generally required.
 
 ``geopm_time_string()``
   Fills *buf* with the current date and time as a string.  The

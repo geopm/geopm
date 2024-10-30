@@ -14,7 +14,6 @@
 
 #include "geopm_error.h"
 #include "geopm_sched.h"
-#include "geopm_limits.h"
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/SharedMemory.hpp"

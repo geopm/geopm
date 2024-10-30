@@ -16,7 +16,6 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm_debug.hpp"
-#include "geopm_limits.h"
 
 namespace geopm
 {

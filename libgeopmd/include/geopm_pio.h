@@ -9,11 +9,17 @@
 #include <stddef.h>
 #include <limits.h>
 #include "geopm_public.h"
-#include "geopm_limits.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// @brief String size limit for names
+///
+/// String length allocated for GEOPM names (like signal and control
+/// names). Has same value as NAME_MAX from limits.h for historical
+/// reasons.
+#define GEOPM_NAME_MAX 255ULL
 
 /// @return the number of signal names that can be indexed with the
 ///         name_idx parameter to the geopm_pio_signal_name()

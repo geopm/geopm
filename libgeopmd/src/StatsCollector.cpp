@@ -17,7 +17,6 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_time.h"
 #include "RuntimeStats.hpp"
-#include "geopm_limits.h"
 
 
 namespace geopm
@@ -83,8 +82,8 @@ namespace geopm
             geopm_time_s time_curr_real = geopm::time_curr_real();
             geopm_time_s time_begin_real;
             geopm_time_add(&time_curr_real, m_time_sample - time_curr, &time_begin_real);
-            char time_begin_cstr[GEOPM_NAME_MAX];
-            int err = geopm_time_real_to_iso_string(&time_begin_real, GEOPM_NAME_MAX, time_begin_cstr);
+            char time_begin_cstr[GEOPM_TIME_STRING_MAX];
+            int err = geopm_time_real_to_iso_string(&time_begin_real, GEOPM_TIME_STRING_MAX, time_begin_cstr);
             if (err != 0) {
                 throw Exception("StatsCollectorImp::update(): geopm_time_real_to_iso_string() call failed",
                                 err, __FILE__, __LINE__);
