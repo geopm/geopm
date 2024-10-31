@@ -20,7 +20,7 @@ PACKAGE_NAME=geopmdpy
 ARCHIVE=${PACKAGE_NAME}-$(cat ${PACKAGE_NAME}/VERSION).tar.gz
 tar -xvf dist/${ARCHIVE}
 
-if [ "$BUILD_AGAINST_LOCAL_PACKAGES" -eq 1 ]
+if [ "$BUILD_AGAINST_LOCAL_PACKAGES" -eq 1 ] && ! echo "$DPKG_BUILDPACKAGE_OPTIONS" | grep -qw "\-S\|--build=source"
 then
     # Compile and link against the most recently packaged libgeopmd
     libgeopmd_dir=$PWD/../libgeopmd
@@ -46,7 +46,7 @@ cd ${DIR}
 dpkg-buildpackage ${DPKG_BUILDPACKAGE_OPTIONS:- -us -uc}
 cd -
 
-if [ "$BUILD_AGAINST_LOCAL_PACKAGES" -eq 1 ]
+if [ "$BUILD_AGAINST_LOCAL_PACKAGES" -eq 1 ] && ! echo "$DPKG_BUILDPACKAGE_OPTIONS" | grep -qw "\-S\|--build=source"
 then
     rm -r "${deps_tmp_root}"
 fi
