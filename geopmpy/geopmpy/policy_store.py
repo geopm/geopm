@@ -5,7 +5,7 @@
 
 
 import math
-from geopmdpy import gffi
+from . import gffi
 from geopmdpy import error
 
 _dl = gffi.get_dl_geopm()
@@ -25,7 +25,7 @@ def connect(database_path):
     """
     global _dl
 
-    database_path_cstr = gffi.libgeopm_ffi.new("char[]", database_path.encode())
+    database_path_cstr = gffi.gffi.new("char[]", database_path.encode())
     err = _dl.geopm_policystore_connect(database_path_cstr)
     if err < 0:
         raise RuntimeError('geopm_policystore_connect() failed: {}'.format(error.message(err)))
@@ -55,10 +55,10 @@ def get_best(agent_name, profile_name):
     """
     global _dl
 
-    agent_name_cstr = gffi.libgeopm_ffi.new("char[]", agent_name.encode())
-    profile_name_cstr = gffi.libgeopm_ffi.new("char[]", profile_name.encode())
+    agent_name_cstr = gffi.gffi.new("char[]", agent_name.encode())
+    profile_name_cstr = gffi.gffi.new("char[]", profile_name.encode())
     policy_max = 1024
-    policy_array = gffi.libgeopm_ffi.new("double[]", policy_max)
+    policy_array = gffi.gffi.new("double[]", policy_max)
     err = _dl.geopm_policystore_get_best(agent_name_cstr, profile_name_cstr,
                                          policy_max, policy_array)
     if err < 0:
@@ -77,9 +77,9 @@ def set_best(agent_name, profile_name, policy):
     """
     global _dl
 
-    agent_name_cstr = gffi.libgeopm_ffi.new("char[]", agent_name.encode())
-    profile_name_cstr = gffi.libgeopm_ffi.new("char[]", profile_name.encode())
-    policy_array = gffi.libgeopm_ffi.new("double[]", policy)
+    agent_name_cstr = gffi.gffi.new("char[]", agent_name.encode())
+    profile_name_cstr = gffi.gffi.new("char[]", profile_name.encode())
+    policy_array = gffi.gffi.new("double[]", policy)
     err = _dl.geopm_policystore_set_best(agent_name_cstr, profile_name_cstr,
                                          len(policy), policy_array)
     if err < 0:
@@ -95,8 +95,8 @@ def set_default(agent_name, policy):
     """
     global _dl
 
-    agent_name_cstr = gffi.libgeopm_ffi.new("char[]", agent_name.encode())
-    policy_array = gffi.libgeopm_ffi.new("double[]", policy)
+    agent_name_cstr = gffi.gffi.new("char[]", agent_name.encode())
+    policy_array = gffi.gffi.new("double[]", policy)
     err = _dl.geopm_policystore_set_default(agent_name_cstr, len(policy), policy_array)
     if err < 0:
         raise RuntimeError('geopm_policystore_set_default() failed: {}'.format(error.message(err)))

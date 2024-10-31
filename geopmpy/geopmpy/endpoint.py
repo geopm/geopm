@@ -2,7 +2,8 @@
 #  Copyright (c) 2015 - 2024 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-from geopmdpy import gffi, error
+from geopmpy import gffi
+from geopmdpy import error
 import geopmpy.agent
 from typing import Union, Mapping, List, Dict, Tuple
 
@@ -25,8 +26,8 @@ class Endpoint:
             name (str): Shared memory key substring used to create an endpoint
                         that an agent can attach to.
         """
-        name_cstr = gffi.libgeopm_ffi.new("char[]", name.encode())
-        p_endpoint = gffi.libgeopm_ffi.new("struct geopm_endpoint_c **")
+        name_cstr = gffi.gffi.new("char[]", name.encode())
+        p_endpoint = gffi.gffi.new("struct geopm_endpoint_c **")
         self._name = name
         err = _dl.geopm_endpoint_create(name_cstr, p_endpoint)
         if err != 0:
@@ -76,10 +77,10 @@ class Endpoint:
             Union[str, None]: The name of the current agent, or None if there
                               is no agent attached.
         """
-        agent_name_cstr = gffi.libgeopm_ffi.new("char[]", _name_max)
+        agent_name_cstr = gffi.gffi.new("char[]", _name_max)
         err = _dl.geopm_endpoint_agent(self._endpoint, _name_max, agent_name_cstr)
         if err == 0:
-            return gffi.libgeopm_ffi.string(agent_name_cstr).decode()
+            return gffi.gffi.string(agent_name_cstr).decode()
         elif err == -13:  # GEOPM_ERROR_NO_AGENT
             return None
         else:
@@ -120,10 +121,10 @@ class Endpoint:
             Union[str, None]: The name of the current profile, or None if there
                               is no agent attached.
         """
-        profile_name_cstr = gffi.libgeopm_ffi.new("char[]", _name_max)
+        profile_name_cstr = gffi.gffi.new("char[]", _name_max)
         err = _dl.geopm_endpoint_profile_name(self._endpoint, _name_max, profile_name_cstr)
         if err == 0:
-            return gffi.libgeopm_ffi.string(profile_name_cstr).decode()
+            return gffi.gffi.string(profile_name_cstr).decode()
         elif err == -13:  # GEOPM_ERROR_NO_AGENT
             return None
         else:
@@ -136,7 +137,7 @@ class Endpoint:
         Returns:
             List[str]: List of node names managed by the agent.
         """
-        num_node_p = gffi.libgeopm_ffi.new("int *")
+        num_node_p = gffi.gffi.new("int *")
         err = _dl.geopm_endpoint_num_node(self._endpoint, num_node_p)
         if err != 0:
             raise RuntimeError("geopm_endpoint_num_node() failed: {}".format(
@@ -145,13 +146,13 @@ class Endpoint:
         num_node = num_node_p[0]
         node_list = list()
         for node_idx in range(num_node):
-            node_name_cstr = gffi.libgeopm_ffi.new("char[]", _name_max)
+            node_name_cstr = gffi.gffi.new("char[]", _name_max)
             err = _dl.geopm_endpoint_node_name(
                 self._endpoint, node_idx, _name_max, node_name_cstr)
             if err != 0:
                 raise RuntimeError("geopm_endpoint_node_name() failed: {}".format(
                     error.message(err)))
-            node_list.append(gffi.libgeopm_ffi.string(node_name_cstr).decode())
+            node_list.append(gffi.gffi.string(node_name_cstr).decode())
         return node_list
 
     def write_policy(self, policy: Mapping[str, float]):
@@ -166,7 +167,7 @@ class Endpoint:
             raise RuntimeError("Cannot write a policy since no agent is running.")
         policy_names = geopmpy.agent.policy_names(agent)
         num_policy = len(policy_names)
-        policy_array = gffi.libgeopm_ffi.new("double[]", [policy.get(policy_name, float('nan'))
+        policy_array = gffi.gffi.new("double[]", [policy.get(policy_name, float('nan'))
                                              for policy_name in policy_names])
         err = _dl.geopm_endpoint_write_policy(self._endpoint, num_policy, policy_array)
         if err != 0:
@@ -189,8 +190,8 @@ class Endpoint:
             raise RuntimeError("Cannot read samples since no agent is running.")
         sample_names = geopmpy.agent.sample_names(agent)
         num_sample = len(sample_names)
-        sample_array = gffi.libgeopm_ffi.new("double[]", num_sample)
-        sample_age_p = gffi.libgeopm_ffi.new("double *")
+        sample_array = gffi.gffi.new("double[]", num_sample)
+        sample_age_p = gffi.gffi.new("double *")
         err = _dl.geopm_endpoint_read_sample(self._endpoint, num_sample, sample_array, sample_age_p)
         if err != 0:
             raise RuntimeError("geopm_endpoint_write_policy() failed: {}".format(

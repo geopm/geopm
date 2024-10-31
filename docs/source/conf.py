@@ -85,6 +85,7 @@ source_suffix = '.rst'
 napoleon_google_docstring = True
 
 autodoc_mock_imports = ['geopmdpy.gffi',
+                        'geopmpy.gffi',
                         'pandas',
                         'numpy',
                         'natsort']

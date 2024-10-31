@@ -4,11 +4,10 @@
 #
 
 
-from . import gffi.libgeopmd_ffi as gffi
-from . import gffi.get_dl_geopmd as get_dl_geopmd
+from . import gffi
 
 try:
-    _dl = get_dl_geopmd()
+    _dl = gffi.get_dl_geopmd()
 except OSError as ee:
     raise OSError('This module requires libgeopm.so to be present in your LD_LIBRARY_PATH.') from ee
 
@@ -22,8 +21,5 @@ def hash_str(key):
         int: Hash of string
 
     """
-    global gffi
-    global _dl
-
-    key_name_cstr = gffi.new("char[]", key.encode())
+    key_name_cstr = gffi.gffi.new("char[]", key.encode())
     return _dl.geopm_crc32_str(key_name_cstr)
