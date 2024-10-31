@@ -22,7 +22,8 @@ class PrometheusExporter:
         self._stats_collector.report_table()
         sleep(_STARTUP_SLEEP) # Take two samples to enable derivative signals
         self._metric_names, self._metric_data = self._stats_collector.report_table()
-        self._gauges = [None if type(metric_val) is str else _create_prom_metric(metric_name.replace('-', '_'), metric_name, 'Gauge')
+        metric_name = _sanitize_metric_name(metric_name)
+        self._gauges = [None if type(metric_val) is str else _create_prom_metric(metric_name, metric_name, 'Gauge')
                         for metric_name, metric_val in zip(self._metric_names, self._metric_data)]
         self._num_metric = 0
         for metric_idx, gauge in enumerate(self._gauges):
@@ -76,6 +77,8 @@ class PrometheusMetricExporter:
             else: # Append domain and domain index
                 metric_name = f'{rr[0]}_{topo.domain_name(rr[1])}_{rr[2]}'
                 metric_desc = f'{rr[0]}-{topo.domain_name(rr[1])}-{rr[2]}'
+
+
             if behavior == 1: # Use Counter for monotone behavior
                 self._metrics.append(_create_prom_metric(metric_name, metric_desc, 'Counter'))
             elif behavior == 2: # Use Summary for variable behavior
@@ -102,6 +105,23 @@ class PrometheusMetricExporter:
                     if sample_last[metric_idx] != None:
                         metric.inc(sample - sample_last[metric_idx])
                     sample_last[metric_idx] = sample
+
+
+def _sanitize_metric_name(name):
+    name = name.lower()
+    name = 'geopm_' + name
+    if 'temp' in name:
+        name = name + '_celcius'
+    elif 'power' in name:
+        name = name + '_watts'
+    elif 'energy' in name:
+        name = name + '_joules'
+    elif 'freq' in name:
+        name = name + '_hertz'
+
+    name = name.replace('-','_')
+    name = name.replace(":","_")
+    return name
 
 def _start_http_server(port):
     """Wrapper to enable easier mocking in unit tests
