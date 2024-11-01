@@ -101,20 +101,20 @@ class TestPrometheusExporter(TestCase):
 
     def test_sanitize_metric_name(self):
         map_raw2sanitized = {
-            'CPU_POWER-package-0' : 'geopm_cpu_power_package_0',
-            'CPU_POWER_LIMIT_CONTROL-package-0' : 'geopm_cpu_power_limit_control_package_0',
-            'CPU_UNCORE_FREQUENCY_MIN_CONTROL-package-0' : 'geopm_cpu_uncore_frequency_min_control_package_0',
-            'CPU_UNCORE_FREQUENCY_STATUS-package-0' : 'geopm_cpu_uncore_frequency_status_package_0',
-            'DRAM_ENERGY-package-0' : 'geopm_dram_energy_package_0',
-            'DRAM_POWER-package-1' : 'geopm_dram_power_package_1',
-            'GPU_CORE_FREQUENCY_STATUS-package-0' : 'geopm_gpu_core_frequency_status_package_0',
-            'GPU_CORE_FREQUENCY_STEP-gpu-3' : 'geopm_gpu_core_frequency_step_gpu_3',
-            'GPU_ENERGY-gpu-4' : 'geopm_gpu_energy_gpu_4',
-            'GPU_POWER-package-0' : 'geopm_gpu_power_package_0',
-            'GPU_TEMPERATURE-package-0' : 'geopm_gpu_temperature_package_0',
+            'CPU_POWER-package-0' : 'geopm_cpu_power_package_0_watts',
+            'CPU_POWER_LIMIT_CONTROL-package-0' : 'geopm_cpu_power_limit_control_package_0_watts',
+            'CPU_UNCORE_FREQUENCY_MIN_CONTROL-package-0' : 'geopm_cpu_uncore_frequency_min_control_package_0_hertz',
+            'CPU_UNCORE_FREQUENCY_STATUS-package-0' : 'geopm_cpu_uncore_frequency_status_package_0_hertz',
+            'DRAM_ENERGY-package-0' : 'geopm_dram_energy_package_0_joules',
+            'DRAM_POWER-package-1' : 'geopm_dram_power_package_1_watts',
+            'GPU_CORE_FREQUENCY_STATUS-package-0' : 'geopm_gpu_core_frequency_status_package_0_hertz',
+            'GPU_CORE_FREQUENCY_STEP-gpu-3' : 'geopm_gpu_core_frequency_step_gpu_3_hertz',
+            'GPU_ENERGY-gpu-4' : 'geopm_gpu_energy_gpu_4_joules',
+            'GPU_POWER-package-0' : 'geopm_gpu_power_package_0_watts',
+            'GPU_TEMPERATURE-package-0' : 'geopm_gpu_temperature_package_0_celcius',
             'GPU_UTILIZATION-gpu-0' : 'geopm_gpu_utilization_gpu_0',
             'MSR::CPU_SCALABILITY_RATIO-package-0' : 'geopm_msr__cpu_scalability_ratio_package_0',
-            'MSR::DRAM_ENERGY_STATUS:ENERGY-package-0' : 'geopm_msr__dram_energy_status_energy_package_0',
+            'MSR::DRAM_ENERGY_STATUS:ENERGY-package-0' : 'geopm_msr__dram_energy_status_energy_package_0_joules',
             'MSR::PACKAGE_THERM_STATUS:CRITICAL_TEMP_STATUS-package-0' : 'geopm_msr__package_therm_status_critical_temp_status_package_0'}
         for metric, expected in map_raw2sanitized.items():
             self.assertEqual(expected, exporter._sanitize_metric_name(metric))

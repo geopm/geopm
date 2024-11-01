@@ -117,13 +117,13 @@ def _sanitize_metric_name(name):
     canonical_name = re.sub('[^a-zA-Z0-9_]', '_', name).lower()
 
     units = ''
-    if 'temperature' in name:
+    if 'temperature' in canonical_name:
         units = '_celcius'
-    elif 'power' in name:
+    elif 'power' in canonical_name:
         units = '_watts'
-    elif 'energy' in name:
+    elif 'energy' in canonical_name:
         units = '_joules'
-    elif 'freq' in name:
+    elif 'freq' in canonical_name:
         units = '_hertz'
 
     name = f'geopm_{canonical_name}{units}'
