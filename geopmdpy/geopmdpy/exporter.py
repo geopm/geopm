@@ -5,6 +5,7 @@
 
 import sys
 import os
+import re
 from time import sleep
 from argparse import ArgumentParser
 from . import pio, topo, stats, loop, session, __version_str__
@@ -22,8 +23,8 @@ class PrometheusExporter:
         self._stats_collector.report_table()
         sleep(_STARTUP_SLEEP) # Take two samples to enable derivative signals
         self._metric_names, self._metric_data = self._stats_collector.report_table()
-        metric_name = _sanitize_metric_name(metric_name)
-        self._gauges = [None if type(metric_val) is str else _create_prom_metric(metric_name, metric_name, 'Gauge')
+
+        self._gauges = [None if type(metric_val) is str else _create_prom_metric(_sanitize_metric_name(metric_name), metric_name, 'Gauge')
                         for metric_name, metric_val in zip(self._metric_names, self._metric_data)]
         self._num_metric = 0
         for metric_idx, gauge in enumerate(self._gauges):
@@ -77,7 +78,7 @@ class PrometheusMetricExporter:
             else: # Append domain and domain index
                 metric_name = f'{rr[0]}_{topo.domain_name(rr[1])}_{rr[2]}'
                 metric_desc = f'{rr[0]}-{topo.domain_name(rr[1])}-{rr[2]}'
-
+            metric_name = _sanitize_metric_name(metric_name)
 
             if behavior == 1: # Use Counter for monotone behavior
                 self._metrics.append(_create_prom_metric(metric_name, metric_desc, 'Counter'))
@@ -108,19 +109,24 @@ class PrometheusMetricExporter:
 
 
 def _sanitize_metric_name(name):
-    name = name.lower()
-    name = 'geopm_' + name
-    if 'temp' in name:
-        name = name + '_celcius'
-    elif 'power' in name:
-        name = name + '_watts'
-    elif 'energy' in name:
-        name = name + '_joules'
-    elif 'freq' in name:
-        name = name + '_hertz'
+    """Convert the GEOPM metric name into one that adheres
+    to Prometheus documentation
 
-    name = name.replace('-','_')
-    name = name.replace(":","_")
+    """
+
+    canonical_name = re.sub('[^a-zA-Z0-9_]', '_', name).lower()
+
+    units = ''
+    if 'temperature' in name:
+        units = '_celcius'
+    elif 'power' in name:
+        units = '_watts'
+    elif 'energy' in name:
+        units = '_joules'
+    elif 'freq' in name:
+        units = '_hertz'
+
+    name = f'geopm_{canonical_name}{units}'
     return name
 
 def _start_http_server(port):
@@ -147,7 +153,7 @@ def default_requests():
     power, energy, frequency, and temperature.
 
     """
-    include_strings = ["POWER", "ENERGY", "FREQ", "TEMP"]
+    include_strings = ["POWER", "ENERGY", "FREQ", "TEMPERATURE"]
     exclude_strings = ["::", "CONTROL", "MAX", "MIN", "STEP", "LIMIT", "STICKER"]
     all_signals = pio.signal_names()
     requests = []

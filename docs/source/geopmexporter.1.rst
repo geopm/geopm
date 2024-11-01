@@ -167,7 +167,7 @@ notified of the new service.
    sudo groupadd --system prometheus
    sudo useradd -s /sbin/nologin --system -g prometheus prometheus
    sudo cp geopmexporter.service /etc/systemd/system/
-   sudo systemctl deamon-reload
+   sudo systemctl daemon-reload
    sudo systemctl enable geopmexporter
    sudo systemctl start geopmexporter
 
