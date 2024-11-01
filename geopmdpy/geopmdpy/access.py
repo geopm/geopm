@@ -18,9 +18,6 @@ from . import gffi
 from . import error
 from . import __version_str__
 
-_dl = gffi.get_dl_geopmd()
-
-
 class DirectAccessProxy:
     """A proxy for access-related GEOPM service interactions that attempts
     in-process operations instead of issuing D-Bus calls.
@@ -316,10 +313,9 @@ class Access:
             str: msr-safe allowlist string.
 
         """
-        global _dl
         data_max = 2097152 # 2 MiB
         allowlist_cstr = gffi.gffi.new("char[]", data_max)
-        err = _dl.geopm_msr_allowlist(data_max, allowlist_cstr)
+        err = gffi.dl_geopmd.geopm_msr_allowlist(data_max, allowlist_cstr)
         if err < 0:
             raise RuntimeError('geopm_allowlist() failed: {}'.format(error.message(err)))
         return gffi.gffi.string(allowlist_cstr).decode()

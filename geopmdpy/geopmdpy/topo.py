@@ -7,21 +7,19 @@
 from . import gffi
 from . import error
 
-_dl = gffi.get_dl_geopmd()
-
-DOMAIN_INVALID = _dl.GEOPM_DOMAIN_INVALID
-DOMAIN_BOARD = _dl.GEOPM_DOMAIN_BOARD
-DOMAIN_PACKAGE = _dl.GEOPM_DOMAIN_PACKAGE
-DOMAIN_CORE = _dl.GEOPM_DOMAIN_CORE
-DOMAIN_CPU = _dl.GEOPM_DOMAIN_CPU
-DOMAIN_MEMORY = _dl.GEOPM_DOMAIN_MEMORY
-DOMAIN_PACKAGE_INTEGRATED_MEMORY = _dl.GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY
-DOMAIN_NIC = _dl.GEOPM_DOMAIN_NIC
-DOMAIN_PACKAGE_INTEGRATED_NIC = _dl.GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC
-DOMAIN_GPU = _dl.GEOPM_DOMAIN_GPU
-DOMAIN_PACKAGE_INTEGRATED_GPU = _dl.GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU
-DOMAIN_GPU_CHIP = _dl.GEOPM_DOMAIN_GPU_CHIP
-NUM_DOMAIN = _dl.GEOPM_NUM_DOMAIN
+DOMAIN_INVALID = gffi.dl_geopmd.GEOPM_DOMAIN_INVALID
+DOMAIN_BOARD = gffi.dl_geopmd.GEOPM_DOMAIN_BOARD
+DOMAIN_PACKAGE = gffi.dl_geopmd.GEOPM_DOMAIN_PACKAGE
+DOMAIN_CORE = gffi.dl_geopmd.GEOPM_DOMAIN_CORE
+DOMAIN_CPU = gffi.dl_geopmd.GEOPM_DOMAIN_CPU
+DOMAIN_MEMORY = gffi.dl_geopmd.GEOPM_DOMAIN_MEMORY
+DOMAIN_PACKAGE_INTEGRATED_MEMORY = gffi.dl_geopmd.GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY
+DOMAIN_NIC = gffi.dl_geopmd.GEOPM_DOMAIN_NIC
+DOMAIN_PACKAGE_INTEGRATED_NIC = gffi.dl_geopmd.GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC
+DOMAIN_GPU = gffi.dl_geopmd.GEOPM_DOMAIN_GPU
+DOMAIN_PACKAGE_INTEGRATED_GPU = gffi.dl_geopmd.GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU
+DOMAIN_GPU_CHIP = gffi.dl_geopmd.GEOPM_DOMAIN_GPU_CHIP
+NUM_DOMAIN = gffi.dl_geopmd.GEOPM_NUM_DOMAIN
 
 def num_domain(domain):
     """Get the number of domains available on the system of a specific
@@ -38,9 +36,8 @@ def num_domain(domain):
             the system.
 
     """
-    global _dl
     domain = domain_type(domain)
-    result = _dl.geopm_topo_num_domain(domain)
+    result = gffi.dl_geopmd.geopm_topo_num_domain(domain)
     if result < 0:
         raise RuntimeError("geopm_topo_num_domain() failed: {}".format(
             error.message(result)))
@@ -62,9 +59,8 @@ def domain_idx(domain, cpu_idx):
         int: Domain index associated with the specified logical CPU.
 
     """
-    global _dl
     domain = domain_type(domain)
-    result = _dl.geopm_topo_domain_idx(domain, cpu_idx)
+    result = gffi.dl_geopmd.geopm_topo_domain_idx(domain, cpu_idx)
     if result < 0:
         raise RuntimeError("geopm_topo_domain_idx() failed: {}".format(
             error.message(result)))
@@ -87,15 +83,14 @@ def domain_nested(inner_domain, outer_domain, outer_idx):
             within the specified outer domain.
 
     """
-    global _dl
     inner_domain = domain_type(inner_domain)
     outer_domain = domain_type(outer_domain)
-    num_domain_nested = _dl.geopm_topo_num_domain_nested(inner_domain, outer_domain)
+    num_domain_nested = gffi.dl_geopmd.geopm_topo_num_domain_nested(inner_domain, outer_domain)
     if (num_domain_nested < 0):
         raise RuntimeError("geopm_topo_num_domain_nested() failed: {}".format(
             error.message(num_domain_nested)))
     domain_nested_carr = gffi.gffi.new("int[]", num_domain_nested)
-    _dl.geopm_topo_domain_nested(inner_domain, outer_domain, outer_idx,
+    gffi.dl_geopmd.geopm_topo_domain_nested(inner_domain, outer_domain, outer_idx,
                                  num_domain_nested, domain_nested_carr)
     result = []
     for dom in domain_nested_carr:
@@ -116,11 +111,10 @@ def domain_name(domain):
         str: Domain name string associated with input.
 
     """
-    global _dl
     domain = domain_type(domain)
     name_max = 1024
     result_cstr = gffi.gffi.new("char[]", name_max)
-    err = _dl.geopm_topo_domain_name(domain, name_max, result_cstr)
+    err = gffi.dl_geopmd.geopm_topo_domain_name(domain, name_max, result_cstr)
     if err < 0:
         raise RuntimeError("geopm_topo_domain_name() failed: {}".format(
                            error.message(err)))
@@ -149,9 +143,8 @@ def domain_type(domain):
         else:
             raise RuntimeError("domain_type is out of range: {}".format(domain))
     else:
-        global _dl
         domain_cstr = gffi.gffi.new("char[]", domain.encode())
-        result = _dl.geopm_topo_domain_type(domain_cstr)
+        result = gffi.dl_geopmd.geopm_topo_domain_type(domain_cstr)
         if result < 0:
             raise RuntimeError("geopm_topo_domain_type() failed: {}".format(
                 error.message(result)))
@@ -172,8 +165,7 @@ def create_cache():
     to calling this function.
 
     """
-    global _dl
-    err = _dl.geopm_topo_create_cache()
+    err = gffi.dl_geopmd.geopm_topo_create_cache()
     if err < 0:
         raise RuntimeError("geopm_topo_create_cache() failed: {}".format(
             error.message(err)))

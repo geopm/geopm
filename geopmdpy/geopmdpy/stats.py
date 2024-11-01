@@ -13,21 +13,19 @@ import math
 from . import gffi
 from . import error
 
-_dl = gffi.get_dl_geopmd()
-
-SAMPLE_TIME_TOTAL = _dl.GEOPM_SAMPLE_TIME_TOTAL
-SAMPLE_COUNT = _dl.GEOPM_SAMPLE_COUNT
-SAMPLE_PERIOD_MEAN = _dl.GEOPM_SAMPLE_PERIOD_MEAN
-SAMPLE_PERIOD_STD = _dl.GEOPM_SAMPLE_PERIOD_STD
-NUM_SAMPLE_STATS = _dl.GEOPM_NUM_SAMPLE_STATS
-METRIC_COUNT = _dl.GEOPM_METRIC_COUNT
-METRIC_FIRST = _dl.GEOPM_METRIC_FIRST
-METRIC_LAST = _dl.GEOPM_METRIC_LAST
-METRIC_MIN = _dl.GEOPM_METRIC_MIN
-METRIC_MAX = _dl.GEOPM_METRIC_MAX
-METRIC_MEAN = _dl.GEOPM_METRIC_MEAN
-METRIC_STD = _dl.GEOPM_METRIC_STD
-NUM_METRIC_STATS = _dl.GEOPM_NUM_METRIC_STATS
+SAMPLE_TIME_TOTAL = gffi.dl_geopmd.GEOPM_SAMPLE_TIME_TOTAL
+SAMPLE_COUNT = gffi.dl_geopmd.GEOPM_SAMPLE_COUNT
+SAMPLE_PERIOD_MEAN = gffi.dl_geopmd.GEOPM_SAMPLE_PERIOD_MEAN
+SAMPLE_PERIOD_STD = gffi.dl_geopmd.GEOPM_SAMPLE_PERIOD_STD
+NUM_SAMPLE_STATS = gffi.dl_geopmd.GEOPM_NUM_SAMPLE_STATS
+METRIC_COUNT = gffi.dl_geopmd.GEOPM_METRIC_COUNT
+METRIC_FIRST = gffi.dl_geopmd.GEOPM_METRIC_FIRST
+METRIC_LAST = gffi.dl_geopmd.GEOPM_METRIC_LAST
+METRIC_MIN = gffi.dl_geopmd.GEOPM_METRIC_MIN
+METRIC_MAX = gffi.dl_geopmd.GEOPM_METRIC_MAX
+METRIC_MEAN = gffi.dl_geopmd.GEOPM_METRIC_MEAN
+METRIC_STD = gffi.dl_geopmd.GEOPM_METRIC_STD
+NUM_METRIC_STATS = gffi.dl_geopmd.GEOPM_NUM_METRIC_STATS
 
 class Collector:
     """ Object for aggregating statistics gathered from the PlatformIO interface of GEOPM
@@ -44,7 +42,6 @@ class Collector:
                 (signal_name, domain_type, domain_idx).
 
         """
-        global _dl
         self._collector_ptr = None
         self._num_signal = len(signal_config)
         if self._num_signal == 0:
@@ -58,7 +55,7 @@ class Collector:
 
         collector_ptr = gffi.gffi.new('struct geopm_stats_collector_s **');
 
-        err = _dl.geopm_stats_collector_create(self._num_signal, signal_config_carr, collector_ptr)
+        err = gffi.dl_geopmd.geopm_stats_collector_create(self._num_signal, signal_config_carr, collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_create() failed: {}'.format(error.message(err)))
         self._collector_ptr = collector_ptr[0];
@@ -83,11 +80,10 @@ class Collector:
         they are no longer in use.
 
         """
-        global _dl
         if (self._collector_ptr is not None):
             collector_ptr = self._collector_ptr
             self._collector_ptr = None
-            _dl.geopm_stats_collector_free(collector_ptr)
+            gffi.dl_geopmd.geopm_stats_collector_free(collector_ptr)
 
     def _check_ptr(self, func_name):
         if self._collector_ptr is None:
@@ -100,9 +96,8 @@ class Collector:
         interface.  The sampled values will be used to update the report statistics.
 
         """
-        global _dl
         self._check_ptr('update')
-        err = _dl.geopm_stats_collector_update(self._collector_ptr)
+        err = gffi.dl_geopmd.geopm_stats_collector_update(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_update() failed: {}'.format(error.message(err)))
 
@@ -113,10 +108,9 @@ class Collector:
         last call to the reset() method.
 
         """
-        global _dl
         self._check_ptr('update_count')
         result = gffi.gffi.new('size_t *')
-        err = _dl.geopm_stats_collector_update_count(self._collector_ptr, result)
+        err = gffi.dl_geopmd.geopm_stats_collector_update_count(self._collector_ptr, result)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_update_count() failed: {}'.format(error.message(err)))
         return result[0]
@@ -135,13 +129,12 @@ class Collector:
         >>> report_b = yaml.dump(stats.report())
 
         """
-        global _dl
         self._check_ptr('report_yaml')
         report_max = gffi.gffi.new('size_t *')
         report_max[0] = 0
-        _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, gffi.gffi.NULL)
+        gffi.dl_geopmd.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, gffi.gffi.NULL)
         report_cstr = gffi.gffi.new('char[]', report_max[0])
-        err = _dl.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, report_cstr)
+        err = gffi.dl_geopmd.geopm_stats_collector_report_yaml(self._collector_ptr, report_max, report_cstr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_report_yaml() failed: {}'.format(error.message(err)))
         return gffi.gffi.string(report_cstr).decode()
@@ -160,12 +153,11 @@ class Collector:
         >>> report_b = stats.report()
 
         """
-        global _dl
         self._check_ptr('report')
         report_ptr = gffi.gffi.new('struct geopm_report_s *')
         metric_stats = gffi.gffi.new('struct geopm_metric_stats_s[]', self._num_signal)
         report_ptr.metric_stats = metric_stats
-        err = _dl.geopm_stats_collector_report(self._collector_ptr, self._num_signal, report_ptr)
+        err = gffi.dl_geopmd.geopm_stats_collector_report(self._collector_ptr, self._num_signal, report_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_report() failed: {}'.format(error.message(err)))
         result = dict()
@@ -255,8 +247,7 @@ class Collector:
         that the next report that is generated is independent of the last.
 
         """
-        global _dl
         self._check_ptr('reset')
-        err = _dl.geopm_stats_collector_reset(self._collector_ptr)
+        err = gffi.dl_geopmd.geopm_stats_collector_reset(self._collector_ptr)
         if err < 0:
             raise RuntimeError('geopm_stats_collector_reset() failed: {}'.format(error.message(err)))

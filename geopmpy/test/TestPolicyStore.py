@@ -15,7 +15,7 @@ import geopmpy.policy_store
 class TestPolicyStore(unittest.TestCase):
     def setUp(self):
         mock_c.reset_mock()
-        with mock.patch('geopmpy.policy_store.gffi.get_dl_geopm', return_value=mock_c):
+        with mock.patch('geopmpy.gffi.dl_geopm', new=mock_c):
             reload(geopmpy.policy_store)
 
     def tearDown(self):

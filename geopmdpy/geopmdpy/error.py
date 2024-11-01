@@ -7,21 +7,19 @@
 import sys
 from . import gffi
 
-_dl = gffi.get_dl_geopmd()
-
-ERROR_RUNTIME = _dl.GEOPM_ERROR_RUNTIME
-ERROR_LOGIC = _dl.GEOPM_ERROR_LOGIC
-ERROR_INVALID = _dl.GEOPM_ERROR_INVALID
-ERROR_FILE_PARSE = _dl.GEOPM_ERROR_FILE_PARSE
-ERROR_LEVEL_RANGE = _dl.GEOPM_ERROR_LEVEL_RANGE
-ERROR_NOT_IMPLEMENTED = _dl.GEOPM_ERROR_NOT_IMPLEMENTED
-ERROR_PLATFORM_UNSUPPORTED = _dl.GEOPM_ERROR_PLATFORM_UNSUPPORTED
-ERROR_MSR_OPEN = _dl.GEOPM_ERROR_MSR_OPEN
-ERROR_MSR_READ = _dl.GEOPM_ERROR_MSR_READ
-ERROR_MSR_WRITE = _dl.GEOPM_ERROR_MSR_WRITE
-ERROR_AGENT_UNSUPPORTED = _dl.GEOPM_ERROR_AGENT_UNSUPPORTED
-ERROR_AFFINITY = _dl.GEOPM_ERROR_AFFINITY
-ERROR_NO_AGENT = _dl.GEOPM_ERROR_NO_AGENT
+ERROR_RUNTIME = gffi.dl_geopmd.GEOPM_ERROR_RUNTIME
+ERROR_LOGIC = gffi.dl_geopmd.GEOPM_ERROR_LOGIC
+ERROR_INVALID = gffi.dl_geopmd.GEOPM_ERROR_INVALID
+ERROR_FILE_PARSE = gffi.dl_geopmd.GEOPM_ERROR_FILE_PARSE
+ERROR_LEVEL_RANGE = gffi.dl_geopmd.GEOPM_ERROR_LEVEL_RANGE
+ERROR_NOT_IMPLEMENTED = gffi.dl_geopmd.GEOPM_ERROR_NOT_IMPLEMENTED
+ERROR_PLATFORM_UNSUPPORTED = gffi.dl_geopmd.GEOPM_ERROR_PLATFORM_UNSUPPORTED
+ERROR_MSR_OPEN = gffi.dl_geopmd.GEOPM_ERROR_MSR_OPEN
+ERROR_MSR_READ = gffi.dl_geopmd.GEOPM_ERROR_MSR_READ
+ERROR_MSR_WRITE = gffi.dl_geopmd.GEOPM_ERROR_MSR_WRITE
+ERROR_AGENT_UNSUPPORTED = gffi.dl_geopmd.GEOPM_ERROR_AGENT_UNSUPPORTED
+ERROR_AFFINITY = gffi.dl_geopmd.GEOPM_ERROR_AFFINITY
+ERROR_NO_AGENT = gffi.dl_geopmd.GEOPM_ERROR_NO_AGENT
 
 def message(err_number):
     """Return the error message associated with the error code.  Positive
@@ -35,9 +33,7 @@ def message(err_number):
         str: Error message associated with error code.
 
     """
-    global _dl
-
     path_max = 4096
     result_cstr = gffi.gffi.new("char[]", path_max)
-    _dl.geopm_error_message(err_number, result_cstr, path_max)
+    gffi.dl_geopmd.geopm_error_message(err_number, result_cstr, path_max)
     return gffi.gffi.string(result_cstr).decode()

@@ -7,8 +7,7 @@ from geopmdpy import error
 import geopmpy.agent
 from typing import Union, Mapping, List, Dict, Tuple
 
-_dl = gffi.get_dl_geopm()
-if not hasattr(_dl, 'geopm_endpoint_create'):
+if not hasattr(gffi.dl_geopm, 'geopm_endpoint_create'):
     raise ImportError('geopmpy.endpoint cannot be imported because the installed '
                       'libgeopm does not include the Endpoint feature. '
                       'Rebuild libgeopm with the --enable-beta configuration flag '
@@ -29,7 +28,7 @@ class Endpoint:
         name_cstr = gffi.gffi.new("char[]", name.encode())
         p_endpoint = gffi.gffi.new("struct geopm_endpoint_c **")
         self._name = name
-        err = _dl.geopm_endpoint_create(name_cstr, p_endpoint)
+        err = gffi.dl_geopm.geopm_endpoint_create(name_cstr, p_endpoint)
         if err != 0:
             self._endpoint = None
             raise RuntimeError("geopm_endpoint_create() failed: {}".format(
@@ -39,7 +38,7 @@ class Endpoint:
     def __del__(self):
         """ Release resources associated with endpoint.
         """
-        err = _dl.geopm_endpoint_destroy(self._endpoint)
+        err = gffi.dl_geopm.geopm_endpoint_destroy(self._endpoint)
         if err != 0:
             raise RuntimeError("geopm_endpoint_destroy() failed: {}".format(
                                error.message(err)))
@@ -57,7 +56,7 @@ class Endpoint:
     def open(self):
         """ Create shmem regions within the endpoint for policy/sample handling.
         """
-        err = _dl.geopm_endpoint_open(self._endpoint)
+        err = gffi.dl_geopm.geopm_endpoint_open(self._endpoint)
         if err != 0:
             raise RuntimeError("geopm_endpoint_open() failed: {}".format(
                                error.message(err)))
@@ -65,7 +64,7 @@ class Endpoint:
     def close(self):
         """Destroy shmem regions within the endpoint.
         """
-        err = _dl.geopm_endpoint_close(self._endpoint)
+        err = gffi.dl_geopm.geopm_endpoint_close(self._endpoint)
         if err != 0:
             raise RuntimeError("geopm_endpoint_close() failed: {}".format(
                                error.message(err)))
@@ -78,7 +77,7 @@ class Endpoint:
                               is no agent attached.
         """
         agent_name_cstr = gffi.gffi.new("char[]", _name_max)
-        err = _dl.geopm_endpoint_agent(self._endpoint, _name_max, agent_name_cstr)
+        err = gffi.dl_geopm.geopm_endpoint_agent(self._endpoint, _name_max, agent_name_cstr)
         if err == 0:
             return gffi.gffi.string(agent_name_cstr).decode()
         elif err == -13:  # GEOPM_ERROR_NO_AGENT
@@ -93,7 +92,7 @@ class Endpoint:
         Args:
             timeout (float): Timeout in seconds.
         """
-        err = _dl.geopm_endpoint_wait_for_agent_attach(self._endpoint, timeout)
+        err = gffi.dl_geopm.geopm_endpoint_wait_for_agent_attach(self._endpoint, timeout)
         if err != 0:
             raise RuntimeError("geopm_endpoint_wait_for_agent_attach() failed: {}".format(
                                error.message(err)))
@@ -101,7 +100,7 @@ class Endpoint:
     def stop_wait_loop(self):
         """Stop any wait loops the endpoint is running.
         """
-        err = _dl.geopm_endpoint_wait_for_agent_stop_wait_loop(self._endpoint)
+        err = gffi.dl_geopm.geopm_endpoint_wait_for_agent_stop_wait_loop(self._endpoint)
         if err != 0:
             raise RuntimeError("geopm_endpoint_wait_for_agent_stop_wait_loop() failed: {}".format(
                                error.message(err)))
@@ -109,7 +108,7 @@ class Endpoint:
     def reset_wait_loop(self):
         """Reset the endpoint to prepare for wait_for_agent_attach()
         """
-        err = _dl.geopm_endpoint_wait_for_agent_reset_wait_loop(self._endpoint)
+        err = gffi.dl_geopm.geopm_endpoint_wait_for_agent_reset_wait_loop(self._endpoint)
         if err != 0:
             raise RuntimeError("geopm_endpoint_wait_for_agent_reset_wait_loop() failed: {}".format(
                                error.message(err)))
@@ -122,7 +121,7 @@ class Endpoint:
                               is no agent attached.
         """
         profile_name_cstr = gffi.gffi.new("char[]", _name_max)
-        err = _dl.geopm_endpoint_profile_name(self._endpoint, _name_max, profile_name_cstr)
+        err = gffi.dl_geopm.geopm_endpoint_profile_name(self._endpoint, _name_max, profile_name_cstr)
         if err == 0:
             return gffi.gffi.string(profile_name_cstr).decode()
         elif err == -13:  # GEOPM_ERROR_NO_AGENT
@@ -138,7 +137,7 @@ class Endpoint:
             List[str]: List of node names managed by the agent.
         """
         num_node_p = gffi.gffi.new("int *")
-        err = _dl.geopm_endpoint_num_node(self._endpoint, num_node_p)
+        err = gffi.dl_geopm.geopm_endpoint_num_node(self._endpoint, num_node_p)
         if err != 0:
             raise RuntimeError("geopm_endpoint_num_node() failed: {}".format(
                                error.message(err)))
@@ -147,7 +146,7 @@ class Endpoint:
         node_list = list()
         for node_idx in range(num_node):
             node_name_cstr = gffi.gffi.new("char[]", _name_max)
-            err = _dl.geopm_endpoint_node_name(
+            err = gffi.dl_geopm.geopm_endpoint_node_name(
                 self._endpoint, node_idx, _name_max, node_name_cstr)
             if err != 0:
                 raise RuntimeError("geopm_endpoint_node_name() failed: {}".format(
@@ -169,7 +168,7 @@ class Endpoint:
         num_policy = len(policy_names)
         policy_array = gffi.gffi.new("double[]", [policy.get(policy_name, float('nan'))
                                              for policy_name in policy_names])
-        err = _dl.geopm_endpoint_write_policy(self._endpoint, num_policy, policy_array)
+        err = gffi.dl_geopm.geopm_endpoint_write_policy(self._endpoint, num_policy, policy_array)
         if err != 0:
             raise RuntimeError("geopm_endpoint_write_policy() failed: {}".format(
                 error.message(err)))
@@ -192,7 +191,7 @@ class Endpoint:
         num_sample = len(sample_names)
         sample_array = gffi.gffi.new("double[]", num_sample)
         sample_age_p = gffi.gffi.new("double *")
-        err = _dl.geopm_endpoint_read_sample(self._endpoint, num_sample, sample_array, sample_age_p)
+        err = gffi.dl_geopm.geopm_endpoint_read_sample(self._endpoint, num_sample, sample_array, sample_age_p)
         if err != 0:
             raise RuntimeError("geopm_endpoint_write_policy() failed: {}".format(
                 error.message(err)))

@@ -29,7 +29,7 @@ class TestEndpoint(unittest.TestCase):
             return 0
         mock_libgeopm.geopm_endpoint_agent.side_effect = mock_agent
 
-        with mock.patch('geopmpy.endpoint.gffi.get_dl_geopm', return_value=mock_libgeopm):
+        with mock.patch('geopmpy.gffi.dl_geopm', new=mock_libgeopm):
             # libgeopm gets loaded on import. Reimport now so we use our mocks instead
             # of anything that might already be loaded in this python instance.
             reload(geopmpy.endpoint)
