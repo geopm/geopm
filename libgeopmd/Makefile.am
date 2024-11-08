@@ -12,7 +12,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src -I$(top_srcdir)/include \
 lib_LTLIBRARIES = libgeopmd.la
 
 bin_PROGRAMS = geopmread \
-               geopmwrite \
                # end
 
 include_HEADERS = include/geopm_access.h \
@@ -99,9 +98,6 @@ EXTRA_DIST = .gitignore \
 geopmread_SOURCES = src/geopmread_main.cpp
 geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmread_LDADD = libgeopmd.la
-geopmwrite_SOURCES = src/geopmwrite_main.cpp
-geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
-geopmwrite_LDADD = libgeopmd.la
 
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)

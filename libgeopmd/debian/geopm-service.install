@@ -1,5 +1,4 @@
 usr/bin/geopmread
-usr/bin/geopmwrite
 geopm.service lib/systemd/system
 io.github.geopm.conf usr/share/dbus-1/system.d
 io.github.geopm.xml usr/share/dbus-1/interfaces
