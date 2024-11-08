@@ -9,9 +9,9 @@
 
 import sys
 from argparse import ArgumentParser
-from geopmdpy import pio
-from geopmdpy import topo
-from geopmdpy import __version_str__
+from . import pio
+from . import topo
+from . import __version_str__
 
 
 def print_domains():
@@ -35,7 +35,10 @@ def print_info_all():
     for control_name in pio.control_names():
         print_info(control_name)
 
-def run(input_stream):
+def print_controls():
+    print('\n'.join(pio.control_names()))
+
+def batch(input_stream):
     requests = [line.split() for line in input_stream.readlines()]
     ctl_idx = []
     for rr in requests:
@@ -47,7 +50,7 @@ def run(input_stream):
         pio.adjust(ctl_idx[ii], float(rr[3]))
     pio.write_batch()
 
-def main():
+def run():
     parser = ArgumentParser(description=__doc__)
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument('-C', '--config',
@@ -74,10 +77,10 @@ def main():
     args = parser.parse_args()
     if args.config:
         if args.config == '-':
-            run(sys.stdin)
+            batch(sys.stdin)
         else:
             with open(args.config) as input_stream:
-                run(input_stream)
+                batch(input_stream)
     elif args.domain:
         print_domains()
     elif args.info:
@@ -90,9 +93,24 @@ def main():
         print(__version_str__)
     elif args.CONTROL_NAME is not None and args.DOMAIN_TYPE is not None and args.DOMAIN_INDEX is not None and args.VALUE is not None:
         pio.write_control(args.CONTROL_NAME, args.DOMAIN_TYPE, args.DOMAIN_INDEX, args.VALUE)
+    elif args.CONTROL_NAME is None and args.DOMAIN_TYPE is None and args.DOMAIN_INDEX is None and args.VALUE is None:
+        print_controls()
     else:
         parser.print_help()
+        return -1
     return 0
+
+def main():
+    err = 0
+    try:
+        err = run()
+    except RuntimeError as ee:
+        if 'GEOPM_DEBUG' in os.environ:
+            # Do not handle exception if GEOPM_DEBUG is set
+            raise ee
+        sys.stderr.write('Error: {}\n\n'.format(ee))
+        err = -1
+    return err
 
 if __name__ == '__main__':
     sys.exit(main())
