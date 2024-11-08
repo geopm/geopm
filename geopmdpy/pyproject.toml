@@ -60,7 +60,7 @@ geopmd = "geopmdpy.__main__:main"
 geopmaccess = "geopmdpy.access:main"
 geopmsession = "geopmdpy.session:main"
 geopmexporter = "geopmdpy.exporter:main"
-geopmwritebatch = "geopmdpy.writebatch:main"
+geopmwrite = "geopmdpy.write:main"
 
 [project.urls]
 "Homepage" = "https://geopm.github.io"

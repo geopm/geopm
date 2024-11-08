@@ -75,5 +75,5 @@ configuring the service.
 %{_bindir}/geopmaccess
 %{_bindir}/geopmexporter
 %{_bindir}/geopmsession
-%{_bindir}/geopmwritebatch
+%{_bindir}/geopmwrite
 
