@@ -11,9 +11,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src -I$(top_srcdir)/include \
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmd.la
 
-bin_PROGRAMS = geopmread \
-               # end
-
 include_HEADERS = include/geopm_access.h \
                   include/geopm_debug.hpp \
                   include/geopm_error.h \
@@ -94,10 +91,6 @@ EXTRA_DIST = .gitignore \
              json_data/sysfs_attributes_drm.json \
              src/json_data.cpp.in \
              # end
-
-geopmread_SOURCES = src/geopmread_main.cpp
-geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
-geopmread_LDADD = libgeopmd.la
 
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
