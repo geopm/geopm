@@ -12,21 +12,7 @@ from argparse import ArgumentParser
 from . import pio
 from . import topo
 from . import __version_str__
-
-
-def print_domains():
-    print(f"""\
-board                       {topo.num_domain('board')}
-package                     {topo.num_domain('package')}
-core                        {topo.num_domain('core')}
-cpu                         {topo.num_domain('cpu')}
-memory                      {topo.num_domain('memory')}
-package_integrated_memory   {topo.num_domain('package_integrated_memory')}
-nic                         {topo.num_domain('nic')}
-package_integrated_nic      {topo.num_domain('package_integrated_nic')}
-gpu                         {topo.num_domain('gpu')}
-package_integrated_gpu      {topo.num_domain('package_integrated_gpu')}
-gpu_chip                    {topo.num_domain('gpu_chip')}""")
+from . import read.print_domain
 
 def print_info(control_name):
     print(f'{control_name}:\n{pio.control_description(control_name)}')
@@ -53,7 +39,7 @@ def batch(input_stream):
 def run():
     parser = ArgumentParser(description=__doc__)
     parser_group = parser.add_mutually_exclusive_group()
-    parser_group.add_argument('-C', '--config',
+    parser_group.add_argument('-f', '--config',
                               help='Path to configuration file with one write request per line, use "-" for stdin')
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
@@ -82,7 +68,7 @@ def run():
             with open(args.config) as input_stream:
                 batch(input_stream)
     elif args.domain:
-        print_domains()
+        read.print_domains()
     elif args.info:
         print_info(args.info)
     elif args.info_all:

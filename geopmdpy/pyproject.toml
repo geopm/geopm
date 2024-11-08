@@ -58,6 +58,7 @@ dependencies = ["cffi>=1.14.5",
 [project.scripts]
 geopmd = "geopmdpy.__main__:main"
 geopmaccess = "geopmdpy.access:main"
+geopmread = "geopmdpy.read:main"
 geopmsession = "geopmdpy.session:main"
 geopmexporter = "geopmdpy.exporter:main"
 geopmwrite = "geopmdpy.write:main"

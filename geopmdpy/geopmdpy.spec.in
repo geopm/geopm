@@ -74,6 +74,7 @@ configuring the service.
 %{_bindir}/geopmd
 %{_bindir}/geopmaccess
 %{_bindir}/geopmexporter
+%{_bindir}/geopmread
 %{_bindir}/geopmsession
 %{_bindir}/geopmwrite
 
