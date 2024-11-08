@@ -12,10 +12,10 @@ from argparse import ArgumentParser
 from . import pio
 from . import topo
 from . import __version_str__
-from . import read.print_domain
+from . import read
 
 def print_info(control_name):
-    print(f'{control_name}:\n{pio.control_description(control_name)}')
+    print(f'{control_name}:\n    {pio.control_description(control_name)}')
 
 def print_info_all():
     for control_name in pio.control_names():
@@ -39,8 +39,6 @@ def batch(input_stream):
 def run():
     parser = ArgumentParser(description=__doc__)
     parser_group = parser.add_mutually_exclusive_group()
-    parser_group.add_argument('-f', '--config',
-                              help='Path to configuration file with one write request per line, use "-" for stdin')
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
     parser_group.add_argument('-i', '--info',
@@ -51,6 +49,8 @@ def run():
                               help='Create geopm topo cache if it does not exist')
     parser_group.add_argument('-v', '--version', action='store_true',
                               help='Print version and exit.')
+    parser_group.add_argument('-f', '--config',
+                              help='Path to configuration file with one write request per line, use "-" for stdin')
     positional_group = parser.add_argument_group()
     positional_group.add_argument('CONTROL_NAME', nargs='?',
                                   help='Name of control')

@@ -29,7 +29,7 @@ package_integrated_gpu      {topo.num_domain('package_integrated_gpu')}
 gpu_chip                    {topo.num_domain('gpu_chip')}""")
 
 def print_info(signal_name):
-    print(f'{signal_name}:\n{pio.signal_description(signal_name)}')
+    print(f'{signal_name}:\n    {pio.signal_description(signal_name)}')
 
 def print_info_all():
     for signal_name in pio.signal_names():
@@ -59,7 +59,7 @@ def run():
     positional_group.add_argument('DOMAIN_INDEX', nargs='?', type=int,
                                   help='Index of the domain, starting from 0')
     args = parser.parse_args()
-    elif args.domain:
+    if args.domain:
         print_domains()
     elif args.info:
         print_info(args.info)
