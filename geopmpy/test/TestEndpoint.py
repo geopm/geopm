@@ -7,11 +7,12 @@
 
 import unittest
 from unittest import mock
-from importlib import reload
-
 import geopmpy.endpoint
 
-mock_libgeopm = mock.Mock()
+# Aliasing "mock_libgeopm" to keep the diff small when adding this. Alternatively,
+# replace usage in this file with "mock_libgeopm.lib"
+from . import mock_libgeopm as _mock_libgeopm
+mock_libgeopm = _mock_libgeopm.lib
 
 class TestEndpoint(unittest.TestCase):
     def setUp(self):
@@ -24,15 +25,10 @@ class TestEndpoint(unittest.TestCase):
         self.test_agent_name = 'my_agent'
         def mock_agent(endpoint, name_max, name_cstr):
             for idx, char in enumerate(self.test_agent_name):
-                name_cstr[idx] = char.encode()
-            name_cstr[len(self.test_agent_name)] = b'\x00'
+                name_cstr[idx] = ord(char.encode())
+            name_cstr[len(self.test_agent_name)] = ord(b'\x00')
             return 0
         mock_libgeopm.geopm_endpoint_agent.side_effect = mock_agent
-
-        with mock.patch('geopmpy.gffi.dl_geopm', new=mock_libgeopm):
-            # libgeopm gets loaded on import. Reimport now so we use our mocks instead
-            # of anything that might already be loaded in this python instance.
-            reload(geopmpy.endpoint)
 
         self._endpoint = geopmpy.endpoint.Endpoint('test_endpoint')
 
@@ -79,12 +75,12 @@ class TestEndpoint(unittest.TestCase):
         self._endpoint.reset_wait_loop()
 
     def test_endpoint_profile_name(self):
-        test_profile_name = 'my agent'
+        test_profile_name = 'my profile'
 
         def mock_profile_name(endpoint, name_max, name_cstr):
             for idx, char in enumerate(test_profile_name):
-                name_cstr[idx] = char.encode()
-            name_cstr[len(test_profile_name)] = b'\x00'
+                name_cstr[idx] = ord(char.encode())
+            name_cstr[len(test_profile_name)] = ord(b'\x00')
             return 0
         mock_libgeopm.geopm_endpoint_profile_name.side_effect = mock_profile_name
         self.assertEqual(test_profile_name, self._endpoint.profile_name())
@@ -93,14 +89,14 @@ class TestEndpoint(unittest.TestCase):
         test_node_names = ['node 1', 'node 2']
 
         def mock_num_node(endpoint, num_node_p):
-            num_node_p[0] = len(test_node_names)
+            num_node_p.__getitem__.return_value = len(test_node_names)
             return 0
         mock_libgeopm.geopm_endpoint_num_node.side_effect = mock_num_node
 
         def mock_node_name(endpoint, node_idx, name_max, name_cstr):
             for idx, char in enumerate(test_node_names[node_idx]):
-                name_cstr[idx] = char.encode()
-            name_cstr[len(test_node_names[node_idx])] = b'\x00'
+                name_cstr[idx] = ord(char.encode())
+            name_cstr[len(test_node_names[node_idx])] = ord(b'\x00')
             return 0
         mock_libgeopm.geopm_endpoint_node_name.side_effect = mock_node_name
 
@@ -125,7 +121,7 @@ class TestEndpoint(unittest.TestCase):
         def mock_read_sample(endpoint, num_sample, sample_array, sample_age_p):
             sample_array[0] = test_sample['s0']
             sample_array[1] = test_sample['s1']
-            sample_age_p[0] = test_age
+            sample_age_p.__getitem__.return_value = test_age
             return 0
         mock_libgeopm.geopm_endpoint_read_sample.side_effect = mock_read_sample
 

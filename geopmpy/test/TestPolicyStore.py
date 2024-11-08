@@ -8,15 +8,15 @@
 import unittest
 from unittest import mock
 from importlib import reload
+from . import mock_libgeopm
 
-mock_c = mock.MagicMock()
+mock_c = mock_libgeopm.lib
+
 import geopmpy.policy_store
 
 class TestPolicyStore(unittest.TestCase):
     def setUp(self):
         mock_c.reset_mock()
-        with mock.patch('geopmpy.gffi.dl_geopm', new=mock_c):
-            reload(geopmpy.policy_store)
 
     def tearDown(self):
         # Reset the mocked interface for other tests
@@ -26,8 +26,8 @@ class TestPolicyStore(unittest.TestCase):
         mock_c.geopm_policystore_connect.return_value = 0
         geopmpy.policy_store.connect('qwerty')
         # Expect connect(path)
-        self.assertEqual(b'qwerty\0',
-                         b''.join(mock_c.geopm_policystore_connect.call_args[0][0]))
+        self.assertEqual(bytearray(b'qwerty\0'),
+                         mock_c.geopm_policystore_connect.call_args[0][0])
 
         # Expect a raised exception when there is a non-zero return code
         mock_c.geopm_policystore_connect.return_value = -1
@@ -46,8 +46,8 @@ class TestPolicyStore(unittest.TestCase):
         mock_c.geopm_policystore_get_best.return_value = 0
         geopmpy.policy_store.get_best('a1', 'p1')
         # Expect get_best(profile, agent)
-        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_get_best.call_args[0][0]))
-        self.assertEqual(b'p1\0', b''.join(mock_c.geopm_policystore_get_best.call_args[0][1]))
+        self.assertEqual(bytearray(b'a1\0'), mock_c.geopm_policystore_get_best.call_args[0][0])
+        self.assertEqual(bytearray(b'p1\0'), mock_c.geopm_policystore_get_best.call_args[0][1])
 
         mock_c.geopm_policystore_get_best.return_value = -1
         with self.assertRaises(RuntimeError):
@@ -57,8 +57,8 @@ class TestPolicyStore(unittest.TestCase):
         mock_c.geopm_policystore_set_best.return_value = 0
         geopmpy.policy_store.set_best('a1', 'p1', [1., 2.])
         # Expect set_best(profile, agent, policy_values, default_policy)
-        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_set_best.call_args[0][0]))
-        self.assertEqual(b'p1\0', b''.join(mock_c.geopm_policystore_set_best.call_args[0][1]))
+        self.assertEqual(bytearray(b'a1\0'), mock_c.geopm_policystore_set_best.call_args[0][0])
+        self.assertEqual(bytearray(b'p1\0'), mock_c.geopm_policystore_set_best.call_args[0][1])
         self.assertEqual(2, mock_c.geopm_policystore_set_best.call_args[0][2])
         self.assertEqual([1, 2], list(mock_c.geopm_policystore_set_best.call_args[0][3]))
 
@@ -70,7 +70,7 @@ class TestPolicyStore(unittest.TestCase):
         mock_c.geopm_policystore_set_default.return_value = 0
         geopmpy.policy_store.set_default('a1', [1., 2.])
         # Expect set_default(agent, policy_values, default_policy)
-        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_set_default.call_args[0][0]))
+        self.assertEqual(bytearray(b'a1\0'), mock_c.geopm_policystore_set_default.call_args[0][0])
         self.assertEqual(2, mock_c.geopm_policystore_set_default.call_args[0][1])
         self.assertEqual([1, 2], list(mock_c.geopm_policystore_set_default.call_args[0][2]))
 
