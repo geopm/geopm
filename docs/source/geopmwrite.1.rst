@@ -122,12 +122,12 @@ Options
                 permissions no operation will be performed.  To force the
                 creation of a new cache file, remove the existing cache file
                 prior to executing this command.
--e, --enable-fixed
-                Write to the registers that enable the fixed counters.  Enabling
-		the fixed counters is required for the signals starting with
-		``MSR::FIXED_CTR`` to report non-zero values.  The signal
-		``CPU_INSTRUCTIONS_RETIRED`` also requires the fixed counters to
-		be enabled.
+-f, --config    Read control name, control domain, control index and control value
+                from a configuration file rather than using the positional
+                arguments.  These four parameters is provided on each line of
+                the file separated by white space.  The file may have many lines
+                specifying multiple controls to be written. Proving ``-`` for this
+                option specifies to read the configuration from standard input.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
@@ -189,6 +189,13 @@ Set all CPUs on package 0 to 1.5 *GHz* (cpu 1 is on package 0):
    $ geopmwrite CPU_FREQUENCY_MAX_CONTROL package 0 1.5e9
    $ geopmread CPU_FREQUENCY_MAX_CONTROL cpu 1
    1.5e9
+
+.. code-block::
+
+   $ printf 'CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 1.5e9\nCPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1.5e9\n' | geopmwrite --config=-
+   $ printf 'CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0\nCPU_UNCORE_FREQUENCY_MIN_CONTROL board 0\n' | geopmsession
+   "CPU_UNCORE_FREQUENCY_MAX_CONTROL","CPU_UNCORE_FREQUENCY_MIN_CONTROL"
+   1500000000,1500000000
 
 See Also
 --------
