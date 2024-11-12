@@ -48,10 +48,12 @@ def run():
                               help='print longer description of all controls')
     parser_group.add_argument('-c', '--cache', action='store_true',
                               help='Create geopm topo cache if it does not exist')
-    parser_group.add_argument('-v', '--version', action='store_true',
-                              help='Print version and exit.')
     parser_group.add_argument('-f', '--config',
                               help='Path to configuration file with one write request per line, use "-" for stdin')
+    parser_group.add_argument('-e', '--enable-fixed', action='store_true',
+                              help='enable msr fixed counters')
+    parser_group.add_argument('-v', '--version', action='store_true',
+                              help='Print version and exit.')
     positional_group = parser.add_argument_group()
     positional_group.add_argument('CONTROL_NAME', nargs='?',
                                   help='Name of control')
@@ -76,6 +78,8 @@ def run():
         print_info_all()
     elif args.cache:
         topo.create_cache()
+    elif args.enable_fixed:
+        pio.enable_fixed_counters()
     elif args.version:
         print(__version_str__)
     elif args.CONTROL_NAME is not None and args.DOMAIN_TYPE is not None and args.DOMAIN_INDEX is not None and args.VALUE is not None:

@@ -39,6 +39,13 @@ Write Control
 
     geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
 
+Write Multiple Controls
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block: bash
+
+   geopmwrite --config CONFIG_PATH
+
 Create Cache
 ^^^^^^^^^^^^
 
@@ -128,6 +135,12 @@ Options
                 the file separated by white space.  The file may have many lines
                 specifying multiple controls to be written. Proving ``-`` for this
                 option specifies to read the configuration from standard input.
+-e, --enable-fixed
+                Write to the registers that enable the fixed counters.  Enabling
+		the fixed counters is required for the signals starting with
+		``MSR::FIXED_CTR`` to report non-zero values.  The signal
+		``CPU_INSTRUCTIONS_RETIRED`` also requires the fixed counters to
+		be enabled.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
@@ -199,7 +212,6 @@ Set all CPUs on package 0 to 1.5 *GHz* (cpu 1 is on package 0):
 
 See Also
 --------
-
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopmread(1) <geopmread.1>`,
 `lscpu(1) <https://man7.org/linux/man-pages/man1/lscpu.1.html>`_
