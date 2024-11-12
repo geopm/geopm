@@ -39,6 +39,7 @@ def batch(input_stream):
 
 def run():
     parser = ArgumentParser(description=__doc__)
+    parser.add_argument('-v', '--version', action='version', version=__version_str__)
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
@@ -52,17 +53,8 @@ def run():
                               help='Path to configuration file with one write request per line, use "-" for stdin')
     parser_group.add_argument('-e', '--enable-fixed', action='store_true',
                               help='enable msr fixed counters')
-    parser_group.add_argument('-v', '--version', action='store_true',
-                              help='Print version and exit.')
-    positional_group = parser.add_argument_group()
-    positional_group.add_argument('CONTROL_NAME', nargs='?',
-                                  help='Name of control')
-    positional_group.add_argument('DOMAIN_TYPE',  nargs='?',
-                                  help='Name of the domain for which the control should be written')
-    positional_group.add_argument('DOMAIN_INDEX', nargs='?', type=int,
-                                  help='Index of the domain, starting from 0')
-    positional_group.add_argument('VALUE', nargs='?', type=float,
-                                  help='Setting to adjust control to')
+    parser_group.add_argument('REQUEST', nargs='*', default=[],
+                              help='When using positional parameters provide four: CONTROL DOMAIN_TYPE DOMAIN_INDEX VALUE')
     args = parser.parse_args()
     if args.config:
         if args.config == '-':
@@ -80,14 +72,14 @@ def run():
         topo.create_cache()
     elif args.enable_fixed:
         pio.enable_fixed_counters()
-    elif args.version:
-        print(__version_str__)
-    elif args.CONTROL_NAME is not None and args.DOMAIN_TYPE is not None and args.DOMAIN_INDEX is not None and args.VALUE is not None:
-        pio.write_control(args.CONTROL_NAME, args.DOMAIN_TYPE, args.DOMAIN_INDEX, args.VALUE)
-    elif args.CONTROL_NAME is None and args.DOMAIN_TYPE is None and args.DOMAIN_INDEX is None and args.VALUE is None:
+    elif args.REQUEST is None:
         print_controls()
+    elif len(args.REQUEST) == 4:
+        args.REQUEST[2] = int(args.REQUEST[2])
+        args.REQUEST[3] = float(args.REQUEST[3])
+        pio.write_control(*args.REQUEST)
     else:
-        parser.print_help()
+        parser.error('When REQUEST is specified, all four parameters must be given: CONTROL DOMAIN_TYPE DOMAIN_INDEX VALUE')
         return -1
     return 0
 

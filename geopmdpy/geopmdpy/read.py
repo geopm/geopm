@@ -41,6 +41,7 @@ def print_signals():
 
 def run():
     parser = ArgumentParser(description=__doc__)
+    parser.add_argument('-v', '--version', action='version', version=__version_str__)
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
@@ -50,15 +51,8 @@ def run():
                               help='print longer description of all signals')
     parser_group.add_argument('-c', '--cache', action='store_true',
                               help='Create geopm topo cache if it does not exist')
-    parser_group.add_argument('-v', '--version', action='store_true',
-                              help='Print version and exit.')
-    positional_group = parser.add_argument_group()
-    positional_group.add_argument('SIGNAL_NAME', nargs='?',
-                                  help='Name of signal')
-    positional_group.add_argument('DOMAIN_TYPE',  nargs='?',
-                                  help='Name of the domain for which the signal should be read')
-    positional_group.add_argument('DOMAIN_INDEX', nargs='?', type=int,
-                                  help='Index of the domain, starting from 0')
+    parser_group.add_argument('REQUEST', nargs='*', default=[],
+                              help='When using positional parameters provide three: SIGNAL DOMAIN_TYPE DOMAIN_INDEX')
     args = parser.parse_args()
     if args.domain:
         print_domains()
@@ -68,15 +62,14 @@ def run():
         print_info_all()
     elif args.cache:
         topo.create_cache()
-    elif args.version:
-        print(__version_str__)
-    elif args.SIGNAL_NAME is not None and args.DOMAIN_TYPE is not None and args.DOMAIN_INDEX is not None:
-        signal = pio.read_signal(args.SIGNAL_NAME, args.DOMAIN_TYPE, args.DOMAIN_INDEX)
-        print(pio.format_signal(signal, pio.signal_info(args.SIGNAL_NAME)[1]))
-    elif args.SIGNAL_NAME is None and args.DOMAIN_TYPE is None and args.DOMAIN_INDEX is None:
+    elif len(args.REQUEST) == 0:
         print_signals()
+    elif len(args.REQUEST) == 3:
+        args.REQUEST[2] = int(args.REQUEST[2])
+        signal = pio.read_signal(*args.REQUEST)
+        print(pio.format_signal(signal, pio.signal_info(args.REQUEST[0])[1]))
     else:
-        parser.print_help()
+        parser.error('When REQUEST is specified, all three parameters must be given: SIGNAL DOMAIN_TYPE DOMAIN_INDEX')
         return -1
     return 0
 
