@@ -449,11 +449,6 @@ namespace geopm
         pio.write_control("MSR::FIXED_CTR_CTRL:EN2_USR", GEOPM_DOMAIN_BOARD, 0, 1);
         pio.write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", GEOPM_DOMAIN_BOARD, 0, 0);
 
-        pio.write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR3", GEOPM_DOMAIN_BOARD, 0, 1);
-        pio.write_control("MSR::FIXED_CTR_CTRL:EN3_OS", GEOPM_DOMAIN_BOARD, 0, 1);
-        pio.write_control("MSR::FIXED_CTR_CTRL:EN3_USR", GEOPM_DOMAIN_BOARD, 0, 1);
-        pio.write_control("MSR::FIXED_CTR_CTRL:EN3_PMI", GEOPM_DOMAIN_BOARD, 0, 0);
-
         pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", GEOPM_DOMAIN_BOARD, 0, 0);
         pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", GEOPM_DOMAIN_BOARD, 0, 0);
         pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_BOARD, 0, 0);
