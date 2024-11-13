@@ -203,6 +203,10 @@ Set all CPUs on package 0 to 1.5 *GHz* (cpu 1 is on package 0):
    $ geopmread CPU_FREQUENCY_MAX_CONTROL cpu 1
    1.5e9
 
+Set the uncore frequency of all CPUs to 1.5 GHz. Perform the operation in a
+single GEOPM batch-write request instead of across multiple `geopmwrite`
+commands:
+
 .. code-block::
 
    $ printf 'CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 1.5e9\nCPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1.5e9\n' | geopmwrite --config=-
