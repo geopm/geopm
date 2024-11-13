@@ -131,9 +131,9 @@ Options
                 prior to executing this command.
 -f, --config    Read control name, control domain, control index and control value
                 from a configuration file rather than using the positional
-                arguments.  These four parameters is provided on each line of
+                arguments.  These four parameters are provided on each line of
                 the file separated by white space.  The file may have many lines
-                specifying multiple controls to be written. Proving ``-`` for this
+                specifying multiple controls to be written. Providing ``-`` for this
                 option specifies to read the configuration from standard input.
 -e, --enable-fixed
                 Write to the registers that enable the fixed counters.  Enabling
