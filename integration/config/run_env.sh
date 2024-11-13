@@ -75,8 +75,8 @@ fi
 # Check installed version of GEOPM against source version
 cd ${GEOPM_SOURCE}/libgeopmd
 GEOPM_SOURCE_VERSION=$(cat VERSION)
-cd -
-GEOPMREAD_VERSION=$(geopmread --version | head -n1)
+cd - > /dev/null
+GEOPMREAD_VERSION=$(geopmread --version | head -n1 | cut -d\  -f3)
 
 if [ "${GEOPMREAD_VERSION}" != "${GEOPM_SOURCE_VERSION}" ]; then
     echo "Warning: Version mismatch between installed version of GEOPM and the source tree!"
