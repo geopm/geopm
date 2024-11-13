@@ -77,7 +77,7 @@ def main():
     err = 0
     try:
         err = run()
-    except RuntimeError as ee:
+    except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
             raise ee

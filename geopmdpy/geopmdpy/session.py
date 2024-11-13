@@ -635,7 +635,7 @@ def main():
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
                  report_format=args.report_format, delimiter=args.delimiter, report_samples=args.report_samples)
-    except RuntimeError as ee:
+    except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
             raise ee

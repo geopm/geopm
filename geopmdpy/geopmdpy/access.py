@@ -481,7 +481,7 @@ def main():
                          args.edit, args.log, args.msr_safe)
         if output:
             print(output)
-    except RuntimeError as ee:
+    except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
             raise ee

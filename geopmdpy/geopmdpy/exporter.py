@@ -211,7 +211,7 @@ def main():
             print(__version_str__)
         else:
             run(args.period, args.port, args.config_path, args.summary)
-    except RuntimeError as ee:
+    except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
             raise ee
