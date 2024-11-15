@@ -70,7 +70,6 @@ def run():
         print(pio.format_signal(signal, pio.signal_info(args.REQUEST[0])[1]))
     else:
         parser.error('When REQUEST is specified, all three parameters must be given: SIGNAL DOMAIN_TYPE DOMAIN_INDEX')
-        return -1
     return 0
 
 def main():

@@ -80,7 +80,6 @@ def run():
         pio.write_control(*args.REQUEST)
     else:
         parser.error('When REQUEST is specified, all four parameters must be given: CONTROL DOMAIN_TYPE DOMAIN_INDEX VALUE')
-        return -1
     return 0
 
 def main():
