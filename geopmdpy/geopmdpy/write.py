@@ -12,7 +12,7 @@ import os
 from argparse import ArgumentParser
 from . import pio
 from . import topo
-from . import __version_str__
+from . import __version__
 from . import read
 
 def print_info(control_name):
@@ -39,7 +39,7 @@ def batch(input_stream):
 
 def run():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('-v', '--version', action='version', version=__version_str__)
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {__version__}')
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
