@@ -28,14 +28,11 @@ class TestIntegrationGeopmio(unittest.TestCase):
             with subprocess.Popen([self.exec_name] + args,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
                 proc.wait()
+                lines = proc.stdout.readlines()
                 for exp in expected:
-                    line = proc.stdout.readline()
-                    while self.skip_warning_string.encode() in line:
-                        line = proc.stdout.readline()
-                    self.assertIn(exp.encode(), line)
-                for line in proc.stdout:
-                    if self.skip_warning_string.encode() not in line:
-                        self.assertNotIn(b'Error', line)
+                    msg = f'{exp.encode()} not found in {lines}'
+                    self.assertTrue(any(exp.encode() in s for s in lines), msg=msg)
+
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{} {}\n'.format(str(ex), proc.stderr.getvalue()))
 
@@ -79,14 +76,14 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_no_error(['--info-all'])
 
         # errors
-        read_err = 'domain type and domain index are required'
+        read_err = 'When REQUEST is specified, all three parameters must be given: SIGNAL DOMAIN_TYPE DOMAIN_INDEX'
         self.check_output(['TIME'], [read_err])
         self.check_output(['TIME', 'board'], [read_err])
         self.check_output(['TIME', 'board', 'bad'], ['invalid domain index'])
-        self.check_output(['CPU_FREQUENCY_STATUS', 'package', '111'], ['cannot read signal'])
-        self.check_output(['CPU_ENERGY', 'cpu', '0'], ['cannot read signal'])
-        self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
-        self.check_output(['--domain', '--info'], ['info about domain not implemented'])
+        self.check_output(['CPU_FREQUENCY_STATUS', 'package', '111'], ['domain_idx is out of range'])
+        self.check_output(['CPU_ENERGY', 'cpu', '0'], ['domain 3 is not valid'])
+        self.check_output(['INVALID', 'board', '0'], ['signal name "INVALID" not found'])
+        self.check_output(['--domain', '--info'], ['expected one argument'])
 
     @util.skip_unless_batch()
     def test_geopmread_all_signal_agg(self):

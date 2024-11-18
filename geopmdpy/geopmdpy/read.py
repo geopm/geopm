@@ -65,7 +65,10 @@ def run():
     elif len(args.REQUEST) == 0:
         print_signals()
     elif len(args.REQUEST) == 3:
-        args.REQUEST[2] = int(args.REQUEST[2])
+        try:
+            args.REQUEST[2] = int(args.REQUEST[2])
+        except ValueError as ex:
+            raise ValueError(f'invalid domain index: {args.REQUEST[2]}') from ex
         signal = pio.read_signal(*args.REQUEST)
         print(pio.format_signal(signal, pio.signal_info(args.REQUEST[0])[1]))
     else:
