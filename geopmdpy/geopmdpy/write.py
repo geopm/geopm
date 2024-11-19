@@ -72,7 +72,7 @@ def run():
         topo.create_cache()
     elif args.enable_fixed:
         pio.enable_fixed_counters()
-    elif args.REQUEST is None:
+    elif len(args.REQUEST) == 0:
         print_controls()
     elif len(args.REQUEST) == 4:
         args.REQUEST[2] = int(args.REQUEST[2])
