@@ -33,8 +33,13 @@ class TestIntegration_multi_app(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         script_dir = os.path.dirname(os.path.realpath(__file__))
         script_path = os.path.join(script_dir,'test_multi_app.sh')
-        subprocess.run(['/bin/bash', script_path],
-                       timeout=cls.TIME_LIMIT, check=True)
+        try:
+            proc = subprocess.run(['/bin/bash', script_path],
+                                  timeout=cls.TIME_LIMIT, check=True,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError:
+            sys.stdout.write(f'\n test_multi_app.sh output:\n{proc.stdout.decode()}\n')
+            raise
 
         cls._report_path = f'{cls.TEST_NAME}_report.yaml-{gethostname()}'
         cls._report = geopmpy.io.RawReport(cls._report_path)
