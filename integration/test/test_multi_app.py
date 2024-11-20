@@ -34,11 +34,11 @@ class TestIntegration_multi_app(unittest.TestCase):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         script_path = os.path.join(script_dir,'test_multi_app.sh')
         try:
-            proc = subprocess.run(['/bin/bash', script_path],
-                                  timeout=cls.TIME_LIMIT, check=True,
-                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError:
-            sys.stdout.write(f'\n test_multi_app.sh output:\n{proc.stdout.decode()}\n')
+            subprocess.run(['/bin/bash', script_path],
+                           timeout=cls.TIME_LIMIT, check=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as ex:
+            sys.stdout.write(f'\n test_multi_app.sh output:\n{ex.output.decode()}\n')
             raise
 
         cls._report_path = f'{cls.TEST_NAME}_report.yaml-{gethostname()}'
