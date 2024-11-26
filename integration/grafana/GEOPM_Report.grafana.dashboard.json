@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.2.2"
+      "version": "11.3.1"
     },
     {
       "type": "panel",
@@ -63,6 +63,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
+      "description": "Energy from selected instance",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -127,8 +128,8 @@
         ]
       },
       "gridPos": {
-        "h": 13,
-        "w": 3,
+        "h": 12,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -158,6 +159,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.3.1",
       "targets": [
         {
           "datasource": {
@@ -166,7 +168,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_gpu_energy_mean_joules * 2.7777777777777777e-7",
+          "expr": "geopm_gpu_energy_mean_joules{instance=\"$selected_host\"} * 2.7777777777777776e-7",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -182,7 +184,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_cpu_energy_mean_joules * 2.7777777777777777e-7",
+          "expr": "geopm_cpu_energy_mean_joules{instance=\"$selected_host\"} * 2.7777777777777776e-7",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -199,7 +201,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_dram_energy_mean_joules * 2.7777777777777777e-7",
+          "expr": "geopm_dram_energy_mean_joules{instance=\"$selected_host\"} * 2.7777777777777776e-7",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -210,7 +212,7 @@
           "useBackend": false
         }
       ],
-      "title": "Energy",
+      "title": "Energy ($selected_host)",
       "type": "piechart"
     },
     {
@@ -218,7 +220,7 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Total power consumed by all GPUs on host",
+      "description": "Total power consumed by all GPUs on selected host",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -274,7 +276,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "GPU Power (std)"
+              "options": "GPU Power std"
             },
             "properties": [
               {
@@ -290,7 +292,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "GPU Power (min)"
+              "options": "GPU Power min"
             },
             "properties": [
               {
@@ -321,7 +323,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "GPU Power (mean)"
+              "options": "GPU Power mean"
             },
             "properties": [
               {
@@ -454,7 +456,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "GPU Power (max)"
+              "options": "GPU Power max"
             },
             "properties": [
               {
@@ -463,7 +465,7 @@
               },
               {
                 "id": "custom.fillBelowTo",
-                "value": "GPU Power (min)"
+                "value": "GPU Power min"
               },
               {
                 "id": "color",
@@ -485,13 +487,70 @@
                 "value": "Max/Min"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GPU Power max (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GPU Power mean (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GPU Power min (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 3,
+        "h": 8,
+        "w": 14,
+        "x": 6,
         "y": 0
       },
       "id": 1,
@@ -507,6 +566,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.3.1",
       "targets": [
         {
           "datasource": {
@@ -515,12 +575,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_gpu_power_mean_watts",
+          "expr": "avg by(__name__) (geopm_gpu_power_mean_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "GPU Power (mean)",
+          "legendFormat": "GPU Power mean",
           "range": true,
           "refId": "GPU Power mean",
           "useBackend": false
@@ -532,12 +592,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_gpu_power_max_watts",
+          "expr": "max by(__name__) (geopm_gpu_power_max_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "GPU Power (max)",
+          "legendFormat": "GPU Power max",
           "range": true,
           "refId": "GPU Power max",
           "useBackend": false
@@ -549,12 +609,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_gpu_power_min_watts",
+          "expr": "min by(__name__) (geopm_gpu_power_min_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "GPU Power (min)",
+          "legendFormat": "GPU Power min",
           "range": true,
           "refId": "GPU Power min",
           "useBackend": false
@@ -566,26 +626,87 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_gpu_power_std_watts",
+          "expr": "avg(geopm_gpu_power_std_watts ^ 2) ^ 0.5",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "GPU Power (std)",
+          "legendFormat": "GPU Power std",
           "range": true,
           "refId": "GPU Power std",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_gpu_power_mean_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "GPU Power mean (selected host)",
+          "range": true,
+          "refId": "GPU Power mean ($selected_host)",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_gpu_power_max_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "GPU Power max (selected host)",
+          "range": true,
+          "refId": "GPU Power max ($selected_host)",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_gpu_power_min_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "GPU Power min (selected host)",
+          "range": true,
+          "refId": "GPU Power min ($selected_host)",
+          "useBackend": false
         }
       ],
-      "title": "GPU Power",
+      "title": "GPU Power ($selected_host)",
       "transformations": [
         {
           "id": "calculateField",
           "options": {
             "alias": "mean + std",
             "binary": {
-              "left": "GPU Power (mean)",
-              "right": "GPU Power (std)"
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "GPU Power mean"
+                }
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "GPU Power std"
+                }
+              }
             },
             "mode": "binary",
             "reduce": {
@@ -599,9 +720,19 @@
           "options": {
             "alias": "mean - std",
             "binary": {
-              "left": "GPU Power (mean)",
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "GPU Power mean"
+                }
+              },
               "operator": "-",
-              "right": "GPU Power (std)"
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "GPU Power std"
+                }
+              }
             },
             "mode": "binary",
             "reduce": {
@@ -617,7 +748,7 @@
             "reduce": {
               "include": [
                 "mean + std",
-                "GPU Power (max)"
+                "GPU Power max"
               ],
               "reducer": "min"
             }
@@ -631,7 +762,7 @@
             "reduce": {
               "include": [
                 "mean - std",
-                "GPU Power (min)"
+                "GPU Power min"
               ],
               "reducer": "max"
             }
@@ -705,7 +836,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "CPU Power (std)"
+              "options": "CPU Power std"
             },
             "properties": [
               {
@@ -753,7 +884,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "CPU Power (min)"
+              "options": "CPU Power min"
             },
             "properties": [
               {
@@ -784,7 +915,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "CPU Power (mean)"
+              "options": "CPU Power mean"
             },
             "properties": [
               {
@@ -885,7 +1016,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "CPU Power (max)"
+              "options": "CPU Power max"
             },
             "properties": [
               {
@@ -894,7 +1025,7 @@
               },
               {
                 "id": "custom.fillBelowTo",
-                "value": "CPU Power (min)"
+                "value": "CPU Power min"
               },
               {
                 "id": "color",
@@ -916,14 +1047,71 @@
                 "value": "Max/Min"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Power mean (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Power max (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Power min (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 3,
-        "y": 10
+        "w": 14,
+        "x": 6,
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -938,6 +1126,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.3.1",
       "targets": [
         {
           "datasource": {
@@ -946,11 +1135,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_cpu_power_mean_watts",
+          "expr": "avg by(__name__) (geopm_cpu_power_mean_watts)",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "CPU Power (mean)",
+          "legendFormat": "CPU Power mean",
           "range": true,
           "refId": "CPU Power mean",
           "useBackend": false
@@ -962,12 +1151,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_cpu_power_max_watts",
+          "expr": "max by(__name__) (geopm_cpu_power_max_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "CPU Power (max)",
+          "legendFormat": "CPU Power max",
           "range": true,
           "refId": "CPU Power max",
           "useBackend": false
@@ -979,12 +1168,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_cpu_power_min_watts",
+          "expr": "min by(__name__) (geopm_cpu_power_min_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "CPU Power (min)",
+          "legendFormat": "CPU Power min",
           "range": true,
           "refId": "CPU Power min",
           "useBackend": false
@@ -996,14 +1185,65 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_cpu_power_std_watts",
+          "expr": "avg by(__name__) (geopm_cpu_power_std_watts ^ 2) ^ 0.5",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "CPU Power (std)",
+          "legendFormat": "CPU Power std",
           "range": true,
           "refId": "CPU Power std",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_cpu_power_mean_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "CPU Power mean (selected host)",
+          "range": true,
+          "refId": "CPU Power mean ($selected_host)",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_cpu_power_max_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "CPU Power max (selected host)",
+          "range": true,
+          "refId": "CPU Power max ($selected_host)",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_cpu_power_min_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "CPU Power min (selected host)",
+          "range": true,
+          "refId": "CPU Power min ($selected_host)",
           "useBackend": false
         }
       ],
@@ -1014,8 +1254,18 @@
           "options": {
             "alias": "mean + std",
             "binary": {
-              "left": "CPU Power (mean)",
-              "right": "CPU Power (std)"
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU Power mean"
+                }
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU Power std"
+                }
+              }
             },
             "mode": "binary",
             "reduce": {
@@ -1028,9 +1278,19 @@
           "options": {
             "alias": "mean - std",
             "binary": {
-              "left": "CPU Power (mean)",
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU Power mean"
+                }
+              },
               "operator": "-",
-              "right": "CPU Power (std)"
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU Power std"
+                }
+              }
             },
             "mode": "binary",
             "reduce": {
@@ -1045,8 +1305,8 @@
             "mode": "reduceRow",
             "reduce": {
               "include": [
-                "CPU Power (max)",
-                "mean + std"
+                "mean + std",
+                "CPU Power max"
               ],
               "reducer": "min"
             }
@@ -1059,8 +1319,8 @@
             "mode": "reduceRow",
             "reduce": {
               "include": [
-                "CPU Power (min)",
-                "mean - std"
+                "mean - std",
+                "CPU Power min"
               ],
               "reducer": "max"
             }
@@ -1068,6 +1328,163 @@
         }
       ],
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Sum of energy across all hosts",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GPU Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "DRAM Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 6,
+        "x": 0,
+        "y": 12
+      },
+      "id": 5,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "delta"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(__name__) (geopm_gpu_energy_mean_joules) * 2.7777777777777776e-7",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "GPU Energy",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(__name__) (geopm_cpu_energy_mean_joules) * 2.7777777777777776e-7",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "CPU Energy",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(__name__) (geopm_dram_energy_mean_joules) * 2.7777777777777776e-7",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "DRAM Energy",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        }
+      ],
+      "title": "Energy Total",
+      "type": "piechart"
     },
     {
       "datasource": {
@@ -1134,7 +1551,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "DRAM Power (std)"
+              "options": "DRAM Power std"
             },
             "properties": [
               {
@@ -1182,7 +1599,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "DRAM Power (min)"
+              "options": "DRAM Power min"
             },
             "properties": [
               {
@@ -1213,7 +1630,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "DRAM Power (mean)"
+              "options": "DRAM Power mean"
             },
             "properties": [
               {
@@ -1314,7 +1731,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "DRAM Power (max)"
+              "options": "DRAM Power max"
             },
             "properties": [
               {
@@ -1323,7 +1740,7 @@
               },
               {
                 "id": "custom.fillBelowTo",
-                "value": "DRAM Power (min)"
+                "value": "DRAM Power min"
               },
               {
                 "id": "color",
@@ -1345,14 +1762,71 @@
                 "value": "Max/Min"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "DRAM Power max (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "DRAM Power mean (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "DRAM Power min (selected host)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 3,
-        "y": 18
+        "w": 14,
+        "x": 6,
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -1367,6 +1841,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.3.1",
       "targets": [
         {
           "datasource": {
@@ -1375,11 +1850,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_dram_power_mean_watts",
+          "expr": "avg by(__name__) (geopm_dram_power_mean_watts)",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "DRAM Power (mean)",
+          "legendFormat": "DRAM Power mean",
           "range": true,
           "refId": "DRAM Power mean",
           "useBackend": false
@@ -1391,12 +1866,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_dram_power_max_watts",
+          "expr": "max by(__name__) (geopm_dram_power_max_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "DRAM Power (max)",
+          "legendFormat": "DRAM Power max",
           "range": true,
           "refId": "DRAM Power max",
           "useBackend": false
@@ -1408,12 +1883,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_dram_power_min_watts",
+          "expr": "min by(__name__) (geopm_dram_power_min_watts)",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "DRAM Power (min)",
+          "legendFormat": "DRAM Power min",
           "range": true,
           "refId": "DRAM Power min",
           "useBackend": false
@@ -1425,14 +1900,65 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "geopm_dram_power_std_watts",
+          "expr": "avg(geopm_dram_power_std_watts ^ 2) ^ 0.5",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "DRAM Power (std)",
+          "legendFormat": "DRAM Power std",
           "range": true,
           "refId": "DRAM Power std",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_dram_power_mean_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "DRAM Power mean (selected host)",
+          "range": true,
+          "refId": "DRAM Power mean ($selected_host)",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_dram_power_max_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "DRAM Power max (selected host)",
+          "range": true,
+          "refId": "DRAM Power max ($selected_host)",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "geopm_dram_power_min_watts{instance=\"$selected_host\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "DRAM Power min (selected host)",
+          "range": true,
+          "refId": "DRAM Power min ($selected_host)",
           "useBackend": false
         }
       ],
@@ -1443,8 +1969,18 @@
           "options": {
             "alias": "mean + std",
             "binary": {
-              "left": "DRAM Power (mean)",
-              "right": "DRAM Power (std)"
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DRAM Power mean"
+                }
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DRAM Power std"
+                }
+              }
             },
             "mode": "binary",
             "reduce": {
@@ -1457,9 +1993,19 @@
           "options": {
             "alias": "mean - std",
             "binary": {
-              "left": "DRAM Power (mean)",
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DRAM Power mean"
+                }
+              },
               "operator": "-",
-              "right": "DRAM Power (std)"
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DRAM Power std"
+                }
+              }
             },
             "mode": "binary",
             "reduce": {
@@ -1474,7 +2020,7 @@
             "mode": "reduceRow",
             "reduce": {
               "include": [
-                "DRAM Power (max)",
+                "DRAM Power max",
                 "mean + std"
               ],
               "reducer": "min"
@@ -1488,8 +2034,8 @@
             "mode": "reduceRow",
             "reduce": {
               "include": [
-                "mean - std",
-                "DRAM Power (min)"
+                "DRAM Power min",
+                "mean - std"
               ],
               "reducer": "max"
             }
@@ -1500,7 +2046,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 39,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
@@ -1511,11 +2057,10 @@
           "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(instance)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Node Endpoints",
-        "multi": true,
-        "name": "node",
+        "description": "",
+        "includeAll": false,
+        "label": "Hostname",
+        "name": "selected_host",
         "options": [],
         "query": {
           "qryType": 1,
@@ -1524,20 +2069,18 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-1h",
-    "to": "now"
+    "from": "2024-11-26T17:59:50.961Z",
+    "to": "2024-11-26T18:01:52.697Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "GEOPM System Report",
   "uid": "539dc1e0-5a14-4578-a575-957607f1bf3d",
-  "version": 3,
+  "version": 25,
   "weekStart": ""
 }

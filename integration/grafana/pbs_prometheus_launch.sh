@@ -32,7 +32,8 @@ nohup ${PROMETHEUS_DIR}/prometheus \
     --storage.tsdb.path ${PROMETHEUS_DIR}/data \
     --web.console.templates=${PROMETHEUS_DIR}/consoles \
     --web.console.libraries=${PROMETHEUS_DIR}/console_libraries \
-    --web.listen-address=:8001 < /dev/null >& ${PROMETHEUS_DIR}/logs/prometheus-server-$(date +%F-%T-%Z).log &
+    --web.listen-address=:8001 < /dev/null >& \
+    ${PROMETHEUS_DIR}/logs/prometheus-server-$(date +%F-%T-%Z).log &
 PROM_PID=$!
 
 mkdir -p ${GRAFANA_DIR}/logs
@@ -43,7 +44,8 @@ nohup ${GRAFANA_DIR}/bin/grafana server \
     cfg:default.paths.logs=${GRAFANA_DIR}/logs \
     cfg:default.paths.data=${GRAFANA_DIR}/data \
     cfg:default.paths.plugins=${GRAFANA_DIR}/plugins-bundled \
-    cfg:default.paths.provisioning=${GRAFANA_DIR}/conf/provisioning < /dev/null >& ${GRAFANA_DIR}/logs/grafana-server-$(date +%F-%T-%Z).log &
+    cfg:default.paths.provisioning=${GRAFANA_DIR}/conf/provisioning < /dev/null >& \
+    ${GRAFANA_DIR}/logs/grafana-server-$(date +%F-%T-%Z).log &
 GRAFANA_PID=$!
 
 echo "Kill these PIDs before rerunning:"
