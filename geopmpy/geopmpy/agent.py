@@ -57,7 +57,7 @@ def policy_json(agent_name, policy_values):
 
     json_string = gffi.gffi.new("char[]", _policy_max)
     err = gffi.dl_geopm.geopm_agent_policy_json(agent_name_cstr, policy_array,
-                                      _policy_max, json_string)
+                                                _policy_max, json_string)
 
     if err < 0:
         raise RuntimeError("geopm_agent_policy_json() failed: {}".format(
