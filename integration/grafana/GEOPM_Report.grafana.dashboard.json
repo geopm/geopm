@@ -2057,9 +2057,9 @@
           "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(instance)",
-        "description": "",
+        "description": "Select a hostname and port to over-plot and build pie chart",
         "includeAll": false,
-        "label": "Hostname",
+        "label": "Hostname (plotted in red/pink)",
         "name": "selected_host",
         "options": [],
         "query": {
@@ -2067,7 +2067,7 @@
           "query": "label_values(instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "type": "query"
       }
@@ -2081,6 +2081,6 @@
   "timezone": "browser",
   "title": "GEOPM System Report",
   "uid": "539dc1e0-5a14-4578-a575-957607f1bf3d",
-  "version": 27,
+  "version": 29,
   "weekStart": ""
 }
