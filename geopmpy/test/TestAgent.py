@@ -84,7 +84,7 @@ def mock_agent_policy_json(agent_name, policy_array, policy_max, output):
 
 class TestAgent(unittest.TestCase):
     def setUp(self):
-        mock_libgeopm.reset()
+        mock_libgeopm.reset_mock()
         mock_libgeopm.lib.geopm_agent_num_avail.side_effect = mock_agent_num_avail
         mock_libgeopm.lib.geopm_agent_name.side_effect = mock_agent_name
         mock_libgeopm.lib.geopm_agent_num_sample.side_effect = mock_agent_num_sample
@@ -93,6 +93,9 @@ class TestAgent(unittest.TestCase):
         mock_libgeopm.lib.geopm_agent_policy_name.side_effect = mock_agent_policy_name
         mock_libgeopm.lib.geopm_agent_enforce_policy.side_effect = mock_agent_enforce_policy
         mock_libgeopm.lib.geopm_agent_policy_json = mock_agent_policy_json
+
+    def tearDown(self):
+        reload(geopmpy.agent)
 
     def test_policy_names(self):
         for agent in geopmpy.agent.names():

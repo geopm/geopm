@@ -4,20 +4,30 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-
+from . import remove_mock_libs
+from . import inject_mock_libs
 import unittest
-try:
-    import geopmpy.policy_store
-except ImportError:
-    have_policy_store = False
-else:
-    have_policy_store = True
-import geopmpy.version
+from importlib import reload
+import geopmpy.gffi
+import geopmpy.policy_store
 
 
 class TestPolicyStoreIntegration(unittest.TestCase):
-    @unittest.skipIf(not have_policy_store, "PolicyStore is not enabled. Skipping its tests.")
+    def setUp(self):
+        self._have_policy_store = True
+        remove_mock_libs()
+        try:
+            reload(geopmpy.gffi)
+            reload(geopmpy.policy_store)
+        except ImportError:
+            self._have_policy_store = False
+
+    def tearDown(self):
+        inject_mock_libs()
+
     def test_all_interfaces(self):
+        if not self._have_policy_store:
+            self.skipTest("PolicyStore is not enabled. Skipping its tests.")
         geopmpy.policy_store.connect(':memory:')
 
         geopmpy.policy_store.set_best('frequency_map', 'p1', [0.5, 1])

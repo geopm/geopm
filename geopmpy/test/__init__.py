@@ -69,4 +69,18 @@ class MockImportFinder(MetaPathFinder):
             return mock_spec
 
 
-sys.meta_path.insert(0, MockImportFinder())
+_mock_import_finder = MockImportFinder()
+_is_injected = False
+def remove_mock_libs():
+    global _is_injected
+    if _is_injected:
+        sys.meta_path.remove(_mock_import_finder)
+        _is_injected = False
+
+def inject_mock_libs():
+    global _is_injected
+    if not _is_injected:
+        sys.meta_path.insert(0, _mock_import_finder)
+        _is_injected = True
+
+inject_mock_libs()
