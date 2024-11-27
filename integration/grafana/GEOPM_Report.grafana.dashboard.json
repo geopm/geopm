@@ -497,7 +497,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-red",
+                  "fixedColor": "super-light-red",
                   "mode": "fixed"
                 }
               },
@@ -516,7 +516,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-yellow",
+                  "fixedColor": "dark-red",
                   "mode": "fixed"
                 }
               },
@@ -535,7 +535,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-blue",
+                  "fixedColor": "light-red",
                   "mode": "fixed"
                 }
               },
@@ -688,7 +688,7 @@
           "useBackend": false
         }
       ],
-      "title": "GPU Power ($selected_host)",
+      "title": "GPU Power",
       "transformations": [
         {
           "id": "calculateField",
@@ -1057,7 +1057,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-yellow",
+                  "fixedColor": "dark-red",
                   "mode": "fixed"
                 }
               },
@@ -1076,7 +1076,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-red",
+                  "fixedColor": "super-light-red",
                   "mode": "fixed"
                 }
               },
@@ -1095,7 +1095,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-blue",
+                  "fixedColor": "light-red",
                   "mode": "fixed"
                 }
               },
@@ -1772,7 +1772,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-red",
+                  "fixedColor": "super-light-red",
                   "mode": "fixed"
                 }
               },
@@ -1791,7 +1791,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-yellow",
+                  "fixedColor": "dark-red",
                   "mode": "fixed"
                 }
               },
@@ -1810,7 +1810,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-blue",
+                  "fixedColor": "light-red",
                   "mode": "fixed"
                 }
               },
@@ -2074,13 +2074,13 @@
     ]
   },
   "time": {
-    "from": "2024-11-26T17:59:50.961Z",
-    "to": "2024-11-26T18:01:52.697Z"
+    "from": "now-1h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "GEOPM System Report",
   "uid": "539dc1e0-5a14-4578-a575-957607f1bf3d",
-  "version": 25,
+  "version": 27,
   "weekStart": ""
 }
