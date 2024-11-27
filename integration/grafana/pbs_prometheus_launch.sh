@@ -3,20 +3,26 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-if [[ $# -lt 3 ]]; then
-    echo "Usage: $0 JOBID PROMETHEUS_DIR GRAFANA_DIR"
+if [[ $# -lt 2 ]]; then
+    echo "Usage: $0 PROMETHEUS_DIR GRAFANA_DIR [JOBID]"
     exit -1
 fi
-PROMETHEUS_DIR=$2
-GRAFANA_DIR=$3
+PROMETHEUS_DIR=$1
+GRAFANA_DIR=$2
+JOBID=0
+if [[ $# -gt 2 ]]; then
+    JOBID=$3
+fi
 
-JOBID=$1
-while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" != "R" ]]; do
-    sleep 1
-done
+NODES=""
+if [[ ${JOBID} -ne 0 ]]; then
+    while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" != "R" ]]; do
+        sleep 1
+    done
+    VAR=$(qstat -x -f ${JOBID} | grep exec_host | awk '{print $3}')
+    NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':8080' for xx in ss.split('+')]))")
+fi
 
-VAR=$(qstat -x -f ${JOBID} | grep exec_host | awk '{print $3}')
-NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':8080' for xx in ss.split('+')]))")
 
 echo 'global:
   scrape_interval: 15s
@@ -48,7 +54,14 @@ nohup ${GRAFANA_DIR}/bin/grafana server \
     ${GRAFANA_DIR}/logs/grafana-server-$(date +%F-%T-%Z).log &
 GRAFANA_PID=$!
 
-echo "Kill these PIDs before rerunning:"
-echo
-echo "    Prometheus PID: ${PROM_PID}"
-echo "    Grafana PID: ${GRAFANA_PID}"
+if [[ ${JOBID} -ne 0 ]]; then
+    while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" == "R" ]]; do
+        sleep 60
+    done
+    kill ${PROM_PID} ${GRAFANA_PID}
+else
+    echo "Kill these PIDs before rerunning:"
+    echo
+    echo "    Prometheus PID: ${PROM_PID}"
+    echo "    Grafana PID: ${GRAFANA_PID}"
+fi
