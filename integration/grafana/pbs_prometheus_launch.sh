@@ -15,7 +15,7 @@ if [[ $# -gt 2 ]]; then
 fi
 
 NODES=""
-if [[ ${JOBID} -ne 0 ]]; then
+if [[ ${JOBID} != 0 ]]; then
     while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" != "R" ]]; do
         sleep 1
     done
@@ -54,7 +54,7 @@ nohup ${GRAFANA_DIR}/bin/grafana server \
     ${GRAFANA_DIR}/logs/grafana-server-$(date +%F-%T-%Z).log &
 GRAFANA_PID=$!
 
-if [[ ${JOBID} -ne 0 ]]; then
+if [[ ${JOBID} != 0 ]]; then
     while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" == "R" ]]; do
         sleep 60
     done
