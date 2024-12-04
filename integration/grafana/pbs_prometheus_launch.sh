@@ -62,6 +62,7 @@ GRAFANA_PID=$!
 
 if [[ ${JOBID} != 0 ]]; then
     wait ${CLUSH_PID} # clush will be killed when job completes
+    rm -f ${NODEFILE}
     kill ${PROM_PID} ${GRAFANA_PID}
 else
     echo "Kill these PIDs before rerunning:"
