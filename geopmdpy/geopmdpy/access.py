@@ -79,7 +79,7 @@ class Access:
         of the io.github.geopm interface is used.
 
         Args:
-            group (str): Unix group name to set access list for.  The
+            group (str): Unix Group ID to set access list for.  The
                          call sets the default signal access list if
                          group provided is ''.
 
@@ -118,7 +118,7 @@ class Access:
         of the io.github.geopm interface is used.
 
         Args:
-            group (str): Unix group name to set access list for.  The
+            group (str): Unix Group ID to set access list for.  The
                          call sets the default control access list if
                          group provided is ''.
 
@@ -216,7 +216,7 @@ class Access:
         The default signal access list is returned if the group
         provided is the empty string.  If the group provided is not
         empty then the list of signals that are enabled for the
-        specified Unix group is returned.
+        specified Unix Group ID is returned.
 
         A user process accessing the GEOPM D-Bus APIs is restricted to
         the combination of the default access list and the access list
@@ -228,7 +228,7 @@ class Access:
         interface is called.
 
         Args:
-            group (str): Unix group name to get access list for.  Gets
+            group (str): Unix Group ID to get access list for.  Gets
                          the default signal access list if group
                          provided is '': the empty string.
 
@@ -262,7 +262,7 @@ class Access:
         interface is called.
 
         Args:
-            group (str): Unix group name to get access list for.  Gets
+            group (str): Unix Group ID to get access list for.  Gets
                          the default control access list if group
                          provided is '': the empty string.
 
@@ -472,6 +472,15 @@ def main():
         geopm_proxy = (DirectAccessProxy() if args.direct
                        else SystemMessageBus().get_proxy('io.github.geopm', '/io/github/geopm'))
         acc = Access(geopm_proxy)
+        try:
+            gid = int(args.group)
+        except ValueError:
+            try:
+                gid = grp.getgrnam(args.group).gr_gid
+            except KeyError:
+                raise ValueError(f'Specified a non-integer group, but could not determine Unix Group ID from name: {args.group}')
+            args.group = str(gid)
+
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
                          args.edit, args.log, args.msr_safe)

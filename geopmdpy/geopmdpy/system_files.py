@@ -1035,13 +1035,15 @@ class AccessLists(object):
         if group is None or group == '':
             group = GEOPM_SERVICE_DEFAULT_ACCESS
         else:
-            group = str(group)
-            if group[0].isdigit():
-                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
             try:
-                grp.getgrnam(group)
+                gid = int(group)
+            except ValueError:
+                raise ValueError(f'Group ID is not an integer: group = "{group}"')
+            try:
+                grp.getgrgid(gid)
             except KeyError:
-                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
+                raise RuntimeError(f'Linux group is not defined: group = "{group}"')
+            group = str(group)
         return group
 
     def _read_allowed(self, path):
@@ -1068,7 +1070,7 @@ class AccessLists(object):
     def _get_user_groups(self, user):
         user_gid = pwd.getpwnam(user).pw_gid
         all_gid = os.getgrouplist(user, user_gid)
-        return [grp.getgrgid(gid).gr_name for gid in all_gid]
+        return [str(gid) for gid in all_gid]
 
     def get_group_access(self, group):
         """Get the signal and control access lists
@@ -1085,7 +1087,7 @@ class AccessLists(object):
         empty lists are returned.
 
         Args:
-            group (str): Name of group
+            group (str): Group ID
 
         Returns:
             list(str)), list(str): Signal and control allowed lists, in sorted order.
@@ -1094,9 +1096,13 @@ class AccessLists(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        group = self._validate_group(group)
-        group_dir = os.path.join(self._CONFIG_PATH, group)
+        if group is None or group == '':
+            path_name = GEOPM_SERVICE_DEFAULT_ACCESS
+        else:
+            path_name = str(group)
+        group_dir = os.path.join(self._CONFIG_PATH, path_name)
         if os.path.isdir(group_dir):
+            group = self._validate_group(group)
             secure_make_dirs(group_dir)
             # Read and filter control names
             path = os.path.join(group_dir, 'allowed_controls')
@@ -1238,8 +1244,8 @@ class AccessLists(object):
         if user != '':
             try:
                 user_groups = self._get_user_groups(user)
-            except KeyError:
-                raise RuntimeError("Specified user '{}' does not exist.".format(user))
+            except KeyError as ex:
+                raise RuntimeError("Specified user '{}' does not exist.".format(user)) from ex
         user_groups.append('') # Default access list
         signal_set = set()
         control_set = set()
