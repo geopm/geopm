@@ -101,5 +101,5 @@ Now that you have configured Grafana and Prometheus, you can launch a job and mo
 
 ```
     JOBID=$(qsub -l nodes=2 -v GEOPM_DIR=/mnt/scratch/$USER/geop-build $PWD/pbs_prometheus_example.sh)
-    ./pbs_prometheus_launch.sh $PROMETHEUS_DIR $GRAFANA_DIR $JOBID
+    ./pbs_prometheus_launch.sh $PROMETHEUS_DIR $GRAFANA_DIR $GEOPM_DIR $JOBID
 ```
