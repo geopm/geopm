@@ -50,7 +50,7 @@ the archive for the latest stable Linux release from
 [here](https://prometheus.io/download/).  The expanded archive is the
 `PROMETHEUS_DIR` provided to the `pbs_prometheus_launch.sh` script CLI.
 
-Until the `geopmexporter(1)` is availalble in a stable release, the user must
+Until the `geopmexporter(1)` is available in a stable release, the user must
 build and install a development snapshot of GEOPM.
 
 ```

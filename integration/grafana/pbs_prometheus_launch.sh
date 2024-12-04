@@ -4,14 +4,15 @@
 #
 
 if [[ $# -lt 2 ]]; then
-    echo "Usage: $0 PROMETHEUS_DIR GRAFANA_DIR [JOBID]"
+    echo "Usage: $0 PROMETHEUS_DIR GRAFANA_DIR [GEOPM_DIR JOBID]"
     exit -1
 fi
 PROMETHEUS_DIR=$1
 GRAFANA_DIR=$2
 JOBID=0
-if [[ $# -gt 2 ]]; then
-    JOBID=$3
+if [[ $# -gt 3 ]]; then
+    GEOPM_DIR=$3
+    JOBID=$4
 fi
 
 NODES=""
@@ -21,8 +22,13 @@ if [[ ${JOBID} != 0 ]]; then
     done
     VAR=$(qstat -x -f ${JOBID} | grep exec_host | awk '{print $3}')
     NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':8080' for xx in ss.split('+')]))")
+    NODEFILE=$(mktemp)
+    echo $VAR | sed -e 's|,|\n|g' > ${NODEFILE}
+    clush --hostfile=${NODEFILE} -- \
+        env LD_LIBRARY_PATH=${GEOPM_DIR}/lib:${GEOPM_DIR}/lib64:${LD_LIBRARY_PATH} \
+        geopmexporter -p 8080 &
+    CLUSH_PID=$!
 fi
-
 
 echo 'global:
   scrape_interval: 15s
@@ -55,9 +61,7 @@ nohup ${GRAFANA_DIR}/bin/grafana server \
 GRAFANA_PID=$!
 
 if [[ ${JOBID} != 0 ]]; then
-    while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" == "R" ]]; do
-        sleep 60
-    done
+    wait ${CLUSH_PID} # clush will be killed when job completes
     kill ${PROM_PID} ${GRAFANA_PID}
 else
     echo "Kill these PIDs before rerunning:"
