@@ -20,10 +20,10 @@ if [[ ${JOBID} != 0 ]]; then
     while [[ "$(qstat ${JOBID} | tail -n 1 | awk '{print $5}')" != "R" ]]; do
         sleep 1
     done
-    VAR=$(qstat -x -f ${JOBID} | grep exec_host | awk '{print $3}')
+    VAR=$(qstat -x -f -w ${JOBID} | grep exec_host | awk '{print $3}')
     NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':8080' for xx in ss.split('+')]))")
     NODEFILE=$(mktemp)
-    echo $VAR | sed -e 's|,|\n|g' > ${NODEFILE}
+    python3 -c "ss=\"$VAR\";print('\\n'.join([xx[0:xx.find('/')] for xx in ss.split('+')]))" > ${NODEFILE}
     clush --hostfile=${NODEFILE} -- \
         env LD_LIBRARY_PATH=${GEOPM_DIR}/lib:${GEOPM_DIR}/lib64:${LD_LIBRARY_PATH} \
         geopmexporter -p 8080 &
@@ -60,8 +60,9 @@ nohup ${GRAFANA_DIR}/bin/grafana server \
     ${GRAFANA_DIR}/logs/grafana-server-$(date +%F-%T-%Z).log &
 GRAFANA_PID=$!
 
-if [[ ${JOBID} != 0 ]]; then
-    wait ${CLUSH_PID} # clush will be killed when job completes
+if [[ ${JOBID} -ne 0 ]]; then
+    # clush will be killed when job completes
+    wait ${CLUSH_PID}
     rm -f ${NODEFILE}
     kill ${PROM_PID} ${GRAFANA_PID}
 else
