@@ -47,6 +47,7 @@ nohup ${PROMETHEUS_DIR}/prometheus \
     --web.listen-address=:8001 < /dev/null >& \
     ${PROMETHEUS_DIR}/logs/prometheus-server-$(date +%F-%T-%Z).log &
 PROM_PID=$!
+echo "Prometheus PID: ${PROM_PID}"
 
 mkdir -p ${GRAFANA_DIR}/logs
 mkdir -p ${GRAFANA_DIR}/data
@@ -59,15 +60,13 @@ nohup ${GRAFANA_DIR}/bin/grafana server \
     cfg:default.paths.provisioning=${GRAFANA_DIR}/conf/provisioning < /dev/null >& \
     ${GRAFANA_DIR}/logs/grafana-server-$(date +%F-%T-%Z).log &
 GRAFANA_PID=$!
+echo "Grafana PID: ${GRAFANA_PID}"
 
 if [[ "${JOBID}" != "0" ]]; then
     # clush will be killed when job completes
     wait ${CLUSH_PID}
     rm -f ${NODEFILE}
-    kill ${PROM_PID} ${GRAFANA_PID}
 else
-    echo "Kill these PIDs before rerunning:"
-    echo
-    echo "    Prometheus PID: ${PROM_PID}"
-    echo "    Grafana PID: ${GRAFANA_PID}"
+    read -p "Press enter to kill prometheus and grafana servers: "
 fi
+kill ${PROM_PID} ${GRAFANA_PID}
