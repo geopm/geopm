@@ -100,6 +100,6 @@ complete: instructions to do so are printed by the script.
 Now that you have configured Grafana and Prometheus, you can launch a job and monitor it.
 
 ```
-    JOBID=$(qsub -l nodes=2 -v GEOPM_DIR=/mnt/scratch/$USER/geop-build $PWD/pbs_prometheus_example.sh)
+    JOBID=$(qsub ...)
     ./pbs_prometheus_launch.sh $PROMETHEUS_DIR $GRAFANA_DIR $GEOPM_DIR $JOBID
 ```
