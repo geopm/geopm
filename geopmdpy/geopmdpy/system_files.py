@@ -986,32 +986,31 @@ class ActiveSessions(object):
             self._update_session_file(client_pid)
         else:
            os.rename(sess_path, renamed_path)
-
-def _get_names(exec_name, quiet=True):
-    try:
-        stdout_encoding = sys.stdout.encoding
-        stderr_encoding = sys.stderr.encoding
-    except AttributeError:
-        stdout_encoding = None
-        stderr_encoding = None
-    if stdout_encoding is None:
-        stdout_encoding = locale.getpreferredencoding()
-    if stderr_encoding is None:
-        stderr_encoding = locale.getpreferredencoding()
-
-    try:
-        stderr_encoding = sys.stderr.encoding
-    except AttributeError:
-        stderr_encoding = None
-    if stderr_encoding is None:
-        stderr_encoding = locale.getpreferredencoding()
-    signals_pid = subprocess.Popen(exec_name,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-    stdout_bytes, stderr_bytes = signals_pid.communicate()
-    if not quiet:
-        sys.stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
-    return stdout_bytes.decode(encoding=stdout_encoding).split()
+def _get_names():
+    marker = '\n\nBREAK\n\n'
+    pipe_r, pipe_w = os.pipe()
+    pid = os.fork()
+    if pid != 0:
+        os.close(pipe_w)
+        with os.fdopen(pipe_r) as pipe_ro:
+            buffer = pipe_ro.read()
+        os.waitpid(pid, 0)
+        signal_buffer, control_buffer = buffer.split(marker)
+        signals = []
+        controls = []
+        if signal_buffer != '':
+            signals = signal_buffer.split('\n')
+        if control_buffer != '':
+            controls = control_buffer.split('\n')
+        return signals, controls
+    else:
+        os.close(pipe_r)
+        signal_buffer = '\n'.join(pio.signal_names())
+        control_buffer = '\n'.join(pio.control_names())
+        buffer = f'{signal_buffer}{marker}{control_buffer}'
+        with os.fdopen(pipe_w, 'w') as pipe_wo:
+            pipe_wo.write(buffer)
+        os._exit(0)
 
 
 class AccessLists(object):
@@ -1021,8 +1020,7 @@ class AccessLists(object):
     def __init__(self, config_path):
         self._CONFIG_PATH = config_path
         secure_make_dirs(self._CONFIG_PATH)
-        self._signal_names = _get_names('/usr/bin/geopmread', quiet=False)
-        self._control_names = _get_names('/usr/bin/geopmwrite')
+        self._signal_names, self._control_names = _get_names()
 
     def _validate_group(self, group):
         if group is None or group == '':
