@@ -994,7 +994,10 @@ def _get_names():
         os.close(pipe_w)
         with os.fdopen(pipe_r) as pipe_ro:
             buffer = pipe_ro.read()
-        os.waitpid(pid, 0)
+        _, exit_status = os.waitpid(pid, 0)
+        exit_code = os.waitstatus_to_exitcode(exit_status)
+        if exit_code != 0:
+            raise RuntimeError(f'Child process to read signal and control names failed with exit status: {exit_code}')
         signal_buffer, control_buffer = buffer.split(marker)
         signals = []
         controls = []
