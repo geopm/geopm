@@ -995,9 +995,12 @@ def _get_names():
         with os.fdopen(pipe_r) as pipe_ro:
             buffer = pipe_ro.read()
         _, exit_status = os.waitpid(pid, 0)
-        exit_code = os.waitstatus_to_exitcode(exit_status)
-        if exit_code != 0:
-            raise RuntimeError(f'Child process to read signal and control names failed with exit status: {exit_code}')
+        if os.WIFEXITED(exit_status):
+            exit_code = os.WEXITSTATUS(exit_status)
+            if exit_code != 0:
+                raise ChildProcessError(f'Child process to read signal and control names failed with exit status: {exit_code}')
+        else:
+            raise ChildProcessError('Child process to read signal and control names terminated abnormally')
         signal_buffer, control_buffer = buffer.split(marker)
         signals = []
         controls = []
