@@ -581,7 +581,7 @@
                     "end_bit":   31,
                     "function":  "overflow",
                     "units":     "joules",
-                    "scalar":    1.5258789063e-05,
+                    "scalar":    6.103515625e-05,
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
