@@ -425,7 +425,8 @@ namespace geopm
                                                    "\n    alias_for: Temperature derived from PROCHOT and "
                                                    + ts.msr_name,
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                                   string_format_double};
+                                                   string_format_double,
+                                                   1};
             }
         }
     }
@@ -441,7 +442,8 @@ namespace geopm
                                          Agg::select_first,
                                          "Time in seconds used to calculate power",
                                          IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                         string_format_double};
+                                         string_format_double,
+                                         1};
 
         // Mapping of high-level signal name to description and
         // underlying energy MSR.  The domain will match that of the
@@ -488,7 +490,8 @@ namespace geopm
                                                    agg_function(msr_name),
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                                   string_format_double};
+                                                   string_format_double,
+                                                   1};
             }
         }
 
@@ -573,7 +576,8 @@ namespace geopm
                                               Agg::average,
                                               ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                              string_format_double};
+                                              string_format_double,
+                                              1};
             }
         }
 
@@ -611,7 +615,8 @@ namespace geopm
                                                "by the derivative of PCNT divided by the "
                                                "derivative of ACNT over 8 samples",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                               string_format_double};
+                                               string_format_double,
+                                               1};
         }
     }
 
@@ -653,7 +658,8 @@ namespace geopm
                                                description + "\n    alias_for: " + msr_name + " multiplied by " +
                                                std::to_string(m_rdt_info.mbm_scalar) + " (provided by cpuid)",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                               string_format_double};
+                                               string_format_double,
+                                               1};
         }
 
 
@@ -690,7 +696,8 @@ namespace geopm
                                                agg_function(msr_name),
                                                description + "\n    alias_for: " + msr_name + " rate of change",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                               string_format_double};
+                                               string_format_double,
+                                               1};
         }
     }
 
@@ -1109,7 +1116,8 @@ namespace geopm
             result += "    units: " + IOGroup::units_to_string(it->second.units) + '\n';
             result += "    aggregation: " + Agg::function_to_name(it->second.agg_function) + '\n';
             result += "    domain: " + m_platform_topo.domain_type_to_name(it->second.domain) + '\n';
-            result += "    iogroup: MSRIOGroup";
+            result += "    iogroup: MSRIOGroup\n";
+            result += "    scalar: " + std::to_string(it->second.scalar);
         }
 #ifdef GEOPM_DEBUG
         else {
@@ -1520,6 +1528,7 @@ namespace geopm
             .description = M_DEFAULT_DESCRIPTION,
             .behavior = IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
             .format_function = string_format_raw64,
+            .scalar = 1,
         };
     }
 
@@ -1551,6 +1560,7 @@ namespace geopm
             .description = description,
             .behavior = behavior,
             .format_function = format_function,
+            .scalar = scalar,
         };
     }
 

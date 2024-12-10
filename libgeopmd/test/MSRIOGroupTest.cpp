@@ -1432,7 +1432,8 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
               "    units: hertz\n"
               "    aggregation: average\n"
               "    domain: package\n"
-              "    iogroup: MSRIOGroup",
+              "    iogroup: MSRIOGroup\n"
+              "    scalar: 2.000000",
               m_msrio_group->signal_description("MSR::MSR_ONE:FIELD_RO"));
     EXPECT_TRUE(is_agg_expect_same(m_msrio_group->agg_function("MSR::MSR_TWO:FIELD_RW")));
 }
