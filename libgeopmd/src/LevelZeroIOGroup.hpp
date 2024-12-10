@@ -81,6 +81,7 @@ namespace geopm
             struct signal_info {
                 std::string m_description;
                 int m_domain_type;
+                int m_units;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 int behavior;
                 std::function<std::string(double)> m_format_function;
@@ -93,6 +94,7 @@ namespace geopm
                 std::string m_description;
                 std::vector<std::shared_ptr<control_s> > m_controls;
                 int m_domain_type;
+                int m_units;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 std::function<std::string(double)> m_format_function;
             };

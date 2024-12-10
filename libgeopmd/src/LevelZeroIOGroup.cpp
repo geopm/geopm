@@ -50,6 +50,7 @@ namespace geopm
         , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
                                   "The current frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -72,6 +73,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT", {
                                   "The efficient minimum frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -88,6 +90,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
                                   "The maximum supported frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -104,6 +107,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
                                   "The minimum supported frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -118,9 +122,10 @@ namespace geopm
                                   1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", {
-                                  "The compute domain frequency step size in hertz.\n"
+                                  "The compute domain frequency step size.\n"
                                   "The average step size is provided in the case where the step size is variable.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -137,6 +142,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
                                   "The maximum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -153,6 +159,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", {
                                   "GPU Compute Hardware throttle reasons.  See oneAPI Level Zero Sysman Spec for decoding",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::integer_bitwise_or,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_integer,
@@ -167,8 +174,9 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ENERGY", {
-                                  "GPU Compute Hardware Domain chip energy in Joules",
+                                  "GPU Compute Hardware Domain chip energy.",
                                   m_native_domain,
+                                  M_UNITS_JOULES,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -185,6 +193,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                   "The minimum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -199,9 +208,10 @@ namespace geopm
                                   1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP", {
-                                  "GPU compute hardware domain energy timestamp in seconds."
+                                  "GPU compute hardware domain energy timestamp."
                                   "\nBatch use only - value cached on LEVELZERO::GPU_CORE_ENERGY read",
                                   m_native_domain,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -216,8 +226,9 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY", {
-                                  "GPU energy in joules.",
+                                  "GPU energy",
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_JOULES,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -232,9 +243,10 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
-                                  "Timestamp for the GPU energy read in seconds."
+                                  "Timestamp for the GPU energy read."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_ENERGY read.",
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -251,6 +263,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", {
                                   "The current frequency of the GPU Memory Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -267,6 +280,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MAX_AVAIL", {
                                   "The maximum supported frequency of the GPU Memory Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -283,6 +297,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MIN_AVAIL", {
                                   "The minimum supported frequency of the GPU Memory Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -297,8 +312,9 @@ namespace geopm
                                   1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
-                                  "Default power limit of the GPU in watts.",
+                                  "Default power limit of the GPU.",
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_WATTS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -313,8 +329,9 @@ namespace geopm
                                   1 / 1e3
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
-                                  "The minimum supported power limit in watts.",
+                                  "The minimum supported power limit.",
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_WATTS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -329,8 +346,9 @@ namespace geopm
                                   1 / 1e3
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
-                                  "The maximum supported power limit in watts.",
+                                  "The maximum supported power limit.",
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_WATTS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -345,9 +363,10 @@ namespace geopm
                                   1 / 1e3
                                   }},
                               {M_NAME_PREFIX + "GPU_ACTIVE_TIME", {
-                                  "Time in seconds that this resource is actively running a workload."
+                                  "Time that this resource is actively running a workload."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -362,10 +381,11 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
-                                  "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME read in seconds."
+                                  "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_ACTIVE_TIME read."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -380,9 +400,10 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME", {
-                                  "Time in seconds that the GPU compute engines (EUs) are actively running a workload."
+                                  "Time that the GPU compute engines (EUs) are actively running a workload."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -397,10 +418,11 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
-                                  "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read in seconds."
+                                  "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -415,9 +437,10 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME", {
-                                  "Time in seconds that the GPU copy engines are actively running a workload."
+                                  "Time that the GPU copy engines are actively running a workload."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -432,10 +455,11 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
-                                  "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read in seconds."
+                                  "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_SECONDS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
@@ -453,6 +477,7 @@ namespace geopm
                                   "Performance Factor of the GPU Compute Hardware Domain.\n"
                                   "Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units",
                                   m_native_domain,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -469,6 +494,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_TEMPERATURE_MAXIMUM", {
                                   "The maximum measured temperature across all sensors in the GPU accelerator.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_CELSIUS,
                                   Agg::max,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -485,6 +511,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_MEMORY_TEMPERATURE_MAXIMUM", {
                                   "The maximum measured temperature across all sensors in the GPU memory.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_CELSIUS,
                                   Agg::max,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -501,6 +528,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_RESET_COUNT_CORRECTABLE", {
                                   "Number of accelerator engine resets by the driver.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -517,6 +545,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_PROGRAMMING_ERRCOUNT_CORRECTABLE", {
                                   "Number of hardware exceptions generated by the hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -533,6 +562,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_DRIVER_ERRCOUNT_CORRECTABLE", {
                                   "Number of low level driver communication errors.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -549,6 +579,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_COMPUTE_ERRCOUNT_CORRECTABLE", {
                                   "Number of errors in compute accelerator hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -565,6 +596,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_NONCOMPUTE_ERRCOUNT_CORRECTABLE", {
                                   "Number of errors in fixed-function accelerator hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -581,6 +613,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_CACHE_ERRCOUNT_CORRECTABLE", {
                                   "Number of errors in caches.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -597,6 +630,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_DISPLAY_ERRCOUNT_CORRECTABLE", {
                                   "Number of errors in display.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -613,6 +647,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_RESET_COUNT_UNCORRECTABLE", {
                                   "Number of accelerator engine resets by the driver.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -629,6 +664,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_PROGRAMMING_ERRCOUNT_UNCORRECTABLE", {
                                   "Number of hardware exceptions generated by the hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -645,6 +681,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_DRIVER_ERRCOUNT_UNCORRECTABLE", {
                                   "Number of low level driver communication errors.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -661,6 +698,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_COMPUTE_ERRCOUNT_UNCORRECTABLE", {
                                   "Number of errors in compute accelerator hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -677,6 +715,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_NONCOMPUTE_ERRCOUNT_UNCORRECTABLE", {
                                   "Number of errors in fixed-function accelerator hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -693,6 +732,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_CACHE_ERRCOUNT_UNCORRECTABLE", {
                                   "Number of errors in caches.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -709,6 +749,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_RAS_DISPLAY_ERRCOUNT_UNCORRECTABLE", {
                                   "Number of errors in display.",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -728,6 +769,7 @@ namespace geopm
                                     "Sets the minimum frequency request for the GPU Compute Hardware.",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
+                                    M_UNITS_HERTZ,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
@@ -735,6 +777,7 @@ namespace geopm
                                     "Sets the maximum frequency request for the GPU Compute Hardware.",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
+                                    M_UNITS_HERTZ,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
@@ -743,6 +786,7 @@ namespace geopm
                                     "Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
+                                    M_UNITS_NONE,
                                     Agg::average,
                                     string_format_double
                                     }}
@@ -1475,7 +1519,15 @@ namespace geopm
                             " not valid for LevelZeroIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_available.at(signal_name).m_description;
+
+        signal_info signal = m_signal_available.at(signal_name);
+        std::string result =  "    description: "  + signal.m_description + "\n";
+        result += "    units: " + IOGroup::units_to_string(signal.m_units) + '\n';
+        result += "    aggregation: " + Agg::function_to_name(signal.m_agg_function);
+        result += "    domain: " + m_platform_topo.domain_type_to_name(signal.m_domain_type) + '\n';
+        result += "    iogroup: LevelZeroIOGroup";
+            
+        return result;
     }
 
     // A user-friendly description of each control
@@ -1486,8 +1538,14 @@ namespace geopm
                             control_name + "not valid for LevelZeroIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        return m_control_available.at(control_name).m_description;
+        control_info control = m_control_available.at(control_name);
+        std::string result =  "    description: "  + control.m_description + "\n";
+        result += "    units: " + IOGroup::units_to_string(control.m_units) + '\n';
+        result += "    aggregation: " + Agg::function_to_name(control.m_agg_function);
+        result += "    domain: " + m_platform_topo.domain_type_to_name(control.m_domain_type) + '\n';
+        result += "    iogroup: LevelZeroIOGroup";
+            
+        return result;
     }
 
     std::string LevelZeroIOGroup::name(void) const
