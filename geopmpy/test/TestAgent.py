@@ -45,18 +45,18 @@ def mock_agent_sample_name(agent_name, sample_idx, name_max, buff):
 
 
 def mock_agent_num_policy(agent_name, num_policy):
-    if agent_name.decode().find('agent1') == 0:
+    if agent_name.decode().find(MOCKED_AGENT_NAMES[0]) == 0:
         num_policy.__getitem__.return_value = len(MOCKED_POLICY_NAMES_1)
-    elif agent_name.decode().find('agent2') == 0:
+    elif agent_name.decode().find(MOCKED_AGENT_NAMES[1]) == 0:
         num_policy.__getitem__.return_value = len(MOCKED_POLICY_NAMES_2)
     else:
         return -1
     return 0
 
 def mock_agent_policy_name(agent_name, policy_idx, name_max, buff):
-    if agent_name.decode().find('agent1') == 0:
+    if agent_name.decode().find(MOCKED_AGENT_NAMES[0]) == 0:
         policy = MOCKED_POLICY_NAMES_1[policy_idx]
-    elif agent_name.decode().find('agent2') == 0:
+    elif agent_name.decode().find(MOCKED_AGENT_NAMES[1]) == 0:
         policy = MOCKED_POLICY_NAMES_2[policy_idx]
     assert(name_max > len(policy))
     for idx, char in enumerate(policy):
@@ -68,12 +68,11 @@ def mock_agent_enforce_policy():
     return 0
 
 def mock_agent_policy_json(agent_name, policy_array, policy_max, output):
-    MOCKED_POLICY_NAMES_1 = ['param11', 'param12']
     policy = dict()
-    if agent_name.decode().find('agent1') == 0:
+    if agent_name.decode().find(MOCKED_AGENT_NAMES[0]) == 0:
         for idx, name in enumerate(MOCKED_POLICY_NAMES_1):
             policy[name] = policy_array[idx] if not math.isnan(policy_array[idx]) else 'NAN'
-    elif agent_name.decode().find('agent2') == 0:
+    elif agent_name.decode().find(MOCKED_AGENT_NAMES[1]) == 0:
         for idx, name in enumerate(MOCKED_POLICY_NAMES_2):
             policy[name] = policy_array[idx]  if not math.isnan(policy_array[idx]) else 'NAN'
     result = json.dumps(policy)
@@ -109,8 +108,7 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_names(self):
         agent_names = geopmpy.agent.names()
-        expected_agent_names = ['agent1', 'agent2']
-        self.assertEqual(expected_agent_names, agent_names)
+        self.assertEqual(MOCKED_AGENT_NAMES, agent_names)
 
     def test_json(self):
         for agent in geopmpy.agent.names():
