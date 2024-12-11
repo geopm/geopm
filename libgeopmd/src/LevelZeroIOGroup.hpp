@@ -104,6 +104,7 @@ namespace geopm
                 std::string m_description;
                 std::string m_base_name;
                 std::string m_time_name;
+		int m_units;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 int m_behavior;
                 double m_nan_replace;
