@@ -7,18 +7,12 @@
 
 
 import unittest
-from importlib import reload
 
 import geopmdpy.hash
 from geopmdpy import gffi
 
 
 class TestHash(unittest.TestCase):
-    def setUp(self):
-        # Ensures that mocks do not leak into this test
-        reload(gffi)
-        reload(geopmdpy.hash)
-
     def test_hash(self):
         hash_val = geopmdpy.hash.hash_str('abcdefg')
         self.assertEqual(geopmdpy.hash.hash_str('abcdefg'), hash_val)

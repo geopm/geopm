@@ -8,16 +8,12 @@
 import unittest
 import sys
 import time
-from importlib import reload
 from geopmdpy import topo
 from geopmdpy import pio
 from geopmdpy import gffi
 
 class TestPIO(unittest.TestCase):
     def setUp(self):
-        reload(gffi)
-        reload(topo) # Ensures that the mocked dlopen call does not leak into this test
-        reload(pio)
         pio.save_control()
 
     def tearDown(self):

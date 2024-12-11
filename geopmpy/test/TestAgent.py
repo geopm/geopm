@@ -8,7 +8,6 @@
 import unittest
 import json
 import math
-from importlib import reload
 
 import geopmpy.agent
 from . import mock_libgeopm
@@ -92,9 +91,6 @@ class TestAgent(unittest.TestCase):
         mock_libgeopm.lib.geopm_agent_policy_name.side_effect = mock_agent_policy_name
         mock_libgeopm.lib.geopm_agent_enforce_policy.side_effect = mock_agent_enforce_policy
         mock_libgeopm.lib.geopm_agent_policy_json = mock_agent_policy_json
-
-    def tearDown(self):
-        reload(geopmpy.agent)
 
     def test_policy_names(self):
         for agent in geopmpy.agent.names():

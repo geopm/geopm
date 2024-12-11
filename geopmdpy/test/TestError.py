@@ -6,16 +6,11 @@
 
 
 import unittest
-from importlib import reload
 from geopmdpy import error
 from geopmdpy import gffi
 
 
 class TestError(unittest.TestCase):
-    def setUp(self):
-        reload(gffi)
-        reload(error) # Ensures that the mocked dlopen call does not leak into this test
-
     def test_error_message(self):
         err_msg = error.message(error.ERROR_RUNTIME)
         self.assertTrue('runtime' in err_msg.lower())

@@ -11,7 +11,6 @@ from unittest import mock
 from . import mock_libgeopm as _mock_libgeopm
 mock_libgeopm = _mock_libgeopm.lib
 import geopmpy.endpoint
-from importlib import reload
 
 class TestEndpoint(unittest.TestCase):
     def setUp(self):
@@ -30,8 +29,6 @@ class TestEndpoint(unittest.TestCase):
         mock_libgeopm.geopm_endpoint_agent.side_effect = mock_agent
 
         self._endpoint = geopmpy.endpoint.Endpoint('test_endpoint')
-    def tearDown(self):
-        reload(geopmpy.endpoint)
 
     def test_endpoint_creation_destruction(self):
         self.assertEqual("Endpoint(name='test_endpoint')", repr(self._endpoint))

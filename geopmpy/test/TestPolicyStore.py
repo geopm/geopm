@@ -7,7 +7,6 @@
 
 import unittest
 from unittest import mock
-from importlib import reload
 from . import mock_libgeopm
 
 mock_c = mock_libgeopm.lib
@@ -17,10 +16,6 @@ import geopmpy.policy_store
 class TestPolicyStore(unittest.TestCase):
     def setUp(self):
         mock_c.reset_mock()
-
-    def tearDown(self):
-        # Reset the mocked interface for other tests
-        reload(geopmpy.policy_store)
 
     def test_connect(self):
         mock_c.geopm_policystore_connect.return_value = 0
