@@ -830,6 +830,7 @@ namespace geopm
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
+		     M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                      0}},
