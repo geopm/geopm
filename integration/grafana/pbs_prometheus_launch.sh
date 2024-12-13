@@ -4,15 +4,18 @@
 #
 
 if [[ $# -lt 2 ]]; then
-    echo "Usage: $0 PROMETHEUS_DIR GRAFANA_DIR [GEOPM_DIR JOBID]"
+    echo "Usage: $0 PROMETHEUS_DIR PROMETHEUS_SERVER_PORT GRAFANA_DIR GRAFANA_SERVER_PORT [GEOPM_DIR JOBID PROMETHEUS_CLIENT_PORT]"
     exit -1
 fi
 PROMETHEUS_DIR=$1
-GRAFANA_DIR=$2
+PROMETHEUS_SERVER_PORT=$2
+GRAFANA_DIR=$3
+GRAFANA_SERVER_PORT=$4
 JOBID=0
-if [[ $# -gt 3 ]]; then
-    GEOPM_DIR=$3
-    JOBID=$4
+if [[ $# -gt 6 ]]; then
+    GEOPM_DIR=$5
+    JOBID=$6
+    PROMETHEUS_CLIENT_PORT=$7
 fi
 
 NODES=""
@@ -21,12 +24,12 @@ if [[ ${JOBID} != 0 ]]; then
         sleep 1
     done
     VAR=$(qstat -x -f -w ${JOBID} | grep exec_host | awk '{print $3}')
-    NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':8080' for xx in ss.split('+')]))")
+    NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':\"$PROMETHEUS_CLIENT_PORT\"' for xx in ss.split('+')]))")
     NODEFILE=$(mktemp)
     python3 -c "ss=\"$VAR\";print('\\n'.join([xx[0:xx.find('/')] for xx in ss.split('+')]))" > ${NODEFILE}
     clush --hostfile=${NODEFILE} -- \
         env LD_LIBRARY_PATH=${GEOPM_DIR}/lib:${GEOPM_DIR}/lib64:${LD_LIBRARY_PATH} \
-        geopmexporter -p 8080 &
+        geopmexporter -p ${PROMETHEUS_CLIENT_PORT} &
     CLUSH_PID=$!
 fi
 
@@ -44,15 +47,19 @@ nohup ${PROMETHEUS_DIR}/prometheus \
     --storage.tsdb.path ${PROMETHEUS_DIR}/data \
     --web.console.templates=${PROMETHEUS_DIR}/consoles \
     --web.console.libraries=${PROMETHEUS_DIR}/console_libraries \
-    --web.listen-address=:8001 < /dev/null >& \
+    --web.listen-address=:${PROMETHEUS_SERVER_PORT} < /dev/null >& \
     ${PROMETHEUS_DIR}/logs/prometheus-server-$(date +%F-%T-%Z).log &
 PROM_PID=$!
 echo "Prometheus PID: ${PROM_PID}"
 
 mkdir -p ${GRAFANA_DIR}/logs
 mkdir -p ${GRAFANA_DIR}/data
+GRAFANA_CONF_PATH="${GRAFANA_DIR}/conf/${USER}_conf.ini"
+cp ${GRAFANA_DIR}/conf/defaults.ini ${GRAFANA_CONF_PATH}
+sed "s|http_port = [0-9]*|http_port = ${GRAFANA_SERVER_PORT}|" -i ${GRAFANA_CONF_PATH}
+
 nohup ${GRAFANA_DIR}/bin/grafana server \
-    --config=${GRAFANA_DIR}/conf/defaults.ini \
+    --config=${GRAFANA_CONF_PATH} \
     --homepath=${GRAFANA_DIR} \
     cfg:default.paths.logs=${GRAFANA_DIR}/logs \
     cfg:default.paths.data=${GRAFANA_DIR}/data \
@@ -70,3 +77,4 @@ else
     read -p "Press enter to kill prometheus and grafana servers: "
 fi
 kill ${PROM_PID} ${GRAFANA_PID}
+rm -f ${GRAFANA_CONF_PATH}
