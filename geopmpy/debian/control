@@ -6,7 +6,9 @@ Build-Depends: debhelper-compat (= 12),
  dh-python,
  python3-all,
  python3-setuptools,
- python3-setuptools-scm
+ python3-setuptools-scm,
+ python3-cffi,
+ libgeopm-dev
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
@@ -30,4 +32,3 @@ Recommends: libgeopmd2 (= ${binary:Version}),
  python3-geopmpy-doc (= ${binary:Version})
 Description: GEOPM - Global Extensible Open Power Manager Runtime Tools
  Python support for GEOPM Runtime
- 
