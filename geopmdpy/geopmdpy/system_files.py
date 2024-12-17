@@ -989,7 +989,10 @@ class ActiveSessions(object):
 def _get_names():
     marker = '\n\nBREAK\n\n'
     pipe_r, pipe_w = os.pipe()
-    pid = os.fork()
+    try:
+        pid = os.fork()
+    except OSError as ex:
+        raise RuntimeError('Error in fork() call to create child process for reading signal and control names') from ex
     if pid != 0:
         os.close(pipe_w)
         with os.fdopen(pipe_r) as pipe_ro:
@@ -998,9 +1001,9 @@ def _get_names():
         if os.WIFEXITED(exit_status):
             exit_code = os.WEXITSTATUS(exit_status)
             if exit_code != 0:
-                raise ChildProcessError(f'Child process to read signal and control names failed with exit status: {exit_code}')
+                raise ChildProcessError(f'Forked process to read signal and control names failed with exit status: {exit_code}')
         else:
-            raise ChildProcessError('Child process to read signal and control names terminated abnormally')
+            raise ChildProcessError('Forked process to read signal and control names terminated abnormally')
         signal_buffer, control_buffer = buffer.split(marker)
         signals = []
         controls = []
