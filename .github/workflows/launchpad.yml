@@ -40,8 +40,23 @@ jobs:
            make deb
            sudo apt-get install ./libgeopmd*deb
            git clean -ffdx
+    - name: configure libgeopm dir
+      working-directory: libgeopm
+      run: ./autogen.sh && ./configure || (cat config.log && false)
+    - name: make and install libgeopm deb
+      working-directory: libgeopm
+      run: |
+           make deb
+           sudo apt-get install ./libgeopm*deb
+           git clean -ffdx
     - name: make and install geopmdpy deb
       working-directory: geopmdpy
+      run: |
+           ./make_deb.sh --no-local
+           sudo apt-get install ./*deb
+           git clean -ffdx
+    - name: make and install geopmpy deb
+      working-directory: geopmpy
       run: |
            ./make_deb.sh --no-local
            sudo apt-get install ./*deb
