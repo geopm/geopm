@@ -18,7 +18,7 @@ installation option to install in editable mode (so you don't need to reinstall
 between updating python source code and re-running tests). The install command
 will also install the python execution-time dependencies of this package.
 
-Also run `pip install -f requirements.txt` to install additional development
+Also run `pip install -r requirements.txt` to install additional development
 dependencies. If you follow these steps, then you do not need to modify your
 `PYTHONPATH` variable when executing tests.
 
@@ -48,9 +48,9 @@ to build and install this package.
 ### Helper Script to Build Latest Development Snapshot
 
 A script called `install_user.sh` is provided which builds and installs
-`libgeopmd` and `geopmdpy` for a single user.  This script may be simple helper for
+`libgeopmd` and `geopmdpy` for a single user.  This script may be a simple helper for
 running the build of the two directories `geopm/geopmdpy` and `geopm/libgeopmd`, but
-it may also be used as a stand-alone solution in place of
+it may also be used as a stand-alone solution in place of:
 
 ```bash
 python -m pip install "geopmdpy @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy"
@@ -58,8 +58,8 @@ python -m pip install "geopmdpy @ git+https://github.com/geopm/geopm.git#subdire
 ```
 
 The above command will install the `geopmdpy` package from the dev branch on
-github, but it will not install a development snapshot of `libgeopmd` which may
-also be required.  To combining these two installation steps, run the following
+GitHub, but it will not install a development snapshot of `libgeopmd` which may
+also be required.  To combine these two installation steps, run the following
 commands instead:
 
 ```bash
