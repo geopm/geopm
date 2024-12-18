@@ -18,10 +18,6 @@ installation option to install in editable mode (so you don't need to reinstall
 between updating python source code and re-running tests). The install command
 will also install the python execution-time dependencies of this package.
 
-Also run `pip install -r requirements.txt` to install additional development
-dependencies. If you follow these steps, then you do not need to modify your
-`PYTHONPATH` variable when executing tests.
-
 The `geopmdpy` package wraps `libgeopmd`. Be sure to follow the build
 instructions in the directory for that library as part of setting up a `geopmdpy`
 development environment. Either install `libgeopmd` somewhere on your path, or
