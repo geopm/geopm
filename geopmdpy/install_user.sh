@@ -65,6 +65,7 @@ Example:"'
 fi
 set -x
 set -e
+python3 -m pip install --upgrade pip
 DEFAULT_GIT_PATH=$(dirname $(dirname $(realpath $0)))
 GEOPM_GIT_PATH=${GEOPM_GIT_PATH:-${DEFAULT_GIT_PATH}}
 GEOPM_GIT_URL=${GEOPM_GIT_URL:-"https://github.com/geopm/geopm.git"}
@@ -81,6 +82,7 @@ if [ -n  "${GEOPM_GIT_CHECKOUT}" ]; then
         git rebase ${GEOPM_GIT_REMOTE}/${GEOPM_GIT_CHECKOUT}
     fi
 fi
+python3 -m pip install -r requirements.txt
 cd libgeopmd
 ./autogen.sh
 ./configure $@
