@@ -41,7 +41,7 @@ python3 -m pip install ./
 
 to build and install this package.
 
-### Helper Script to Build Latest Development Snapshot
+### User Build/Install Helper Script for geopmdpy and libgeopmd
 
 A script called `install_user.sh` is provided which builds and installs
 `libgeopmd` and `geopmdpy` for a single user.  This script may be a simple helper for
