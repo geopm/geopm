@@ -325,7 +325,6 @@ jobs:
       working-directory: geopmdpy
       run: |
         sudo mk-build-deps --install
-        python3 -m pip install -r requirements.txt
         ./make_deb.sh --no-local
         sudo apt-get purge --auto-remove python3-geopmdpy-build-deps
         sudo mv ./*.deb $TEST_DEBS_DIR
@@ -348,7 +347,6 @@ jobs:
       working-directory: geopmpy
       run: |
         sudo mk-build-deps --install
-        python3 -m pip install -r requirements.txt
         ./make_deb.sh
         sudo apt-get purge --auto-remove python3-geopmpy-build-deps
         sudo mv ./*.deb $TEST_DEBS_DIR

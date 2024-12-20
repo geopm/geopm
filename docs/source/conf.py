@@ -88,7 +88,9 @@ autodoc_mock_imports = ['geopmdpy.gffi',
                         'geopmpy.gffi',
                         'pandas',
                         'numpy',
-                        'natsort']
+                        'natsort',
+                        'dasbus',
+                        'psutil']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
