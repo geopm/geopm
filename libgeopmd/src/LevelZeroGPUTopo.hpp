@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <vector>
 #include <set>
+#include <string>
 
 #include "GPUTopo.hpp"
 
@@ -21,7 +22,7 @@ namespace geopm
         public:
             LevelZeroGPUTopo();
             LevelZeroGPUTopo(const LevelZeroDevicePool &device_pool,
-                                     const int num_cpu);
+                             const std::string &pci_devices_path);
             virtual ~LevelZeroGPUTopo() = default;
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
@@ -31,6 +32,7 @@ namespace geopm
             const LevelZeroDevicePool &m_levelzero_device_pool;
             std::vector<std::set<int> > m_cpu_affinity_ideal;
             std::vector<std::set<int> > m_cpu_affinity_ideal_chip;
+            std::string m_pci_devices_path;
     };
 }
 #endif

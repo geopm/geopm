@@ -105,6 +105,9 @@ class MockLevelZero : public geopm::LevelZero
                     (unsigned int, int, int, double, double), (const, override));
         MOCK_METHOD(void, performance_factor_control,
                     (unsigned int, int, int, double), (const, override));
+
+        MOCK_METHOD(std::string, pci_dbdf_address,
+                    (unsigned int l0_device_idx), (const, override));
 };
 
 #endif

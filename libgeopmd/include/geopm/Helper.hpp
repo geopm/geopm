@@ -219,6 +219,10 @@ namespace geopm
     void GEOPM_PUBLIC
         enable_fixed_counters(PlatformIO &pio);
 
+    /// Convert a Linux cpumask string (e.g., from a sysfs local_cpus file) to
+    /// an integer set of CPU indices that are present in the mask.
+    std::set<int> GEOPM_PUBLIC
+        linux_cpumask_buf_to_int_set(const std::string &cpumask_buf);
 }
 
 #endif

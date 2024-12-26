@@ -23,35 +23,8 @@
 #include "geopm/Helper.hpp"
 #include "geopm_topo.h"
 
-static const int MAX_CPUS_PER_CPUMASK_SEGMENT = 32;
 static const std::regex GPU_CARD_REGEX("^card(\\d+)$");
 static const std::regex GPU_TILE_REGEX("^gt(\\d+)$");
-
-static std::set<int> linux_cpumask_buf_to_int_set(const std::string &cpumask_buf)
-{
-    // The expected bitmask format is "HEX,HEX,...,HEX", where commas separate
-    // 32-bit segments. Higher-ordered bits indicate higher CPU indices (i.e.
-    // LSB is CPU 0).
-    std::set<int> mapped_cpus;
-    int cpu_offset = 0;
-    auto hex_segments = geopm::string_split(cpumask_buf, ",");
-    for (auto it = hex_segments.rbegin(); it != hex_segments.rend(); ++it) {
-        auto bitmask_segment = std::stoull(*it, nullptr, 16);
-        if (bitmask_segment >> MAX_CPUS_PER_CPUMASK_SEGMENT) {
-            throw geopm::Exception("linux_cpumask_buf_to_int_set: malformed cpumask: " + cpumask_buf,
-                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        int next_segment_cpu_offset = cpu_offset + MAX_CPUS_PER_CPUMASK_SEGMENT;
-        while (cpu_offset < next_segment_cpu_offset) {
-            if (bitmask_segment & 1) {
-                mapped_cpus.insert(cpu_offset);
-            }
-            bitmask_segment >>= 1;
-            cpu_offset += 1;
-        }
-    }
-    return mapped_cpus;
-}
 
 // Return the name of the driver that provides the given /sys/class/drm/card*/ device
 static std::string drm_driver_name_from_card_path(const std::string &card_path)

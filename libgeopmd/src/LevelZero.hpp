@@ -352,6 +352,9 @@ namespace geopm
             /// @return Display Error Count
             virtual double ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
                                                 int l0_domain, int l0_domain_idx) const = 0;
+
+            // Return the formatted domain:bus:device.function PCI address of the given LevelZero device
+            virtual std::string pci_dbdf_address(unsigned int l0_device_idx) const = 0;
     };
 
     const LevelZero &levelzero();

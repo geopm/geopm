@@ -96,6 +96,7 @@ namespace geopm
                                       int l0_domain) const override;
             double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
                                         int l0_domain) const override;
+            std::string pci_dbdf_address(int geopm_domain, unsigned int geopm_domain_idx) const override;
         private:
             const LevelZero &m_levelzero;
 

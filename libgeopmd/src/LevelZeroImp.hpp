@@ -126,6 +126,7 @@ namespace geopm
             double ras_display_errcount_uncorrectable(unsigned int l0_device_idx,
                                                       int l0_domain,
                                                       int l0_domain_idx) const override;
+            std::string pci_dbdf_address(unsigned int l0_device_idx) const override;
 
         private:
             enum m_error_type {
