@@ -1527,9 +1527,11 @@ namespace geopm
         }
 
         signal_info signal = m_signal_available.at(signal_name);
-        std::string result =  "    description: "  + signal.m_description + "\n";
+
+	std::string result;
+        result =  "    description: "  + signal.m_description + "\n";
         result += "    units: " + IOGroup::units_to_string(signal.m_units) + '\n';
-        result += "    aggregation: " + Agg::function_to_name(signal.m_agg_function);
+        result += "    aggregation: " + Agg::function_to_name(signal.m_agg_function) + '\n';
         result += "    domain: " + m_platform_topo.domain_type_to_name(signal.m_domain_type) + '\n';
         result += "    iogroup: LevelZeroIOGroup";
             
@@ -1545,9 +1547,11 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         control_info control = m_control_available.at(control_name);
-        std::string result =  "    description: "  + control.m_description + "\n";
+
+	std::string result;
+        result =  "    description: "  + control.m_description + "\n";
         result += "    units: " + IOGroup::units_to_string(control.m_units) + '\n';
-        result += "    aggregation: " + Agg::function_to_name(control.m_agg_function);
+        result += "    aggregation: " + Agg::function_to_name(control.m_agg_function) + '\n';
         result += "    domain: " + m_platform_topo.domain_type_to_name(control.m_domain_type) + '\n';
         result += "    iogroup: LevelZeroIOGroup";
             

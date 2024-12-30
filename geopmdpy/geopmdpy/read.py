@@ -30,7 +30,7 @@ package_integrated_gpu      {topo.num_domain('package_integrated_gpu')}
 gpu_chip                    {topo.num_domain('gpu_chip')}""")
 
 def print_info(signal_name):
-    print(f'{signal_name}:\n    {pio.signal_description(signal_name)}')
+    print(f'{signal_name}:\n{pio.signal_description(signal_name)}')
 
 def print_info_all():
     for signal_name in pio.signal_names():
