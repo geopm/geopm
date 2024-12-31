@@ -149,7 +149,9 @@ permissions are extended for each user based on Unix user group
 membership.  Each Unix group on the system may have GEOPM Service
 signal and control access lists associated with it.  To read or write
 the access list for a particular Unix user group, the ``-g`` or
-``--group`` option must be specified.
+``--group`` option must be specified.  The user may specify a Unix
+user group name or a Unix user group ID number.  If the user specifies
+a Unix grouip name, then the ID number will be queried from the OS.
 
 
 Access Management
@@ -207,6 +209,10 @@ GEOPM Service.  This enables the creation of the configuration file on
 a system where the GEOPM Service does not support some signals or
 controls.
 
+To avoid any issues due to differences in OS user group name/ID look up on
+shared file systems, it may be preferred to specify the Unix user group ID
+number rather than the name when using the ``-g`` / ``--group`` option.
+
 Note that having signal or control names in an access list in
 ``/etc/geopm`` which are not valid on a particular system is
 not an error.  This enables access list files to be mounted on
@@ -250,11 +256,11 @@ signals and controls are provided by the GEOPM Service on your system.
     # PRINT DEFAULT CONTROL ACCESS LIST
     geopmaccess --default --controls
 
-    # PRINT SIGNAL ACCESS FOR UNIX GROUP "power"
+    # PRINT SIGNAL ACCESS FOR UNIX GROUP NAME "power"
     geopmaccess --group power
 
-    # PRINT CONTROL ACCESS FOR UNIX GROUP "power"
-    geopmaccess --controls --group power
+    # PRINT CONTROL ACCESS FOR UNIX GROUP ID 101
+    geopmaccess --controls --group 101
 
 
 Enabling User Access

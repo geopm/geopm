@@ -123,7 +123,7 @@ lists are stored in:
    /etc/geopm/0.DEFAULT_ACCESS/allowed_signals
    /etc/geopm/0.DEFAULT_ACCESS/allowed_controls
 
-Each Unix group name ``<GROUP>`` that has extended permissions can
+Each Unix group ID ``<GROUP>`` that has extended permissions can
 maintain one or both of the files
 
 .. code-block::
