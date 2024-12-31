@@ -9,7 +9,6 @@ import re
 from time import sleep
 from argparse import ArgumentParser
 from . import pio, topo, stats, loop, session, __version_str__
-from prometheus_client import start_http_server, Gauge, Counter, Summary
 
 _STARTUP_SLEEP = 0.005
 
@@ -191,6 +190,11 @@ def main():
 
     """
     err = 0
+    try:
+        from prometheus_client import start_http_server, Gauge, Counter, Summary
+    except Exception as ex:
+            print('Skipping prometheus')
+            raise RuntimeError('Please install python3-prometheus-client: https://pypi.org/project/prometheus-client/') from ex
     try:
         parser = ArgumentParser(description=main.__doc__)
         parser.add_argument('-v', '--version', dest='version', action='store_true',
