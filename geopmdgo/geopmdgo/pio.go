@@ -11,7 +11,7 @@ package geopmdgo
 */
 import "C"
 import (
-    "errors"
+    "fmt"
     "unsafe"
 )
 
@@ -20,7 +20,7 @@ func SignalNames() ([]string, error) {
     var numSignal C.int
     numSignal = C.geopm_pio_num_signal_name()
     if numSignal < 0 {
-        return nil, errors.New("geopm_pio_num_signal_name() failed")
+        return nil, fmt.Errorf("geopm_pio_num_signal_name() failed: %s", ErrorMessage(int(numSignal)))
     }
 
     nameMax := 255
@@ -31,7 +31,7 @@ func SignalNames() ([]string, error) {
     for i := 0; i < int(numSignal); i++ {
         ret := C.geopm_pio_signal_name(C.int(i), C.size_t(nameMax), (*C.char)(signalNameCStr))
         if ret < 0 {
-            return nil, errors.New("geopm_pio_signal_name() failed")
+            return nil, fmt.Errorf("geopm_pio_signal_name() failed: %s", ErrorMessage(int(ret)))
         }
         signalNames[i] = C.GoString((*C.char)(signalNameCStr))
     }
@@ -43,7 +43,7 @@ func ControlNames() ([]string, error) {
     var numControl C.int
     numControl = C.geopm_pio_num_control_name()
     if numControl < 0 {
-        return nil, errors.New("geopm_pio_num_control_name() failed")
+        return nil, fmt.Errorf("geopm_pio_num_control_name() failed: %s", ErrorMessage(int(numControl)))
     }
 
     nameMax := 255
@@ -54,7 +54,7 @@ func ControlNames() ([]string, error) {
     for i := 0; i < int(numControl); i++ {
         ret := C.geopm_pio_control_name(C.int(i), C.size_t(nameMax), (*C.char)(controlNameCStr))
         if ret < 0 {
-            return nil, errors.New("geopm_pio_control_name() failed")
+            return nil, fmt.Errorf("geopm_pio_control_name() failed: %s", ErrorMessage(int(ret)))
         }
         controlNames[i] = C.GoString((*C.char)(controlNameCStr))
     }
@@ -68,7 +68,7 @@ func SignalDomainType(signalName string) (int, error) {
 
     result := C.geopm_pio_signal_domain_type(signalNameCStr)
     if result < 0 {
-        return 0, errors.New("geopm_pio_signal_domain_type() failed")
+        return 0, fmt.Errorf("geopm_pio_signal_domain_type() failed: %s", ErrorMessage(int(result)))
     }
     return int(result), nil
 }
@@ -80,7 +80,7 @@ func ControlDomainType(controlName string) (int, error) {
 
     result := C.geopm_pio_control_domain_type(controlNameCStr)
     if result < 0 {
-        return 0, errors.New("geopm_pio_control_domain_type() failed")
+        return 0, fmt.Errorf("geopm_pio_control_domain_type() failed: %s", ErrorMessage(int(result)))
     }
     return int(result), nil
 }
@@ -94,7 +94,7 @@ func ReadSignal(signalName string, domainType, domainIdx int) (float64, error) {
     domainTypeC := C.int(domainType)
     err := C.geopm_pio_read_signal(signalNameCStr, domainTypeC, C.int(domainIdx), &resultCdbl)
     if err < 0 {
-        return 0, errors.New("geopm_pio_read_signal() failed")
+        return 0, fmt.Errorf("geopm_pio_read_signal() failed: %s", ErrorMessage(int(err)))
     }
     return float64(resultCdbl), nil
 }
@@ -107,7 +107,7 @@ func WriteControl(controlName string, domainType, domainIdx int, setting float64
     domainTypeC := C.int(domainType)
     err := C.geopm_pio_write_control(controlNameCStr, domainTypeC, C.int(domainIdx), C.double(setting))
     if err < 0 {
-        return errors.New("geopm_pio_write_control() failed")
+        return fmt.Errorf("geopm_pio_write_control() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
@@ -120,7 +120,7 @@ func PushSignal(signalName string, domainType, domainIdx int) (int, error) {
     domainTypeC := C.int(domainType)
     result := C.geopm_pio_push_signal(signalNameCStr, domainTypeC, C.int(domainIdx))
     if result < 0 {
-        return 0, errors.New("geopm_pio_push_signal() failed")
+        return 0, fmt.Errorf("geopm_pio_push_signal() failed: %s", ErrorMessage(int(result)))
     }
     return int(result), nil
 }
@@ -133,7 +133,7 @@ func PushControl(controlName string, domainType, domainIdx int) (int, error) {
     domainTypeC := C.int(domainType)
     result := C.geopm_pio_push_control(controlNameCStr, domainTypeC, C.int(domainIdx))
     if result < 0 {
-        return 0, errors.New("geopm_pio_push_control() failed")
+        return 0, fmt.Errorf("geopm_pio_push_control() failed: %s", ErrorMessage(int(result)))
     }
     return int(result), nil
 }
@@ -143,7 +143,7 @@ func Sample(signalIdx int) (float64, error) {
     resultCdbl := C.double(0)
     err := C.geopm_pio_sample(C.int(signalIdx), &resultCdbl)
     if err < 0 {
-        return 0, errors.New("geopm_pio_sample() failed")
+        return 0, fmt.Errorf("geopm_pio_sample() failed: %s", ErrorMessage(int(err)))
     }
     return float64(resultCdbl), nil
 }
@@ -152,7 +152,7 @@ func Sample(signalIdx int) (float64, error) {
 func Adjust(controlIdx int, setting float64) error {
     err := C.geopm_pio_adjust(C.int(controlIdx), C.double(setting))
     if err < 0 {
-        return errors.New("geopm_pio_adjust() failed")
+        return fmt.Errorf("geopm_pio_adjust() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
@@ -161,7 +161,7 @@ func Adjust(controlIdx int, setting float64) error {
 func ReadBatch() error {
     err := C.geopm_pio_read_batch()
     if err < 0 {
-        return errors.New("geopm_pio_read_batch() failed")
+        return fmt.Errorf("geopm_pio_read_batch() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
@@ -170,7 +170,7 @@ func ReadBatch() error {
 func WriteBatch() error {
     err := C.geopm_pio_write_batch()
     if err < 0 {
-        return errors.New("geopm_pio_write_batch() failed")
+        return fmt.Errorf("geopm_pio_write_batch() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
@@ -179,7 +179,7 @@ func WriteBatch() error {
 func SaveControl() error {
     err := C.geopm_pio_save_control()
     if err < 0 {
-        return errors.New("geopm_pio_save_control() failed")
+        return fmt.Errorf("geopm_pio_save_control() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
@@ -188,7 +188,7 @@ func SaveControl() error {
 func RestoreControl() error {
     err := C.geopm_pio_restore_control()
     if err < 0 {
-        return errors.New("geopm_pio_restore_control() failed")
+        return fmt.Errorf("geopm_pio_restore_control() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
@@ -204,7 +204,7 @@ func SignalDescription(signalName string) (string, error) {
 
     err := C.geopm_pio_signal_description(signalNameCStr, C.size_t(nameMax), (*C.char)(resultCStr))
     if err < 0 {
-        return "", errors.New("geopm_pio_signal_description() failed")
+        return "", fmt.Errorf("geopm_pio_signal_description() failed: %s", ErrorMessage(int(err)))
     }
     return C.GoString((*C.char)(resultCStr)), nil
 }
@@ -220,7 +220,7 @@ func ControlDescription(controlName string) (string, error) {
 
     err := C.geopm_pio_control_description(controlNameCStr, C.size_t(nameMax), (*C.char)(resultCStr))
     if err < 0 {
-        return "", errors.New("geopm_pio_control_description() failed")
+        return "", fmt.Errorf("geopm_pio_control_description() failed: %s", ErrorMessage(int(err)))
     }
     return C.GoString((*C.char)(resultCStr)), nil
 }
@@ -233,7 +233,7 @@ func SignalInfo(signalName string) (int, int, int, error) {
     var aggregationType, formatType, behaviorType C.int
     err := C.geopm_pio_signal_info(signalNameCStr, &aggregationType, &formatType, &behaviorType)
     if err < 0 {
-        return 0, 0, 0, errors.New("geopm_pio_signal_info() failed")
+        return 0, 0, 0, fmt.Errorf("geopm_pio_signal_info() failed: %s", ErrorMessage(int(err)))
     }
     return int(aggregationType), int(formatType), int(behaviorType), nil
 }
@@ -246,7 +246,7 @@ func FormatSignal(signal float64, formatType int) (string, error) {
 
     err := C.geopm_pio_format_signal(C.double(signal), C.int(formatType), C.size_t(nameMax), (*C.char)(resultCStr))
     if err < 0 {
-        return "", errors.New("geopm_pio_format_signal() failed")
+        return "", fmt.Errorf("geopm_pio_format_signal() failed: %s", ErrorMessage(int(err)))
     }
     return C.GoString((*C.char)(resultCStr)), nil
 }

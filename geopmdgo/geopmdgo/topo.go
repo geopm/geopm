@@ -10,6 +10,7 @@ package geopmdgo
 */
 import "C"
 import (
+    "fmt"
     "errors"
     "unsafe"
 )
@@ -23,7 +24,7 @@ func NumDomain(domain interface{}) (int, error) {
 
     result := C.geopm_topo_num_domain(C.int(domainType))
     if result < 0 {
-        return 0, errors.New("geopm_topo_num_domain() failed")
+        return 0, fmt.Errorf("geopm_topo_num_domain() failed: %s", ErrorMessage(int(result)))
     }
     return int(result), nil
 }
@@ -37,7 +38,7 @@ func DomainIdx(domain interface{}, cpuIdx int) (int, error) {
 
     result := C.geopm_topo_domain_idx(C.int(domainType), C.int(cpuIdx))
     if result < 0 {
-        return 0, errors.New("geopm_topo_domain_idx() failed")
+        return 0, fmt.Errorf("geopm_topo_domain_idx() failed: %s", ErrorMessage(int(result)))
     }
     return int(result), nil
 }
@@ -55,7 +56,7 @@ func DomainNested(innerDomain, outerDomain interface{}, outerIdx int) ([]int, er
 
     numDomainNested := C.geopm_topo_num_domain_nested(C.int(innerDomainType), C.int(outerDomainType))
     if numDomainNested < 0 {
-        return nil, errors.New("geopm_topo_num_domain_nested() failed")
+        return nil, fmt.Errorf("geopm_topo_num_domain_nested() failed: %s", ErrorMessage(int(numDomainNested)))
     }
 
     domainNestedCArray := C.malloc(C.size_t(numDomainNested) * C.size_t(unsafe.Sizeof(C.int(0))))
@@ -84,7 +85,7 @@ func DomainName(domain interface{}) (string, error) {
 
     errCode := C.geopm_topo_domain_name(C.int(domainType), C.size_t(nameMax), (*C.char)(resultCStr))
     if errCode < 0 {
-        return "", errors.New("geopm_topo_domain_name() failed")
+        return "", fmt.Errorf("geopm_topo_domain_name() failed: %s", ErrorMessage(int(errCode)))
     }
     return C.GoString((*C.char)(resultCStr)), nil
 }
@@ -96,14 +97,14 @@ func DomainType(domain interface{}) (int, error) {
         if v >= 0 && v < int(C.GEOPM_NUM_DOMAIN) {
             return v, nil
         }
-        return 0, errors.New("domain_type is out of range")
+        return 0, fmt.Errorf("domain_type is out of range: %d", domain)
     case string:
         domainCStr := C.CString(v)
         defer C.free(unsafe.Pointer(domainCStr))
 
         result := C.geopm_topo_domain_type(domainCStr)
         if result < 0 {
-            return 0, errors.New("geopm_topo_domain_type() failed")
+            return 0, fmt.Errorf("geopm_topo_domain_type() failed: %s", ErrorMessage(int(result)))
         }
         return int(result), nil
     default:
@@ -115,7 +116,7 @@ func DomainType(domain interface{}) (int, error) {
 func CreateCache() error {
     err := C.geopm_topo_create_cache()
     if err < 0 {
-        return errors.New("geopm_topo_create_cache() failed")
+        return fmt.Errorf("geopm_topo_create_cache() failed: %s", ErrorMessage(int(err)))
     }
     return nil
 }
