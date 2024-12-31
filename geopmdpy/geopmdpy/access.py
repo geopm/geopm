@@ -421,11 +421,27 @@ class Access:
         return output
 
 def _group_id(group):
+    """Helper function to convert Unix user group name into an ID.
+
+    When input can be converted into an integer, it will return string
+    representation of input, otherwise, the grp module is queried to convert the
+    input group name into a group ID.  None is returned when group is None.
+
+    Args:
+        group (str): Unix user group name or ID or None
+
+    Returns:
+        str: The Unix user group ID in string form
+
+    Raises:
+       ValueError: When Unix group name cannot be found
+
+    """
     if group is None:
         return None
-    result = group
+    result = str(group)
     try:
-        gid = int(group)
+        int(group)
     except ValueError:
         try:
             gid = grp.getgrnam(group).gr_gid
@@ -487,8 +503,7 @@ def main():
         geopm_proxy = (DirectAccessProxy() if args.direct
                        else SystemMessageBus().get_proxy('io.github.geopm', '/io/github/geopm'))
         acc = Access(geopm_proxy)
-        args.group = _group_id(args.group)
-        output = acc.run(args.write, args.all, args.controls, args.group,
+        output = acc.run(args.write, args.all, args.controls, _group_id(args.group),
                          args.default, args.delete, args.dry_run, args.force,
                          args.edit, args.log, args.msr_safe)
         if output:
