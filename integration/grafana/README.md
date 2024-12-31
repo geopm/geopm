@@ -72,17 +72,18 @@ build and install a development snapshot of GEOPM.
 Before deploying the GEOPM Prometheus exporter across the system for the
 first time, the prometheus & grafana servers need to be configured on the
 head node. The main steps to configure prometheus & grafana are:
-[A] Download and untar the prometheus & grafana builds
-[B] Configure the prometheus server with the port numbers over which
-the exported metrics are expected to stream in from the target nodes
-being monitored.
-[C] Launch the prometheus server over a desired port over which the grafana server
-is expected to query the aggregated metrics from.
-[D] Configure the port number for the grafana server over which the end user is expected
-to launch the web GUI.
-[E] Set the grafana credentials using which the end user is expected to visualize the Web UI
-[F] Download & import the grafana dashboard configuration file.
-[G] Terminate the prometheus & grafana server processes, post configuration.
+
+- [A] Download and untar the prometheus & grafana builds
+- [B] Configure the prometheus server with the port numbers over which
+      the exported metrics are expected to stream in from the target nodes
+      being monitored.
+- [C] Launch the prometheus server over a desired port over which the grafana server
+      is expected to query the aggregated metrics from.
+- [D] Configure the port number for the grafana server over which the end user is expected
+      to launch the web GUI.
+- [E] Set the grafana credentials using which the end user is expected to visualize the Web UI
+- [F] Download & import the grafana dashboard configuration file.
+- [G] Terminate the prometheus & grafana server processes, post configuration.
 
 
 Steps-B through D can be achieved by using the `pbs_prometheus_launch.sh` script provided in
@@ -97,8 +98,8 @@ the sane directory as this README.
     GRAFANA_SERVER_PORT=...    # Preferred port for the grafana server
 
 
-    # Next, use the launch script by passing the paths & ports identified
-    # in Step-1 as parameters
+    # Next, use the launch script by passing the paths & ports just identified
+    # above, as parameters
 
     cd $GEOPM_SRC/integration/grafana/
     ./pbs_prometheus_launch.sh $PROMETHEUS_DIR $PROMETHEUS_SERVER_PORT \
@@ -123,7 +124,7 @@ prometheus server running on `http://SERVER_NAME:PROMETHEUS_SERVER_PORT` as the 
 
 
 Step-G: Be sure to kill the prometheus and grafana servers after the configuration is
-compleed. If needed the PIDs for termination are printed by the `pbs_prometheus_launch.sh`
+completed. If needed the PIDs for termination are printed by the `pbs_prometheus_launch.sh`
 script after it launches the prometheus & grafana 
 ```bash
     pkill prometheus
