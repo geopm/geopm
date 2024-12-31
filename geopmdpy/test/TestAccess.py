@@ -7,9 +7,10 @@
 import unittest
 import os
 import tempfile
+import grp
 from unittest import mock
 
-from geopmdpy.access import Access
+from geopmdpy.access import Access, _group_id
 from geopmdpy.system_files import GEOPM_SERVICE_LOG_REQUEST
 
 class TestAccess(unittest.TestCase):
@@ -378,6 +379,22 @@ echo {self._signals_expect[0]} >> $1
         expected_result = '\n'.join(self._controls_expect)
         self.assertEqual(expected_result, actual_result)
 
+    def test_group_id(self):
+        """Test that CLI group name conversion works
+
+        """
+        group_id = 101
+        class MockGrp:
+             def __init__(self):
+                 self.gr_name = 'group_name'
+                 self.gr_passwd = 'x'
+                 self.gr_gid = group_id
+                 self.gr_mem = []
+        expected = str(group_id)
+        ret = MockGrp()
+        self.assertEqual(expected, _group_id(expected))
+        with mock.patch('grp.getgrnam', return_value=ret):
+            self.assertEqual(expected, _group_id('group_name'))
 
 if __name__ == '__main__':
     unittest.main()
