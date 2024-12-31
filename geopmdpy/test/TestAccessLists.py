@@ -188,10 +188,10 @@ default
         self.assertEqual(set(self._signals_expect), set(signals))
         self.assertEqual(set(self._controls_expect), set(controls))
 
-    def test_get_group_access_named(self):
-        named_dir = os.path.join(self._CONFIG_PATH.name, '1234')
-        signal_file = os.path.join(named_dir, 'allowed_signals')
-        control_file = os.path.join(named_dir, 'allowed_controls')
+    def test_get_group_access_specified(self):
+        group_dir = os.path.join(self._CONFIG_PATH.name, '1234')
+        signal_file = os.path.join(group_dir, 'allowed_signals')
+        control_file = os.path.join(group_dir, 'allowed_controls')
 
         signal_lines, control_lines = self._write_group_files_helper('1234', [], self._controls_expect)
 
@@ -202,7 +202,7 @@ default
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
             self._access_lists = AccessLists(self._CONFIG_PATH.name)
             signals, controls = self._access_lists.get_group_access('1234')
-            mock_isdir.assert_called_with(named_dir)
+            mock_isdir.assert_called_with(group_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
             mock_getgrgid.assert_called_with(1234)
