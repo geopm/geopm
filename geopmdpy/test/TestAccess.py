@@ -384,9 +384,10 @@ echo {self._signals_expect[0]} >> $1
 
         """
         group_id = 101
+        group_name = 'group_name'
         class MockGrp:
              def __init__(self):
-                 self.gr_name = 'group_name'
+                 self.gr_name = group_name
                  self.gr_passwd = 'x'
                  self.gr_gid = group_id
                  self.gr_mem = []
@@ -394,7 +395,7 @@ echo {self._signals_expect[0]} >> $1
         ret = MockGrp()
         self.assertEqual(expected, _group_id(expected))
         with mock.patch('grp.getgrnam', return_value=ret):
-            self.assertEqual(expected, _group_id('group_name'))
+            self.assertEqual(expected, _group_id(group_name))
 
 if __name__ == '__main__':
     unittest.main()
