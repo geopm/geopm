@@ -181,7 +181,10 @@ class TestSession(unittest.TestCase):
         with mock.patch('geopmdpy.session.ReadRequestQueue',
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
-             mock.patch('geopmdpy.session.Session.run_read') as srr:
+             mock.patch('geopmdpy.session.Session.run_read') as srr, \
+             mock.patch('geopmdpy.topo.num_domain', side_effect=lambda x: {'board': 1, 'package': 2}.get(x)), \
+             mock.patch('geopmdpy.pio.signal_domain_type',
+                        side_effect=lambda lookup_name: next(domain for name, domain, idx in rrq_return_value if name == lookup_name)):
             self._session.run(runtime, period, None, False, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
@@ -200,13 +203,42 @@ class TestSession(unittest.TestCase):
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
              mock.patch('geopmdpy.topo.domain_name', side_effect=lambda x: x), \
-             mock.patch('geopmdpy.session.Session.run_read') as srr:
+             mock.patch('geopmdpy.session.Session.run_read') as srr, \
+             mock.patch('geopmdpy.topo.num_domain', side_effect=lambda x: {'board': 1, 'package': 2}.get(x)), \
+             mock.patch('geopmdpy.pio.signal_domain_type',
+                        side_effect=lambda lookup_name: next(domain for name, domain, idx in rrq_return_value if name == lookup_name)):
             self._session.run(runtime, period, None, True, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
             scra.assert_called_once_with(runtime, period, None)
             srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None)
         self.assertEqual('"signal1","signal2-package-1"\n', out_stream.getvalue())
+
+    def test_run_with_bad_request(self):
+        period = 7
+        runtime = 42
+        period = 0
+        request_stream = [1, 2, 3, 4, 5]
+        out_stream = mock.MagicMock()
+        with mock.patch('geopmdpy.session.ReadRequestQueue',
+                        return_value=[('signal', 'package', 1)]), \
+             mock.patch('geopmdpy.session.Session.check_read_args'), \
+             mock.patch('geopmdpy.session.Session.run_read'), \
+             mock.patch('geopmdpy.pio.signal_domain_type', return_value='board'):
+            # Invalid due to bad domain
+            self.assertRaises(ValueError, self._session.run,
+                              runtime, period, None, False,
+                              request_stream=request_stream, out_stream=out_stream)
+
+        with mock.patch('geopmdpy.session.ReadRequestQueue',
+                        return_value=[('signal', 'package', -1)]), \
+             mock.patch('geopmdpy.session.Session.check_read_args'), \
+             mock.patch('geopmdpy.session.Session.run_read'), \
+             mock.patch('geopmdpy.pio.signal_domain_type', return_value='package'):
+            # Invalid due to bad index
+            self.assertRaises(ValueError, self._session.run,
+                              runtime, period, None, False,
+                              request_stream=request_stream, out_stream=out_stream)
 
 
 if __name__ == '__main__':

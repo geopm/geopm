@@ -234,7 +234,12 @@ class Session:
             num_period = math.ceil(duration / period)
         signal_handles = []
         for name, dom, dom_idx in requests:
-            signal_handles.append(pio.push_signal(name, dom, dom_idx))
+            try:
+                signal_handles.append(pio.push_signal(name, dom, dom_idx))
+            except Exception as e:
+                domain_name = topo.domain_name(dom)
+                raise RuntimeError(f'Unable to push "{name} {domain_name} {dom_idx}". Reason: {e}')
+
         pio.read_batch()
         if any([math.isnan(pio.sample(handle)) for handle in signal_handles]):
             # Purge first sample for derivative based signals
@@ -298,6 +303,30 @@ class Session:
             raise RuntimeError('Specified a negative run time or period')
         if report_samples is not None and report_samples < 0:
             raise RuntimeError('Specified report samples is negative')
+
+    def check_requests(self, requests):
+        """Check whether the signal requests are valid.
+
+        Args:
+            requests (ReadRequestQueue): Request object parsed from
+                                         user input.
+
+        Raises:
+            ValueError: An invalid request is present in the request queue.
+        """
+        for name, dom, dom_idx in requests:
+            domain_name = topo.domain_name(dom)
+            domain_size = topo.num_domain(dom)
+            if dom_idx < 0 or dom_idx >= domain_size:
+                raise ValueError(f'Request index in "{name} {domain_name} {dom_idx}" is out of range. Acceptable {domain_name} indices are non-negative integers up to and including {domain_size - 1}')
+            signal_native_domain = pio.signal_domain_type(name)
+            try:
+                inner_domains_in_outer_domain = len(topo.domain_nested(signal_native_domain, dom, 0))
+            except RuntimeError:
+                inner_domains_in_outer_domain = 0
+            if inner_domains_in_outer_domain == 0:
+                raise ValueError(f'Requested domain in "{name} {domain_name} {dom_idx}" is invalid. The {name} signal is available in the {topo.domain_name(signal_native_domain)} domain or a parent domain.')
+
 
     def header_names(self, requests):
         """Format trace CSV header strings for the set of requests
@@ -370,6 +399,7 @@ class Session:
             requests = ReadRequestQueue(request_stream)
             do_stats = report_path is not None
         self.check_read_args(run_time, period, report_samples)
+        self.check_requests(requests)
         signal_config = list(requests)
         if out_stream is not None and print_header:
             header_names = self.header_names(signal_config)
