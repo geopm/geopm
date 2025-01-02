@@ -24,7 +24,7 @@ if [[ ${JOBID} != 0 ]]; then
         sleep 1
     done
     VAR=$(qstat -x -f -w ${JOBID} | grep exec_host | awk '{print $3}')
-    NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':\"$PROMETHEUS_CLIENT_PORT\"' for xx in ss.split('+')]))")
+    NODES=$(python3 -c "ss=\"$VAR\";print(','.join([xx[0:xx.find('/')] + ':$PROMETHEUS_CLIENT_PORT' for xx in ss.split('+')]))")
     NODEFILE=$(mktemp)
     python3 -c "ss=\"$VAR\";print('\\n'.join([xx[0:xx.find('/')] for xx in ss.split('+')]))" > ${NODEFILE}
     clush --hostfile=${NODEFILE} -- \
