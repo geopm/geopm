@@ -146,6 +146,7 @@ scrape_configs:
     print("PROMETHEUS LOG:\n")
     with open(prom_log_path, 'r') as fid:
         print(fid.read())
+    graf_pid.wait()
     print("GRAFANA LOG:\n")
     with open(graf_log_path, 'r') as fid:
         print(fid.read())
