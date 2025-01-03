@@ -193,7 +193,6 @@ def main():
     try:
         from prometheus_client import start_http_server, Gauge, Counter, Summary
     except Exception as ex:
-            print('Skipping prometheus')
             raise RuntimeError('Please install python3-prometheus-client: https://pypi.org/project/prometheus-client/') from ex
     try:
         parser = ArgumentParser(description=main.__doc__)
