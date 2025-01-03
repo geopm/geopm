@@ -35,26 +35,27 @@ only while they are allocated.  This methodology should not be applied for
 system-wide monitoring by an administrator, but rather for job monitoring by an
 end user of a PBS system where the geopmexporter is not deployed system-wide.
 
-A script is provided called `pbs_prometheus_launch.sh` that can be used to:
-(a) assist with the initial one-time configuration of the prometheus & grafana
-servers on the head node.
-(b) monitor jobs submitted to a PBS batch system.
+A script is provided called `pbs_prometheus_launch.py` that can be used to:
 
-The script runs the prometheus and grafana server on the head node of a system,
-and will connect to `geopmexporter(1)` clients running on the allocated nodes 
-of a user's job.
+- Assist with the initial one-time configuration of the Grafana server
+- Monitor jobs submitted to a PBS batch system
+- Review data collected from previously monitored jobs
+
+The script runs the Prometheus and Grafana server on the head node of a
+system. Optionally the script may also deploy and connect to `geopmexporter(1)`
+clients running on the allocated nodes of a user's job.
 
 
 ### Requirements
 
-A user installation of grafana and prometheus is required.  We recommend
+A user installation of Grafana and Prometheus is required.  We recommend
 following the installation instructions
 [here](https://grafana.com/grafana/download?platform=linux) to `wget` the
-grafana archive for Linux.  The expanded archive is the `GRAFANA_DIR` provided
-to the `pbs_prometheus_launch.sh` script CLI.  To install prometheus download
+Grafana archive for Linux.  The expanded archive is the `GRAFANA_DIR` provided
+to the `pbs_prometheus_launch.py` script CLI.  To install Prometheus download
 the archive for the latest stable Linux release from
 [here](https://prometheus.io/download/).  The expanded archive is the
-`PROMETHEUS_DIR` provided to the `pbs_prometheus_launch.sh` script CLI.
+`PROMETHEUS_DIR` provided to the `pbs_prometheus_launch.py` script CLI.
 
 Until the `geopmexporter(1)` is available in a stable release, the user must
 build and install a development snapshot of GEOPM.
@@ -68,77 +69,67 @@ build and install a development snapshot of GEOPM.
 ```
 
 
-### Configure Prometheus & Grafana
+### Configuring ports
 
-Before deploying the GEOPM Prometheus exporter across the system for the
-first time, the prometheus & grafana servers need to be configured on the
-head node. The main steps to configure prometheus & grafana are:
+There are three ports used by the script to communicate:
 
-- [A] Download and untar the prometheus & grafana builds
-- [B] Configure the prometheus server with the port numbers over which
-      the exported metrics are expected to stream in from the target nodes
-      being monitored.
-- [C] Launch the prometheus server over a desired port over which the grafana server
-      is expected to query the aggregated metrics from.
-- [D] Configure the port number for the grafana server over which the end user is expected
-      to launch the web GUI.
-- [E] Set the grafana credentials using which the end user is expected to visualize the Web UI
-- [F] Download & import the grafana dashboard configuration file.
-- [G] Terminate the prometheus & grafana server processes, post configuration.
+- Prometheus server port opened on the head node (default 9090)
+- Grafana server port opened on the head node (default 3000)
+- Prometheus client port opened on the allocated nodes (default 8000)
 
+To avoid conflicts, or firewall limitations, the user may override the defaults
+using command line arguments to pbs_prometheus_launch.py
 
-Steps-B through D can be achieved by using the `pbs_prometheus_launch.sh` script provided in
-the sane directory as this README. 
-```bash
-    # First, identify the location of prometheus & grafana builds, the
-    # preferred ports for their servers, and the grafana server admin password
+### Configuring Grafana Server
 
-    PROMETHEUS_DIR=...         # Path to prometheus build on head node
-    PROMETHEUS_SERVER_PORT=... # Preferred port for the prometheus server
-    GRAFANA_DIR=...            # Path to grafana build on head node
-    GRAFANA_SERVER_PORT=...    # Preferred port for the grafana server
+Before deploying the GEOPM Prometheus exporter across the system for the first
+time, the Grafana server needs to be configured on the head node by setting the
+administrator password and uploading the GEOPM Power Dashboard though the web
+GUI.
 
+To set the administrator password for your Grafana instance with the `grafana-cli`
+tool run the following command inside of the Grafana software directory:
 
-    # Next, use the launch script by passing the paths & ports just identified
-    # above, as parameters
-
-    cd $GEOPM_SRC/integration/grafana/
-    ./pbs_prometheus_launch.sh $PROMETHEUS_DIR $PROMETHEUS_SERVER_PORT \
-                               $GRAFANA_DIR $GRAFANA_SERVER_PORT
-```
-
-Step-E requires you to set the administrator password for your grafana 
-instance with the `grafana-cli` tool.
 ```bash
     cd $GRAFANA_DIR/
      ./bin/grafana-cli admin reset-admin-password $GRAFANA_ADMIN_PASSWORD
 ```
 
-Step-F requires you to download and import the grafana dashboard configuration
-file using the Web UI. The dashboard configuration file is available here:
-```bash
-    wget https://raw.githubusercontent.com/geopm/geopm/refs/heads/dev/integration/grafana/GEOPM_Report.grafana.dashboard.json
-```
-Import the GEOPM grafana dashboard with grafana web GUI running on
-`http://SERVER_NAME:GRAFANA_SERVER_PORT`. When importing the GEOPM dashboard use the 
-prometheus server running on `http://SERVER_NAME:PROMETHEUS_SERVER_PORT` as the datasource.
+To add the GEOPM Prometheus dashboard to your Grafana configuration the Grafana
+and Prometheus servers must be running.  This is done by executing the
+`pbs_prometheus_launch.py` script without specifying the `--jobid` option.  This
+will bring up the Prometheus server and Grafana server on the head node.
 
-
-Step-G: Be sure to kill the prometheus and grafana servers after the configuration is
-completed. If needed the PIDs for termination are printed by the `pbs_prometheus_launch.sh`
-script after it launches the prometheus & grafana 
-```bash
-    pkill prometheus
-    pkill grafana
-```
+Then navigate to the Grafana web GUI in a web browser to import the GEOPM
+Dashboard.  The Grafana server will be running an http (not https) server on the
+head node URL on port 3000 (port can be modified with the the --graf-port option
+to `pbs_prometheus_launch.py`).  For example if the head node hostname is
+`login.cluster.acme.com` then the Grafana server is reached through the URL
+`http://login.cluster.acme.com:3000`.  Login into the Grafana web page with the
+`admin` user credentials set previously using the `grafana-cli` tool.  Once
+logged in, add the http Prometheus data source using port 9090 (unless overridden
+with the --prom-port option to `pbs_prometheus_launch.py`),
+e.g.`http://localhost:9090`.  Next, import the [GEOPM Power Report Grafana
+dashboard configuration
+file](https://raw.githubusercontent.com/geopm/geopm/refs/heads/dev/integration/grafana/GEOPM_Report.grafana.dashboard.json)
+using the Prometheus data source by drag-and-drop or copy-paste.
 
 
 ### Monitor the user job using the GEOPM Prometheus & Grafana framework
-Now that you have configured Grafana and Prometheus, you can launch the prometheus
-client exporters across the allocated nodes of a job, and then use the grafana Web GUI
-(running on port `GRAFANA_SERVER_PORT` to monitor the aggregated telemetry. 
+Now that you have configured Grafana and Prometheus, you can launch the Prometheus
+client exporters across the allocated nodes of a job, and then use the Grafana Web GUI
+(running on port `GRAFANA_SERVER_PORT` to monitor the aggregated telemetry.
+
+First submit a job to the PBS queue using qsub to obtain a PBS Job ID.  Use the
+PBS Job ID (`JOBID`) of the submitted job when launching the servers:
 
 ```bash
     JOBID=$(qsub ...)
-    ./pbs_prometheus_launch.sh PROMETHEUS_DIR PROMETHEUS_SERVER_PORT GRAFANA_DIR GRAFANA_SERVER_PORT [GEOPM_DIR JOBID PROMETHEUS_CLIENT_PORT]
+    ./pbs_prometheus_launch.py --geopm-prefix GEOPM_DIR --jobid JOBID PROMETHEUS_DIR GRAFANA_DIR
+
 ```
+
+The script will print the path to three logs that can be used to monitor the
+Grafana server, Prometheus server, and Prometheus clients.  The servers running
+on the login node will be terminated by the script when the allocation
+completes.
