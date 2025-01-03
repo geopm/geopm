@@ -77,10 +77,10 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, jobid)
                      'geopmexporter', '-p', f'{client_port}']
         clush_log_path = f'{prom_dir}/logs/prometheus-client-{date_str}.log'
         print(f'CLUSH COMMAND:      {" ".join(clush_cmd)}')
+        print(f'CLUSH LOGFILE:      {clush_log_path}')
         with open(clush_log_path, 'w') as logfid:
             clush_pid = subprocess.Popen(clush_cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
         print(f'CLUSH PID:          {clush_pid.pid}')
-        print(f'CLUSH LOGFILE:      {clush_log_path}')
 
         targets = [f'{hh}:{client_port}' for hh in hosts]
     # Configure Prometheus server with targets
@@ -127,11 +127,11 @@ scrape_configs:
                 f'cfg:default.paths.plugins={graf_dir}/plugins-bundled',
                 f'cfg:default.paths.provisioning={graf_dir}/conf/provisioning']
     print(f'GRAFANA COMMAND:    {" ".join(graf_cmd)}')
+    print(f'GRAFANA LOGFILE:    {graf_log_path}')
     with open(graf_log_path, 'w') as logfid:
         graf_pid = subprocess.Popen(graf_cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
     print(f'GRAFANA PID:        {graf_pid.pid}')
     # Finsish up
-    print(f'GRAFANA LOGFILE:    {graf_log_path}')
     if jobid is not None:
         clush_pid.wait()
         print("CLUSH LOG:\n")
