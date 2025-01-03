@@ -131,7 +131,7 @@ scrape_configs:
     with open(graf_log_path, 'w') as logfid:
         graf_pid = subprocess.Popen(graf_cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
     print(f'GRAFANA PID:        {graf_pid.pid}')
-    # Finsish up
+    # Finish up
     if jobid is not None:
         clush_pid.wait()
         print("CLUSH LOG:\n")
@@ -174,7 +174,7 @@ def main():
     parser.add_argument('--graf-port', type=int, default=3000,
                         help='Port for Grafanas server')
     parser.add_argument('--client-port', type=int, default=8000,
-                        help='Port for geopmexporter Promethues client')
+                        help='Port for geopmexporter Prometheus client')
     parser.add_argument('--geopm-prefix', default='/usr',
                         help='Path pprefix for user install of GEOPM')
     parser.add_argument('--jobid', type=str, default=None,
