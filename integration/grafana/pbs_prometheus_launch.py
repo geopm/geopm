@@ -45,45 +45,18 @@ def get_host_list(jobid):
     hosts.sort()
     return hosts
 
+def popen_wrapper(cmd, cmd_name, log_path):
+    cmd_name = cmd_name.upper()
+    print(f'{cmd_name} COMMAND: {" ".join(cmd)}')
+    print(f'{cmd_name} LOGFILE: {log_path}')
+    with open(log_path, 'w') as logfid:
+        pid = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
+    print(f'{cmd_name} PID: {pid.pid}')
+    return pid
 
-def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, jobid):
-    """Entry function with inputs derived from CLI
-
-    """
-    date_str = datetime.datetime.now(datetime.timezone.utc).astimezone().isoformat()
-    # Check for Prometheus and Grafana executables
-    prom_path = f'{prom_dir}/prometheus'
-    graf_path = f'{graf_dir}/bin/grafana'
-    if not os.path.exists(prom_path):
-        raise RuntimeError(f'Prometheus directory does not contain prometheus executable: {prom_path}')
-    if not os.path.exists(graf_path):
-        raise RuntimeError(f'Grafana directory does not contain grafana executable: {graf_path}')
-    # Create log and data file directories
-    os.makedirs('{prom_dir}/logs', exist_ok=True)
-    os.makedirs('{prom_dir}/data', exist_ok=True)
-    os.makedirs('{graf_dir}/logs', exist_ok=True)
-    os.makedirs('{graf_dir}/data', exist_ok=True)
-
-    targets = []
-    # Determine target hosts if tracking a job
-    if jobid is not None:
-        hosts = get_host_list(jobid)
-        with NamedTemporaryFile('w', delete=False) as fid:
-            fid.write('\n'.join(hosts))
-            hostfile_path = fid.name
-        # Launch geopmexporter on tracked hosts
-        clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
-                     'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
-                     'geopmexporter', '-p', f'{client_port}']
-        clush_log_path = f'{prom_dir}/logs/prometheus-client-{date_str}.log'
-        print(f'CLUSH COMMAND:      {" ".join(clush_cmd)}')
-        print(f'CLUSH LOGFILE:      {clush_log_path}')
-        with open(clush_log_path, 'w') as logfid:
-            clush_pid = subprocess.Popen(clush_cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
-        print(f'CLUSH PID:          {clush_pid.pid}')
-
-        targets = [f'{hh}:{client_port}' for hh in hosts]
+def configure_prom(prom_dir, hosts, client_port):
     # Configure Prometheus server with targets
+    targets = [f'{hh}:{client_port}' for hh in hosts]
     scrape_interval = 15
     evaluation_interval = 15
     prom_config = f"""\
@@ -97,6 +70,8 @@ scrape_configs:
 """
     with open(f'{prom_dir}/prometheus.yml', 'w') as fid:
         fid.write(prom_config)
+
+def configure_graf(graf_dir, graf_port):
     # Configure port for Grafana server
     graf_conf_path = f'{graf_dir}/conf/defaults.ini'
     with open(graf_conf_path, 'r') as fid:
@@ -104,21 +79,55 @@ scrape_configs:
     graf_conf = re.sub(r'http_port = [0-9]*', f'http_port = {graf_port}', graf_conf)
     with open(graf_conf_path, 'w') as fid:
         fid.write(graf_conf)
-    # Launch Prometheus server
+
+def print_log(cmd_name, log_path):
+    cmd_name = cmd_name.upper()
+    print(f'{cmd_name} LOG:\n')
+    with open(log_path, 'r') as fid:
+        print(fid.read())
+
+def create_host_file(hosts):
+    with NamedTemporaryFile('w', delete=False) as fid:
+        fid.write('\n'.join(hosts))
+        result = fid.name
+    return result
+
+def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, jobid):
+    """Entry function with inputs derived from CLI
+
+    """
+    # Timestamp for log files
+    date_str = datetime.datetime.now(datetime.timezone.utc).astimezone().isoformat()
+
+    # Check for Prometheus and Grafana executables
+    prom_path = f'{prom_dir}/prometheus'
+    graf_path = f'{graf_dir}/bin/grafana'
+    if not os.path.exists(prom_path):
+        raise RuntimeError(f'Prometheus directory does not contain prometheus executable: {prom_path}')
+    if not os.path.exists(graf_path):
+        raise RuntimeError(f'Grafana directory does not contain grafana executable: {graf_path}')
+
+    # Create log and data file directories
+    prom_log_dir = f'{prom_dir}/logs'
+    graf_log_dir = f'{graf_dir}/logs'
+    prom_data_dir = f'{prom_dir}/data'
+    graf_data_dir = f'{graf_dir}/data'
+    for dd in (prom_log_dir, prom_data_dir, graf_log_dir, graf_data_dir):
+        os.makedirs(dd, exist_ok=True)
+
+    clush_log_path = f'{prom_log_dir}/prometheus-client-{date_str}.log'
+    prom_log_path = f'{prom_log_dir}/prometheus-server-{date_str}.log'
+    graf_log_path = f'{graf_log_dir}/grafana-server-{date_str}.log'
+
+    clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
+                 'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
+                 'geopmexporter', '-p', f'{client_port}']
     prom_cmd = [prom_path,
                 f'--config.file={prom_dir}/prometheus.yml',
                 f'--storage.tsdb.path={prom_dir}/data',
                 f'--web.console.templates={prom_dir}/consoles',
                 f'--web.console.libraries={prom_dir}/console_libraries',
                 f'--web.listen-address=:{prom_port}']
-    prom_log_path = f'{prom_dir}/logs/prometheus-server-{date_str}.log'
-    print(f'PROMETHEUS COMMAND: {" ".join(prom_cmd)}')
-    print(f'PROMETHEUS LOGFILE: {prom_log_path}')
-    with open(prom_log_path, 'w') as logfid:
-        prom_pid = subprocess.Popen(prom_cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
-    print(f'PROMETHEUS PID:     {prom_pid.pid}')
-    # Launch Grafana server
-    graf_log_path = f'{graf_dir}/logs/grafana-server-{date_str}.log'
     graf_cmd = [graf_path, 'server',
                 f'--config={graf_conf_path}',
                 f'--homepath={graf_dir}',
@@ -126,30 +135,33 @@ scrape_configs:
                 f'cfg:default.paths.data={graf_dir}/data',
                 f'cfg:default.paths.plugins={graf_dir}/plugins-bundled',
                 f'cfg:default.paths.provisioning={graf_dir}/conf/provisioning']
-    print(f'GRAFANA COMMAND:    {" ".join(graf_cmd)}')
-    print(f'GRAFANA LOGFILE:    {graf_log_path}')
-    with open(graf_log_path, 'w') as logfid:
-        graf_pid = subprocess.Popen(graf_cmd, stdin=subprocess.DEVNULL, stdout=logfid, stderr=logfid)
-    print(f'GRAFANA PID:        {graf_pid.pid}')
+
+    # Determine target hosts if tracking a job
+    hosts = []
+    if jobid is not None:
+        hosts = get_host_list(jobid)
+        hostfile_path = create_host_file(hosts)
+        # Launch geopmexporter on tracked hosts
+        clush_pid = popen_wrapper(clush_cmd, 'clush', clush_log_path)
+    configure_prom(prom_dir, hosts, client_port)
+    configure_graf(graf_dir, graf_port)
+    # Launch Prometheus server
+    prom_pid = popen_wrapper(prom_cmd, 'prometheus', prom_log_path)
+    # Launch Grafana server
+    graf_pid = popen_wrapper(graf_cmd, 'grafana', graf_log_path)
     # Finish up
     if jobid is not None:
         clush_pid.wait()
-        print("CLUSH LOG:\n")
-        with open(clush_log_path, 'r') as fid:
-            print(fid.read())
+        print_log('clush', clush_log_path)
         os.unlink(hostfile_path)
     else:
         input('Press enter to kill prometheus and grafana servers: ')
     prom_pid.kill()
     graf_pid.kill()
     prom_pid.wait()
-    print("PROMETHEUS LOG:\n")
-    with open(prom_log_path, 'r') as fid:
-        print(fid.read())
+    print_log('prometheus', prom_log_path)
     graf_pid.wait()
-    print("GRAFANA LOG:\n")
-    with open(graf_log_path, 'r') as fid:
-        print(fid.read())
+    print_log('grafana', graf_log_path)
 
 def main():
     """Monitor PBS jobs with geopmexporter.
