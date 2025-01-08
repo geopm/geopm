@@ -79,6 +79,7 @@ def configure_graf(graf_dir, graf_port):
     graf_conf = re.sub(r'http_port = [0-9]*', f'http_port = {graf_port}', graf_conf)
     with open(graf_conf_path, 'w') as fid:
         fid.write(graf_conf)
+    return graf_conf_path
 
 def print_log(cmd_name, log_path):
     cmd_name = cmd_name.upper()
@@ -119,15 +120,27 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, jobid)
     prom_log_path = f'{prom_log_dir}/prometheus-server-{date_str}.log'
     graf_log_path = f'{graf_log_dir}/grafana-server-{date_str}.log'
 
-    clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
-                 'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
-                 'geopmexporter', '-p', f'{client_port}']
+    # Determine target hosts if tracking a job
+    hosts = []
+    if jobid is not None:
+        hosts = get_host_list(jobid)
+        hostfile_path = create_host_file(hosts)
+        # Launch geopmexporter on tracked hosts
+        clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
+                     'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
+                     'geopmexporter', '-p', f'{client_port}']
+        clush_pid = popen_wrapper(clush_cmd, 'clush', clush_log_path)
+    configure_prom(prom_dir, hosts, client_port)
+    graf_conf_path = configure_graf(graf_dir, graf_port)
+    # Launch Prometheus server
     prom_cmd = [prom_path,
                 f'--config.file={prom_dir}/prometheus.yml',
                 f'--storage.tsdb.path={prom_dir}/data',
                 f'--web.console.templates={prom_dir}/consoles',
                 f'--web.console.libraries={prom_dir}/console_libraries',
                 f'--web.listen-address=:{prom_port}']
+    prom_pid = popen_wrapper(prom_cmd, 'prometheus', prom_log_path)
+    # Launch Grafana server
     graf_cmd = [graf_path, 'server',
                 f'--config={graf_conf_path}',
                 f'--homepath={graf_dir}',
@@ -135,19 +148,6 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, jobid)
                 f'cfg:default.paths.data={graf_dir}/data',
                 f'cfg:default.paths.plugins={graf_dir}/plugins-bundled',
                 f'cfg:default.paths.provisioning={graf_dir}/conf/provisioning']
-
-    # Determine target hosts if tracking a job
-    hosts = []
-    if jobid is not None:
-        hosts = get_host_list(jobid)
-        hostfile_path = create_host_file(hosts)
-        # Launch geopmexporter on tracked hosts
-        clush_pid = popen_wrapper(clush_cmd, 'clush', clush_log_path)
-    configure_prom(prom_dir, hosts, client_port)
-    configure_graf(graf_dir, graf_port)
-    # Launch Prometheus server
-    prom_pid = popen_wrapper(prom_cmd, 'prometheus', prom_log_path)
-    # Launch Grafana server
     graf_pid = popen_wrapper(graf_cmd, 'grafana', graf_log_path)
     # Finish up
     if jobid is not None:
