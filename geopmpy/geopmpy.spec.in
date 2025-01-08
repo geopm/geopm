@@ -23,6 +23,7 @@ BuildRequires: python3-setuptools
 BuildRequires: python3-setuptools_scm
 BuildRequires: python3-cffi
 BuildRequires: geopm-service-devel
+BuildRequires: geopm-runtime-devel
 BuildRequires: python-rpm-macros
 Requires: python3-cffi >= 1.14.5
 Requires: python3-cycler >= 0.11.0
@@ -31,8 +32,6 @@ Requires: python3-numpy>=1.19.5
 Requires: python3-pandas>=1.1.5
 Requires: python3-psutil>=5.8.0
 Requires: python3-pyyaml>=6.0.0
-Requires: python3-setuptools>=53.0.0
-Requires: python3-setuptools-scm>=6.4.2
 Requires: python3-tables>=3.7.0
 Requires: python3-geopmdpy
 Requires: libgeopm2 = %{version}
