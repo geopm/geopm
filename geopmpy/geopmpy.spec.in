@@ -61,7 +61,7 @@ the runtime launcher and post-processing tools.
 # Installed files
 %files
 %defattr(-,root,root,-)
-%{python3_sitelib}/*
+%{python3_sitearch}/*
 %{_bindir}/geopmlaunch
 
 
