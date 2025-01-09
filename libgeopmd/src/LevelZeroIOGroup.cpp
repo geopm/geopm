@@ -802,7 +802,7 @@ namespace geopm
                      "  Derivative signal based on LEVELZERO::GPU_ENERGY.",
                      M_NAME_PREFIX + "GPU_ENERGY",
                      M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
-		     M_UNITS_WATTS,
+                     M_UNITS_WATTS,
                      Agg::sum,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                      NAN}},
@@ -810,7 +810,7 @@ namespace geopm
                     {"Average GPU power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP",
-		    M_UNITS_WATTS,
+                    M_UNITS_WATTS,
                     Agg::sum,
                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                     NAN}},
@@ -820,7 +820,7 @@ namespace geopm
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP",
-		     M_UNITS_NONE,
+                     M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                      0}},
@@ -830,7 +830,7 @@ namespace geopm
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
-		     M_UNITS_NONE,
+                     M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                      0}},
@@ -840,7 +840,7 @@ namespace geopm
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
-		     M_UNITS_NONE,
+                     M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                      0}},
@@ -954,7 +954,7 @@ namespace geopm
                 double init_setting = NAN;
                 // read the default setting of the control from the corrolary signal
                 if (is_valid_signal(sv.first) &&
-                   signal_domain_type(sv.first) == control_domain_type(sv.first)) {
+                    signal_domain_type(sv.first) == control_domain_type(sv.first)) {
                     for (int domain_idx = 0;
                          domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first));
                          ++domain_idx) {
@@ -1021,7 +1021,7 @@ namespace geopm
                 m_signal_available[ds.first] = {ds.second.m_description + "\n    alias_for: " +
                                                 ds.second.m_base_name + " rate of change",
                                                 domain,
-						ds.second.m_units,
+                                                ds.second.m_units,
                                                 ds.second.m_agg_function,
                                                 ds.second.m_behavior,
                                                 format_function(ds.second.m_base_name),
@@ -1528,7 +1528,7 @@ namespace geopm
 
         signal_info signal = m_signal_available.at(signal_name);
 
-	std::string result;
+        std::string result;
         result =  "    description: "  + signal.m_description + "\n";
         result += "    units: " + IOGroup::units_to_string(signal.m_units) + '\n';
         result += "    aggregation: " + Agg::function_to_name(signal.m_agg_function) + '\n';
@@ -1548,7 +1548,7 @@ namespace geopm
         }
         control_info control = m_control_available.at(control_name);
 
-	std::string result;
+        std::string result;
         result =  "    description: "  + control.m_description + "\n";
         result += "    units: " + IOGroup::units_to_string(control.m_units) + '\n';
         result += "    aggregation: " + Agg::function_to_name(control.m_agg_function) + '\n';

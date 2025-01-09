@@ -773,22 +773,22 @@ namespace geopm
 
     std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
-	 auto iogroups = find_signal_iogroup(signal_name);
-	 if (iogroups.empty()) {
-	         throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",
-	     		    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-	 }
-	 return iogroups.at(0)->signal_description(signal_name);
+        auto iogroups = find_signal_iogroup(signal_name);
+        if (iogroups.empty()) {
+            throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return iogroups.at(0)->signal_description(signal_name);
     }
 
     std::string PlatformIOImp::control_description(const std::string &control_name) const
     {
-	auto iogroups = find_control_iogroup(control_name);
-	if (iogroups.empty()) {
-		throw Exception("PlatformIOImp::control_description(): unknown control \"" + control_name + "\"",
-				GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-	}
-	return iogroups.at(0)->control_description(control_name);
+        auto iogroups = find_control_iogroup(control_name);
+        if (iogroups.empty()) {
+            throw Exception("PlatformIOImp::control_description(): unknown control \"" + control_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return iogroups.at(0)->control_description(control_name);
     }
 
     int PlatformIOImp::signal_behavior(const std::string &signal_name) const
