@@ -4,17 +4,23 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-from unittest import TestCase, mock, main, skipIf
+from unittest import TestCase, mock, main, skipUnless
 
-_prometheus_enabled = True
+_prometheus_enabled = False
+Gauge = None
+Counter = None
+Collector = None
+PrometheusExporter = None
+PrometheusMetricExporter = None
+exporter = None
 try:
     from prometheus_client import Gauge, Counter
     from geopmdpy.stats import Collector
     from geopmdpy.exporter import PrometheusExporter, PrometheusMetricExporter
     from geopmdpy import exporter
+    _prometheus_enabled = True
 except Exception as ex:
-    _prometheus_enabled = False
-
+    pass
 
 import sys
 import tempfile
@@ -49,7 +55,7 @@ _MOCK_SIGNAL_NAMES = [
     "SERVICE::CPU_CYCLES_REFERENCE", "SERVICE::CPU_CYCLES_THREAD", "SERVICE::CPU_ENERGY", "TIME",
     "TIME::ELAPSED"]
 
-@skipIf(not _prometheus_enabled, "prometheus_client not installed")
+@skipUnless(_prometheus_enabled, "prometheus_client not installed")
 class TestPrometheusExporter(TestCase):
     def setUp(self):
         self._mock_collector = mock.create_autospec(Collector)
@@ -128,7 +134,7 @@ class TestPrometheusExporter(TestCase):
             self.assertEqual(expected, exporter._sanitize_metric_name(metric))
 
 
-@skipIf(not _prometheus_enabled, "prometheus_client not installed")
+@skipUnless(_prometheus_enabled, "prometheus_client not installed")
 class TestPrometheusMetricExporter(TestCase):
     def setUp(self):
         self._requests = [('TIME', 0, 0)]
@@ -148,7 +154,7 @@ class TestPrometheusMetricExporter(TestCase):
             mshs.assert_called_with(port)
             mock_counter.inc.assert_called()
 
-@skipIf(not _prometheus_enabled, "prometheus_client not installed")
+@skipUnless(_prometheus_enabled, "prometheus_client not installed")
 class TestExporterCli(TestCase):
     def test_default(self):
         sys.argv = ['']

@@ -9,6 +9,11 @@ import re
 from time import sleep
 from argparse import ArgumentParser
 from . import pio, topo, stats, loop, session, __version_str__
+# Defined by late import
+start_http_server = None
+Gauge = None
+Counter = None
+Summary = None
 
 _STARTUP_SLEEP = 0.005
 
@@ -190,6 +195,7 @@ def main():
 
     """
     err = 0
+    global start_http_server, Gauge, Counter, Summary
     try:
         from prometheus_client import start_http_server, Gauge, Counter, Summary
     except Exception as ex:
