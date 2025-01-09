@@ -9,11 +9,6 @@ import re
 from time import sleep
 from argparse import ArgumentParser
 from . import pio, topo, stats, loop, session, __version_str__
-# Defined by late import
-start_http_server = None
-Gauge = None
-Counter = None
-Summary = None
 
 _STARTUP_SLEEP = 0.005
 
@@ -133,16 +128,25 @@ def _sanitize_metric_name(name):
     name = f'geopm_{canonical_name}{units}'
     return name
 
+_install_prometheus_msg = 'Please install python3-prometheus-client: https://pypi.org/project/prometheus-client/'
 def _start_http_server(port):
     """Wrapper to enable easier mocking in unit tests
 
     """
+    try:
+        from prometheus_client import start_http_server
+    except Exception as ex:
+        raise RuntimeError(_install_prometheus_msg) from ex
     start_http_server(port)
 
 def _create_prom_metric(name, descr, prom_name):
     """Wrapper to enable easier mocking in unit tests
 
     """
+    try:
+        from prometheus_client import Gauge, Counter, Summary
+    except Exception as ex:
+        raise RuntimeError(_install_prometheus_msg) from ex
     if prom_name == 'Gauge':
         return Gauge(name, descr)
     elif prom_name == 'Summary':
@@ -195,11 +199,6 @@ def main():
 
     """
     err = 0
-    global start_http_server, Gauge, Counter, Summary
-    try:
-        from prometheus_client import start_http_server, Gauge, Counter, Summary
-    except Exception as ex:
-            raise RuntimeError('Please install python3-prometheus-client: https://pypi.org/project/prometheus-client/') from ex
     try:
         parser = ArgumentParser(description=main.__doc__)
         parser.add_argument('-v', '--version', dest='version', action='store_true',
