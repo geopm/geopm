@@ -160,8 +160,8 @@ completes.
 ### Review previously collected metrics
 
 Simply run the `clush_prometheus.py` script without the `--pbs-jobid` option to
-enable review of previously collected metrics.  When review is complete, press
-enter in the terminal to bring down the Prometheus and Grafana servers.  While
-the servers are up, the Grafana web interface providing the GEOPM dashboard can
-be used to inspect any historical data collected from previous PBS jobs that
-were monitored.
+launch Grafana and Prometheus servers that present previously collected metrics.
+When review is complete, press enter in the terminal to bring down the
+Prometheus and Grafana servers.  While the servers are up, the Grafana web
+interface providing the GEOPM dashboard can be used to inspect any historical
+data collected from previous PBS jobs that were monitored.
