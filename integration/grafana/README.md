@@ -73,6 +73,9 @@ build and install a development snapshot of GEOPM.
     ./install_user.sh --prefix=$GEOPM_PREFIX --enable-levelzero
 ```
 
+When running `clush_prometheus.py` use the `--geopm-prefix=$GEOPM_PREFIX` option
+should be specified unless the system install supports `geopmexporter(1)`.
+
 
 ### Configuring ports
 
@@ -97,7 +100,7 @@ tool run the following command inside of the Grafana software directory:
 
 ```bash
     cd $GRAFANA_DIR/
-     ./bin/grafana-cli admin reset-admin-password $GRAFANA_ADMIN_PASSWORD
+     ./bin/grafana-cli admin reset-admin-password --password-from-stdin
 ```
 
 To add the GEOPM Prometheus dashboard to your Grafana configuration the Grafana
@@ -105,33 +108,46 @@ and Prometheus servers must be running.  This is done by executing the
 `clush_prometheus.py` script without specifying the `--pbs-jobid/--hostfile` option.  This
 will bring up the Prometheus server and Grafana server on the head node.
 
-Then navigate to the Grafana web GUI in a web browser to import the GEOPM
-Dashboard.  The Grafana server will be running an http (not https) server on the
-head node URL on port 3000 (port can be modified with the the --graf-port option
-to `clush_prometheus.py`).  For example if the head node hostname is
-`login.cluster.acme.com` then the Grafana server is reached through the URL
-`http://login.cluster.acme.com:3000`.  Login into the Grafana web page with the
-`admin` user credentials set previously using the `grafana-cli` tool.  Once
-logged in, add the http Prometheus data source using port 9090 (unless overridden
-with the --prom-port option to `clush_prometheus.py`),
-e.g.`http://localhost:9090`.  Next, import the [GEOPM Power Report Grafana
-dashboard configuration
+Then navigate to the Grafana web GUI in a web browser to add the Prometheus Data
+Source and then import the GEOPM Dashboard.  The Grafana server will be running an
+http (not https) server on the head node URL on port 3000 (port can be modified
+with the the `--graf-port` option to `clush_prometheus.py`).  For example if the
+head node hostname is `login.cluster.acme.com` then the Grafana server is
+reached through the URL `http://login.cluster.acme.com:3000`.  Login into the
+Grafana web page with the `admin` user credentials set previously using the
+`grafana-cli` tool.  Once logged in, add the http Prometheus data source using
+port 9090 (unless overridden with the --prom-port option to
+`clush_prometheus.py`), e.g.`http://localhost:9090`.  Next, import the [GEOPM
+Power Report Grafana dashboard configuration
 file](https://raw.githubusercontent.com/geopm/geopm/refs/heads/dev/integration/grafana/GEOPM_Report.grafana.dashboard.json)
 using the Prometheus data source by drag-and-drop or copy-paste.
 
+Bring down the Grafana and Prometheus servers and print the logs by pressing
+ENTER at the prompt.  Note that pressing Control-C will have the same effect,
+but the logs will not be printed.  While the `clush_promethus.py` script is
+running the Prometheus server, Grafana server and option clush command will all
+be running as background processes.  These processes will be sent SIGINT to
+bring them down upon the termination of `clush_prometheus.py`.
 
-### Monitor the user job using the GEOPM Prometheus & Grafana framework
+### Monitor the user job with the GEOPM Prometheus & Grafana framework
 
 Now that you have configured Grafana and Prometheus, you can launch the Prometheus
 client exporters across the allocated nodes of a job, and then use the Grafana Web GUI
-(running on port `GRAFANA_SERVER_PORT` to monitor the aggregated telemetry.
+(running on port `GRAFANA_SERVER_PORT`) to monitor the aggregated telemetry.
 
-First submit a job to the PBS queue using qsub to obtain a PBS Job ID.  Use the
-PBS Job ID (`JOBID`) of the submitted job when launching the servers:
+The `geopmexporter(1)` Prometheus client is launched using the `clush(1)`
+command line tool configured with the `--hostfile` option.  The user can either
+run `clush_prometheus.py --hostfile HOSTFILE` to have the option forwarded to
+`clush(1)`, or derive the hostfile from the resource manager.
+
+For the PBS resource manager this can be done by running `clush_prometheus.py --pbs-jobid JOBID`
+to derive a temporary hostfile based on the PBS jobid.  First submit a job to
+the PBS queue using `qsub(1)` to obtain a PBS Job ID.  Use the PBS Job ID
+(`JOBID`) of the submitted job when launching the servers:
 
 ```bash
     JOBID=$(qsub ...)
-    ./clush_prometheus.py --geopm-prefix GEOPM_PREFIX --pbs-jobid JOBID PROMETHEUS_DIR GRAFANA_DIR
+    ./clush_prometheus.py --pbs-jobid JOBID PROMETHEUS_DIR GRAFANA_DIR
 
 ```
 
