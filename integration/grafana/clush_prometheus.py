@@ -42,9 +42,7 @@ def pbs_host_list(jobid):
                 break
     if host_str is None:
         raise RuntimeError('Failed to parse host list from qstat output')
-    hosts =[xx[:xx.find('/')] for xx in host_str.split('+')]
-    hosts = list(set(hosts))
-    hosts.sort()
+    hosts = sorted({xx[:xx.find('/')] for xx in host_str.split('+')})
     return hosts
 
 def popen_wrapper(cmd, cmd_name, log_path):
