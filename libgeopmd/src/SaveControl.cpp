@@ -38,38 +38,33 @@ namespace geopm
 
     SaveControlImp::SaveControlImp(const std::vector<m_setting_s> &settings)
         : m_settings(settings)
+        , m_json(json(settings))
     {
 
     }
 
     SaveControlImp::SaveControlImp(const std::string &json_string)
-        : m_json(json_string)
+        : m_settings(settings(json_string))
+        , m_json(json_string)
     {
 
     }
 
     SaveControlImp::SaveControlImp(IOGroup &io_group, const PlatformTopo &topo)
         : m_settings(settings(io_group, topo))
+        , m_json(json(m_settings))
     {
 
     }
 
     std::string SaveControlImp::json(void) const
     {
-        std::string result = m_json;
-        if (result.empty()) {
-            result = json(m_settings);
-        }
-        return result;
+        return m_json;
     }
 
     std::vector<SaveControl::m_setting_s> SaveControlImp::settings(void) const
     {
-        std::vector<m_setting_s> result = m_settings;
-        if (result.empty()) {
-            result = settings(m_json);
-        }
-        return result;
+        return m_settings;
     }
 
 

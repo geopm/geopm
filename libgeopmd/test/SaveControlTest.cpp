@@ -186,3 +186,17 @@ TEST_F(SaveControlTest, write_file)
     std::string actual_json_string = geopm::read_file(m_tmp_path);
     ASSERT_EQ(m_settings_json, actual_json_string);
 }
+
+TEST_F(SaveControlTest, from_empty_settings)
+{
+    auto save_ctl = SaveControl::make_unique(std::vector<SaveControl::m_setting_s>{});
+    ASSERT_EQ("[]", save_ctl->json());
+    ASSERT_EQ(0ul, save_ctl->settings().size());
+}
+
+TEST_F(SaveControlTest, from_empty_json)
+{
+    auto save_ctl = SaveControl::make_unique("[]");
+    ASSERT_EQ("[]", save_ctl->json());
+    ASSERT_EQ(0ul, save_ctl->settings().size());
+}
