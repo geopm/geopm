@@ -9,6 +9,7 @@ import sys
 import re
 import datetime
 import subprocess # nosec
+import signal
 from getpass import getuser
 from argparse import ArgumentParser
 from time import sleep
@@ -88,11 +89,33 @@ def print_log(cmd_name, log_path):
     with open(log_path, 'r') as fid:
         print(fid.read())
 
-def create_host_file(hosts):
+def create_hostfile(hosts):
     with NamedTemporaryFile('w', delete=False) as fid:
         fid.write('\n'.join(hosts))
         result = fid.name
     return result
+
+
+def _term_pid(pid):
+    if pid is None:
+        return
+    try:
+        os.kill(pid.pid, signal.SIGINT)
+        sys.stderr.write(f'Forwarded SIGINT to PID: {pid.pid}\n')
+    except (ProcessLookupError, PermissionError):
+        pass
+
+_clush_pid = None
+_prom_pid = None
+_graf_pid = None
+_temp_hostfile_path = None
+def _signal_handler(signum, frame):
+    sys.stderr.write('\n')
+    for pid in (_clush_pid, _prom_pid, _graf_pid):
+        _term_pid(pid)
+    if _temp_hostfile_path is not None:
+        os.unlink(_temp_hostfile_path)
+    exit(0)
 
 def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jobid, hostfile_path):
     """Entry function with inputs derived from CLI
@@ -123,12 +146,15 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
 
     # Determine target hosts if tracking a job
     hosts = []
-    clush_pid = None
+    global _clush_pid, _prom_pid, _graf_pid, _temp_hostfile_path
+    signal.signal(signal.SIGINT, _signal_handler)
+
     if None not in (pbs_jobid, hostfile_path):
         raise RuntimeError('Both pbs_jobid and hostfile_path cannot both be specified')
     if pbs_jobid is not None:
         hosts = pbs_host_list(pbs_jobid)
-        hostfile_path = create_host_file(hosts)
+        _temp_hostfile_path = create_hostfile(hosts)
+        hostfile_path = _temp_hostfile_path
     elif hostfile_path is not None:
         with open(hostfile_path) as fid:
             hosts = [ll.strip() for ll in fid.readlines() if (len(ll.strip()) != 0 and ll.strip()[0] != '#')]
@@ -137,7 +163,7 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
         clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
                      'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
                      'geopmexporter', '-p', f'{client_port}']
-        clush_pid = popen_wrapper(clush_cmd, 'clush', clush_log_path)
+        _clush_pid = popen_wrapper(clush_cmd, 'clush', clush_log_path)
 
     configure_prom(prom_dir, hosts, client_port)
     graf_conf_path = configure_graf(graf_dir, graf_port)
@@ -149,7 +175,7 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
                 f'--web.console.templates={prom_dir}/consoles',
                 f'--web.console.libraries={prom_dir}/console_libraries',
                 f'--web.listen-address=:{prom_port}']
-    prom_pid = popen_wrapper(prom_cmd, 'prometheus', prom_log_path)
+    _prom_pid = popen_wrapper(prom_cmd, 'prometheus', prom_log_path)
     # Launch Grafana server
     graf_cmd = [graf_path, 'server',
                 f'--config={graf_conf_path}',
@@ -158,19 +184,20 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
                 f'cfg:default.paths.data={graf_dir}/data',
                 f'cfg:default.paths.plugins={graf_dir}/plugins-bundled',
                 f'cfg:default.paths.provisioning={graf_dir}/conf/provisioning']
-    graf_pid = popen_wrapper(graf_cmd, 'grafana', graf_log_path)
+    _graf_pid = popen_wrapper(graf_cmd, 'grafana', graf_log_path)
     # Finish up
-    if clush_pid is not None:
-        clush_pid.wait()
+    if _clush_pid is not None:
+        _clush_pid.wait()
         print_log('clush', clush_log_path)
-        os.unlink(hostfile_path)
+        if _temp_hostfile_path is not None:
+            os.unlink(_temp_hostfile_path)
     else:
         input('Press enter to kill prometheus and grafana servers: ')
-    prom_pid.kill()
-    graf_pid.kill()
-    prom_pid.wait()
+    _prom_pid.kill()
+    _graf_pid.kill()
+    _prom_pid.wait()
     print_log('prometheus', prom_log_path)
-    graf_pid.wait()
+    _graf_pid.wait()
     print_log('grafana', graf_log_path)
 
 def main():
