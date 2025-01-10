@@ -509,6 +509,7 @@ namespace geopm
                                                l0_domain, dev_subdev_idx_pair.second, setting);
     }
 
+
     // RAS Correctable Counters
     double LevelZeroDevicePoolImp::ras_reset_count_correctable(int domain, unsigned int domain_idx,
                                                    int l0_domain) const
@@ -764,23 +765,5 @@ namespace geopm
                                                 dev_subdev_idx_pair.second);
     }
 
-    std::string LevelZeroDevicePoolImp::pci_dbdf_address(int geopm_domain, unsigned int geopm_domain_idx) const
-    {
-        check_idx_range(geopm_domain, geopm_domain_idx);
-        if (geopm_domain == GEOPM_DOMAIN_GPU) {
-            // Get the address of the requested device
-            return m_levelzero.pci_dbdf_address(geopm_domain_idx);
-        }
-        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
-            // Get the address of the device containing the requested subdevice
-            auto dev_subdev_idx_pair = subdevice_device_conversion(geopm_domain_idx);
-            return m_levelzero.pci_dbdf_address(dev_subdev_idx_pair.first);
-        }
-        else {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(geopm_domain) +
-                            " is not supported",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-    }
+
 }

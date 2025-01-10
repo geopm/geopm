@@ -8,23 +8,19 @@
 #include <map>
 
 #include "geopm/Exception.hpp"
-#include "geopm/Helper.hpp"
 #include "LevelZeroDevicePool.hpp"
 #include "LevelZeroGPUTopo.hpp"
 
 namespace geopm
 {
-    static const std::string PCI_DEVICES_PATH = "/sys/bus/pci/devices";
-
     LevelZeroGPUTopo::LevelZeroGPUTopo()
-        : LevelZeroGPUTopo(levelzero_device_pool(), PCI_DEVICES_PATH)
+        : LevelZeroGPUTopo(levelzero_device_pool(), geopm_sched_num_cpu())
     {
     }
 
     LevelZeroGPUTopo::LevelZeroGPUTopo(const LevelZeroDevicePool &device_pool,
-                                       const std::string &pci_devices_path)
+                                                       const int num_cpu)
         : m_levelzero_device_pool(device_pool)
-        , m_pci_devices_path(pci_devices_path)
     {
         if (getenv("ZE_AFFINITY_MASK") != nullptr) {
             throw Exception("LevelZeroGPUTopo: Refusing to create a topology cache file while ZE_AFFINITY_MASK environment variable is set",
@@ -39,20 +35,37 @@ namespace geopm
 #endif
         }
         else {
-            m_cpu_affinity_ideal_chip.reserve(num_gpu_chip);
+            m_cpu_affinity_ideal.resize(num_gpu);
+            int num_cpu_per_gpu = num_cpu / num_gpu;
+
+            m_cpu_affinity_ideal_chip.resize(num_gpu_chip);
             int num_chip_per_gpu = num_gpu_chip / num_gpu;
 
-            for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-                std::string pci_address = m_levelzero_device_pool.pci_dbdf_address(GEOPM_DOMAIN_GPU, gpu_idx);
-                std::string cpu_mask_path = m_pci_devices_path + "/" + pci_address + "/local_cpus";
-                auto cpu_mask_buf = geopm::read_file(cpu_mask_path);
-                auto cpu_set = linux_cpumask_buf_to_int_set(cpu_mask_buf);
+            // TODO: Add ideal CPU to GPU affinitization that isn't a simple split if needed.
+            //       This may come from a call to oneAPI, LevelZero, etc
+            for (int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
+                size_t gpu_chip_index = gpu_idx * static_cast<size_t>(num_chip_per_gpu);
+                int end_cpu_idx = (gpu_idx + 1) * num_cpu_per_gpu;
+                for (int cpu_idx = gpu_idx * num_cpu_per_gpu, chip_idx = 0;
+                     cpu_idx < end_cpu_idx;
+                     ++cpu_idx) {
+                    m_cpu_affinity_ideal.at(gpu_idx).insert(cpu_idx);
 
-                // This CPU set is local to the current iterated GPU and each
-                // of the GPU's subdevices.
-                m_cpu_affinity_ideal.push_back(cpu_set);
-                for (int gpu_subdevice = 0; gpu_subdevice < num_chip_per_gpu; ++gpu_subdevice) {
-                    m_cpu_affinity_ideal_chip.push_back(cpu_set);
+                    // CHIP to CPU association is currently only used to associate CHIPS to
+                    // GPUS.  This logic just distributes the CPUs associated with
+                    // an GPU to its CHIPS in a round robin fashion.
+                    m_cpu_affinity_ideal_chip.at(gpu_chip_index +
+                                                 (chip_idx % num_chip_per_gpu)).insert(cpu_idx);
+                    ++chip_idx;
+                }
+            }
+            if ((num_cpu % num_gpu) != 0) {
+                for (int cpu_idx = num_cpu_per_gpu * num_gpu, gpu_idx = 0;
+                     cpu_idx < num_cpu; ++cpu_idx) {
+                    m_cpu_affinity_ideal.at(gpu_idx % num_gpu).insert(cpu_idx);
+                    size_t gpu_chip_index = gpu_idx * static_cast<size_t>(num_chip_per_gpu);
+                    m_cpu_affinity_ideal_chip.at(gpu_chip_index).insert(cpu_idx);
+                    ++gpu_idx;
                 }
             }
         }

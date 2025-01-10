@@ -312,10 +312,6 @@ namespace geopm
             /// @return Display Error Count
             virtual double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
                                                 int l0_domain) const = 0;
-
-            // Return the formatted domain:bus:device.function PCI address of the given
-            // GEOPM GPU or GPU chip.
-            virtual std::string pci_dbdf_address(int geopm_domain, unsigned int geopm_domain_idx) const = 0;
         private:
     };
 

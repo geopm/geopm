@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <string>
 #include <iostream>
-#include <sstream>
 #include <map>
 #include <cstdlib>
 
@@ -16,10 +15,6 @@
 #include "geopm/Helper.hpp"
 
 #include "LevelZeroImp.hpp"
-
-// (DBDF buffer: domain:bus:device.function plus NUL (e.g., 0000:00:00.0\0)
-#define DBDF_BUFFER_SIZE (4 + 1 + 2 + 1 + 2 + 1 + 1 + 1)
-#define DBDF_BUFFER_FORMAT ("%04x:%02x:%02x.%01x")
 
 namespace geopm
 {
@@ -1121,18 +1116,5 @@ namespace geopm
             throw Exception(message + " Level Zero Error: " + error_string,
                             error, __FILE__, line);
         }
-    }
-
-    std::string LevelZeroImp::pci_dbdf_address(unsigned int l0_device_idx) const
-    {
-        ze_pci_ext_properties_t pci_properties;
-        char dbdf_buffer[DBDF_BUFFER_SIZE];
-        check_ze_result(zeDevicePciGetPropertiesExt(m_devices.at(l0_device_idx).device_handle, &pci_properties),
-                        GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
-                        ": failed to get PCI device properties.", __LINE__);
-        snprintf(dbdf_buffer, DBDF_BUFFER_SIZE, DBDF_BUFFER_FORMAT,
-                 pci_properties.address.domain, pci_properties.address.bus,
-                 pci_properties.address.device, pci_properties.address.function);
-        return dbdf_buffer;
     }
 }

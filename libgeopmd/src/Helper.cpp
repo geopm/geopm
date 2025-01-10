@@ -37,7 +37,6 @@
 namespace geopm
 {
     static const size_t NUMERIC_STRING_MAX = 255;
-    static const int MAX_CPUS_PER_CPUMASK_SEGMENT = 32;
 
     std::string read_file(const std::string &path)
     {
@@ -455,29 +454,4 @@ namespace geopm
         pio.write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_BOARD, 0, 0);
     }
 
-    std::set<int> linux_cpumask_buf_to_int_set(const std::string &cpumask_buf)
-    {
-        // The expected bitmask format is "HEX,HEX,...,HEX", where commas separate
-        // 32-bit segments. Higher-ordered bits indicate higher CPU indices (i.e.
-        // LSB is CPU 0).
-        std::set<int> mapped_cpus;
-        int cpu_offset = 0;
-        auto hex_segments = geopm::string_split(cpumask_buf, ",");
-        for (auto it = hex_segments.rbegin(); it != hex_segments.rend(); ++it) {
-            auto bitmask_segment = std::stoull(*it, nullptr, 16);
-            if (bitmask_segment >> MAX_CPUS_PER_CPUMASK_SEGMENT) {
-                throw geopm::Exception("linux_cpumask_buf_to_int_set: malformed cpumask: " + cpumask_buf,
-                                       GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            int next_segment_cpu_offset = cpu_offset + MAX_CPUS_PER_CPUMASK_SEGMENT;
-            while (cpu_offset < next_segment_cpu_offset) {
-                if (bitmask_segment & 1) {
-                    mapped_cpus.insert(cpu_offset);
-                }
-                bitmask_segment >>= 1;
-                cpu_offset += 1;
-            }
-        }
-        return mapped_cpus;
-    }
 }
