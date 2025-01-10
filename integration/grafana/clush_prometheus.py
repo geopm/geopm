@@ -193,11 +193,11 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
             os.unlink(_temp_hostfile_path)
     else:
         input('Press enter to kill prometheus and grafana servers: ')
-    _prom_pid.kill()
-    _graf_pid.kill()
+    os.kill(signal.SIGINT, _graf_pid.pid)
+    _graf_pid.wait()
+    os.kill(signal.SIGINT, _prom_pid.pid)
     _prom_pid.wait()
     print_log('prometheus', prom_log_path)
-    _graf_pid.wait()
     print_log('grafana', graf_log_path)
 
 def main():
@@ -206,7 +206,8 @@ def main():
     Script will launch a Prometheus server and Grafana server on the login node.
     To inspect historically recorded data, run without the
     --pbs-jobid/--hostfile option.  The user will be prompted to press ENTER to
-    terminate the servers.
+    terminate the servers.  To exit without printing the logs press Control-C
+    instead of ENTER.
 
     In order to collect new data with this script, provide the
     --pbs-jobid/--hostfile option to run the geopmexporter Prometheus Client on
