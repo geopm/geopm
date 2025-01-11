@@ -49,21 +49,35 @@ clients running on the allocated nodes of a user's job with the clush command.
 
 ### Requirements
 
-A user installation of Grafana and Prometheus is required.  We recommend
-following the [Linux installation
+Some software installation is required.
+
+
+#### Prometheus Install
+
+To install Prometheus download the [archive for the latest stable
+Linux](https://prometheus.io/download/).  The expanded archive is the
+`PROMETHEUS_DIR` provided to the `clush_prometheus.py` script CLI.
+
+#### Grafana Install
+
+We recommend following the [Linux installation
 instructions](https://grafana.com/grafana/download?platform=linux) to `wget` the
 Grafana archive for Linux.  The expanded archive is the `GRAFANA_DIR` provided
-to the `clush_prometheus.py` script CLI.  To install Prometheus download
-the [archive for the latest stable Linux](https://prometheus.io/download/).  The
-expanded archive is the `PROMETHEUS_DIR` provided to the
-`clush_prometheus.py` script CLI.
+to the `clush_prometheus.py` script CLI.
 
-The user must have an [install
+
+#### ClusterShell Install
+
+The user must [install
 ClusterShell]((https://clustershell.readthedocs.io/en/latest/install.html)) or
-have access to `clush` through a system install.
+have access to `clush(1)` through a system install.
 
-Until the `geopmexporter(1)` is available in a stable release, the user must
-build and install a development snapshot of GEOPM.
+
+#### GEOPM Install
+
+The `geopmexporter(1)` is not available in a stable release (targeting v3.2.0).
+The user must build and install a development snapshot of GEOPM if a version of
+GEOPM that supports `geopmexporter(1)` is not installed system-wide e.g.:
 
 ```bash
     # Install latest development snapshot of GEOPM
@@ -87,6 +101,7 @@ There are three ports used by the script to communicate:
 
 To avoid conflicts, or firewall limitations, the user may override the defaults
 using command line arguments to `clush_prometheus.py`.
+
 
 ### Configuring Grafana Server
 
@@ -128,6 +143,7 @@ but the logs will not be printed.  While the `clush_promethus.py` script is
 running the Prometheus server, Grafana server and option clush command will all
 be running as background processes.  These processes will be sent SIGINT to
 bring them down upon the termination of `clush_prometheus.py`.
+
 
 ### Monitor the user job with the GEOPM Prometheus & Grafana framework
 

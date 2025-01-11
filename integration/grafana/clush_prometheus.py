@@ -209,8 +209,8 @@ def main():
 
     In order to collect new data with this script, provide the
     --pbs-jobid/--hostfile option to run the geopmexporter Prometheus Client on
-    the compute nodes of an PBS job allocation while the allocation is valid.
-    When the PBS allocation terminates the two servers and the client process
+    the compute nodes of a job allocation while the allocation is valid.
+    When the allocation terminates the two servers and the client process
     will also be terminated.
 
     """
