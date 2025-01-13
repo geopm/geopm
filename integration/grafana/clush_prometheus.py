@@ -10,6 +10,7 @@ import re
 import datetime
 import subprocess # nosec
 import signal
+import json
 from getpass import getuser
 from argparse import ArgumentParser
 from time import sleep
@@ -21,28 +22,19 @@ def pbs_host_list(jobid):
     """
     PBS_POLL_TIME = 15
     jobid = str(jobid)
-    cmd = ['qstat', jobid]
+    cmd = ['qstat', '-f', '-F', 'json', jobid]
     is_ready = False
     while not is_ready:
         run_ret = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
-        last_line = run_ret.stdout.decode().split('\n')[-2]
-        line_split = last_line.split()
-        if len(line_split) >= 5 and line_split[4] == 'R':
+        qstat_obj = json.loads(run_ret.stdout.decode())
+        if len(qstat_obj['Jobs']) > 1:
+            raise RuntimeError(f'Call to "qstat {jobid}" returned more than one job')
+        qstat_obj = list(qstat_obj['Jobs'].values())[0]
+        if qstat_obj['job_state'] == 'R':
             is_ready = True
+            hosts = sorted({xx[:xx.find('/')] for xx in qstat_obj['exec_host'].split('+')})
         else:
             sleep(PBS_POLL_TIME)
-    cmd = ['qstat', '-x', '-f', '-w', jobid]
-    run_ret = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
-    host_str = None
-    for line in run_ret.stdout.decode().split('\n'):
-        if 'exec_host' in line:
-            line_split = line.split()
-            if len(line_split) >= 3:
-                host_str = line_split[2]
-                break
-    if host_str is None:
-        raise RuntimeError('Failed to parse host list from qstat output')
-    hosts = sorted({xx[:xx.find('/')] for xx in host_str.split('+')})
     return hosts
 
 def popen_wrapper(cmd, cmd_name, log_path):
