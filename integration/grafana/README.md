@@ -49,7 +49,8 @@ clients running on the allocated nodes of a user's job with the clush command.
 
 ### Requirements
 
-Some software installation is required.
+Some software installation is required including GEOPM, Prometheus Server,
+Grafana Server and ClusterShell tool.
 
 
 #### Prometheus Install
@@ -57,6 +58,7 @@ Some software installation is required.
 To install Prometheus download the [archive for the latest stable
 Linux](https://prometheus.io/download/).  The expanded archive is the
 `PROMETHEUS_DIR` provided to the `clush_prometheus.py` script CLI.
+
 
 #### Grafana Install
 
@@ -70,14 +72,16 @@ to the `clush_prometheus.py` script CLI.
 
 The user must [install
 ClusterShell]((https://clustershell.readthedocs.io/en/latest/install.html)) or
-have access to `clush(1)` through a system install.
+have access to `clush(1)` through a system install.  Unlike Prometheus and
+Grafana, a user local install of `clush(1)` is not required.
 
 
 #### GEOPM Install
 
-The `geopmexporter(1)` is not available in a stable release (targeting v3.2.0).
-The user must build and install a development snapshot of GEOPM if a version of
-GEOPM that supports `geopmexporter(1)` is not installed system-wide e.g.:
+The `geopmexporter(1)` is not available in a stable release (feature will be
+available as of v3.2.0).  The user must build and install a development snapshot
+of GEOPM if a version of GEOPM that supports `geopmexporter(1)` is not installed
+system-wide e.g.:
 
 ```bash
     # Install latest development snapshot of GEOPM
@@ -88,7 +92,7 @@ GEOPM that supports `geopmexporter(1)` is not installed system-wide e.g.:
 ```
 
 When running `clush_prometheus.py` use the `--geopm-prefix=$GEOPM_PREFIX` option
-should be specified unless the system install supports `geopmexporter(1)`.
+unless the system install supports `geopmexporter(1)`.
 
 
 ### Configuring ports
@@ -171,6 +175,19 @@ The script will print the path to three logs that can be used to monitor the
 Grafana server, Prometheus server, and Prometheus clients.  The servers running
 on the login node will be terminated by the script when the allocation
 completes.
+
+When using the `--pbs-jobid` option the ID provided may either be a job that is
+queuing, or a job that is running.  If the job is queuing `clush_prometheus.py`
+will poll `qstat` every 15 seconds until the allocation is granted.
+
+The `clush_prometheus.py` script will print an error from the `qstat` command
+and the script will exit with a non-zero return code prior if the user
+specified Job ID is invalid or points to an already completed job.  The script
+may also terminate early due to a port conflict if a `geopmexporter(1)` is
+already running on the nodes of an allocation prior to starting the
+`clush_prometheus.py` script.  These errors in using the `--pbs-jobid` option
+terminate the `clush_promethus.py` script before it starts the Prometheus or
+Grafana servers.
 
 
 ### Review previously collected metrics
