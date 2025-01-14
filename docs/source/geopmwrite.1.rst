@@ -137,10 +137,10 @@ Options
                 option specifies to read the configuration from standard input.
 -e, --enable-fixed
                 Write to the registers that enable the fixed counters.  Enabling
-		the fixed counters is required for the signals starting with
-		``MSR::FIXED_CTR`` to report non-zero values.  The signal
-		``CPU_INSTRUCTIONS_RETIRED`` also requires the fixed counters to
-		be enabled.
+                the fixed counters is required for the signals starting with
+                ``MSR::FIXED_CTR`` to report non-zero values.  The signal
+                ``CPU_INSTRUCTIONS_RETIRED`` also requires the fixed counters to
+                be enabled.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,

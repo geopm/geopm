@@ -16,7 +16,7 @@ from . import __version__
 from . import read
 
 def print_info(control_name):
-    print(f'{control_name}:\n    {pio.control_description(control_name)}')
+    print(f'{control_name}:\n{pio.control_description(control_name)}')
 
 def print_info_all():
     for control_name in pio.control_names():

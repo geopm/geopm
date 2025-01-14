@@ -158,7 +158,10 @@ Show the description for a signal:
 .. code-block::
 
    $ geopmread --info TIME
-   TIME: Time in seconds since the IOGroup load.
+   TIME:
+       description: Time elapsed since the beginning of execution.
+       iogroup: Time
+       alias_for: TIME::ELAPSED
 
 Show domain type for DRAM_ENERGY signal:
 
