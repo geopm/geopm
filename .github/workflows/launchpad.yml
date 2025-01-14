@@ -20,7 +20,7 @@ concurrency:
 jobs:
   publish_launchpad:
     name: "publish_launchpad"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       with:
