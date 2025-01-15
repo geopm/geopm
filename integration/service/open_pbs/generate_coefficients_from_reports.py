@@ -46,9 +46,9 @@ def get_coefficients(df):
     """
     columns = ['agent', 'profile', 'host', 'slowdown', 'BOARD_POWER_LIMIT_CONTROL', 'runtime (s)', 'BOARD_ENERGY']
     if not args.use_fom:
-        df = df[columns][df['agent'] == 'node_power_governor']
+        df = df[columns]
     else:
-        df = df[columns + ['FOM']][df['agent'] == 'node_power_governor']
+        df = df[columns + ['FOM']]
 
     X = np.reshape(df['BOARD_POWER_LIMIT_CONTROL'].values, (-1, 1)).astype('float64') / args.max_power
     y = df['slowdown'].values
@@ -103,6 +103,14 @@ data_list = list()
 for report_path in args.reports:
     with open(report_path) as f:
         report = load(f, Loader=SafeLoader)
+    if report is None:
+        if args.verbose:
+            print(f'Warning: Skipping empty report {report_path}', file=sys.stderr)
+        continue
+    if args.use_fom and 'Figure of Merit' not in report:
+        if args.verbose:
+            print(f'Warning: Skipping report since --use-fom was specified and report is missing Figure of Merit: {report_path}', file=sys.stderr)
+        continue
     job_host_count = len(report['Hosts'])
     for host, host_data in report['Hosts'].items():
         if args.use_region is not None:
