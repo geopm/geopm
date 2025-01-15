@@ -20,13 +20,13 @@ concurrency:
 jobs:
   publish_launchpad:
     name: "publish_launchpad"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       with:
         fetch-depth: 0
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-15-dev libsystemd-dev liburing-dev python3-gi python3-yaml osc python3-m2crypto libcap-dev zlib1g-dev python3-build python3-setuptools-scm doxygen graphviz debhelper-compat debhelper libnvidia-ml-dev pkgconf dh-python python3-all dput elfutils python3-cffi
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-18-dev libsystemd-dev liburing-dev python3-gi python3-yaml osc python3-m2crypto libcap-dev zlib1g-dev python3-build python3-setuptools-scm doxygen graphviz debhelper-compat debhelper libnvidia-ml-dev pkgconf dh-python python3-all dput elfutils python3-cffi
     - name: install geopmpy and geopmdpy python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517

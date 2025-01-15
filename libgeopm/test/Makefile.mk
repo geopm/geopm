@@ -164,10 +164,6 @@ else
     EXTRA_DIST += test/ELFTest.cpp
 endif
 
-test_geopm_test_SOURCES += src/Profile.cpp \
-                           include/geopm/Profile.hpp \
-                           # endif
-
 test_geopm_test_LDADD = libgeopm.la
 
 test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
