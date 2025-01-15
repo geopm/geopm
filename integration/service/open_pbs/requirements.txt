@@ -1,0 +1,8 @@
+# Requirements to generate power/performance models
+matplotlib>=3.3.4
+numpy>=1.17.3
+pandas>=1.1.5
+PyYAML>=6.0
+scikit-learn>=0.24.2
+scipy>=1.5.4
+jsonschema>=3.2.0 # To validate config files in the merging script
