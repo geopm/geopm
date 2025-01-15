@@ -59,12 +59,11 @@ def get_coefficients(df):
         [1, 0, 0, 0],
         args=(y, X),
         # y = A * (x0 - x)**2 + B * (x0 - x) + C
-        # dy/dx: -A*2*x0 + A*2 - B
+        # dy/dx: -A*2*x0 + A*2*x - B
         constraints=(
-            # Constraint: Slowdown decreases as power increases (2*x0*A - 2*A*x + B >= 0)
-            dict(type='ineq', fun=lambda x: 2 * x[0] * x[1] - 2 * x[1] * X.flatten() + x[2]),
-            dict(type='ineq', fun=lambda x: x[0]),  # X0 >= 0
-            dict(type='ineq', fun=lambda x: x[1]),  # A >= 0
+            dict(type='ineq', fun=lambda x: 2 * x[1]), # y''(x) >= 0, Slowdown decreases as power increases in the lower power domain
+            dict(type='ineq', fun=lambda x: 2 * x[1] * (x[0] - 1) + x[2]), # y'(1) <= 0, Slowdown is not increasing at Pmax
+            dict(type='ineq', fun=lambda x: x[1] * (x[0] - 1) ** 2 + x[2] * (x[0] - 1) + x[3]), # y(1) >= 0, Slowdown not better than best known at Pmax
         )
     )
     params = res.x
@@ -168,7 +167,7 @@ if args.plot_path is not None:
         fig, ax = plt.subplots(figsize=(4, 3))
         min_control = df.loc[df['BOARD_POWER_LIMIT_CONTROL'] != 0, 'BOARD_POWER_LIMIT_CONTROL'].min()
         max_control = df['BOARD_POWER_LIMIT_CONTROL'].max()
-        X = np.linspace(min_control, max(args.max_power, max_control), 100) / args.max_power
+        X = np.linspace(min_control, args.max_power, 100) / args.max_power
         for profile_name, profile_data in output['profiles'].items():
             if args.per_host:
                 for host_name, host_data in profile_data['hosts'].items():
