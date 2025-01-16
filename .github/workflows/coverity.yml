@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-18-dev libsystemd-dev liburing-dev python3-gi python3-yaml libcap-dev zlib1g-dev
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-dev libsystemd-dev liburing-dev gobject-introspection python3-gi python3-yaml libcap-dev zlib1g-dev doxygen graphviz autoconf automake libtool libsqlite3-dev clang clang-tools
     - name: configure libgeopmd dir
       working-directory: libgeopmd
       run: ./autogen.sh && ./configure || (cat config.log && false)
