@@ -834,7 +834,7 @@ namespace geopm
                             std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
                                                               domain_idx,
                                                               sv.second.m_scalar);
-                    result.push_back(signal);
+                    result.push_back(std::move(signal));
                 }
                 catch (const geopm::Exception &ex) {
                     if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
@@ -890,7 +890,7 @@ namespace geopm
                  domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first));
                  ++domain_idx) {
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
-                result.push_back(ctrl);
+                result.push_back(std::move(ctrl));
             }
             sv.second.m_controls = std::move(result);
         }
@@ -1168,7 +1168,7 @@ namespace geopm
         if (!is_found) {
             // If not pushed, add to pushed control
             result = m_control_pushed.size();
-            m_control_pushed.push_back(control);
+            m_control_pushed.push_back(std::move(control));
         }
 
         return result;

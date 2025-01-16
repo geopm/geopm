@@ -293,7 +293,7 @@ namespace geopm
                 row[cidx] = obj[ridx][cidx].number_value();
             }
 
-            vals.push_back(row);
+            vals.push_back(std::move(row));
         }
 
         return m_nn_factory->createTensorTwoD(vals);

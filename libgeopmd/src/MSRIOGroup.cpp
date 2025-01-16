@@ -133,7 +133,7 @@ namespace geopm
             for (const auto &file : files) {
                 std::string filename = config_dir_path + "/" + file;
                 if (string_begins_with(file, "msr_") && string_ends_with(file, ".json")) {
-                    msr_config_paths.insert(filename);
+                    msr_config_paths.insert(std::move(filename));
                 }
             }
         }
@@ -1510,10 +1510,10 @@ namespace geopm
             int cpu_idx = *(cpus.begin());
             std::shared_ptr<Signal> raw_msr =
                 std::make_shared<RawMSRSignal>(m_msrio, cpu_idx, msr_offset);
-            result.push_back(raw_msr);
+            result.push_back(std::move(raw_msr));
         }
         m_signal_available[raw_msr_signal_name] = {
-            .signals = result,
+            .signals = std::move(result),
             .domain = domain_type,
             .units = IOGroup::M_UNITS_NONE,
             .agg_function = Agg::select_first,
@@ -1541,10 +1541,10 @@ namespace geopm
             std::shared_ptr<Signal> field_signal =
                 geopm::make_unique<MSRFieldSignal>(raw_msr, begin_bit, end_bit,
                                                    function, scalar);
-            result_field_signal.push_back(field_signal);
+            result_field_signal.push_back(std::move(field_signal));
         }
         m_signal_available[msr_field_name] = {
-            .signals = result_field_signal,
+            .signals = std::move(result_field_signal),
             .domain = domain_type,
             .units = units,
             .agg_function = Agg::name_to_function(agg_function),
@@ -1576,7 +1576,7 @@ namespace geopm
                 result_field_control.push_back(std::make_shared<DomainControl>(cpu_controls));
             }
             m_control_available[msr_field_name] = {
-                .controls = result_field_control,
+                .controls = std::move(result_field_control),
                 .domain = domain_type,
                 .units = units,
                 .description = description,

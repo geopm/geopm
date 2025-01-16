@@ -418,10 +418,10 @@ namespace geopm
                     m_signal_info_s {
                         .units = units,
                         .domain = domain_type,
-                        .agg_function = agg_func,
-                        .description = description,
+                        .agg_function = std::move(agg_func),
+                        .description = std::move(description),
                         .is_common_value_provided = is_common_value_provided,
-                        .values = values});
+                        .values = std::move(values)});
         }
     }
 

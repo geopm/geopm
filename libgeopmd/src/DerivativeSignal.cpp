@@ -18,7 +18,7 @@ namespace geopm
                                        std::shared_ptr<Signal> y_sig,
                                        int num_sample_history,
                                        double sleep_time)
-        : DerivativeSignal(time_sig, y_sig, num_sample_history, sleep_time, NAN)
+        : DerivativeSignal(std::move(time_sig), std::move(y_sig), num_sample_history, sleep_time, NAN)
     {
 
     }

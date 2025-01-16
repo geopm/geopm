@@ -360,7 +360,7 @@ namespace geopm
             for (int rr = 0; rr < num_rank; ++rr) {
                 auto term = std::find(ind, ind + GEOPM_NAME_MAX, '\0');
                 std::string host(ind, term);
-                hostnames.insert(host);
+                hostnames.insert(std::move(host));
                 ind += GEOPM_NAME_MAX;
             }
         }

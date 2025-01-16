@@ -727,11 +727,11 @@ namespace geopm
                 signals.push_back(field_signal);
             }
             m_signal_available[field_signal_name] = {
-                .signals = signals,
+                .signals = std::move(signals),
                 .domain = domain_type,
                 .units = units,
-                .agg_function = agg_function,
-                .description = description,
+                .agg_function = std::move(agg_function),
+                .description = std::move(description),
                 .behavior = behavior
             };
         }
@@ -775,10 +775,10 @@ namespace geopm
                     controls.push_back(raw_sst);
                 }
                 m_control_available[field_control_name] = {
-                    .controls = controls,
+                    .controls = std::move(controls),
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = agg_function,
+                    .agg_function = std::move(agg_function),
                     .description = description
                 };
             }
@@ -845,11 +845,11 @@ namespace geopm
                 signals.push_back(field_signal);
             }
             m_signal_available[field_signal_name] = {
-                .signals = signals,
+                .signals = std::move(signals),
                 .domain = domain_type,
                 .units = units,
-                .agg_function = agg_function,
-                .description = description,
+                .agg_function = std::move(agg_function),
+                .description = std::move(description),
                 .behavior = behavior
             };
         }
@@ -890,11 +890,11 @@ namespace geopm
                     controls.push_back(control);
                 }
                 m_control_available[raw_control_name] = {
-                    .controls = controls,
+                    .controls = std::move(controls),
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = agg_function,
-                    .description = description
+                    .agg_function = std::move(agg_function),
+                    .description = std::move(description)
                 };
             }
         }

@@ -366,7 +366,7 @@ struct JsonParser final {
         if (!failed)
             err = std::move(msg);
         failed = true;
-        return err_ret;
+        return std::move(err_ret);
     }
 
     /* consume_whitespace()
