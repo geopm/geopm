@@ -167,7 +167,7 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
 
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
 {
-    if (num_cpu <= 0) {
+    if (num_cpu <= 0 || num_cpu == INT_MAX) {
         return GEOPM_ERROR_INVALID;
     }
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
@@ -176,7 +176,7 @@ int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
     }
     (void)geopm_sched_proc_cpuset_pid(getpid(), num_cpu, g_proc_cpuset);
     int sched_num_cpu = geopm_sched_num_cpu();
-    if (sched_num_cpu <= 0) {
+    if (sched_num_cpu <= 0 || sched_num_cpu == INT_MAX) {
         return GEOPM_ERROR_LOGIC;
     }
     size_t cpuset_size = CPU_ALLOC_SIZE(num_cpu);
@@ -204,7 +204,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
                CPUs allocated for the process are used by OpenMP, then
                the woomp mask will have all bits set. */
 
-    if (num_cpu <= 0) {
+    if (num_cpu <= 0 || num_cpu == INT_MAX) {
         return GEOPM_ERROR_INVALID;
     }
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
@@ -213,7 +213,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
     }
     (void)geopm_sched_proc_cpuset_pid(getpid(), num_cpu, g_proc_cpuset);
     int sched_num_cpu = geopm_sched_num_cpu();
-    if (sched_num_cpu <= 0) {
+    if (sched_num_cpu <= 0 || sched_num_cpu == INT_MAX) {
         return GEOPM_ERROR_LOGIC;
     }
     size_t req_alloc_size = CPU_ALLOC_SIZE(num_cpu);
