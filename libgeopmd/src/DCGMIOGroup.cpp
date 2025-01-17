@@ -99,7 +99,7 @@ namespace geopm
             std::vector<std::shared_ptr<signal_s> > result;
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
                 std::shared_ptr<signal_s> sgnl = std::make_shared<signal_s>(signal_s{0, false});
-                result.push_back(sgnl);
+                result.push_back(std::move(sgnl));
             }
             sv.second.m_signals = std::move(result);
         }

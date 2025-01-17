@@ -686,11 +686,11 @@ namespace geopm
             auto request_data = field_desc.request_data;
             auto begin_bit = field_desc.begin_bit;
             auto end_bit = field_desc.end_bit;
-            auto description = field_desc.description;
+            auto &description = field_desc.description;
             auto behavior = field_desc.behavior;
             auto units = field_desc.units;
             double multiplier = field_desc.multiplier;
-            auto agg_function = field_desc.agg_function;
+            auto &agg_function = field_desc.agg_function;
 
             char hex[32];
             snprintf(hex, 32, "0x%05" PRIx32, request_data);
@@ -706,10 +706,10 @@ namespace geopm
                     auto raw_sst = std::make_shared<SSTSignal>(
                         m_sstio, SSTSignal::M_MBOX, cpu_idx, static_cast<uint16_t>(command),
                         subcommand, request_data, 0 /* interface parameter */);
-                    signals.push_back(raw_sst);
+                    signals.push_back(std::move(raw_sst));
                 }
                 m_signal_available[raw_signal_name] = {
-                    .signals = signals,
+                    .signals = std::move(signals),
                     .domain = domain_type,
                     .units = units,
                     .agg_function = agg_function,
@@ -730,8 +730,8 @@ namespace geopm
                 .signals = std::move(signals),
                 .domain = domain_type,
                 .units = units,
-                .agg_function = std::move(agg_function),
-                .description = std::move(description),
+                .agg_function = agg_function,
+                .description = description,
                 .behavior = behavior
             };
         }
@@ -752,9 +752,9 @@ namespace geopm
             auto write_data = field_description.write_data;
             auto begin_bit = field_description.begin_bit;
             auto end_bit = field_description.end_bit;
-            auto description = field_description.description;
+            auto &description = field_description.description;
             auto units = field_description.units;
-            auto agg_function = field_description.agg_function;
+            auto &agg_function = field_description.agg_function;
 
             std::string field_control_name = raw_name + ":" + field_name;
 
@@ -772,13 +772,13 @@ namespace geopm
                         subcommand, write_param, write_data, begin_bit, end_bit,
                         1.0, read_subcommand, read_request_data, read_mask);
 
-                    controls.push_back(raw_sst);
+                    controls.push_back(std::move(raw_sst));
                 }
                 m_control_available[field_control_name] = {
                     .controls = std::move(controls),
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = std::move(agg_function),
+                    .agg_function = agg_function,
                     .description = description
                 };
             }
@@ -797,11 +797,11 @@ namespace geopm
             auto write_value = field_desc.write_value;
             auto begin_bit = field_desc.begin_bit;
             auto end_bit = field_desc.end_bit;
-            auto description = field_desc.description;
+            auto &description = field_desc.description;
             auto behavior = field_desc.behavior;
             auto units = field_desc.units;
             double multiplier = field_desc.multiplier;
-            auto agg_function = field_desc.agg_function;
+            auto &agg_function = field_desc.agg_function;
 
             char hex[32];
             snprintf(hex, 32, "0x%05" PRIx32, register_offset);
@@ -820,10 +820,10 @@ namespace geopm
                     auto raw_sst = std::make_shared<SSTSignal>(
                         m_sstio, SSTSignal::M_MMIO, cpu_idx, 0x00, 0x00, augmented_offset, write_value);
 
-                    signals.push_back(raw_sst);
+                    signals.push_back(std::move(raw_sst));
                 }
                 m_signal_available[raw_signal_name] = {
-                    .signals = signals,
+                    .signals = std::move(signals),
                     .domain = domain_type,
                     .units = units,
                     .agg_function = agg_function,
@@ -848,8 +848,8 @@ namespace geopm
                 .signals = std::move(signals),
                 .domain = domain_type,
                 .units = units,
-                .agg_function = std::move(agg_function),
-                .description = std::move(description),
+                .agg_function = agg_function,
+                .description = description,
                 .behavior = behavior
             };
         }
@@ -866,10 +866,10 @@ namespace geopm
             const auto &field_desc = ff.second;
             auto begin_bit = field_desc.begin_bit;
             auto end_bit = field_desc.end_bit;
-            auto description = field_desc.description;
+            auto &description = field_desc.description;
             auto units = field_desc.units;
             double multiplier = field_desc.multiplier;
-            auto agg_function = field_desc.agg_function;
+            auto &agg_function = field_desc.agg_function;
 
             // add raw control for every domain index
             std::string raw_control_name = raw_name + ":" + field_name;
@@ -893,8 +893,8 @@ namespace geopm
                     .controls = std::move(controls),
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = std::move(agg_function),
-                    .description = std::move(description)
+                    .agg_function = agg_function,
+                    .description = description
                 };
             }
         }

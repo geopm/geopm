@@ -42,6 +42,9 @@ static size_t g_proc_cpuset_size = 0;
 
 int geopm_sched_proc_cpuset_helper(int num_cpu, uint32_t *proc_cpuset, FILE *fid)
 {
+    if (num_cpu < 0 || num_cpu == INT_MAX || proc_cpuset == NULL || fid == NULL) {
+        return GEOPM_ERROR_INVALID;
+    }
     const char *key = "Cpus_allowed:";
     const size_t key_len = strlen(key);
     const int num_read = num_cpu / 32 + (num_cpu % 32 ? 1 : 0);
@@ -112,6 +115,9 @@ static void geopm_proc_cpuset_once(void)
 
 int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
 {
+    if (num_cpu < 0 || num_cpu == INT_MAX || pid < 0 || cpuset == NULL) {
+        return GEOPM_ERROR_INVALID;
+    }
     const size_t cpuset_size = CPU_ALLOC_SIZE(num_cpu);
     const int num_read = num_cpu / 32 + (num_cpu % 32 ? 1 : 0);
     int err = 0;
@@ -167,7 +173,7 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
 
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
 {
-    if (num_cpu <= 0 || num_cpu == INT_MAX) {
+    if (num_cpu <= 0 || num_cpu == INT_MAX || proc_cpuset == NULL) {
         return GEOPM_ERROR_INVALID;
     }
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
@@ -204,7 +210,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
                CPUs allocated for the process are used by OpenMP, then
                the woomp mask will have all bits set. */
 
-    if (num_cpu <= 0 || num_cpu == INT_MAX) {
+    if (num_cpu <= 0 || num_cpu == INT_MAX || woomp == NULL) {
         return GEOPM_ERROR_INVALID;
     }
     int err = pthread_once(&g_proc_cpuset_once, geopm_proc_cpuset_once);
