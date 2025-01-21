@@ -3,7 +3,9 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-if [ ! -e geopmdpy/geopm_service_pb2.py ] || [ ! -e geopmdpy/geopm_service_pb2_grpc.py ]; then
-    cd ../libgeopmd && ./protoc-gen.sh && cd -
+if which protoc >& /dev/null; then
+    if [ ! -e geopmdpy/geopm_service_pb2.py ] || [ ! -e geopmdpy/geopm_service_pb2_grpc.py ]; then
+        cd ../libgeopmd && ./protoc-gen.sh && cd -
+    fi
 fi
 python3 make_sdist.py | tee make_sdist.log

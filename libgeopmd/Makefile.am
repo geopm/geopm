@@ -176,8 +176,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
                        src/GEOPMHint.cpp \
-                       src/GRPCServiceProxy.cpp \
-                       src/GRPCServiceProxy.hpp \
                        src/Helper.cpp \
                        src/IOGroup.cpp \
                        src/IOUring.cpp \
@@ -259,10 +257,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
                        src/geopm_shmem.cpp \
-                       src/geopm_service.grpc.pb.cc \
-                       src/geopm_service.grpc.pb.h \
-                       src/geopm_service.pb.cc \
-                       src/geopm_service.pb.h \
                        src/geopm_version.cpp \
                        # end
 
@@ -294,6 +288,22 @@ levelzero_source_files = src/LevelZero.cpp \
 dcgm_source_files = src/DCGMDevicePool.cpp \
                     src/DCGMDevicePoolImp.hpp \
                     #end
+
+grpc_source_files = src/GRPCServiceProxy.cpp \
+                    src/GRPCServiceProxy.hpp \
+                    src/geopm_service.grpc.pb.cc \
+                    src/geopm_service.grpc.pb.h \
+                    src/geopm_service.pb.cc \
+                    src/geopm_service.pb.h \
+                    # end
+if ENABLE_GRPC
+    # Generated files
+    libgeopmd_la_SOURCES += $(grpc_source_files)
+else
+    EXTRA_DIST += src/GRPCServiceProxy.cpp \
+                  src/GRPCServiceProxy.hpp \
+                  # end
+endif
 
 if ENABLE_LEVELZERO
     libgeopmd_la_SOURCES += $(levelzero_source_files)

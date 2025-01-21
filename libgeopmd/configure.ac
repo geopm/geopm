@@ -218,18 +218,34 @@ fi
 AC_SUBST([enable_io_uring])
 AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
-AC_PATH_PROG([PROTOC], [protoc], [])
-AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
-PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
-AC_SUBST([PROTOBUF_CFLAGS])
-AC_SUBST([PROTOBUF_LIBS])
-PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
-AC_SUBST([GRPC_CFLAGS])
-AC_SUBST([GRPC_LIBS])
-AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
-AS_IF([test "x$GRPC_CPP_PLUGIN" = x], [
-  AC_MSG_ERROR([grpc_cpp_plugin not found])
-])
+AC_ARG_ENABLE([grpc],
+  [AS_HELP_STRING([--enable-grpc], [Enables use of the grpc for an alternative to dbus for geopmd])],
+[if test "x$enable_grpc" = "xno" ; then
+  enable_grpc="0"
+else
+  enable_grpc="1"
+fi
+],
+[enable_grpc="0"]
+)
+AC_SUBST([enable_grpc])
+AM_CONDITIONAL([ENABLE_GRPC], [test "x$enable_grpc" = "x1"])
+
+if test "x$enable_grpc" = "x1"; then
+  AC_PATH_PROG([PROTOC], [protoc], [])
+  AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
+  PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
+  AC_SUBST([PROTOBUF_CFLAGS])
+  AC_SUBST([PROTOBUF_LIBS])
+  PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
+  AC_SUBST([GRPC_CFLAGS])
+  AC_SUBST([GRPC_LIBS])
+  AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+  AS_IF([test "x$GRPC_CPP_PLUGIN" = x], [
+    AC_MSG_ERROR([grpc_cpp_plugin not found])
+  ])
+  AC_DEFINE([GEOPM_ENABLE_GRPC], [ ], [Enables GRPC option])
+fi
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
@@ -575,4 +591,5 @@ AC_MSG_RESULT([asan               : ${enable_asan}])
 AC_MSG_RESULT([fuzz               : ${enable_fuzz}])
 AC_MSG_RESULT([libcap             : ${enable_libcap}])
 AC_MSG_RESULT([rawmsr             : ${enable_rawmsr}])
+AC_MSG_RESULT([grpc               : ${enable_grpc}])
 AC_MSG_RESULT([===============================================================================])

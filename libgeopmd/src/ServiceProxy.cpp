@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "config.h"
-
 #include "geopm/ServiceProxy.hpp"
+#ifdef GEOPM_ENABLE_GRPC
 #include "GRPCServiceProxy.hpp"
+#endif
 
 #include <sstream>
 #include <iostream>
@@ -24,6 +24,7 @@ namespace geopm
 
     std::unique_ptr<ServiceProxy> ServiceProxy::make_unique(void)
     {
+#ifdef GEOPM_ENABLE_GRPC
         std::unique_ptr<ServiceProxy> result;
         try {
             result = geopm::make_unique<GRPCServiceProxy>();
@@ -36,6 +37,9 @@ namespace geopm
             result = geopm::make_unique<ServiceProxyImp>();
         }
         return result;
+#else
+        return geopm::make_unique<ServiceProxyImp>();
+#endif
     }
 
     ServiceProxyImp::ServiceProxyImp()

@@ -47,8 +47,10 @@ Requires: python3-dasbus >= 1.6
 Requires: python3-jsonschema >= 2.6.0
 Requires: python3-psutil >= 5.4.8
 Requires: python3-cffi >= 1.11.5
+%if %{defined enable_grpc}
 Requires: python3-grpcio
 Requires: python3-protobuf
+%endif
 Requires: libgeopmd2 = %{version}
 Recommends: python3-geopmdpy-doc
 

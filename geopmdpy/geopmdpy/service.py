@@ -620,7 +620,7 @@ class PlatformService(object):
             raise RuntimeError(f'Client {client_pid} has already started a batch server: {batch_pid}')
         subp = subprocess.Popen(["geopmbatch", str(client_pid)],
                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                text=True, bufsize=0)
+                                universal_newlines=True, bufsize=0)
         batch_pid = subp.pid
         self._batch_subp[batch_pid] = subp
         for sr in signal_config:

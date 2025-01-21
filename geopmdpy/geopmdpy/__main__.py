@@ -12,7 +12,6 @@ import os
 from . import service
 from . import system_files
 from . import __version_str__
-from . import grpc_service
 from geopmdpy.restorable_file_writer import RestorableFileWriter
 
 ALLOW_WRITES_PATH = '/sys/module/msr/parameters/allow_writes'
@@ -54,6 +53,10 @@ def main_dbus():
             stop()
 
 def main_grpc():
+    try:
+        from . import grpc_service
+    except Exception as ex:
+        raise RuntimeError('Using --grpc requires the grpc python module') from ex
     grpc_service.run()
 
 def main():

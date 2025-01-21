@@ -27,9 +27,13 @@ cd geopmdpy
 ./make_$pkg.sh
 cd -
 
-cd geopmdrs
-./build.sh
+if which cargo >& /dev/null; then
+    cd geopmdrs
+    ./build.sh
 cd -
+else
+    echo "Install rust to enable grpc features" 1>&2
+fi
 
 cd docs
 ./make_$pkg.sh
