@@ -88,6 +88,7 @@ namespace geopm
                 std::string m_description;
                 std::vector<std::shared_ptr<signal_s> > signals;
                 int domain;
+                int units;
                 std::function<double(const std::vector<double> &)> agg_function;
                 int behavior;
                 std::function<std::string(double)> format_function;
@@ -97,6 +98,7 @@ namespace geopm
                 std::string m_description;
                 std::vector<std::shared_ptr<control_s> > controls;
                 int domain;
+                int units;
                 std::function<double(const std::vector<double> &)> agg_function;
                 std::function<std::string(double)> format_function;
             };

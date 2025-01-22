@@ -48,9 +48,10 @@ namespace geopm
         , m_frequency_min_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), NAN)
         , m_initial_power_limit(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), 0)
         , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
-                                  "Streaming Multiprocessor frequency in hertz",
+                                  "Streaming Multiprocessor frequency",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -59,30 +60,34 @@ namespace geopm
                                   "Fraction of time the GPU operated on a kernel in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER", {
-                                  "GPU power usage in watts",
+                                  "GPU power usage",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_WATTS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
-                                  "GPU power limit in watts",
+                                  "GPU power limit",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_WATTS,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", {
-                                  "GPU memory frequency in hertz",
+                                  "GPU memory frequency",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -91,22 +96,25 @@ namespace geopm
                                   "GPU clock throttling reasons",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::integer_bitwise_or,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_TEMPERATURE", {
-                                  "GPU temperature in degrees Celsius",
+                                  "GPU temperature",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_CELSIUS,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL", {
-                                  "GPU energy consumption in joules since the driver was loaded",
+                                  "GPU energy consumption since the driver was loaded",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_JOULES,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double
@@ -116,6 +124,7 @@ namespace geopm
                                   "\n  with 0 being maximum performance, 15 being minimum performance, and 32 being unknown",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -124,6 +133,7 @@ namespace geopm
                                   "GPU PCIE receive throughput in bytes per second over a 20 millisecond period",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -132,6 +142,7 @@ namespace geopm
                                   "GPU PCIE transmit throughput in bytes per second over a 20 millisecond period",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -142,6 +153,7 @@ namespace geopm
                                   "\n  If multiple GPUs map to the CPU NAN is returned",
                                   {},
                                   GEOPM_DOMAIN_CPU,
+                                  M_UNITS_NONE,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -150,47 +162,53 @@ namespace geopm
                                   "Fraction of time the GPU memory was accessed in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
-                                  "Streaming Multiprocessor Maximum frequency in hertz",
+                                  "Streaming Multiprocessor Maximum frequency",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
-                                  "Streaming Multiprocessor Minimum frequency in hertz",
+                                  "Streaming Multiprocessor Minimum frequency",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", {
-                                  "The Streaming Multiprocessor frequency step size in hertz.\n"
-                                  "The average step size is provided in the case where the step size is variable.",
+                                  "The average Streaming Multiprocessor frequency step size\n"
+                                  "                  The average step size is provided if not constant.",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
-                                  "Latest frequency maximum control request in hertz",
+                                  "Latest frequency maximum control request",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
-                                  "Latest frequency minimum control request in hertz",
+                                  "Latest frequency minimum control request",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_HERTZ,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -199,37 +217,42 @@ namespace geopm
                                   "Resets Streaming Multiprocessor frequency min and max limits to default values.",
                                   {},
                                   GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }}
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
-                                    "Sets Streaming Multiprocessor frequency max (in hertz)",
+                                    "Sets Streaming Multiprocessor frequency max",
                                     {},
                                     GEOPM_DOMAIN_GPU,
+                                    M_UNITS_HERTZ,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
-                                    "Sets Streaming Multiprocessor frequency min (in hertz)",
+                                    "Sets Streaming Multiprocessor frequency min",
                                     {},
                                     GEOPM_DOMAIN_GPU,
+                                    M_UNITS_HERTZ,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
-                                    "Resets Streaming Multiprocessor frequency min and max limits to default values."
-                                    "\n  Parameter provided is unused.",
+                                    "Resets Streaming Multiprocessor frequency min and max limits to default values\n"
+                                    "                  Parameter provided is unused.",
                                     {},
                                     GEOPM_DOMAIN_GPU,
+                                    M_UNITS_NONE,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
-                                    "Sets GPU power limit in watts",
+                                    "Sets GPU power limit",
                                     {},
                                     GEOPM_DOMAIN_GPU,
+                                    M_UNITS_WATTS,
                                     Agg::sum,
                                     string_format_double
                                     }}
@@ -832,7 +855,15 @@ namespace geopm
                             " not valid for NVMLIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_available.at(signal_name).m_description;
+        auto it = m_signal_available.find(signal_name);
+        std::ostringstream oss;
+        oss << "    description: " << it->second.m_description << "\n"
+            << "    units: " << IOGroup::units_to_string(it->second.units) << "\n"
+            << "    aggregation: " << Agg::function_to_name(it->second.agg_function) << "\n"
+            << "    domain: " << platform_topo().domain_type_to_name(it->second.domain) << "\n"
+            << "    iogroup: NVMLIOGroup";
+
+        return oss.str();
     }
 
     // A user-friendly description of each control
@@ -843,8 +874,15 @@ namespace geopm
                             "not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        auto it = m_control_available.find(control_name);
+        std::ostringstream oss;
+        oss << "    description: " << it->second.m_description << "\n"
+            << "    units: " << IOGroup::units_to_string(it->second.units) << "\n"
+            << "    aggregation: " << Agg::function_to_name(it->second.agg_function) << "\n"
+            << "    domain: " << platform_topo().domain_type_to_name(it->second.domain) << "\n"
+            << "    iogroup: NVMLIOGroup";
 
-        return m_control_available.at(control_name).m_description;
+        return oss.str();
     }
 
     int NVMLIOGroup::signal_behavior(const std::string &signal_name) const
