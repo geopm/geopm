@@ -53,9 +53,9 @@ def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
 
     tar_epoch_data = idf.xs([target])
     if metric == 'power':
-        tge = tar_epoch_data['energy']
-        tgr = tar_epoch_data['runtime']
-        target_g = (tge / tgr).groupby(level='power_limit')
+        target_energy = tar_epoch_data['energy']
+        target_runtime = tar_epoch_data['runtime']
+        target_g = (target_energy / target_runtime).groupby(level='power_limit')
     else:
         target_g = tar_epoch_data[metric].groupby(level='power_limit')
 

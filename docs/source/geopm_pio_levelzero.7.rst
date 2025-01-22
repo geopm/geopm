@@ -116,7 +116,7 @@ Signals
 ``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR``
     Performance Factor of the GPU Compute Hardware Domain. Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units.  A value of 1 indicates a compute focused energy trade-off, a value of 0 indicates a memory focused energy trade-off.  Default value is 0.5
 
-    *  **Aggregation**: averge
+    *  **Aggregation**: average
     *  **Domain**: gpu_chip for multi-chip systems or gpu for single chip per gpu systems
     *  **Format**: double
     *  **Unit**: none
@@ -400,7 +400,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 ``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR_CONTROL``
     Performance Factor of the GPU Compute Hardware Domain. Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units.  A value of 1 indicates a compute focused energy trade-off, a value of 0 indicates a memory focused energy trade-off.  Default value is 0.5
 
-    *  **Aggregation**: averge
+    *  **Aggregation**: average
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: none

@@ -48,7 +48,7 @@ namespace geopm
             virtual void update(void) = 0;
             /// @brief Generate a YAML report of statistics
             ///
-            /// Returns a YAML formatted report providing statisics about all
+            /// Returns a YAML formatted report providing statistics about all
             /// samples gathered since object construction or since last call to
             /// reset().
             ///

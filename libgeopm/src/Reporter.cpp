@@ -269,7 +269,7 @@ namespace geopm
                                           count});
             }
         }
-        // sort based on averge runtime, descending
+        // sort based on average runtime, descending
         std::sort(region_ordered.begin(), region_ordered.end(),
                   [] (const region_info &a,
                       const region_info &b) -> bool {
