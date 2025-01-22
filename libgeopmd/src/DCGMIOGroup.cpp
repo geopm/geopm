@@ -171,7 +171,7 @@ namespace geopm
         if (!is_valid_signal(signal_name)) {
             return GEOPM_DOMAIN_INVALID;
         }
-        return  m_signal_available.find(signal_name)->second.m_units;
+        return  m_signal_available.find(signal_name)->second.m_domain;
     }
 
     // Return domain for all valid controls
@@ -180,7 +180,7 @@ namespace geopm
         if (!is_valid_control(control_name)) {
             return GEOPM_DOMAIN_INVALID;
         }
-        return  m_control_available.find(control_name)->second.m_units;
+        return  m_control_available.find(control_name)->second.m_domain;
     }
 
     // Mark the given signal to be read by read_batch()
