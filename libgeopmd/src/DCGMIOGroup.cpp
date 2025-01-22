@@ -41,6 +41,8 @@ namespace geopm
                                       return this->m_dcgm_device_pool.sample(
                                                    domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE);
                                   },
+                                  GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   string_format_double
                                   }},
@@ -52,6 +54,8 @@ namespace geopm
                                       return this->m_dcgm_device_pool.sample(
                                                    domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_OCCUPANCY);
                                   },
+                                  GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   string_format_double
                                   }},
@@ -63,25 +67,33 @@ namespace geopm
                                       return this->m_dcgm_device_pool.sample(
                                                    domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_DRAM_ACTIVE);
                                   },
+                                  GEOPM_DOMAIN_GPU,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   string_format_double
                                   }},
                              })
         , m_control_available({{"DCGM::FIELD_UPDATE_RATE", {
-                                    "Rate at which field data is polled in seconds",
+                                    "Rate at which field data is polled",
                                     {},
+                                    GEOPM_DOMAIN_BOARD,
+                                    M_UNITS_SECONDS,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
                                {"DCGM::MAX_STORAGE_TIME", {
-                                    "Maximum time field data is stored in seconds",
+                                    "Maximum time field data is stored",
                                     {},
+                                    GEOPM_DOMAIN_BOARD,
+                                    M_UNITS_SECONDS,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
                                {"DCGM::MAX_SAMPLES", {
                                     "Maximum number of samples.  0=no limit",
                                     {},
+                                    GEOPM_DOMAIN_BOARD,
+                                    M_UNITS_NONE,
                                     Agg::expect_same,
                                     string_format_integer
                                     }}
@@ -156,13 +168,19 @@ namespace geopm
     // Return domain for all valid signals
     int DCGMIOGroup::signal_domain_type(const std::string &signal_name) const
     {
-        return is_valid_signal(signal_name) ? GEOPM_DOMAIN_GPU : GEOPM_DOMAIN_INVALID;
+        if (!is_valid_signal(signal_name)) {
+            return GEOPM_DOMAIN_INVALID;
+        }
+        return  m_signal_available.find(signal_name)->second.m_units;
     }
 
     // Return domain for all valid controls
     int DCGMIOGroup::control_domain_type(const std::string &control_name) const
     {
-        return is_valid_control(control_name) ? GEOPM_DOMAIN_BOARD : GEOPM_DOMAIN_INVALID;
+        if (!is_valid_control(control_name)) {
+            return GEOPM_DOMAIN_INVALID;
+        }
+        return  m_control_available.find(control_name)->second.m_units;
     }
 
     // Mark the given signal to be read by read_batch()
@@ -441,7 +459,14 @@ namespace geopm
                             " not valid for DCGMIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_available.at(signal_name).m_description;
+        auto it = m_signal_available.find(signal_name);
+        std::ostringstream oss;
+        oss << "    description: " << it->second.m_description << "\n"
+            << "    units: " << IOGroup::units_to_string(it->second.m_units) << "\n"
+            << "    aggregation: " << Agg::function_to_name(it->second.m_agg_function) << "\n"
+            << "    domain: " << platform_topo().domain_type_to_name(it->second.m_domain) << "\n"
+            << "    iogroup: DCGMIOGroup";
+        return oss.str();
     }
 
     // A user-friendly description of each control
@@ -452,6 +477,15 @@ namespace geopm
                             "not valid for DCGMIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        auto it = m_control_available.find(control_name);
+        std::ostringstream oss;
+        oss << "    description: " << it->second.m_description << "\n"
+            << "    units: " << IOGroup::units_to_string(it->second.m_units) << "\n"
+            << "    aggregation: " << Agg::function_to_name(it->second.m_agg_function) << "\n"
+            << "    domain: " << platform_topo().domain_type_to_name(it->second.m_domain) << "\n"
+            << "    iogroup: DCGMIOGroup";
+
+        return oss.str();
 
         return m_control_available.at(control_name).m_description;
     }
