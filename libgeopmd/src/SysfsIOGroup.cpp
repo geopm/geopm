@@ -318,8 +318,8 @@ namespace geopm
                     false,
                     std::make_shared<int>(0),
                     {},
-                    m_driver->signal_parse(control_name),
-                    m_driver->control_gen(control_name)
+                    m_driver->signal_parse(cname),
+                    m_driver->control_gen(cname)
                 });
             control_idx = m_pushed_info_control.size() - 1;
         }
@@ -362,7 +362,7 @@ namespace geopm
         m_is_batch_write = true;
         if (m_do_batch_write) {
             if (!m_batch_writer) {
-                m_batch_writer = IOUring::make_unique(m_pushed_info_signal.size());
+                m_batch_writer = IOUring::make_unique(m_pushed_info_control.size());
             }
 
             for (auto &info : m_pushed_info_control) {
