@@ -1019,8 +1019,7 @@ namespace geopm
                                                            sleep_time,
                                                            ds.second.m_nan_replace);
                 }
-                m_signal_available[ds.first] = {ds.second.m_description + "\n    alias_for: " +
-                                                ds.second.m_base_name + " rate of change",
+                m_signal_available[ds.first] = {ds.second.m_description,
                                                 domain,
                                                 ds.second.m_units,
                                                 ds.second.m_agg_function,
