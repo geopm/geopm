@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <numeric>
 #include <sched.h>
 #include <errno.h>
@@ -1528,14 +1529,13 @@ namespace geopm
 
         signal_info signal = m_signal_available.at(signal_name);
 
-        std::string result;
-        result =  "    description: "  + signal.m_description + "\n";
-        result += "    units: " + IOGroup::units_to_string(signal.m_units) + '\n';
-        result += "    aggregation: " + Agg::function_to_name(signal.m_agg_function) + '\n';
-        result += "    domain: " + m_platform_topo.domain_type_to_name(signal.m_domain_type) + '\n';
-        result += "    iogroup: LevelZeroIOGroup";
-            
-        return result;
+        std::ostringstream oss;
+        oss << "    description: " << signal.m_description << "\n"
+            << "    units: " << IOGroup::units_to_string(signal.m_units) << "\n"
+            << "    aggregation: " << Agg::function_to_name(signal.m_agg_function) << "\n"
+            << "    domain: " << platform_topo().domain_type_to_name(signal.m_domain_type) << "\n"
+            << "    iogroup: LevelZeroIOGroup";
+        return oss.str();
     }
 
     // A user-friendly description of each control
@@ -1548,14 +1548,13 @@ namespace geopm
         }
         control_info control = m_control_available.at(control_name);
 
-        std::string result;
-        result =  "    description: "  + control.m_description + "\n";
-        result += "    units: " + IOGroup::units_to_string(control.m_units) + '\n';
-        result += "    aggregation: " + Agg::function_to_name(control.m_agg_function) + '\n';
-        result += "    domain: " + m_platform_topo.domain_type_to_name(control.m_domain_type) + '\n';
-        result += "    iogroup: LevelZeroIOGroup";
-            
-        return result;
+        std::ostringstream oss;
+        oss << "    description: " << control.m_description << "\n"
+            << "    units: " << IOGroup::units_to_string(control.m_units) << "\n"
+            << "    aggregation: " << Agg::function_to_name(control.m_agg_function) << "\n"
+            << "    domain: " << platform_topo().domain_type_to_name(control.m_domain_type) << "\n"
+            << "    iogroup: LevelZeroIOGroup";
+        return oss.str();
     }
 
     std::string LevelZeroIOGroup::name(void) const
