@@ -15,7 +15,7 @@ spec:
       tolerations:
       containers:
       - name: geopm-service
-        image: cmcantal/geopm-prometheus:latest
+        image: geopm-prometheus:latest
         env:
         - name: NVIDIA_VISIBLE_DEVICES
           value: all
