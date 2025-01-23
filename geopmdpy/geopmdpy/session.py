@@ -632,6 +632,9 @@ def get_parser():
                         help='Format for report: "csv" or "yaml".  Default: %(default)s.')
     parser.add_argument('-s', '--report-samples', dest='report_samples', type=int, default=None,
                         help='Create reports each time the specified number of periods have elapsed')
+    parser.add_argument('-i', '--signal-config', dest='config_path', default='-',
+                        help='Input file containing GEOPM signal requests, specify "-" to use standard input which is also the default.')
+
     return parser
 
 def main():
@@ -646,6 +649,7 @@ def main():
     err = 0
     trace_out = None
     session_io = None
+    _config_stream = None
     signal(SIGTERM, _term_handler)
     try:
         args = get_parser().parse_args()
@@ -656,10 +660,15 @@ def main():
             raise RuntimeError(f'Invalid report format: {args.report_format}')
         if args.report_samples is not None and args.trace_out == args.report_out:
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
-        if args.enable_mpi:
-            session_io = _MPISessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out, report_format=args.report_format)
+        if args.config_path == '-':
+            config_stream = sys.stdin
         else:
-            session_io = _SessionIO(request_stream=sys.stdin, trace_path=args.trace_out, report_path=args.report_out)
+            _config_stream = open(args.config_path)
+            config_stream = _config_stream
+        if args.enable_mpi:
+            session_io = _MPISessionIO(request_stream=config_stream, trace_path=args.trace_out, report_path=args.report_out, report_format=args.report_format)
+        else:
+            session_io = _SessionIO(request_stream=config_stream, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
@@ -675,6 +684,8 @@ def main():
         if session_io is not None:
             session_io.close_trace_stream(trace_out)
             session_io.close_report_stream()
+        if _config_stream is not None:
+            _config_stream.close()
     return err
 
 if __name__ == '__main__':
