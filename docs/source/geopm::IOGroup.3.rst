@@ -293,12 +293,18 @@ Class Methods
 *
   ``signal_description()``:
   Returns a description of the signal. This string can be used by
-  tools to generate help text for users of the IOGroup.
+  tools to generate help text for users of the IOGroup. Each
+  signal description should contain valid YAML in the body.
+  Information that is commonly provided includes a short description,
+  units, aggregation, native domain, and the iogroup name.
 
 *
   ``control_description()``:
   Returns a description of the control. This string can be used by
-  tools to generate help text for users of the IOGroup.
+  tools to generate help text for users of the IOGroup. Each 
+  control description should contain valid YAML in the body.
+  Information that is commonly provided includes a short description,
+  units, native domain, and the iogroup name.
 
 *
   ``signal_behavior()``:

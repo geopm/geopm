@@ -4,9 +4,11 @@
 #
 
 set -e
+
 temp_file=$(mktemp)
 geopmread --info-all > $temp_file
+python3 validate_yaml.py $temp_file
 
-python3 test_geopmread_info.py $temp_file
-
-return_code=$?
+temp_file=$(mktemp)
+geopmwrite --info-all > $temp_file
+python3 validate_yaml.py $temp_file
