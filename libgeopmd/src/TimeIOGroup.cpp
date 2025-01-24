@@ -199,7 +199,7 @@ namespace geopm
 
         std::string result = "Invalid signal description: no description found.";
         result = "    description: Time since the start of application profiling.\n";
-        if (!signal_name.compare("TIME")) {
+        if (signal_name == "TIME") {
             result += "    alias_for: TIME::ELAPSED\n";
         }
         result += "    units: " + IOGroup::units_to_string(M_UNITS_SECONDS) + '\n';
