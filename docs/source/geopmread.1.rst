@@ -160,6 +160,7 @@ Show the description for a signal:
    $ geopmread --info TIME
    TIME:
        description: Time since the start of application profiling.
+       alias_for: TIME::ELAPSED
        units: seconds
        aggregation: select_first
        domain: cpu
