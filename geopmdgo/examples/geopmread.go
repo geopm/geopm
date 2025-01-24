@@ -57,7 +57,7 @@ gpu_chip                    %d
 // PrintInfo prints the description of a single signal.
 func PrintInfo(signalName string) {
     description, _ := geopm.SignalDescription(signalName)
-    fmt.Printf("%s:\n    %s\n", signalName, description)
+    fmt.Printf("%s:\n%s\n", signalName, description)
 }
 
 // PrintInfoAll prints the descriptions of all signals.
