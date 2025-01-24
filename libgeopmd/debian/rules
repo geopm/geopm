@@ -18,4 +18,4 @@ override_dh_auto_configure:
 	if [ -n "$(ENABLE_LEVELZERO)" ]; then \
 	    CONFIG_OPTION="$$CONFIG_OPTION --enable-levelzero"; \
 	fi; \
-	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d $$CONFIG_OPTION
+	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d --enable-grpc $$CONFIG_OPTION
