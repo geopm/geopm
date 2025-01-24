@@ -68,7 +68,7 @@ jobs:
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-dev libsystemd-dev liburing-dev gobject-introspection python3-gi python3-yaml libcap-dev zlib1g-dev doxygen graphviz autoconf automake libtool libsqlite3-dev clang clang-tools
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-dev libsystemd-dev liburing-dev gobject-introspection python3-gi python3-yaml libcap-dev zlib1g-dev doxygen graphviz autoconf automake libtool libsqlite3-dev clang clang-tools golang
     - name: install geopmpy and geopmdpy development dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
@@ -149,6 +149,10 @@ jobs:
       env:
         LD_LIBRARY_PATH: ../libgeopm/.libs:${LD_LIBRARY_PATH}
       run: python3 test
+    - name: test geopmdgo
+      if: matrix.service-asan-flag != 'enable-asan'
+      working-directory: geopmdgo
+      run: ./test.sh
     - name: make geopmpy dist
       if: matrix.service-asan-flag != 'enable-asan'
       working-directory: geopmpy
