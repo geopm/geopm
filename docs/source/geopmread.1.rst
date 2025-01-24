@@ -159,9 +159,11 @@ Show the description for a signal:
 
    $ geopmread --info TIME
    TIME:
-       description: Time elapsed since the beginning of execution.
-       iogroup: Time
-       alias_for: TIME::ELAPSED
+       description: Time since the start of application profiling.
+       units: seconds
+       aggregation: select_first
+       domain: cpu
+       iogroup: TimeIOGroup
 
 Show domain type for DRAM_ENERGY signal:
 

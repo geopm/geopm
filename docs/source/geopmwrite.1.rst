@@ -178,7 +178,12 @@ Show the description for a control:
 .. code-block::
 
    $ geopmwrite --info CPU_FREQUENCY_MAX_CONTROL
-   CPU_FREQUENCY_MAX_CONTROL: Set processor frequency
+   CPU_FREQUENCY_MAX_CONTROL:
+       description: Target operating frequency of the CPU based on the control register. When querying at a higher domain, if NaN is returned, query at its native domain.
+       alias_for: MSR::PERF_CTL:FREQ
+       units: hertz
+       domain: core
+       iogroup: MSRIOGroup
 
 Show domain type for ``CPU_POWER`` control:
 
