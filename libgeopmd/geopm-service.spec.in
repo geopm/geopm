@@ -3,6 +3,7 @@
 #
 
 # Packages: geopm-service, geopm-service-devel, libgeopmd2
+
 # This spec file supports three options for level-zero support:
 #
 # 1. default:
@@ -15,6 +16,12 @@
 # 3. rpmbuild --define 'with_level_zero <LEVEL_ZERO_PREFIX>' ...
 #    Enable level-zero with packages installed into a
 #    non-standard prefix.
+
+# This spec file does not enable grpc by default.  Use the following syntax to
+# enable grpc
+#
+#    rpmbuild --define 'enable_grpc 1' ...
+
 
 Summary: Global Extensible Open Power Manager Service
 Name: geopm-service

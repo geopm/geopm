@@ -4,6 +4,11 @@
 
 # Packages: python3-geopmdpy
 
+# This spec file does not enable grpc by default.  Use the following syntax to
+# enable grpc
+#
+#    rpmbuild --define 'enable_grpc 1' ...
+
 Summary: The geopmdpy Python package for the GEOPM Service
 Name: python3-geopmdpy
 Version: @VERSION@
