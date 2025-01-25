@@ -30,7 +30,7 @@ visualization of data collected by the `geopmexporter(1)`.
 
 The `geopmexporter(1)` is typically deployed system-wide with either a [systemd
 service](https://geopm.github.io/geopmexporter.1.html#systemd-service) or as a
-[kubernetes service](https://github.com/cmcantalupo/geopm/tree/prometheus/integration/k8#deploying-prometheus-client-in-kubernetes).
+[kubernetes service](https://github.com/geopm/geopm/tree/dev/integration/k8#deploying-prometheus-client-in-kubernetes).
 This documentation is for an alternative `geopmexporter(1)` deployment scenario
 where an unprivileged user of an HPC system with a resource manager would like
 to monitor the compute resources granted to them only while they are
