@@ -26,6 +26,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/AggTest.cpp \
                           test/BatchClientTest.cpp \
                           test/BatchStatusTest.cpp \
+                          test/BatchServerTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \

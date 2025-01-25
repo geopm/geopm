@@ -121,7 +121,6 @@ namespace geopm
             void run_batch(void) override;
             void create_shmem(void) override;
             void register_handler(void) override;
-        private:
             void push_requests(void);
             void read_and_update(void);
             void update_and_write(void);
@@ -130,7 +129,7 @@ namespace geopm
             char read_message(void);
             void write_message(char message);
             void event_loop(void);
-
+        private:
             const int m_client_pid;
             const std::string m_server_key;
             const std::vector<geopm_request_s> m_signal_config;
