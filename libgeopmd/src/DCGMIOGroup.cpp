@@ -486,8 +486,6 @@ namespace geopm
             << "    iogroup: DCGMIOGroup";
 
         return oss.str();
-
-        return m_control_available.at(control_name).m_description;
     }
 
     int DCGMIOGroup::signal_behavior(const std::string &signal_name) const
