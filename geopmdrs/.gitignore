@@ -1,4 +1,8 @@
-Cargo.lock
-Cargo.toml
-target
-vendor
+/DATE
+/debian/changelog
+/Cargo.lock
+/Cargo.toml
+/target
+/vendor
+/MANIFEST
+/debian/files

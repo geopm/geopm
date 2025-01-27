@@ -1,0 +1,26 @@
+Source: geopmdrs
+Section: utils
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (= 13),
+ debhelper (>= 13),
+ dh-cargo (>= 25),
+ cargo
+Standards-Version: 4.5.1
+Vcs-Git: https://github.com/geopm/geopm.git
+Homepage: https://geopm.github.io
+
+Package: geopmdrs
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ ${cargo:Depends}
+Recommends:
+ ${cargo:Recommends}
+Suggests:
+ ${cargo:Suggests}
+Provides:
+ ${cargo:Provides}
+Description: geopmd UDS proxy server
+  This package provides the geopmd-proxy executable.

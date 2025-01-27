@@ -4,6 +4,8 @@
 
 [package]
 name = "geopmd-proxy"
+description = "geopmd UDS proxy server"
+license = "BSD-3-Clause"
 version = "@VERSION@"
 authors = ["Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>"]
 edition = "2018"

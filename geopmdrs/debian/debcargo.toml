@@ -1,0 +1,11 @@
+overlay = "."
+uploaders = ["Christopher M. Cantalupo christopher.m.cantalupo@intel.com"]
+bin_name = "geopmd-proxy"
+
+[source]
+section = "utils"
+
+[packages.bin]
+summary="The geopmd-proxy executable"
+description="Proxy server for geopmd UDS."
+section = "utils"

@@ -3,6 +3,6 @@
 //
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tonic_build::compile_protos("../libgeopmd/geopm_service.proto")?;
+    tonic_build::compile_protos("geopm_service.proto")?;
     Ok(())
 }
