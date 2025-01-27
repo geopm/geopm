@@ -381,22 +381,22 @@ namespace geopm
                 throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             if (is_read) {
-                signal_config.push_back(request);
                 size_t name_max = sizeof(request.name);
-                signal_config.back().name[name_max - 1] = '\0';
-                std::strncpy(signal_config.back().name, split_line[1].c_str(), name_max - 1);
-                if (signal_config.back().name[name_max - 1] != '\0') {
+                request.name[name_max - 1] = '\0';
+                std::strncpy(request.name, split_line[1].c_str(), name_max - 1);
+                if (request.name[name_max - 1] != '\0') {
                     throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
+                signal_config.push_back(std::move(request));
             }
             else {
-                control_config.push_back(request);
                 size_t name_max = sizeof(request.name);
-                control_config.back().name[name_max - 1] = '\0';
-                std::strncpy(control_config.back().name, split_line[1].c_str(), name_max - 1);
-                if (control_config.back().name[name_max - 1] != '\0') {
+                request.name[name_max - 1] = '\0';
+                std::strncpy(request.name, split_line[1].c_str(), name_max - 1);
+                if (request.name[name_max - 1] != '\0') {
                     throw Exception(err_str, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
+                control_config.push_back(std::move(request));
             }
         }
         if (input_stream.bad()) {
