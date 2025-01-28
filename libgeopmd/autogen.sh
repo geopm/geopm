@@ -14,7 +14,7 @@ if [ ! -e VERSION ]; then
 	set -x
     fi
 fi
-autoreconf -i -f
+ACLOCAL_PATH=/usr/share/aclocal autoreconf -i -f
 if which protoc >& /dev/null; then
     ./protoc-gen.sh
 else
