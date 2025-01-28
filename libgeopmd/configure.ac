@@ -228,13 +228,14 @@ fi
 ],
 [enable_grpc="0"]
 )
+
 AC_SUBST([enable_grpc])
 AM_CONDITIONAL([ENABLE_GRPC], [test "x$enable_grpc" = "x1"])
 
-if test "x$enable_grpc" = "x1"; then
+if test "x$enable_grpc" = "x1" ; then
+  PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
   AC_PATH_PROG([PROTOC], [protoc], [])
   AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
-  PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
   AC_SUBST([PROTOBUF_CFLAGS])
   AC_SUBST([PROTOBUF_LIBS])
   PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
@@ -246,6 +247,7 @@ if test "x$enable_grpc" = "x1"; then
   ])
   AC_DEFINE([GEOPM_ENABLE_GRPC], [ ], [Enables GRPC option])
 fi
+AC_SUBST([enable_grpc])
 
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
