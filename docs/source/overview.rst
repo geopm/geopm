@@ -212,6 +212,27 @@ topology.
         num_core = topo.num_domain(topo.DOMAIN_CORE)
         print(f'Num cores = {num_core}')
 
+
+    .. code-tab:: go
+
+        // Query the number of physical cores in the system
+
+        package main
+
+        import (
+            "fmt"
+            "github.com/geopm/geopmdgo/geopmdgo"
+        )
+
+        func main() {
+            numCore, err := geopmdgo.NumDomain("core")
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            fmt.Printf("Num cores = %d\n", numCore)
+        }
+
 ----
 
 |:microscope:| Reading Telemetry
@@ -336,6 +357,27 @@ Reading Signals
 
         curr_frequency = pio.read_signal('CPU_FREQUENCY_STATUS', topo.DOMAIN_CPU, 0)
         print(f'Current CPU frequency for core 0 = {curr_frequency}')
+
+
+    .. code-tab:: go
+
+        // Read the current CPU frequency for cpu 0
+
+        package main
+
+        import (
+            "fmt"
+            "github.com/geopm/geopmdgo/geopmdgo"
+        )
+
+        func main() {
+            frequency, err := geopmdgo.ReadSignal("CPU_FREQUENCY_STATUS", geopmdgo.DOMAIN_CPU, 0)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            fmt.Printf("Current CPU frequency for core 0 = %f\n", frequency)
+        }
 
 
 Understanding Aggregation
@@ -492,6 +534,47 @@ To fetch platform telemetry and output it to the console or a file:
         print(f"Elapsed time = {pio.sample(time_idx)}")
         print(f"Current CPU frequency for core 0 = {pio.sample(freq_idx)}")
 
+    .. code-tab:: go
+
+        // Read multiple signals using batch read
+
+        package main
+
+        import (
+            "fmt"
+            "github.com/geopm/geopmdgo/geopmdgo"
+        )
+
+        func main() {
+            timeIdx, err := geopmdgo.PushSignal("TIME", geopmdgo.DOMAIN_BOARD, 0)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            freqIdx, err := geopmdgo.PushSignal("CPU_FREQUENCY_STATUS", geopmdgo.DOMAIN_PACKAGE, 0)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            err = geopmdgo.ReadBatch()
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            time, err := geopmdgo.Sample(timeIdx)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            frequency, err := geopmdgo.Sample(freqIdx)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            fmt.Printf("Elapsed time = %f\n", time)
+            fmt.Printf("Current CPU frequency for core 0 = %f\n", frequency)
+        }
+
 For more information on ``geopmsession`` see: :doc:`geopmsession.1`.
 
 Capturing Telemetry Over Time
@@ -624,6 +707,52 @@ interface.
             print(f"{pio.sample(time_idx)},{pio.sample(freq_idx)}")
             time.sleep(1)
 
+    .. code-tab:: go
+
+        // Read multiple signals for ten seconds using batch read every second
+
+        package main
+
+        import (
+            "fmt"
+            "time"
+            "github.com/geopm/geopmdgo/geopmdgo"
+        )
+
+        func main() {
+            timeIdx, err := geopmdgo.PushSignal("TIME", geopmdgo.DOMAIN_BOARD, 0)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            freqIdx, err := geopmdgo.PushSignal("CPU_FREQUENCY_STATUS", geopmdgo.DOMAIN_PACKAGE, 0)
+            if err != nil {
+                fmt.Println("Error:", err)
+                return
+            }
+            fmt.Println("time,frequency")
+            for i := 0; i < 10; i++ {
+                time.Sleep(1 * time.Second)
+                err = geopmdgo.ReadBatch()
+                if err != nil {
+                    fmt.Println("Error:", err)
+                    return
+                }
+                time, err := geopmdgo.Sample(timeIdx)
+                if err != nil {
+                    fmt.Println("Error:", err)
+                    return
+                }
+                frequency, err := geopmdgo.Sample(freqIdx)
+                if err != nil {
+                    fmt.Println("Error:", err)
+                    return
+                }
+                fmt.Printf("%f,%f\n", time, frequency)
+            }
+        }
+
+
 Again, for more information on ``geopmsession`` see :doc:`geopmsession.1`.
 
 Video Demo: Using ``geopmsession``
@@ -740,6 +869,23 @@ Writing Controls
         import geopmdpy.pio as pio
 
         pio.write_control('CPU_FREQUENCY_MAX_CONTROL', topo.DOMAIN_CORE, 0, 3.0e9)
+
+    .. code-tab:: go
+
+        // Write the current CPU frequency for core 0 to 3.0 GHz
+
+        package main
+
+        import (
+            "github.com/geopm/geopmdgo/geopmdgo"
+        )
+
+        func main() {
+            err := geopmdgo.WriteControl("CPU_FREQUENCY_MAX_CONTROL", geopmdgo.DOMAIN_CORE, 0, 3.0e9)
+            if err != nil {
+                fmt.Println("Error:", err)
+            }
+        }
 
 .. note::
 
