@@ -58,6 +58,7 @@ def get_coefficients(df):
         # Initial guess: x0=1 (max power), everything else is zero (i.e., a flat line)
         [1, 0, 0, 0],
         args=(y, X),
+        jac=loss_jac,
         # y = A * (x0 - x)**2 + B * (x0 - x) + C
         # dy/dx: -A*2*x0 + A*2*x - B
         constraints=(
@@ -96,6 +97,21 @@ def loss(params, slowdown, power):
     against a ground truth slowdown.
     """
     return np.sum((slowdown - slowdown_at_power(power, *params))**2)
+
+
+def loss_jac(params, slowdown, power):
+    """Return the gradient of loss(slowdown, power) with respect to params.
+    """
+    J = np.empty(params.size)
+    x0, A, B, C = params
+    P = power.flatten()
+    neg_two_resid = -2*(slowdown - slowdown_at_power(power, *params))
+    x0mP = x0 - P
+    J[0] = np.sum(neg_two_resid*(2*A*x0mP + B))
+    J[1] = np.sum(neg_two_resid*(x0mP**2))
+    J[2] = np.sum(neg_two_resid*x0mP)
+    J[3] = np.sum(neg_two_resid)
+    return J
 
 
 data_list = list()
