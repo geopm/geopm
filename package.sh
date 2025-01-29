@@ -19,7 +19,7 @@ set -e
 
 cd libgeopmd
 ./autogen.sh
-./configure
+./configure $@
 make $pkg
 cd -
 
@@ -43,7 +43,7 @@ if [ $skip_runtime -eq 0 ]; then
 
     cd libgeopm
     ./autogen.sh
-    ./configure --disable-mpi --disable-openmp
+    ./configure $@ --disable-mpi --disable-openmp
     make $pkg
     cd -
 

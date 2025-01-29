@@ -10,7 +10,7 @@ Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
 
-Package: python3-geopmdpy-doc
+Package: geopmd-doc
 Architecture: all
 Depends:
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopmdpy)
@@ -19,16 +19,6 @@ Package: python3-geopmpy-doc
 Architecture: all
 Depends: bash-completion
 Description: GEOPM - Global Extensible Open Power Manager Documentation (geopmpy)
-
-Package: geopm-service-doc
-Architecture: all
-Depends: bash-completion
-Description: GEOPM - Global Extensible Open Power Manager Documentation (geopm-service)
-
-Package: geopm-runtime-doc
-Architecture: all
-Depends:
-Description: GEOPM - Global Extensible Open Power Manager Documentation (geopm-runtime)
 
 Package: libgeopmd-doc
 Architecture: all

@@ -8,16 +8,14 @@ print_help() {
     Usage: $0 VERSION [USER]
            $0 --remove
 
-    Installs the RPMs created by the \"make rpm\" target of the
-    geopm/service build.  The geopm-service geopm-service-devel and
-    python3-geopmdpy packages are installed and then the geopm service
-    is started with systemctl.
+    Installs the RPMs created by the \"make rpm\" target of the geopm/service
+    build.  The libgeopmd2, libgeopmd-devel, geopmd-cli, and python3-geopmdpy
+    packages are installed and then the geopm service is started with systemctl.
 
-    The geopm-service requires dasbus version 1.5 or later is
-    installed.  Use the script build_dasbus.sh located in this
-    directory to create the required dasbus RPM if it is not already
-    installed on your system.  The script prints instructions on how
-    to install the RPM it creates.
+    The geopm-service requires dasbus version 1.5 or later is installed.  Use
+    the script build_dasbus.sh located in this directory to create the required
+    dasbus RPM if it is not already installed on your system.  The script prints
+    instructions on how to install the RPM it creates.
 
     Example:
 
@@ -49,9 +47,10 @@ install_packages() {
     RPM_USER=$2
     RPM_DIR=/home/${RPM_USER}/rpmbuild/RPMS
     PACKAGES="\
-${RPM_DIR}/x86_64/libgeopmd2-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm"
+${RPM_DIR}/x86_64/geopmd-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/x86_64/geopmd-cli-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/x86_64/libgeopmd-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
             install_error "File does not exist: ${PKG}"
@@ -74,7 +73,7 @@ remove_service() {
         systemctl stop geopm ||
             echo "Warning: Failed to stop geopm service" 1>&2
     fi
-    for pkg in geopm-service python3-geopmdpy libgeopmd2; do
+    for pkg in geopmd geopmd-cli python3-geopmdpy libgeopmd; do
 	if [[ ${IS_QUIET} -eq 0 ]]; then
             ${PKG_REMOVE} $pkg ||
                 echo "Warning: Failed to remove geopm service package: $pkg" 1>&2

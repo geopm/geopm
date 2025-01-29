@@ -1,3 +1,4 @@
+/.protoc_updated
 /aclocal.m4
 /autom4te.cache
 /autoscan.log
@@ -17,14 +18,13 @@ const_config_test.json
 /fuzz_test/geopmhash_corpus/.dir
 /*geopm*.ddeb
 /*geopm*.deb
-/geopm-service*.dsc
-/geopm-service*.tar.gz
-/geopm-service*.buildinfo
-/geopm-service*.changes
-/geopm_service.egg-info
-/geopm-service.spec
-/geopm-service-*.tar.gz
-/geopm-service-*/
+/libgeopmd*.dsc
+/libgeopmd*.tar.gz
+/libgeopmd*.buildinfo
+/libgeopmd*.changes
+/libgeopmd.spec
+/libgeopmd-*.tar.gz
+/libgeopmd-*/
 /geopmread
 /geopmwrite
 /geopmbatch

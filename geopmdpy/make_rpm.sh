@@ -12,8 +12,8 @@ die() {
 
 ./make_sdist.sh
 
-PACKAGE_NAME=geopmdpy
-ARCHIVE=${PACKAGE_NAME}-$(cat ${PACKAGE_NAME}/VERSION).tar.gz
+PACKAGE_NAME=geopmd
+ARCHIVE=geopmdpy-$(cat geopmdpy/VERSION).tar.gz
 RPM_TOPDIR=${RPM_TOPDIR:-${HOME}/rpmbuild}
 mkdir -p ${RPM_TOPDIR}/SOURCES
 mkdir -p ${RPM_TOPDIR}/SPECS
@@ -36,7 +36,7 @@ then
     die "Error: ../../libgeopmd/VERSION is not set"
 fi
 
-for rpm_path in ${RPM_TOPDIR}/RPMS/$(uname -m)/{geopm-service,libgeopmd2}*"${libgeopmd_version}"*.rpm
+for rpm_path in ${RPM_TOPDIR}/RPMS/$(uname -m)/libgeopmd*"${libgeopmd_version}"*.rpm
 do
     if ! rpm2cpio "$rpm_path" | cpio -idmv
     then

@@ -5,3 +5,14 @@ export PYBUILD_NAME=geopmdpy
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_install:
+	dh $@ --with python3 --buildsystem=pybuild
+	mkdir -p debian/geopmd/usr/bin
+	mkdir -p debian/geopmd/lib/systemd/system
+	mkdir -p debian/geopmd/usr/share/dbus-1/system.d
+	mkdir -p debian/geopmd/usr/share/dbus-1/interfaces
+	cp ../geopm.service debian/geopmd/lib/systemd/system
+	cp ../io.github.geopm.conf debian/geopmd/usr/share/dbus-1/system.d
+	cp ../io.github.geopm.xml debian/geopmd/usr/share/dbus-1/interfaces
+	mv debian/python3-geopmdpy/usr/bin/geopmd debian/geopmd/usr/bin

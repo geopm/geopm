@@ -7,11 +7,20 @@ Build-Depends: debhelper-compat (= 12),
  python3-all,
  python3-setuptools,
  python3-setuptools-scm,
+ python3-dev,
  python3-cffi,
  libgeopmd-dev
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
+
+Package: geopmd
+Architecture: all
+Depends: python3 (>= 3.6~),
+ python3-geopmdpy,
+ python3:any
+Description: GEOPM - Global Extensible Open Power Manager Daemon and Systemd Service
+ Python support for the GEOPM Service
 
 Package: python3-geopmdpy
 Architecture: all
@@ -26,6 +35,6 @@ Depends: python3 (>= 3.6~),
  python3-prometheus-client (>= 0.9.0),
  python3:any
 Recommends: libgeopmd2 (= ${binary:Version}),
-            python3-geopmdpy-doc (= ${binary:Version}),
-Description: GEOPM - Global Extensible Open Power Manager Daemon
+            geopmd-doc (= ${binary:Version}),
+Description: GEOPM - Global Extensible Open Power Manager Daemon Python Package
  Python support for the GEOPM Service

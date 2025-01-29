@@ -64,22 +64,16 @@ EXTRA_DIST = .gitignore \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
+             geopm_service.proto \
              debian/changelog \
              debian/changelog.in \
              debian/control \
-             debian/copyright \
-             debian/geopm.service \
-             debian/geopm-service.dirs \
-             debian/geopm-service.install \
-             debian/geopm-service.postinst \
+             debian/geopmd-cli.install \
              debian/libgeopmd-dev.dirs \
              debian/libgeopmd-dev.install \
              debian/libgeopmd2.install \
              debian/rules \
-             geopm-service.spec.in \
-             io.github.geopm.conf \
-             io.github.geopm.xml \
-             geopm.service \
+             libgeopmd.spec.in \
              AUTHORS \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
@@ -91,6 +85,7 @@ EXTRA_DIST = .gitignore \
              json_data/msr_data_spr.json \
              json_data/sysfs_attributes_cpufreq.json \
              json_data/sysfs_attributes_drm.json \
+             protoc-gen.sh \
              src/json_data.cpp.in \
              # end
 
@@ -279,30 +274,56 @@ endif
 
 nvml_source_files = src/NVMLDevicePool.cpp \
                     src/NVMLDevicePoolImp.hpp \
-                    #end
+                    # end
 
 levelzero_source_files = src/LevelZero.cpp \
                          src/LevelZero.hpp \
-                         #end
+                         # end
 
 dcgm_source_files = src/DCGMDevicePool.cpp \
                     src/DCGMDevicePoolImp.hpp \
-                    #end
-
-grpc_source_files = src/GRPCServiceProxy.cpp \
-                    src/GRPCServiceProxy.hpp \
-                    src/geopm_service.grpc.pb.cc \
-                    src/geopm_service.grpc.pb.h \
-                    src/geopm_service.pb.cc \
-                    src/geopm_service.pb.h \
                     # end
+
+# Generated files
+grpc_gen_source_files = src/geopm_service.grpc.pb.cc \
+                        src/geopm_service.grpc.pb.h \
+                        src/geopm_service.pb.cc \
+                        src/geopm_service.pb.h \
+                        # end
+
+grpc_imp_source_files = src/GRPCServiceProxy.cpp \
+                        src/GRPCServiceProxy.hpp \
+                        # end
+
 if ENABLE_GRPC
-    # Generated files
-    libgeopmd_la_SOURCES += $(grpc_source_files)
+    libgeopmd_la_SOURCES += $(grpc_imp_source_files) \
+                            $(grpc_gen_source_files) \
+                            # end
+
+    BUILT_SOURCES = .protoc_updated
+# .protoc_updated target ensures that the protoc version used to generate source
+# matches the libgrpc version used to link the compiled implementation.
+.protoc_updated: geopm_service.proto
+	./protoc-gen.sh
+	touch $@
+
+src/geopm_service.grpc.pb.cc: .protoc_updated
+src/geopm_service.grpc.pb.h: .protoc_updated
+src/geopm_service.pb.cc: .protoc_updated
+src/geopm_service.pb.h: .protoc_updated
+
 else
-    EXTRA_DIST += src/GRPCServiceProxy.cpp \
-                  src/GRPCServiceProxy.hpp \
-                  # end
+src/geopm_service.grpc.pb.cc:
+	touch $@
+src/geopm_service.grpc.pb.h:
+	touch $@
+src/geopm_service.pb.cc:
+	touch $@
+src/geopm_service.pb.h:
+	touch $@
+
+    BUILT_SOURCES =
+    EXTRA_DIST += $(grpc_imp_source_files)
 endif
 
 if ENABLE_LEVELZERO
@@ -355,31 +376,21 @@ $(sysfs_cpp_files): gen-src/%.cpp: $(top_srcdir)/json_data/%.json $(top_srcdir)/
 	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_sysfs_json/g" \
 	$(top_srcdir)/src/json_data.cpp.in > $@
 
-io.github.geopm.xml:
-	PYTHONPATH=$(abs_srcdir)/../geopmdpy \
-	    python3 -m geopmdpy.dbus_xml > $@-tmp; \
-	if [ $$? -eq 0 ]; then \
-	    mv $@-tmp $@; \
-	else \
-	    echo "Warning: Could not import geopmdpy.dbus_xml, will not update io.github.geopm.xml"; \
-	    rm -f $@-tmp; \
-	fi
-
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-service-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
-	cp geopm-service.spec $(rpm_topdir)/SPECS
-	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
+	cp libgeopmd-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
+	cp libgeopmd.spec $(rpm_topdir)/SPECS
+	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/libgeopmd.spec
 
 DPKG_BUILDPACKAGE_OPTIONS ?= -us -uc
 deb: dist
-	rm -rf geopm-service-$(VERSION)
-	tar xvf geopm-service-$(VERSION).tar.gz
-	cd geopm-service-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
-	rm -rf geopm-service-$(VERSION)
+	rm -rf libgeopmd-$(VERSION)
+	tar xvf libgeopmd-$(VERSION).tar.gz
+	cd libgeopmd-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
+	rm -rf libgeopmd-$(VERSION)
 
 if !ENABLE_SANITIZERS
 checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)
@@ -398,7 +409,7 @@ endif
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = rpm deb io.github.geopm.xml
+PHONY_TARGETS = rpm deb
 
 # INCLUDES
 check_PROGRAMS =
@@ -406,9 +417,8 @@ check_SCRIPTS =
 noinst_SCRIPTS =
 check_LTLIBRARIES =
 TESTS =
-BUILT_SOURCES =
 DISTCLEANFILES =
-CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files)
+CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files) $(grpc_gen_source_files) .protoc_updated
 
 include test/Makefile.mk
 

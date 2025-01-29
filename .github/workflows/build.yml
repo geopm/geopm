@@ -220,39 +220,39 @@ jobs:
            echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
            if [[ "${{ github.ref_name }}" == "release-v3.1" ]]; then
-               echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:release/geopm-service" >> ${GITHUB_ENV}
+               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}:release/libgeopmd" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release/geopm-runtime" >> ${GITHUB_ENV}
                echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}:release/python3-geopmdpy" >> ${GITHUB_ENV}
                echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}:release/python3-geopmpy" >> ${GITHUB_ENV}
                echo "DOCS_PACKAGE=home:${{ github.repository_owner }}:release/geopm-doc" >> ${GITHUB_ENV}
            elif [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
-               echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/geopm-service" >> ${GITHUB_ENV}
+               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/libgeopmd" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/geopm-runtime" >> ${GITHUB_ENV}
            else
-               echo "SERVICE_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
-               echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}/geopm-runtime" >> ${GITHUB_ENV}
-               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}/python3-geopmdpy" >> ${GITHUB_ENV}
+               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}/libgeopmd" >> ${GITHUB_ENV}
+               echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}/libgeopm" >> ${GITHUB_ENV}
+               echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}/geopmd" >> ${GITHUB_ENV}
                echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}/python3-geopmpy" >> ${GITHUB_ENV}
                echo "DOCS_PACKAGE=home:${{ github.repository_owner }}/geopm-doc" >> ${GITHUB_ENV}
            fi
     - name: publish libgeopmd
       working-directory: libgeopmd
       run: |
-           osc co ${SERVICE_PACKAGE}
-           rm -f ${SERVICE_PACKAGE}/geopm-service*.tar.gz
-           cp geopm-service.spec ${SERVICE_PACKAGE}
-           cp geopm-service*.tar.gz ${SERVICE_PACKAGE}
-           cd ${SERVICE_PACKAGE}
+           osc co ${LIBGEOPMD_PACKAGE}
+           rm -f ${LIBGEOPMD_PACKAGE}/libgeopmd*.tar.gz
+           cp libgeopmd.spec ${LIBGEOPMD_PACKAGE}
+           cp libgeopmd*.tar.gz ${LIBGEOPMD_PACKAGE}
+           cd ${LIBGEOPMD_PACKAGE}
            osc addremove
            cd -
-           osc ci -m "geopm service ${{ github.sha }}" ${SERVICE_PACKAGE}
+           osc ci -m "geopm service ${{ github.sha }}" ${LIBGEOPMD_PACKAGE}
     - name: publish runtime
       working-directory: libgeopm
       run: |
            osc co ${RUNTIME_PACKAGE}
-           rm -f ${RUNTIME_PACKAGE}/geopm-runtime*.tar.gz
-           cp geopm-runtime.spec ${RUNTIME_PACKAGE}
-           cp geopm-runtime*.tar.gz ${RUNTIME_PACKAGE}
+           rm -f ${RUNTIME_PACKAGE}/libgeopm*.tar.gz
+           cp libgeopm.spec ${RUNTIME_PACKAGE}
+           cp libgeopm*.tar.gz ${RUNTIME_PACKAGE}
            cd ${RUNTIME_PACKAGE}
            osc addremove
            cd -
@@ -263,7 +263,7 @@ jobs:
       run: |
            osc co ${GEOPMDPY_PACKAGE}
            rm -f ${GEOPMDPY_PACKAGE}/geopmdpy*.tar.gz
-           cp geopmdpy.spec ${GEOPMDPY_PACKAGE}
+           cp geopmd.spec ${GEOPMDPY_PACKAGE}
            cp dist/geopmdpy*.tar.gz ${GEOPMDPY_PACKAGE}
            cd ${GEOPMDPY_PACKAGE}
            osc addremove
@@ -275,7 +275,7 @@ jobs:
       run: |
            osc co ${GEOPMPY_PACKAGE}
            rm -f ${GEOPMPY_PACKAGE}/geopmpy*.tar.gz
-           cp geopmpy.spec ${GEOPMPY_PACKAGE}
+           cp python3-geopmpy.spec ${GEOPMPY_PACKAGE}
            cp dist/geopmpy*.tar.gz ${GEOPMPY_PACKAGE}
            cd ${GEOPMPY_PACKAGE}
            osc addremove
@@ -323,7 +323,7 @@ jobs:
         ./autogen.sh && ./configure || (cat config.log && false)
         make deb
         # Clean up so later steps don't unknowingly miss declaring a dependency installed by this step
-        sudo apt-get purge --auto-remove geopm-service-build-deps
+        sudo apt-get purge --auto-remove libgeopmd-build-deps
         # Add our new packages to the local repo
         sudo mv ./*.deb $TEST_DEBS_DIR
         sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
@@ -346,7 +346,7 @@ jobs:
         ./autogen.sh && ./configure --disable-mpi --disable-openmp --disable-fortran || (cat config.log && false)
         make deb
         # Clean up so later steps don't unknowingly miss a dependency
-        sudo apt-get purge --auto-remove geopm-service-build-deps
+        sudo apt-get purge --auto-remove libgeopmd-build-deps
         sudo mv ./*.deb $TEST_DEBS_DIR
         sudo sh -c "cd $TEST_DEBS_DIR && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
         sudo apt-get update
