@@ -82,6 +82,8 @@ Documentation
    user_guides
    contrib
    devel
+   install
+   spack_build
    publications
    reference
    releases
