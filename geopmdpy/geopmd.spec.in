@@ -1,0 +1,142 @@
+#  Copyright (c) 2015 - 2024 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+# This spec file does not enable grpc by default.  Use the following syntax to
+# enable grpc
+#
+#    rpmbuild --define 'enable_grpc 1' ...
+
+
+%global debug_package %{nil}
+%global prj_name geopmdpy
+%global desc %{expand: \
+The Global Extensible Open Power Manager (GEOPM) provides a framework to
+explore power and energy optimizations on platforms with heterogeneous mixes
+of computing hardware.
+
+Users can monitor their system's energy and power consumption, and safely
+optimize system hardware settings to achieve energy efficiency and/or
+performance objectives.}
+
+%if ! %{defined autorelease}
+%define autorelease 1
+%endif
+
+Name:           geopmd
+Version:	@VERSION@
+Release:	%autorelease
+Summary:	GEOPM daemon
+
+License:	BSD-3-Clause
+URL:		https://geopm.github.io
+Source0:	geopmdpy-%{version}.tar.gz
+
+BuildRequires:	libgeopmd-devel
+BuildRequires:	python3-devel
+BuildRequires:	python3-setuptools
+BuildRequires:	python3-setuptools_scm
+BuildRequires:	python3-cffi
+BuildRequires:	python3-dasbus
+BuildRequires:	python3-jsonschema
+BuildRequires:	python3-psutil
+%if 0%{?fedora}
+BuildRequires:	systemd-units
+%endif
+Requires:	python3-cffi
+Requires:	python3-dasbus
+Requires:	python3-jsonschema
+Requires:	python3-psutil
+Requires:	python3-%{prj_name} = %{version}-%{release}
+Requires:	geopmd-cli
+%if %{defined enable_grpc}
+Requires: python3-grpcio
+Requires: python3-protobuf
+%endif
+
+%description
+%{desc}
+
+%package -n python3-%{prj_name}
+Summary:        Python bindings for libgeopmd
+
+%description -n python3-%{prj_name}
+%{desc}
+
+%prep
+%autosetup -p1 -n geopmdpy-%{version}
+sed -i 's/usr\/bin/usr\/sbin/g' geopm.service
+
+echo %{version} > VERSION
+
+%build
+%py3_build
+
+%install
+%py3_install
+mkdir -p %{buildroot}%{_sysconfdir}/geopm
+chmod 0700 %{buildroot}%{_sysconfdir}/geopm
+%if "%{_bindir}" != "%{_sbindir}"
+mkdir -p %{buildroot}%{_sbindir}
+mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmd
+%endif
+install -D -p -m 644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
+install -D -p -m 644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
+install -D -p -m 644 geopm.service %{buildroot}%{_unitdir}/geopm.service
+
+%check
+pushd %{buildroot}%{python3_sitearch}
+python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/%{prj_name}-%{version}/test
+
+%if 0%{?suse_version}
+%pre -n geopmd
+%service_add_pre geopm.service
+%endif
+
+%post -n geopmd
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver} || 0%{?fedora}
+%systemd_post geopm.service
+%else
+%service_add_post geopm.service
+%endif
+
+%preun -n geopmd
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver} || 0%{?fedora}
+%systemd_preun geopm.service
+%else
+%service_del_preun geopm.service
+%endif
+
+%postun -n geopmd
+%if 0%{?rhel_version} || 0%{?centos_ver} || 0%{?rocky_ver} || 0%{?fedora}
+%systemd_postun_with_restart geopm.service
+%else
+%service_del_postun geopm.service
+%endif
+
+%files
+%license LICENSE-BSD-3-Clause
+%doc README.md
+%{_sbindir}/geopmd
+%dir %{_sysconfdir}/geopm
+%dir %{_datadir}/dbus-1
+%dir %{_datadir}/dbus-1/interfaces
+%dir %{_datadir}/dbus-1/system.d
+%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
+%{_datadir}/dbus-1/system.d/io.github.geopm.conf
+%{_unitdir}/geopm.service
+
+%files -n python3-%{prj_name}
+%{_bindir}/geopmaccess
+%{_bindir}/geopmexporter
+%{_bindir}/geopmread
+%{_bindir}/geopmsession
+%{_bindir}/geopmwrite
+%{python3_sitearch}/%{prj_name}
+%{python3_sitearch}/_libgeopmd_py_cffi.abi3.so
+%{python3_sitearch}/%{prj_name}-*.egg-info
+
+%if %{defined autochangelog}
+%changelog
+%autochangelog
+%endif

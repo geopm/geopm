@@ -1,0 +1,65 @@
+%global debug_package %{nil}
+%global prj_name geopmpy
+%global desc %{expand: \
+The Global Extensible Open Power Manager (GEOPM) provides a framework to
+explore power and energy optimizations on platforms with heterogeneous mixes
+of computing hardware.
+
+Users can monitor their system's energy and power consumption, and safely
+optimize system hardware settings to achieve energy efficiency and/or
+performance objectives.}
+
+Name:		python3-%{prj_name}
+Version:	@VERSION@
+Release:	%autorelease
+Summary:	Python bindings for libgeopm
+
+License:	BSD-3-Clause
+URL:		https://geopm.github.io
+Source0:	%{prj_name}-%{version}.tar.gz
+
+BuildRequires:	python3-devel
+BuildRequires:	python3-setuptools
+BuildRequires:	python3-setuptools_scm
+BuildRequires:	python3-geopmdpy
+BuildRequires:	python3-pandas
+BuildRequires:	python3-natsort
+%if 0%{?suse_version}
+BuildRequires:	python3-PyYAML
+%else
+BuildRequires:	python3-pyyaml
+%endif
+BuildRequires:	python3-pyyaml
+BuildRequires:	python3-tables
+BuildRequires:	libgeopm-devel
+BuildRequires:	libgeopmd-devel
+Requires:	geopmd
+
+%description
+%{desc}
+
+%prep
+%autosetup -n %{prj_name}-%{version}
+echo %{version} > %{prj_name}/VERSION
+
+%build
+%py3_build
+
+%install
+%py3_install
+
+%check
+%{python3} -m unittest discover -p 'Test*.py' -v
+
+%files
+%license LICENSE-BSD-3-Clause
+%doc README.md
+%{_bindir}/geopmlaunch
+%{python3_sitearch}/%{prj_name}
+%{python3_sitearch}/_libgeopm_py_cffi.abi3.so
+%{python3_sitearch}/%{prj_name}-*.egg-info
+
+%if %{defined autochangelog}
+%changelog
+%autochangelog
+%endif

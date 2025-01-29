@@ -15,13 +15,3 @@ if [ ! -e VERSION ]; then
     fi
 fi
 ACLOCAL_PATH=/usr/share/aclocal autoreconf -i -f
-if which protoc >& /dev/null; then
-    ./protoc-gen.sh
-else
-    touch src/geopm_service.grpc.pb.cc \
-          src/geopm_service.grpc.pb.h \
-          src/geopm_service.pb.cc \
-          src/geopm_service.pb.h
-    set +x
-    echo "Warning: No grpc support, install grpc development package to enable. The configure --enable-grpc option will fail." 1>&2
-fi

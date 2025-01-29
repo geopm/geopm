@@ -42,7 +42,7 @@ compile_commands.json
 /openmp-*.src.tar.xz
 /plugin/*.lo
 /plugin/*.o
-/geopm-runtime.spec
+/libgeopm.spec
 /stamp-h1
 /test-driver
 !/test/fortran/*.f90
@@ -70,8 +70,8 @@ compile_commands.json
 /test/*.trs
 /*geopm*.ddeb
 /*geopm*.deb
-/geopm-runtime*.dsc
-/geopm-runtime*.tar.gz
-/geopm-runtime*.buildinfo
-/geopm-runtime*.changes
-/geopm-runtime*/
+/libgeopm*.dsc
+/libgeopm*.tar.gz
+/libgeopm*.buildinfo
+/libgeopm*.changes
+/libgeopm*/

@@ -10,7 +10,7 @@ import glob
 import json
 import jsonschema
 
-
+@unittest.skipUnless(os.path.exists("../../docs"), "Test requires entire Git repository")
 class TestMSRDataFiles(unittest.TestCase):
     def setUp(self):
         msr_schema_file = os.path.dirname(os.path.abspath(__file__)) + \

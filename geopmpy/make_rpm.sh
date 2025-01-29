@@ -7,8 +7,8 @@ set -xe
 
 ./make_sdist.sh
 
-PACKAGE_NAME=geopmpy
-ARCHIVE=${PACKAGE_NAME}-$(cat ${PACKAGE_NAME}/VERSION).tar.gz
+PACKAGE_NAME=python3-geopmpy
+ARCHIVE=geopmpy-$(cat geopmpy/VERSION).tar.gz
 RPM_TOPDIR=${RPM_TOPDIR:-${HOME}/rpmbuild}
 mkdir -p ${RPM_TOPDIR}/SOURCES
 mkdir -p ${RPM_TOPDIR}/SPECS

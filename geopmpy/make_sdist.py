@@ -19,11 +19,11 @@ def setup():
     changelog = changelog.replace('@VERSION@', version).replace('@DATE@', date)
     with open(f'{script_dir}/debian/changelog', 'w') as fid:
         fid.write(changelog)
-    with open(f'{script_dir}/{package_name}.spec.in') as fid:
+    with open(f'{script_dir}/python3-geopmpy.spec.in') as fid:
         specfile = fid.read()
     archive = f'{package_name}-{version}.tar.gz'
     specfile = specfile.replace('@VERSION@', version).replace('@ARCHIVE@', archive)
-    with open(f'{script_dir}/{package_name}.spec', 'w') as fid:
+    with open(f'{script_dir}/python3-geopmpy.spec', 'w') as fid:
         fid.write(specfile)
     return script_dir
 

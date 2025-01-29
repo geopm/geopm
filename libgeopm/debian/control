@@ -1,4 +1,4 @@
-Source: geopm-runtime
+Source: libgeopm
 Section: utils
 Priority: optional
 Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
@@ -15,14 +15,14 @@ Homepage: https://geopm.github.io
 Vcs-Git: https://github.com/geopm/geopm.git
 Vcs-Browser: https://github.com/geopm/geopm.git
 
-Package: geopm-runtime
+Package: geopm-cli
 Section: utils
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          libgeopm2 (= ${binary:Version}),
          libgeopmd2 (= ${binary:Version})
-Recommends: geopm-runtime-doc (= ${binary:Version})
+Recommends: libgeopm-doc (= ${binary:Version})
 Description: The GEOPM Service provides a foundation for manipulating
  hardware settings to optimize an objective defined by an unprivileged
  user.  The GEOPM Runtime is a software platform built on top of the

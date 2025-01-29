@@ -111,17 +111,16 @@ EXTRA_DIST += .gitignore \
               debian/changelog \
               debian/changelog.in \
               debian/control \
-              debian/copyright \
-              debian/geopm-runtime.dirs \
-              debian/geopm-runtime.install \
+              debian/geopm-cli.dirs \
+              debian/geopm-cli.install \
               debian/libgeopm-dev.dirs \
               debian/libgeopm-dev.install \
               debian/libgeopm2.install \
               debian/rules \
               m4/ax_check_compile_flag.m4 \
               m4/openmp.m4 \
-              geopm-runtime.spec \
-              geopm-runtime.spec.in \
+              libgeopm.spec \
+              libgeopm.spec.in \
               # end
 
 if HAVE_ICX
@@ -423,16 +422,16 @@ rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
-	cp geopm-runtime-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
-	cp geopm-runtime.spec $(rpm_topdir)/SPECS
-	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-runtime.spec
+	cp libgeopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES
+	cp libgeopm.spec $(rpm_topdir)/SPECS
+	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/libgeopm.spec
 
 DPKG_BUILDPACKAGE_OPTIONS ?= -us -uc
 deb: dist
-	rm -rf geopm-runtime-$(VERSION)
-	tar xvf geopm-runtime-$(VERSION).tar.gz
-	cd geopm-runtime-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
-	rm -rf geopm-runtime-$(VERSION)
+	rm -rf libgeopm-$(VERSION)
+	tar xvf libgeopm-$(VERSION).tar.gz
+	cd libgeopm-$(VERSION) && dpkg-buildpackage $(DPKG_BUILDPACKAGE_OPTIONS)
+	rm -rf libgeopm-$(VERSION)
 
 checkprogs: $(check_PROGRAMS) $(check_LTLIBRARIES)
 

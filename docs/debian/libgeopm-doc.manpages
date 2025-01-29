@@ -1,6 +1,14 @@
 build/man/geopmadmin.1
 build/man/geopmagent.1
 build/man/geopmctl.1
+build/man/geopm::Agent.3
+build/man/geopm::CPUActivityAgent.3
+build/man/geopm::PowerBalancer.3
+build/man/geopm::PowerGovernor.3
+build/man/geopm_agent.3
+build/man/geopm_ctl.3
+build/man/geopm_imbalancer.3
+build/man/geopm_prof.3
 build/man/geopm_agent_ffnet.7
 build/man/geopm_agent_frequency_map.7
 build/man/geopm_agent_monitor.7

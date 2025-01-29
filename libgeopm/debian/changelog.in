@@ -1,4 +1,4 @@
-geopm-runtime (@VERSION@-1) jammy; urgency=low
+libgeopm (@VERSION@-1) jammy; urgency=low
 
   * Update to version @VERSION@
   * ABI set to @geopm_abi_version@
