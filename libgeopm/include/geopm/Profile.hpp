@@ -13,6 +13,7 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "geopm_hash.h"
 #include "geopm_hint.h"
@@ -305,6 +306,7 @@ namespace geopm
 
             /// @brief The list of known region identifiers (for debug).
             std::set<uint64_t> m_region_ids;
+            std::mutex m_register_lock;
     };
 }
 
