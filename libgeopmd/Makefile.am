@@ -86,6 +86,7 @@ EXTRA_DIST = .gitignore \
              json_data/sysfs_attributes_cpufreq.json \
              json_data/sysfs_attributes_drm.json \
              protoc-gen.sh \
+             json_data/sysfs_attributes_powercap.json \
              src/json_data.cpp.in \
              # end
 
@@ -117,6 +118,7 @@ msr_cpp_files = \
 sysfs_cpp_files = \
                   gen-src/sysfs_attributes_cpufreq.cpp \
                   gen-src/sysfs_attributes_drm.cpp \
+                  gen-src/sysfs_attributes_powercap.cpp \
                   #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
@@ -213,6 +215,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/PlatformTopoImp.hpp \
                        src/POSIXSignal.cpp \
                        src/POSIXSignal.hpp \
+                       src/PowercapSysfsDriver.cpp \
+                       src/PowercapSysfsDriver.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
                        src/SaveControl.cpp \
