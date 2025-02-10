@@ -1,0 +1,70 @@
+{
+    "attributes": {
+        "CPU_POWER_LIMIT": {
+            "attribute": "constraint_0_power_limit_uw",
+            "scalar": 1e-6,
+            "description": "CPU power limit in watts.",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "watts",
+            "writeable": true,
+            "alias": "CPU_POWER_LIMIT_CONTROL"
+        },
+        "CPU_ENERGY_CONSUMED": {
+            "attribute": "energy_uj",
+            "scalar": 1e-6,
+            "description": "CPU energy consumed in joules.",
+            "aggregation": "sum",
+            "behavior": "monotone",
+            "format": "double",
+            "units": "joules",
+            "writeable": false,
+            "alias": "CPU_ENERGY"
+        },
+        "CPU_TIME_WINDOW": {
+            "attribute": "constraint_0_time_window_us",
+            "scalar": 1e-6,
+            "description": "CPU power limit time window in seconds.",
+            "aggregation": "expect_same",
+            "behavior": "variable",
+            "format": "double",
+            "units": "seconds",
+            "writeable": true,
+            "alias": "CPU_POWER_TIME_WINDOW_CONTROL"
+        },
+        "DRAM_POWER_LIMIT": {
+            "attribute": "constraint_0_power_limit_uw",
+            "scalar": 1e-6,
+            "description": "DRAM power limit in watts.",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "watts",
+            "writeable": true,
+            "alias": "DRAM_POWER_LIMIT_CONTROL"
+        },
+        "DRAM_ENERGY_CONSUMED": {
+            "attribute": "energy_uj",
+            "scalar": 1e-6,
+            "description": "DRAM energy consumed in joules.",
+            "aggregation": "sum",
+            "behavior": "monotone",
+            "format": "double",
+            "units": "joules",
+            "writeable": false,
+            "alias": "DRAM_ENERGY"
+        },
+        "DRAM_TIME_WINDOW": {
+            "attribute": "constraint_0_time_window_us",
+            "scalar": 1e-6,
+            "description": "DRAM power limit time window in seconds.",
+            "aggregation": "expect_same",
+            "behavior": "variable",
+            "format": "double",
+            "units": "seconds",
+            "writeable": true,
+            "alias": "DRAM_POWER_TIME_WINDOW_CONTROL"
+        }
+    }
+}

@@ -91,6 +91,14 @@ to the ``i915 DRM`` and ``Xe DRM`` drivers.
 .. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
    :no-controls:
 
+Powercap Signals
+^^^^^^^^^^^^^^^^
+The following signals are made available to GEOPM through the sysfs interface
+to the ``powercap`` driver.
+
+.. geopm-sysfs-json:: POWERCAP ../json_data/sysfs_attributes_powercap.json
+   :no-controls:
+
 Controls
 --------
 .. contents:: Categories of SYSFS controls:
@@ -112,6 +120,13 @@ to the ``i915 DRM`` and ``Xe DRM`` drivers.
 .. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
    :no-signals:
 
+Powercap Controls
+^^^^^^^^^^^^^^^^^
+The following controls are made available to GEOPM through the sysfs interface
+to the ``powercap`` driver.
+
+.. geopm-sysfs-json:: POWERCAP ../json_data/sysfs_attributes_powercap.json
+   :no-signals:
 
 Aliases
 -------
@@ -130,6 +145,10 @@ Signal Aliases
    :no-controls:
    :aliases:
 
+.. geopm-sysfs-json:: POWERCAP ../json_data/sysfs_attributes_powercap.json
+   :no-controls:
+   :aliases:
+
 Control Aliases
 ^^^^^^^^^^^^^^^
 .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
@@ -137,6 +156,10 @@ Control Aliases
    :aliases:
 
 .. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
+   :no-signals:
+   :aliases:
+
+.. geopm-sysfs-json:: POWERCAP ../json_data/sysfs_attributes_powercap.json
    :no-signals:
    :aliases:
 

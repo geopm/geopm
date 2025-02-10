@@ -19,6 +19,7 @@
 #include "geopm/Helper.hpp"
 #include "CpufreqSysfsDriver.hpp"
 #include "DrmSysfsDriver.hpp"
+#include "PowercapSysfsDriver.hpp"
 #ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"
 #endif
@@ -98,6 +99,8 @@ namespace geopm
             // msr driver once it is considered more stable.
             register_plugin(CpufreqSysfsDriver::plugin_name(),
                             CpufreqSysfsDriver::make_plugin);
+            register_plugin(PowercapSysfsDriver::plugin_name(),
+                            PowercapSysfsDriver::make_plugin);
 
 #ifdef GEOPM_ENABLE_CPUID
 #ifdef GEOPM_ENABLE_RAWMSR
@@ -147,6 +150,8 @@ namespace geopm
             // loaded.
             register_plugin(CpufreqSysfsDriver::plugin_name(),
                             CpufreqSysfsDriver::make_plugin);
+            register_plugin(PowercapSysfsDriver::plugin_name(),
+                            PowercapSysfsDriver::make_plugin);
 #ifdef GEOPM_ENABLE_SYSTEMD
             register_plugin(ServiceIOGroup::plugin_name(),
                             ServiceIOGroup::make_plugin);
