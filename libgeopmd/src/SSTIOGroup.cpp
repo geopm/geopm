@@ -12,6 +12,7 @@
 #include <iterator>
 #include <sstream>
 #include <cstdint>
+#include <cstddef>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
