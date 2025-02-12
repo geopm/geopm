@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <iterator>
 #include <sstream>
+#include <cstdint>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
