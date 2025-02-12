@@ -992,10 +992,10 @@ TEST_F(PlatformTopoTest, check_file_too_old)
     sysinfo(&si);
     struct geopm_time_s current_time;
     geopm_time_real(&current_time);
-    unsigned int last_boot_time = current_time.t.tv_sec - si.uptime;
+    time_t last_boot_time = current_time.t.tv_sec - si.uptime;
 
     // Modify the last modified time to be prior to the last boot
-    unsigned int old_time = last_boot_time - 600; // 10 minutes before boot
+    time_t old_time = last_boot_time - 600; // 10 minutes before boot
     struct utimbuf file_times = {old_time, old_time};
     utime(m_lscpu_file_name.c_str(), &file_times);
 
