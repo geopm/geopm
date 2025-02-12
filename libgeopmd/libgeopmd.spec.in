@@ -109,7 +109,7 @@ The libgeopmd-devel package contains libraries and header files for
 applications that use %{name}.
 
 %package -n geopmd-cli
-Summary:	libgeopmd command-line tools
+Summary:	The libgeopmd command-line tools
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description -n geopmd-cli
