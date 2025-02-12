@@ -56,7 +56,7 @@ void SharedMemoryTest::SetUp()
     m_key_shm = "/geopm-shm-foo-SharedMemoryTest-" + std::to_string(getpid());
     m_key_file = "/tmp/geopm-shm-foo-SharedMemoryTest-" +
                  std::to_string(getpid());
-    m_size = sizeof(size_t);
+    m_size = sizeof(uint64_t);
     m_shmem = nullptr;
     m_shmem_u = nullptr;
 }
@@ -133,7 +133,7 @@ void SharedMemoryTest::share_data_test(const std::string &shm_key)
     std::string key = shm_key + "-share_data";
     config_shmem(key);
     config_shmem_u(key);
-    size_t shared_data = 0xDEADBEEFCAFED00D;
+    uint64_t shared_data = 0xDEADBEEFCAFED00D;
     void *alias1 = m_shmem->pointer();
     void *alias2 = m_shmem_u->pointer();
     memcpy(alias1, &shared_data, m_size);
@@ -154,7 +154,7 @@ TEST_F(SharedMemoryTest, share_data_file)
 void SharedMemoryTest::share_data_ipc_test(const std::string &shm_key)
 {
     std::string key = shm_key + "-share_data_ipc";
-    size_t shared_data = 0xDEADBEEFCAFED00D;
+    uint64_t shared_data = 0xDEADBEEFCAFED00D;
 
     pid_t pid = fork();
     if (pid) {
