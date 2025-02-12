@@ -235,7 +235,7 @@ TEST_F(POSIXSignalTest, sig_queue_ESRCH)
 TEST_F(POSIXSignalTest, sig_action_EINVAL)
 {
     std::string errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigaction() returned an error";
-    struct sigaction oldact;
+    struct sigaction oldact = {};
     struct sigaction newact = {};
     GEOPM_EXPECT_THROW_MESSAGE(
         m_posix_sig->sig_action(SIGKILL, &newact, &oldact),
