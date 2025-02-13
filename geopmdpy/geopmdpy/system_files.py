@@ -1068,6 +1068,9 @@ class AccessLists(object):
         return list(controls.intersection(self._control_names))
 
     def _get_user_groups(self, user):
+        if os.listdir(self._CONFIG_PATH) == ['0.DEFAULT_ACCESS']:
+            # Do not query for groups unless group specific access lists exist
+            return []
         user_gid = pwd.getpwnam(user).pw_gid
         all_gid = os.getgrouplist(user, user_gid)
         return [str(gid) for gid in all_gid]
