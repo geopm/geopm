@@ -196,8 +196,8 @@ TEST_F(StatsCollectorTest, c_strings)
 {
     MockStatsCollector mock_coll;
     static const size_t TEST_NAME_MAX = 255ULL;
-    std::vector<char> too_big(TEST_NAME_MAX, '*');
-    too_big.push_back('\0');
+    std::vector<char> too_big(TEST_NAME_MAX + 1, '*');
+    too_big.back() = '\0';
     std::string too_big_str(too_big.data());
     geopm::StatsCollector::report_s too_big_report {
         too_big_str, too_big_str, {0.0, 0.0, 0.0, 0.0},
