@@ -7,6 +7,7 @@
 #define SSTSIGNAL_HPP_INCLUDE
 
 #include <memory>
+#include <cstdint>
 
 #include "Signal.hpp"
 

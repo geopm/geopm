@@ -6,6 +6,7 @@
 #define CPUID_HPP_INCLUDE
 
 #include <memory>
+#include <cstdint>
 
 #include "geopm_public.h"
 

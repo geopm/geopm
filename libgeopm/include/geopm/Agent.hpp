@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 #include "geopm/PluginFactory.hpp"
 #include "geopm_public.h"

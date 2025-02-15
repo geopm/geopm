@@ -9,6 +9,7 @@
 #ifdef GEOPM_ENABLE_CPUID
 #include <cpuid.h>
 #include <cmath>
+#include <cstdint>
 
 namespace geopm
 {

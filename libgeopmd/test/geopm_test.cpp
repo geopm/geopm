@@ -8,6 +8,7 @@
 #include <fstream>
 #include <algorithm>
 #include <regex>
+#include <iomanip>
 
 using testing::EmptyTestEventListener;
 using testing::UnitTest;
