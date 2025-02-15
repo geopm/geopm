@@ -18,6 +18,7 @@
 #include <set>
 #include <libgen.h>
 #include <algorithm>
+#include <iomanip>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm/json11.hpp"

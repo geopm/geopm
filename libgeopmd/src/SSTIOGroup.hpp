@@ -8,6 +8,7 @@
 
 #include <set>
 #include <functional>
+#include <cstdint>
 
 #include "geopm/IOGroup.hpp"
 #include "geopm/Agg.hpp"

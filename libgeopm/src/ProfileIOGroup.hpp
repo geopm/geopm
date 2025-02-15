@@ -10,6 +10,7 @@
 #include <string>
 #include <functional>
 #include <array>
+#include <cstdint>
 
 #include "geopm/IOGroup.hpp"
 

@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 struct sd_bus;
 

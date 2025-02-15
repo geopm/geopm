@@ -7,6 +7,7 @@
 #define SSTCONTROL_HPP_INCLUDE
 
 #include <memory>
+#include <cstdint>
 
 #include "Control.hpp"
 
