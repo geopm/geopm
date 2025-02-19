@@ -142,8 +142,8 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_CPU_POWER)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(50.5));
-    std::vector<double> out_sample {NAN, NAN, NAN};
-    std::vector<double> expected {NAN, NAN, NAN};
+    std::vector<double> out_sample = {NAN, NAN, NAN};
+    std::vector<double> expected = {NAN, NAN, NAN};
 
     for (int i = 0; i < m_min_num_converged; ++i) {
         m_agent->sample_platform(out_sample);
@@ -194,8 +194,8 @@ TEST_F(PowerGovernorAgentTest, aggregate_sample)
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
     m_agent->init(1, m_fan_in, false);
 
-    std::vector<std::vector<double> > in_sample {{2.2, false, 1.0}, {3.3, true, 2.0}};
-    std::vector<double> out_sample {NAN, NAN, NAN};
+    std::vector<std::vector<double> > in_sample = {{2.2, 0.0, 1.0}, {3.3, 1.0, 2.0}};
+    std::vector<double> out_sample = {NAN, NAN, NAN};
     // always false if not converged
     for (int i = 0; i < m_ascend_period * 2; ++i) {
         m_agent->aggregate_sample(in_sample, out_sample);
@@ -203,9 +203,9 @@ TEST_F(PowerGovernorAgentTest, aggregate_sample)
     }
 
     // once per m_ascend_period if converged
-    in_sample = {{2.3, true}, {3.4, true}};
+    in_sample = {{2.3, 1.0, 1.0}, {3.4, 1.0, 2.0}};
     // average of power samples
-    std::vector<double> expected {(2.3 + 3.4)/2.0, true, 1.5};
+    std::vector<double> expected = {(2.3 + 3.4)/2.0, 1.0, 1.5};
     m_agent->aggregate_sample(in_sample, out_sample);
     EXPECT_TRUE(m_agent->do_send_sample());
     check_result(expected, out_sample);
@@ -224,7 +224,7 @@ TEST_F(PowerGovernorAgentTest, split_policy)
     m_agent->init(1, m_fan_in, false);
 
     std::vector<double> policy_in;
-    std::vector<std::vector<double> > policy_out {{NAN}, {NAN}};
+    std::vector<std::vector<double> > policy_out = {{NAN}, {NAN}};
 
     // invalid budget
     EXPECT_THROW(m_agent->split_policy({10}, policy_out), geopm::Exception);
@@ -233,7 +233,7 @@ TEST_F(PowerGovernorAgentTest, split_policy)
     policy_in = {100};
     m_agent->split_policy(policy_in, policy_out);
     EXPECT_TRUE(m_agent->do_send_policy());
-    std::vector<std::vector<double> > expected {{100}, {100}};
+    std::vector<std::vector<double> > expected = {{100}, {100}};
     for (int child = 0; child < m_fan_in[1]; ++child) {
         check_result(expected[child], policy_out[child]);
     }
