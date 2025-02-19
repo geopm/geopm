@@ -248,6 +248,14 @@ if test "x$with_geopm_lib" != x; then
   AC_SUBST([GEOPM_LIBDIR])
 fi
 
+AC_ARG_WITH([geopm-fortran-include], [AS_HELP_STRING([--with-geopm-fortran-include=PATH],
+            [specify directory for the installed geopm Fortran include files.])])
+if test "x$with_geopm_fortran_include" != x; then
+  GEOPM_FC_INCLUDE=$with_geopm_fortran_include
+  AM_FCFLAGS="$AM_FCFLAGS -I$GEOPM_FC_INCLUDE"
+  AC_SUBST([GEOPM_FC_INCLUDE])
+fi
+
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
 if test "x$with_libelf" != x; then
