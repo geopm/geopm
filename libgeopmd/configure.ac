@@ -194,7 +194,7 @@ AC_SUBST([enable_dcgm])
 AM_CONDITIONAL([ENABLE_DCGM], [test "x$enable_dcgm" = "x1"])
 
 AC_ARG_ENABLE([cnl-iogroup],
-  [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
+  [AS_HELP_STRING([--disable-cnl-iogroup], [Disable the CNL IOGroup])],
 [if test "x$enable_cnl_iogroup" = "xno" ; then
   enable_cnl_iogroup="0"
 else
@@ -594,4 +594,5 @@ AC_MSG_RESULT([fuzz               : ${enable_fuzz}])
 AC_MSG_RESULT([libcap             : ${enable_libcap}])
 AC_MSG_RESULT([rawmsr             : ${enable_rawmsr}])
 AC_MSG_RESULT([grpc               : ${enable_grpc}])
+AC_MSG_RESULT([cnl                : ${enable_cnl_iogroup}])
 AC_MSG_RESULT([===============================================================================])
