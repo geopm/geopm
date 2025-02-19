@@ -212,13 +212,17 @@ TEST_F(CommNullImpTest, gatherv)
     static const unsigned COUNT = 2;
     std::vector<double> senders = {1, 2};
     std::vector<double> receivers(COUNT);
+    std::vector<size_t> recv_sizes = {2};
+    std::vector<off_t> rank_offset = {0};
     // Only works for 1 rank
-    EXPECT_THROW(m_comm->gatherv(senders.data(), COUNT, receivers.data(), {COUNT}, {0}, 99), geopm::Exception);
+    EXPECT_THROW(m_comm->gatherv(senders.data(), COUNT, receivers.data(), recv_sizes, rank_offset, 99), geopm::Exception);
     // Only works if sender size == receiver size
-    EXPECT_THROW(m_comm->gatherv(senders.data(), COUNT, receivers.data(), {COUNT-1}, {0}, 0), geopm::Exception);
+    recv_sizes[0] = 1;
+    EXPECT_THROW(m_comm->gatherv(senders.data(), COUNT, receivers.data(), recv_sizes, rank_offset, 0), geopm::Exception);
 
     receivers = std::vector<double>(COUNT);
-    m_comm->gatherv(senders.data(), COUNT, receivers.data(), {COUNT}, {0}, 0);
+    recv_sizes[0] = 2;
+    m_comm->gatherv(senders.data(), COUNT, receivers.data(), recv_sizes, rank_offset, 0);
     EXPECT_THAT(receivers, ElementsAreArray(receivers));
 }
 
