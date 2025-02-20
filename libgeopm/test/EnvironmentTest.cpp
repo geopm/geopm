@@ -9,6 +9,7 @@
 #include <memory>
 #include <fstream>
 #include <set>
+#include <errno.h>
 
 #include "geopm/json11.hpp"
 
@@ -710,6 +711,7 @@ TEST_F(EnvironmentTest, signal_parser)
 TEST_F(EnvironmentTest, program_filter)
 {
     // The program_invocation_short_name is geopm_test
+    EXPECT_EQ(std::string(program_invocation_short_name), "geopm_test");
     setenv("GEOPM_PROGRAM_FILTER", "/usr/bin/sleep,/bin/bash,/my/app/geopm_test", 1);
     m_env = geopm::make_unique<EnvironmentImp>("", "");
     EXPECT_TRUE(m_env->do_profile());
