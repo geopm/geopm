@@ -710,12 +710,22 @@ TEST_F(EnvironmentTest, signal_parser)
 
 TEST_F(EnvironmentTest, program_filter)
 {
-    // The program_invocation_short_name is geopm_test
-    EXPECT_EQ(std::string(program_invocation_short_name), "geopm_test");
-    setenv("GEOPM_PROGRAM_FILTER", "/usr/bin/sleep,/bin/bash,/my/app/geopm_test", 1);
+    // The program_invocation_short_name is expected to be geopm_test
+    std::string test_program_name = "geopm_test";
+    if (std::string(program_invocation_short_name) == "lt-geopm_test") {
+        // Required for newer versions of automake
+        test_program_name = "lt-geopm_test";
+    }
+    EXPECT_EQ(std::string(program_invocation_short_name), test_program_name);
+    std::string filter = "/usr/bin/sleep,/bin/bash,/my/app/" +  test_program_name;
+    setenv("GEOPM_PROGRAM_FILTER", filter.c_str(), 1);
     m_env = geopm::make_unique<EnvironmentImp>("", "");
     EXPECT_TRUE(m_env->do_profile());
-    setenv("GEOPM_PROGRAM_FILTER", "sleep,bash,geopm_test", 1);
+    filter = "sleep,bash," + test_program_name;
+    setenv("GEOPM_PROGRAM_FILTER", filter.c_str(), 1);
     m_env = geopm::make_unique<EnvironmentImp>("", "");
     EXPECT_TRUE(m_env->do_profile());
+    setenv("GEOPM_PROGRAM_FILTER", "sleep,bash", 1);
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    EXPECT_FALSE(m_env->do_profile());
 }
