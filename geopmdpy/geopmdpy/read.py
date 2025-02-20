@@ -29,6 +29,9 @@ gpu                         {topo.num_domain('gpu')}
 package_integrated_gpu      {topo.num_domain('package_integrated_gpu')}
 gpu_chip                    {topo.num_domain('gpu_chip')}""")
 
+def print_signal_domain(signal_name):
+    print(topo.domain_name(pio.signal_domain_type(signal_name)))
+
 def print_info(signal_name):
     print(f'{signal_name}:\n{pio.signal_description(signal_name)}')
 
@@ -45,6 +48,8 @@ def run():
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
+    parser_group.add_argument('-D', '--signal-domain',
+                              help='print native domain of specified signal')
     parser_group.add_argument('-i', '--info',
                               help='print longer description of a signal')
     parser_group.add_argument('-I', '--info-all', action='store_true',
@@ -56,6 +61,8 @@ def run():
     args = parser.parse_args()
     if args.domain:
         print_domains()
+    elif args.signal_domain:
+        print_signal_domain(args.signal_domain)
     elif args.info:
         print_info(args.info)
     elif args.info_all:

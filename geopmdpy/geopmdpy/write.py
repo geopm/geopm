@@ -15,6 +15,9 @@ from . import topo
 from . import __version__
 from . import read
 
+def print_control_domain(control_name):
+    print(topo.domain_name(pio.control_domain_type(control_name)))
+
 def print_info(control_name):
     print(f'{control_name}:\n{pio.control_description(control_name)}')
 
@@ -43,6 +46,8 @@ def run():
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument('-d', '--domain', action='store_true',
                               help='print domains detected')
+    parser_group.add_argument('-D', '--control-domain',
+                              help='print native domain of specified control')
     parser_group.add_argument('-i', '--info',
                               help='print longer description of a control')
     parser_group.add_argument('-I', '--info-all', action='store_true',
@@ -64,6 +69,8 @@ def run():
                 batch(input_stream)
     elif args.domain:
         read.print_domains()
+    elif args.control_domain:
+        print_control_domain(args.control_domain)
     elif args.info:
         print_info(args.info)
     elif args.info_all:
