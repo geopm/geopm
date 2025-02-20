@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include <mutex>
 
 typedef int MPI_Op;
 typedef int MPI_Comm;
@@ -59,6 +60,7 @@ extern "C"
         return 0;
     }
 
+    static std::mutex g_mutex;
     static std::vector<void *> g_params;
     static std::vector<size_t> g_sizes;
 
@@ -413,12 +415,14 @@ class CommMPIImpTest: public :: testing :: Test
 
 void CommMPIImpTest::SetUp()
 {
+    g_mutex.lock();
     reset();
 }
 
 void CommMPIImpTest::TearDown()
 {
     reset();
+    g_mutex.unlock();
 }
 
 void CommMPIImpTest::check_params()
