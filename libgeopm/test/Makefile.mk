@@ -44,7 +44,6 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ApplicationRecordLogTest.cpp \
                           test/ApplicationSamplerTest.cpp \
                           test/ApplicationStatusTest.cpp \
-                          test/CommMPIImpTest.cpp \
                           test/CommNullImpTest.cpp \
                           test/ControllerTest.cpp \
                           test/CSVTest.cpp \
