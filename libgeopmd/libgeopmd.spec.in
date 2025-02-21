@@ -27,7 +27,6 @@ BuildRequires:	gcc-c++
 BuildRequires:	glibc-devel
 BuildRequires:	libcap-devel
 BuildRequires:	libtool
-BuildRequires:	liburing-devel
 BuildRequires:	systemd-devel
 %if 0%{?fedora}
 BuildRequires:	zlib-ng-compat-devel
