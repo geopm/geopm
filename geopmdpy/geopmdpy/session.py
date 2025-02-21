@@ -561,7 +561,10 @@ class ReadRequestQueue(RequestQueue):
                 raise RuntimeError('Read request must be three words: "{}"'.format(line))
             try:
                 signal_name = words[0]
-                domain_type = topo.domain_type(words[1])
+                if words[1] == '*':
+                    domain_type = pio.signal_domain_type(signal_name)
+                else:
+                    domain_type = topo.domain_type(words[1])
                 if words[2] == '*':
                     requests.extend([(signal_name, domain_type, domain_idx) for domain_idx in range(topo.num_domain(domain_type))])
                 else :
