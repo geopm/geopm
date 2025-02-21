@@ -50,8 +50,9 @@ Command line interface for the GEOPM service batch read features. The input to
 the command line tool has one request per line. A request for reading is made up
 of three strings separated by white space. The first string is the signal name,
 the second string is the domain name, and the third string is the domain index.
-Provide the "``*``" character as the third string to request all domains
-available on the system.
+Provide the "``*``" character as the second string to request the native domain
+for the signal.  Provide the "``*``" character as the third string to request
+all domains available on the system.
 
 A descriptive header is written first, unless the ``-n`` option is specified, in
 which case the header omitted.  The output from reading values is printed
