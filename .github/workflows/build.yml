@@ -220,13 +220,13 @@ jobs:
            echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
            if [[ "${{ github.ref_name }}" == "release-v3.1" ]]; then
-               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}:release/libgeopmd" >> ${GITHUB_ENV}
+               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}:release/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release/geopm-runtime" >> ${GITHUB_ENV}
                echo "GEOPMDPY_PACKAGE=home:${{ github.repository_owner }}:release/python3-geopmdpy" >> ${GITHUB_ENV}
                echo "GEOPMPY_PACKAGE=home:${{ github.repository_owner }}:release/python3-geopmpy" >> ${GITHUB_ENV}
                echo "DOCS_PACKAGE=home:${{ github.repository_owner }}:release/geopm-doc" >> ${GITHUB_ENV}
            elif [[ "${{ github.ref_name }}" == "release-v3.0" ]]; then
-               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/libgeopmd" >> ${GITHUB_ENV}
+               echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/geopm-service" >> ${GITHUB_ENV}
                echo "RUNTIME_PACKAGE=home:${{ github.repository_owner }}:release-v3.0/geopm-runtime" >> ${GITHUB_ENV}
            else
                echo "LIBGEOPMD_PACKAGE=home:${{ github.repository_owner }}/libgeopmd" >> ${GITHUB_ENV}
