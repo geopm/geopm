@@ -113,38 +113,39 @@ exists.  See the ``--cache`` option below for more information.
 
 Options
 -------
--d, --domain    Print a list of all domains on the system.
--i, --info      Print description of the provided ``CONTROL_NAME``.
--I, --info-all  Print a list of all available controls with their descriptions,
-                if any.
--c, --cache     Create a cache file for the ``geopm::PlatformTopo`` object if one
-                does not exist or if the existing cache is from a previous boot
-                cycle.  If a privileged user requests this option (e.g. root or
-                if invoked with sudo) the file path will be
-                ``/run/geopm/geopm-topo-cache``. If a non-privileged user
-                requests this option the file path will be
-                ``/tmp/geopm-topo-cache-<UID>``.  In either case, the
-                permissions will be ``-rw-------``, i.e.  **600**.  If the
-                file exists from the current boot cycle and has the proper
-                permissions no operation will be performed.  To force the
-                creation of a new cache file, remove the existing cache file
-                prior to executing this command.
--f, --config    Read control name, control domain, control index and control value
-                from a configuration file rather than using the positional
-                arguments.  These four parameters are provided on each line of
-                the file separated by white space.  The file may have many lines
-                specifying multiple controls to be written. Providing ``-`` for this
-                option specifies to read the configuration from standard input.
--e, --enable-fixed
-                Write to the registers that enable the fixed counters.  Enabling
-                the fixed counters is required for the signals starting with
-                ``MSR::FIXED_CTR`` to report non-zero values.  The signal
-                ``CPU_INSTRUCTIONS_RETIRED`` also requires the fixed counters to
-                be enabled.
--h, --help      Print brief summary of the command line usage information, then
-                exit.
--v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
-                then exit.
+-d, --domain          Print a list of all domains on the system.
+-D, --control-domain  Print the domain of the signal name provided for option.
+-i, --info            Print description of the provided ``CONTROL_NAME``.
+-I, --info-all        Print a list of all available controls with their
+                      descriptions, if any.
+-c, --cache           Create a cache file for the ``geopm::PlatformTopo`` object
+                      if one does not exist or if the existing cache is from a
+                      previous boot cycle.  If a privileged user requests this
+                      option (e.g. root or if invoked with sudo) the file path
+                      will be ``/run/geopm/geopm-topo-cache``. If a
+                      non-privileged user requests this option the file path
+                      will be ``/tmp/geopm-topo-cache-<UID>``.  In either case,
+                      the permissions will be ``-rw-------``, i.e.  **600**.  If
+                      the file exists from the current boot cycle and has the
+                      proper permissions no operation will be performed.  To
+                      force the creation of a new cache file, remove the
+                      existing cache file prior to executing this command.
+-f, --config          Read control name, control domain, control index and
+                      control value from a configuration file rather than using
+                      the positional arguments.  These four parameters are
+                      provided on each line of the file separated by white
+                      space.  The file may have many lines specifying multiple
+                      controls to be written. Providing ``-`` for this option
+                      specifies to read the configuration from standard input.
+-e, --enable-fixed    Write to the registers that enable the fixed counters.
+                      Enabling the fixed counters is required for the signals
+                      starting with ``MSR::FIXED_CTR`` to report non-zero
+                      values.  The signal ``CPU_INSTRUCTIONS_RETIRED`` also
+                      requires the fixed counters to be enabled.
+-h, --help            Print brief summary of the command line usage information,
+                      then exit.
+-v, --version         Print version of :doc:`geopm(7) <geopm.7>` to standard
+                      output, then exit.
 
 Examples
 --------
@@ -189,7 +190,7 @@ Show domain type for ``CPU_POWER`` control:
 
 .. code-block::
 
-   $ geopmwrite --domain CPU_POWER
+   $ geopmwrite --control-domain CPU_POWER
    package
 
 Set the frequency of CPU 2 to 1.9 *GHz*:
