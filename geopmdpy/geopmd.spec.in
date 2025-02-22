@@ -65,9 +65,8 @@ Summary:        Python bindings for libgeopmd
 
 %prep
 %autosetup -p1 -n geopmdpy-%{version}
+echo %{version} > %{prj_name}/VERSION
 sed -i 's/usr\/bin/usr\/sbin/g' geopm.service
-
-echo %{version} > VERSION
 
 %build
 %py3_build
