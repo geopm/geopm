@@ -9,6 +9,10 @@ Users can monitor their system's energy and power consumption, and safely
 optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
+%if ! %{defined autorelease}
+%define autorelease 1
+%endif
+
 Name:		python3-%{prj_name}
 Version:	@VERSION@
 Release:	%autorelease
@@ -29,7 +33,6 @@ BuildRequires:	python3-PyYAML
 %else
 BuildRequires:	python3-pyyaml
 %endif
-BuildRequires:	python3-pyyaml
 BuildRequires:	python3-tables
 BuildRequires:	libgeopm-devel
 BuildRequires:	libgeopmd-devel
@@ -49,7 +52,8 @@ echo %{version} > %{prj_name}/VERSION
 %py3_install
 
 %check
-%{python3} -m unittest discover -p 'Test*.py' -v
+pushd %{buildroot}%{python3_sitearch}
+python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/%{prj_name}-%{version}/test
 
 %files
 %license LICENSE-BSD-3-Clause
