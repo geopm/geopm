@@ -61,7 +61,7 @@ Requires:	python3dist(geopmpy)
 %{desc}
 
 %prep
-%autosetup -n libgeopm-%{version}
+%autosetup -p1 -n libgeopm-%{version}
 echo %{version} > VERSION
 autoreconf -vif
 

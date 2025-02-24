@@ -86,6 +86,7 @@ install -D -p -m 644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 %check
 pushd %{buildroot}%{python3_sitearch}
 python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/%{prj_name}-%{version}/test
+popd
 
 %if 0%{?suse_version}
 %pre -n geopmd

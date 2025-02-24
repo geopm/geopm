@@ -115,10 +115,10 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %{desc}
 
 %prep
-%autosetup -n libgeopmd-%{version}
+%autosetup -p1 -n libgeopmd-%{version}
 
 echo %{version} > VERSION
-./autogen.sh
+autoreconf -vif
 
 %build
 %configure \

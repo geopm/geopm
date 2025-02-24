@@ -42,7 +42,7 @@ Requires:	geopmd
 %{desc}
 
 %prep
-%autosetup -n %{prj_name}-%{version}
+%autosetup -p1 -n %{prj_name}-%{version}
 echo %{version} > %{prj_name}/VERSION
 
 %build
