@@ -1,0 +1,36 @@
+Source: python3-geopmpy
+Section: python
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (= 12),
+ dh-python,
+ python3-all,
+ python3-setuptools,
+ python3-setuptools-scm,
+ python3-dev,
+ python3-cffi,
+ libgeopm-dev
+Standards-Version: 4.4.1
+Vcs-Git: https://github.com/geopm/geopm.git
+Homepage: https://geopm.github.io
+
+Package: python3-geopmpy
+Architecture: all
+Depends: python3 (>= 3.6~),
+ python3-cffi (>=1.14.5),
+ python3-cycler (>=0.11.0),
+ python3-natsort (>=8.0.2),
+ python3-numpy (>=1.19.5),
+ python3-pandas (>=1.1.5),
+ python3-psutil (>=5.8.0),
+ python3-yaml (>=5.4.1),
+ python3-setuptools (>=53.0.0),
+ python3-tables (>=3.7.0),
+ python3-geopmdpy (= ${binary:Version}),
+ python3:any
+Recommends: libgeopmd2 (= ${binary:Version}),
+ geopmd (= ${binary:Version}),
+ libgeopm2 (= ${binary:Version}),
+ python3-geopmpy-doc (= ${binary:Version})
+Description: GEOPM - Global Extensible Open Power Manager Runtime Tools
+ Python support for GEOPM Runtime
