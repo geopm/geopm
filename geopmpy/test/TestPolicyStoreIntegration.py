@@ -4,8 +4,8 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-from . import remove_mock_libs
-from . import inject_mock_libs
+from test_helper import remove_mock_libs
+from test_helper import inject_mock_libs
 import unittest
 from importlib import reload
 import geopmpy.gffi

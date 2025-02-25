@@ -9,8 +9,8 @@ import unittest
 import json
 import math
 
+from test_helper import mock_libgeopm
 import geopmpy.agent
-from . import mock_libgeopm
 
 MOCKED_AGENT_NAMES = ['agent1', 'agent2']
 MOCKED_SAMPLE_NAMES = ['sample1', 'sample2']
