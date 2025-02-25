@@ -9,17 +9,13 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		libgeopm
-Version:	3.1.0
+Version:	3.2.0
 Release:	%autorelease
 Summary:	C/C++ implementation of the GEOPM runtime service
 
 License:	BSD-3-Clause
 URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
-
-Patch0:		libgeopm-fedora.patch
-
-ExclusiveArch:	x86_64
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -73,11 +69,16 @@ popd
 pushd %{name}
 %make_install
 rm -v %{buildroot}/%{_libdir}/libgeopm.a
+rm -v %{buildroot}/%{_libdir}/libgeopm.la
+%if "%{_bindir}" != "%{_sbindir}"
+mkdir -p %{buildroot}%{_sbindir}
+mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmadmin
+%endif
 popd
 
 %check
 pushd %{name}
-make check
+make check || (cat ./test-suite.log && false)
 popd
 
 %files

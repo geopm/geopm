@@ -9,18 +9,13 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		libgeopmd
-Version:	3.1.0
+Version:	3.2.0
 Release:	%autorelease
 Summary:	C/C++ implementation of the GEOPM access service
 
 License:	BSD-3-Clause
 URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
-
-Patch0:		libgeopmd-fedora.patch
-Patch1:		test-fails-in-pid-namespace.patch
-
-ExclusiveArch:	x86_64
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -33,6 +28,12 @@ BuildRequires:	libtool
 BuildRequires:	liburing-devel
 BuildRequires:	systemd-devel
 BuildRequires:	zlib-ng-compat-devel
+BuildRequires: grpc-devel
+BuildRequires: protobuf-devel
+
+%if "%{_arch}" != "x86_64"
+%define cpuid_option --disable-cpuid
+%endif
 
 %description
 %{desc}
@@ -46,9 +47,8 @@ The %{name}-devel package contains libraries and header files for
 applications that use %{name}.
 
 %package -n geopmd-cli
-Summary:	libgeopmd command-line tools
+Summary:	The libgeopmd command-line tools
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	geopmd
 
 %description -n geopmd-cli
 %{desc}
@@ -64,7 +64,10 @@ popd
 %build
 pushd %{name}
 %configure \
-	--disable-build-gtest
+	--disable-build-gtest \
+	--enable-grpc \
+	%{?cpuid_option} \
+	|| ( cat config.log && false )
 %make_build
 popd
 
@@ -73,11 +76,15 @@ pushd %{name}
 %make_install
 rm -v %{buildroot}/%{_libdir}/libgeopmd.a
 rm -v %{buildroot}/%{_libdir}/libgeopmd.la
+%if "%{_bindir}" != "%{_sbindir}"
+mkdir -p %{buildroot}%{_sbindir}
+mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmbatch
+%endif
 popd
 
 %check
 pushd %{name}
-make check
+make check || (cat ./test-suite.log && false)
 popd
 
 %files
@@ -92,8 +99,7 @@ popd
 %{_libdir}/%{name}.so
 
 %files -n geopmd-cli
-%{_bindir}/geopmread
-%{_bindir}/geopmwrite
+%{_sbindir}/geopmbatch
 
 %changelog
 %autochangelog
