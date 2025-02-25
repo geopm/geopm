@@ -230,7 +230,9 @@ class Session:
 
         """
         num_period = 0
-        if period != 0:
+        if pid is not None:
+            num_period = None
+        elif period != 0:
             num_period = math.ceil(duration / period)
         signal_handles = []
         for name, dom, dom_idx in requests:
@@ -277,7 +279,7 @@ class Session:
                 raise
         return result
 
-    def check_read_args(self, run_time, period, report_samples):
+    def check_read_args(self, run_time, period, report_samples, pid):
         """Check that the run time and period are valid for a read session
 
         Args:
@@ -290,12 +292,13 @@ class Session:
             report_samples (int): Number of samples gathered between periodic
                                   reports.
 
+            pid (int): PID to track
         Raises:
             RuntimeError: The period is greater than the total time, or any
                           option is negative.
 
         """
-        if period > run_time:
+        if pid is None and period > run_time:
             raise RuntimeError('Specified a period that is greater than the total run time')
         if period > 86400:
             raise RuntimeError('Specified a period greater than 24 hours')
@@ -398,7 +401,7 @@ class Session:
         else:
             requests = ReadRequestQueue(request_stream)
             do_stats = report_path is not None
-        self.check_read_args(run_time, period, report_samples)
+        self.check_read_args(run_time, period, report_samples, pid)
         self.check_requests(requests)
         signal_config = list(requests)
         if out_stream is not None and print_header:
@@ -614,8 +617,8 @@ def get_parser():
                         help='Print version and exit.')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
                         help='Total run time of the session to be opened in seconds.')
-    parser.add_argument('-p', '--period', dest='period', type=float, default=0.0,
-                        help='When used with a read mode session reads all values out periodically with the specified period in seconds.')
+    parser.add_argument('-p', '--period', dest='period', type=float, default=0.1,
+                        help='When used with a read mode session reads all values out periodically with the specified period in seconds. Default %(default)s.')
     parser.add_argument('--pid', type=int,
                         help='Stop the session when the given process PID ends.')
     header_group = parser.add_mutually_exclusive_group()
