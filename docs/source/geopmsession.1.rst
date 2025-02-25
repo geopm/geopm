@@ -79,7 +79,7 @@ Options
 -p PERIOD, --period PERIOD  .. _period option:
 
     When used with a read mode session reads all values out periodically with
-    the specified period in seconds.
+    the specified period in seconds.  Default: 0.1 second.
 
 --pid PID  .. _pid option:
 
