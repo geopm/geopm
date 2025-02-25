@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 # Aliasing "mock_libgeopm" to keep the diff small when adding this. Alternatively,
 # replace usage in this file with "mock_libgeopm.lib"
-from . import mock_libgeopm as _mock_libgeopm
+from test_helper import mock_libgeopm as _mock_libgeopm
 mock_libgeopm = _mock_libgeopm.lib
 import geopmpy.endpoint
 

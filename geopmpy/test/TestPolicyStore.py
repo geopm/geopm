@@ -7,7 +7,7 @@
 
 import unittest
 from unittest import mock
-from . import mock_libgeopm
+from test_helper import mock_libgeopm
 
 mock_c = mock_libgeopm.lib
 
