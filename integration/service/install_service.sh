@@ -9,8 +9,8 @@ print_help() {
            $0 --remove
 
     Installs the RPMs created by the \"make rpm\" target of the geopm/service
-    build.  The libgeopmd2, libgeopmd-devel, geopmd-cli, and python3-geopmdpy
-    packages are installed and then the geopm service is started with systemctl.
+    build.  The libgeopmd2, geopmd, geopmd-cli, and python3-geopmdpy packages
+    are installed and then the geopm service is started with systemctl.
 
     The geopm-service requires dasbus version 1.5 or later is installed.  Use
     the script build_dasbus.sh located in this directory to create the required
@@ -49,7 +49,7 @@ install_packages() {
     PACKAGES="\
 ${RPM_DIR}/x86_64/geopmd-${VERSION}-1.x86_64.rpm
 ${RPM_DIR}/x86_64/geopmd-cli-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/libgeopmd-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/x86_64/libgeopmd2-${VERSION}-1.x86_64.rpm
 ${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
@@ -73,7 +73,7 @@ remove_service() {
         systemctl stop geopm ||
             echo "Warning: Failed to stop geopm service" 1>&2
     fi
-    for pkg in geopmd geopmd-cli python3-geopmdpy libgeopmd; do
+    for pkg in geopmd geopmd-cli python3-geopmdpy libgeopmd2; do
 	if [[ ${IS_QUIET} -eq 0 ]]; then
             ${PKG_REMOVE} $pkg ||
                 echo "Warning: Failed to remove geopm service package: $pkg" 1>&2
