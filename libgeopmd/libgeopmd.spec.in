@@ -118,7 +118,7 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %autosetup -p1 -n libgeopmd-%{version}
 
 echo %{version} > VERSION
-autoreconf -vif
+ACLOCAL_PATH=${ACLOCAL_PATH:+${ACLOCAL_PATH}:}/usr/share/aclocal autoreconf -vif
 
 %build
 %configure \
