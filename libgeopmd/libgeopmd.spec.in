@@ -52,8 +52,8 @@ BuildRequires: liburing-devel
 #    rpmbuild --define 'enable_grpc 1' ...
 %if %{defined enable_grpc}
 %define grpc_option --enable-grpc
-BuildRequires: grpc-devel
-BuildRequires: protobuf-devel
+BuildRequires:	grpc-devel
+BuildRequires:	protobuf-devel
 %endif
 
 # This spec file supports three options for level-zero support:
