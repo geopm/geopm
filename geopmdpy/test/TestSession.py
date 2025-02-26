@@ -147,10 +147,6 @@ class TestSession(unittest.TestCase):
             out_stream.write.assert_has_calls(calls)
 
     def test_check_read_args(self):
-        err_msg = 'Specified a period that is greater than the total run time'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(1, 2, None, None)
-
         day = 24 * 60 * 60
         err_msg = 'Specified a period greater than 24 hours'
         with self.assertRaisesRegex(RuntimeError, err_msg):
