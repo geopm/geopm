@@ -298,8 +298,6 @@ class Session:
                           option is negative.
 
         """
-        if pid is None and period > run_time:
-            raise RuntimeError('Specified a period that is greater than the total run time')
         if period > 86400:
             raise RuntimeError('Specified a period greater than 24 hours')
         if period < 0.0 or run_time < 0.0:
