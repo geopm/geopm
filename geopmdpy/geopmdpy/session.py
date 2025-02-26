@@ -14,7 +14,7 @@ from socket import gethostname
 from io import StringIO
 from argparse import ArgumentParser
 from signal import signal
-from signal import SIGTERM
+from signal import SIGTERM, SIGINT
 from time import sleep
 from . import topo
 from . import pio
@@ -35,8 +35,10 @@ g_session_handler = None
 _STARTUP_SLEEP = 0.005
 
 def _term_handler(signum, frame):
-    if signum == SIGTERM and g_session_handler is not None:
+    sys.stderr.write(f'Received signal {signum}, flushing buffers and exiting.\n')
+    if g_session_handler is not None:
         g_session_handler.stop()
+    sys.exit(signum)
 
 def _check_valid_output(path):
     return path is not None and path != '/dev/null'
@@ -655,6 +657,7 @@ def main():
     session_io = None
     _config_stream = None
     signal(SIGTERM, _term_handler)
+    signal(SIGINT, _term_handler)
     try:
         args = get_parser().parse_args()
         if args.version:
