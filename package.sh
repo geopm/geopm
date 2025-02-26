@@ -29,7 +29,7 @@ cd -
 
 if which cargo >& /dev/null; then
     cd geopmdrs
-    ./build.sh
+    ./make_deb.sh
 cd -
 else
     echo "Install rust to enable grpc features" 1>&2
