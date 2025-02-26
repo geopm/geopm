@@ -38,7 +38,7 @@ def _term_handler(signum, frame):
     sys.stderr.write(f'Received signal {signum}, flushing buffers and exiting.\n')
     if g_session_handler is not None:
         g_session_handler.stop()
-    sys.exit(signum)
+    sys.exit(128 + signum)
 
 def _check_valid_output(path):
     return path is not None and path != '/dev/null'
