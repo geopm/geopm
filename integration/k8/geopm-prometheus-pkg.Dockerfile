@@ -14,8 +14,8 @@ RUN echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg]
   tee /etc/apt/sources.list.d/intel-gpu-jammy.list
 RUN apt-get update
 RUN apt-get install -yq libze1 libze-dev
-RUN git clone https://github.com/cmcantalupo/geopm.git
-RUN cd geopm && git checkout prometheus
+RUN git clone https://github.com/geopm/geopm.git
+RUN cd geopm
 RUN cd geopm/libgeopmd && ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
 RUN cd geopm/libgeopmd && apt-get install -yq ./libgeopmd*.deb
 RUN cd geopm/geopmdpy && ./make_deb.sh
