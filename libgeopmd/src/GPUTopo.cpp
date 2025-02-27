@@ -43,10 +43,10 @@ namespace geopm
             }
         }
         catch (const Exception &ex) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> Unable to get /sys/class/accel topology. Reason: "
-                      << ex.what() << std::endl;
-#endif
+            if (verbosity_level() >= 1) {
+                std::cerr << "Warning: <geopm> Unable to get /sys/class/accel topology. Reason: "
+                          << ex.what() << std::endl;
+            }
         }
 #ifdef GEOPM_ENABLE_NVML
         try {
