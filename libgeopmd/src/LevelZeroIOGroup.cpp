@@ -805,6 +805,7 @@ namespace geopm
                                   //TODO: pull from L0 metrics programmatically
                                   "Number of Level Zero Tools reports processed this sample",
                                   GEOPM_DOMAIN_GPU_CHIP,
+                                  M_UNITS_NONE,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -910,14 +911,14 @@ namespace geopm
             m_is_perf_factor_enabled = true;
         }
         catch (const geopm::Exception &ex) {
-
         }
 
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
             std::vector<std::shared_ptr<Signal> > result;
-            for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
-                                     signal_domain_type(sv.first)); ++domain_idx) {
+            for (int domain_idx = 0;
+                 domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first));
+                 ++domain_idx) {
                 try {
                     if (sv.first.find("_PERFORMANCE_") != std::string::npos && !m_is_perf_factor_enabled) {
                         unsupported_signal_names.push_back(sv.first);
@@ -957,7 +958,6 @@ namespace geopm
         }
 
         register_derivative_signals();
-
 
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
@@ -1440,7 +1440,7 @@ namespace geopm
         }
 
         if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL" ||
-           control_name == "GPU_CORE_FREQUENCY_MIN_CONTROL") {
+            control_name == "GPU_CORE_FREQUENCY_MIN_CONTROL") {
             double curr_max = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL",
                                           domain_type, domain_idx);
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
@@ -1448,7 +1448,7 @@ namespace geopm
                                                       setting / 1e6, curr_max / 1e6);
         }
         else if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL" ||
-                control_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
+                 control_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
             double curr_min = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL",
                                           domain_type, domain_idx);
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
@@ -1682,7 +1682,7 @@ namespace geopm
     {
         if (m_control_available.find(alias_name) != m_control_available.end()) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
-                            ": contro1_name " + alias_name +
+                            ": control_name " + alias_name +
                             " was previously registered.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
