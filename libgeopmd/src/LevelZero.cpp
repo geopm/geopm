@@ -4,7 +4,6 @@
  */
 
 
-#include <unistd.h>
 #include <string>
 #include <iostream>
 #include <map>
@@ -12,8 +11,6 @@
 #include <utility>
 
 #include "geopm/Exception.hpp"
-#include "geopm/Agg.hpp"
-#include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
 #include "LevelZeroImp.hpp"
@@ -138,18 +135,22 @@ namespace geopm
                         }
 
                         // We create a context to support the ZET commands
-                        ze_context_desc_t context_desc = {
-                           ZE_STRUCTURE_TYPE_CONTEXT_DESC,
-                           nullptr,
-                           0
-                        };
-                        ze_context_handle_t context = nullptr;
-                        ze_result_t ze_result = zeContextCreate(m_levelzero_driver.at(driver),
-                                                    &context_desc, &context);
-                        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                        "LevelZero::" + std::string(__func__) +
-                                        ": LevelZero context creation failed",
-                                        __LINE__);
+                        // NOTE: a context is being created per subdevice, making this context
+                        // unnecessary. Commenting out for now.
+                        // TODO: Explore replacing per-subdevice contexts with a single context
+                        // (per-device or globally)
+                        // ze_context_desc_t context_desc = {
+                        //    ZE_STRUCTURE_TYPE_CONTEXT_DESC,
+                        //    nullptr,
+                        //    0
+                        // };
+                        // ze_context_handle_t context = nullptr;
+                        // ze_result_t ze_result = zeContextCreate(m_levelzero_driver.at(driver),
+                        //                             &context_desc, &context);
+                        // check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        //                 "LevelZero::" + std::string(__func__) +
+                        //                 ": LevelZero context creation failed",
+                        //                 __LINE__);
 
                         m_devices.push_back({
                             m_levelzero_driver.at(driver),
@@ -724,6 +725,7 @@ namespace geopm
                             "LevelZero::" + std::string(__func__) +
                             ": LevelZero Metric Context Deactivation failed",
                             __LINE__);
+            zeContextDestroy(context);
         }
     }
 
@@ -766,7 +768,7 @@ namespace geopm
         zet_metric_streamer_desc_t metric_streamer_desc = {
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
-            4, // number of reports to notify on.  Targeting 4 reports, 1 per millisecond as that will, generally, 
+            4, // number of reports to notify on.  Targeting 4 reports, 1 per millisecond as that will, generally,
                 // fall within the 5ms control loop and is a good tradeoff in terms of overhead vs visibility within the sampling period.
             m_devices.at(l0_device_idx).metric_sampling_period_ns};
         zet_metric_streamer_handle_t metric_streamer = nullptr;
@@ -971,7 +973,7 @@ namespace geopm
     void LevelZeroImp::ras_domain_cache(unsigned int device_idx)
     {
         uint32_t ras_handle_count = 0;
-        uint32_t num_subdevice = m_devices.at(device_idx).m_num_subdevice;
+        uint32_t num_subdevice = m_devices.at(device_idx).num_subdevice;
         // Find number of RAS error sets for the GPU
         uint32_t num_errset = 0;
         ze_result_t ze_result = zesDeviceEnumRasErrorSets(m_devices.at(device_idx).device_handle,
@@ -991,8 +993,8 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                             ": Sysman failed to get errorset handle(s).", __LINE__);
 
-	    // Note: RAS domain errorset handles are being stored in a 2D vector with
-	    //       dimensions := (number of subdevices) x (number of RAS error types)
+	        // Note: RAS domain errorset handles are being stored in a 2D vector with
+	        //       dimensions := (number of subdevices) x (number of RAS error types)
 
             // Allocate size for a 2D vector to store all the RAS domain handles for errorsets:
             //       m_num_subdevice = number of subdevices on specific GPU device
