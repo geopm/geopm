@@ -30,10 +30,10 @@ namespace geopm
             DrmTopo = std::make_unique<DrmGpuTopo>("/sys/class/drm");
         }
         catch (const Exception &ex) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> Unable to get /sys/class/drm topology. Reason: "
-                      << ex.what() << std::endl;
-#endif
+            if (verbosity_level() >= 1) {
+                std::cerr << "Warning: <geopm> Unable to get /sys/class/drm topology. Reason: "
+                          << ex.what() << std::endl;
+            }
         }
 
         try {
