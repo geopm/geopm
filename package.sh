@@ -39,7 +39,7 @@ cd docs
 ./make_$pkg.sh
 cd -
 
-if [ -n "$GEOPM_PACKAGE_SKIP_RUNTIME" ]; then
+if [ -z "$GEOPM_PACKAGE_SKIP_RUNTIME" ]; then
 
     cd libgeopm
     ./autogen.sh
