@@ -4,10 +4,10 @@
 #
 # Creates all of the RPM or Debian packages in the repository
 
-skip_runtime=0
-if [ $# == 2 ] && [ $1 == '--skip-runtime' ]; then
-    skip_runtime=1
-fi
+# Set GEOPM_PACKGE_SKIP_RUNTIME to build only the GEOPM Access Service packages.
+#
+# All command line arguments are forwarded to the configure calls used to create
+# source archives.
 
 if grep -i ubuntu /etc/os-release || grep -i debian /etc/os-release; then
     pkg=deb
@@ -39,7 +39,7 @@ cd docs
 ./make_$pkg.sh
 cd -
 
-if [ $skip_runtime -eq 0 ]; then
+if [ -n "$GEOPM_PACKAGE_SKIP_RUNTIME" ]; then
 
     cd libgeopm
     ./autogen.sh
