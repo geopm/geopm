@@ -10,7 +10,7 @@ geopm::MSRIOGroup -- IOGroup providing MSR-based signals and controls
 Synopsis
 --------
 
-#include `<MSRIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/src/MSRIOGroup.hpp>`_
+#include `"MSRIOGroup.hpp" <https://github.com/geopm/geopm/blob/dev/libgeopmd/src/MSRIOGroup.hpp>`_
 
 Link with ``-lgeopmd``
 

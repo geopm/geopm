@@ -6,7 +6,7 @@ geopm::PowerBalancerAgent(3) -- agent optimizing performance under a power cap
 Synopsis
 --------
 
-#include `<geopm/PowerBalancerAgent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/src/PowerBalancerAgent.hpp>`_
+#include `"PowerBalancerAgent.hpp" <https://github.com/geopm/geopm/blob/dev/libgeopm/src/PowerBalancerAgent.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

@@ -17,7 +17,7 @@ this manual.
 Synopsis
 --------
 
-#include `<geopm/TimeIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopmd/src/TimeIOGroup.hpp>`_
+#include `"TimeIOGroup.hpp" <https://github.com/geopm/geopm/blob/dev/libgeopmd/src/TimeIOGroup.hpp>`_
 
 Link with ``-lgeopmd``
 
