@@ -61,8 +61,7 @@ def get_energy_at_freq(table_stats, region, domain, freq):
     freq_subset = table_stats[table_stats['app-config'] == region]
 
     # Approximate by the nearest frequency
-    freq = freq_subset.iloc[(freq_subset[f'{domain}-frequency']-freq).abs().argsort()[:1]][f'{domain}-frequency'].tolist()[0]
-
+    freq = freq_subset.iloc[(freq_subset[f'{domain}-frequency']-freq).abs().argmin()[f'{domain}-frequency']]
     freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] == freq]
     if len(freq_subset[energy_col]) == 0:
         return None
@@ -78,9 +77,7 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
     else:
         energy_col = 'package-energy (J)'
 
-    freq_subset = table_stats[table_stats['app-config'] == region]
-    freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] >= freq_r]
-    freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] <= freq_range['max_freq']]
+    freq_subset = table_stats.loc[(table_stats['app-config'] == region) & table_stats[f'{domain}-frequency'].between(freq_r, freq_range['max_freq'])]
 
     row_idx = freq_subset[energy_col].argmin()
 
