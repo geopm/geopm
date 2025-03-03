@@ -134,7 +134,7 @@ Note that all tests must pass in order to generate a coverage report.
 Any help in increasing code coverage levels is appreciated.
 
 Coverage from the latest release is [posted to our web
-page](http://geopm.github.io/coverage/index.html).
+page](https://geopm.github.io/coverage/index.html).
 
 Coding Style
 ------------

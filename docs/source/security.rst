@@ -386,7 +386,7 @@ input. All directory paths used in the GEOPM Service are statically
 defined in the source code.
 
 A secure API for dealing with files and directories resides in
-`system_files.py <https://github.com/geopm/geopm/blob/dev/service/geopmdpy/system_files.py>`__.
+`system_files.py <https://github.com/geopm/geopm/blob/dev/geopmdpy/geopmdpy/system_files.py>`__.
 The functions that match the pattern system_files.secure_*() are the
 only interfaces called by the GEOPM Service to access files located in
 ``/etc`` and ``/run``. These secure functions are used to make
@@ -442,7 +442,7 @@ The GEOPM Service is a systemd service unit which is
 configured through the
 `systemd.service(5) <https://man7.org/linux/man-pages/man5/systemd.service.5.html>`__
 file.  The configuration file provided with the GEOPM source code,
-`geopm.service <https://github.com/geopm/geopm/blob/dev/service/geopm.service>`__,
+`geopm.service <https://github.com/geopm/geopm/blob/dev/geopmdpy/geopm.service>`__,
 does not export the ``GEOPM_PLUGIN_PATH`` environment variable before
 launching ``geopmd``, so this feature is disabled by default.
 

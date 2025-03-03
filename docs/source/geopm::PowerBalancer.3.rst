@@ -6,7 +6,7 @@ geopm::PowerBalancer(3) -- balances power according to epoch runtime
 Synopsis
 --------
 
-#include `<geopm/PowerBalancer.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/PowerBalancer.hpp>`_
+#include `<geopm/PowerBalancer.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm/PowerBalancer.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 

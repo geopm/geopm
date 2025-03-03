@@ -21,7 +21,7 @@ path of the required libraries.  See ``configure --help`` for more information
 about these flags.
 
 When enabling the DCGM signals, a small modification should be made to the
-`geopm.service <https://github.com/geopm/geopm/blob/dev/service/geopm.service>`_
+`geopm.service <https://github.com/geopm/geopm/blob/dev/geopmdpy/geopm.service>`_
 systemd configuration file to encode the requirements on the DGCM service.  The
 three lines below should be added to the ``[Unit]`` section:
 

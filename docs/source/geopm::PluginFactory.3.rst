@@ -60,8 +60,8 @@ available through their respective single accessor functions:
 ``geopm::comm_factory()``.
 
 A good starting point for implementing a new ``Agent`` or ``IOGroup``
-plugin is to modify the examples found in the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/agent>`_ and
-the `IOGroup tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/iogroup>`_.
+plugin is to modify the examples found in the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/integration/tutorial/agent>`_ and
+the `IOGroup tutorial <https://github.com/geopm/geopm/tree/dev/integration/tutorial/iogroup>`_.
 This code is located in the GEOPM source under ``tutorial/agent`` and
 ``tutorial/iogroup`` respectively.
 
@@ -249,7 +249,7 @@ policy names required by the ``Agent``.
 EXAMPLE: REGISTER IOGROUP PLUGIN
 --------------------------------
 
-Please see the `IOGroup tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/iogroup>`_ for more
+Please see the `IOGroup tutorial <https://github.com/geopm/geopm/tree/dev/integration/tutorial/iogroup>`_ for more
 information.  This code is located in the GEOPM source under ``tutorial/iogroup``.
 
 .. code-block:: c++
@@ -287,7 +287,7 @@ information.  This code is located in the GEOPM source under ``tutorial/iogroup`
 EXAMPLE: REGISTER AGENT PLUGIN
 ------------------------------
 
-Please see the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/agent>`_ for more
+Please see the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/integration/tutorial/agent>`_ for more
 information.  This code is located in the GEOPM source under ``tutorial/agent``.
 
 .. code-block:: c++

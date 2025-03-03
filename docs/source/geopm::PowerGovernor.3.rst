@@ -6,7 +6,7 @@ geopm::PowerGovernor(3) -- enforces a power limit
 Synopsis
 --------
 
-#include `<geopm/PowerGovernor.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/PowerGovernor.hpp>`_
+#include `<geopm/PowerGovernor.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm/PowerGovernor.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
