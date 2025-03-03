@@ -469,14 +469,6 @@ namespace geopm
         }
 
         if (is_file_ok == false) {
-            mode_t perms;
-            if (cache_file_name == M_SERVICE_CACHE_FILE_NAME) {
-                perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
-            }
-            else {
-                perms = S_IRUSR | S_IWUSR; // 0o600
-            }
-
             std::string tmp_string = cache_file_name + "XXXXXX";
             char tmp_path[PATH_MAX];
             tmp_path[PATH_MAX - 1] = '\0';
