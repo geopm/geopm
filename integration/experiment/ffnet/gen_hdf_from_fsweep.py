@@ -3,12 +3,10 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 import pandas as pd
-import numpy as np
 import os
 import glob
 import yaml
 import argparse
-import code
 from itertools import chain
 
 def process_report_files(input_dir):

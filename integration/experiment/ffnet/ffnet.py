@@ -19,7 +19,7 @@ from integration.experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
-    parser.add_argument('--perf-energy-bias', dest='perf_energy_bias',
+    parser.add_argument('--perf-energy-bias', dest='perf_energy_bias', type=float,
                         action='store', default=0,
                         help='Perf-Energy Bias [0-1] where 0 is perf-sensitive and 1 is energy-efficient')
     parser.add_argument('--cpu-nn-path', dest='cpu_nn_path',
@@ -67,16 +67,16 @@ def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_
 
     return
 
-def launch_configs(output_dir, app_conf, phi=0):
+def launch_configs(output_dir, app_conf, perf_energy_bias=0):
     mach = machine.init_output_dir(output_dir)
 
-    if phi > 1 or phi < 0:
+    if perf_energy_bias > 1 or perf_energy_bias < 0:
         raise KeyError('perf-energy-bias must be between 0 and 1 for ffnet experiment.')
 
     agent = 'ffnet'
     targets = []
-    options = {"PERF_ENERGY_BIAS": phi}
-    name = f'{phi}phi'
+    options = {"PERF_ENERGY_BIAS": perf_energy_bias}
+    name = f'{perf_energy_bias}peb'
 
     file_name = os.path.join(output_dir, f'{agent}_agent_{name}.config'.format(agent))
     agent_conf = geopmpy.agent.AgentConf(file_name, agent, options)
@@ -101,12 +101,12 @@ def launch(app_conf, args, experiment_cli_args):
     #Set and initialize required counters for nn training
     init_control_path = 'neural_net_init.controls'
     with open(init_control_path, 'w') as outfile:
-        outfile.write(f"""MSR::PQR_ASSOC:RMID board 0 0
+        outfile.write("""MSR::PQR_ASSOC:RMID board 0 0
                       # Assigns all cores to resource monitoring association ID 0
                       # Next, assign resource monitoring ID for QM events to match
-                      f"MSR::QM_EVTSEL:RMID board 0 0
+                      MSR::QM_EVTSEL:RMID board 0 0
                       # Then determine Xeon Uncore Utilization
-                      f"MSR::QM_EVTSEL:EVENT_ID board 0 0""")
+                      MSR::QM_EVTSEL:EVENT_ID board 0 0""")
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
