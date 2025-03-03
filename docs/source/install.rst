@@ -1,265 +1,1470 @@
 Installation
 ============
 
-The packages provided below correspond to branches hosted on GitHub.  The
-packages are updated through continuous integration via GitHub Actions for
-numerous Linux distributions.  RPM-based distributions are hosted on `openSUSE
-Build Service (OBS) <https://build.opensuse.org/>`_ while Debian-based
-distributions are hosted on `Launchpad <https://launchpad.net/>`_.
+This documentation covers how to use pre-built Linux OS packages to install
+GEOPM for all users of a system either using the latest stable release of GEOPM,
+or a development snapshot. The stable release packages are created as part of
+the Git repository tag/release process.  The development snapshot packages are
+built by GEOPM's GitHub CI process each time the ``dev`` branch is updated.
+
+
+Install Latest Stable Release
+-----------------------------
 
-Here are the packages curated by OBS and Launchpad:
+Install packages created by GEOPM development team to install the latest stable
+release of GEOPM.
 
-v3.1.0 to Current
------------------
 
-- ``geopm-service``: Sets up and enables the geopm systemd service.
-- ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
-- ``python3-geopmdpy``: Houses the implementation of geopmd, CLI utilities, and bindings for PlatformIO.
-- ``geopm-service-devel``: Provides headers and man pages for C and C++ APIs supportable by ``libgeopmd2``.
-- ``geopm-doc``: Provides all GEOPM man pages.
+GEOPM Access Service - Official
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-v3.0.1
-------
+Instructions on how to install the latest official release of the GEOPM Access
+Service and its dependency packages is broken down by OS and OS version.
 
-- ``geopm-service``: Sets up and enables the geopm systemd service.
-- ``libgeopmd2``: Provides the library that supports the PlatformIO interface.
-- ``python3-geopmdpy``: Houses the implementation of geopmd, CLI utilities, and bindings for PlatformIO.
-- ``geopm-service-devel``: Provides headers and man pages for C and C++ APIs supportable by ``libgeopmd2``.
+.. tabs::
 
-Installation of ``geopm-service`` will involve the dependency packages:
-``libgeopmd2``, ``python3-geopmdpy`` and ``python3-dasbus``. However, explicit
-installation is obligatory for anyone seeking to use ``geopm-service-devel`` or
-the docs packages.
+   .. group-tab:: openSUSE
 
-----
+      .. tabs::
+
+         .. group-tab:: 15.3
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
 
-GPU Support
------------
+                  .. code-block:: bash
 
-In order to leverage the GEOPM Service's support for GPUs, you must install the
-necessary libraries for either Intel GPUs (levelzero) or Nvidia GPUs (NVML).
-
-Prerequisites for Level Zero
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``level-zero`` allows GEOPM to read metrics and enact controls from Intel GPUs.
-Currently, none of the Linux distributions supporting GEOPM provide this
-package upstream.
-
-To install ``level-zero``, use the one of the following:
-
-For up-to-date distributions (e.g. SLES 15.4 and Ubuntu 22.04):
-
-* `Intel(R) software for general purpose GPU capabilities
-  <https://dgpu-docs.intel.com/driver/installation.html>`__
-
-Once added your system's OS appropriate package management repository, you can
-use ``yum``, ``zypper``, or ``apt`` to install the package.
-
-.. note::
-
-   The ``level-zero-devel`` package is optional unless building GEOPM from
-   source with GPU support.
-
-.. warning::
-
-   In order to avoid a race condition that exists between the availability
-   of the Level Zero interfaces and GEOPM, the kernel graphics driver that
-   provides the backing for these interfaces, i915, must be loaded before
-   the GEOPM systemd service starts.  Otherwise no GPU signals nor controls
-   will be available if the GEOPM systemd service starts before i915 has
-   completed initialization.
-
-   The correct load order can be enforced via the systemd-modules-load
-   service.  Simply add a file in ``/etc/modules-load.d`` called
-   ``i915.conf`` with the only contents being ``i915``.  This forces i915
-   to load before the GEOPM systemd service, and resolves the race
-   condition.
-
-   The kernel command line can be modified instead for this purpose if
-   modifying the file system is not an option.  More information:
-
-   * `modules-load.d <https://www.freedesktop.org/software/systemd/man/latest/modules-load.d.html>`__
-
-   * `systemd-modules-load.service
-     <https://www.freedesktop.org/software/systemd/man/latest/systemd-modules-load.service.html>`__
-
-   * `SLES 15-SP4 - Loading kernel modules automatically on boot
-     <https://documentation.suse.com/sles/15-SP4/html/SLES-all/cha-mod.html#sec-mod-modprobe-d>`__
-
-Prerequisites for NVML
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. TODO Include blurb about DCGM, where to get it, and why it's important.
-   This only makes sense if/when we build with DCGM in something that is packaged
-   on Launchpad or OBS.
-
-To build with support for Nvidia's GPUs please follow their installation guide
-for CUDA here:
-
-* `NVIDIA CUDA Installation Guide for Linux
-  <https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>`__
-
-.. note::
-
-   Source builds that use ``--enable-nvml`` require the following package to be
-   installed: ``libnvidia-ml-dev``
-
-----
-
-Download Repositories
----------------------
-
-The ``release-v3.1`` branch tracks the v3.1 GEOPM release, including any
-potential hotfixes that could occur in the future. It captures the latest
-stable GEOPM release.
-
-The ``release-v3.0`` branch tracks the v3.0 GEOPM release, including any
-potential hotfixes that could occur in the future. It captures the previous
-stable GEOPM release.
-
-The ``dev`` branch, however, presents the most up-to-date stable development.
-See below for download repository information for your Linux distribution.
-
-SLES, openSUSE, and CentOS
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When using the below links, it is preferable to click on your desired OS and
-follow the procedure for "Add repositoriy and install manually".  If you do
-this, installing the ``geopm-service`` package will automatically install the
-remaining dependencies and recommended packages (e.g. ``libgeopmd2``,
-``geopm-service-doc``, etc.).  If required for source builds, you still must
-manually install ``geopm-service-devel``.
-
-While you *can* download the binary packages directly and install through your
-package manager, you must specify all of the required packages at install time
-(i.e. ``geopm-service``, ``libgeopmd2``, ``python3-geopmdpy``).  Optionally
-you may install the following to enable source builds and documentation:
-``geopm-service-devel``, ``geopm-service-doc``, ``libgeopmd-doc``, and
-``python3-geopmdpy-doc``.
-
-.. note::
-
-   You will not automatically pull updates and bug fixes unless the repository
-   is added.
-
-v3.1
-""""
-
-- Release Packages (``release-v3.1`` branch - Intel GPU support via levelzero)
-   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service>`__
-   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=libgeopmd2>`__
-   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-service-devel>`__
-   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease%3Asupplementary&package=geopm-doc>`__
-
-- Release Packages (``release-v3.1`` branch - no GPU support)
-   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service>`__
-   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=libgeopmd2>`__
-   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-service-devel>`__
-   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease&package=geopm-doc>`__
-
-v3.0
-""""
-
-- Release Packages (``release-v3.0`` branch - Intel GPU support via levelzero)
-   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=geopm-service>`__
-   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=libgeopmd2>`__
-   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0%3Asupplementary&package=geopm-service-devel>`__
-
-- Release Packages (``release-v3.0`` branch - no GPU support)
-   + `geopm-service <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=geopm-service>`__
-   + `libgeopm2 <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=libgeopmd2>`__
-   + `python3-geopmdpy <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org//download.html?project=home%3Ageopm%3Arelease-v3.0&package=geopm-service-devel>`__
-
-Development
-"""""""""""
-
-- Development Packages (``dev`` branch - Intel GPU support via levelzero)
-   + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service>`__
-   + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=libgeopmd2>`__
-   + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Asupplementary&package=geopm-service-devel>`__
-   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm%3Asupplementary&package=geopm-doc>`__
-
-- Development Packages (``dev`` branch - no GPU support)
-   + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
-   + `libgeopmd2 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd2>`__
-   + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
-   + `geopm-doc <https://software.opensuse.org//download.html?project=home%3Ageopm&package=geopm-doc>`__
-
-.. warning::
-
-   Do not add more than one of the above repositories to your system package
-   manager at the same time.  Only add one, and ensure all GEOPM packages are
-   completely removed from the system when changing GEOPM repo configuration in
-   the package manager.
-
-Ubuntu
-^^^^^^
-
-There are 2 repositories that are maintained for GEOPM support on Ubuntu: one
-corresponding to the ``release-v3.1`` branch while the other corresponds to the
-``dev`` branch.  Both are built with Nvidia GPU support **only**.
-
-First, add the necessary upstream repository:
-
-.. code-block:: bash
-
-    # ONLY DO ONE OF THE FOLLOWING add-apt-repository COMMANDS:
-
-    # Add the release repo:
-    $ sudo add-apt-repository ppa:geopm/release
-    # OR add the dev repo:
-    $ sudo add-apt-repository ppa:geopm/dev
-
-Then pull all the current updates, install GEOPM, start/enable the service, and
-configure the initial access lists:
-
-.. code-block:: bash
-
-    $ sudo apt update
-    $ apt install geopm-service libgeopmd-dev libgeopmd2 python3-geopmdpy
-    # Start and enable the service
-    $ sudo systemctl start geopm
-    $ sudo systemctl enable geopm
-    # Setup initial access: all users can access all signals and controls
-    $ sudo geopmaccess -a | sudo geopmaccess -w
-    $ sudo geopmaccess -ac | sudo geopmaccess -wc
-
-For more information see:
-
- * `GEOPM release repo on Launchpad
-   <https://launchpad.net/~geopm/+archive/ubuntu/release>`__
- * `GEOPM dev repo on Launchpad
-   <https://launchpad.net/~geopm/+archive/ubuntu/dev>`__
-
-
-.. MOVE TO SOURCE BUILD PAGE
-.. .. note::
-
-..    Source builds that use ``--enable-nvml`` require the following package to be
-..    installed: ``libnvidia-ml-dev``
-
-----
-
-What the Packages Don't Include
--------------------------------
-
-Please note that the packages listed above do not offer the :doc:`GEOPM Runtime
-<runtime>` features (e.g. :doc:`geopmlaunch(1) <geopmlaunch.1>`,
-:doc:`geopm_prof(3) <geopm_prof.3>`, :doc:`geopm_report(7) <geopm_report.7>`,
-``libgeopm.so`` and others.)
-
-For information on how to install the GEOPM Runtime, see :doc:`GEOPM Runtime
-<runtime>`.
-
-For GEOPM features not included in these packages, build GEOPM from
-source. The best instructions for this process can be found in the
-:ref:`developer build process <devel:developer build process>` within the
-:doc:`developer guide <devel>`. Keep in mind that you may need to git checkout
-a git tag (e.g. ``v3.0.0``) to create a build based on a specific release.
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/SLE_15_SP3_Backports/hardware.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.3/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: 15.4
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/SLE_15_SP4/hardware.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.4/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: 15.5
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/15.5/hardware.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.5/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: 15.6
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/15.6/hardware.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.6/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: Tumbleweed
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/hardware.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/openSUSE_Tumbleweed/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+
+   .. group-tab:: Fedora
+
+      The GEOPM packages are native in Fedora but man pages are not
+      published in the distribution.  The man pages are published
+      online, please see `online documentation for the latest release
+      <https://geopm.github.io/v3.2.0/reference.html#geopm-manual-pages>`_.
+
+      .. tabs::
+
+         .. group-tab:: 42
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+
+         .. group-tab:: Rawhide
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+
+
+   .. group-tab:: CentOS
+
+      .. tabs::
+
+         .. group-tab:: 9_Stream
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/release/CentOS_CentOS-9_Stream/home:geopm:release.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:geopm:release:supplementary/CentOS_CentOS-9_Stream/home:geopm:release:supplementary.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+   .. group-tab:: Rocky
+
+      .. tabs::
+
+         .. group-tab:: 9_Standard
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/release/RockyLinux_9_standard/home:geopm:release.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:geopm:release:supplementary/RockyLinux_9_standard/home:geopm:release:supplementary.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+   .. group-tab:: Ubuntu
+
+      .. tabs::
+
+         .. group-tab:: 22.04 Jammy
+
+            .. tabs::
+
+               .. group-tab:: Nvidia GPU support + Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add Launchpad PPA
+                     add-apt-repository ppa:geopm/release
+                     apt update
+                     # GEOPM Access Service python module
+                     apt install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     apt install geopmd
+                     # C/C++ development files
+                     apt install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     apt install geopmd-doc
+                     # Man pages for C/C++ development
+                     apt install libgeopmd-doc
+
+
+GEOPM Runtime Service - Official
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instructions on how to install the latest official release of the GEOPM Runtime
+Service and its dependency packages is broken down by OS and OS version.
+
+.. tabs::
+
+   .. group-tab:: openSUSE
+
+      .. tabs::
+
+         .. group-tab:: 15.3
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/SLE_15_SP3_Backports/hardware.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.3/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.4
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/SLE_15_SP4/hardware.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.4/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.5
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/15.5/hardware.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.5/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.6
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/15.6/hardware.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.6/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: Tumbleweed
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/hardware/openSUSE_Tumbleweed/hardware.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/openSUSE_Tumbleweed/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+   .. group-tab:: Fedora
+
+      GEOPM packages are native in Fedora but man pages are not
+      published in the distribution.  The man pages are published
+      online, please see `online documentation for the latest release
+      <https://geopm.github.io/v3.2.0/reference.html#geopm-manual-pages>`_.
+
+      The ``python3-geopmpy`` package is also not distributed with
+      Fedora, but may be installed on a per-user basis using ``pip``:
+
+      .. code-block:: bash
+
+         python3 -m pip install --user geopmpy
+
+      .. tabs::
+
+         .. group-tab:: 42
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+
+         .. group-tab:: Rawhide
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+
+   .. group-tab:: CentOS
+
+      .. tabs::
+
+         .. group-tab:: 9_Stream
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/release/CentOS_CentOS-9_Stream/home:geopm:release.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:geopm:release:supplementary/CentOS_CentOS-9_Stream/home:geopm:release:supplementary.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+   .. group-tab:: Rocky
+
+      .. tabs::
+
+         .. group-tab:: 9_Standard
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/release/RockyLinux_9_standard/home:geopm:release.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:geopm:release:supplementary/RockyLinux_9_standard/home:geopm:release:supplementary.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+   .. group-tab:: Ubuntu
+
+      .. tabs::
+
+         .. group-tab:: 22.04 Jammy
+
+            .. tabs::
+
+               .. group-tab:: Nvidia GPU support + Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add Launchpad PPA
+                     add-apt-repository ppa:geopm/release
+                     apt update
+                     # GEOPM Runtime Command Line Interface
+                     apt install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     apt install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     apt install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     apt install geopm-doc
+                     # Man pages for C/C++ development
+                     apt install libgeopm-doc
+
+
+Install Current Development Snapshot
+------------------------------------
+
+Install packages created by GitHub CI built from the most recent changes to the
+GEOPM ``dev`` branch in a rolling release.  These packages are useful for
+testing new features and providing early feadback to developers.
+
+
+
+GEOPM Access Service - Rolling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instructions on how to install the latest development snapshop of the GEOPM
+Access Service and its dependency packages is broken down by OS and OS version.
+
+.. tabs::
+
+   .. group-tab:: openSUSE
+
+      .. tabs::
+
+         .. group-tab:: 15.3
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.3/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.3/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: 15.4
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.4/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.4/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: 15.5
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.5/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.5/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: 15.6
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.6/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.6/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+         .. group-tab:: Tumbleweed
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/openSUSE_Tumbleweed/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/openSUSE_Tumbleweed/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+   .. group-tab:: CentOS
+
+      .. tabs::
+
+         .. group-tab:: 9_Stream
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm/CentOS_CentOS-9_Stream/home:geopm.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/supplementary/CentOS_CentOS-9_Stream/home:geopm:supplementary.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+   .. group-tab:: Rocky
+
+      .. tabs::
+
+         .. group-tab:: 9_Standard
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm/RockyLinux_9_standard/home:geopm.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/supplementary/RockyLinux_9_standard/home:geopm:supplementary.repo
+                     popd
+                     # GEOPM Access Service python module
+                     dnf install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     dnf install geopmd
+                     # C/C++ development files
+                     dnf install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     dnf install geopmd-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopmd-doc
+
+   .. group-tab:: Ubuntu
+
+      .. tabs::
+
+         .. group-tab:: 22.04 Jammy
+
+            .. tabs::
+
+               .. group-tab:: Nvidia GPU support + Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add Launchpad PPA
+                     add-apt-repository ppa:geopm/dev
+                     apt update
+                     # GEOPM Access Service python module
+                     apt install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     apt install geopmd
+                     # C/C++ development files
+                     apt install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     apt install geopmd-doc
+                     # Man pages for C/C++ development
+                     apt install libgeopmd-doc
+
+
+
+GEOPM Runtime Service - Rolling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instructions on how to install the latest development snapshop of the GEOPM
+Runtime Service and its dependency packages is broken down by OS and OS version.
+
+.. tabs::
+
+   .. group-tab:: openSUSE
+
+      .. tabs::
+
+         .. group-tab:: 15.3
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.3/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.3/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.4
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.4/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.4/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.5
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.5/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.5/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.6
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/15.6/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/15.6/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: Tumbleweed
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm/openSUSE_Tumbleweed/home:geopm.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/supplementary/openSUSE_Tumbleweed/home:geopm:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+   .. group-tab:: CentOS
+
+      .. tabs::
+
+         .. group-tab:: 9_Stream
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm/CentOS_CentOS-9_Stream/home:geopm.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/supplementary/CentOS_CentOS-9_Stream/home:geopm:supplementary.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+   .. group-tab:: Rocky
+
+      .. tabs::
+
+         .. group-tab:: 9_Standard
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm/RockyLinux_9_standard/home:geopm.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add yum repo
+                     pushd /etc/yum.repos.d/
+                     wget https://download.opensuse.org/repositories/home:/geopm:/supplementary/RockyLinux_9_standard/home:geopm:supplementary.repo
+                     popd
+                     # GEOPM Runtime Command Line Interface
+                     dnf install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     dnf install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     dnf install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     dnf install geopm-doc
+                     # Man pages for C/C++ development
+                     dnf install libgeopm-doc
+
+   .. group-tab:: Ubuntu
+
+      .. tabs::
+
+         .. group-tab:: 22.04 Jammy
+
+            .. tabs::
+
+               .. group-tab:: Nvidia GPU support + Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add Launchpad PPA
+                     add-apt-repository ppa:geopm/dev
+                     apt update
+                     # GEOPM Runtime Command Line Interface
+                     apt install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     apt install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     apt install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     apt install geopm-doc
+                     # Man pages for C/C++ development
+                     apt install libgeopm-doc
+
+
+Guides for Specialized Install
+------------------------------
+
+There are other installation scenarios that are not covered on this page which
+may be preferred in certain circumstances.  See links below to supporting
+documentation if these situations apply to you.
+
+
+Packaging local changes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See the :doc:`build guide<build>` to create Linux OS packages for changes you
+have made locally to the GEOPM source code or build configuration.  This more
+involved process should be followed if you would like to build packages that
+differ from the ones maintained by the GEOPM team.
+
+Some typical scenarios for packaging local changes:
+
+- Installing GEOPM on an OS or OS version that is not supported by published
+  packages, e.g. Debian
+- Configuring a GEOPM C++ library with options not supported by published
+  packages, e.g. NVML support on openSUSE
+- Changing dependency software libraries e.g. enabling MPICH for MPI support
+
+
+Installing for a single user
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See the :doc:`developer guide<devel>` to build and install a version of GEOPM
+for your user, rather than system-wide.  Note that many important features of
+the GEOPM software are not available without the :doc:`GEOPM Access
+Service<service>` which requires administrative privileges to install and
+configure.
+
+Some typical scenarios for installing for a single user:
+
+- Unit testing changes to the source code in a developer workflow
+- Using new client-side GEOPM features on a system where you do not have
+  administrative privileges.
