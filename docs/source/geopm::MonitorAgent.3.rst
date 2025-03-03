@@ -17,7 +17,7 @@ this manual.
 Synopsis
 --------
 
-#include `<geopm/MonitorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/src/MonitorAgent.hpp>`_
+#include `"MonitorAgent.hpp" <https://github.com/geopm/geopm/blob/dev/libgeopm/src/MonitorAgent.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
