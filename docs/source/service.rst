@@ -15,7 +15,6 @@ with it.
    :maxdepth: 1
 
    service_readme
-   install
    requires
    build
    security

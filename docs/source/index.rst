@@ -79,6 +79,7 @@ Documentation
    :maxdepth: 1
 
    overview
+   install
    user_guides
    contrib
    devel
