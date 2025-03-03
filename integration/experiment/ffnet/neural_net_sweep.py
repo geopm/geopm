@@ -29,6 +29,9 @@ def setup_run_args(parser):
     common_args.add_min_uncore_frequency(parser)
     common_args.add_max_uncore_frequency(parser)
     common_args.add_step_uncore_frequency(parser)
+    common_args.add_max_gpu_frequency(parser)
+    common_args.add_min_gpu_frequency(parser)
+    common_args.add_step_gpu_frequency(parser)
 
     parser.set_defaults(agent_list='frequency_map')
 
@@ -89,10 +92,8 @@ def launch_configs(output_dir, app_conf, freq_range):
                'gpu':'FREQ_GPU_DEFAULT'}
 
     freq_settings = explode_freq_settings(freq_range)
-    print(freq_settings)
 
     for setting in freq_settings:
-        print(f"Setting: {setting}")
         name = []
         options = {}
         for domain, freq in setting.items():
@@ -115,9 +116,9 @@ def launch(app_conf, args, experiment_cli_args):
     mach = machine.init_output_dir(output_dir)
     freq_range = {}
 
-    if hasattr(args, 'min_frequency') and hasattr(args, 'max_frequency'):
+    if 'min_frequency' in args and 'max_frequency' in args:
         if args.min_frequency != args.max_frequency:
-            if not hasattr(args, 'step_frequency')
+            if 'step_frequency' not in args:
                 args.step_frequency = mach.frequency_step()
             freq_range['cpu'] = frequency_sweep.setup_frequency_bounds(mach,
                                                                        args.min_frequency,
@@ -125,18 +126,18 @@ def launch(app_conf, args, experiment_cli_args):
                                                                        args.step_frequency,
                                                                        args.run_max_turbo)
 
-    if hasattr(args, 'min_uncore_frequency') and hasattr(args, 'max_uncore_frequency'):
+    if 'min_uncore_frequency' in args and 'max_uncore_frequency' in args:
         if args.min_uncore_frequency != args.max_uncore_frequency:
-            if not hasattr(args, 'step_uncore_frequency'):
+            if 'step_uncore_frequency' not in args:
                 args.step_uncore_frequency = mach.frequency_step()
             freq_range['cpu_uncore'] = uncore_frequency_sweep.setup_uncore_frequency_bounds(mach,
                                                               args.min_uncore_frequency,
                                                               args.max_uncore_frequency,
                                                               args.step_uncore_frequency)
 
-    if hasattr(args, 'min_gpu_frequency') and hasattr(args, 'max_gpu_frequency'):
+    if 'min_gpu_frequency' in args and 'max_gpu_frequency' in args:
         if args.min_gpu_frequency != args.max_gpu_frequency and machine.num_gpu() > 0:
-            if not hasattr(args, 'step_gpu_frequency'):
+            if 'step_gpu_frequency' not in args:
                 args.step_gpu_frqeuency = mach.gpu_frequency_step()
             freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(mach,
                                                     args.min_gpu_frequency,
@@ -170,7 +171,7 @@ def launch(app_conf, args, experiment_cli_args):
 
 def main(app_conf, **defaults):
     parser = argparse.ArgumentParser()
-    gpu_frequency_sweep.setup_run_args(parser)
+    setup_run_args(parser)
     parser.set_defaults(**defaults)
     args, extra_cli_args = parser.parse_known_args()
     launch(app_conf=app_conf, args=args,
