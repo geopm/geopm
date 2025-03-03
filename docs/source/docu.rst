@@ -11,7 +11,7 @@ property list mentioned in :ref:`low-level signals/controls
 <docu:Signals/Controls (low level)>`, can be verified using the ``geopmlint``
 Sphinx builder. Execute ``make docs_geopmlint`` command to perform these checks.
 If it's necessary to alter these checks, modify
-``service/docs/source/_ext/geopmlint.py``.
+``docs/source/_ext/geopmlint.py``.
 
 Whitespace
 ----------
@@ -106,7 +106,7 @@ definition into a ``rst`` file. See the examples below:
 
 To change the output format of the ``geopm-msr-json`` directive,
 revise the ``GeopmMsrJson`` class in the
-``service/docs/source/_ext/geopm_rst_extensions.py`` Sphinx extension.
+``docs/source/_ext/geopm_rst_extensions.py`` Sphinx extension.
 
 Aliases
 -------

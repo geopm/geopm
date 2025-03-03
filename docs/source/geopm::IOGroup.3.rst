@@ -329,7 +329,7 @@ Example
 -------
 
 Please see the `GEOPM IOGroup
-tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/iogroup>`_ for more
+tutorial <https://github.com/geopm/geopm/tree/dev/integration/tutorial/iogroup>`_ for more
 information.  That code is located in the GEOPM source under tutorial/iogroup.
 
 Further documentation for this module can be found in the

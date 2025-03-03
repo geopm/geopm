@@ -21,7 +21,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/Agent.hpp>`_
+#include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/libgeopm/include/geopm/Agent.hpp>`_
 
 Link with ``-lgeopm``
 
@@ -369,7 +369,7 @@ on error.
 Example
 -------
 
-Please see the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/agent>`_ for more
+Please see the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/integration/tutorial/agent>`_ for more
 information.  This code is located in the GEOPM source under tutorial/agent.
 
 See Also

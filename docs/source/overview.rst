@@ -1130,7 +1130,7 @@ the runtime.  An example app could be annotated as follows:
     }
 
 For more examples on how to profile applications, see the `tutorials section of
-our GitHub repository <https://github.com/geopm/geopm/tree/dev/tutorial>`__.
+our GitHub repository <https://github.com/geopm/geopm/tree/dev/integration/tutorial>`__.
 
 ----
 

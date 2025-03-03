@@ -19,7 +19,7 @@ The JSON files must follow this schema:
     :language: json
 
 For an example of a sysfs configuration file, please see:
-`<sysfs_attributes.json> <https://github.com/geopm/geopm/blob/dev/service/docs/json_data/sysfs_attributes_cpufreq.json>`_
+`<sysfs_attributes.json> <https://github.com/geopm/geopm/blob/dev/docs/json_data/sysfs_attributes_cpufreq.json>`_
 
 This guide includes a list of signals and controls that are available in
 instances of SysfsIOGroup that are bundled with GEOPM. Your system may expose

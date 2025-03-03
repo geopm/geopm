@@ -25,7 +25,7 @@ directory will also be searched. The files must follow this schema:
     :language: json
 
 For an example of an MSR configuration file, please see:
-`<msr_reasons.json> <https://github.com/geopm/geopm/blob/dev/examples/custom_msr/msr_reasons.json>`_
+`<msr_reasons.json> <https://github.com/geopm/geopm/blob/dev/integration/runtime_examples/custom_msr/msr_reasons.json>`_
 
 .. note::
 
