@@ -84,7 +84,7 @@ class _SessionIO:
             self._report_fid.write(report)
 
     def is_rank_zero(self):
-        return true
+        return True
 
 class _MPISessionIO:
     def __init__(self, request_stream, trace_path, report_path, report_format):
