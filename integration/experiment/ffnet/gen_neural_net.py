@@ -13,6 +13,27 @@ from torch import nn
 import torch.utils.data as data
 
 def model_to_json(model, X_columns, y_columns, describe_net):
+    """
+    Convert a PyTorch model to a JSON object that can be used by the geopm runtime.
+    The model must be a fully connected neural network with sigmoid activation functions.
+
+    Args:
+    model: A PyTorch model.
+    X_columns: A list of input column names. Each column name should be in the format
+       "signal name" or "delta_num/delta_den" where "num" and "den" are signal names.
+
+       signal names are of the form "signal_name-component-index" where
+       component is one of "board", "package", "core", "cpu", "memory",
+       "package_integrated_memory", "nic", "package_integrated_nic", "gpu",
+       "package_integrated_gpu", "gpu_chip" and index is the index of the
+       component. For example, "DRAM_POWER-package-0" refers to the power signal
+       of the package component with index 0.
+
+    y_columns: A list of output column names. Each column name should be in one of
+       two formats: "signal_name-component-index" (as described above) or
+       "trace_key", which indicates that the output should be written to the
+       trace file with the corresponding column name (key).
+    """
     def parse_signal(signal_name):
         if signal_name in ['TIME', 'DRAM_POWER', 'DRAM_ENERGY']:
             return [signal_name, 0, 0]
@@ -23,6 +44,12 @@ def model_to_json(model, X_columns, y_columns, describe_net):
     layers = [[]]
 
     for module in model.modules():
+        # Break apart the modules within the pytorch model.
+        # This is necessary because the models are sequential and the weights
+        # are not directly accessible.
+
+        # type(module) returns the class of the module; we support
+        # BatchNorm1d, Linear, and Sigmoid modules.
         name = str(type(module)).split('.')[-1][:-2]
         if hasattr(module, 'original_name'):
             name = module.original_name
@@ -80,14 +107,14 @@ def model_to_json(model, X_columns, y_columns, describe_net):
 # TODO: Remove trace lines transitioning between two different regions
 #       i.e. if REGION_HASH != prev line REGION_HASH, delete.
 
-def data_prep(input_trace, input_names, output_name):
+def data_prep(input_trace, input_names, output_names):
     # Setup training and validation sets
     train_size = int(0.8 * len(input_trace))
     val_size = len(input_trace) - train_size
 
     df_train = input_trace
     df_x_train = df_train[input_names]
-    df_y_train = df_train[output_name]
+    df_y_train = df_train[output_names]
 
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).long()
@@ -215,7 +242,7 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
     print("Training to identify these regions:")
     region_ids = sorted(list(df_traces["region-id"].unique()))
     print(", ".join(region_ids))
-    mapping = {region_id: region_ids.index(region_id) for region_id in region_ids}
+    mapping = dict(map(reversed, enumerate(region_ids))) 
     df_traces["region-id"] = df_traces['region-id'].map(mapping)
 
     for domain in domains_to_train:

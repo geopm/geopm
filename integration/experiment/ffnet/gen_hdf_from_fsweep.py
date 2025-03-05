@@ -5,9 +5,14 @@
 import pandas as pd
 import os
 import glob
-import yaml
 import argparse
 from itertools import chain
+
+from yaml import load
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
 
 def process_report_files(input_dir):
     reports = []
@@ -16,7 +21,7 @@ def process_report_files(input_dir):
             glob.iglob(os.path.join(input_dir, "*", '*.report')),
             glob.iglob(os.path.join(input_dir, '*.report'))):
         with open(report_path) as f:
-            report = yaml.safe_load(f)
+            report = load(f, Loader=SafeLoader)
 
         #Name of application being profiled
         app_name = report["Profile"][:report["Profile"].find('_frequency_map')]
@@ -68,7 +73,7 @@ def process_trace_files(sweep_dir):
             glob.iglob(os.path.join(sweep_dir, "*", f'*.trace-*')),
             glob.iglob(os.path.join(sweep_dir, f'*.trace-*'))):
 
-        trace_df = pd.read_csv(trace_file, sep='|', comment='#')
+        trace_df = pd.read_csv(trace_file, sep='|', comment='#', na_values=['NAN', 'nan'])
 
         #Capture header information from trace file without ingesting whole file
         trace_header = {}
@@ -78,8 +83,7 @@ def process_trace_files(sweep_dir):
                 break
 
             #Clean up trace header if there are multiple ':'
-            key = line[2:line.strip().find(':')]
-            value = line[2+line.strip().find(':'):]
+            key, value = line[2:].split(':', maxsplit=1)
             trace_header[key.strip()] = value.strip()
 
         nodename = trace_header["node_name"]
@@ -87,7 +91,6 @@ def process_trace_files(sweep_dir):
 
         #Filter out nan and "NAN" regions
         trace_df = trace_df[trace_df['REGION_HASH'].notna()]
-        trace_df = trace_df[trace_df['REGION_HASH'] != "NAN"]
 
         trace_df['node'] = nodename
 

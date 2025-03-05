@@ -42,36 +42,34 @@ def trace_signals():
     return []
 
 def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_fmap_path=None):
-    if cpu_nn_path is None and gpu_nn_path is None:
+    if not cpu_nn_path and not gpu_nn_path:
         raise RuntimeError('Must specify cpu-nn-path and/or gpu-nn-path when running ffnet experiment')
 
-    if cpu_nn_path is not None:
+    if not cpu_nn_path:
         if os.path.exists(cpu_nn_path):
             os.environ['GEOPM_CPU_NN_PATH'] = cpu_nn_path
         else:
-            raise KeyError(f'File cpu-nn-path={cpu_nn_path} does not exist.')
-        if cpu_fmap_path is not None:
+            raise FileNotFoundError(f'File cpu-nn-path={cpu_nn_path} does not exist.')
+        if not cpu_fmap_path:
             os.environ['GEOPM_CPU_FMAP_PATH'] = cpu_fmap_path
         else:
             raise RuntimeError('Must specify cpu-fmap-path when cpu-nn-path is specified for ffnet experiment')
 
-    if gpu_nn_path is not None:
+    if not gpu_nn_path:
         if os.path.exists(gpu_nn_path):
             os.environ['GEOPM_GPU_NN_PATH'] = gpu_nn_path
         else:
-            raise KeyError(f'File gpu-nn-path={gpu_nn_path} does not exist.')
-        if gpu_fmap_path is not None:
+            raise FileNotFoundError(f'File gpu-nn-path={gpu_nn_path} does not exist.')
+        if not gpu_fmap_path:
             os.environ['GEOPM_GPU_FMAP_PATH'] = gpu_fmap_path
         else:
             raise RuntimeError('Must specify gpu-fmap-path when gpu-nn-path is specified for ffnet experiment')
-
-    return
 
 def launch_configs(output_dir, app_conf, perf_energy_bias=0):
     mach = machine.init_output_dir(output_dir)
 
     if perf_energy_bias > 1 or perf_energy_bias < 0:
-        raise KeyError('perf-energy-bias must be between 0 and 1 for ffnet experiment.')
+        raise ValueError('perf-energy-bias must be between 0 and 1 for ffnet experiment.')
 
     agent = 'ffnet'
     targets = []
