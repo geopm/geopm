@@ -31,8 +31,9 @@ team on the `main openSUSE Build System instance
 GEOPM Access Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest official release of the GEOPM Access
-Service and its dependency packages is broken down by OS and OS version.
+Instructions on how to install the latest official release of the
+:doc:`GEOPM Access Service<service>` and its dependency packages is
+broken down by OS and OS version.
 
 .. tabs::
 
@@ -404,8 +405,9 @@ Service and its dependency packages is broken down by OS and OS version.
 GEOPM Runtime Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest official release of the GEOPM Runtime
-Service and its dependency packages is broken down by OS and OS version.
+Instructions on how to install the latest official release of the
+:doc:`GEOPM Runtime Service<runtime>` and its dependency packages is
+broken down by OS and OS version.
 
 .. tabs::
 
@@ -783,8 +785,9 @@ testing new features and providing early feedback to developers.
 GEOPM Access Service - Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest development snapshot of the GEOPM
-Access Service and its dependency packages is broken down by OS and OS version.
+Instructions on how to install the latest development snapshot of the
+:doc:`GEOPM Access Service<service>` and its dependency packages is
+broken down by OS and OS version.
 
 .. tabs::
 
@@ -1115,8 +1118,9 @@ Access Service and its dependency packages is broken down by OS and OS version.
 GEOPM Runtime Service - Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest development snapshot of the GEOPM
-Runtime Service and its dependency packages is broken down by OS and OS version.
+Instructions on how to install the latest development snapshot of the
+:doc:`GEOPM Runtime Service<runtime>` and its dependency packages is
+broken down by OS and OS version.
 
 .. tabs::
 
