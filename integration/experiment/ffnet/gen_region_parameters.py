@@ -16,9 +16,13 @@ def get_domains(table_stats):
     return domains
 
 def get_domain_freq_range(domain, table_stats):
+    """Returns the min and max frequency for the given domain. If the domain
+    is not present in the table, returns None."""
+
     if f'{domain}-frequency' in table_stats:
         return {'min_freq' : min(table_stats[f'{domain}-frequency']),
                 'max_freq' : max(table_stats[f'{domain}-frequency'])}
+    return None
 
 #Outputs runtime = slope * inv_freq + intercept
 def per_region_regression(table_stats, domain='cpu'):
@@ -67,9 +71,9 @@ def get_energy_at_freq(table_stats, region, domain, freq):
         return None
     return min(freq_subset[energy_col])
 
-def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
+def get_lowest_energy_freq(table_stats, domain, region, freq_perf, freq_range, freq_step = 1e8):
     #If perf indicates max freq, don't need to do a search
-    if freq_r + 1e8 >= freq_range['max_freq']:
+    if freq_perf + freq_step >= freq_range['max_freq']:
         return freq_range['max_freq']
 
     if domain == 'gpu':
@@ -77,7 +81,7 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_r, freq_range):
     else:
         energy_col = 'package-energy (J)'
 
-    freq_subset = table_stats.loc[(table_stats['app-config'] == region) & table_stats[f'{domain}-frequency'].between(freq_r, freq_range['max_freq'])]
+    freq_subset = table_stats.loc[(table_stats['app-config'] == region) & table_stats[f'{domain}-frequency'].between(freq_perf, freq_range['max_freq'])]
 
     row_idx = freq_subset[energy_col].argmin()
 
