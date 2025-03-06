@@ -1,7 +1,7 @@
 Installation
 ============
 
-This documentation covers how to use pre-built Linux OS packages to install
+This documentation covers how to use pore-built Linux OS packages to install
 GEOPM for all users of a system either using the latest stable release of GEOPM,
 or a development snapshot. The stable release packages are created as part of
 the Git repository tag/release process.  The development snapshot packages are
@@ -18,8 +18,14 @@ and "Expanded Intel GPU support" packages also provide the LevelZero interfaces.
 Install Latest Stable Release
 -----------------------------
 
-Install packages created by GEOPM development team to install the latest stable
-release of GEOPM.
+Install packages from the latest stable release of GEOPM.  These
+packages have been upstreamed into Fedora 42 and the openSUSE Hardware
+repository, and where applicable these distributions are recommended.
+For other scenarios, packages are published by the GEOPM development
+team on the `main openSUSE Build System instance
+<https://build.opensuse.org/project/show/home:geopm>`_ and through the
+`Ubuntu Launchpad package build service
+<https://launchpad.net/~geopm>`_.
 
 
 GEOPM Access Service - Stable
@@ -771,14 +777,13 @@ Install Current Development Snapshot
 
 Install packages created by GitHub CI built from the most recent changes to the
 GEOPM ``dev`` branch in a rolling release.  These packages are useful for
-testing new features and providing early feadback to developers.
-
+testing new features and providing early feedback to developers.
 
 
 GEOPM Access Service - Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest development snapshop of the GEOPM
+Instructions on how to install the latest development snapshot of the GEOPM
 Access Service and its dependency packages is broken down by OS and OS version.
 
 .. tabs::
@@ -1110,7 +1115,7 @@ Access Service and its dependency packages is broken down by OS and OS version.
 GEOPM Runtime Service - Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest development snapshop of the GEOPM
+Instructions on how to install the latest development snapshot of the GEOPM
 Runtime Service and its dependency packages is broken down by OS and OS version.
 
 .. tabs::
