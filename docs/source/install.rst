@@ -1,7 +1,7 @@
-Installation
-============
+Install Guide
+=============
 
-This documentation covers how to use pore-built Linux OS packages to install
+This documentation covers how to use pre-built Linux OS packages to install
 GEOPM for all users of a system either using the latest stable release of GEOPM,
 or a development snapshot. The stable release packages are created as part of
 the Git repository tag/release process.  The development snapshot packages are
@@ -1447,15 +1447,35 @@ broken down by OS and OS version.
 
 Enable the GEOPM Access Service
 -------------------------------
+.. _enable-service:
 
 Installing the ``geopmd`` package is the first step to enabling the GEOPM Access
-Service.  The :doc:`geopmaccess(1) <geopmaccess.1>` command line tool is used to
-configure the access lists.  Unprivileged users will be unable to use the
-service until the access lists have been configured by an administrator.  See
-the :doc:`GEOPM Access Service Administrator Guide<admin>` for further details
-about how to configure the Access Service and interact with it through the
-`systemctl(1) <https://man7.org/linux/man-pages/man1/systemctl.1.html>`_ command
-line tool.
+Service.  Unprivileged users will be unable to use the service until the access
+lists have been configured by an administrator.
+
+The :doc:`geopmaccess(1) <geopmaccess.1>` command line tool is used to configure
+the access lists.  The linked manual page provides detailed documentation about
+how to set the access lists.  A few examples are provided here as well.
+
+To grant permissions to **all** non-root users to be able to use **all** of the
+features provided by the Service, execute the following commands:
+
+.. code-block:: bash
+
+    geopmaccess -a | sudo geopmaccess -w
+    geopmaccess -a -c | sudo geopmaccess -w -c
+
+These commands will create access lists in the system location that the Service
+will use to determine user privilege.
+
+An administrator may use the ``--log`` (``-l``) option of ``geopmaccess`` to
+restrict an access list to the set of values that have been used since last
+restart by piping the output into ``geopmaccess -w``:
+
+.. code-block:: bash
+
+    sudo geopmaccess -l | sudo geopmaccess -w
+    sudo geopmaccess -l -c | sudo geopmaccess -w -c
 
 
 Guides for Specialized Install
@@ -1500,3 +1520,34 @@ Some typical scenarios for installing for a single user:
   administrative privileges
 - Installing geopmpy Python module on systems without OS package support for
   dependencies
+
+
+Installing using Spack
+~~~~~~~~~~~~~~~~~~~~~~
+
+See the :doc:`Spack guide<spack>` for details on how to use the `Spack Package
+Manager <https://spack.io>`_ to build and install the GEOPM software.  This can
+aid in resolving dependencies and installing multiple versions of software using
+the lmod system.  Spack is a common solution for HPC centers to manage their
+software stack and dependencies.
+
+Some typical scenarios for installing with Spack:
+
+- System administrator of a system that already relies on Spack to package other
+  software.
+- A user trying to build GEOPM from source on a system without administrative
+  permissions. Without root, the user cannot rely on the OS package manager to
+  provide GEOPM build and runtime requirements, and Spack may be used to resolve
+  these dependencies.
+
+
+Further Documentation
+---------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   geopmaccess.1
+   build
+   devel
+   spack

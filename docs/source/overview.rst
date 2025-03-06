@@ -16,100 +16,15 @@ For in-depth information see: :doc:`service` or :doc:`runtime`.
 |:computer:| Install GEOPM
 --------------------------
 
-There are two recommended ways to install the GEOPM software: one is to install
-the pre-built packages provided for various Linux distributions while the other
-is to build from source code using Spack.
-
-Packages for Linux Distributions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Pre-built binaries of the GEOPM Service and Runtime are available for download
-using the openSUSE Build Service for RPM-based Linux distributions and through
-Launchpad for Debian-based distributions.  For information on how to configure
-those repositories with your system package manager or directly download the
-binaries see: :doc:`install`
-
-Building with Spack
-^^^^^^^^^^^^^^^^^^^
-
-.. note::
-
-    Recipes for the v3.1 release of GEOPM are currently work-in-progress.
-
-For users that leverage `Spack <https://spack.io/>`_ to distribute software,
-recipes to build the `geopm-service
-<https://github.com/spack/spack/blob/v0.22.0/var/spack/repos/builtin/packages/geopm-service/package.py>`_
-and `geopm-runtime
-<https://github.com/spack/spack/blob/v0.22.0/var/spack/repos/builtin/packages/geopm-runtime/package.py>`_
-have been included in their `v0.22.0 release
-<https://github.com/spack/spack/tree/v0.22.0>`_.  These recipes currently allow
-for building both the v3.0.1 release of GEOPM and our main development branch.
-
-For deploying GEOPM's layers to a compute image in an HPC system context (i.e.
-PXE booted via warewulf or similar), a typical configuration would be to have a
-system install of the service RPMs baked into the compute image, and use spack
-to install ``geopm-runtime``.  This is required as the GEOPM Service will be
-launched via systemd, and thus must run against the system installed Python
-runtime.
-
-For GEOPM v3.0.1, system install ``geopm-service``, ``geopm-service-devel``,
-``libgeopmd2``, and ``python3-geopmdpy``
-
-For GEOPM v3.1, system install ``geopm-service``, ``geopm-service-doc``,
-``geopm-service-devel``, ``libgeopmd2``, ``libgeopmd-doc``,
-``python3-geopmdpy``, and ``python3-geopmdpy-doc``
-
-In order to build with spack this way, ``geopm-service`` must be configured as an
-external package in ``~/.spack/packages.yaml``:
-
-.. code-block:: yaml
-
-    packages:
-      geopm-service:
-        externals:
-        - spec: "geopm-service@3.0.1"
-          prefix: /usr
-        - spec: "geopm-service@3.1.0"
-          prefix: /usr
-        - spec: "geopm-service@develop"
-          prefix: /usr
-        version:
-        - 3.0.1
-        - 3.1.0
-        - develop
-        buildable: False
-
-Afterwards, ``geopm-runtime`` can be installed normally with ``spack install
-geopm-runtime``.
-
-Admin Configuration
-^^^^^^^^^^^^^^^^^^^
-
-After the Service has been installed, it must be configured properly before
-non-root users will be able to leverage it.
-
-To grant permissions to **all** non-root users to be able to use **all** of the
-features provided by the Service, execute the following commands:
+To check if GEOPM is installed on your system you may try querying the command
+line interfaces for the GEOPM version.  For example:
 
 .. code-block:: bash
 
-    $ sudo geopmaccess -a | sudo geopmaccess -w
-    $ sudo geopmaccess -a -c | sudo geopmaccess -w -c
+   geopmread --version
 
-These commands will create access lists in the system location that the Service
-will use to determine user privilege.
-
-An administrator may use the ``--log`` (``-l``) option of ``geopmaccess`` to
-restrict an access list to the set of values that have been used since last
-restart by piping the output into ``geopmaccess -w``:
-
-.. code-block:: bash
-
-    $ sudo geopmaccess -l | sudo geopmaccess -w
-    $ sudo geopmaccess -l -c | sudo geopmaccess -w -c
-
-More information on access list configuration can be found on the following
-pages: :doc:`admin` and :doc:`geopmaccess.1`.
+Follow the :doc:`install` for details about how to install GEOPM if
+this command errors with ``command not found``.
 
 ----
 
