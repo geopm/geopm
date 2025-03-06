@@ -1436,6 +1436,19 @@ Runtime Service and its dependency packages is broken down by OS and OS version.
                      apt install libgeopm-doc
 
 
+Enable the GEOPM Access Service
+-------------------------------
+
+Installing the ``geopmd`` package is the first step to enabling the GEOPM Access
+Service.  The :doc:`geopmaccess(1) <geopmaccess.1>` command line tool is used to
+configure the access lists.  Unprivileged users will be unable to use the
+service until the access lists have been configured by an administrator.  See
+the :doc:`GEOPM Access Service Administrator Guide<admin>` for further details
+about how to configure the Access Service and interact with it through the
+`systemctl(1) <https://man7.org/linux/man-pages/man1/systemctl.1.html>`_ command
+line tool.
+
+
 Guides for Specialized Install
 ------------------------------
 
@@ -1459,6 +1472,7 @@ Some typical scenarios for packaging local changes:
 - Configuring a GEOPM C++ library with options not supported by published
   packages, e.g. NVML support on openSUSE
 - Changing dependency software libraries e.g. enabling MPICH for MPI support
+- Deploying on a non-x86_64 architecture, e.g. packaging for aarch64
 
 
 Installing for a single user
@@ -1474,4 +1488,6 @@ Some typical scenarios for installing for a single user:
 
 - Unit testing changes to the source code in a developer workflow
 - Using new client-side GEOPM features on a system where you do not have
-  administrative privileges.
+  administrative privileges
+- Installing geopmpy Python module on systems without OS package support for
+  dependencies
