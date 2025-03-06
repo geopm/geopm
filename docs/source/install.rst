@@ -7,6 +7,13 @@ or a development snapshot. The stable release packages are created as part of
 the Git repository tag/release process.  The development snapshot packages are
 built by GEOPM's GitHub CI process each time the ``dev`` branch is updated.
 
+GEOPM works with Intel GPUs when GEOPM is built with LevelZero support and
+NVIDIA GPUs when GEOPM is built with NVML support. Additional limited support
+for GPUs exists when the GPUs are visible in a Linux Direct Rendering Manager
+(DRM) sysfs interface.  The Linux DRM interface is implemented for Intel GPUs.
+In the table below "Intel GPU support" packages provide only the DRM interfaces
+and "Expanded Intel GPU support" packages also provide the LevelZero interfaces.
+
 
 Install Latest Stable Release
 -----------------------------
@@ -15,8 +22,8 @@ Install packages created by GEOPM development team to install the latest stable
 release of GEOPM.
 
 
-GEOPM Access Service - Official
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GEOPM Access Service - Stable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest official release of the GEOPM Access
 Service and its dependency packages is broken down by OS and OS version.
@@ -388,8 +395,8 @@ Service and its dependency packages is broken down by OS and OS version.
                      apt install libgeopmd-doc
 
 
-GEOPM Runtime Service - Official
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GEOPM Runtime Service - Stable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest official release of the GEOPM Runtime
 Service and its dependency packages is broken down by OS and OS version.
@@ -768,8 +775,8 @@ testing new features and providing early feadback to developers.
 
 
 
-GEOPM Access Service - Rolling
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GEOPM Access Service - Development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest development snapshop of the GEOPM
 Access Service and its dependency packages is broken down by OS and OS version.
@@ -1100,8 +1107,8 @@ Access Service and its dependency packages is broken down by OS and OS version.
 
 
 
-GEOPM Runtime Service - Rolling
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GEOPM Runtime Service - Development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest development snapshop of the GEOPM
 Runtime Service and its dependency packages is broken down by OS and OS version.
