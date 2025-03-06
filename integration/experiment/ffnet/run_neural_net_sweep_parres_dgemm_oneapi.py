@@ -21,5 +21,6 @@ if __name__ == '__main__':
     args, extra_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
     app_conf = parres.create_dgemm_appconf_oneapi(mach, args)
-    neural_net_sweep.launch(app_conf=app_conf, args=args,
-                               experiment_cli_args=extra_args)
+    neural_net_sweep.launch(app_conf=app_conf
+                            args=args,
+                            experiment_cli_args=extra_args)
