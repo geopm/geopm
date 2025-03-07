@@ -10,8 +10,10 @@ GEOPM Access Service - Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest development snapshot of the
-:doc:`GEOPM Access Service<service>` and its dependency packages is
-broken down by OS and OS version.
+:doc:`GEOPM Access Service<service>` and its dependency packages is broken down
+by OS and OS version.  Note: the commands in this table should be run with
+``sudo`` or as the ``root`` user.
+
 
 .. tabs::
 
@@ -343,8 +345,10 @@ GEOPM Runtime Service - Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest development snapshot of the
-:doc:`GEOPM Runtime Service<runtime>` and its dependency packages is
-broken down by OS and OS version.
+:doc:`GEOPM Runtime Service<runtime>` and its dependency packages is broken down
+by OS and OS version.  Note: the commands in this table should be run with
+``sudo`` or as the ``root`` user.
+
 
 .. tabs::
 
