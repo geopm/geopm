@@ -810,8 +810,8 @@ restart by piping the output into ``geopmaccess -w``:
 
 .. code-block:: bash
 
-    sudo geopmaccess -l | sudo geopmaccess -w
-    sudo geopmaccess -l -c | sudo geopmaccess -w -c
+    geopmaccess -l | sudo geopmaccess -w
+    geopmaccess -l -c | sudo geopmaccess -w -c
 
 Guides for Specialized Install
 ------------------------------
