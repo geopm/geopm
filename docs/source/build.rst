@@ -24,8 +24,9 @@ The GEOPM service build system provides support for packaging for:
 Building GEOPM Service RPMs
 ---------------------------
 
-First review the :doc:`requirements guide<requires>`, then use the following
-bash commands to build all of the GEOPM packages.
+Use the following bash commands to build all of the GEOPM packages. Be advised
+that the build may require package dependencies provided by the operating
+system, but not installed by default.
 
 .. code-block:: bash
 

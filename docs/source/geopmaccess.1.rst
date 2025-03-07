@@ -405,7 +405,7 @@ Configuring msr-safe
 In order for the GEOPM service to be able to leverage the msr-safe
 kernel driver for fast MSR access, an allowlist must be put in place.
 Without the allowlist, msr-safe will not provide access to MSRs even
-for privileged users.  For more information see: :ref:`requires:The MSR
+for privileged users.  For more information see: :ref:`admin:The MSR
 Driver`.
 
 The following example demonstrates the necessary commands to set the
