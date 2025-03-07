@@ -2,36 +2,34 @@ Install Guide
 =============
 
 This documentation covers how to use pre-built Linux OS packages to install
-GEOPM for all users of a system either using the latest stable release of GEOPM,
+GEOPM for all users of a system, either using the latest stable release of GEOPM
 or a development snapshot. The stable release packages are created as part of
-the Git repository tag/release process.  The development snapshot packages are
+the Git repository tag/release process. The development snapshot packages are
 built by GEOPM's GitHub CI process each time the ``dev`` branch is updated.
 
 GEOPM works with Intel GPUs when GEOPM is built with LevelZero support and
 NVIDIA GPUs when GEOPM is built with NVML support. Additional limited support
 for GPUs exists when the GPUs are visible in a Linux Direct Rendering Manager
-(DRM) sysfs interface.  The Linux DRM interface is implemented for Intel GPUs.
-In the table below "Intel GPU support" packages provide only the DRM interfaces
+(DRM) sysfs interface. The Linux DRM interface is implemented for Intel GPUs.
+In the table below, "Intel GPU support" packages provide only the DRM interfaces
 and "Expanded Intel GPU support" packages also provide the LevelZero interfaces.
-
 
 Install Latest Stable Release
 -----------------------------
 
-Install packages from the latest stable release of GEOPM.  These packages have
+Install packages from the latest stable release of GEOPM. These packages have
 been upstreamed into Fedora 42 and the openSUSE Hardware repository, and where
-applicable these distributions are recommended.  For other scenarios, packages
+applicable these distributions are recommended. For other scenarios, packages
 are published by the GEOPM development team on the `main openSUSE Build System
 instance <https://build.opensuse.org/project/show/home:geopm>`_ and through the
 `Ubuntu Launchpad package build service <https://launchpad.net/~geopm>`_.
-
 
 GEOPM Access Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest official release of the :doc:`GEOPM
-Access Service<service>` and its dependency packages is broken down by OS and OS
-version.  Note: the commands in this table should be run with ``sudo`` or as
+Access Service<service>` and its dependency packages are broken down by OS and OS
+version. Note: the commands in this table should be run with ``sudo`` or as
 the ``root`` user.
 
 .. tabs::
@@ -61,7 +59,6 @@ the ``root`` user.
                      zypper install geopmd-doc
                      # Man pages for C/C++ development
                      zypper install libgeopmd-doc
-
 
                .. group-tab:: Expanded Intel GPU support
 
@@ -241,11 +238,10 @@ the ``root`` user.
                      # Man pages for C/C++ development
                      zypper install libgeopmd-doc
 
-
    .. group-tab:: Fedora
 
       The GEOPM packages are native in Fedora but man pages are not
-      published in the distribution.  The man pages are published
+      published in the distribution. The man pages are published
       online, please see `online documentation for the latest release
       <https://geopm.github.io/v3.1.0/reference.html#geopm-manual-pages>`_.
 
@@ -280,7 +276,6 @@ the ``root`` user.
                      dnf install geopmd
                      # C/C++ development files
                      dnf install libgeopmd-devel
-
 
    .. group-tab:: CentOS
 
@@ -400,13 +395,12 @@ the ``root`` user.
                      # Man pages for C/C++ development
                      apt install libgeopmd-doc
 
-
 GEOPM Runtime Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instructions on how to install the latest official release of the :doc:`GEOPM
-Runtime Service<runtime>` and its dependency packages is broken down by OS and
-OS version.  Note: the commands in this table should be run with ``sudo`` or as
+Runtime Service<runtime>` and its dependency packages are broken down by OS and
+OS version. Note: the commands in this table should be run with ``sudo`` or as
 the ``root`` user.
 
 .. tabs::
@@ -618,7 +612,7 @@ the ``root`` user.
    .. group-tab:: Fedora
 
       GEOPM packages are native in Fedora but man pages are not
-      published in the distribution.  The man pages are published
+      published in the distribution. The man pages are published
       online, please see `online documentation for the latest release
       <https://geopm.github.io/v3.1.0/reference.html#geopm-manual-pages>`_.
 
@@ -776,13 +770,12 @@ the ``root`` user.
                      # Man pages for C/C++ development
                      apt install libgeopm-doc
 
-
 Enable the GEOPM Access Service
 -------------------------------
 .. _enable-service:
 
 Installing the ``geopmd`` package is the first step to enabling the GEOPM Access
-Service.  Unprivileged users will be unable to use the service until the access
+Service. Unprivileged users will be unable to use the service until the access
 lists have been configured by an administrator.
 
 To guarantee that the GEOPM Access Service is up and will be enabled on reboot
@@ -797,8 +790,8 @@ For full details about the GEOPM SystemD service see the :doc:`administrator
 guide <admin>`.
 
 The :doc:`geopmaccess(1) <geopmaccess.1>` command line tool is used to configure
-the access lists.  The linked manual page provides detailed documentation about
-how to set the access lists.  A few examples are provided here as well.
+the access lists. The linked manual page provides detailed documentation about
+how to set the access lists. A few examples are provided here as well.
 
 To grant permissions to **all** non-root users to be able to use **all** of the
 features provided by the Service, execute the following commands:
@@ -820,14 +813,12 @@ restart by piping the output into ``geopmaccess -w``:
     sudo geopmaccess -l | sudo geopmaccess -w
     sudo geopmaccess -l -c | sudo geopmaccess -w -c
 
-
 Guides for Specialized Install
 ------------------------------
 
 There are other installation scenarios that are not covered on this page which
-may be preferred in certain circumstances.  See links below to supporting
+may be preferred in certain circumstances. See links below to supporting
 documentation if these situations apply to you.
-
 
 Install latest development snapshot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -846,7 +837,7 @@ Packaging local changes
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 See the :doc:`build guide<build>` to create Linux OS packages for changes you
-have made locally to the GEOPM source code or build configuration.  This more
+have made locally to the GEOPM source code or build configuration. This more
 involved process should be followed if you would like to build packages that
 differ from the ones maintained by the GEOPM team.
 
@@ -859,12 +850,11 @@ Some typical scenarios for packaging local changes:
 - Changing dependency software libraries e.g. enabling MPICH for MPI support
 - Deploying on a non-x86_64 architecture, e.g. packaging for aarch64
 
-
 Installing for a single user
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See the :doc:`developer guide<devel>` to build and install a version of GEOPM
-for your user, rather than system-wide.  Note that many important features of
+for your user, rather than system-wide. Note that many important features of
 the GEOPM software are not available without the :doc:`GEOPM Access
 Service<service>` which requires administrative privileges to install and
 configure.
@@ -877,14 +867,13 @@ Some typical scenarios for installing for a single user:
 - Installing geopmpy Python module on systems without OS package support for
   dependencies
 
-
 Installing using Spack
 ~~~~~~~~~~~~~~~~~~~~~~
 
 See the :doc:`Spack guide<spack>` for details on how to use the `Spack Package
-Manager <https://spack.io>`_ to build and install the GEOPM software.  This can
+Manager <https://spack.io>`_ to build and install the GEOPM software. This can
 aid in resolving dependencies and installing multiple versions of software using
-the lmod system.  Spack is a common solution for HPC centers to manage their
+the lmod system. Spack is a common solution for HPC centers to manage their
 software stack and dependencies.
 
 Some typical scenarios for installing with Spack:
@@ -895,7 +884,6 @@ Some typical scenarios for installing with Spack:
   permissions. Without root, the user cannot rely on the OS package manager to
   provide GEOPM build and runtime requirements, and Spack may be used to resolve
   these dependencies.
-
 
 Further Documentation
 ---------------------
