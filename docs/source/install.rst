@@ -18,22 +18,21 @@ and "Expanded Intel GPU support" packages also provide the LevelZero interfaces.
 Install Latest Stable Release
 -----------------------------
 
-Install packages from the latest stable release of GEOPM.  These
-packages have been upstreamed into Fedora 42 and the openSUSE Hardware
-repository, and where applicable these distributions are recommended.
-For other scenarios, packages are published by the GEOPM development
-team on the `main openSUSE Build System instance
-<https://build.opensuse.org/project/show/home:geopm>`_ and through the
-`Ubuntu Launchpad package build service
-<https://launchpad.net/~geopm>`_.
+Install packages from the latest stable release of GEOPM.  These packages have
+been upstreamed into Fedora 42 and the openSUSE Hardware repository, and where
+applicable these distributions are recommended.  For other scenarios, packages
+are published by the GEOPM development team on the `main openSUSE Build System
+instance <https://build.opensuse.org/project/show/home:geopm>`_ and through the
+`Ubuntu Launchpad package build service <https://launchpad.net/~geopm>`_.
 
 
 GEOPM Access Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest official release of the
-:doc:`GEOPM Access Service<service>` and its dependency packages is
-broken down by OS and OS version.
+Instructions on how to install the latest official release of the :doc:`GEOPM
+Access Service<service>` and its dependency packages is broken down by OS and OS
+version.  Note: the commands in this table should be run with ``sudo`` or as
+the ``root`` user.
 
 .. tabs::
 
@@ -405,9 +404,10 @@ broken down by OS and OS version.
 GEOPM Runtime Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instructions on how to install the latest official release of the
-:doc:`GEOPM Runtime Service<runtime>` and its dependency packages is
-broken down by OS and OS version.
+Instructions on how to install the latest official release of the :doc:`GEOPM
+Runtime Service<runtime>` and its dependency packages is broken down by OS and
+OS version.  Note: the commands in this table should be run with ``sudo`` or as
+the ``root`` user.
 
 .. tabs::
 
@@ -785,6 +785,17 @@ Installing the ``geopmd`` package is the first step to enabling the GEOPM Access
 Service.  Unprivileged users will be unable to use the service until the access
 lists have been configured by an administrator.
 
+To guarantee that the GEOPM Access Service is up and will be enabled on reboot
+run the following commands:
+
+.. code-block:: bash
+
+   sudo systemctl enable geopm
+   sudo systemctl start geopm
+
+For full details about the GEOPM SystemD service see the :doc:`administrator
+guide <admin>`.
+
 The :doc:`geopmaccess(1) <geopmaccess.1>` command line tool is used to configure
 the access lists.  The linked manual page provides detailed documentation about
 how to set the access lists.  A few examples are provided here as well.
@@ -893,6 +904,7 @@ Further Documentation
    :maxdepth: 1
 
    geopmaccess.1
+   admin
    install_rolling
    build
    devel
