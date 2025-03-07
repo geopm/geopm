@@ -248,7 +248,7 @@ broken down by OS and OS version.
       The GEOPM packages are native in Fedora but man pages are not
       published in the distribution.  The man pages are published
       online, please see `online documentation for the latest release
-      <https://geopm.github.io/v3.2.0/reference.html#geopm-manual-pages>`_.
+      <https://geopm.github.io/v3.1.0/reference.html#geopm-manual-pages>`_.
 
       .. tabs::
 
@@ -620,7 +620,7 @@ broken down by OS and OS version.
       GEOPM packages are native in Fedora but man pages are not
       published in the distribution.  The man pages are published
       online, please see `online documentation for the latest release
-      <https://geopm.github.io/v3.2.0/reference.html#geopm-manual-pages>`_.
+      <https://geopm.github.io/v3.1.0/reference.html#geopm-manual-pages>`_.
 
       The ``python3-geopmpy`` package is also not distributed with
       Fedora, but may be installed on a per-user basis using ``pip``:
