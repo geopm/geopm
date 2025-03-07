@@ -15,8 +15,6 @@ with it.
    :maxdepth: 1
 
    service_readme
-   requires
-   build
    security
    admin
    client
