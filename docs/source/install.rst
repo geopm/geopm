@@ -847,6 +847,8 @@ Some typical scenarios for packaging local changes:
   packages, e.g. Debian
 - Configuring a GEOPM C++ library with options not supported by published
   packages, e.g. NVML support on openSUSE
+- Creating Docker containers that provide the GEOPM software with specific
+  features enabled
 - Changing dependency software libraries e.g. enabling MPICH for MPI support
 - Deploying on a non-x86_64 architecture, e.g. packaging for aarch64
 
