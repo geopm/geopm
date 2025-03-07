@@ -293,45 +293,11 @@ application if the application is not affinitized to a CPU on every core. If
 the application is using all cores of the system, the GEOPM control thread
 will be pinned to the highest logical CPU.
 
+Configuring System-wide Runtime Policy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Resource Manager Integration
-----------------------------
-
-The GEOPM Runtime package can seamlessly integrate with a compute cluster
-resource manager by altering the daemon of the resource manager running on
-the cluster compute nodes. An integration example with the SLURM resource
-manager through a SPANK plugin is available in the `geopm-slurm git
-repository <https://github.com/geopm/geopm-slurm>`_. This example aligns
-with the process described below.
-
-To integrate, the daemon requires two ``libgeopmd.so`` function calls before
-allocating resources to the user (prologue) and one function call after
-the resources are released (epilogue). In the prologue, the daemon initiates:
-
-.. code-block:: C
-
-   geopm_pio_save_control()
-
-This function records all controllable GEOPM values into memory (refer
-to :doc:`geopm_pio(3) <geopm_pio.3>`). The next function called in the
-prologue is:
-
-.. code-block:: C
-
-   geopm_agent_enforce_policy()
-
-As detailed in :doc:`geopm_agent(3) <geopm_agent.3>`, this function enforces
-a pre-set policy like a power cap or a CPU frequency limit by making a
-one-time hardware setting adjustment. In the epilogue, the manager triggers:
-
-.. code-block:: C
-
-   geopm_pio_restore_control()
-
-This restores all GEOPM platform controls to their original state captured
-during the prologue.
-
-The policy setup in the prologue relies on two configuration files:
+Two files may be used to control system-wide default and override value for the
+GEOPM Runtime parameters.
 
 .. code-block:: bash
 
