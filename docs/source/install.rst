@@ -627,6 +627,9 @@ broken down by OS and OS version.
 
       .. code-block:: bash
 
+         # Some features of geompy require libgeopm
+         sudo dnf install libgeopm
+         # Use pip for single user installs only
          python3 -m pip install --user geopmpy
 
       .. tabs::
