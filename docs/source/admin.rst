@@ -66,6 +66,7 @@ This command line interface allows the administrator to set access
 permissions for all users, and may extend these default privileges for
 specific Unix groups.
 
+
 Configuring Systemd Unit File
 -----------------------------
 
@@ -86,3 +87,41 @@ expected signals or controls are not available.
 
 The scope of messages printed when ``GEOPM_VERBOSITY`` is non-zero may increase
 in the future.
+
+
+The MSR Driver
+--------------
+
+Access to MSRs enhances the capabilities of the GEOPM Access Service by
+providing additional hardware telemetry and controls. While the **GEOPM Access
+Service** can function without access to MSRs, it provides a limited set of CPU
+features. For the **GEOPM Runtime** to function correctly, these MSR-related
+CPU features are necessary. Hence, MSR support is a hard requirement for
+the GEOPM Runtime which may be relaxed in a future release.
+
+One of two drivers may be used by the GEOPM Access Service to enable the MSR
+features: the standard Linux (in-tree) MSR driver or the msr-safe kernel driver
+maintained by LLNL.  The msr-safe driver is preferred by GEOPM if both kernel
+modules are loaded because it provides low latency interface for reading and
+writing many MSR values at once through an `ioctl(2)
+<https://man7.org/linux/man-pages/man2/ioctl.2.html>`_ system call, possibly
+improving the performance of GEOPM Runtime or other MSR usages.
+
+The msr-safe kernel driver source code can be found `here
+<https://github.com/LLNL/msr-safe>`__.  It's distributed with the `OpenSUSE
+Hardware Repository <https://download.opensuse.org/repositories/hardware/>`_ and
+can be installed from the RPMs provided there.  For more information about the
+necessary configuration of msr-safe see: :ref:`geopmaccess.1:Configuring
+msr-safe` and :ref:`the install guide <enable-service>`.  Note that subsequent to
+v1.7.0 of msr-safe, it is required that the msr-safe allow list be configured
+prior to starting the GEOPM Access Service.
+
+In the absence of the msr-safe kernel driver, users may access MSRs using the
+standard Linux MSR driver. This can be loaded with the command:
+
+.. code-block:: bash
+
+    modprobe msr
+
+The standard MSR driver be loaded to enable MSR access through the GEOPM Systemd
+Service when msr-safe is not installed.
