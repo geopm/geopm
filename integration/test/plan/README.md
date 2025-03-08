@@ -25,7 +25,7 @@ the expected version is in use after loading the module:
 3.1.0
 
 
-Copyright (c) 2015 - 2024 Intel Corporation. All rights reserved.
+Copyright (c) 2015 - 2025 Intel Corporation. All rights reserved.
 ```
 
 ### Development Snapshot

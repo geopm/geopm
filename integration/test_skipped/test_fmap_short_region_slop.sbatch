@@ -5,7 +5,7 @@
 #SBATCH --reservation fmap_slop
 #SBATCH -o %j.out
 #
-#  Copyright (c) 2015 - 2024 Intel Corporation
+#  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
