@@ -179,6 +179,7 @@ rst_files = [
     "geopm_agent_monitor.7",
     "geopm_agent_power_balancer.7",
     "geopm_agent_power_governor.7",
+    "geopmbatch.1",
     "geopmbench.1",
     "geopmctl.1",
     "geopm_ctl.3",

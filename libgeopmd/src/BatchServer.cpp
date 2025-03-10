@@ -28,6 +28,7 @@
 #ifdef GEOPM_ENABLE_NVML
 #include "NVMLDevicePool.hpp"
 #endif
+#include "geopm_version.h"
 
 volatile static sig_atomic_t g_sigterm_count = 0;
 
@@ -315,6 +316,10 @@ namespace geopm
     int BatchServer::main(int argc, char **argv)
     {
         int client_pid = -1;
+        if (argc == 2 && std::string(argv[1]) == "--version") {
+            std::cout << "geopmbatch version " << geopm_version() << std::endl;
+            return 0;
+        }
         if (argc != 2)
         {
             std::cerr << "Usage: " + std::string(argv[0]) + " CLIENT_PID" << std::endl;
