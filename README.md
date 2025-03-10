@@ -68,10 +68,21 @@ platform interactions to the GEOPM Access Service. **C and C++ bindings** are
 provided through [libgeopm](libgeopm). **Python bindings** are provided through
 the [geopmpy](geopmpy) package.
 
-## Usage
-Some simple use cases are illustrated below. See the [Getting Started
-Guide](https://geopm.github.io/overview.html) for additional use cases in Bash,
-C, C++, and Python.
+## Getting Started Guide
+
+The [GEOPM Getting Started Guide](https://geopm.github.io/overview.html) is a
+great introduction to the GEOPM Software.  Some of the topics covered there include:
+
+
+* Reading signals and writing controls at various scopes in the topology
+* Setting admin policies for user access to signals and controls
+* Exploring the platform's hardware topology
+* Repeatedly reading multiple signals in batches
+* Using the GEOPM Runtime Service alongside applications
+
+### Examples from Getting Started Guide
+
+Some simple use also shown in the Getting Started Guide cases are illustrated below.
 
 Read the current power consumption of all CPUs in the platform. The command
 will print the total power consumption (in Watts) summed across all CPUs on the
@@ -96,25 +107,19 @@ echo -e 'TIME board 0\nCPU_FREQUENCY_STATUS package 0' | geopmsession -p 1.0 -t 
 ```
 https://github.com/geopm/geopm.github.io/assets/378319/382fbe44-5ab4-4c43-9173-982473ebccb8
 
-Other use cases in the [Getting Started
-Guide](https://geopm.github.io/overview.html) include:
-* Setting admin policies for user access to signals and controls
-* Exploring the platform's hardware topology
-* Reading other types of signals and writing other types of controls at
-  various scopes in the topology
-* Repeatedly reading multiple signals in batches
-* Using the GEOPM Runtime Service alongside applications
 
-## How to Install GEOPM
+## GEOPM Install Guide
 
-Details are available in our [Install
+We provide installable packages for Fedora, Ubuntu, CentOS, Rocky, openSUSE, and
+RHEL.  Details are available in our [Install
 Guide](https://geopm.github.io/install.html) documentation page about the GEOPM
 packages, supported Linux distributions, GPU features, building and configuring
 packages from source, building and installing for a single user, and integration
 with Spack.
 
-We provide installable packages for Fedora, Ubuntu, CentOS, Rocky, openSUSE, and
-RHEL.  For example, on Ubuntu Jammy the following commands will install the
+### Examples from Install Guide
+
+For example, on Ubuntu Jammy the following commands will install the
 latest stable release of the GEOPM Access service and the associated development
 files:
 
@@ -161,7 +166,7 @@ point, you must modify your environment to specify the installed location.
     export PATH=$INSTALL_PREFIX/bin:$PATH
 ```
 
-### Major GEOPM Versions
+## Major GEOPM Versions
 At a high level, major GEOPM releases are summarized as follows:
 
 * **Version 3.0**: The GEOPM runtime now also works with non-MPI applications.
