@@ -96,8 +96,7 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
                                    # scenarios if preferred.
             mach,
             run_type='sse', # Only the SSE workload is used for characterization
-            ranks_per_node=None,
-            distribute_slow_ranks=False)
+            ranks_per_node=None)
         cls._minife_app_conf = minife.create_appconf(mach, experiment_args)
 
         # use a two step characterization process to reduce runtime
