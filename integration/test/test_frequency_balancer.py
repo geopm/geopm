@@ -85,7 +85,7 @@ class TestIntegration_frequency_balancer(unittest.TestCase):
             power_cap=None,
         )
 
-        sst_evaluation.launch(app_conf, args=experiment_args, experiment_cli_args=[])
+        sst_evaluation.launch(app_conf, args=experiment_args, experiment_cli_args=['--geopm-ctl=process'])
 
         results = defaultdict(lambda: defaultdict(list))
         for report_path in output_dir.glob('*.report'):
