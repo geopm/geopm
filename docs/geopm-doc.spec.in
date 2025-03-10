@@ -76,6 +76,7 @@ Man pages for python3-geopmpy package
 %files
 
 %files -n libgeopmd-doc
+%doc %{_mandir}/man1/geopmbatch.1.gz
 %doc %{_mandir}/man3/geopm::Agg.3.gz
 %doc %{_mandir}/man3/geopm::CNLIOGroup.3.gz
 %doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
