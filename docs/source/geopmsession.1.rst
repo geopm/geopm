@@ -10,7 +10,7 @@ Synopsis
    usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
                        [--print-header | -n] [-d DELIMITER] [-r REPORT_OUT]
                        [-o TRACE_OUT] [--enable-mpi] [-f REPORT_FORMAT]
-                       [-s REPORT_SAMPLES]
+                       [-s REPORT_SAMPLES] [-i CONFIG_PATH]
 
 Read a signal
 ~~~~~~~~~~~~~
@@ -133,6 +133,11 @@ Options
     separated with the document separator string: ``"---"``.  When
     in CSV format, each report is one line of the CSV output.
 
+-i, --signal-config .. _configpath CONFIG_PATH option:
+
+    Input file containing GEOPM signal requests, specify "-" to use
+    standard input which is also the default.
+
 Examples
 --------
 
@@ -185,6 +190,11 @@ Reading a set of signals and getting summary statistics
 Summary statistics may be output to stdout by setting ``--report-out=-``.
 Otherwise, the statistics will be output to the specified file path. If
 unspecified, no statistics will be gathered.
+
+The resulting report will be in yaml by default. To output as a csv, use the
+``-f`` option. Hostname and sample information will be output at the top.
+Summary statistics (count/first/last/min/max/mean/std) will be output
+for each of the specified signals at the specified domains/domain indices.
 
 .. code-block:: shell-session
 
