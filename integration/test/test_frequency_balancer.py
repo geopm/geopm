@@ -16,17 +16,17 @@ import sys
 import unittest
 from pathlib import Path
 import shutil
-from experiment import machine
 from types import SimpleNamespace
+from collections import defaultdict
 
 import geopmpy.agent
 from geopmpy.io import RawReport
-from collections import defaultdict
 
 from integration.test import util
 from integration.test import geopm_test_launcher
-from experiment.sst_evaluation import sst_evaluation
-from apps.arithmetic_intensity import arithmetic_intensity
+from integration.experiment import machine
+from integration.experiment.sst_evaluation import sst_evaluation
+from integration.apps.arithmetic_intensity import arithmetic_intensity
 
 
 @util.skip_unless_do_launch()
