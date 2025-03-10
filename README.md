@@ -106,35 +106,27 @@ Guide](https://geopm.github.io/overview.html) include:
 * Using the GEOPM Runtime Service alongside applications
 
 ## How to Install GEOPM
-We provide installable packages for Ubuntu, CentOS, openSUSE, and RHEL. Our
-build systems can also be used to install GEOPM from source.
 
-More details are available in our
-[Installation](https://geopm.github.io/install.html) documentation page.
+Details are available in our [Install
+Guide](https://geopm.github.io/install.html) documentation page about the GEOPM
+packages, supported Linux distributions, GPU features, building and configuring
+packages from source, building and installing for a single user, and integration
+with Spack.
 
-### On Ubuntu
+We provide installable packages for Fedora, Ubuntu, CentOS, Rocky, openSUSE, and
+RHEL.  For example, on Ubuntu Jammy the following commands will install the
+latest stable release of the GEOPM Access service and the associated development
+files:
+
 ```bash
 sudo add-apt-repository ppa:geopm/release
 sudo apt update
-sudo apt install geopm-service libgeopmd-dev libgeopmd2 python3-geopmdpy
+sudo apt install geopmd libgeopmd-dev
 ```
 
-### On CentOS, openSUSE, and RHEL
-Follow the installation wizards described in our [installation
-guide](https://geopm.github.io/install.html#sles-opensuse-and-centos) to
-install our latest release through `dnf` or `zypper`.
-
-### From Source
-
-Follow the documentation in our [developer build
-guide](https://geopm.github.io/devel.html#developer-build-process) for details
-about how to configure the build process.  Note that some dependency packages
-required for the C++ builds may be missing from your system.  Refer to the
-[requirements guide](https://geopm.github.io/requires.html) for details on the
-packages required for build on your operating system.  In the bash script below
-we show a simple way to build and install all of the GEOPM packages from the
-source repository assuming that all build dependencies are installed system
-wide.
+In the bash script below we show a simple way to build and install all of the
+GEOPM packages from the source repository assuming that all build dependencies
+are installed system wide.
 
 ```bash
 # Choose install location
@@ -189,7 +181,9 @@ changes in each release.
 
 * [.github](.github) contains definitions of this repository's GitHub actions
 * [docs](docs) contains web and man-page documentation for GEOPM
+* [geopmdgo](geopmdgo) provides Golang Bindings for libgeopmd
 * [geopmdpy](geopmdpy) provides Python bindings for libgeopmd
+* [geopmdrs](geopmdrs) geopmd gRPC UDS proxy server for container support
 * [geopmpy](geopmpy) provides Python bindings for libgeopm
 * [integration](integration) contains integration test automation for GEOPM
 * [libgeopm](libgeopm) provides the C/C++ implementation of the GEOPM Runtime Service
@@ -209,7 +203,7 @@ The GEOPM source code is distributed under the 3-clause BSD license.
 SEE [LICENSE-BSD-3-Clause](LICENSE-BSD-3-Clause) FILE FOR LICENSE INFORMATION.
 
 ## Last Update
-2024 April 10
+2025 March 10
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 Brad Geltz <brad.geltz@intel.com> <br>
