@@ -44,7 +44,7 @@ spec:
         ports:
         - containerPort: 8000
           hostPort: 8000
-        command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; /usr/bin/geopmexporter']
+        command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; /usr/bin/geopmexporter --insecure-http']
       - name: geopm-client
         image: cmcantal/geopm-prometheus:latest
         securityContext:
