@@ -1,4 +1,3 @@
-
 geopmexporter(1) -- Prometheus exporter for GEOPM metrics
 =========================================================
 
@@ -7,7 +6,7 @@ Synopsis
 
 .. code-block:: none
 
-    geopmexporter [-h] [-v] [-t PERIOD] [-p PORT] [-i CONFIG_PATH] [--summary SUMMARY]
+    geopmexporter [-h] [-v] [-t PERIOD] [-p PORT] [-i CONFIG_PATH] [--summary SUMMARY] [-c CERTFILE] [-k KEYFILE] [--insecure-http]
 
 
 Description
@@ -53,6 +52,18 @@ Options
 --summary  .. _summary SUMMARY option:
 
     Summary method, one of "geopm", or "prometheus". Default: geopm
+
+-c, --certfile  .. _certfile CERTFILE option:
+
+    Server certificate used during the TLS handshake.
+
+-k, --keyfile  .. _keyfile KEYFILE option:
+
+    Server certificate private key.
+
+--insecure-http  .. _insecure-http option:
+
+    Use HTTP instead of HTTPS to export metrics over TCP/IP.
 
 
 Configuration File
