@@ -3,7 +3,7 @@
     "id": "https://geopm.github.io/geopmbench_config.schema.json",
     "title": "geopmbench config",
     "type": "object",
-	"properties": {
+    "properties": {
       "loop-count": {
         "description": "Set the number of loops to execute",
         "type": "integer"

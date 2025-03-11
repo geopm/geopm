@@ -60,5 +60,6 @@
             }
         }
     },
+    "required": ["host", "sample-time-first", "sample-count", "sample-period-mean", "sample-period-std"],
     "additionalProperties": false
 }
