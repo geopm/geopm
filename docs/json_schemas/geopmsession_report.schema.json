@@ -1,0 +1,64 @@
+
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/geopomsession_report.schema.json",
+    "title": "geopmsession report",
+    "definitions": {
+            "metricObject": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer"
+                    },
+                    "first": {
+                        "type": "number"
+                    },
+                    "last": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "mean": {
+                        "type": "number"
+                    },
+                    "std": {
+                        "type": "number"
+                    }
+                },
+                "required": ["count", "first", "last", "min", "max", "mean", "std"],
+                "additionalProperties": false
+            }
+    },
+    "type": "object",
+    "properties": {
+        "host": {
+            "type": "string"
+        },
+        "sample-time-first": {
+            "type": "string"
+        },
+        "sample-time-total": {
+            "type": "number"
+        },
+        "sample-count": {
+            "type": "integer"
+        },
+        "sample-period-mean": {
+            "type": "number"
+        },
+        "sample-period-std": {
+            "type": "number"
+        },
+        "metrics": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/metricObject"
+            }
+        }
+    },
+    "additionalProperties": false
+}
