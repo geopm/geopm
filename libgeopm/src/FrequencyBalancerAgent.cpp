@@ -77,6 +77,9 @@ namespace geopm
         , m_platform_topo(topo)
         , m_waiter(std::move(waiter))
         , m_update_time(time_zero())
+        , m_epoch_signal_idx(-1)
+        , m_last_epoch_time(NAN)
+        , m_last_epoch_count(NAN)
         , m_num_children(0)
         , m_is_policy_updated(false)
         , m_do_write_batch(false)
@@ -102,9 +105,9 @@ namespace geopm
               m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         , m_frequency_step(
               m_platform_io.read_signal("CPU_FREQUENCY_STEP", GEOPM_DOMAIN_BOARD, 0))
-        , m_power_gov(power_gov)
-        , m_freq_governor(frequency_gov)
-        , m_sst_clos_governor(sst_gov)
+        , m_power_gov(std::move(power_gov))
+        , m_freq_governor(std::move(frequency_gov))
+        , m_sst_clos_governor(std::move(sst_gov))
         , m_frequency_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_frequency_control_domain_count(m_platform_topo.num_domain(m_frequency_ctl_domain_type))
         , m_network_hint_sample_length(m_frequency_control_domain_count, 0)
@@ -112,8 +115,8 @@ namespace geopm
         , m_last_hp_count(2, 0)
         , m_handle_new_epoch(false)
         , m_epoch_wait_count(MINIMUM_EPOCHS_FOR_NEW_EPOCH_CONTROL)
-        , m_package_balancers(package_balancers)
-        , m_frequency_limit_detector(frequency_limit_detector)
+        , m_package_balancers(std::move(package_balancers))
+        , m_frequency_limit_detector(std::move(frequency_limit_detector))
     {
         if (m_package_balancers.empty()) {
             for (int i = 0; i < m_package_count; ++i) {
