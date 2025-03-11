@@ -70,9 +70,9 @@ class TestPrometheusExporter(TestCase):
              mock.patch('geopmdpy.exporter._start_http_server') as mshs, \
              mock.patch('geopmdpy.pio.read_batch') as mrb:
             prom_exp = PrometheusExporter(self._mock_collector)
-            prom_exp.run(period, port)
+            prom_exp.run(period, port, None, None)
             mtl.assert_called_with(period)
-            mshs.assert_called_with(port)
+            mshs.assert_called_with(port, None, None)
         calls = [mock.call()] * num_calls
         self._mock_collector.update.assert_has_calls(calls)
         mrb.assert_has_calls(calls)
@@ -149,49 +149,50 @@ class TestPrometheusMetricExporter(TestCase):
              mock.patch('geopmdpy.loop.TimedLoop', return_value=range(num_calls)) as mtl, \
              mock.patch('geopmdpy.exporter._start_http_server') as mshs:
             prom_exp = PrometheusMetricExporter(self._requests)
-            prom_exp.run(period, port)
+            prom_exp.run(period, port, None, None)
             mtl.assert_called_with(period)
-            mshs.assert_called_with(port)
+            mshs.assert_called_with(port, None, None)
             mock_counter.inc.assert_called()
 
 @skipUnless(_prometheus_enabled, "prometheus_client not installed")
 class TestExporterCli(TestCase):
-    def test_default(self):
-        sys.argv = ['']
+    def test_insecure_http(self):
+        sys.argv = ['', '--insecure-http']
         mock_exporter = mock.create_autospec(PrometheusExporter)
         mock_collector = mock.create_autospec(Collector)
+        port = 8000
         with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
              mock.patch('geopmdpy.exporter.PrometheusExporter', return_value=mock_exporter), \
              mock.patch('geopmdpy.stats.Collector', return_value=mock_collector):
             exporter.main()
-            mock_exporter.run.assert_called_with(0.1, 8000)
+            mock_exporter.run.assert_called_with(0.1, port, None, None)
 
     def test_period(self):
-        sys.argv = ['', '--period', '1']
+        sys.argv = ['', '--period', '1', '--insecure-http']
         mock_exporter = mock.create_autospec(PrometheusExporter)
         mock_collector = mock.create_autospec(Collector)
         with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
              mock.patch('geopmdpy.exporter.PrometheusExporter', return_value=mock_exporter), \
              mock.patch('geopmdpy.stats.Collector', return_value=mock_collector):
             exporter.main()
-            mock_exporter.run.assert_called_with(1, 8000)
+            mock_exporter.run.assert_called_with(1, 8000, None, None)
 
     def test_port(self):
-        sys.argv = ['', '--port', '8005']
+        sys.argv = ['', '--port', '8005', '--insecure-http']
         mock_exporter = mock.create_autospec(PrometheusExporter)
         mock_collector = mock.create_autospec(Collector)
         with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
              mock.patch('geopmdpy.exporter.PrometheusExporter', return_value=mock_exporter), \
              mock.patch('geopmdpy.stats.Collector', return_value=mock_collector):
             exporter.main()
-            mock_exporter.run.assert_called_with(0.1, 8005)
+            mock_exporter.run.assert_called_with(0.1, 8005, None, None)
 
     def test_signal_config(self):
         with tempfile.NamedTemporaryFile() as tmp:
             tmp.write(b'TIME board 0\n')
             tmp.flush()
             tmp.seek(0)
-            sys.argv = ['', '--signal-config', tmp.name]
+            sys.argv = ['', '--signal-config', tmp.name, '--insecure-http']
             mock_exporter = mock.create_autospec(PrometheusExporter)
             mock_collector = mock.create_autospec(Collector)
             with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
@@ -199,20 +200,20 @@ class TestExporterCli(TestCase):
                  mock.patch('geopmdpy.stats.Collector', return_value=mock_collector) as mock_collector_init:
                 exporter.main()
         mock_collector_init.assert_called_once_with([('TIME', 0, 0)])
-        mock_exporter.run.assert_called_with(0.1, 8000)
+        mock_exporter.run.assert_called_with(0.1, 8000, None, None)
 
     def test_summary(self):
         with tempfile.NamedTemporaryFile() as tmp:
             tmp.write(b'TIME board 0\n')
             tmp.flush()
             tmp.seek(0)
-            sys.argv = ['', '--signal-config', tmp.name, '--summary', 'prometheus']
+            sys.argv = ['', '--signal-config', tmp.name, '--summary', 'prometheus', '--insecure-http']
             mock_exporter = mock.create_autospec(PrometheusMetricExporter)
             with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
                  mock.patch('geopmdpy.exporter.PrometheusMetricExporter', return_value=mock_exporter) as mock_exporter_init:
                     exporter.main()
         mock_exporter_init.assert_called_once_with([('TIME', 0, 0)])
-        mock_exporter.run.assert_called_with(0.1, 8000)
+        mock_exporter.run.assert_called_with(0.1, 8000, None, None)
 
 if __name__ == '__main__':
     main()

@@ -8,7 +8,7 @@ import os
 import re
 from time import sleep
 from argparse import ArgumentParser
-from . import pio, topo, stats, loop, session, __version_str__
+from . import pio, topo, stats, loop, session, system_files, __version_str__
 
 _STARTUP_SLEEP = 0.005
 
@@ -33,11 +33,11 @@ class PrometheusExporter:
                  self._num_metric += 1
         self._num_fresh = self._num_metric
 
-    def run(self, period, port):
+    def run(self, period, port, certfile, keyfile):
         """Run the GEOPM Prometheus exporter with geopm.stats.Collector
 
         """
-        _start_http_server(port)
+        _start_http_server(port, certfile, keyfile)
         for _ in loop.TimedLoop(period):
             pio.read_batch()
             self._stats_collector.update()
@@ -87,12 +87,12 @@ class PrometheusMetricExporter:
                 raise RuntimeError(f'Invalid behavior for signal {metric_name}, '
                                    'only support for monotone or variable signals')
 
-    def run(self, period, port):
+    def run(self, period, port, certfile, keyfile):
         """Run the GEOPM Prometheus exporter with prometheus Summary and
         Counter metrics
 
         """
-        _start_http_server(port)
+        _start_http_server(port, certfile, keyfile)
         sample_last = [None] * len(self._metrics)
         sleep(_STARTUP_SLEEP) # Take two samples to enable derivative signals
         for sample_idx in loop.TimedLoop(period):
@@ -129,7 +129,7 @@ def _sanitize_metric_name(name):
     return name
 
 _install_prometheus_msg = 'Please install python3-prometheus-client: https://pypi.org/project/prometheus-client/'
-def _start_http_server(port):
+def _start_http_server(port, certfile, keyfile):
     """Wrapper to enable easier mocking in unit tests
 
     """
@@ -137,7 +137,7 @@ def _start_http_server(port):
         from prometheus_client import start_http_server
     except Exception as ex:
         raise RuntimeError(_install_prometheus_msg) from ex
-    start_http_server(port)
+    start_http_server(port, certfile=certfile, keyfile=keyfile)
 
 def _create_prom_metric(name, descr, prom_name):
     """Wrapper to enable easier mocking in unit tests
@@ -173,10 +173,20 @@ def default_requests():
         raise RuntimeError('Failed to find any signals to report')
     return requests
 
-def run(period, port, config_path=None, summary='geopm'):
+def run(period, port, config_path=None, summary='geopm', certfile=None, keyfile=None, use_insecure_http=False):
     """Run the GEOPM Prometheus exporter
 
     """
+    if use_insecure_http:
+        certfile = None
+        keyfile = None
+    else:
+        if certfile is None or keyfile is None:
+            raise ValueError('The certfile and keyfile arguments are required unless insecure HTTP is selected')
+        if not system_files.is_secure_path(certfile):
+            raise ValueError(f'File "{certfile}" is not secure')
+        if not system_files.is_secure_path(keyfile):
+            raise ValueError(f'File "{keyfile}" is not secure')
     if config_path is None:
         requests = default_requests()
     elif config_path == '-':
@@ -187,10 +197,10 @@ def run(period, port, config_path=None, summary='geopm'):
     if summary == 'geopm':
         with stats.Collector(requests) as stats_collector:
             exporter = PrometheusExporter(stats_collector)
-            exporter.run(period, port)
+            exporter.run(period, port, certfile, keyfile)
     elif summary == 'prometheus':
         exporter = PrometheusMetricExporter(requests)
-        exporter.run(period, port)
+        exporter.run(period, port, certfile, keyfile)
     else:
         raise ValueError(f'Unknown summary type: "{summary}".  Must be "geopm" or "prometheus"')
 
@@ -213,12 +223,18 @@ def main():
                                  'temperature signals at the board domain')
         parser.add_argument('--summary', dest='summary', default='geopm',
                             help='Summary method, one of "geopm", or "prometheus". Default: %(default)s')
+        parser.add_argument('-c', '--certfile',
+                            help='Server certificate used during the TLS handshake')
+        parser.add_argument('-k', '--keyfile',
+                            help='Server certificate private key')
+        parser.add_argument('--insecure-http', action='store_true',
+                            help='Use http not https to export metrics over TCP/IP')
 
         args = parser.parse_args()
         if args.version:
             print(__version_str__)
         else:
-            run(args.period, args.port, args.config_path, args.summary)
+            run(args.period, args.port, args.config_path, args.summary, args.certfile, args.keyfile, args.insecure_http)
     except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
