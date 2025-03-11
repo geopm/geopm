@@ -133,7 +133,7 @@ Options
     separated with the document separator string: ``"---"``.  When
     in CSV format, each report is one line of the CSV output.
 
--i, --signal-config .. _configpath CONFIG_PATH option:
+-i, --signal-config  .. _configpath CONFIG_PATH option:
 
     Input file containing GEOPM signal requests, specify "-" to use
     standard input which is also the default.
@@ -149,8 +149,12 @@ Reading a signal
 The input to the command line tool has one request per line.  A
 request for reading is made of up three strings separated by white
 space.  The first string is the signal name, the second string is the
-domain name, and the third string is the domain index.  An example
-where the entire ``THERM_STATUS`` model specific register is read from
+domain name, and the third string is the domain index.  An asterisk ``*``
+in place of the domain name will evaluate to the native domain of the signal.
+An asterisk ``*`` in place of the domain index will result in the signal being
+read for all available domain indices on the system for the specified domain type.
+
+An example where the entire ``THERM_STATUS`` model specific register is read from
 core zero:
 
 .. code-block:: shell-session
@@ -159,6 +163,15 @@ core zero:
     0x0000000088430800
 
 This will execute one read of the signal.
+
+A couple of examples reading ``CPU_POWER`` using ``*``:
+
+.. code-block:: shell-session
+
+    $ echo "CPU_POWER * 1" | geopmsession -n
+    173.4394938352482
+    $ echo "CPU_POWER * *" | geopmsession -n
+    302.1005171817655,218.0933036104828
 
 Reading a signal periodically
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,6 +198,9 @@ Multiple signals may be specified by separating them with a newline.
         geopmsession -n
     70.250978379,2434090909.090909,2775000000,198575.8842163086,88752.19470214844
 
+Signals may also be specified in a separate file using the ``-i`` option.
+
+
 Reading a set of signals and getting summary statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Summary statistics may be output to stdout by setting ``--report-out=-``.
@@ -192,7 +208,7 @@ Otherwise, the statistics will be output to the specified file path. If
 unspecified, no statistics will be gathered.
 
 The resulting report will be in yaml by default. To output as a csv, use the
-``-f`` option. Hostname and sample information will be output at the top.
+``-f csv`` option. Hostname and sample information will be output at the top.
 Summary statistics (count/first/last/min/max/mean/std) will be output
 for each of the specified signals at the specified domains/domain indices.
 
@@ -201,7 +217,7 @@ for each of the specified signals at the specified domains/domain indices.
     $ printf 'TIME board 0\nCPU_POWER board 0\nCPU_FREQUENCY_STATUS board 0\n' |\
         geopmsession -t 10 -p 0.005 --report-out=- --trace-out=/dev/null
 
-An example report is shown below:
+An example yaml report is shown below:
 
 .. code-block:: yaml
 
@@ -237,6 +253,12 @@ An example report is shown below:
        mean: 1.5542e+09
        std: 3.72332e+08
 
+The same report rendered from csv format:
+
+.. csv-table:: CSV-table
+
+    "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last","CPU_FREQUENCY_STATUS-min","CPU_FREQUENCY_STATUS-max","CPU_FREQUENCY_STATUS-mean","CPU_FREQUENCY_STATUS-std","CPU_POWER-count","CPU_POWER-first","CPU_POWER-last","CPU_POWER-min","CPU_POWER-max","CPU_POWER-mean","CPU_POWER-std","TIME-count","TIME-first","TIME-last","TIME-min","TIME-max","TIME-mean","TIME-std"
+    "x1001c2s1b0n0","2025-03-10T21:51:23.189529258-0700",10.001955031000001,2001,0.0050009775155000005,0.00010043535451280228,2001,847115384.6153846,850000000.0,821153846.1538461,873076923.0769231,847851314.7272667,3590132.1103830505,2001,399.14601612728563,300.103422331257,274.8583842263399,399.14601612728563,321.0146130526503,17.236293555024577,2001,6.143247742,16.145202773,6.143247742,16.145202773,11.144727482043468,2.8891493308338507
 
 Gathering Reports using MPI
 ---------------------------
