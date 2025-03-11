@@ -80,17 +80,16 @@ class TestPrometheusExporter(TestCase):
     def test_run_https(self):
         period = 0.1
         port = 8000
-        certfile = 'path/to/certfile'
-        keyfile = 'path/to/keyfile'
         num_calls = 10
-        with mock.patch('geopmdpy.exporter._create_prom_metric', return_value=mock.create_autospec(Gauge)), \
+        with tempfile.NamedTemporaryFile() as certfile, tempfile.NamedTemporaryFile() as keyfile, \
+             mock.patch('geopmdpy.exporter._create_prom_metric', return_value=mock.create_autospec(Gauge)), \
              mock.patch('geopmdpy.loop.TimedLoop', return_value=range(num_calls)) as mtl, \
              mock.patch('geopmdpy.exporter._start_http_server') as mshs, \
              mock.patch('geopmdpy.pio.read_batch') as mrb:
             prom_exp = PrometheusExporter(self._mock_collector)
-            prom_exp.run(period, port, certfile, keyfile)
+            prom_exp.run(period, port, certfile.name, keyfile.name)
             mtl.assert_called_with(period)
-            mshs.assert_called_with(port, certfile, keyfile)
+            mshs.assert_called_with(port, certfile.name, keyfile.name)
         calls = [mock.call()] * num_calls
         self._mock_collector.update.assert_has_calls(calls)
         mrb.assert_has_calls(calls)
@@ -175,17 +174,16 @@ class TestPrometheusMetricExporter(TestCase):
     def test_run_prometheus_metric_exporter_https(self):
         period = 0.1
         port = 8000
-        certfile = 'path/to/certfile'
-        keyfile = 'path/to/keyfile'
         num_calls = 10
         mock_counter = mock.create_autospec(Counter)
-        with mock.patch('geopmdpy.exporter._create_prom_metric', return_value=mock_counter), \
+        with tempfile.NamedTemporaryFile() as certfile, tempfile.NamedTemporaryFile() as keyfile, \
+             mock.patch('geopmdpy.exporter._create_prom_metric', return_value=mock_counter), \
              mock.patch('geopmdpy.loop.TimedLoop', return_value=range(num_calls)) as mtl, \
              mock.patch('geopmdpy.exporter._start_http_server') as mshs:
             prom_exp = PrometheusMetricExporter(self._requests)
-            prom_exp.run(period, port, certfile, keyfile)
+            prom_exp.run(period, port, certfile.name, keyfile.name)
             mtl.assert_called_with(period)
-            mshs.assert_called_with(port, certfile, keyfile)
+            mshs.assert_called_with(port, certfile.name, keyfile.name)
             mock_counter.inc.assert_called()
 
 @skipUnless(_prometheus_enabled, "prometheus_client not installed")
@@ -250,23 +248,25 @@ class TestExporterCli(TestCase):
         mock_exporter.run.assert_called_with(0.1, 8000, None, None)
 
     def test_https(self):
-        sys.argv = ['', '--certfile', 'path/to/certfile', '--keyfile', 'path/to/keyfile']
-        mock_exporter = mock.create_autospec(PrometheusExporter)
-        mock_collector = mock.create_autospec(Collector)
-        port = 8000
-        with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
-             mock.patch('geopmdpy.exporter.PrometheusExporter', return_value=mock_exporter), \
-             mock.patch('geopmdpy.stats.Collector', return_value=mock_collector):
-            exporter.main()
-            mock_exporter.run.assert_called_with(0.1, port, 'path/to/certfile', 'path/to/keyfile')
+        with tempfile.NamedTemporaryFile() as certfile, tempfile.NamedTemporaryFile() as keyfile:
+            sys.argv = ['', '--certfile', certfile.name, '--keyfile', keyfile.name]
+            mock_exporter = mock.create_autospec(PrometheusExporter)
+            mock_collector = mock.create_autospec(Collector)
+            port = 8000
+            with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
+                 mock.patch('geopmdpy.exporter.PrometheusExporter', return_value=mock_exporter), \
+                 mock.patch('geopmdpy.stats.Collector', return_value=mock_collector):
+                exporter.main()
+                mock_exporter.run.assert_called_with(0.1, port, certfile.name, keyfile.name)
 
     def test_https_prometheus_metric_exporter(self):
-        sys.argv = ['', '--certfile', 'path/to/certfile', '--keyfile', 'path/to/keyfile', '--summary', 'prometheus']
-        mock_exporter = mock.create_autospec(PrometheusMetricExporter)
-        with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
-             mock.patch('geopmdpy.exporter.PrometheusMetricExporter', return_value=mock_exporter):
-            exporter.main()
-            mock_exporter.run.assert_called_with(0.1, 8000, 'path/to/certfile', 'path/to/keyfile')
+        with tempfile.NamedTemporaryFile() as certfile, tempfile.NamedTemporaryFile() as keyfile:
+            sys.argv = ['', '--certfile', certfile.name, '--keyfile', keyfile.name, '--summary', 'prometheus']
+            mock_exporter = mock.create_autospec(PrometheusMetricExporter)
+            with mock.patch('geopmdpy.pio.signal_names', return_value=_MOCK_SIGNAL_NAMES), \
+                 mock.patch('geopmdpy.exporter.PrometheusMetricExporter', return_value=mock_exporter):
+                exporter.main()
+                mock_exporter.run.assert_called_with(0.1, 8000, certfile.name, keyfile.name)
 
 if __name__ == '__main__':
     main()
