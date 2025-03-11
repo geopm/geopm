@@ -10,8 +10,8 @@ Run a power sweep with NPB BT.
 
 import argparse
 
-from experiment.sst_evaluation import sst_evaluation
-from experiment import machine
+from integration.experiment.sst_evaluation import sst_evaluation
+from integration.experiment import machine
 from apps.nasbt import nasbt
 
 

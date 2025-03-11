@@ -10,8 +10,8 @@ Run an SST evaluation with the arithmetic intensity benchmark.
 
 import argparse
 
-from experiment.sst_evaluation import sst_evaluation
-from experiment import machine
+from integration.experiment.sst_evaluation import sst_evaluation
+from integration.experiment import machine
 from apps.arithmetic_intensity import arithmetic_intensity
 
 

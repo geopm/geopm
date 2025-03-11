@@ -12,8 +12,8 @@ import argparse
 import yaml
 import pathlib
 
-from experiment import common_args
-from experiment import plotting
+from integration.experiment import common_args
+from integration.experiment import plotting
 
 
 def reports_and_traces_to_dataframes(report_paths):
