@@ -253,12 +253,62 @@ An example yaml report is shown below:
        mean: 1.5542e+09
        std: 3.72332e+08
 
-The same report rendered from csv format:
+The same report rendered into csv format:
 
-.. csv-table:: CSV-table
+.. code-block:: text
 
     "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last","CPU_FREQUENCY_STATUS-min","CPU_FREQUENCY_STATUS-max","CPU_FREQUENCY_STATUS-mean","CPU_FREQUENCY_STATUS-std","CPU_POWER-count","CPU_POWER-first","CPU_POWER-last","CPU_POWER-min","CPU_POWER-max","CPU_POWER-mean","CPU_POWER-std","TIME-count","TIME-first","TIME-last","TIME-min","TIME-max","TIME-mean","TIME-std"
     "x1001c2s1b0n0","2025-03-10T21:51:23.189529258-0700",10.001955031000001,2001,0.0050009775155000005,0.00010043535451280228,2001,847115384.6153846,850000000.0,821153846.1538461,873076923.0769231,847851314.7272667,3590132.1103830505,2001,399.14601612728563,300.103422331257,274.8583842263399,399.14601612728563,321.0146130526503,17.236293555024577,2001,6.143247742,16.145202773,6.143247742,16.145202773,11.144727482043468,2.8891493308338507
+
+Reading signals during a job execution
+--------------------------------------
+
+Signals can be read and summary statistics gathered during job execution using
+the ``--pid`` option. Below is an example gathering ``CPU_POWER`` while running
+``sleep``. Note that a large value is fed into the ``-t`` option, but the geopmsession 
+ends after the ``sleep`` job completes.
+
+.. code-block:: shell-session
+
+    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1 -t 3e3
+    [1] 862433
+    nan
+    223.9936557537629
+    216.5137820024834
+    213.0681419975341
+    213.0355731062416
+    212.6023058240874
+
+An example gathering summary statistics while executing a job:
+
+.. code-block:: shell-session
+
+    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1 -t 3e3 -r -
+    [1] 863118
+    "CPU_POWER-package-0"
+    192.0918491664253
+    229.5852100126677
+    228.7564573775396
+    host: "cluster-node-11"
+    sample-time-first: "2025-03-11T11:44:16.347674498-0700"
+    sample-time-total: 2.00134
+    sample-count: 3
+    sample-period-mean: 1.00067
+    sample-period-std: 0.000850531
+    metrics:
+      CPU_POWER-package-0:
+        count: 3
+        first: 192.092
+        last: 228.756
+        min: 192.092
+        max: 229.585
+        mean: 216.811
+        std: 21.4116
+
+Note that the samples are output followed by summary statistics. To output the
+sample trace to a file, use ``-o [filename]``. To output the summary statistics
+report to a file, use ``-r [filename]``. To suppress either output, set the
+respective parameter to ``/dev/null``
 
 Gathering Reports using MPI
 ---------------------------
