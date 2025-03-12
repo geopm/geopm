@@ -110,6 +110,13 @@ To avoid conflicts, or firewall limitations, the user may override the defaults
 using command line arguments to `clush_prometheus.py`.
 
 
+### Selecting https or http
+
+Provide the `--certfile` and `--keyfile` options to `clush_promethus.py` to run
+the prometheus client over https.  Provide the `--insecure-http` option to
+`clush_prometheus.py` to use an insecure protocol.
+
+
 ### Configuring Grafana Server
 
 Before deploying the GEOPM Prometheus exporter across the system for the first
@@ -131,7 +138,7 @@ and Prometheus servers must be running.  This is done by executing the
 option.
 
 ```bash
-    clush_prometheus.py --pbs-jobid=JOBID PROMETHEUS_DIR GRAFANA_DIR
+    clush_prometheus.py --insecure-http --pbs-jobid=JOBID PROMETHEUS_DIR GRAFANA_DIR
 ```
 This will bring up the Prometheus server and Grafana server on the head
 node.
@@ -176,7 +183,7 @@ the PBS queue using `qsub(1)` to obtain a PBS Job ID.  Use the PBS Job ID
 
 ```bash
     JOBID=$(qsub ...)
-    ./clush_prometheus.py --pbs-jobid JOBID PROMETHEUS_DIR GRAFANA_DIR
+    ./clush_prometheus.py --insecure-http --pbs-jobid JOBID PROMETHEUS_DIR GRAFANA_DIR
 
 ```
 

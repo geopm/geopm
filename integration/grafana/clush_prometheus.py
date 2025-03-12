@@ -107,7 +107,7 @@ def _signal_handler(signum, frame):
         os.unlink(_temp_hostfile_path)
     exit(0)
 
-def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jobid, hostfile_path):
+def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jobid, hostfile_path, certfile, keyfile, insecure_http):
     """Entry function with inputs derived from CLI
 
     """
@@ -153,6 +153,12 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
         clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
                      'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
                      'geopmexporter', '-p', f'{client_port}']
+        if certfile:
+            clush_cmd.extend(['--certfile', certfile])
+        if keyfile:
+            clush_cmd.extend(['--keyfile', keyfile])
+        if insecure_http:
+            clush_cmd.append('--insecure-http')
         _clush_pid = popen_wrapper(clush_cmd, 'clush', clush_log_path)
 
     configure_prom(prom_dir, hosts, client_port)
@@ -218,7 +224,13 @@ def main():
     parser.add_argument('--client-port', type=int, default=8000,
                         help='Port for geopmexporter Prometheus client')
     parser.add_argument('--geopm-prefix', default='/usr',
-                        help='Path pprefix for user install of GEOPM')
+                        help='Path prefix for user install of GEOPM')
+    parser.add_argument('--certfile', type=str, default=None,
+                        help='Path to the certificate file for geopmexporter')
+    parser.add_argument('--keyfile', type=str, default=None,
+                        help='Path to the key file for geopmexporter')
+    parser.add_argument('--insecure-http', action='store_true',
+                        help='Use insecure HTTP for geopmexporter')
     host_group = parser.add_mutually_exclusive_group()
     host_group.add_argument('--pbs-jobid', type=str, default=None,
                             help='PBS job ID to monitor')
@@ -227,7 +239,8 @@ def main():
     args = parser.parse_args()
 
     run(args.PROMETHEUS_DIR, args.GRAFANA_DIR, args.prom_port, args.graf_port,
-        args.client_port, args.geopm_prefix, args.pbs_jobid, args.hostfile)
+        args.client_port, args.geopm_prefix, args.pbs_jobid, args.hostfile,
+        args.certfile, args.keyfile, args.insecure_http)
     return 0
 
 if __name__ == '__main__':
