@@ -178,11 +178,11 @@ def run(period, port, config_path=None, summary='geopm', certfile=None, keyfile=
 
     """
     if use_insecure_http:
-        certfile = None
-        keyfile = None
+        if certfile is not None or keyfile is not None:
+            raise ValueError('Do not specify certfile or keyfile when running with insecure http')
     else:
         if certfile is None or keyfile is None:
-            raise ValueError('The certfile and keyfile arguments are required unless insecure HTTP is selected')
+            raise ValueError('The certfile and keyfile arguments are required unless insecure http is selected')
         if not system_files.is_secure_path(certfile):
             raise ValueError(f'File "{certfile}" is not secure')
         if not system_files.is_secure_path(keyfile):
