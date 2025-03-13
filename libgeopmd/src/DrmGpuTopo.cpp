@@ -237,7 +237,14 @@ namespace geopm
                                     std::to_string(idx) + " is out of range",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            result = m_cpu_affinity_by_gpu[m_gpu_by_gpu_chip[idx]];
+            int chip_idx = idx;
+            int chip_mod = num_gpu(GEOPM_DOMAIN_GPU_CHIP) / num_gpu();
+            for (auto cpu_idx : m_cpu_affinity_by_gpu[m_gpu_by_gpu_chip[idx]]) {
+                if (chip_idx % chip_mod == 0) {
+                    result.insert(cpu_idx);
+                }
+                ++chip_idx;
+            }
         }
         else {
             throw Exception("DrmGpuTopo::" + std::string(__func__) + ": domain " +
