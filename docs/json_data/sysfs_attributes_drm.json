@@ -550,7 +550,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_STATUS"
         },
         "CUR_FREQ": {
             "attribute": "freq0/cur_freq",
@@ -574,7 +574,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MAX_CONTROL"
         },
         "MIN_FREQ": {
             "attribute": "freq0/min_freq",
@@ -586,7 +586,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MIN_CONTROL"
         },
         "RP0_FREQ": {
             "attribute": "freq0/rp0_freq",
@@ -598,7 +598,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MAX_AVAIL"
         },
         "RPA_FREQ": {
             "attribute": "freq0/rpa_freq",
@@ -634,7 +634,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MIN_AVAIL"
         },
         "IDLE_RESIDENCY": {
             "attribute": "gtidle/idle_residency_ms",
