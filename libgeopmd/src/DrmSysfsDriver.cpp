@@ -24,7 +24,8 @@ static const std::string ACCEL_DIRECTORY = "/sys/class/accel";
 static const std::string GPU_CARD_PREFIX = "card";
 static const std::string GPU_TILE_PREFIX = "gt";
 static const std::string HWMON_PREFIX = "hwmon";
-static const std::string HWMON_NAME_CARD = "i915\n";
+static const std::string HWMON_NAME_I915_CARD = "i915\n";
+static const std::string HWMON_NAME_XE_CARD = "xe\n";
 static const std::string HWMON_NAME_TILE_PREFIX = "i915_gt";
 static const std::string GPU_SIGNAL_NAME_SUFFIX = "::GPU";
 static const std::string TILE_SIGNAL_NAME_SUFFIX = "::GPU_CHIP";
@@ -61,7 +62,7 @@ static hwmon_paths_s card_path_to_hwmon_paths(const std::string &card_path)
         }
 
         std::string hwmon_name = geopm::read_file(card_hwmon_oss.str() + "/" + hwmon_directory + "/name");
-        if (hwmon_name == HWMON_NAME_CARD) {
+        if (hwmon_name == HWMON_NAME_I915_CARD || hwmon_name == HWMON_NAME_XE_CARD) {
             result.m_card_paths.push_back(card_hwmon_oss.str() + "/" + hwmon_directory);
         }
         else if (geopm::string_begins_with(hwmon_name, HWMON_NAME_TILE_PREFIX)) {
@@ -141,7 +142,7 @@ namespace geopm
         if (signal_name_is_from_hwmon(name, M_DRIVER_SIGNAL_PREFIX)) {
             auto resource_it = M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN.find(std::make_pair(signal_domain_type, domain_idx));
             if (resource_it == M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN.end()) {
-                throw Exception("DrmSysfsDriver::attribute_path(): domain " + std::to_string(signal_domain_type) + " domain_idx " + std::to_string(domain_idx) + " does not have a hwinfo entry.",
+                throw Exception("DrmSysfsDriver::attribute_path(): domain " + std::to_string(signal_domain_type) + " domain_idx " + std::to_string(domain_idx) + " does not have a hwmon entry.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             attribute_directory = resource_it->second;

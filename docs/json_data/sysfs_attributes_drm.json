@@ -25,7 +25,7 @@
             "alias": "GPU_POWER_LIMIT_CONTROL"
         },
         "HWMON::POWER1_RATED_MAX": {
-            "attribute": "power1_max",
+            "attribute": "power1_rated_max",
             "scalar": 1e-6,
             "description": "Default thermal design power limit",
             "doc_domain": "gpu",
