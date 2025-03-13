@@ -539,6 +539,138 @@
             "units": "none",
             "writeable": false,
             "alias": ""
+        },
+        "ACT_FREQ": {
+            "attribute": "freq0/act_freq",
+            "scalar": 1e6,
+            "description": "Actual GPU frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "CUR_FREQ": {
+            "attribute": "freq0/cur_freq",
+            "scalar": 1e6,
+            "description": "Current GPU frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "MAX_FREQ": {
+            "attribute": "freq0/max_freq",
+            "scalar": 1e6,
+            "description": "Maximum GPU frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": true,
+            "alias": ""
+        },
+        "MIN_FREQ": {
+            "attribute": "freq0/min_freq",
+            "scalar": 1e6,
+            "description": "Minimum GPU frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": true,
+            "alias": ""
+        },
+        "RP0_FREQ": {
+            "attribute": "freq0/rp0_freq",
+            "scalar": 1e6,
+            "description": "Maximum non-overclocked GPU frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "RPA_FREQ": {
+            "attribute": "freq0/rpa_freq",
+            "scalar": 1e6,
+            "description": "Actual GPU RPA frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "RPE_FREQ": {
+            "attribute": "freq0/rpe_freq",
+            "scalar": 1e6,
+            "description": "GPU RPE frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "RPN_FREQ": {
+            "attribute": "freq0/rpn_freq",
+            "scalar": 1e6,
+            "description": "Minimum requestable GPU frequency",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "IDLE_RESIDENCY": {
+            "attribute": "gtidle/idle_residency_ms",
+            "scalar": 1e-3,
+            "description": "Time spent in idle state",
+            "doc_domain": "gpu_chip",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "seconds",
+            "writeable": false,
+            "alias": ""
+        },
+        "HWMON::ENERGY2_INPUT": {
+            "attribute": "energy2_input",
+            "scalar": 1e-6,
+            "description": "GPU card-level energy counter",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "monotone",
+            "format": "double",
+            "units": "joules",
+            "writeable": false,
+            "alias": "GPU_ENERGY"
+        },
+        "HWMON::POWER2_CRIT": {
+            "attribute": "power2_crit",
+            "scalar": 1e-6,
+            "description": "Critical power limit, influencing the power manager's throttling decisions",
+            "doc_domain": "gpu",
+            "aggregation": "sum",
+            "behavior": "variable",
+            "format": "double",
+            "units": "watts",
+            "writeable": true,
+            "alias": ""
         }
     }
 }
