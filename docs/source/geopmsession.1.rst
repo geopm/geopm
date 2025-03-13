@@ -258,19 +258,21 @@ The same report rendered into csv format:
 .. code-block:: text
 
     "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last","CPU_FREQUENCY_STATUS-min","CPU_FREQUENCY_STATUS-max","CPU_FREQUENCY_STATUS-mean","CPU_FREQUENCY_STATUS-std","CPU_POWER-count","CPU_POWER-first","CPU_POWER-last","CPU_POWER-min","CPU_POWER-max","CPU_POWER-mean","CPU_POWER-std","TIME-count","TIME-first","TIME-last","TIME-min","TIME-max","TIME-mean","TIME-std"
-    "x1001c2s1b0n0","2025-03-10T21:51:23.189529258-0700",10.001955031000001,2001,0.0050009775155000005,0.00010043535451280228,2001,847115384.6153846,850000000.0,821153846.1538461,873076923.0769231,847851314.7272667,3590132.1103830505,2001,399.14601612728563,300.103422331257,274.8583842263399,399.14601612728563,321.0146130526503,17.236293555024577,2001,6.143247742,16.145202773,6.143247742,16.145202773,11.144727482043468,2.8891493308338507
+    "cluster-node-11","2025-03-10T21:51:23.189529258-0700",10.001955031000001,2001,0.0050009775155000005,0.00010043535451280228,2001,847115384.6153846,850000000.0,821153846.1538461,873076923.0769231,847851314.7272667,3590132.1103830505,2001,399.14601612728563,300.103422331257,274.8583842263399,399.14601612728563,321.0146130526503,17.236293555024577,2001,6.143247742,16.145202773,6.143247742,16.145202773,11.144727482043468,2.8891493308338507
 
 Reading signals during a job execution
 --------------------------------------
 
 Signals can be read and summary statistics gathered during job execution using
-the ``--pid`` option. Below is an example gathering ``CPU_POWER`` while running
-``sleep``. Note that a large value is fed into the ``-t`` option, but the geopmsession 
-ends after the ``sleep`` job completes.
+the ``--pid`` option. If both the ``--pid`` and ``-t`` options are used,
+geopmsession will end when either the process ends or when the specified time
+elapses, whichever is shorter. Below is an example gathering ``CPU_POWER``
+while running ``sleep``. 
+
 
 .. code-block:: shell-session
 
-    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1 -t 3e3
+    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1
     [1] 862433
     nan
     223.9936557537629
@@ -283,7 +285,7 @@ An example gathering summary statistics while executing a job:
 
 .. code-block:: shell-session
 
-    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1 -t 3e3 -r -
+    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1 -r -
     [1] 863118
     "CPU_POWER-package-0"
     192.0918491664253
@@ -305,10 +307,75 @@ An example gathering summary statistics while executing a job:
         mean: 216.811
         std: 21.4116
 
+
 Note that the samples are output followed by summary statistics. To output the
 sample trace to a file, use ``-o [filename]``. To output the summary statistics
-report to a file, use ``-r [filename]``. To suppress either output, set the
-respective parameter to ``/dev/null``
+report to a file, use ``-r [filename]``. To suppress the trace, set the output
+parameter to ``-o /dev/null``. Reports will not output if ``-r`` is not specified.
+
+Using the ``-s [REPORT_SAMPLES]`` option will generate statistics after the
+specified number of samples. In default yaml format, sets of statistics will
+be separated by "---". In csv format, each set of statistics will be output as
+a row.
+
+Example:
+
+.. code-block:: shell-session
+
+     $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" |\
+       geopmsession --pid $apppid -p 0.1 -r - -o /dev/null -s 10
+
+In the yaml output below, note that each report is appended, separated by
+"---".
+
+.. code-block:: yaml
+
+     host: "cluster-node-11"
+     sample-time-first: "2025-03-13T13:48:17.484751575-0700"
+     sample-time-total: 1.001
+     sample-count: 11
+     sample-period-mean: 0.1001
+     sample-period-std: 0.000300337
+     metrics:
+       CPU_POWER-package-0:
+         count: 11
+         first: 57.3536
+         last: 158.705
+         min: 57.3536
+         max: 160.906
+         mean: 149.869
+         std: 30.7383
+
+    ---
+
+    host: "cluster-node-11"
+    sample-time-first: "2025-03-13T13:48:18.585712016-0700"
+    sample-time-total: 0.200019
+    sample-count: 3
+    sample-period-mean: 0.10001
+    sample-period-std: 6.89358e-06
+    metrics:
+      CPU_POWER-package-0:
+        count: 3
+        first: 159.354
+        last: 159.576
+        min: 159.354
+        max: 160.12
+        mean: 159.683
+        std: 0.394004
+      [1]+  Done                    sleep 5
+
+Sample csv output below shows each statistics sample output on a new row:
+
+.. code-block:: shell-session
+
+     $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" |\
+       geopmsession --pid $apppid -p 0.1 -r - -o /dev/null -s 10 -f csv
+     "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_POWER-package-0-count","CPU_POWER-package-0-first","CPU_POWER-package-0-last","CPU_POWER-package-0-min","CPU_POWER-package-0-max","CPU_POWER-package-0-mean","CPU_POWER-package-0-std"
+     "cluster-node-11","2025-03-13T13:55:06.330688844-0700",1.0008504780000003,11,0.10008504780000002,0.00022674563801204308,11,280.7375126848722,193.37615094901133,193.37615094901133,280.7375126848722,208.08585636276703,24.588834377550775
+     "cluster-node-11","2025-03-13T13:55:07.431262159-0700",0.8999735640000002,10,0.09999706266666669,8.698831894196923e-05,10,191.878186704736,175.91600106253898,175.91600106253898,191.878186704736,185.4971100742497,5.352722675096535
+     "cluster-node-11","2025-03-13T13:55:08.431459737-0700",0.200098412,3,0.100049206,7.587538605975476e-05,3,172.07603810585476,166.7683539071519,166.7683539071519,172.07603810585476,169.3263499495176,2.6590293883676446
+
 
 Gathering Reports using MPI
 ---------------------------
