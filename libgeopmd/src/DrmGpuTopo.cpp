@@ -103,7 +103,28 @@ static DriverCards get_cards_from_most_frequent_driver(const CardVector &all_car
     auto driver_with_max_cards_it = std::max_element(
         driver_card_paths.begin(), driver_card_paths.end(),
         [](const DriverCards &lhs, const DriverCards &rhs) {
-            return lhs.second.size() < rhs.second.size();
+            static const std::vector<std::string> driver_priority = {"i915", "xe"};
+            if (lhs.second.size() < rhs.second.size()) {
+	        return true;
+            }
+            else if (lhs.second.size() > rhs.second.size()) {
+                return false;
+            }
+            else {
+                // If there are the same number of cards, pick from the driver priority list
+                // Lowest index in priority list wins
+                int lhs_priority = std::find(driver_priority.begin(), driver_priority.end(), lhs.first) - driver_priority.begin();
+                int rhs_priority = std::find(driver_priority.begin(), driver_priority.end(), rhs.first) - driver_priority.begin();
+                if (lhs_priority > rhs_priority) {
+                    return true;
+                }
+                else if (lhs_priority < rhs_priority) {
+                    return false;
+                }
+                else {
+                    return lhs.first < rhs.first;
+                }
+            }
         });
     if (driver_with_max_cards_it == driver_card_paths.end()) {
         // This should only happen if driver_card_paths (and all_cards) are empty.
@@ -137,8 +158,13 @@ namespace geopm
         for (size_t gpu_idx = 0; gpu_idx < drm_card_paths.size(); ++gpu_idx) {
             const auto &card_path = drm_card_paths[gpu_idx];
             m_card_paths.push_back(card_path);
+            // The gt path is specific to i915
             std::vector<std::string> tile_paths_in_card =
                 get_file_paths_with_pattern(card_path + "/gt", GPU_TILE_REGEX);
+            if (tile_paths_in_card.size() == 0) {
+                tile_paths_in_card =
+                    get_file_paths_with_pattern(card_path + "/device/tile0", GPU_TILE_REGEX);
+            }
             if (tiles_per_card == -1) {
                 tiles_per_card = tile_paths_in_card.size();
             }
