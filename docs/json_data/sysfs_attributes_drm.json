@@ -550,7 +550,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": "GPU_CORE_FREQUENCY_STATUS"
+            "alias": ""
         },
         "CUR_FREQ": {
             "attribute": "freq0/cur_freq",
@@ -562,7 +562,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_STATUS"
         },
         "MAX_FREQ": {
             "attribute": "freq0/max_freq",
