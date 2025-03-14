@@ -103,7 +103,7 @@ static DriverCards get_cards_from_most_frequent_driver(const CardVector &all_car
     auto driver_with_max_cards_it = std::max_element(
         driver_card_paths.begin(), driver_card_paths.end(),
         [](const DriverCards &lhs, const DriverCards &rhs) {
-            static const std::vector<std::string> driver_priority = {"i915", "xe"};
+            static const std::vector<std::string> driver_priority = {"xe", "i915"};
             if (lhs.second.size() < rhs.second.size()) {
 	        return true;
             }
@@ -113,8 +113,10 @@ static DriverCards get_cards_from_most_frequent_driver(const CardVector &all_car
             else {
                 // If there are the same number of cards, pick from the driver priority list
                 // Lowest index in priority list wins
-                int lhs_priority = std::find(driver_priority.begin(), driver_priority.end(), lhs.first) - driver_priority.begin();
-                int rhs_priority = std::find(driver_priority.begin(), driver_priority.end(), rhs.first) - driver_priority.begin();
+                int lhs_priority = std::find(driver_priority.begin(), driver_priority.end(), lhs.first) -
+                                   driver_priority.begin();
+                int rhs_priority = std::find(driver_priority.begin(), driver_priority.end(), rhs.first) -
+                                   driver_priority.begin();
                 if (lhs_priority > rhs_priority) {
                     return true;
                 }
@@ -237,6 +239,7 @@ namespace geopm
                                     std::to_string(idx) + " is out of range",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+            // Divide the CPU's dedicated to each GPU round-robin between the GPU chips
             int chip_idx = idx;
             int chip_mod = num_gpu(GEOPM_DOMAIN_GPU_CHIP) / num_gpu();
             for (auto cpu_idx : m_cpu_affinity_by_gpu[m_gpu_by_gpu_chip[idx]]) {
