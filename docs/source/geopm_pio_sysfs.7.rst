@@ -35,17 +35,22 @@ sysfs attributes. Some signals and controls come from the ``cpufreq`` driver.
 For more information, see the `cpufreq documentation
 <https://docs.kernel.org/admin-guide/pm/cpufreq.html>`_.
 
-Some signals and controls are made available to GEOPM through the sysfs interface
-to the ``i915 DRM`` (Direct Rendering Manager) driver. For more information, see the
-`i915 documentation <https://www.kernel.org/doc/html/next/gpu/i915.html>`_ and the
-`oneAPI GPU Optimization Guide <https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/2024-0/configuring-gpu-device.html>`_.
-Furthermore, the i915 DRM devices may link to i915 hwmon devices. If the hwmon
-links are present, this IOGroup also exposes signals and controls from the
-`i915 hwmon interface <https://www.kernel.org/doc/html/latest/admin-guide/abi-testing.html#file-testing-sysfs-driver-intel-i915-hwmon>`_.
+Some signals and controls are made available to GEOPM through the sysfs
+interface to the ``i915 DRM`` or ``Xe DRM`` (Direct Rendering Manager)
+driver. For more information, see the `i915 documentation
+<https://www.kernel.org/doc/html/next/gpu/i915.html>`_, `Xe documentation
+<https://www.kernel.org/doc/html/next/gpu/driver-uapi.html#drm-xe-uapi>`_, and
+the `oneAPI GPU Optimization Guide
+<https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/2024-0/configuring-gpu-device.html>`_.
+Furthermore, the DRM devices may link to hwmon devices. If the hwmon
+links are present, this IOGroup also exposes signals and controls from the `i915 and Xe
+hwmon interface
+<https://www.kernel.org/doc/html/latest/admin-guide/abi-testing.html#file-testing-sysfs-driver-intel-i915-hwmon>`_.
 
-The i915 driver is available in `upstream Linux <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915>`_.
+The i915 driver is available in `upstream Linux i915 <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915>`_.
 Additional features are available in the `out-of-tree version of the driver <https://github.com/intel-gpu/intel-gpu-i915-backports>`_.
-This IOGroup is intended for use with either version of the driver.
+The Xe driver is available in `upstream Linux Xe <https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/xe>`_.
+This IOGroup is intended for use with any of these driver interfaces.
 
 If a GEOPM sysfs-based signal came from the DRM system, then its name begins
 with ``DRM``. The driver (e.g., ``i915`` that made that signal available to
@@ -75,10 +80,10 @@ to the ``cpufreq`` driver.
 .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
    :no-controls:
 
-i915 DRM Signals
-^^^^^^^^^^^^^^^^
+DRM Signals
+^^^^^^^^^^^
 The following signals are made available to GEOPM through the sysfs interface
-to the ``i915 DRM`` driver.
+to the ``i915 DRM`` and ``Xe DRM`` drivers.
 
 .. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
    :no-controls:
@@ -96,10 +101,10 @@ to the ``cpufreq`` driver.
 .. geopm-sysfs-json:: CPUFREQ ../json_data/sysfs_attributes_cpufreq.json
    :no-signals:
 
-i915 DRM Controls
-^^^^^^^^^^^^^^^^^
+DRM Controls
+^^^^^^^^^^^^
 The following controls are made available to GEOPM through the sysfs interface
-to the ``i915 DRM`` driver.
+to the ``i915 DRM`` and ``Xe DRM`` drivers.
 
 .. geopm-sysfs-json:: DRM ../json_data/sysfs_attributes_drm.json
    :no-signals:
