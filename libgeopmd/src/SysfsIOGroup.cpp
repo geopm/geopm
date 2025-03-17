@@ -359,6 +359,18 @@ namespace geopm
 
     void SysfsIOGroup::write_batch(void)
     {
+        if (write_batch_retry(false)) {
+            write_batch_retry(true);
+        }
+    }
+
+    bool SysfsIOGroup::write_batch_retry(bool isRetry)
+    {
+        // Return true if a retry should be made
+        bool result = false;
+        std::vector<std::string> failed_names;
+        int last_errno;
+
         m_is_batch_write = true;
         if (m_do_batch_write) {
             if (!m_batch_writer) {
@@ -382,13 +394,22 @@ namespace geopm
             for (auto &info : m_pushed_info_control) {
                 if (info.do_write && !std::isnan(info.value)) {
                     if (*info.last_io_return < 0) {
-                        throw geopm::Exception("SysfsIOGroup failed to write control \"" +
-                                               info.name + "\"",
-                                               errno, __FILE__, __LINE__);
+                        failed_names.push_back(info.name);
+                        last_errno = errno;
+                        result = true;
+                    }
+                    else {
+                        info.do_write = false;
                     }
                 }
             }
         }
+        if (result && isRetry) {
+            throw geopm::Exception("SysfsIOGroup failed to write controls: \"" +
+                                   geopm::string_join(failed_names, "\", \"") + "\"",
+                                   last_errno, __FILE__, __LINE__);
+        }
+        return result;
     }
 
     double SysfsIOGroup::sample(int batch_idx)
