@@ -99,6 +99,46 @@ TEST_F(DrmGpuTopoTest, cpu_masks)
     }
 }
 
+TEST_F(DrmGpuTopoTest, gpu_chip_affinity)
+{
+    m_dir_manager->create_card(0);
+    m_dir_manager->create_tile_in_card(0, 0);
+    m_dir_manager->write_local_cpus(0, "00000001");
+    {
+        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+        EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(0));
+    }
+
+    m_dir_manager->write_local_cpus(0, "00000000");
+    {
+        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+        EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre());
+    }
+
+    m_dir_manager->write_local_cpus(0, "800000f0");
+    {
+        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+        EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(4, 5, 6, 7, 31));
+    }
+
+    m_dir_manager->write_local_cpus(0, "00000001,00000002");
+    {
+        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+        EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(1, 32));
+    }
+
+    m_dir_manager->write_local_cpus(0, "1,00000002");
+    {
+        DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+        EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(1, 32));
+    }
+
+    m_dir_manager->write_local_cpus(0, "100000002");
+    {
+        EXPECT_THROW(DrmGpuTopo(m_dir_manager->get_driver_dir()), geopm::Exception);
+    }
+}
+
 TEST_F(DrmGpuTopoTest, unbalanced_gpu_chips)
 {
     m_dir_manager->create_card(0);
@@ -119,6 +159,9 @@ TEST_F(DrmGpuTopoTest, non_zero_card)
     m_dir_manager->create_tile_in_card(7, 123);
     m_dir_manager->create_tile_in_card(7, 456);
 
+    m_dir_manager->write_local_cpus(5, "00000003");
+    m_dir_manager->write_local_cpus(7, "0000000c");
+
     DrmGpuTopo topo(m_dir_manager->get_driver_dir());
     EXPECT_EQ(2, topo.num_gpu());
     EXPECT_EQ(4, topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP));
@@ -130,12 +173,12 @@ TEST_F(DrmGpuTopoTest, non_zero_card)
     EXPECT_THAT(topo.gt_path(2), EndsWith("/gt123"));
     EXPECT_THAT(topo.gt_path(3), EndsWith("/gt456"));
     EXPECT_THROW(topo.gt_path(4), geopm::Exception);
-    EXPECT_THAT(topo.cpu_affinity_ideal(0), UnorderedElementsAre(0));
-    EXPECT_THAT(topo.cpu_affinity_ideal(1), UnorderedElementsAre(0));
+    EXPECT_THAT(topo.cpu_affinity_ideal(0), UnorderedElementsAre(0, 1));
+    EXPECT_THAT(topo.cpu_affinity_ideal(1), UnorderedElementsAre(2, 3));
     EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(0));
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 1), UnorderedElementsAre(0));
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 2), UnorderedElementsAre(0));
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 3), UnorderedElementsAre(0));
+    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 1), UnorderedElementsAre(1));
+    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 2), UnorderedElementsAre(2));
+    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 3), UnorderedElementsAre(3));
     EXPECT_THROW(topo.cpu_affinity_ideal(2), geopm::Exception);
     EXPECT_THROW(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 4), geopm::Exception);
 }
