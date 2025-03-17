@@ -64,6 +64,7 @@ namespace geopm
                                       const std::string &control_name,
                                       int domain_type,
                                       int domain_idx) const;
+            bool write_batch_retry(bool isRetry);
             std::shared_ptr<SysfsDriver> m_driver;
             const geopm::PlatformTopo &m_platform_topo;
             /// Whether any signal has been pushed
