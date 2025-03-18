@@ -225,28 +225,46 @@ namespace geopm
     std::set<int> DrmGpuTopo::cpu_affinity_ideal(int domain, int idx) const
     {
         std::set<int> result = {};
+        int num_gpu = m_cpu_affinity_by_gpu.size();
+        int num_chip = m_gpu_by_gpu_chip.size();
+        // FIXME derive number of numa nodes properly
+        int num_numa = 2;
         if (domain == GEOPM_DOMAIN_GPU) {
-            if (idx < 0 || idx >= static_cast<int>(m_cpu_affinity_by_gpu.size())) {
+            if (idx < 0 || idx >= num_gpu) {
                 throw Exception("DrmGpuTopo::" + std::string(__func__) + ": idx " +
                                 std::to_string(idx) + " is out of range",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            result = m_cpu_affinity_by_gpu[idx];
+            std::vector<int> chips;
+            chips.reserve(num_chip / num_gpu);
+            for (int chip_idx = 0; chip_idx < num_chip; ++chip_idx) {
+                if (m_gpu_by_gpu_chip[chip_idx] == idx) {
+                    chips.push_back(chip_idx);
+                }
+            }
+            std::vector<int> cpu_affinity(m_cpu_affinity_by_gpu[idx].begin(), m_cpu_affinity_by_gpu[idx].end());
+            int counter_max = cpu_affinity.size();
+            int counter_inc = num_chip / num_numa;
+            for (auto &chip_idx : chips) {
+                for (int counter = chip_idx % counter_inc; counter < counter_max; counter += counter_inc ) {
+                    result.insert(cpu_affinity[counter]);
+                }
+            }
         }
         else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
-            if (idx < 0 || idx >= static_cast<int>(m_gpu_by_gpu_chip.size())) {
+            if (idx < 0 || idx >= num_chip) {
                 throw Exception("DrmGpuTopo::" + std::string(__func__) + ": idx " +
-                                    std::to_string(idx) + " is out of range",
+                                std::to_string(idx) + " is out of range",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            // Divide the CPU's dedicated to each GPU round-robin between the GPU chips
+            // FIXME avoid duplicate code
             int chip_idx = idx;
-            int chip_mod = num_gpu(GEOPM_DOMAIN_GPU_CHIP) / num_gpu();
-            for (auto cpu_idx : m_cpu_affinity_by_gpu[m_gpu_by_gpu_chip[idx]]) {
-                if (chip_idx % chip_mod == 0) {
-                    result.insert(cpu_idx);
-                }
-                ++chip_idx;
+            int gpu_idx = m_gpu_by_gpu_chip[chip_idx];
+            std::vector<int> cpu_affinity(m_cpu_affinity_by_gpu[gpu_idx].begin(), m_cpu_affinity_by_gpu[gpu_idx].end());
+            int counter_max = cpu_affinity.size();
+            int counter_inc = num_chip / num_numa;
+            for (int counter = chip_idx % counter_inc; counter < counter_max; counter += counter_inc ) {
+                result.insert(cpu_affinity[counter]);
             }
         }
         else {
