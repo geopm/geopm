@@ -136,24 +136,6 @@ static DriverCards get_cards_from_most_frequent_driver(const CardVector &all_car
     return *driver_with_max_cards_it;
 }
 
-static int get_num_numa_nodes(void)
-{
-    int num_numa = 0;
-    std::ifstream numa_file("/sys/devices/system/node/possible");
-    if (numa_file.is_open()) {
-        std::string line;
-        if (std::getline(numa_file, line)) {
-            num_numa = std::stoi(geopm::string_split(line, "-").back()) + 1;
-        }
-        numa_file.close();
-    }
-    if (num_numa <= 0) {
-        throw geopm::Exception("get_num_numa_nodes: Unable to determine the number of NUMA nodes.",
-                               GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-    }
-    return num_numa;
-}
-
 namespace geopm
 {
     DrmGpuTopo::DrmGpuTopo(const std::string &drm_directory)
@@ -208,10 +190,13 @@ namespace geopm
         }
 
         m_cpu_affinity_by_gpu.reserve(m_card_paths.size());
+        std::set<int> gpu_numa_set;
         for (const auto &card_path : m_card_paths) {
             auto cpumask_buf = geopm::read_file(card_path + "/device/local_cpus");
             m_cpu_affinity_by_gpu.push_back(linux_cpumask_buf_to_int_set(cpumask_buf));
+            gpu_numa_set.insert(std::stoi(geopm::read_file(card_path + "/device/numa_node")));
         }
+        m_num_numa = gpu_numa_set.size();
     }
 
     int DrmGpuTopo::num_gpu() const
@@ -252,7 +237,6 @@ namespace geopm
         std::set<int> result = {};
         int gpu_count = m_cpu_affinity_by_gpu.size();
         int chip_count = m_gpu_by_gpu_chip.size();
-        int numa_count = get_num_numa_nodes();
         std::vector<int> chips;
         int gpu_idx = idx;
 
@@ -278,11 +262,10 @@ namespace geopm
             int chip_idx = idx;
             chips.push_back(chip_idx);
             gpu_idx = m_gpu_by_gpu_chip[chip_idx];
-
         }
         std::vector<int> cpu_affinity(m_cpu_affinity_by_gpu[gpu_idx].begin(), m_cpu_affinity_by_gpu[gpu_idx].end());
         int counter_max = cpu_affinity.size();
-        int counter_inc = chip_count / numa_count;
+        int counter_inc = chip_count / m_num_numa;
         for (auto &chip_idx : chips) {
             for (int counter = chip_idx % counter_inc; counter < counter_max; counter += counter_inc ) {
                 result.insert(cpu_affinity[counter]);
