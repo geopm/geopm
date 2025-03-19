@@ -17,6 +17,7 @@ namespace geopm
             // Disable copies since we only want one wrapper to close the fd
             UniqueFd(UniqueFd const&) = delete;
             UniqueFd& operator=(UniqueFd const&) = delete;
+            UniqueFd& operator=(UniqueFd &&other) = delete;
 
             /// Main entry point: wrap a raw file descriptor
             UniqueFd(int fd);
