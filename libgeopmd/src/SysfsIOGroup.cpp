@@ -368,8 +368,8 @@ namespace geopm
     {
         // Return true if a retry should be made
         bool result = false;
+        int last_errno = 0;
         std::vector<std::string> failed_names;
-        int last_errno;
 
         m_is_batch_write = true;
         if (m_do_batch_write) {
