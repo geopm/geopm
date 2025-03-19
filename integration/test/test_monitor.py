@@ -133,11 +133,16 @@ class TestIntegration_monitor(unittest.TestCase):
             self.assertGreater(epoch['frequency (%)'], 0)
             self.assertGreater(epoch['frequency (Hz)'], 0)
             self.assertEqual(epoch['count'], self._loop_count)
-            app_total = self._report.raw_totals(node)
-            init_time = app_total['GEOPM overhead (s)']
-            initial_sleep_time = 5.0
-            total_sync_time = epoch['sync-runtime (s)'] + init_time + initial_sleep_time
-            util.assertNear(self, total_sync_time, totals['sync-runtime (s)'])
+
+            # Calculate expected application totals runtime
+            initial_sleep_time = 5.0 # Hardcoded in geopmbench main()
+            total_time = epoch['runtime (s)'] + initial_sleep_time
+            util.assertNear(self, totals['runtime (s)'], total_time)
+
+            # Calculate expected runtime based on total time sampling + the startup time to start sampling
+            active_controller_time = totals['sync-runtime (s)'] + totals['GEOPM startup (s)']
+            util.assertNear(self, totals['runtime (s)'], active_controller_time)
+
             for signal in ['sync-runtime (s)', 'package-energy (J)', 'dram-energy (J)']:
                 self.assertGreater(totals[signal], epoch[signal], msg='signal={}'.format(signal))
 
