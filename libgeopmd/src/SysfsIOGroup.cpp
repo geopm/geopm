@@ -121,17 +121,21 @@ namespace geopm
             m_signals.try_emplace(it.first, std::cref(it.second));
             if (it.second.is_writable) {
                 m_controls.try_emplace(it.first, std::cref(it.second));
-                if (it.second.alias != "") {
-                    m_controls.try_emplace(it.second.alias, std::cref(it.second));
-                }
-            }
-            if (it.second.alias != "") {
-                m_signals.try_emplace(it.second.alias, std::cref(it.second));
             }
         }
         // Check that all of the attributes are populated in sysfs
-        signal_names();
-        control_names();
+        for (const auto &sig_it : signal_names()) {
+            const auto prop_it = m_properties.find(sig_it);
+            if (prop_it != m_properties.end() && prop_it->second.alias != "") {
+                m_signals.try_emplace(prop_it->second.alias, std::cref(prop_it->second));
+            }
+        }
+        for (const auto &con_it : control_names()) {
+            const auto &prop_it = m_properties.find(con_it);
+            if (prop_it != m_properties.end() && prop_it->second.alias != "") {
+                m_controls.try_emplace(prop_it->second.alias, std::cref(prop_it->second));
+            }
+        }
     }
 
     SysfsIOGroup::~SysfsIOGroup()
