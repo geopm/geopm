@@ -95,6 +95,8 @@ namespace geopm
             void check_index(int metric_idx, const std::string &func, int line) const;
             struct stats_s {
                 stats_s &operator=(const stats_s &other);
+                stats_s(const stats_s &other) = delete;
+                ~stats_s() = default;
                 uint64_t count;
                 double first;
                 double last;
