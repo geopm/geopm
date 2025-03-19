@@ -7,6 +7,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fstream>
 
 #include <algorithm>
 #include <cstdint>
@@ -135,6 +136,24 @@ static DriverCards get_cards_from_most_frequent_driver(const CardVector &all_car
     return *driver_with_max_cards_it;
 }
 
+static int get_num_numa_nodes(void)
+{
+    int num_numa = 0;
+    std::ifstream numa_file("/sys/devices/system/node/possible");
+    if (numa_file.is_open()) {
+        std::string line;
+        if (std::getline(numa_file, line)) {
+            num_numa = std::stoi(geopm::string_split(line, "-").back()) + 1;
+        }
+        numa_file.close();
+    }
+    if (num_numa <= 0) {
+        throw geopm::Exception("get_num_numa_nodes: Unable to determine the number of NUMA nodes.",
+                               GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    return num_numa;
+}
+
 namespace geopm
 {
     DrmGpuTopo::DrmGpuTopo(const std::string &drm_directory)
@@ -224,53 +243,50 @@ namespace geopm
 
     std::set<int> DrmGpuTopo::cpu_affinity_ideal(int domain, int idx) const
     {
+        if (domain != GEOPM_DOMAIN_GPU && domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("DrmGpuTopo::" + std::string(__func__) + ": domain " +
+                            std::to_string(domain) + " is not supported.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         std::set<int> result = {};
-        int num_gpu = m_cpu_affinity_by_gpu.size();
-        int num_chip = m_gpu_by_gpu_chip.size();
-        // FIXME derive number of numa nodes properly
-        int num_numa = 2;
+        int gpu_count = m_cpu_affinity_by_gpu.size();
+        int chip_count = m_gpu_by_gpu_chip.size();
+        int numa_count = get_num_numa_nodes();
+        std::vector<int> chips;
+        int gpu_idx = idx;
+
         if (domain == GEOPM_DOMAIN_GPU) {
-            if (idx < 0 || idx >= num_gpu) {
+            if (idx < 0 || idx >= gpu_count) {
                 throw Exception("DrmGpuTopo::" + std::string(__func__) + ": idx " +
                                 std::to_string(idx) + " is out of range",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            std::vector<int> chips;
-            chips.reserve(num_chip / num_gpu);
-            for (int chip_idx = 0; chip_idx < num_chip; ++chip_idx) {
+            chips.reserve(chip_count / gpu_count);
+            for (int chip_idx = 0; chip_idx < chip_count; ++chip_idx) {
                 if (m_gpu_by_gpu_chip[chip_idx] == idx) {
                     chips.push_back(chip_idx);
                 }
             }
-            std::vector<int> cpu_affinity(m_cpu_affinity_by_gpu[idx].begin(), m_cpu_affinity_by_gpu[idx].end());
-            int counter_max = cpu_affinity.size();
-            int counter_inc = num_chip / num_numa;
-            for (auto &chip_idx : chips) {
-                for (int counter = chip_idx % counter_inc; counter < counter_max; counter += counter_inc ) {
-                    result.insert(cpu_affinity[counter]);
-                }
-            }
         }
-        else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
-            if (idx < 0 || idx >= num_chip) {
+        else {
+            if (idx < 0 || idx >= chip_count) {
                 throw Exception("DrmGpuTopo::" + std::string(__func__) + ": idx " +
                                 std::to_string(idx) + " is out of range",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            // FIXME avoid duplicate code
             int chip_idx = idx;
-            int gpu_idx = m_gpu_by_gpu_chip[chip_idx];
-            std::vector<int> cpu_affinity(m_cpu_affinity_by_gpu[gpu_idx].begin(), m_cpu_affinity_by_gpu[gpu_idx].end());
-            int counter_max = cpu_affinity.size();
-            int counter_inc = num_chip / num_numa;
+            chips.push_back(chip_idx);
+            gpu_idx = m_gpu_by_gpu_chip[chip_idx];
+
+        }
+        std::vector<int> cpu_affinity(m_cpu_affinity_by_gpu[gpu_idx].begin(), m_cpu_affinity_by_gpu[gpu_idx].end());
+        int counter_max = cpu_affinity.size();
+        int counter_inc = chip_count / numa_count;
+        for (auto &chip_idx : chips) {
             for (int counter = chip_idx % counter_inc; counter < counter_max; counter += counter_inc ) {
                 result.insert(cpu_affinity[counter]);
             }
-        }
-        else {
-            throw Exception("DrmGpuTopo::" + std::string(__func__) + ": domain " +
-                                std::to_string(domain) + " is not supported.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
