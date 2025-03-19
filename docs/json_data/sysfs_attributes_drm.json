@@ -106,7 +106,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MIN_CONTROL"
         },
         "RPS_MIN_FREQ_DEFAULT": {
             "attribute": ".defaults/rps_min_freq_mhz",
@@ -118,7 +118,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MIN_AVAIL"
         },
         "RPS_MAX_FREQ": {
             "attribute": "rps_max_freq_mhz",
@@ -130,7 +130,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": true,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MAX_CONTROL"
         },
         "RPS_MAX_FREQ_DEFAULT": {
             "attribute": ".defaults/rps_max_freq_mhz",
@@ -142,7 +142,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MAX_AVAIL"
         },
         "RPS_CUR_FREQ": {
             "attribute": "rps_cur_freq_mhz",
@@ -154,7 +154,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_STATUS"
         },
         "RPS_ACT_FREQ": {
             "attribute": "rps_act_freq_mhz",
