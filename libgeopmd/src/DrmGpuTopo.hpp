@@ -38,6 +38,7 @@ namespace geopm
             std::vector<std::set<int> > m_cpu_affinity_by_gpu;
             // Map of (gpu_chip index) -> (gpu index)
             std::vector<int> m_gpu_by_gpu_chip;
+            int m_num_numa;
     };
 }
 #endif
