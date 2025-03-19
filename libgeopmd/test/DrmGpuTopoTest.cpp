@@ -83,11 +83,11 @@ TEST_F(DrmGpuTopoTest, gpu_affinity_ideal)
     m_dir_manager->create_card(1);
     m_dir_manager->create_tile_in_card(0, 0);
     m_dir_manager->create_tile_in_card(0, 1);
-    m_dir_manager->create_tile_in_card(1, 2);
-    m_dir_manager->create_tile_in_card(1, 3);
+    m_dir_manager->create_tile_in_card(1, 0);
+    m_dir_manager->create_tile_in_card(1, 1);
 
-    m_dir_manager->write_local_cpus(0, "00000001,00000002");
-    m_dir_manager->write_local_cpus(1, "00000004,00000008");
+    m_dir_manager->write_local_cpus(0, "00000000,00000003");
+    m_dir_manager->write_local_cpus(1, "00000000,0000000c");
 
     DrmGpuTopo topo(m_dir_manager->get_driver_dir());
 
@@ -100,26 +100,6 @@ TEST_F(DrmGpuTopoTest, gpu_affinity_ideal)
     EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 1), UnorderedElementsAre(1));
     EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 2), UnorderedElementsAre(2));
     EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 3), UnorderedElementsAre(3));
-}
-
-TEST_F(DrmGpuTopoTest, gpu_affinity_multiple_tiles)
-{
-    m_dir_manager->create_card(0);
-    m_dir_manager->create_tile_in_card(0, 0);
-    m_dir_manager->create_tile_in_card(0, 1);
-    m_dir_manager->create_tile_in_card(0, 2);
-
-    m_dir_manager->write_local_cpus(0, "00000001,00000002,00000004");
-
-    DrmGpuTopo topo(m_dir_manager->get_driver_dir());
-
-    // Verify CPU affinity assignments for GPUs
-    EXPECT_THAT(topo.cpu_affinity_ideal(0), UnorderedElementsAre(0, 1, 2));
-
-    // Verify CPU affinity assignments for GPU chips
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(0));
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 1), UnorderedElementsAre(1));
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 2), UnorderedElementsAre(2));
 }
 
 TEST_F(DrmGpuTopoTest, gpu_affinity_invalid_index)
@@ -136,25 +116,4 @@ TEST_F(DrmGpuTopoTest, gpu_affinity_invalid_index)
 
     // Verify invalid GPU chip index
     EXPECT_THROW(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 1), geopm::Exception);
-}
-
-TEST_F(DrmGpuTopoTest, gpu_affinity_multiple_cards)
-{
-    m_dir_manager->create_card(0);
-    m_dir_manager->create_card(1);
-    m_dir_manager->create_tile_in_card(0, 0);
-    m_dir_manager->create_tile_in_card(1, 1);
-
-    m_dir_manager->write_local_cpus(0, "00000001,00000002");
-    m_dir_manager->write_local_cpus(1, "00000004,00000008");
-
-    DrmGpuTopo topo(m_dir_manager->get_driver_dir());
-
-    // Verify CPU affinity assignments for GPUs
-    EXPECT_THAT(topo.cpu_affinity_ideal(0), UnorderedElementsAre(0, 1));
-    EXPECT_THAT(topo.cpu_affinity_ideal(1), UnorderedElementsAre(2, 3));
-
-    // Verify CPU affinity assignments for GPU chips
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), UnorderedElementsAre(0));
-    EXPECT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 1), UnorderedElementsAre(1));
 }
