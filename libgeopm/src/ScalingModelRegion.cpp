@@ -30,10 +30,16 @@ namespace geopm
         , m_sysfs_cache_dir("/sys/devices/system/cpu/cpu0/cache")
         , m_llc_slop_size(320) // 5 cache lines
         , m_element_size(3 * 8)
-        , m_rank_per_node(Comm::make_unique()->split("", Comm::M_COMM_SPLIT_TYPE_SHARED)->num_rank())
-        , m_array_len((llc_size() / m_rank_per_node - m_llc_slop_size) / m_element_size) // Array is sized to fit 3 in the LLC with slop assuming one LLC per node
         , m_arrays(3, nullptr)
     {
+        m_rank_per_node = Comm::make_unique()->split("", Comm::M_COMM_SPLIT_TYPE_SHARED)->num_rank();
+        if (m_rank_per_node == 0) {
+            throw Exception("ScalingModelRegion: m_rank_per_node is 0", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        else {
+            m_array_len = (llc_size() / m_rank_per_node - m_llc_slop_size) / m_element_size; // Array is sized to fit 3 in the LLC with slop assuming one LLC per node
+        }
+
         int err = 0;
         size_t align = 4096;
         size_t array_size = m_array_len * sizeof(double);
