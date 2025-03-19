@@ -18,6 +18,7 @@ namespace geopm
         public:
             RuntimeStats() = delete;
             RuntimeStats(const RuntimeStats &other) = delete;
+            RuntimeStats &operator=(const RuntimeStats &other) = delete;
             /// @brief Constructor that records the names of all metrics
             RuntimeStats(const std::vector<std::string> &metric_names);
             /// @brief Default virtual destructor
