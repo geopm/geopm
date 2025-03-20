@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <cstdlib>
+#include <utility>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -133,7 +134,7 @@ namespace geopm
                             device_handle.at(device_idx),
                             property,
                             num_subdevice, //if there are no subdevices leave this as 0
-                            subdevice_handle,
+                            std::move(subdevice_handle),
                             {}, //subdevice
                             0, //num_device_power_domain
                             {}, //power domain
