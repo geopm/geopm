@@ -37,7 +37,7 @@ class DrmSysfsDriverTest : public ::testing::Test
 void DrmSysfsDriverTest::SetUp()
 {
     m_dir_manager = std::make_unique<DrmFakeDirManager>("/tmp/DrmsysfsDriverTest_XXXXXX");
-    m_dir_manager->create_card(0);
+    m_dir_manager->create_card(0, 0);
     m_dir_manager->create_tile_in_card(0, 0);
     m_dir_manager->create_tile_in_card(0, 1);
     m_dir_manager->write_file_in_card_tile(0, 0, "rps_cur_freq_mhz", "1234");
@@ -85,7 +85,7 @@ TEST_F(DrmSysfsDriverTest, hwmon_attribute_paths)
     m_dir_manager->write_hwmon_name_and_attribute(0, 123, "i915\n", "curr1_crit", "12125");
 
     // Try a few on card 1 for more coverage of multi-card/multi-tile enumeration
-    m_dir_manager->create_card(1);
+    m_dir_manager->create_card(1, 0);
     m_dir_manager->create_tile_in_card(1, 0);
     m_dir_manager->create_tile_in_card(1, 1);
     m_dir_manager->create_card_hwmon(1, 45);
