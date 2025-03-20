@@ -45,7 +45,7 @@ DrmFakeDirManager::~DrmFakeDirManager()
     }
 }
 
-void DrmFakeDirManager::create_card(int card_idx)
+void DrmFakeDirManager::create_card(int card_idx, int numa_node)
 {
     std::ostringstream oss;
     oss << m_base_dir_path << "/card" << card_idx;
@@ -74,6 +74,8 @@ void DrmFakeDirManager::create_card(int card_idx)
     auto cpu_map_path = new_path + "/local_cpus";
     geopm::write_file(cpu_map_path, "00000001");
     m_created_files.insert(cpu_map_path);
+    auto numa_path = new_path + "/numa_node";
+    geopm::write_file(numa_path, std::to_string(numa_node));
 
     oss << "/gt";
     new_path = oss.str();

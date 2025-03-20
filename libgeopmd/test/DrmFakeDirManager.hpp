@@ -15,7 +15,7 @@ class DrmFakeDirManager
     public:
         DrmFakeDirManager(std::string base_path_template);
         ~DrmFakeDirManager();
-        void create_card(int card_idx);
+        void create_card(int card_idx, int numa_node);
         void create_card_hwmon(int card_idx, int hwmon_idx);
         void create_tile_in_card(int card_idx, int tile_idx);
         void write_file_in_card_tile(int card_idx, int tile_idx,
