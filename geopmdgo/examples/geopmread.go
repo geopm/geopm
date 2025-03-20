@@ -17,18 +17,51 @@ import (
 import geopm "github.com/geopm/geopm/geopmdgo/geopmdgo"
 
 // PrintDomains prints the number of domains detected for each domain type.
-func PrintDomains() {
-    board, _ := geopm.NumDomain("board")
-    pkg, _ := geopm.NumDomain("package")
-    core, _ := geopm.NumDomain("core")
-    cpu, _ := geopm.NumDomain("cpu")
-    memory, _ := geopm.NumDomain("memory")
-    package_integrated_memory, _ := geopm.NumDomain("package_integrated_memory")
-    nic, _ := geopm.NumDomain("nic")
-    package_integrated_nic, _ := geopm.NumDomain("package_integrated_nic")
-    gpu, _ := geopm.NumDomain("gpu")
-    package_integrated_gpu, _ := geopm.NumDomain("package_integrated_gpu")
-    gpu_chip, _ := geopm.NumDomain("gpu_chip")
+func PrintDomains() error {
+    board, err := geopm.NumDomain("board")
+    if err != nil {
+        return err
+    }
+    pkg, err := geopm.NumDomain("package")
+    if err != nil {
+        return err
+    }
+    core, err := geopm.NumDomain("core")
+    if err != nil {
+        return err
+    }
+    cpu, err := geopm.NumDomain("cpu")
+    if err != nil {
+        return err
+    }
+    memory, err := geopm.NumDomain("memory")
+    if err != nil {
+        return err
+    }
+    package_integrated_memory, err := geopm.NumDomain("package_integrated_memory")
+    if err != nil {
+        return err
+    }
+    nic, err := geopm.NumDomain("nic")
+    if err != nil {
+        return err
+    }
+    package_integrated_nic, err := geopm.NumDomain("package_integrated_nic")
+    if err != nil {
+        return err
+    }
+    gpu, err := geopm.NumDomain("gpu")
+    if err != nil {
+        return err
+    }
+    package_integrated_gpu, err := geopm.NumDomain("package_integrated_gpu")
+    if err != nil {
+        return err
+    }
+    gpu_chip, err := geopm.NumDomain("gpu_chip")
+    if err != nil {
+        return err
+    }
     fmt.Printf(`board                       %d
 package                     %d
 core                        %d
@@ -52,32 +85,47 @@ gpu_chip                    %d
         gpu,
         package_integrated_gpu,
         gpu_chip)
+    return nil
 }
 
 // PrintInfo prints the description of a single signal.
-func PrintInfo(signalName string) {
-    description, _ := geopm.SignalDescription(signalName)
+func PrintInfo(signalName string) error {
+    description, err := geopm.SignalDescription(signalName)
+    if err != nil {
+        return err
+    }
     fmt.Printf("%s:\n%s\n", signalName, description)
+    return nil
 }
 
 // PrintInfoAll prints the descriptions of all signals.
-func PrintInfoAll() {
-    signalNames, _ := geopm.SignalNames()
-    for _, signalName := range signalNames {
-        PrintInfo(signalName)
+func PrintInfoAll() error {
+    signalNames, err := geopm.SignalNames()
+    if err != nil {
+        return err
     }
+    for _, signalName := range signalNames {
+        if err := PrintInfo(signalName); err != nil {
+            return err
+        }
+    }
+    return nil
 }
 
 // PrintSignals prints all available signals.
-func PrintSignals() {
-    signalNames, _ := geopm.SignalNames()
+func PrintSignals() error {
+    signalNames, err := geopm.SignalNames()
+    if err != nil {
+        return err
+    }
     for _, signalName := range signalNames {
         fmt.Println(signalName)
     }
+    return nil
 }
 
 // Run is the main function that processes command line arguments and calls appropriate functions.
-func Run() int {
+func Run() error {
     version := flag.Bool("v", false, "print version")
     versionLong := flag.Bool("version", false, "print version")
     domain := flag.Bool("d", false, "print domains detected")
@@ -88,55 +136,62 @@ func Run() int {
 
     if *version || *versionLong {
         fmt.Printf("geopmread %s\n", "1.0.0") // Replace "1.0.0" with actual version
-        return 0
+        return nil
     }
     if *domain {
-        PrintDomains()
-        return 0
+        return PrintDomains()
     }
     if *info != "" {
-        PrintInfo(*info)
-        return 0
+        return PrintInfo(*info)
     }
     if *infoAll {
-        PrintInfoAll()
-        return 0
+        return PrintInfoAll()
     }
     if *cache {
-        geopm.CreateCache()
-        return 0
+        return geopm.CreateCache()
     }
 
     args := flag.Args()
     if len(args) == 0 {
-        PrintSignals()
-        return 0
+        return PrintSignals()
     }
     if len(args) == 3 {
         domainIdx, err := strconv.Atoi(args[2])
         if err != nil {
-            fmt.Fprintf(os.Stderr, "invalid domain index: %s\n", args[2])
-            return 1
+            return fmt.Errorf("invalid domain index: %s", args[2])
         }
-	domainType, _ := geopm.DomainType(args[1])
-        signal, _ := geopm.ReadSignal(args[0], domainType, domainIdx)
-        _, formatType, _, _:= geopm.SignalInfo(args[0])
-        formattedSignal, _ := geopm.FormatSignal(signal, formatType)
+        domainType, err := geopm.DomainType(args[1])
+        if err != nil {
+            return err
+        }
+        signal, err := geopm.ReadSignal(args[0], domainType, domainIdx)
+        if err != nil {
+            return err
+        }
+        _, formatType, _, err := geopm.SignalInfo(args[0])
+        if err != nil {
+            return err
+        }
+        formattedSignal, err := geopm.FormatSignal(signal, formatType)
+        if err != nil {
+            return err
+        }
         fmt.Println(formattedSignal)
-        return 0
+        return nil
     }
 
-    fmt.Fprintln(os.Stderr, "When REQUEST is specified, all three parameters must be given: SIGNAL DOMAIN_TYPE DOMAIN_INDEX")
-    return 1
+    return fmt.Errorf("When REQUEST is specified, all three parameters must be given: SIGNAL DOMAIN_TYPE DOMAIN_INDEX")
 }
 
 // Main function that handles errors and executes Run function.
 func Main() int {
-    err := Run()
-    if err != 0 {
-        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+    if err := Run(); err != nil {
+        if _, err2 := fmt.Fprintf(os.Stderr, "Error: %v\n", err); err2 != nil {
+            return 2
+        }
+        return 1
     }
-    return err
+    return 0
 }
 
 func main() {
