@@ -651,14 +651,14 @@
         "HWMON::ENERGY2_INPUT": {
             "attribute": "energy2_input",
             "scalar": 1e-6,
-            "description": "GPU card-level energy counter",
+            "description": "GPU package energy counter",
             "doc_domain": "gpu",
             "aggregation": "sum",
             "behavior": "monotone",
             "format": "double",
             "units": "joules",
             "writeable": false,
-            "alias": "GPU_ENERGY"
+            "alias": "GPU_CORE_ENERGY"
         },
         "HWMON::POWER2_CRIT": {
             "attribute": "power2_crit",
