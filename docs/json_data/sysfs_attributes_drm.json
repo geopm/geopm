@@ -603,7 +603,7 @@
         "RPA_FREQ": {
             "attribute": "freq0/rpa_freq",
             "scalar": 1e6,
-            "description": "Actual GPU RPA frequency",
+            "description": "Achievable GPU frequency",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -615,7 +615,7 @@
         "RPE_FREQ": {
             "attribute": "freq0/rpe_freq",
             "scalar": 1e6,
-            "description": "GPU RPE frequency",
+            "description": "Efficient GPU frequency",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
             "behavior": "variable",
@@ -642,7 +642,7 @@
             "description": "Time spent in idle state",
             "doc_domain": "gpu_chip",
             "aggregation": "average",
-            "behavior": "variable",
+            "behavior": "monotone",
             "format": "double",
             "units": "seconds",
             "writeable": false,
