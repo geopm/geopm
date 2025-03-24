@@ -38,7 +38,7 @@ GEOPM_ACTIVE_SESSIONS_SCHEMA = """
           "create_time": {
             "type": "number",
             "minimum": 0
-	  },
+          },
           "reference_count": {
             "type": "integer",
             "minimum": 0
