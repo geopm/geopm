@@ -10,6 +10,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
                -D_POSIX_C_SOURCE=200809L \
                -DOMPI_SKIP_MPICXX \
                # end
+pkglibdir=$(libdir)/geopm
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopm.la \
@@ -27,7 +28,6 @@ if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
 endif
 
-pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 EXTRA_DIST =
 
@@ -279,6 +279,11 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/record.cpp \
                       src/record.hpp \
                       # end
+
+pkglib_LTLIBRARIES = libgeopmiogroup_profile.la
+libgeopmiogroup_profile_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+libgeopmiogroup_profile_la_LIBADD = libgeopm.la
+libgeopmiogroup_profile_la_SOURCES = src/ProfileIOGroupLib.cpp src/EpochIOGroupLib.cpp
 
 beta_source_files = src/CPUActivityAgent.cpp \
                     src/CPUActivityAgent.hpp \

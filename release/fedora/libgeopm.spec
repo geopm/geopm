@@ -70,6 +70,10 @@ pushd %{name}
 %make_install
 rm -v %{buildroot}/%{_libdir}/libgeopm.a
 rm -v %{buildroot}/%{_libdir}/libgeopm.la
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.a
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.la
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.so
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.so.2
 %if "%{_bindir}" != "%{_sbindir}"
 mkdir -p %{buildroot}%{_sbindir}
 mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmadmin
@@ -86,6 +90,7 @@ popd
 %doc CONTRIBUTING.rst README.md
 %{_libdir}/%{name}.so.%{abi_ver}
 %{_libdir}/%{name}.so.2
+%{_libdir}/geopm/libgeopmiogroup_profile.so.%{abi_ver}
 
 %files devel
 %{_includedir}/geopm

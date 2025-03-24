@@ -79,6 +79,10 @@ pushd libgeopm
 %make_install
 rm -v %{buildroot}/%{_libdir}/libgeopm.a
 rm -v %{buildroot}/%{_libdir}/libgeopm.la
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.a
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.la
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.so
+rm -v %{buildroot}/%{_libdir}/geopm/libgeopmiogroup_profile.so.2
 %if "%{_bindir}" != "%{_sbindir}"
 mkdir -p %{buildroot}%{_sbindir}
 mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmadmin
@@ -103,6 +107,7 @@ ldconfig
 %doc %{docdir}/VERSION
 %{_libdir}/libgeopm.so.%{abi_ver}
 %{_libdir}/libgeopm.so.2
+%{_libdir}/geopm/libgeopmiogroup_profile.so.%{abi_ver}
 
 %files -n libgeopm-devel
 %{_includedir}/geopm
