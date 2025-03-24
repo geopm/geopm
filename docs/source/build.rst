@@ -26,7 +26,7 @@ system, but not installed by default.
 .. code-block:: bash
 
    git clone git@github.com:geopm/geopm.git
-   cd geopm/service
+   cd geopm
    ./package.sh
 
 These commands create the .rpm files or .deb files that package the GEOPM
@@ -47,7 +47,12 @@ Service packages, and then these are installed.
 
 .. code-block:: bash
 
-   # Build GEOPM Access Service with LevelZero support
+   # Build libgeopmd with LevelZero support
+   GEOPM_PACKAGE_SKIP_RUNTIME=1 \
+   ENABLE_LEVELZERO=1 \
+   ./package.sh
+   sudo apt install -y $(find -name *.deb)
+   # Build GEOPM Access Service
    GEOPM_PACKAGE_SKIP_RUNTIME=1 \
    ENABLE_LEVELZERO=1 \
    ./package.sh
