@@ -1,0 +1,71 @@
+From f367c792cdd5f1360623cd835bad347046baa84d Mon Sep 17 00:00:00 2001
+From: "lowren.h.lawson@intel.com" <lowren.h.lawson@intel.com>
+Date: Thu, 1 Jun 2023 14:45:11 -0700
+Subject: [PATCH] Initial changes for testing with GEOPM
+
+Signed-off-by: lowren.h.lawson@intel.com <lowren.h.lawson@intel.com>
+---
+ bin/exec.py                                  | 11 ++++++-----
+ src/utils/tensorflow2/distributed_trainer.py |  6 +++---
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/bin/exec.py b/bin/exec.py
+index a79aeb2..2e6640a 100755
+--- a/bin/exec.py
++++ b/bin/exec.py
+@@ -145,7 +145,7 @@ class exec(object):
+ 
+     def make_trainer(self):
+ 
+-        # Set the random seed for numpy, which controls the order of the 
++        # Set the random seed for numpy, which controls the order of the
+         # data loading:
+         data_seed = self.args.data.seed
+         if data_seed == 0:
+@@ -205,7 +205,7 @@ class exec(object):
+                 import torch
+                 torch.manual_seed(self.args.framework.see)
+                 torch.use_deterministic_algorithms(True)
+-                
++
+                 # Seed python too:
+                 import random; random.seed(framework_seed)
+ 
+@@ -287,8 +287,9 @@ class exec(object):
+ 
+ 
+ 
+-
+-@hydra.main(version_base=None, config_path="../src/config", config_name="config")
++#version_base is not working on the test system currently
++#@hydra.main(version_base=None, config_path="../src/config", config_name="config")
++@hydra.main(config_path="../src/config", config_name="config")
+ def main(cfg : OmegaConf) -> None:
+ 
+     s = exec(cfg)
+@@ -300,4 +301,4 @@ if __name__ == '__main__':
+     if "--help" not in sys.argv and "--hydra-help" not in sys.argv:
+         sys.argv += ['hydra/job_logging=disabled']
+     main()
+-    
++
+diff --git a/src/utils/tensorflow2/distributed_trainer.py b/src/utils/tensorflow2/distributed_trainer.py
+index 38a7713..4a778f5 100644
+--- a/src/utils/tensorflow2/distributed_trainer.py
++++ b/src/utils/tensorflow2/distributed_trainer.py
+@@ -10,9 +10,9 @@ from .trainer import tf_trainer
+ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+ import tensorflow as tf
+ 
+-for i, p in enumerate(sys.path):
+-    if ".local" in p:
+-        sys.path.pop(i)
++#for i, p in enumerate(sys.path):
++#    if ".local" in p:
++#        sys.path.pop(i)
+ 
+ import horovod.tensorflow as hvd
+ hvd.init()
+-- 
+2.18.1
+
