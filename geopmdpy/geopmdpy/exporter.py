@@ -138,7 +138,10 @@ def _start_http_server(port, certfile, keyfile):
     except Exception as ex:
         raise RuntimeError(_install_prometheus_msg) from ex
     if certfile is not None and keyfile is not None:
-        start_http_server(port, certfile=certfile, keyfile=keyfile)
+        try:
+            start_http_server(port, certfile=certfile, keyfile=keyfile)
+        except TypeError:
+            raise RuntimeError(f'{_install_prometheus_msg}: version 0.19.0 required for https support')
     else:
         start_http_server(port)
 
