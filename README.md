@@ -15,8 +15,8 @@ Fine-grained low-latency batch access to power metrics and control knobs on Linu
 [![CI Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
 [![Coverity Status](https://img.shields.io/coverity/scan/23217.svg)](https://scan.coverity.com/projects/geopm-geopm)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/geopm/geopm/badge)](https://scorecard.dev/viewer/?uri=github.com/geopm/geopm)
-[![OBS Packaging: Service](https://build.opensuse.org/projects/home:geopm/packages/geopm-service/badge.svg?type=default)](https://build.opensuse.org/package/show/home:geopm/geopm-service)
-[![OBS Packaging: Runtime](https://build.opensuse.org/projects/home:geopm/packages/geopm-runtime/badge.svg?type=default)](https://build.opensuse.org/package/show/home:geopm/geopm-runtime)
+[![OBS Packaging: Service](https://build.opensuse.org/projects/home:geopm/packages/geopmd/badge.svg?type=default)](https://build.opensuse.org/package/show/home:geopm/geopmd)
+[![OBS Packaging: Runtime](https://build.opensuse.org/projects/home:geopm/packages/libgeopm/badge.svg?type=default)](https://build.opensuse.org/package/show/home:geopm/libgeopm)
 
 ## Key Features
 The Global Extensible Open Power Manager (GEOPM) provides a framework to
