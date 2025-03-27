@@ -137,7 +137,10 @@ def _start_http_server(port, certfile, keyfile):
         from prometheus_client import start_http_server
     except Exception as ex:
         raise RuntimeError(_install_prometheus_msg) from ex
-    start_http_server(port, certfile=certfile, keyfile=keyfile)
+    if certfile is not None and keyfile is not None:
+        start_http_server(port, certfile=certfile, keyfile=keyfile)
+    else:
+        start_http_server(port)
 
 def _create_prom_metric(name, descr, prom_name):
     """Wrapper to enable easier mocking in unit tests
