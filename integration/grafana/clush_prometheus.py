@@ -11,6 +11,7 @@ import datetime
 import subprocess # nosec
 import signal
 import json
+import psutil
 from getpass import getuser
 from argparse import ArgumentParser
 from time import sleep
@@ -153,9 +154,9 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
         clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
                      'env', f'LD_LIBRARY_PATH={geopm_dir}/lib:{geopm_dir}/lib64:${{LD_LIBRARY_PATH}}',
                      'geopmexporter', '-p', f'{client_port}']
-        if certfile:
+        if certfile is not None:
             clush_cmd.extend(['--certfile', certfile])
-        if keyfile:
+        if keyfile is not None:
             clush_cmd.extend(['--keyfile', keyfile])
         if insecure_http:
             clush_cmd.append('--insecure-http')
@@ -189,10 +190,18 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
             os.unlink(_temp_hostfile_path)
     else:
         input('Press enter to kill prometheus and grafana servers: ')
-    os.kill(signal.SIGINT, _graf_pid.pid)
-    _graf_pid.wait()
-    os.kill(signal.SIGINT, _prom_pid.pid)
-    _prom_pid.wait()
+    try:
+        os.kill(signal.SIGINT, _graf_pid.pid)
+        _graf_pid.wait()
+    except OSError:
+        if psutil.pid_exists(_graf_pid.pid):
+            sys.stderr.write('Warning: Unable to send SIGINT to Grafana process: {_graf_pid.pid}\n')
+    try:
+        os.kill(signal.SIGINT, _prom_pid.pid)
+        _prom_pid.wait()
+    except OSError:
+        if psutil.pid_exists(_prom_pid.pid):
+            sys.stderr.write(f'Warning: Unable to send SIGINT to Prometheus process: {_prom_pid.pid}\n')
     print_log('prometheus', prom_log_path)
     print_log('grafana', graf_log_path)
 
