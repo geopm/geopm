@@ -10,8 +10,8 @@ set -e
 source ../build_func.sh
 
 # Set variables for workload
-DIRNAME=NPB3.4.2
-ARCHIVE=NPB3.4.2.tar.gz
+DIRNAME=NPB3.4.3
+ARCHIVE=NPB3.4.3.tar.gz
 URL=https://www.nas.nasa.gov/assets/npb
 
 # Run helper functions
