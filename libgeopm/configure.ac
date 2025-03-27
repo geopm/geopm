@@ -328,7 +328,7 @@ fi
 fi
 
 AC_LANG_PUSH([C++])
-R_OPENMP
+AX_OPENMP
 AC_LANG_POP([C++])
 
 if test "x$enable_openmp" = "xno" ; then
