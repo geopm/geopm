@@ -83,14 +83,11 @@ namespace geopm
 #else
                 std::string dl_path = plugin->secure_path();
 #endif
-                void *dl_handle = dlopen(dl_path.c_str(), RTLD_NOLOAD);
+                void *dl_handle = dlopen(dl_path.c_str(), RTLD_NOW);
                 if (dl_handle == nullptr) {
-                    dl_handle = dlopen(dl_path.c_str(), RTLD_NOW);
-                    if (dl_handle == nullptr) {
-                        std::cerr << "Warning: <geopm> Failed to dlopen plugin ("
-                                  << plugin->original_path() << ") with dlerror(): "
-                                  << dlerror() << std::endl;
-                    }
+                    std::cerr << "Warning: <geopm> Failed to dlopen plugin ("
+                              << plugin->original_path() << ") with dlerror(): "
+                              << dlerror() << std::endl;
                 }
             }
             catch (const geopm::Exception &ex) {
