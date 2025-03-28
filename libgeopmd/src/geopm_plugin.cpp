@@ -23,46 +23,6 @@
 
 namespace geopm
 {
-    class DLRegistry
-    {
-        public:
-            static DLRegistry &dl_registry(void);
-            DLRegistry(const DLRegistry &other) = delete;
-            DLRegistry &operator=(const DLRegistry &other) = delete;
-            void add(void *handle);
-            virtual ~DLRegistry();
-            void reset(void);
-        private:
-            DLRegistry() = default;
-            std::vector<void *> m_handles;
-    };
-
-    DLRegistry &DLRegistry::dl_registry(void)
-    {
-        static DLRegistry instance;
-        return instance;
-    }
-
-    DLRegistry::~DLRegistry()
-    {
-        reset();
-    }
-
-    void DLRegistry::add(void *handle)
-    {
-        m_handles.push_back(handle);
-    }
-
-    void DLRegistry::reset(void)
-    {
-        for (auto &it : m_handles) {
-            if (dlclose(it) != 0) {
-                std::cerr << "Warning: <geopm> Failed to dlclose(3) an active shared object handle\n";
-            }
-        }
-        m_handles.clear();
-    }
-
     static bool is_plugin(const std::vector<int> &so_version, const std::string &plugin_prefix, const std::string &name)
     {
         bool result = false;
@@ -116,16 +76,17 @@ namespace geopm
         }
         for (const auto &plugin : plugins) {
             try {
-                void *dl_handle = dlopen(plugin->secure_path().c_str(), RTLD_NOLOAD);
-                if (dl_handle != nullptr) {
-                    DLRegistry::dl_registry().add(dl_handle);
-                }
-                else {
-                    dl_handle = dlopen(plugin->secure_path().c_str(), RTLD_NOW|RTLD_NODELETE);
-                    if (dl_handle != nullptr) {
-                        DLRegistry::dl_registry().add(dl_handle);
-                    }
-                    else {
+#ifdef GEOPM_DEBUG
+                // gdb will hang if we dlopen the secure file
+                std::cerr << "Warning: plugins are not being securely loaded due to --enable-debug compile option\n";
+                std::string dl_path = plugin->original_path();
+#else
+                std::string dl_path = plugin->secure_path();
+#endif
+                void *dl_handle = dlopen(dl_path.c_str(), RTLD_NOLOAD);
+                if (dl_handle == nullptr) {
+                    dl_handle = dlopen(dl_path.c_str(), RTLD_NOW);
+                    if (dl_handle == nullptr) {
                         std::cerr << "Warning: <geopm> Failed to dlopen plugin ("
                                   << plugin->original_path() << ") with dlerror(): "
                                   << dlerror() << std::endl;
@@ -140,6 +101,6 @@ namespace geopm
 
     void plugin_reset(void)
     {
-        DLRegistry::dl_registry().reset();
+
     }
 }
