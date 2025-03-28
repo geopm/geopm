@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include "geopm_error.h"
 #include "geopm_plugin.hpp"
@@ -103,30 +104,30 @@ namespace geopm
         }
 
         const auto so_version = geopm::shared_object_version();
-        std::vector<std::string> plugins;
+        std::vector<std::shared_ptr<SecurePath>> plugins;
         for (const auto &path : plugin_paths) {
             std::vector<std::string> files = geopm::list_directory_files(path);
             for (const auto &name : files) {
                 if (is_plugin(so_version, plugin_prefix, name)) {
-                    plugins.push_back(path + "/" + name);
+                    std::string full_path = path + "/" + name;
+                    plugins.push_back(std::make_shared<SecurePath>(full_path));
                 }
             }
         }
         for (const auto &plugin : plugins) {
             try {
-                SecurePath sp (plugin.c_str());
-                void *dl_handle = dlopen(sp.secure_path().c_str(), RTLD_NOLOAD);
+                void *dl_handle = dlopen(plugin->secure_path().c_str(), RTLD_NOLOAD);
                 if (dl_handle != nullptr) {
                     DLRegistry::dl_registry().add(dl_handle);
                 }
                 else {
-                    dl_handle = dlopen(sp.secure_path().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+                    dl_handle = dlopen(plugin->secure_path().c_str(), RTLD_NOW|RTLD_NODELETE);
                     if (dl_handle != nullptr) {
                         DLRegistry::dl_registry().add(dl_handle);
                     }
                     else {
                         std::cerr << "Warning: <geopm> Failed to dlopen plugin ("
-                                  << plugin << ") with dlerror(): "
+                                  << plugin->original_path() << ") with dlerror(): "
                                   << dlerror() << std::endl;
                     }
                 }

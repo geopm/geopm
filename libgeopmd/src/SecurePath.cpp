@@ -31,6 +31,7 @@ namespace geopm
 
     SecurePath::SecurePath(const std::string &orig_path, mode_t umask, bool enforce)
         : m_fd(open(orig_path.c_str(), (O_RDONLY | O_NOFOLLOW)))
+        , m_orig_path(orig_path)
     {
         if (m_fd < 0) {
             throw Exception("SecurePath::" + std::string(__func__) +
@@ -80,5 +81,10 @@ namespace geopm
     std::string SecurePath::secure_path(void) const
     {
         return "/proc/self/fd/" + std::to_string(m_fd);
+    }
+
+    std::string SecurePath::original_path(void) const
+    {
+        return m_orig_path;
     }
 }
