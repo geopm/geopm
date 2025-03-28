@@ -98,6 +98,17 @@
             "units": "hertz",
             "writeable": true,
             "alias": "CPU_FREQUENCY_DESIRED_CONTROL"
+        },
+        "CPU_GOVERNOR": {
+            "attribute": "scaling_governor",
+            "scalar": 1,
+            "description": "The CPU frequency governor: 0=performance, 1=powersave, 2=ondemand, 3=conservative, 4=userspace, 5=schedutil.",
+            "aggregation": "expect_same",
+            "behavior": "variable",
+            "format": "integer",
+            "units": "none",
+            "writeable": true,
+            "alias": "CPU_FREQUENCY_GOVERNOR_CONTROL"
         }
     }
 }
