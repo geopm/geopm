@@ -176,6 +176,36 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         double scaling_factor = prop_it->second.scaling_factor;
+
+        if (signal_name == "CPUFREQ::CPU_GOVERNOR") {
+            return [](const std::string &content) {
+                int gov = -1;
+                if (content == "performance\n") {
+                    gov = GOVERNOR_PERFORMANCE;
+                }
+                else if (content == "powersave\n") {
+                    gov = GOVERNOR_POWERSAVE;
+                }
+                else if (content == "ondemand\n") {
+                    gov = GOVERNOR_ONDEMAND;
+                }
+                else if (content == "conservative\n") {
+                    gov = GOVERNOR_CONSERVATIVE;
+                }
+                else if (content == "userspace\n") {
+                    gov = GOVERNOR_USERSPACE;
+                }
+                else if (content == "schedutil\n") {
+                    gov = GOVERNOR_SCHEDUTIL;
+                }
+                else {
+                    throw Exception("CpufreqSysfsDriver::signal_parse(): Unknown governor value: " + content,
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                return static_cast<double>(gov);
+            };
+        }
+
         return [scaling_factor](const std::string &content) {
             double result = static_cast<double>(NAN);
             try {
@@ -195,6 +225,38 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         double scaling_factor = prop_it->second.scaling_factor;
+
+        if (control_name == "CPUFREQ::CPU_GOVERNOR") {
+            return [](double value) {
+                int governor = static_cast<int>(value);
+                std::string result;
+                switch (governor) {
+                    case GOVERNOR_PERFORMANCE:
+                        result = "performance";
+                        break;
+                    case GOVERNOR_POWERSAVE:
+                        result = "powersave";
+                        break;
+                    case GOVERNOR_ONDEMAND:
+                        result = "ondemand";
+                        break;
+                    case GOVERNOR_CONSERVATIVE:
+                        result = "conservative";
+                        break;
+                    case GOVERNOR_USERSPACE:
+                        result = "userspace";
+                        break;
+                    case GOVERNOR_SCHEDUTIL:
+                        result ="schedutil";
+                        break;
+                    default:
+                        throw Exception("CpufreqSysfsDriver::control_gen(): Invalid governor value: " + std::to_string(governor),
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                return result;
+            };
+        }
+
         return [scaling_factor](double value) {
             return std::to_string(std::llround(value / scaling_factor));
         };

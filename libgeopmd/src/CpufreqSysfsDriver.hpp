@@ -22,6 +22,16 @@ namespace geopm
     class CpufreqSysfsDriver: public SysfsDriver
     {
         public:
+            enum governor_e {
+                GOVERNOR_PERFORMANCE = 0,
+                GOVERNOR_POWERSAVE = 1,
+                GOVERNOR_ONDEMAND = 2,
+                GOVERNOR_CONSERVATIVE = 3,
+                GOVERNOR_USERSPACE = 4,
+                GOVERNOR_SCHEDUTIL = 5,
+                NUM_GOVERNOR = 6,
+            };
+
             CpufreqSysfsDriver();
             CpufreqSysfsDriver(const PlatformTopo &topo,
                                const std::string &cpufreq_directory);
