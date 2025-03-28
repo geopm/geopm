@@ -90,6 +90,7 @@ popd
 %doc CONTRIBUTING.rst README.md
 %{_libdir}/%{name}.so.%{abi_ver}
 %{_libdir}/%{name}.so.2
+%{_libdir}/geopm
 %{_libdir}/geopm/libgeopmiogroup_profile.so.%{abi_ver}
 
 %files devel
