@@ -38,9 +38,11 @@ namespace geopm
 
             /// @brief Accessor for path under procfs
             std::string secure_path(void) const;
+            std::string original_path(void) const;
 
         private:
             int m_fd;
+            std::string m_orig_path;
     };
 }
 #endif
