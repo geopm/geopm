@@ -107,6 +107,7 @@ ldconfig
 %doc %{docdir}/VERSION
 %{_libdir}/libgeopm.so.%{abi_ver}
 %{_libdir}/libgeopm.so.2
+%{_libdir}/geopm
 %{_libdir}/geopm/libgeopmiogroup_profile.so.%{abi_ver}
 
 %files -n libgeopm-devel
