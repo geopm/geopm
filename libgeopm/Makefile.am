@@ -118,7 +118,7 @@ EXTRA_DIST += .gitignore \
               debian/libgeopm2.install \
               debian/rules \
               m4/ax_check_compile_flag.m4 \
-              m4/ax_openmp.m4 \
+              m4/openmp.m4 \
               libgeopm.spec \
               libgeopm.spec.in \
               # end
