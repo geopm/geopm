@@ -19,8 +19,10 @@ def main():
     with open(report_schema_file) as fid:
         report_schema = json.load(fid)
     with open(args.report, "r") as fid:
-        report_data = yaml.safe_load(fid)
-    jsonschema.validate(report_data, schema=report_schema)
+        reports = yaml.safe_load_all(fid)
+
+        for idx, report_data in enumerate(reports):
+            jsonschema.validate(report_data, schema=report_schema)
 
 if __name__ == '__main__':
     main()
