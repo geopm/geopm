@@ -168,6 +168,42 @@ namespace geopm
         return oss.str();
     }
 
+    static double signal_parse_governor(const std::string &content)
+    {
+        double result = NAN;
+        static const std::map<std::string, int> lookup {
+            {"performance\n", CpufreqSysfsDriver::GOVERNOR_PERFORMANCE},
+            {"powersave\n", CpufreqSysfsDriver::GOVERNOR_POWERSAVE},
+            {"ondemand\n", CpufreqSysfsDriver::GOVERNOR_ONDEMAND},
+            {"conservative\n", CpufreqSysfsDriver::GOVERNOR_CONSERVATIVE},
+            {"userspace\n", CpufreqSysfsDriver::GOVERNOR_USERSPACE},
+            {"schedutil\n", CpufreqSysfsDriver::GOVERNOR_SCHEDUTIL},
+        };
+        const auto it = lookup.find(content);
+        if (it != lookup.end()) {
+            result = static_cast<double>(it->second);
+        }
+        return result;
+    }
+
+    static std::string control_gen_governor(double value)
+    {
+        static const std::array<std::string, CpufreqSysfsDriver::NUM_GOVERNOR> lookup = {
+            "performance",
+            "powersave",
+            "ondemand",
+            "conservative",
+            "userspace",
+            "schedutil",
+        };
+        int value_int = static_cast<int>(value);
+        if (value_int != value || value_int < 0 || value_int >= CpufreqSysfsDriver::NUM_GOVERNOR) {
+            throw Exception("CpufreqSysfsDriver::control_gen(): Invalid governor value: " + std::to_string(value),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return lookup[value_int];
+    }
+
     std::function<double(const std::string &)> CpufreqSysfsDriver::signal_parse(const std::string &signal_name) const
     {
         auto prop_it = M_PROPERTIES.find(signal_name);
@@ -175,46 +211,21 @@ namespace geopm
             throw Exception("CpufreqSysfsDriver::signal_parse(): Unknown signal name: " + signal_name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        double scaling_factor = prop_it->second.scaling_factor;
-
         if (signal_name == "CPUFREQ::CPU_GOVERNOR") {
-            return [](const std::string &content) {
-                int gov = -1;
-                if (content == "performance\n") {
-                    gov = GOVERNOR_PERFORMANCE;
+            return signal_parse_governor;
+        }
+        else {
+            double scaling_factor = prop_it->second.scaling_factor;
+            return [scaling_factor](const std::string &content) {
+                 double result = static_cast<double>(NAN);
+                try {
+                    result = static_cast<double>(std::stoi(content) * scaling_factor);
                 }
-                else if (content == "powersave\n") {
-                    gov = GOVERNOR_POWERSAVE;
-                }
-                else if (content == "ondemand\n") {
-                    gov = GOVERNOR_ONDEMAND;
-                }
-                else if (content == "conservative\n") {
-                    gov = GOVERNOR_CONSERVATIVE;
-                }
-                else if (content == "userspace\n") {
-                    gov = GOVERNOR_USERSPACE;
-                }
-                else if (content == "schedutil\n") {
-                    gov = GOVERNOR_SCHEDUTIL;
-                }
-                else {
-                    throw Exception("CpufreqSysfsDriver::signal_parse(): Unknown governor value: " + content,
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                }
-                return static_cast<double>(gov);
+                catch (const std::invalid_argument &ex) {}
+                catch (const std::out_of_range &ex) {}
+                return result;
             };
         }
-
-        return [scaling_factor](const std::string &content) {
-            double result = static_cast<double>(NAN);
-            try {
-                result = static_cast<double>(std::stoi(content) * scaling_factor);
-            }
-            catch (const std::invalid_argument &ex) {}
-            catch (const std::out_of_range &ex) {}
-            return result;
-        };
     }
 
     std::function<std::string(double)> CpufreqSysfsDriver::control_gen(const std::string &control_name) const
@@ -224,42 +235,15 @@ namespace geopm
             throw Exception("CpufreqSysfsDriver::control_gen(): Unknown control name: " + control_name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        double scaling_factor = prop_it->second.scaling_factor;
-
         if (control_name == "CPUFREQ::CPU_GOVERNOR") {
-            return [](double value) {
-                int governor = static_cast<int>(value);
-                std::string result;
-                switch (governor) {
-                    case GOVERNOR_PERFORMANCE:
-                        result = "performance";
-                        break;
-                    case GOVERNOR_POWERSAVE:
-                        result = "powersave";
-                        break;
-                    case GOVERNOR_ONDEMAND:
-                        result = "ondemand";
-                        break;
-                    case GOVERNOR_CONSERVATIVE:
-                        result = "conservative";
-                        break;
-                    case GOVERNOR_USERSPACE:
-                        result = "userspace";
-                        break;
-                    case GOVERNOR_SCHEDUTIL:
-                        result ="schedutil";
-                        break;
-                    default:
-                        throw Exception("CpufreqSysfsDriver::control_gen(): Invalid governor value: " + std::to_string(governor),
-                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                }
-                return result;
-            };
+            return control_gen_governor;
         }
-
-        return [scaling_factor](double value) {
-            return std::to_string(std::llround(value / scaling_factor));
-        };
+        else {
+            double scaling_factor = prop_it->second.scaling_factor;
+            return [scaling_factor](double value) {
+                return std::to_string(std::llround(value / scaling_factor));
+            };
+       }
     }
 
     std::string CpufreqSysfsDriver::driver(void) const
