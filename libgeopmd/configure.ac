@@ -253,6 +253,8 @@ if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -Og -g"
   CXXFLAGS="$CXXFLAGS -Og -g"
+else
+  CPPFLAGS="$CPPFLAGS -D_GLIBCXX_ASSERTIONS"
 fi
 AC_SUBST([enable_debug])
 
@@ -531,8 +533,8 @@ AC_LANG_POP([C++])
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
 
-[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -include config.h"]
-[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -include config.h"]
+[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security -Wimplicit-fallthrough $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -fstack-protector-strong -fstack-clash-protection -include config.h"]
+[AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security -Wimplicit-fallthrough $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -fstack-protector-strong -fstack-clash-protection -include config.h"]
 [AM_LDFLAGS="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
 if test "x$enable_debug" != "x1" ; then
     [AM_CFLAGS="$AM_CFLAGS -flto"]
