@@ -17,6 +17,9 @@ Dashboard, first [add the Prometheus data
 source](https://grafana.com/docs/grafana/latest/datasources/#add-a-data-source)
 to your Grafana server.
 
+## Example dashboard
+
+![image](https://github.com/user-attachments/assets/dc7ba903-9e7e-4d79-a4f2-9aef6b460c17)
 
 ## Importing the Grafana dashboard
 
