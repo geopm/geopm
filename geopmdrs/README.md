@@ -1,3 +1,10 @@
+To get started with rust, install the toolchain via rustup.  More info can be found here: https://rustup.rs/
+
+`build.sh` also requires cargo-deb.  Install it via:
+```
+cargo install cargo-deb
+```
+
 # geopmdrs
 
 Directory contains the implementation for the geopmd gRPC UDS proxy server.  This
