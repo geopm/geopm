@@ -152,7 +152,7 @@ jobs:
     - name: test geopmdgo
       if: matrix.service-asan-flag != 'enable-asan'
       working-directory: geopmdgo
-      run: ./test.sh
+      run: make && make check
     - name: make geopmpy dist
       if: matrix.service-asan-flag != 'enable-asan'
       working-directory: geopmpy
