@@ -4,6 +4,9 @@
 #
 
 set -x
+
+export RUSTFLAGS="-C control-flow-guard"
+
 # Create VERSION file
 if [ ! -e VERSION ]; then
     python3 -c "from setuptools_scm import get_version; print(get_version('..'))" | sed -e 's|.dev|-dev|' > VERSION
