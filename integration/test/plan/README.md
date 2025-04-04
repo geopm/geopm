@@ -39,6 +39,10 @@ lyaers from source when not utilizing spack:
 > as a basis for systems configured for PALS based job launch when
 > setting GEOPM_SYSTEM_ENV:
 > [australis_env.sh](../../config/australis_env.sh)
+> The following should be present in your `~/.geopmrc`:
+> ```
+> export GEOPM_SYSTEM_ENV=${GEOPM_SOURCE}/integration/config/australis_env.sh
+> ```
 
 1. Clone the repo: ``git clone https://github.com/geopm/geopm.git``
 2. The default branch is `dev`, but if necessary: ``git checkout dev``
@@ -57,7 +61,7 @@ GEOPM_SERVICE_CONFIG_OPTIONS="--disable-libcap --disable-io-uring" ${GEOPM_SOURC
 ``geopmpy`` will be installed in ``~/.local`` with other pip installed
 packages.
 > [!NOTE]
-> When going back to using system provided modules, unsure you have uninstalled any user-installed GEOPM python packages:
+> When going back to using system provided modules, ensure you have uninstalled any user-installed GEOPM python packages:
 > ```bash
 > python3 -m pip uninstall geopmpy geopmdpy
 > ```
