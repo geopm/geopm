@@ -69,6 +69,9 @@ with ``DRM``. The driver (e.g., ``i915`` that made that signal available to
        domain: gpu
        iogroup: DRM from driver: i915
 
+Some signals are made available to GEOPM through the sysfs interface to the
+``powercap`` driver. For more information, see the `powercap documentation
+<https://www.kernel.org/doc/html/next/power/powercap/powercap.html>`_.
 
 Signals
 -------

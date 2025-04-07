@@ -813,6 +813,13 @@ restart by piping the output into ``geopmaccess -w``:
     geopmaccess -l | sudo geopmaccess -w
     geopmaccess -l -c | sudo geopmaccess -w -c
 
+For each tagged release of GEOPM, a `list of all of the signal and control names
+<https://raw.githubusercontent.com/geopm/geopm/refs/heads/dev/docs/all_names.txt>`_
+is created and stored in the GEOPM Git repository. An administrator may select
+names from this list rather than querying for available signals with the
+``geopmaccess -a`` command line interface (note: all controls names are also
+signal names).
+
 Guides for Specialized Install
 ------------------------------
 
