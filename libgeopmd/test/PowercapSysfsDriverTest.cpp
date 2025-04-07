@@ -109,10 +109,12 @@ void PowercapSysfsDriverTest::SetUp()
     m_driver_properties = m_driver->properties();
 }
 
-TEST_F(PowercapSysfsDriverTest, iogroup_plugin_name_matches_driver_name)
+TEST_F(PowercapSysfsDriverTest, driver_and_plugin_name_match)
 {
-    EXPECT_EQ("POWERCAP", m_driver->driver());
-    EXPECT_EQ("POWERCAP", PowercapSysfsDriver::plugin_name());
+    EXPECT_EQ("POWERCAP", m_driver->driver())
+        << "Driver name should match the plugin name";
+    EXPECT_EQ("POWERCAP", PowercapSysfsDriver::plugin_name())
+        << "Plugin name should be POWERCAP";
 }
 
 TEST_F(PowercapSysfsDriverTest, domain_type_is_correct)
@@ -189,12 +191,4 @@ TEST_F(PowercapSysfsDriverTest, properties_are_loaded_correctly)
         EXPECT_FALSE(property.second.attribute.empty()) << "Attribute should not be empty for property: " << property.first;
         EXPECT_GT(property.second.scaling_factor, 0.0) << "Scaling factor should be positive for property: " << property.first;
     }
-}
-
-TEST_F(PowercapSysfsDriverTest, driver_and_plugin_name_match)
-{
-    EXPECT_EQ("POWERCAP", m_driver->driver())
-        << "Driver name should match the plugin name";
-    EXPECT_EQ("POWERCAP", PowercapSysfsDriver::plugin_name())
-        << "Plugin name should be POWERCAP";
 }

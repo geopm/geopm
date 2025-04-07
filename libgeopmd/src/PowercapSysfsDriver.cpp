@@ -18,6 +18,8 @@
 #include "geopm/PlatformTopo.hpp"
 
 static const std::string POWERCAP_DIRECTORY = "/sys/class/powercap";
+static const std::string POWERCAP_CPU_PREFIX = "POWERCAP::CPU_";
+static const std::string POWERCAP_DRAM_PREFIX = "POWERCAP::DRAM_";
 
 static std::map<std::string, std::string> load_powercap_resource_by_name(const std::string &powercap_directory)
 {
@@ -59,6 +61,37 @@ static std::map<std::string, std::string> load_powercap_resource_by_name(const s
     return result;
 }
 
+static std::string name_to_resource_key(const std::string &name, int domain_idx)
+{
+    std::string resource_key;
+    if (name.find(POWERCAP_CPU_PREFIX) == 0) {
+        resource_key = "package-" + std::to_string(domain_idx);
+    }
+    else if (name.find(POWERCAP_DRAM_PREFIX) == 0) {
+        resource_key = "dram";
+    }
+    else {
+        throw geopm::Exception("PowercapSysfsDriver: unknown name: " + name,
+                               GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    return resource_key;
+}
+
+static std::string name_to_property_key(const std::string &name)
+{
+    std::string property_key;
+    auto substr_pos = name.find(POWERCAP_CPU_PREFIX);
+    if (substr_pos == std::string::npos) {
+        substr_pos = name.find(POWERCAP_DRAM_PREFIX);
+    }
+    if (substr_pos == std::string::npos) {
+        throw geopm::Exception("PowercapSysfsDriver::attribute_path(): No such domain prefix "
+                               + name,
+                               GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    return name.substr(substr_pos);
+}
+
 namespace geopm
 {
     const std::string powercap_sysfs_json(void);
@@ -71,7 +104,7 @@ namespace geopm
     PowercapSysfsDriver::PowercapSysfsDriver(const std::string &powercap_directory)
         : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), powercap_sysfs_json())}
         , M_POWERCAP_RESOURCE_BY_NAME(load_powercap_resource_by_name(powercap_directory))
-        , m_powercap_directory(powercap_directory)
+        , M_POWERCAP_DIRECTORY(powercap_directory)
     {
     }
 
@@ -82,37 +115,6 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return GEOPM_DOMAIN_PACKAGE;
-    }
-
-    static std::string name_to_resource_key(const std::string &name, int domain_idx)
-    {
-        std::string resource_key;
-        if (name.find("POWERCAP::CPU_") == 0) {
-            resource_key = "package-" + std::to_string(domain_idx);
-        }
-        else if (name.find("POWERCAP::DRAM_") == 0) {
-            resource_key = "dram";
-        }
-        else {
-            throw Exception("PowercapSysfsDriver: unknown name: " + name,
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        return resource_key;
-    }
-
-    static std::string name_to_property_key(const std::string &name)
-    {
-        std::string property_key;
-        auto substr_pos = name.find("POWERCAP::CPU_");
-        if (substr_pos == std::string::npos) {
-            substr_pos = name.find("POWERCAP::DRAM_");
-        }
-        if (substr_pos == std::string::npos) {
-            throw Exception("PowercapSysfsDriver::attribute_path(): No such domain prefix "
-                            + name,
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        return name.substr(substr_pos);
     }
 
     std::string PowercapSysfsDriver::attribute_path(const std::string &name, int domain_idx)
@@ -133,7 +135,7 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         std::ostringstream oss;
-        oss << m_powercap_directory << "/" << resource_it->second
+        oss << M_POWERCAP_DIRECTORY << "/" << resource_it->second
             << "/" << property_it->second.attribute;
         return oss.str();
     }
