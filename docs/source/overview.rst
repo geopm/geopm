@@ -1082,10 +1082,37 @@ decipher what each alias represents. For instance:
 For more information about the currently supported aliases and IOGroups, see:
 :ref:`geopm_pio.7:Aliasing Signals And Controls`.
 
-.. Nuances in Setting CPU Frequency
-.. """"""""""""""""""""""""""""""""
+Nuances in Setting CPU Frequency
+""""""""""""""""""""""""""""""""
 
-.. Discussion of how HWP and the CPU Governor impact observed frequency.
+GEOPM supports many interfaces to manipulate frequency. Supported interfaces
+include:
+
+* Direct frequency requests on CPU core/uncore and GPU
+* Hardware P-States (HWP) on CPU
+* Speed Select Technology - Core Priority (SST-CP) and Turbo Frequency (SST-TF)
+  on Intel CPUs ICX+
+
+The ideal mechanism of frequency control depends of course on the use-case and
+priorities of the user. If performance repeatability is critical or the user
+knows of ideal frequency settings, direct frequency requests is likely ideal.
+If the user wishes to leverage as much of the power headroom as possible, SST
+or HWP interfaces are useful. If the user also wishes the system to steer power
+intelligently between cores/uncore based on internal telemetry, HWP will work
+best. If computation on a given node is heterogeneous (i.e. some CPUs are given
+more work or more critical work than others), SST features are likely to work
+best. See the :doc:`User Frequency Guide <frequency_guide>` for full
+details on how and when to use these interfaces.
+
+OS frequency drivers may interfere with and take precedent over GEOPM settings.
+Frequency drivers may include settings to drive frequency with the objective of
+achieving greater performance or to lower power consumption, while other
+frequency driver settings may adhere more strictly to user frequency requests.
+The interaction between driver and GEOPM-driven frequency setting will vary
+depending upon the interface used. Generally speaking, if a ``userspace``
+governor is available on a given driver, it is more likely to play nicely with
+GEOPM. Also, the availability of HWP may depend upon OS driver settings. It is
+fully supported by the ``intel_pstate`` driver.
 
 .. Reading Power
 .. """""""""""""
