@@ -30,7 +30,7 @@ namespace geopm
             const std::map<std::string, properties_s> M_PROPERTIES;
             const std::map<std::string, std::string> M_POWERCAP_RESOURCE_BY_NAME;
             std::map<std::string, int> m_domain_map;
-            const std::string m_powercap_directory;
+            const std::string M_POWERCAP_DIRECTORY;
     };
 }
 

@@ -95,8 +95,10 @@ namespace geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
         if (geopm::has_cap_sys_admin()) {
-            // May want to give this higher priority than the non-safe
-            // msr driver once it is considered more stable.
+            // May want to give Cpufreq and Powercap higher priority than the
+            // non-safe msr driver once it is considered more stable.  The
+            // msr-safe ioctl() interface is the highest performance one
+            // available for these signals/controls
             register_plugin(CpufreqSysfsDriver::plugin_name(),
                             CpufreqSysfsDriver::make_plugin);
             register_plugin(PowercapSysfsDriver::plugin_name(),
@@ -141,13 +143,13 @@ namespace geopm
 #endif
         }
         else { // not UID 0
-            // Prefer the Service provided signals to the Cpufreq
-            // provided signals in case MSR access is available from
-            // the service.  MSR values for aliases are both more
-            // accurate and can be read faster.  Note this means even
-            // low level signals like CPUFREQ::SCALING_CUR_FREQ will
-            // be read through the service if the ServiceIOGroup is
-            // loaded.
+            // Prefer the Service provided signals/controls to the Cpufreq or
+            // Powercap provided signals/controls in case MSR access is
+            // available from the service.  MSR values for aliases are both more
+            // accurate and can be read faster.  Note this means even low level
+            // signals like CPUFREQ::SCALING_CUR_FREQ or
+            // POWERCAP::CPU_ENERGY_CONSUMED will be read through the service if
+            // the ServiceIOGroup is loaded.
             register_plugin(CpufreqSysfsDriver::plugin_name(),
                             CpufreqSysfsDriver::make_plugin);
             register_plugin(PowercapSysfsDriver::plugin_name(),
