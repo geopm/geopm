@@ -118,7 +118,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": "GPU_CORE_FREQUENCY_MIN_AVAIL"
+            "alias": ""
         },
         "RPS_MAX_FREQ": {
             "attribute": "rps_max_freq_mhz",
@@ -358,7 +358,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_MIN_AVAIL"
         },
         "MEDIA_RPN_FREQ": {
             "attribute": "media_RPn_freq_mhz",
