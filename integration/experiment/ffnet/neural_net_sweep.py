@@ -73,7 +73,7 @@ def trace_signals(domains):
                     "MSR::PPERF:PCNT@package"]
 
     if 'gpu' in domains:
-        signal += ["GPU_CORE_FREQUENCY_STATUS@gpu",
+        signals += ["GPU_CORE_FREQUENCY_STATUS@gpu",
                    "GPU_POWER@gpu",
                    "GPU_UTILIZATION@gpu",
                    "GPU_CORE_ACTIVITY@gpu",
@@ -126,25 +126,23 @@ def launch(app_conf, args, experiment_cli_args):
         if args.min_uncore_frequency != args.max_uncore_frequency:
             if 'step_uncore_frequency' not in args:
                 args.step_uncore_frequency = mach.frequency_step()
-            freq_range['cpu_uncore'] = uncore_frequency_sweep
-                                       .setup_uncore_frequency_bounds(
-                                               mach,
-                                               args.min_uncore_frequency,
-                                               args.max_uncore_frequency,
-                                               args.step_uncore_frequency
-                                               )
+            freq_range['cpu_uncore'] = uncore_frequency_sweep.setup_uncore_frequency_bounds(
+                                                              mach,
+                                                              args.min_uncore_frequency,
+                                                              args.max_uncore_frequency,
+                                                              args.step_uncore_frequency
+                                                              )
 
     if 'min_gpu_frequency' in args and 'max_gpu_frequency' in args:
-        if args.min_gpu_frequency != args.max_gpu_frequency and machine.num_gpu() > 0:
+        if args.min_gpu_frequency != args.max_gpu_frequency:# and machine.num_gpu() > 0:
             if 'step_gpu_frequency' not in args:
                 args.step_gpu_frqeuency = mach.gpu_frequency_step()
-            freq_range['gpu'] = gpu_frequency_sweep
-                                .setup_gpu_frequency_bounds(
-                                        mach,
-                                        args.min_gpu_frequency,
-                                        args.max_gpu_frequency,
-                                        args.step_gpu_frequency
-                                        )
+            freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(
+                                                    mach,
+                                                    args.min_gpu_frequency,
+                                                    args.max_gpu_frequency,
+                                                    args.step_gpu_frequency
+                                                    )
 
     targets = launch_configs(output_dir, app_conf, freq_range)
 

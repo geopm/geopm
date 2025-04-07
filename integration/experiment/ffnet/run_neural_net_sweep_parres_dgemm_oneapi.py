@@ -10,7 +10,7 @@ Run ParRes dgemm oneAPI version with the frequency map agent.
 
 import argparse
 
-from integration.experiment.neural_net_sweep import neural_net_sweep
+from integration.experiment.ffnet import neural_net_sweep
 from integration.experiment import machine
 from integration.apps.parres import parres
 
@@ -21,6 +21,6 @@ if __name__ == '__main__':
     args, extra_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
     app_conf = parres.create_dgemm_appconf_oneapi(mach, args)
-    neural_net_sweep.launch(app_conf=app_conf
+    neural_net_sweep.launch(app_conf=app_conf,
                             args=args,
                             experiment_cli_args=extra_args)
