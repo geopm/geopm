@@ -21,12 +21,12 @@ GEOPM-driven frequency setting will vary depending upon the interface used.
 Generally speaking, if a ``userspace`` governor is available on a given driver,
 it is more likely to play nicely with GEOPM.
 
-The ideal mechanism of frequency control depends of course on the use-case and
+The ideal mechanism of frequency control depends of course on the use case and
 priorities of the user. If performance repeatability is critical or the user
 knows of ideal frequency settings, direct frequency requests are likely ideal.
 If the user wishes to leverage as much of the power headroom as possible, SST
 or HWP interfaces are useful. If the user also wishes the system to steer power
-intelligently between cores/uncore based on internal telemetry, HWP will work
+intelligently between cores and uncore based on internal telemetry, HWP will work
 best. If computation on a given node is heterogeneous (i.e. some CPUs are given
 more work or more critical work than others), SST features are likely to work
 best.
@@ -35,7 +35,7 @@ Linux Frequency Drivers
 -----------------------
 
 Linux CPU driver information can be found using ``cpupower`` as shown in the
-example below. If the driver has a ``userspace`` governor available, that will
+example below. If the driver has a ``userspace`` CPU governor available, that will
 generally not interfere with GEOPM frequency decisions.
 
 .. code-block:: bash
@@ -67,12 +67,10 @@ systems that support that feature. The ``performance`` governor is more likely
 to adhere to GEOPM frequency decisions. The ``powersave`` governor tends to
 lower CPU frequency when cores are running idle.
 
-
 Direct Frequency Requests
 -------------------------
 
 This is the most straightforward mechanism for selecting a specific frequency.
-
 
 .. code-block:: bash
 
@@ -83,7 +81,7 @@ This is the most straightforward mechanism for selecting a specific frequency.
     $ geopmread CPU_FREQUENCY_STATUS core 0
     1200000000
 
-To set CPU uncore frequency, both min/max can be specified. To fix
+To set CPU uncore frequency, both min and max can be specified. To fix
 uncore frequency to a specific value, set ``CPU_UNCORE_FREQUENCY_MAX_CONTROL``
 and ``CPU_UNCORE_FREQUENCY_MIN_CONTROL`` to the same value. Note that there is
 no guarantee that the specified frequencies will be achieved, as the system may
@@ -92,7 +90,7 @@ be limited by hardware constraints.
 GPU Frequency
 ~~~~~~~~~~~~~
 
-Similar to CPU uncore frequency, GPU frequencies are specified via a min/max.
+Similar to CPU uncore frequency, GPU frequencies are specified via a min and max.
 Some hardware has underlying logic that require
 ``GPU_CORE_FREQUENCY_MIN_CONTROL`` to always be less than
 ``GPU_CORE_FREQUENCY_MAX_CONTROL``. If you try to set the min control greater
@@ -106,7 +104,6 @@ Example: Set GPU 0 frequency to 1.0 GHz
     $ echo -e "GPU_CORE_FREQUENCY_MAX_CONTROL gpu 0 1e9\
                \nGPU_CORE_FREQUENCY_MIN_CONTROL gpu 0 1e9"\
                | geopmwrite -f -"
-
 
 Example: Let GPU 1 frequency float between 800 MHz and 1.2 GHz
 
@@ -143,7 +140,7 @@ specify a frequency range per-core. Typically, a core with an EPP of 0 will
 try to reach the higher end of the frequency range while a core with an EPP of
 15 will try to remain at the lower end of its frequency range. If no frequency
 range is specified, the core will have access to the full frequency range. Note
-that setting min/max does not guarantee performance. Cores are still bound by
+that setting min and max frequencies does not guarantee performance. Cores are still bound by
 power/thermal/current limits and can be restricted beyond the minimum frequency
 if required to do so by hardware limitations.
 
@@ -196,9 +193,9 @@ Intel Speed Select Technology (SST)
 Intel Speed Select Technology (SST) includes a multitude of features for
 heterogeneous power steering on CPUs. GEOPM supports SST-CP (Core Priority) and
 SST-TF (Turbo Frequency). SST-CP is used to assign cores to different priority
-buckets 0-3, where 0 is highest priority and 3 is lowest priority for power
+buckets numbered 0-3, where 0 is highest priority and 3 is lowest priority for power
 distribution. This feature uses similar controls as HWP. If the power budget is
-exceeded, frequency of lower priority cores is decreased more than the frequency
+exceeded, the frequency of lower priority cores is decreased more than the frequency
 of higher priority cores.
 
 SST-TF allows cores in high priority buckets 0/1 to achieve higher turbo
