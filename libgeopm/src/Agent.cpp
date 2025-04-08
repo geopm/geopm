@@ -16,6 +16,9 @@
 #include "geopm_agent.h"
 #include "geopm_plugin.hpp"
 #include "geopm_pio.h"
+#include "CPUActivityAgent.hpp"
+#include "GPUActivityAgent.hpp"
+#include "FFNetAgent.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
@@ -24,12 +27,6 @@
 #include "geopm/Environment.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
-
-#ifdef GEOPM_ENABLE_BETA
-#include "CPUActivityAgent.hpp"
-#include "GPUActivityAgent.hpp"
-#include "FFNetAgent.hpp"
-#endif
 
 namespace geopm
 {
@@ -57,7 +54,6 @@ namespace geopm
                         FrequencyMapAgent::make_plugin,
                         Agent::make_dictionary(FrequencyMapAgent::policy_names(),
                                                FrequencyMapAgent::sample_names()));
-#ifdef GEOPM_ENABLE_BETA
         register_plugin(CPUActivityAgent::plugin_name(),
                         CPUActivityAgent::make_plugin,
                         Agent::make_dictionary(CPUActivityAgent::policy_names(),
@@ -70,7 +66,6 @@ namespace geopm
                         FFNetAgent::make_plugin,
                         Agent::make_dictionary(FFNetAgent::policy_names(),
                                                FFNetAgent::sample_names()));
-#endif
         register_plugin(FrequencyBalancerAgent::plugin_name(),
                         FrequencyBalancerAgent::make_plugin,
                         Agent::make_dictionary(FrequencyBalancerAgent::policy_names(),
