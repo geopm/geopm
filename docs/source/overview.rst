@@ -1221,8 +1221,8 @@ or HWP interfaces are useful. If the user also wishes the system to steer power
 intelligently between cores/uncore based on internal telemetry, HWP will work
 best. If computation on a given node is heterogeneous (i.e. some CPUs are given
 more work or more critical work than others), SST features are likely to work
-best. See the :doc:`User Frequency Guide <frequency_guide>` for full
-details on how and when to use these interfaces.
+best. See the :doc:`User Guide for Frequency Control <frequency_guide>` for
+full details on how and when to use these interfaces.
 
 OS frequency drivers may interfere with and take precedent over GEOPM settings.
 Frequency drivers may include settings to drive frequency with the objective of

@@ -1,5 +1,5 @@
-User Frequency Guide
-=====================
+User Guide for Frequency Control
+================================
 
 Description
 -----------
