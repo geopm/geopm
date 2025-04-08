@@ -29,12 +29,12 @@ export CXX=${CXX:-icpx}
 export FC=${FC:-ifx}
 export F77=${F77:-ifx}
 export F90=${F90:-ifx}
-export MPICC=${MPICC:-mpiicc}
-export MPICXX=${MPICXX:-mpiicpc}
-export MPIFORT=${MPIFORT:-mpiifort}
-export MPIFC=${MPIFC:-mpiifort}
-export MPIF77=${MPIF77:-mpiifort}
-export MPIF90=${MPIF90:-mpiifort}
+export MPICC=${MPICC:-mpicc}
+export MPICXX=${MPICXX:-mpic++}
+export MPIFORT=${MPIFORT:-mpifort}
+export MPIFC=${MPIFC:-mpifort}
+export MPIF77=${MPIF77:-mpifort}
+export MPIF90=${MPIF90:-mpifort}
 
 if [ -z ${GEOPM_SKIP_COMPILER_CHECK+x} ]; then
     COMPILER_LIST="CC CXX MPICC MPICXX FC F77 F90 MPIFC MPIFORT MPIF77 MPIF90"
