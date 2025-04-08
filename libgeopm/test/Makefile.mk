@@ -46,6 +46,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ApplicationStatusTest.cpp \
                           test/CommNullImpTest.cpp \
                           test/ControllerTest.cpp \
+                          test/CPUActivityAgentTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/DenseLayerTest.cpp \
@@ -59,10 +60,12 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/EpochIOGroupTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
                           test/FilePolicyTest.cpp \
+                          test/FFNetAgentTest.cpp \
                           test/FrequencyBalancerAgentTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/FrequencyTimeBalancerTest.cpp \
+                          test/GPUActivityAgentTest.cpp \
                           test/InitControlTest.cpp \
                           test/LocalNeuralNetTest.cpp \
                           test/MockAgent.hpp \
@@ -144,10 +147,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/geopm_test.hpp \
                           # end
 
-beta_test_sources = test/CPUActivityAgentTest.cpp \
-                    test/DaemonTest.cpp \
-                    test/FFNetAgentTest.cpp \
-                    test/GPUActivityAgentTest.cpp \
+beta_test_sources = test/DaemonTest.cpp \
                     test/MockPolicyStore.hpp \
                     test/PolicyStoreImpTest.cpp \
                     # end

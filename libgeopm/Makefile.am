@@ -167,6 +167,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/Comm.hpp \
                       src/Controller.cpp \
                       src/Controller.hpp \
+                      src/CPUActivityAgent.cpp \
+                      src/CPUActivityAgent.hpp \
                       src/CSV.cpp \
                       src/CSV.hpp \
                       src/DebugIOGroup.cpp \
@@ -198,12 +200,16 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/EpochIOGroup.hpp \
                       src/FilePolicy.cpp \
                       src/FilePolicy.hpp \
+                      src/FFNetAgent.cpp \
+                      src/FFNetAgent.hpp \
                       src/FrequencyBalancerAgent.cpp \
                       src/FrequencyBalancerAgent.hpp \
                       src/FrequencyGovernor.cpp \
                       src/FrequencyGovernorImp.hpp \
                       src/FrequencyLimitDetector.cpp \
                       src/FrequencyLimitDetector.hpp \
+                      src/GPUActivityAgent.cpp \
+                      src/GPUActivityAgent.hpp \
                       src/SSTFrequencyLimitDetector.cpp \
                       src/SSTFrequencyLimitDetector.hpp \
                       src/TRLFrequencyLimitDetector.cpp \
@@ -285,14 +291,8 @@ libgeopmiogroup_profile_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_ver
 libgeopmiogroup_profile_la_LIBADD = libgeopm.la
 libgeopmiogroup_profile_la_SOURCES = src/ProfileIOGroupLib.cpp src/EpochIOGroupLib.cpp
 
-beta_source_files = src/CPUActivityAgent.cpp \
-                    src/CPUActivityAgent.hpp \
-                    src/Daemon.cpp \
+beta_source_files = src/Daemon.cpp \
                     src/DaemonImp.hpp \
-                    src/FFNetAgent.cpp \
-                    src/FFNetAgent.hpp \
-                    src/GPUActivityAgent.cpp \
-                    src/GPUActivityAgent.hpp \
                     src/PolicyStore.cpp \
                     src/PolicyStore.hpp \
                     src/PolicyStoreImp.cpp \
