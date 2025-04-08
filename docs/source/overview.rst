@@ -841,28 +841,27 @@ Writing Multiple Controls
             int ctl1_idx;
             int err;
 
-            ctl0_idx = geopm_pio_push_control("CPU_FREQUENCY_MAX_CONTROL",
-                                              GEOPM_DOMAIN_CORE,
-                                              0);
-            ctl1_idx = geopm_pio_push_control("CPU_FREQUENCY_MAX_CONTROL",
-                                              GEOPM_DOMAIN_CORE,
-                                              1);
+            // Push controls for each core
+            ctl0_idx = geopm_pio_push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CORE, 0);
+            ctl1_idx = geopm_pio_push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CORE, 1);
 
+            // Adjust the controls to the target frequencies
             err = geopm_pio_adjust(ctl0_idx, 1.0e9);
             if (err != 0) {
                 geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
-                printf("Err msg = %s\n", err_msg);
+                printf("Error adjusting core 0: %s\n", err_msg);
             }
             err = geopm_pio_adjust(ctl1_idx, 1.8e9);
             if (err != 0) {
                 geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
-                printf("Err msg = %s\n", err_msg);
+                printf("Error adjusting core 1: %s\n", err_msg);
             }
 
+            // Write the batch of controls
             err = geopm_pio_write_batch();
             if (err != 0) {
                 geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
-                printf("Err msg = %s\n", err_msg);
+                printf("Error writing batch: %s\n", err_msg);
             }
 
             return 0;
@@ -878,15 +877,18 @@ Writing Multiple Controls
 
         int main (int argc, char** argv)
         {
-            int ctl0_idx = geopm::platform_io().push_control("CPU_FREQUENCY_MAX_CONTROL",
-                                                             GEOPM_DOMAIN_CORE, 0);
-            int ctl1_idx = geopm::platform_io().push_control("CPU_FREQUENCY_MAX_CONTROL",
-                                                             GEOPM_DOMAIN_CORE, 1);
+            geopm::PlatformIO &pio = geopm::platform_io();
 
-            geopm::platform_io().adjust(ctl0_idx, 1.0e9);
-            geopm::platform_io().adjust(ctl1_idx, 1.8e9);
+            // Push controls for each core
+            int ctl0_idx = pio.push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CORE, 0);
+            int ctl1_idx = pio.push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CORE, 1);
 
-            geopm::platform_io().write_batch();
+            // Adjust the controls to the target frequencies
+            pio.adjust(ctl0_idx, 1.0e9);
+            pio.adjust(ctl1_idx, 1.8e9);
+
+            // Write the batch of controls
+            pio.write_batch();
 
             return 0;
         }
@@ -898,28 +900,63 @@ Writing Multiple Controls
         import geopmdpy.topo as topo
         import geopmdpy.pio as pio
 
+        # Define target frequencies for each core
         freqs = [1.0e9, 1.8e9]
         ctl_idxs = []
 
+        # Push controls for each core
         ctl_idxs.append(pio.push_control('CPU_FREQUENCY_MAX_CONTROL', topo.DOMAIN_CORE, 0))
         ctl_idxs.append(pio.push_control('CPU_FREQUENCY_MAX_CONTROL', topo.DOMAIN_CORE, 1))
 
+        # Adjust the controls to the target frequencies
         for idx, ctl in enumerate(ctl_idxs):
             pio.adjust(ctl, freqs[idx])
 
+        # Write the batch of controls
         pio.write_batch()
 
     .. code-tab:: go
 
-        // Write the current CPU frequency for core 0 to 3.0 GHz
+        // Write the core 0 frequency to 1 GHz and core 1 frequency to 1.8 GHz
 
         package main
 
         import (
+            "fmt"
             "github.com/geopm/geopmdgo/geopmdgo"
         )
 
         func main() {
+            // Push controls for each core
+            ctl0Idx, err := geopmdgo.PushControl("CPU_FREQUENCY_MAX_CONTROL", geopmdgo.DOMAIN_CORE, 0)
+            if err != nil {
+                fmt.Println("Error pushing control for core 0:", err)
+                return
+            }
+            ctl1Idx, err := geopmdgo.PushControl("CPU_FREQUENCY_MAX_CONTROL", geopmdgo.DOMAIN_CORE, 1)
+            if err != nil {
+                fmt.Println("Error pushing control for core 1:", err)
+                return
+            }
+
+            // Adjust the controls to the target frequencies
+            err = geopmdgo.Adjust(ctl0Idx, 1.0e9)
+            if err != nil {
+                fmt.Println("Error adjusting core 0:", err)
+                return
+            }
+            err = geopmdgo.Adjust(ctl1Idx, 1.8e9)
+            if err != nil {
+                fmt.Println("Error adjusting core 1:", err)
+                return
+            }
+
+            // Write the batch of controls
+            err = geopmdgo.WriteBatch()
+            if err != nil {
+                fmt.Println("Error writing batch:", err)
+                return
+            }
         }
 
 .. note::
