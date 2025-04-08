@@ -4,7 +4,7 @@ User Guides
 In depth documentation about the GEOPM Service and the GEOPM Runtime are
 provided in two separate guides.
 
-A frequency steering guide is also provided.
+A guide for controlling frequency is also provided.
 
 .. toctree::
    :maxdepth: 1
