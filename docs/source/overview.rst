@@ -811,6 +811,126 @@ Writing Controls
 
         $ geopmread CPU_FREQUENCY_MAX_CONTROL core 0
 
+Writing Multiple Controls
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. tabs::
+
+    .. code-tab:: bash
+
+        # Write the core 0 frequency to 1 GHz and core 1 frequency to 1.8 GHz
+
+        $ echo -e "CPU_FREQUENCY_MAX_CONTROL core 0 1e9\
+                   \nCPU_CORE_FREQUENCY_MAX_CONTROL core 0 1.8e9"\
+                   | geopmwrite -f -"
+
+    .. code-tab:: c
+
+        // Write the core 0 frequency to 1 GHz and core 1 frequency to 1.8 GHz
+
+        #include <limits.h>
+        #include <stdio.h>
+        #include <geopm_topo.h>
+        #include <geopm_pio.h>
+        #include <geopm_error.h>
+
+        int main (int argc, char** argv)
+        {
+            char err_msg[GEOPM_MESSAGE_MAX];
+            int ctl0_idx;
+            int ctl1_idx;
+            int err;
+
+            ctl0_idx = geopm_pio_push_control("CPU_FREQUENCY_MAX_CONTROL",
+                                              GEOPM_DOMAIN_CORE,
+                                              0);
+            ctl1_idx = geopm_pio_push_control("CPU_FREQUENCY_MAX_CONTROL",
+                                              GEOPM_DOMAIN_CORE,
+                                              1);
+
+            err = geopm_pio_adjust(ctl0_idx, 1.0e9);
+            if (err != 0) {
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
+                printf("Err msg = %s\n", err_msg);
+            }
+            err = geopm_pio_adjust(ctl1_idx, 1.8e9);
+            if (err != 0) {
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
+                printf("Err msg = %s\n", err_msg);
+            }
+
+            err = geopm_pio_write_batch();
+            if (err != 0) {
+                geopm_error_message(err, err_msg, GEOPM_MESSAGE_MAX);
+                printf("Err msg = %s\n", err_msg);
+            }
+
+            return 0;
+        }
+
+    .. code-tab:: c++
+
+        // Write the core 0 frequency to 1 GHz and core 1 frequency to 1.8 GHz
+
+        #include <iostream>
+        #include <geopm/PlatformIO.hpp>
+        #include <geopm/PlatformTopo.hpp>
+
+        int main (int argc, char** argv)
+        {
+            int ctl0_idx = geopm::platform_io().push_control("CPU_FREQUENCY_MAX_CONTROL",
+                                                             GEOPM_DOMAIN_CORE, 0);
+            int ctl1_idx = geopm::platform_io().push_control("CPU_FREQUENCY_MAX_CONTROL",
+                                                             GEOPM_DOMAIN_CORE, 1);
+
+            geopm::platform_io().adjust(ctl0_idx, 1.0e9);
+            geopm::platform_io().adjust(ctl1_idx, 1.8e9);
+
+            geopm::platform_io().write_batch();
+
+            return 0;
+        }
+
+    .. code-tab:: python
+
+        # Write the core 0 frequency to 1 GHz and core 1 frequency to 1.8 GHz
+
+        import geopmdpy.topo as topo
+        import geopmdpy.pio as pio
+
+        freqs = [1.0e9, 1.8e9]
+        ctl_idxs = []
+
+        ctl_idxs.append(pio.push_control('CPU_FREQUENCY_MAX_CONTROL', topo.DOMAIN_CORE, 0))
+        ctl_idxs.append(pio.push_control('CPU_FREQUENCY_MAX_CONTROL', topo.DOMAIN_CORE, 1))
+
+        for idx, ctl in enumerate(ctl_idxs):
+            pio.adjust(ctl, freqs[idx])
+
+        pio.write_batch()
+
+    .. code-tab:: go
+
+        // Write the current CPU frequency for core 0 to 3.0 GHz
+
+        package main
+
+        import (
+            "github.com/geopm/geopmdgo/geopmdgo"
+        )
+
+        func main() {
+        }
+
+.. note::
+
+    To determine the initial value of any control, use ``geopmread`` or the
+    corresponding ``PlatformIO`` APIs at the desired domain.  E.g.:
+
+    .. code-block:: bash
+
+        $ geopmread CPU_FREQUENCY_MAX_CONTROL core 0
+
 Understanding Disaggregation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
