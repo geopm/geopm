@@ -23,7 +23,7 @@ it is more likely to play nicely with GEOPM.
 
 The ideal mechanism of frequency control depends of course on the use-case and
 priorities of the user. If performance repeatability is critical or the user
-knows of ideal frequency settings, direct frequency requests is likely ideal.
+knows of ideal frequency settings, direct frequency requests are likely ideal.
 If the user wishes to leverage as much of the power headroom as possible, SST
 or HWP interfaces are useful. If the user also wishes the system to steer power
 intelligently between cores/uncore based on internal telemetry, HWP will work
