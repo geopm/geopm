@@ -45,22 +45,22 @@ def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_
     if not cpu_nn_path and not gpu_nn_path:
         raise RuntimeError('Must specify cpu-nn-path and/or gpu-nn-path when running ffnet experiment')
 
-    if not cpu_nn_path:
+    if cpu_nn_path is not None:
         if os.path.exists(cpu_nn_path):
             os.environ['GEOPM_CPU_NN_PATH'] = cpu_nn_path
         else:
             raise FileNotFoundError(f'File cpu-nn-path={cpu_nn_path} does not exist.')
-        if not cpu_fmap_path:
+        if cpu_fmap_path is not None:
             os.environ['GEOPM_CPU_FMAP_PATH'] = cpu_fmap_path
         else:
             raise RuntimeError('Must specify cpu-fmap-path when cpu-nn-path is specified for ffnet experiment')
 
-    if not gpu_nn_path:
+    if gpu_nn_path is not None:
         if os.path.exists(gpu_nn_path):
             os.environ['GEOPM_GPU_NN_PATH'] = gpu_nn_path
         else:
             raise FileNotFoundError(f'File gpu-nn-path={gpu_nn_path} does not exist.')
-        if not gpu_fmap_path:
+        if gpu_fmap_path is not None:
             os.environ['GEOPM_GPU_FMAP_PATH'] = gpu_fmap_path
         else:
             raise RuntimeError('Must specify gpu-fmap-path when gpu-nn-path is specified for ffnet experiment')
@@ -76,8 +76,8 @@ def launch_configs(output_dir, app_conf, perf_energy_bias=0):
     options = {"PERF_ENERGY_BIAS": perf_energy_bias}
     name = f'{perf_energy_bias}peb'
 
-    file_name = os.path.join(output_dir, f'{agent}_agent_{name}.config'.format(agent))
-    agent_conf = geopmpy.agent.AgentConf(file_name, agent, options)
+    config_file = os.path.join(output_dir, f'{agent}_agent_{name}.config'.format(agent))
+    agent_conf = geopmpy.agent.AgentConf(config_file, agent, options)
     targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                             agent_conf=agent_conf,
                                             name=name))
