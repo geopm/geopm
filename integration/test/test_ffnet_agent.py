@@ -67,6 +67,19 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
             experiment_type.launch(app_conf=app_conf, args=experiment_args,
                                    experiment_cli_args=experiment_cli_args)
 
+
+    #Test region characterization for every line in trace
+    #
+    #For a given REGION_HASH, the probability of the correct IDd region is >95%
+    #    at least 95% of the time
+    def test_region_accuracy(self):
+
+    #Test frequency selection
+    #
+    #For a given REGION_HASH, the average frequency is within 95% of the phi=0.5
+    #    value
+    def test_freq_selection(self):
+
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
     util.do_launch()
