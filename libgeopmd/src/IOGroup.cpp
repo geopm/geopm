@@ -96,7 +96,7 @@ namespace geopm
         // fail.
         if (geopm::has_cap_sys_admin()) {
             // May want to give Cpufreq and Powercap higher priority than the
-            // non-safe msr driver once it is considered more stable.  The
+            // non-safe msr driver once they are considered more stable.  The
             // msr-safe ioctl() interface is the highest performance one
             // available for these signals/controls
             register_plugin(CpufreqSysfsDriver::plugin_name(),
