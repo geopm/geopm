@@ -55,7 +55,6 @@ Requires:	python3-psutil
 Requires:	python3-%{prj_name} = %{version}-%{release}
 Requires:	geopmd-cli
 %if %{defined suse_version}
-Requires:	python-gobject-common-devel
 Requires:	python3-gobject
 %endif
 %if %{defined enable_grpc}
