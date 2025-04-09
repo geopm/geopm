@@ -44,7 +44,6 @@ BuildRequires:	python3-jsonschema
 BuildRequires:	python3-psutil
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
-Requires:	python-gobject-common-devel
 Requires:	python3-cffi
 Requires:	python3-dasbus
 Requires:	python3-gobject
