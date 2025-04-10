@@ -13,6 +13,7 @@ EXTRA_DIST = README.md \
              config/dudley_env.sh \
              config/endeavor_env.sh \
              config/gnu_env.sh \
+             config/mcfly_env.sh \
              config/README.md \
              config/run_env.sh \
              config/smng_env.sh \
