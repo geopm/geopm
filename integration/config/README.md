@@ -20,20 +20,20 @@ A `bash` script that may be sourced within a shell in order to set up
 the user's build/run environment on the australis system.
 
 
-`build.sh`
-----------
-
-An executable script that will automate use of the GEOPM and GEOPM Service
-build systems.  This script provides documentation if run with the `--help`
-command line option.
-
-
 `build_env.sh`
 --------------
 
 A `bash` script that may be sourced within a shell in order to set up
 the user's build environment.  By default this will use the Intel
 compiler toolchain.
+
+
+`build.sh`
+----------
+
+An executable script that will automate use of the GEOPM and GEOPM Service
+build systems.  This script provides documentation if run with the `--help`
+command line option.
 
 
 `dudley_env.sh`
@@ -51,14 +51,21 @@ the user's build environment on the endeavor system.
 
 
 `gnu_env.sh`
-----------
+------------
 
 A `bash` script that may be sourced within a shell in order to set up
 the user's build environment to use the GNU compiler toolchain.
 
 
+`mcfly_env.sh`
+--------------
+
+A `bash` script that may be sourced within a shell in order to set up
+the user's build environment on the mcfly system.
+
+
 `run_env.sh`
-----------
+------------
 
 A `bash` script that may be source within a shell in order to set up the
 user's run environment to use a locally installed version of the GEOPM
@@ -66,14 +73,14 @@ packages.
 
 
 `smng_env.sh`
------------
+-------------
 
 A `bash` script that may be sourced within a shell in order to set up
 the user's build environment on the SuperMUC-NG system.
 
 
 `theta_env.sh`
-------------
+--------------
 
 A `bash` script that may be sourced within a shell in order to set up
 the user's build environment on the Theta system.
