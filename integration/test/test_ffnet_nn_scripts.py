@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Copyright (c) 2015 - 2024 Intel Corporation
+#  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -33,8 +33,7 @@ from integration.experiment.ffnet import gen_hdf_from_fsweep
 from integration.experiment.ffnet import gen_neural_net
 from integration.experiment.ffnet import gen_region_parameters
 
-#@util.skip_unless_config_enable('beta')
-#@util.skip_unless_do_launch()
+@util.skip_unless_do_launch()
 
 class TestIntegration_ffnet(unittest.TestCase):
     @classmethod
@@ -316,8 +315,9 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         #Check that CPU region frequency for sleep is <= dgemm at phi=0 (could both be fmax)
         self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0] <= fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0])
-        #Check that CPU region frequency for sleep is < dgemm at phi=1 (strictly)
-        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1] < fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
+
+        #Check that CPU region frequency for spin is < dgemm at phi=1 (strictly)
+        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['spin']][-1] < fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
 
         #Check that sleep's frequency decrease (phi=0 to phi=1) is
         #greater than dgemm's frequency decrease (phi=0 to phi=1)
