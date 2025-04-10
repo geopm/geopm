@@ -24,7 +24,6 @@ from integration.test import geopm_test_launcher
 from integration.experiment.energy_efficiency import gpu_activity
 from integration.apps.parres import parres
 
-@util.skip_unless_config_enable('beta')
 @util.skip_unless_gpu()
 @util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/")
 class TestIntegration_gpu_activity(unittest.TestCase):

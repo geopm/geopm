@@ -215,7 +215,6 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
         self.assertGreaterEqual(uncore_freq_efficient, self._uncore_min_freq)
         self.assertLessEqual(uncore_freq_efficient, self._uncore_max_freq)
 
-    @util.skip_unless_config_enable('beta')
     def test_cpu_activity_aib(self):
         """
         AIB testing to make sure agent tuning based on AIB yielded sensible
@@ -272,7 +271,6 @@ class TestIntegration_cpu_characterization(unittest.TestCase):
             util.assertNear(self, runtime, monitor_runtime_1)
             self.assertLess(energy, monitor_energy_1)
 
-    @util.skip_unless_config_enable('beta')
     @util.skip_unless_workload_exists("apps/minife/miniFE_openmp-2.0-rc3/src/miniFE.x")
     def test_cpu_activity_minife(self):
         """
