@@ -112,9 +112,9 @@ def launch(app_conf, args, experiment_cli_args):
     mach = machine.init_output_dir(output_dir)
     freq_range = {}
 
-    if 'min_frequency' in args and 'max_frequency' in args:
+    if hasattr(args, 'min_frequency') and hasattr(args, 'max_frequency'):
         if args.min_frequency != args.max_frequency:
-            if 'step_frequency' not in args:
+            if not hasattr(args, 'step_frequency'):
                 args.step_frequency = mach.frequency_step()
             freq_range['cpu'] = frequency_sweep.setup_frequency_bounds(mach,
                                                                        args.min_frequency,
@@ -122,9 +122,9 @@ def launch(app_conf, args, experiment_cli_args):
                                                                        args.step_frequency,
                                                                        args.run_max_turbo)
 
-    if 'min_uncore_frequency' in args and 'max_uncore_frequency' in args:
+    if hasattr(args, 'min_uncore_frequency') and hasattr(args, 'max_uncore_frequency'):
         if args.min_uncore_frequency != args.max_uncore_frequency:
-            if 'step_uncore_frequency' not in args:
+            if not hasattr(args, 'step_uncore_frequency'):
                 args.step_uncore_frequency = mach.frequency_step()
             freq_range['cpu_uncore'] = uncore_frequency_sweep.setup_uncore_frequency_bounds(
                                                               mach,
@@ -133,9 +133,9 @@ def launch(app_conf, args, experiment_cli_args):
                                                               args.step_uncore_frequency
                                                               )
 
-    if 'min_gpu_frequency' in args and 'max_gpu_frequency' in args:
+    if hasattr(args, 'min_gpu_frequency') and hasattr(args, 'max_gpu_frequency'):
         if args.min_gpu_frequency != args.max_gpu_frequency:# and machine.num_gpu() > 0:
-            if 'step_gpu_frequency' not in args:
+            if not hasattr(args, 'step_gpu_frequency'):
                 args.step_gpu_frqeuency = mach.gpu_frequency_step()
             freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(
                                                     mach,
