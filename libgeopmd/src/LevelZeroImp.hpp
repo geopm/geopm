@@ -217,6 +217,9 @@ namespace geopm
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
+            // Separate caches for timestamps used in power and active time calculations
+            std::vector<uint64_t> m_cached_power_timestamps;
+            std::vector<uint64_t> m_cached_active_time_timestamps;
     };
 }
 #endif

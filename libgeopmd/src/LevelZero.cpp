@@ -35,6 +35,8 @@ namespace geopm
     LevelZeroImp::LevelZeroImp()
         : m_num_gpu(0)
         , m_num_gpu_subdevice(0)
+        , m_cached_power_timestamps(0)
+        , m_cached_active_time_timestamps(0)
     {
         if (getenv("ZE_AFFINITY_MASK") != nullptr) {
             throw Exception("LevelZero: Cannot be used directly when ZE_AFFINITY_MASK environment "
@@ -919,7 +921,7 @@ namespace geopm
     uint64_t LevelZeroImp::active_time_timestamp(unsigned int l0_device_idx,
                                                  int l0_domain, int l0_domain_idx) const
     {
-        return m_devices.at(l0_device_idx).subdevice.cached_timestamp.at(l0_domain).at(l0_domain_idx);
+        return m_cached_active_time_timestamps.at(l0_device_idx * m_devices.at(l0_device_idx).m_num_subdevice + l0_domain_idx);
     }
 
     uint64_t LevelZeroImp::active_time(unsigned int l0_device_idx,
@@ -941,8 +943,7 @@ namespace geopm
                         ": Sysman failed to get engine group activity.", __LINE__);
         result_active = stats.activeTime;
         result_timestamp = stats.timestamp;
-        m_devices.at(l0_device_idx).
-            subdevice.cached_timestamp.at(l0_domain).at(l0_domain_idx) = result_timestamp;
+        m_cached_active_time_timestamps.at(l0_device_idx * m_devices.at(l0_device_idx).m_num_subdevice + l0_domain_idx) = result_timestamp;
         return {result_active, result_timestamp};
     }
 
@@ -976,7 +977,7 @@ namespace geopm
 
         if (geopm_domain == GEOPM_DOMAIN_GPU &&
             power_domain_count(GEOPM_DOMAIN_GPU, l0_device_idx, M_DOMAIN_ALL) == 1) {
-            //DEVICE LEVEL
+            // DEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
             zes_power_energy_counter_t energy_counter = {};
             check_ze_result(zesPowerGetEnergyCounter(handle, &energy_counter),
@@ -984,11 +985,11 @@ namespace geopm
                             ": Sysman failed to get energy_counter values", __LINE__);
             result_energy += energy_counter.energy;
             result_timestamp += energy_counter.timestamp;
-            m_devices.at(l0_device_idx).cached_energy_timestamp = result_timestamp;
+            m_cached_power_timestamps.at(l0_device_idx) = result_timestamp;
         }
         else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP &&
                  power_domain_count(GEOPM_DOMAIN_GPU_CHIP, l0_device_idx, M_DOMAIN_ALL) >= l0_domain_idx) {
-            //SUBDEVICE LEVEL
+            // SUBDEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
             zes_power_energy_counter_t energy_counter = {};
             check_ze_result(zesPowerGetEnergyCounter(handle, &energy_counter),
@@ -996,7 +997,7 @@ namespace geopm
                             ": Sysman failed to get energy_counter values", __LINE__);
             result_energy += energy_counter.energy;
             result_timestamp += energy_counter.timestamp;
-            m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx) = result_timestamp;
+            m_cached_power_timestamps.at(l0_device_idx * m_devices.at(l0_device_idx).m_num_subdevice + l0_domain_idx) = result_timestamp;
         }
         return {result_energy, result_timestamp};
     }
