@@ -4,13 +4,6 @@ geopm_agent_cpu_activity(7) -- agent for selecting CPU frequency based on CPU co
 Description
 -----------
 
-.. note::
-    This is currently an experimental agent and is only available when
-    building GEOPM with the ``--enable-beta`` flag. Some areas or aspects that
-    are subject to change include its interface (e.g. the policy) and
-    algorithm. It is also possible that this agent may be refactored and
-    combined with other agents.
-
 The goal of **CPUActivityAgent** is to save CPU energy by scaling CPU frequency
 based upon the compute activity of each CPU as provided by the
 CPU_COMPUTE_ACTIVITY signal and modified by the CPU_UTILIZATION signal.

@@ -5,13 +5,6 @@ geopm_agent_gpu_activity(7) -- agent for selecting GPU frequency based on GPU co
 Description
 -----------
 
-.. note::
-    This is currently an experimental agent and is only available when
-    building GEOPM with the ``--enable-beta`` flag. Some areas or aspects that
-    are subject to change include its interface (e.g. the policy) and
-    algorithm. It is also possible that this agent may be refactored and
-    combined with other agents.
-
 The goal of **GPUActivityAgent** is to save GPU energy by scaling GPU frequency
 based upon the compute activity of each GPU as provided by the
 ``GPU_CORE_ACTIVITY`` signal and modified by the ``GPU_UTILIZATION`` signal.

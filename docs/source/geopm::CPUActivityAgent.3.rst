@@ -17,13 +17,6 @@ The behavior of this agent is described in more detail in the
 For more details on the implementation, see the
 `doxygen page <https://geopm.github.io/geopm-runtime-dox/classgeopm_1_1_c_p_u_activity_agent.html>`_.
 
-.. note::
-    This is currently an experimental agent and is only available when
-    building GEOPM with the ``--enable-beta`` flag. Some areas or aspects that
-    are subject to change include its interface (e.g. the policy) and
-    algorithm. It is also possible that this agent may be refactored and
-    combined with other agents.
-
 See Also
 --------
 

@@ -5,16 +5,6 @@ geopm_agent_ffnet(7) -- agent for adjusting frequencies based on application beh
 Description
 -----------
 
-.. note::
-    This is currently an experimental agent and is only available when
-    building GEOPM with the ``--enable-beta`` flag. The agent is subject
-    to change, including being combined with other agents. Also, this agent 
-    requires a neural net JSON file, the format of which is described by 
-    the schema domainnetmap_neural_net.schema.json and a region hint 
-    recommender JSON file described by the schema
-    regionhintrecommender_fmap.schema.json. Without these inputs, the agent 
-    will throw an error. The autogeneration of these files is future work.
-
 The FFNet agent adjusts frequencies per domain for the goal of improved energy
 efficiency with minimal performance loss. The agent instantiates a neural net
 per domain that ingests hardware telemetry and outputs a probability distribution
