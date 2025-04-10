@@ -34,22 +34,62 @@ from integration.experiment.ffnet import ffnet
 class TestIntegration_ffnet_agent(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Setup applications, execute, and set up class variables.
+        """
+        mach = machine.init_output_dir('.')
+        cls._skip_launch = not util.do_launch()
+        cls._test_name = 'test_ffnet_nn_scripts'
+
         # Configure the ffnet agent
-        cls._ffnet_policy = {'PERF_ENERGY_BIAS':0.5}
         cls._agent = 'ffnet'
+        cls._perf_energy_bias = 0.5
+        cls._ffnet_dir = Path('test_ffnet_output'))
+        cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
+        cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
 
-        # Run FFNet agent using dummy net
-        cls._nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
-        cls._fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
-        os.environ["GEOPM_CPU_NN_PATH"] = cls._cpu_nn_path
-        os.environ["GEOPM_CPU_FMAP_PATH"] = cls._cpu_fmap_path
+        node_count = 1
+        cls._run_count = 0
+
+        # Setup Common Args
+        ffnet_experiment_args = SimpleNamespace(
+            output_dir=cls._ffnet_dir,
+            perf_energy_bias=cls._perf_energy_bias,
+            cpu_nn_path=cls._cpu_nn_dummy_path,
+            cpu_freq_rec_path=cls._cpu_fmap_dummy_path,
+            node_count=node_count,
+            trial_count = 1,
+            cool_off_time = 3,
+        )
+
+        experiment_cli_args=['--geopm-ctl=process']
+
+        # Configure the CPU test application - geopmbench
+        cpu_test_app_params = {
+            'spin_bigo': 0.5,
+            'sleep_bigo': 1.0,
+            'dgemm_bigo': 1.0,
+            'stream_bigo': 2.0,
+            'loop_count': 2
+        }
+        cls._app_regions = {}
+        #TODO: Get hashes later from a report and assemble this info
+        cls._app_regions['cpu'] = {'spin':"geopmbench-0x120a248f",
+                                   'sleep':"geopmbench-0x0f33c2ac",
+                                   'dgemm':"geopmbench-0xa12de8ee",
+                                   'stream':"geopmbench-0xf0e9be1c"}
+
+        bench_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
+        bench_conf.set_loop_count(cpu_test_app_params['loop_count'])
+        for region in cls._app_regions['cpu']:
+            bench_conf.append_region(region, cpu_test_app_params[f"{region}_bigo"])
+        bench_conf.write()
+
+        ffnet_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()), 1)
+
+        os.environ["GEOPM_CPU_NN_PATH"] = cls._cpu_nn_dummy_path
+        os.environ["GEOPM_CPU_FMAP_PATH"] = cls._cpu_fmap_dummy_path
         cls.launch_helper(ffnet, ffnet_experiment_args, ffnet_app_conf, experiment_cli_args)
-
-        # Run FFNet agent on geopmbench and parres
-        for parres_app_conf in app_confs:
-            cls.launch_helper(neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
-
-        # Run FFNet agent on workload of interest
 
         ###########
         # Helpers #
