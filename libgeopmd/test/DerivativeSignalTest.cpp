@@ -111,7 +111,7 @@ TEST_F(DerivativeSignalTest, read_nan)
     EXPECT_EQ(m_nan_replace, result);
 }
 
-TEST_F(DerivativeSignalTest, read_batch_nan)
+TEST_F(DerivativeSignalTest, read_batch_no_change_first)
 {
     EXPECT_CALL(*m_time_sig, setup_batch());
     EXPECT_CALL(*m_y_sig, setup_batch());
@@ -119,7 +119,6 @@ TEST_F(DerivativeSignalTest, read_batch_nan)
 
     double result = NAN;
 
-    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
     EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
     EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
 
@@ -127,13 +126,39 @@ TEST_F(DerivativeSignalTest, read_batch_nan)
     result = m_sig_nan->sample();
     EXPECT_TRUE(std::isnan(result));
 
-    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
     EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
-    EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
 
-    //Second call replaces NAN with m_nan_replace
+    //Second call returns NAN as well
     result = m_sig_nan->sample();
-    EXPECT_EQ(m_nan_replace, result);
+    EXPECT_TRUE(std::isnan(result));
+
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(3.0));
+    EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(8.7));
+    result = m_sig_nan->sample();
+    EXPECT_NEAR(1, result, 1e-9);
+}
+
+TEST_F(DerivativeSignalTest, read_batch_no_change)
+{
+    EXPECT_CALL(*m_time_sig, setup_batch());
+    EXPECT_CALL(*m_y_sig, setup_batch());
+    m_sig_nan->setup_batch();
+
+    double result = NAN;
+
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(4.0));
+    EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(8.7));
+    result = m_sig_nan->sample();
+    EXPECT_TRUE(std::isnan(result));
+
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(5.0));
+    EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(9.7));
+    result = m_sig_nan->sample();
+    EXPECT_NEAR(1, result, 1e-9);
+
+    EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(5.0));
+    result = m_sig_nan->sample();
+    EXPECT_NEAR(1, result, 1e-9);
 }
 
 TEST_F(DerivativeSignalTest, read_batch_first)
@@ -142,7 +167,6 @@ TEST_F(DerivativeSignalTest, read_batch_first)
     EXPECT_CALL(*m_y_sig, setup_batch());
     m_sig->setup_batch();
 
-    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
     EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(2.0));
     EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(7.7));
     double result = m_sig->sample();
@@ -157,7 +181,6 @@ TEST_F(DerivativeSignalTest, read_batch_flat)
 
     double result = NAN;
     for (size_t ii = 0; ii < m_sample_values_0.size(); ++ii) {
-        EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
         EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
         EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(m_sample_values_0[ii]));
         result = m_sig->sample();
@@ -173,7 +196,6 @@ TEST_F(DerivativeSignalTest, read_batch_slope_1)
 
     double result = NAN;
     for (size_t ii = 0; ii < m_sample_values_1.size(); ++ii) {
-        EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
         EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
         EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(m_sample_values_1[ii]));
         result = m_sig->sample();
@@ -182,7 +204,6 @@ TEST_F(DerivativeSignalTest, read_batch_slope_1)
 
     //Read again without an updated signal, check that data is preserved
     size_t ii = m_sample_values_1.size()-1;
-    EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(true));
     EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
     result = m_sig->sample();
     EXPECT_NEAR(m_exp_slope_1, result, 0.0001);
@@ -196,7 +217,6 @@ TEST_F(DerivativeSignalTest, read_batch_slope_2)
 
     double result = NAN;
     for (size_t ii = 0; ii < m_sample_values_2.size(); ++ii) {
-        EXPECT_CALL(*m_time_sig, is_sampled()).WillOnce(Return(false));
         EXPECT_CALL(*m_time_sig, sample()).WillOnce(Return(ii));
         EXPECT_CALL(*m_y_sig, sample()).WillOnce(Return(m_sample_values_2[ii]));
         result = m_sig->sample();

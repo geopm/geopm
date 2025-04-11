@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include <numeric>
+#include <algorithm>
 #include <sched.h>
 #include <errno.h>
 #include <string.h>
@@ -1117,44 +1118,26 @@ namespace geopm
         }
 
         int result = -1;
-        bool is_found = false;
-
         // Guarantee base signal was pushed before any timestamp signals
         if (string_ends_with(signal_name, "_TIMESTAMP")) {
-            std::string base_signal_name =
-                (std::string)signal_name.substr(
+            std::string base_signal_name = signal_name.substr(
                 0, signal_name.length() - strlen("_TIMESTAMP"));
 
             std::shared_ptr<Signal> base_signal = m_signal_available.at(
                 base_signal_name).m_signals.at(domain_idx);
-
-            // check if base signal was pushed
-            for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
-                if (m_signal_pushed[ii] == base_signal) {
-                    result = ii;
-                    is_found = true;
-                }
-            }
-            // if not, push the base signal
-            if (!is_found) {
+            if (std::find(m_signal_pushed.begin(), m_signal_pushed.end(),
+                          base_signal) == m_signal_pushed.end()) {
                 push_signal(base_signal_name, domain_type, domain_idx);
             }
         }
-
-        // Reset is_found for next search
-        is_found = false;
 
         std::shared_ptr<Signal> signal = m_signal_available.at(
                                          signal_name).m_signals.at(domain_idx);
 
         // Check if signal was already pushed.
-        for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
-            if (m_signal_pushed[ii] == signal) {
-                result = ii;
-                is_found = true;
-            }
-        }
-        if (!is_found) {
+        size_t signal_off = std::find(m_signal_pushed.begin(), m_signal_pushed.end(),
+                                      signal) -  m_signal_pushed.begin();
+        if (signal_off == m_signal_pushed.size()) {
             // If not pushed, add to pushed signals and configure for batch reads
             result = m_signal_pushed.size();
             m_signal_pushed.push_back(signal);
@@ -1164,13 +1147,15 @@ namespace geopm
                 push_signal(signal_name + "_TIMESTAMP", domain_type, domain_idx);
             }
         }
+        else {
+            result = signal_off;
+        }
 
         // Push signals related to derivative signals
         auto derivative_it = m_derivative_signal_map.find(signal_name);
         if (derivative_it != m_derivative_signal_map.end()) {
             //Add derivative signals to the skip list
             m_derivative_signal_pushed_set.insert(result);
-
             //push associated signals
             push_signal(derivative_it->second.m_base_name, domain_type, domain_idx);
             push_signal(derivative_it->second.m_time_name, domain_type, domain_idx);
