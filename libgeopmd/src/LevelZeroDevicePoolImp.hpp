@@ -104,6 +104,9 @@ namespace geopm
             std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
             mutable std::map<int, std::vector<uint64_t> > m_active_time_last; // Map from l0_domain to vector over gpu chips
             mutable std::map<int, std::vector<uint64_t> > m_active_time_rollover; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_last; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_rollover; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_original; // Map from l0_domain to vector over gpu chips
     };
 }
 #endif

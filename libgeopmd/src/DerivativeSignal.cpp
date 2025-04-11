@@ -37,6 +37,7 @@ namespace geopm
         , m_sleep_time(sleep_time)
         , m_last_result(NAN)
         , m_nan_replace(nan_replace)
+        , m_last_time(NAN)
     {
         GEOPM_DEBUG_ASSERT(m_time_sig && m_y_sig,
                            "Signal pointers for time_sig and y_sig cannot be null.");
@@ -100,14 +101,14 @@ namespace geopm
             throw Exception("setup_batch() must be called before sample().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        bool is_sampled = m_time_sig->is_sampled();
         double time = m_time_sig->sample();
         size_t history_size = m_history.size();
         // Check if this is the first call ever to sample() (history_size == 0)
         // Or check if this is the first call to sample() since the last call to read_batch()
-        if (history_size == 0ULL || ! is_sampled) {
+        if (history_size == 0ULL || m_last_time != time) {
             double signal = m_y_sig->sample();
             m_last_result = compute_next(m_history, m_derivative_num_fit, time, signal, m_nan_replace);
+            m_last_time = time;
         }
         return m_last_result;
     }

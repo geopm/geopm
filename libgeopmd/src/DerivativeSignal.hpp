@@ -52,6 +52,7 @@ namespace geopm
             double m_sleep_time;
             double m_last_result;
             double m_nan_replace;
+            double m_last_time;
     };
 }
 
