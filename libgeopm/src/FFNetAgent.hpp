@@ -84,6 +84,7 @@ namespace geopm
                 double last_value;
             };
 
+            bool env_are_set(const std::string &nnet, const std::string &fmap);
             static std::string get_env_value(const std::string &env_var);
             void init_domain_indices(const PlatformTopo &topo);
 
