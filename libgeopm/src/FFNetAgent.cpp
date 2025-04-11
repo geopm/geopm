@@ -48,7 +48,7 @@ namespace geopm
          {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_CONTROL"}};
 
     const std::map<geopm_domain_e, std::string> FFNetAgent::M_TRACE_SUFFIX = 
-        {{GEOPM_DOMAIN_PACKAGE, "_cpu_"},
+        {{GEOPM_DOMAIN_PACKAGE, "_package_"},
          {GEOPM_DOMAIN_GPU, "_gpu_"}};
 
 
@@ -106,8 +106,15 @@ namespace geopm
     }
 
     void FFNetAgent::init_domain_indices(const PlatformTopo &topo) {
-        m_domain_types.push_back(GEOPM_DOMAIN_PACKAGE);
-        if (topo.num_domain(GEOPM_DOMAIN_GPU) > 0) {
+        //Include domains if they have a neural net / fmap file
+        //Currently supported: package, gpu
+        if (env_are_set(M_NNET_ENVNAME.at(GEOPM_DOMAIN_PACKAGE),
+                        M_FREQMAP_ENVNAME.at(GEOPM_DOMAIN_PACKAGE))) {
+            m_domain_types.push_back(GEOPM_DOMAIN_PACKAGE);
+        }
+        if (topo.num_domain(GEOPM_DOMAIN_GPU) > 0 &&
+            env_are_set(M_NNET_ENVNAME.at(GEOPM_DOMAIN_GPU),
+                        M_FREQMAP_ENVNAME.at(GEOPM_DOMAIN_GPU))) {
             m_domain_types.push_back(GEOPM_DOMAIN_GPU);
         }
 
@@ -315,6 +322,14 @@ namespace geopm
         return type < other.type || (type == other.type && index < other.index);
     }
 
+    bool FFNetAgent::env_are_set(const std::string &nnet, const std::string &fmap) {
+        std::string nnet_str = geopm::get_env(nnet);
+        std::string fmap_str = geopm::get_env(fmap);
+
+        return !nnet_str.empty() && !fmap_str.empty();
+
+
+    }
     std::string FFNetAgent::get_env_value(const std::string &env_var)
     {
         std::string value = geopm::get_env(env_var);

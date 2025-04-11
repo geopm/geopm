@@ -41,27 +41,27 @@ def report_signals():
 def trace_signals():
     return []
 
-def setup_env_paths(cpu_nn_path=None, cpu_fmap_path=None, gpu_nn_path=None, gpu_fmap_path=None):
-    if not cpu_nn_path and not gpu_nn_path:
+def setup_env_paths(args):
+    if not args.cpu_nn_path and not args.gpu_nn_path:
         raise RuntimeError('Must specify cpu-nn-path and/or gpu-nn-path when running ffnet experiment')
 
-    if cpu_nn_path is not None:
-        if os.path.exists(cpu_nn_path):
-            os.environ['GEOPM_CPU_NN_PATH'] = cpu_nn_path
+    if hasattr(args, "cpu_nn_path"):
+        if os.path.exists(args.cpu_nn_path):
+            os.environ['GEOPM_CPU_NN_PATH'] = args.cpu_nn_path
         else:
             raise FileNotFoundError(f'File cpu-nn-path={cpu_nn_path} does not exist.')
-        if cpu_fmap_path is not None:
-            os.environ['GEOPM_CPU_FMAP_PATH'] = cpu_fmap_path
+        if hasattr(args, "cpu_fmap_path"):
+            os.environ['GEOPM_CPU_FMAP_PATH'] = args.cpu_fmap_path
         else:
             raise RuntimeError('Must specify cpu-fmap-path when cpu-nn-path is specified for ffnet experiment')
 
-    if gpu_nn_path is not None:
-        if os.path.exists(gpu_nn_path):
-            os.environ['GEOPM_GPU_NN_PATH'] = gpu_nn_path
+    if hasattr(args, "gpu_nn_path"):
+        if os.path.exists(args.gpu_nn_path):
+            os.environ['GEOPM_GPU_NN_PATH'] = args.gpu_nn_path
         else:
             raise FileNotFoundError(f'File gpu-nn-path={gpu_nn_path} does not exist.')
-        if gpu_fmap_path is not None:
-            os.environ['GEOPM_GPU_FMAP_PATH'] = gpu_fmap_path
+        if hasattr(args, "gpu_fmap_path"):
+            os.environ['GEOPM_GPU_FMAP_PATH'] = args.gpu_fmap_path
         else:
             raise RuntimeError('Must specify gpu-fmap-path when gpu-nn-path is specified for ffnet experiment')
 
@@ -89,22 +89,9 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    setup_env_paths(args.cpu_nn_path,
-                    args.cpu_freq_rec_path,
-                    args.gpu_nn_path,
-                    args.gpu_freq_rec_path)
+    setup_env_paths(args)
 
     targets = launch_configs(output_dir, app_conf, args.perf_energy_bias)
-
-    #Set and initialize required counters for nn training
-    init_control_path = 'neural_net_init.controls'
-    with open(init_control_path, 'w') as outfile:
-        outfile.write("""MSR::PQR_ASSOC:RMID board 0 0
-                      # Assigns all cores to resource monitoring association ID 0
-                      # Next, assign resource monitoring ID for QM events to match
-                      MSR::QM_EVTSEL:RMID board 0 0
-                      # Then determine Xeon Uncore Utilization
-                      MSR::QM_EVTSEL:EVENT_ID board 0 0""")
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
@@ -114,7 +101,7 @@ def launch(app_conf, args, experiment_cli_args):
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
                                 enable_profile_traces=args.enable_profile_traces,
-                                init_control_path=init_control_path)
+                                init_control_path=None)
 
 def main(app_conf, **defaults):
     parser = argparse.ArgumentParser()

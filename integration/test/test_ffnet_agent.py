@@ -48,8 +48,6 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls._perf_energy_bias = 0.5
         cls._ffnet_dir = Path(os.path.join('test_ffnet_output', 'ffnet'))
 
-        #TODO: Do a short geopmbench run and dynamically generate ffnet_dummy
-        #      to use region hashes from the output (use get_region_map)
         cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
         cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
 
@@ -57,16 +55,17 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls._run_count = 0
 
         # Setup Common Args
+        # TODO: Remove gpu nn/freq paths
         ffnet_experiment_args = SimpleNamespace(
-            output_dir=cls._ffnet_dir,
-            perf_energy_bias=cls._perf_energy_bias,
-            cpu_nn_path=cls._cpu_nn_dummy_path,
-            cpu_freq_rec_path=cls._cpu_fmap_dummy_path,
-            gpu_nn_path=None,
-            gpu_freq_rec_path=None,
-            node_count=node_count,
+            output_dir = cls._ffnet_dir,
+            perf_energy_bias = cls._perf_energy_bias,
+            cpu_nn_path = cls._cpu_nn_dummy_path,
+            cpu_fmap_path = cls._cpu_fmap_dummy_path,
+            node_count = node_count,
             trial_count = 1,
             cool_off_time = 3,
+            enable_traces = True,
+            enable_profile_traces = False,
         )
 
         experiment_cli_args=['--geopm-ctl=process']
@@ -95,11 +94,11 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls.launch_helper(cls, ffnet, ffnet_experiment_args, ffnet_app_conf, experiment_cli_args)
 
         # Get traces and reports
-        cls._trace_path = glob.glob(experiment_args.output_dir + "/*trace*")
+        cls._trace_path = glob.glob(str(cls._ffnet_dir) + "/*trace*")
         cls._trace = geopmpy.io.AppOutput(traces=cls._trace_path[0])
         cls._trace_data = cls._trace.get_trace_data()
 
-        cls._report_path = glob.glob(experiment_args.output_dir + "/*report*")
+        cls._report_path = glob.glob(str(cls._ffnet_dir) + "/*report*")
         cls._report_output = geopmpy.io.RawReport(cls._report_path[0])
         cls._app_regions = cls.get_region_map()
 
