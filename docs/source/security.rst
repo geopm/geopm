@@ -242,6 +242,42 @@ reported by the Linux kernel, including the number of cores, base frequency,
 and achievable turbo frequencies.
 
 
+Xe and i915 DRM Device Drivers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The GEOPM Service can function as a gateway to the Xe and i915 DRM (Direct
+Rendering Manager) device drivers, which are loaded as part of the Linux
+kernel. These drivers provide access to GPU-related metrics and controls,
+such as energy consumption, power limits, and performance monitoring. The
+GEOPM Service enables fine-grained access to these features, allowing system
+administrators to control which signals and controls are exposed to users.
+For more information, see the `Xe documentation
+<https://www.kernel.org/doc/html/next/gpu/driver-uapi.html#drm-xe-uapi>`_ and
+the `i915 documentation <https://www.kernel.org/doc/html/next/gpu/i915.html>`_.
+
+
+Cpufreq Device Driver
+^^^^^^^^^^^^^^^^^^^^^
+
+The GEOPM Service can act as a gateway to the cpufreq device driver, which
+provides access to CPU frequency scaling metrics and controls. This includes
+signals for minimum and maximum CPU frequencies, as well as controls for
+setting frequency limits. The cpufreq driver is essential for managing CPU
+power and performance. For more information, see the `cpufreq documentation
+<https://docs.kernel.org/admin-guide/pm/cpufreq.html>`_.
+
+
+Powercap Device Driver
+^^^^^^^^^^^^^^^^^^^^^^
+
+The GEOPM Service can also interface with the powercap device driver, which
+provides access to power capping and energy monitoring features. This includes
+signals for power consumption and energy usage, as well as controls for
+setting power limits. The powercap driver is critical for managing system
+power efficiency. For more information, see the `powercap documentation
+<https://www.kernel.org/doc/html/next/power/powercap/powercap.html>`_.
+
+
 LevelZero Sysman Library Interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
