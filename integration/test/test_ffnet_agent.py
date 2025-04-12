@@ -45,7 +45,7 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
 
         # Configure the ffnet agent
         cls._agent = 'ffnet'
-        cls._perf_energy_bias = 0.5
+        cls._perf_energy_bias = 0
         cls._ffnet_dir = Path(os.path.join('test_ffnet_output', 'ffnet'))
 
         cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
@@ -98,13 +98,13 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls._trace = geopmpy.io.AppOutput(traces=cls._trace_path[0])
         cls._trace_data = cls._trace.get_trace_data()
 
-        cls._report_path = glob.glob(str(cls._ffnet_dir) + "/*report*")
+        cls._report_path = glob.glob(str(cls._ffnet_dir) + "/*report")
         cls._report_output = geopmpy.io.RawReport(cls._report_path[0])
-        cls._app_regions = cls.get_region_map()
+        cls._app_regions = cls.get_region_map(cls)
 
         # Get dummy ffnet and fmap
-        cls._nn_dummy = self.get_json(open(cls._cpu_nn_dummy_path, "r"))
-        cls._fmap_dummy = self.get_json(open(cls._cpu_fmap_dummy_path, "r"))
+        cls._nn_dummy = cls.get_json(cls, open(cls._cpu_nn_dummy_path, "r"))
+        cls._fmap_dummy = cls.get_json(cls, open(cls._cpu_fmap_dummy_path, "r"))
 
         ###########
         # Helpers #
@@ -125,11 +125,11 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
     #Get region name : region hash mapping
     def get_region_map(self):
         hostname = self._report_output.host_names()[0]
-        region_names = report_output.region_names(hostname)
+        region_names = self._report_output.region_names(hostname)
         region_map = {}
 
         for region in region_names:
-            region_map[region] = report_output.raw_region(hostname, region)["hash"]
+            region_map[region] = self._report_output.raw_region(hostname, region)["hash"]
 
         return region_map
 
@@ -142,7 +142,7 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         return json_parsed
 
     #Used to calculate region probabilities
-    def sigmoid(x):
+    def sigmoid(self, x):
         return 1/ (1 + np.exp(-x))
 
     ###########
@@ -151,18 +151,19 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
 
     # Test that we get a single report with our expected regions
     def test_single_report(self):
-        self.assertEqual(len(cls._report_path), 1)
+        self.assertEqual(len(self._report_path), 1)
 
         for region in self._test_app_params:
-            self.assertTrue(region in cls._app_regions)
+            self.assertTrue(region in self._app_regions)
 
     # Test that we get a single trace with expected FFNet trace columns
     def test_single_trace(self):
-        self.assertEqual(len(cls._trace_path), 1)
+        self.assertEqual(len(self._trace_path), 1)
 
         num_pkg = geopmdpy.topo.num_domain('package')
-        for region in nn_dummy['trace_outputs']:
-            self.assertEqual(cls._trace_data.columns.str.startswith("dgemm").sum(),
+        #Should get one column per region per package
+        for region in self._nn_dummy['trace_outputs']:
+            self.assertEqual(self._trace_data.columns.str.startswith(region).sum(),
                              num_pkg)
 
     #Test region characterization for every line in trace
@@ -170,13 +171,13 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
     #    >95% at least 95% of the time
     def test_region_accuracy(self):
         # Calculate probabilities
-        subset = cls._trace_data[list(cls._trace_data.filter(regex='geopmbench'))]
-        probabilities = subset.apply(sigmoid)
-        probabilities['REGION_HASH'] = cls._trace_data['REGION_HASH']
+        subset = self._trace_data[list(self._trace_data.filter(regex='geopmbench'))]
+        probabilities = subset.apply(self.sigmoid)
+        probabilities['REGION_HASH'] = self._trace_data['REGION_HASH']
 
         # Count lines where probability of correct ID is >95%
-        for region in cls._app_regions:
-            region_hash = cls._app_regions[region]
+        for region in self._app_regions:
+            region_hash = hex(self._app_regions[region])
             df = probabilities[probabilities["REGION_HASH"] == region_hash]
             samples_total = len(df)
             samples_good = len(df[df[f"geopmbench-{region_hash}_{geopmdpy.topo.DOMAIN_PACKAGE}_0"] > 0.95])
