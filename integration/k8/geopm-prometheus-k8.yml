@@ -30,7 +30,7 @@ spec:
             mountPath: /sys
         command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
       - name: geopm-prometheus-client
-        image: cmcantal/geopm-prometheus:latest
+        image: geopm-prometheus:latest
         securityContext:
           privileged: false
           allowPrivilegeEscalation: false
@@ -46,7 +46,7 @@ spec:
           hostPort: 8000
         command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; /usr/bin/geopmexporter --insecure-http']
       - name: geopm-client
-        image: cmcantal/geopm-prometheus:latest
+        image: geopm-prometheus:latest
         securityContext:
           privileged: false
           allowPrivilegeEscalation: false
