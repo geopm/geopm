@@ -11,7 +11,7 @@ import re
 import shutil
 import sys
 import unittest
-import subprocess
+import subprocess # nosec
 from io import StringIO
 import argparse
 import psutil
