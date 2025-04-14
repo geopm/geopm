@@ -9,7 +9,7 @@ RUN apt-get install -yq software-properties-common python3-pip git build-essenti
 			python3-setuptools-scm wget debhelper-compat dh-python curl zstd python3-cffi
 RUN python3 -m pip install build
 RUN apt-get install -yq gpg
-RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg
+RUN curl -fsSL https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg
 RUN echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy client" | \
   tee /etc/apt/sources.list.d/intel-gpu-jammy.list
 RUN apt-get update
