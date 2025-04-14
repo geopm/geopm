@@ -8,9 +8,8 @@
 import os
 import sys
 import pandas
-import signal
 import unittest
-import subprocess
+import subprocess # nosec
 
 import geopmpy.launcher
 import geopmpy.io
