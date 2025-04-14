@@ -6,10 +6,9 @@
 
 import sys
 import unittest
-import subprocess
+import subprocess # nosec
 import json
 
-import geopmpy.io
 import geopmdpy.hash
 
 
