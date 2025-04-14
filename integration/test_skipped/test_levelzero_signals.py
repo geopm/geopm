@@ -7,14 +7,9 @@
 import os
 import sys
 import unittest
-import subprocess
-import io
-import json
 import util
 import time
 
-import geopmpy.agent
-import geopmdpy.topo
 from integration.test import geopm_test_launcher
 
 
