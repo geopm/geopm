@@ -5,15 +5,11 @@
 #
 
 
-import os
-import sys
 import unittest
 import shlex
-import subprocess
-import io
+import subprocess # nosec
 import json
 
-import geopmpy.io
 import geopmdpy.topo
 import geopmdpy.pio
 
