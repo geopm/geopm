@@ -15,7 +15,7 @@ import geopmpy.io
 
 # TODO: copied from plotter.py
 # maybe move these functions into that file
-import subprocess
+import subprocess # nosec
 import os
 try:
     with open(os.devnull, 'w') as FNULL:
