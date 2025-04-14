@@ -7,7 +7,7 @@
 import os
 import sys
 import unittest
-import subprocess
+import subprocess # nosec
 
 class TestBashExamples(unittest.TestCase):
     def setUp(self):
