@@ -17,3 +17,5 @@ RUN printf \
 "DRAM_ENERGY\nDRAM_POWER\nGPU_CORE_FREQUENCY_STATUS\nGPU_ENERGY\n"\
 "GPU_POWER\nGPU_TEMPERATURE\n" | \
     geopmaccess --direct --force --write --default
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD geopmaccess --version || exit 1
