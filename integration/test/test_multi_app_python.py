@@ -12,7 +12,7 @@ verify they're tracked/profiled correctly.
 
 import sys
 import unittest
-import subprocess
+import subprocess # nosec
 import os
 from socket import gethostname
 
