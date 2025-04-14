@@ -6,11 +6,9 @@
 
 
 import os
-import sys
 import unittest
-import subprocess
+import subprocess # nosec
 import io
-import json
 
 import geopmpy.agent
 import geopmdpy.topo
