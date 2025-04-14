@@ -294,7 +294,7 @@ SEE ALSO
 from builtins import round
 import sys
 import os
-import subprocess
+import subprocess # nosec
 import argparse
 import math
 from pkg_resources import parse_version
