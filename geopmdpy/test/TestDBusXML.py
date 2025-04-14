@@ -7,7 +7,7 @@
 from unittest import mock
 import sys
 import unittest
-import xml.etree.ElementTree as ET
+from defusedxml import ElementTree as ET
 from geopmdpy import dbus_xml
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy import service
