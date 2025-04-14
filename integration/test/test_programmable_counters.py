@@ -3,14 +3,12 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-import subprocess
 import unittest
 import time
 
 from geopmdpy import pio
 from geopmdpy import topo
 
-from integration.test import geopm_test_launcher
 from integration.test import util
 
 @util.skip_unless_msr_access(msg='Requires test runner to hold the service write lock.  This breaks other tests.')
