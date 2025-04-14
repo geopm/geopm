@@ -8,7 +8,7 @@
 import os
 import time
 import sys
-import subprocess
+import subprocess # nosec
 import timeit
 import datetime
 
