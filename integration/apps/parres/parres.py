@@ -3,10 +3,9 @@
 #
 
 import os
-import sys
 import glob
 import textwrap
-import subprocess
+import subprocess # nosec
 
 from integration.apps import apps
 
