@@ -8,9 +8,6 @@ AppConf class for Arithmetic Intensity benchmark.
 
 import argparse
 import os
-import re
-import subprocess
-import sys
 
 from integration.apps import apps
 
