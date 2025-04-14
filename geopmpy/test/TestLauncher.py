@@ -8,7 +8,6 @@
 import unittest
 import os
 from unittest import mock
-import subprocess
 import shlex
 try:
     # Test with str StringIO where available, and with unicode StringIO elsewhere
