@@ -12,12 +12,11 @@ that the controller successfully runs.
 import sys
 import unittest
 import os
-import subprocess
+import subprocess # nosec
 import glob
 
 import geopmpy.io
 import geopmpy.agent
-import geopmdpy.error
 import geopmdpy.topo
 from integration.test import geopm_test_launcher
 from integration.test import check_trace
