@@ -11,7 +11,7 @@ invokes the correct experiment script based on input parameters.
 
 import sys
 import unittest
-import subprocess
+import subprocess # nosec
 import os
 
 
