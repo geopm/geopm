@@ -7,7 +7,7 @@
 import sys
 import unittest
 import os
-import subprocess
+import subprocess # nosec
 import io
 import time
 import signal
