@@ -10,7 +10,7 @@ import jsonschema
 import sys
 import os
 import socket
-import subprocess
+import subprocess # nosec
 import io
 import yaml
 import shlex
