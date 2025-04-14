@@ -15,13 +15,15 @@ RUN echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg]
 RUN apt-get update
 RUN apt-get install -yq libze1 libze-dev
 RUN git clone https://github.com/geopm/geopm.git
-RUN cd geopm
-RUN cd geopm/libgeopmd && ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
-RUN cd geopm/libgeopmd && apt-get install -yq ./libgeopmd*.deb
-RUN cd geopm/geopmdpy && ./make_deb.sh
+WORKDIR /geopm/libgeopmd
+RUN ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
+RUN apt-get install -yq ./libgeopmd*.deb
+WORKDIR /geopm/geopmdpy
+RUN ./make_deb.sh
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup update stable
 RUN cargo install cargo-deb
-RUN cd geopm/geopmdrs && ./build.sh
+WORKDIR /geopm/geopmdrs
+RUN ./build.sh
 RUN mkdir -p /mnt/geopm-prometheus && cp -p $(find -name \*.deb) /mnt/geopm-prometheus
