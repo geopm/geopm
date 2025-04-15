@@ -28,10 +28,10 @@ def setup_run_args(parser):
     parser.add_argument('--gpu-nn-path', dest='gpu_nn_path',
                         action='store', default=None,
                         help='Full path for the GPU NN')
-    parser.add_argument('--cpu-fmap-path', dest='cpu_freq_rec_path',
+    parser.add_argument('--cpu-fmap-path', dest='cpu_fmap_path',
                         action='store', default=None,
                         help='Full path for the CPU Frequency Recommender Map')
-    parser.add_argument('--gpu-fmap-path', dest='gpu_freq_rec_path',
+    parser.add_argument('--gpu-fmap-path', dest='gpu_fmap_path',
                         action='store', default=None,
                         help='Full path for the GPU Frequency Recommender Map')
 

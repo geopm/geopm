@@ -183,10 +183,8 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
             samples_good = len(df[df[f"geopmbench-{region_hash}_{geopmdpy.topo.DOMAIN_PACKAGE}_0"] > 0.95])
             self.assertTrue(samples_good/samples_total > 0.95)
 
-
-
     #Test frequency selection
-    #    For a given REGION_HASH, the average frequency is within 95% of the
+    #    For a given REGION_HASH, the frequency control is within 95% of the
     #    phi=0.5 value
     #def test_freq_selection(self):
 
