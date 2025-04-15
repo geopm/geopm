@@ -35,11 +35,13 @@ def model_to_json(model, X_columns, y_columns, describe_net):
        trace file with the corresponding column name (key).
     """
     def parse_signal(signal_name):
-        if signal_name in ['TIME', 'DRAM_POWER', 'DRAM_ENERGY']:
-            return [signal_name, 0, 0]
-        component_list=["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
-        signal_list = signal_name.split('-')
-        return [signal_list[0], component_list.index(signal_list[1].lower()), int(signal_list[2])]
+        return signal_name
+        #Future: Use signal domain info
+        #if signal_name in ['TIME', 'DRAM_POWER', 'DRAM_ENERGY']:
+        #    return [signal_name, 0, 0]
+        #component_list=["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
+        #signal_list = signal_name.split('-')
+        #return [signal_list[0], component_list.index(signal_list[1].lower()), int(signal_list[2])]
 
     layers = [[]]
 
@@ -242,7 +244,7 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
     print("Training to identify these regions:")
     region_ids = sorted(list(df_traces["region-id"].unique()))
     print(", ".join(region_ids))
-    mapping = dict(map(reversed, enumerate(region_ids))) 
+    mapping = dict(map(reversed, enumerate(region_ids)))
     df_traces["region-id"] = df_traces['region-id'].map(mapping)
 
     for domain in domains_to_train:

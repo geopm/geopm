@@ -86,6 +86,8 @@ def process_trace_files(sweep_dir):
             key, value = line[2:].split(':', maxsplit=1)
             trace_header[key.strip()] = value.strip()
 
+        fd.close()
+
         nodename = trace_header["node_name"]
         app_name = trace_header["profile_name"][:trace_header["profile_name"].find('_frequency_map')].strip('"')
 
