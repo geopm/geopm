@@ -38,6 +38,7 @@ BuildRequires:	libgeopmd-devel
 BuildRequires:	python-gobject-common-devel
 BuildRequires:	python3-cffi
 BuildRequires:	python3-dasbus
+BuildRequires:	python3-defusedxml
 BuildRequires:	python3-devel
 BuildRequires:	python3-gobject
 BuildRequires:	python3-jsonschema

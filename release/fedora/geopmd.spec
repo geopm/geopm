@@ -20,6 +20,7 @@ Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar
 
 BuildRequires:	libgeopmd-devel
 BuildRequires:	python3-devel
+BuildRequires:	python3-defusedxml
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
 BuildRequires:	python3-cffi
