@@ -21,6 +21,7 @@ namespace geopm
             "signal_inputs",
             "delta_inputs",
             "trace_outputs",
+            "control_outputs",
             "description"};
 
     std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(const std::string &nn_path,
