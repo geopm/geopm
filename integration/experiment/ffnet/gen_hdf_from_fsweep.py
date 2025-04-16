@@ -14,8 +14,9 @@ try:
 except ImportError:
     from yaml import SafeLoader
 
-def process_report_files(input_dir):
+def process_report_files(input_dir, region_ignore):
     reports = []
+
     print(f"Processing {input_dir}")
     for report_path in chain(
             glob.iglob(os.path.join(input_dir, "*", '*.report')),
@@ -48,9 +49,11 @@ def process_report_files(input_dir):
             #app-config
             if "Regions" in report["Hosts"][nodename]:
                 for region_dict in report["Hosts"][nodename]["Regions"]:
-                    region_dict['app-config'] = app_name + '-' + format(region_dict['hash'], '#010x')
-                    region_dict.update(conf)
-                    reports.append(region_dict)
+                    format_region = format(region_dict['hash'], '#010x')
+                    if format_region not in region_ignore and app_name + "-" + format_region not in region_ignore:
+                        region_dict['app-config'] = app_name + '-' + format_region
+                        region_dict.update(conf)
+                        reports.append(region_dict)
             else:
                 # Handle sweeps done with python infrastructure that does not have regions or a region hash
                 region_dict = report["Hosts"][nodename]["Application Totals"]
@@ -58,16 +61,17 @@ def process_report_files(input_dir):
                 region_dict.update(conf)
                 reports.append(region_dict)
 
-            if "Unmarked Totals" in report['Hosts'][nodename]:
-                region_dict = report["Hosts"][nodename]["Unmarked Totals"]
-                region_dict['app-config'] = f"{app_name}-unmarked"
-                region_dict.update(conf)
-                reports.append(region_dict)
+            #TODO: Confirm we don't need this
+            #if "Unmarked Totals" in report['Hosts'][nodename]:
+            #    region_dict = report["Hosts"][nodename]["Unmarked Totals"]
+            #    region_dict['app-config'] = f"{app_name}-unmarked"
+            #    region_dict.update(conf)
+            #    reports.append(region_dict)
 
     return pd.DataFrame(reports)
 
 # Process trace file to be ingested into HDF
-def process_trace_files(sweep_dir):
+def process_trace_files(sweep_dir, region_ignore):
     all_dfs = []
     for trace_file in chain(
             glob.iglob(os.path.join(sweep_dir, "*", f'*.trace-*')),
@@ -93,20 +97,29 @@ def process_trace_files(sweep_dir):
 
         #Filter out nan and "NAN" regions
         trace_df = trace_df[trace_df['REGION_HASH'].notna()]
+        trace_df = trace_df[~trace_df['REGION_HASH'].isin(region_ignore)]
 
         trace_df['node'] = nodename
 
         # Help uniquely identify different configurations of a single app, used to train on
         # instead of REGION_HASH
         trace_df['app-config'] = app_name + '-' + trace_df['REGION_HASH']
+        trace_df = trace_df[~trace_df['app-config'].isin(region_ignore)]
 
         all_dfs.append(trace_df)
     return pd.concat(all_dfs, ignore_index=True)
 
 
-def main(output_prefix, frequency_sweep_dirs):
-    print(f"Output prefix: {output_prefix}")
-    print(f"Sweep dirs: {output_prefix}")
+def main(output_prefix, frequency_sweep_dirs, region_ignore=None):
+    #Regions to ignore
+    if region_ignore is None:
+        region_list = []
+    else:
+        region_list = region_ignore.split(",")
+
+    region_ignore = ['NAN', '0x725e8066'] + region_list
+    print("GenHDF: Ignoring regions " + (", ").join(region_ignore))
+
     reports_dfs = []
 
     #Determine which columns to keep for stats file, which is used to generate frequency
@@ -132,7 +145,7 @@ def main(output_prefix, frequency_sweep_dirs):
         frequency_sweep_dirs = [frequency_sweep_dirs]
 
     for full_sweep_dir in frequency_sweep_dirs:
-        reports_df = process_report_files(full_sweep_dir)
+        reports_df = process_report_files(full_sweep_dir, region_ignore)
         if first:
             for want_column in want_columns:
                 if want_column in reports_df.columns:
@@ -148,7 +161,7 @@ def main(output_prefix, frequency_sweep_dirs):
     #generated region names when hashes are not available
     trace_dfs = []
     for full_sweep_dir in frequency_sweep_dirs:
-        trace_dfs.append(process_trace_files(full_sweep_dir))
+        trace_dfs.append(process_trace_files(full_sweep_dir, region_ignore))
 
     pd \
     .concat(trace_dfs, ignore_index=True) \
@@ -160,11 +173,15 @@ if __name__ == "__main__":
         description='''Generate HDFs from frequency sweep reports/traces, to use
                      with ffnet agent integration infrastructure.'''
     )
-    parser.add_argument('output',
+    parser.add_argument('--output',
                         help='Prefix name of the output HDF files.')
-    parser.add_argument('frequency_sweep_dirs',
+    parser.add_argument('--ignore',
+                        help='Comma-separated hashes of any regions to ignore.',
+                        dest="region_ignore",
+                        default=None)
+    parser.add_argument('--frequency_sweep_dirs',
                         nargs='+',
                         help='Directories containing reports and traces from frequency sweeps')
     args = parser.parse_args()
 
-    main(args.output, args.frequency_sweep_dirs)
+    main(args.output, args.frequency_sweep_dirs, args.region_ignore)

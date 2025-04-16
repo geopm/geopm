@@ -87,20 +87,11 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_perf, freq_range, f
 
     return (float)(freq_subset[f'{domain}-frequency'].iloc[row_idx])
 
-def main(output_name, data_file, region_ignore=None):
-
-    #Regions to ignore for training
-    if region_ignore == None:
-        region_list = []
-    else:
-        region_list = region_ignore.split(",")
-    region_ignore = ['NAN'] + region_list
-
+def main(output_name, data_file):
     freq_range={}
     region_regression={}
     table_stats = pd.read_hdf(data_file)
     table_stats = table_stats[~table_stats['app-config'].isna()]
-    table_stats = table_stats[~table_stats['app-config'].isin(region_ignore)]
 
     domains = get_domains(table_stats)
 
@@ -138,10 +129,6 @@ if __name__ == '__main__':
     parser.add_argument('--data-file',
                         action='store',
                         help='HDF containing stats data.')
-    parser.add_argument('--ignore',
-                        help='Comma-separated hashes of any regions to ignore.',
-                        dest="region_ignore",
-                        default=None)
     args = parser.parse_args()
 
-    main(args.output, args.data_file, args.region_ignore)
+    main(args.output, args.data_file)

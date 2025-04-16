@@ -35,7 +35,7 @@ def model_to_json(model, X_columns, y_columns, describe_net):
        trace file with the corresponding column name (key).
     """
     def parse_signal(signal_name):
-        return signal_name
+        return signal_name.split('-')[0]
         #Future: Use signal domain info
         #if signal_name in ['TIME', 'DRAM_POWER', 'DRAM_ENERGY']:
         #    return [signal_name, 0, 0]
@@ -176,13 +176,7 @@ def train_model(df_traces, X_columns, y_columns, log=print):
 
     return model
 
-def main(input_list, output_name="nnet", describe_net="A neural net.", region_ignore=None):
-    #Regions to ignore for training
-    if region_ignore == None:
-        region_list = []
-    else:
-        region_list = region_ignore.split(",")
-    region_ignore = ['NAN'] + region_list
+def main(input_list, output_name="nnet", describe_net="A neural net."):
 
     dfs = []
 
@@ -219,7 +213,6 @@ def main(input_list, output_name="nnet", describe_net="A neural net.", region_ig
             sys.exit(1)
 
         df["region-id"] = df["app-config"]
-        df = df[~df['app-config'].isin(region_ignore)]
         dfs.append(df)
 
     df_traces = pd.concat(dfs)
@@ -282,14 +275,10 @@ if __name__ == '__main__':
                         help='Description of the neural net, between quotes.',
                         dest="describe_net",
                         default="A neural net.")
-     parser.add_argument('--ignore',
-                        help='Comma-separated hashes of any regions to ignore.',
-                        dest="region_ignore",
-                        default=None)
      parser.add_argument('--data',
                         nargs='+',
                         help='Data files to train on')
      args = parser.parse_args()
 
-     main(args.data, args.output_name, args.describe_net, args.region_ignore)
+     main(args.data, args.output_name, args.describe_net)
 
