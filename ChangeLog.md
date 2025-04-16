@@ -1,3 +1,30 @@
+* Wed Apr 17 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.0
+- Official v3.2.0 release tag
+- ABI bump moving so-version from 2.1.0 -> 2.2.0 with backward compatibility for release v3.1
+- Add support for Xe DRM and i915 DRM GPU metrics and controls through SysfsIOGroup
+- Add support for cpufreq and powercap drivers in SysfsIOGroup
+- Enhance NVMLIOGroup with additional GPU performance metrics
+- Add new signals and controls for GPU RAS metrics in LevelZeroIOGroup
+- Provide alternative to DBus for containerized solutions: gRPC over UDS
+- Improve support for hybrid CPU-GPU workloads
+- Add new signals for time-based metrics in TimeIOGroup
+- Improve support for Intel Speed Select Technology in SSTIOGroup
+- Add support for additional GPU features in DCGMIOGroup
+- Improve documentation for protected assets and IOGroup interfaces
+- Update integration tests to cover new IOGroup features
+- Improve CI automation for testing on diverse hardware platforms
+- Fix issues with signal aliasing in SysfsIOGroup and NVMLIOGroup
+- Fix compatibility issues with recent Linux kernel versions
+- Add performance optimizations for GEOPM Service batch interface
+- Improve support for heterogeneous systems with mixed CPU and GPU architectures
+- Fix issues with signal scaling and unit consistency across IOGroups
+- Add new integration tests for GPU and CPU power management features
+- Improve support for dynamic signal discovery in SysfsIOGroup
+- Enhance support for GPU memory metrics in LevelZeroIOGroup
+- Improve compatibility with recent versions of systemd and Linux distributions
+- Add new features for managing signal and control permissions in geopmaccess
+- Update documentation for new features and clarify usage of existing APIs
+- A full list of all closed bugs: <https://github.com/geopm/geopm/issues?q=is%3Aissue%20state%3Aclosed%20label%3Abug%20closed%3A%3C2025-04-16%20closed%3A%3E2024-05-17%20>
 * Fri May 17 2024 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.1.0
 - Official v3.1.0 release tag
 - ABI bump moving so-version from 2.0.0 -> 2.1.0 with backward compatibility for release v3.0
