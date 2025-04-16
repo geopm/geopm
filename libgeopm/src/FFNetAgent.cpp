@@ -5,9 +5,6 @@
 
 #include "FFNetAgent.hpp"
 
-//TODO: REMOVE THIS
-#include <iostream>
-
 #include <sstream>
 #include <cmath>
 #include <cassert>
@@ -111,24 +108,25 @@ namespace geopm
     void FFNetAgent::init_domain_indices(const PlatformTopo &topo) {
         //Include domains if they have a neural net and fmap file
         //Currently supported: package, gpu
+        bool domain_set = false;
         if (env_are_set(M_NNET_ENVNAME.at(GEOPM_DOMAIN_PACKAGE),
                         M_FREQMAP_ENVNAME.at(GEOPM_DOMAIN_PACKAGE))) {
-            std::cout << "FFNet: Setting up CPU Package nn control" << std::endl;
             m_domain_types.push_back(GEOPM_DOMAIN_PACKAGE);
+            domain_set = true;
         }
-        else {
-            std::cout << "FFNet: No CPU Package nn control" << std::endl;
-        }
-
         if (topo.num_domain(GEOPM_DOMAIN_GPU) > 0 &&
             env_are_set(M_NNET_ENVNAME.at(GEOPM_DOMAIN_GPU),
                         M_FREQMAP_ENVNAME.at(GEOPM_DOMAIN_GPU))) {
-            std::cout << "FFNet: Setting up GPU nn control" << std::endl;
             m_domain_types.push_back(GEOPM_DOMAIN_GPU);
+            domain set = true;
         }
-        else {
-            std::cout << "FFNet: No GPU nn control" << std::endl;
+
+        if (! domain_set) {
+            throw Exception("FFNetAgent::" + std::string(__func__) +
+                            "(): No viable domain identified.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
 
         for (geopm_domain_e domain_type : m_domain_types) {
             int count = topo.num_domain(domain_type);
@@ -336,17 +334,9 @@ namespace geopm
 
     bool FFNetAgent::env_are_set(const std::string &nnet, const std::string &fmap) {
 
-        std::cout << "FFNet: Checking for env variables " << nnet << "and " << fmap << std::endl;
         std::string nnet_str = geopm::get_env(nnet);
         std::string fmap_str = geopm::get_env(fmap);
        
-
-        if(nnet_str.empty()){
-            std::cout<<"FFnet: oh no, nnet is empty." << std::endl;
-        }
-        if(fmap_str.empty()){
-            std::cout<<"FFnet: oh no, fmap is empty." << std::endl;
-        }
         return !nnet_str.empty() && !fmap_str.empty();
 
 

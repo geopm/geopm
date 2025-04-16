@@ -43,7 +43,7 @@ namespace geopm
         std::ifstream ffile(fmap_path);
         if (!ffile.is_open()) {
             throw Exception("RegionHintRecommenderImp::" + std::string(__func__) +
-                            ": Unable to open frequency map file: " + fmap_path + ".",
+                            ": Unable to open frequency map file: " + fmap_path,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
