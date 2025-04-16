@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: geopm-service-pod
+  namespace: geopm-namespace
 spec:
   selector:
     matchLabels:
