@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: geopm-service-pod
-  namespace: geopm-namespace
+  namespace: geopm
 spec:
   selector:
     matchLabels:
@@ -123,7 +123,7 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: container-resource-limits
-  namespace: default
+  namespace: geopm
 spec:
   limits:
   - type: Container
@@ -144,7 +144,7 @@ apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: namespace-resource-quota
-  namespace: default
+  namespace: geopm
 spec:
   hard:
     requests.cpu: "2"
