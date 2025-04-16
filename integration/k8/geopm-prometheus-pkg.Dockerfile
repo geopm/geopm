@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS env
+FROM ubuntu:24.04 AS env
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -yq --no-install-recommends \
@@ -6,25 +6,25 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     libnvidia-ml-dev libgrpc-dev libgrpc++-dev libprotobuf-dev libprotoc-dev \
     libsystemd-dev liburing-dev libtool pkgconf protobuf-compiler \
     protobuf-compiler-grpc unzip zlib1g-dev python3-all python3-setuptools \
-    python3-setuptools-scm wget debhelper-compat dh-python curl zstd python3-cffi
+    python3-setuptools-scm wget debhelper-compat dh-python curl zstd \
+    python3-cffi gpg libze1 libze-dev
+RUN useradd -ms /bin/bash build
+USER build
+WORKDIR /home/build
 RUN python3 -m pip install build
-RUN apt-get install -yq --no-install-recommends gpg
-RUN curl -fsSL https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg
-RUN echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy client" | \
-  tee /etc/apt/sources.list.d/intel-gpu-jammy.list
-RUN apt-get update && apt-get install -yq --no-install-recommends libze1 libze-dev
 RUN git clone https://github.com/geopm/geopm.git
-WORKDIR /geopm/libgeopmd
+WORKDIR /home/build/geopm/libgeopmd
 RUN ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
-RUN apt-get install -yq --no-install-recommends ./libgeopmd*.deb
-WORKDIR /geopm/geopmdpy
+USER root
+RUN apt-get install -yq --no-install-recommends /home/build/geopm/libgeopmd/libgeopmd*.deb
+USER build
+WORKDIR /home/build/geopm/geopmdpy
 RUN ./make_deb.sh
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+ENV PATH="/home/build/.cargo/bin:${PATH}"
 RUN rustup update stable
 RUN cargo install cargo-deb
-WORKDIR /geopm/geopmdrs
+WORKDIR /home/build/geopm/geopmdrs
 RUN ./build.sh
-RUN mkdir -p /mnt/geopm-prometheus && cp -p $(find -name \*.deb) /mnt/geopm-prometheus
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD test -d /mnt/geopm-prometheus || exit 1
+USER root
+RUN mkdir -p /mnt/geopm-prometheus && cp -p $(find /home/build/geopm -name \*.deb) /mnt/geopm-prometheus
