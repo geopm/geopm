@@ -74,10 +74,9 @@ namespace geopm
             struct m_domain_key_s {
                 geopm_domain_e type;
                 int index;
-                bool operator<(const m_domain_key_s &other) const; /*{
-                    return type < other.type || (type == other.type && index < other.index);
-                }*/
+                bool operator<(const m_domain_key_s &other) const;
             };
+
             struct m_control_s {
                 int max_idx;
                 int min_idx;
