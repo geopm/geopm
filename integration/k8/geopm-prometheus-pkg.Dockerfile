@@ -28,3 +28,4 @@ WORKDIR /home/build/geopm/geopmdrs
 RUN ./build.sh
 USER root
 RUN mkdir -p /mnt/geopm-prometheus && cp -p $(find /home/build/geopm -name \*.deb) /mnt/geopm-prometheus
+USER build
