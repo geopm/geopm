@@ -118,7 +118,7 @@ namespace geopm
             env_are_set(M_NNET_ENVNAME.at(GEOPM_DOMAIN_GPU),
                         M_FREQMAP_ENVNAME.at(GEOPM_DOMAIN_GPU))) {
             m_domain_types.push_back(GEOPM_DOMAIN_GPU);
-            domain set = true;
+            domain_set = true;
         }
 
         if (! domain_set) {
@@ -126,7 +126,6 @@ namespace geopm
                             "(): No viable domain identified.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
 
         for (geopm_domain_e domain_type : m_domain_types) {
             int count = topo.num_domain(domain_type);
@@ -165,6 +164,7 @@ namespace geopm
         m_platform_io.write_control("MSR::PQR_ASSOC:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
         m_platform_io.write_control("MSR::QM_EVTSEL:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
         m_platform_io.write_control("MSR::QM_EVTSEL:EVENT_ID", GEOPM_DOMAIN_BOARD, 0, 2);
+
     }
 
     // Validate incoming policy and configure default policy requests.
@@ -296,8 +296,14 @@ namespace geopm
     std::vector<std::string> FFNetAgent::trace_names(void) const
     {
         std::vector<std::string> tracelist;
+
         for (const m_domain_key_s domain_key : m_domains) {
-            for (const std::string& trace_name : m_net_map.at(domain_key)->trace_names()) {
+            tracelist.push_back(M_MAX_FREQ_CONTROL_NAME.at(domain_key.type) +
+                                    M_TRACE_SUFFIX.at(domain_key.type) +
+                                    std::to_string(domain_key.index));
+        }
+        for (const m_domain_key_s domain_key : m_domains) {
+            for (const std::string& trace_name : m_net_map.at(domain_key) -> trace_names()) {
                 tracelist.push_back(trace_name +
                                     M_TRACE_SUFFIX.at(domain_key.type) +
                                     std::to_string(domain_key.index));
@@ -315,9 +321,14 @@ namespace geopm
     void FFNetAgent::trace_values(std::vector<double> &values)
     {
         int vidx = 0;
+        for (const m_domain_key_s domain_key : m_domains) {
+            values[vidx] = m_freq_control[domain_key].last_value;
+            vidx++;
+        }
         for (const auto &kv : m_net_map) {
             std::vector<double> domain_row = kv.second->trace_values();
-            for (size_t idx=0; idx < domain_row.size(); ++vidx, ++idx) {
+            for (size_t idx=vidx; idx < domain_row.size(); ++idx) {
+                vidx++;
                 values[vidx] = domain_row[idx];
             }
         }

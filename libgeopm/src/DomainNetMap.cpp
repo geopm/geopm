@@ -21,6 +21,7 @@ namespace geopm
             "signal_inputs",
             "delta_inputs",
             "trace_outputs",
+            "policy_inputs",
             "control_outputs",
             "description"};
 

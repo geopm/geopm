@@ -28,13 +28,12 @@ if __name__ == '__main__':
                         help='Directories containing reports and traces from frequency sweeps')
     args = parser.parse_args()
 
-    hdf.main(args.output, args.frequency_sweep_dirs)
+    hdf.main(args.output, args.frequency_sweep_dirs, args.region_ignore)
     stats_hdf = f"{args.output}_stats.h5"
     trace_hdf = f"{args.output}_traces.h5"
 
     nn_out = f"{args.output}_nn"
-    nn.main(trace_hdf, nn_out, args.describe_net, args.region_ignore)
+    nn.main(trace_hdf, nn_out, args.describe_net)
 
     fmap_out = f"{args.output}_fmap"
     fmap.main(fmap_out, stats_hdf)
-
