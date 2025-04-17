@@ -9,4 +9,3 @@ rm -rf geopm-prometheus
 docker cp ${id}:/mnt/geopm-prometheus geopm-prometheus
 docker rm -v ${id}
 docker build . -f geopm-prometheus.Dockerfile -t geopm-prometheus  >& geopm-prometheus.log
-

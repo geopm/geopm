@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 RUN useradd -ms /bin/bash build
 USER build
 WORKDIR /home/build
-RUN git clone https://github.com/geopm/geopm.git
+RUN git clone https://github.com/bgeltz/geopm.git
 WORKDIR /home/build/geopm/libgeopmd
+RUN git checkout dockerfiles
 RUN ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
 USER root
 RUN apt-get install -yq --no-install-recommends /home/build/geopm/libgeopmd/libgeopmd*.deb
