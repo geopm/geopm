@@ -48,8 +48,11 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls._perf_energy_bias = 0
         cls._ffnet_dir = Path(os.path.join('test_ffnet_output', 'ffnet'))
 
-        cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
-        cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
+        #TODO: Replace
+        #cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
+        #cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
+        cls._cpu_nn_dummy_path = "/home/ahalrawi/output/test_nn_nn_cpu.json"
+        cls._cpu_fmap_dummy_path = "/home/ahalrawi/output/test_nn_fmap_cpu.json"
 
         node_count = 1
         cls._run_count = 0
@@ -149,8 +152,14 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
     #  Tests  #
     ###########
 
-    # Test that we get a single report with our expected regions
     def test_single_report(self):
+        """
+        Test that a single report is output with expected regions
+
+        Pass Criteria:
+            - There is exactly one report
+            - Regions in cls._app_regions are present (spin, sleep, dgemm, stream)
+        """
         self.assertEqual(len(self._report_path), 1)
 
         for region in self._test_app_params:
@@ -158,6 +167,14 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
 
     # Test that we get a single trace with expected FFNet trace columns
     def test_single_trace(self):
+        """
+        Test that a single trace is output with expected ffnet region trace columns
+
+        Pass Criteria:
+            - There is exactly one trace
+            - There are exactly (# packages) columns beginning with each trace_output
+              in ffnet_dummy.json.
+        """
         self.assertEqual(len(self._trace_path), 1)
 
         num_pkg = geopmdpy.topo.num_domain('package')
