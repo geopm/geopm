@@ -10,8 +10,9 @@ if ! which protoc >& /dev/null || \
     exit -1
 fi
 
-protoc --python_out geopmdpy \
-       --plugin=protoc-gen-grpc=$(which grpc_python_plugin) \
+protoc --plugin=protoc-gen-grpc=$(which grpc_python_plugin) \
+       --grpc_out geopmdpy \
+       --python_out geopmdpy \
        geopm_service.proto
 
 sed 's|import geopm_service_pb2|from . import geopm_service_pb2|' \
