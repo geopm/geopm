@@ -10,7 +10,7 @@ import subprocess # nosec
 from integration.apps import apps
 
 def setup_run_args(parser):
-    """ Add common arguments for all run scripts.                                                                                                                                                                                                                                                                                                                
+    """ Add common arguments for all run scripts.
     """
     parser.add_argument('--parres-init-setup-file', dest='parres_init_setup',
                         action='store', type=str,
@@ -43,15 +43,14 @@ def setup_run_args(parser):
                         action='store', type=str,
                         help='Arguments for parres binary')
 
-    
-    
+
 def create_dgemm_appconf_cuda(mach, args):
-    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
+    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.
     '''
     return ParresDgemmAppConfCuda(mach, args.node_count, args.parres_cores_per_node, args.node_count,
                                   args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown, args.parres_args)
 
-    
+
 class ParresDgemmAppConfCuda(apps.AppConf):
     @staticmethod
     def name():
@@ -72,16 +71,16 @@ class ParresDgemmAppConfCuda(apps.AppConf):
 
         if node_count != 1:
             raise RuntimeError('ParRes Dgemm is only setup for 1 node not {}'.format(node_count))
-        
+
         if gpus_per_node is None:
             gpus_per_node = mach.num_gpu()
         else:
             if (gpus_per_node != mach.num_gpu()):
                 raise RuntimeError('Number of requested GPUs must be the same as the available # of GPUs')
 
-        if not ( self._cores_per_node // self.get_cpu_per_rank() == gpus_per_node):           
+        if not ( self._cores_per_node // self.get_cpu_per_rank() == gpus_per_node):
             raise RunTimeError('Can currently only handle the same # of ranks and GPUs per node')
-                
+
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         _parres_default_setup(benchmark_dir, parres_init_setup, parres_exp_setup, parres_teardown)
 
@@ -96,7 +95,7 @@ class ParresDgemmAppConfCuda(apps.AppConf):
 
         self.app_params = " ".join(params)
 
-        self.exe_path = os.path.join(benchmark_dir, binary_name)
+        self._exec_path = os.path.join(benchmark_dir, binary_name)
 
 
     def get_rank_per_node(self):
@@ -106,7 +105,7 @@ class ParresDgemmAppConfCuda(apps.AppConf):
         return self._cores_per_rank
 
     def get_bash_exec_path(self):
-        return self.exe_path
+        return self._exec_path
 
     def get_bash_exec_args(self):
         return self.app_params
@@ -124,8 +123,6 @@ class ParresDgemmAppConfCuda(apps.AppConf):
             os.chmod(self._parres_exp_setup, 0o755)
             subprocess.call(self._parres_exp_setup, shell=True)
 
-        
-    
     def experiment_teardown(self, output_dir):
         if not self._parres_teardown is None:
             os.chmod(self._parres_teardown, 0o755)
@@ -137,7 +134,7 @@ class ParresDgemmAppConfCuda(apps.AppConf):
 
 
 def create_dgemm_appconf_oneapi(mach, args):
-    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
+    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.
     '''
     return ParresDgemmAppConfOneapi(mach, args.node_count, args.parres_cores_per_node, args.node_count,
                                     args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown, args.parres_args)
@@ -186,13 +183,13 @@ class ParresDgemmAppConfOneapi(apps.AppConf):
 
         self.app_params = " ".join(params)
 
-        self.exe_path = os.path.join(benchmark_dir, binary_name)
+        self._exec_path = os.path.join(benchmark_dir, binary_name)
 
     def get_cpu_per_rank(self):
         return self._cores_per_rank
 
     def get_bash_exec_path(self):
-        return self.exe_path
+        return self._exec_path
 
     def get_bash_exec_args(self):
         return self.app_params
@@ -211,15 +208,15 @@ class ParresDgemmAppConfOneapi(apps.AppConf):
         key = 'Rate (MF/s): '
         return _parse_parres_fom(key, log_path)
 
-            
+
 def create_nstream_appconf_cuda(mach, args):
-    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
+    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.
     '''
     return ParresNstreamAppConfCuda(mach, args.node_count, args.parres_cores_per_node, args.node_count,
                                     args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown,
                                     args.parres_args)
 
-    
+
 class ParresNstreamAppConfCuda(apps.AppConf):
     @staticmethod
     def name():
@@ -239,7 +236,7 @@ class ParresNstreamAppConfCuda(apps.AppConf):
 
         if node_count != 1:
             raise RuntimeError('ParRes Dgemm is only setup for 1 node not {}'.format(node_count))
-        
+
         if gpus_per_node is None:
             gpus_per_node = 1
         else:
@@ -247,12 +244,12 @@ class ParresNstreamAppConfCuda(apps.AppConf):
                 raise RuntimeError('Number of requested GPUs is more than the number ' +
                                    'of available GPUs: {}'.format(gpus_per_node))
 
-        if not ( ( self._cores_per_node // self.get_cpu_per_rank() == 1 ) and gpus_per_node == 1):           
+        if not ( ( self._cores_per_node // self.get_cpu_per_rank() == 1 ) and gpus_per_node == 1):
             raise RunTimeError('Can currently only handle 1 ranks per node and 1 GPUs per node')
-                
+
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         _parres_default_setup(benchmark_dir, parres_init_setup, parres_exp_setup, parres_teardown)
- 
+
         self._parres_exp_setup = parres_exp_setup
         self._parres_teardown = parres_teardown
 
@@ -264,7 +261,7 @@ class ParresNstreamAppConfCuda(apps.AppConf):
 
         self.app_params = " ".join(params)
 
-        self.exe_path = os.path.join(benchmark_dir, binary_name)
+        self._exec_path = os.path.join(benchmark_dir, binary_name)
 
 
     def get_rank_per_node(self):
@@ -274,7 +271,7 @@ class ParresNstreamAppConfCuda(apps.AppConf):
         return self._cores_per_rank
 
     def get_bash_exec_path(self):
-        return self.exe_path
+        return self._exec_path
 
     def get_bash_exec_args(self):
         return self.app_params
@@ -292,13 +289,10 @@ class ParresNstreamAppConfCuda(apps.AppConf):
             os.chmod(self._parres_exp_setup, 0o755)
             subprocess.call(self._parres_exp_setup, shell=True)
 
-        
-    
     def experiment_teardown(self, output_dir):
         if not self._parres_teardown is None:
             os.chmod(self._parres_teardown, 0o755)
             subprocess.call(self._parres_teardown, shell=True)
-
 
     def parse_fom(self, log_path):
         key = 'Rate (MB/s): '
@@ -306,7 +300,7 @@ class ParresNstreamAppConfCuda(apps.AppConf):
 
 
 def create_nstream_appconf_oneapi(mach, args):
-    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
+    ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.
     '''
     return ParresNstreamAppConfOneapi(mach, args.node_count, args.parres_cores_per_node, args.node_count,
                                       args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown,
@@ -344,7 +338,7 @@ class ParresNstreamAppConfOneapi(apps.AppConf):
 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         _parres_default_setup(benchmark_dir, parres_init_setup, parres_exp_setup, parres_teardown)
- 
+
         self._parres_exp_setup = parres_exp_setup
         self._parres_teardown = parres_teardown
 
@@ -356,7 +350,7 @@ class ParresNstreamAppConfOneapi(apps.AppConf):
 
         self.app_params = " ".join(params)
 
-        self.exe_path = os.path.join(benchmark_dir, binary_name)
+        self._exec_path = os.path.join(benchmark_dir, binary_name)
 
     def get_rank_per_node(self):
         return self._cores_per_node // self.get_cpu_per_rank()
@@ -365,7 +359,7 @@ class ParresNstreamAppConfOneapi(apps.AppConf):
         return self._cores_per_rank
 
     def get_bash_exec_path(self):
-        return self.exe_path
+        return self._exec_path
 
     def get_bash_exec_args(self):
         return self.app_params
@@ -409,7 +403,7 @@ def _parres_default_setup(benchmark_dir, parres_init_setup, parres_exp_setup, pa
                 parres_exp_setup = os.path.join(benchmark_dir, parres_exp_setup)
             else:
                 raise RuntimeError("Parres-exp-setup file not found:" + parres_exp_setup)
-        
+
     if not parres_teardown is None:
         if not os.path.isfile(parres_teardown):
             if (os.path.isfile(os.path.join(benchmark_dir, parres_teardown))):

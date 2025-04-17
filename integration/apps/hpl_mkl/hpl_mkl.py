@@ -26,7 +26,7 @@ class HplMklAppConf(hpl_netlib.HplNetlibAppConf):
     def __init__(self, num_nodes, mach, frac_dram_per_node, cores_per_node=None):
         super(HplMklAppConf, self).__init__(num_nodes, mach, frac_dram_per_node, cores_per_node)
         self.mklroot = os.getenv('MKLROOT')
-        self.exec_path = os.path.join(self.mklroot, 'benchmarks/mp_linpack/xhpl_intel64_dynamic')
+        self._exec_path = os.path.join(self.mklroot, 'benchmarks/mp_linpack/xhpl_intel64_dynamic')
 
     def get_bash_setup_commands(self):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
