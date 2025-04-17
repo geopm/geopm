@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     libsystemd-dev liburing-dev libtool pkgconf protobuf-compiler \
     protobuf-compiler-grpc unzip zlib1g-dev python3-all python3-setuptools \
     python3-setuptools-scm wget debhelper-compat dh-python curl zstd \
-    python3-cffi gpg libze1 libze-dev python3-dev python3-defusedxml \
+    python3-cffi libze1 libze-dev python3-dev python3-defusedxml \
     python3-build fakeroot
 RUN useradd -ms /bin/bash build
 USER build
