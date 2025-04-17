@@ -16,6 +16,7 @@ class DgemmAppConf(apps.AppConf):
         self._bench_conf = geopmpy.io.BenchConf('dgemm.conf')
         self._bench_conf.append_region('dgemm', 8.0)
         self._bench_conf.set_loop_count(500)
+        self._exec_path = 'geopmbench'
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine?
@@ -45,6 +46,7 @@ class TinyAppConf(apps.AppConf):
         self._bench_conf = geopmpy.io.BenchConf('tiny.conf')
         self._bench_conf.append_region('dgemm', 0.2)
         self._bench_conf.set_loop_count(500)
+        self._exec_path = 'geopmbench'
 
     def get_bash_setup_commands(self):
         # TODO: get rid of side effects
@@ -69,6 +71,7 @@ class GeopmbenchAppConf(apps.AppConf):
         return 'geopmbench'
 
     def __init__(self, bench_conf_path, ranks_per_node):
+        self._exec_path = "geopmbench"
         self._bench_conf_path = bench_conf_path
         self._ranks_per_node = ranks_per_node
 

@@ -34,6 +34,10 @@ class NekboneAppConf(apps.AppConf):
         self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/test/example1/')
         self._num_rank_per_node = 2
         self._input_name = 'data.rea'
+        self._exec_path = "nekbone"
+
+        if add_barriers:
+            self._exec_path = "nekbone-barrier"
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine
@@ -64,11 +68,7 @@ class NekboneAppConf(apps.AppConf):
         return 'ulimit -s unlimited'
 
     def get_bash_exec_path(self):
-        binary_name = ''
-        if self._add_barriers:
-            binary_name = 'nekbone-barrier'
-        else:
-            binary_name = 'nekbone'
+        return self._exec_path
 
         return os.path.join(self._nekbone_path, binary_name)
 

@@ -20,7 +20,7 @@ class HpcgAppConf(apps.AppConf):
 
     def __init__(self, mach):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self._hpcg_exe = os.path.join(benchmark_dir, 'hpcg', 'bin', 'xhpcg.x')
+        self._exec_path = os.path.join(benchmark_dir, 'hpcg', 'bin', 'xhpcg.x')
 
         self._ranks_per_node = mach.num_package()
         self._cpu_per_rank = (mach.num_core() - 2) // self._ranks_per_node
@@ -39,7 +39,7 @@ class HpcgAppConf(apps.AppConf):
         return self._ranks_per_node
 
     def get_bash_exec_path(self):
-        return self._hpcg_exe
+        return self._exec_path
 
     def get_bash_exec_args(self):
         return self._exec_args

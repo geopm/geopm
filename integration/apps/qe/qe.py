@@ -48,6 +48,7 @@ class QuantumEspressoAppConf(apps.AppConf):
     def __init__(self, node_count, input_name=None):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self._bin_path = os.path.join(benchmark_dir, 'q-e-qe-6.6', 'bin')
+        self._exec_path = os.path.join(self._bin_path, 'pw.x')
         self._node_count = node_count
         self._ranks_per_node = 20 if node_count == 1 else 10
         self._cpus_per_rank = 2 if node_count == 1 else 4
