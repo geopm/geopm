@@ -33,6 +33,12 @@ spec:
           requests:
             cpu: "250m"
             memory: "128Mi"
+        livenessProbe:
+          exec:
+            command:
+            - geopmaccess
+          initialDelaySeconds: 30
+          periodSeconds: 30
         volumeMounts:
           - name: geopm-mount
             mountPath: /run/geopm
@@ -90,6 +96,12 @@ spec:
           requests:
             cpu: "250m"
             memory: "128Mi"
+        livenessProbe:
+          exec:
+            command:
+            - geopmaccess
+          initialDelaySeconds: 30
+          periodSeconds: 30
         volumeMounts:
         - name: geopm-mount
           mountPath: /run/geopm
