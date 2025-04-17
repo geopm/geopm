@@ -10,3 +10,4 @@ RUN printf \
 "DRAM_ENERGY\nDRAM_POWER\nGPU_CORE_FREQUENCY_STATUS\nGPU_ENERGY\n"\
 "GPU_POWER\nGPU_TEMPERATURE\n" | \
     geopmaccess --direct --force --write --default
+RUN printf "" | geopmaccess --direct --force --write --default --controls
