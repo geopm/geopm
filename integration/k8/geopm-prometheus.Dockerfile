@@ -11,3 +11,5 @@ RUN printf \
 "GPU_POWER\nGPU_TEMPERATURE\n" | \
     geopmaccess --direct --force --write --default
 RUN printf "" | geopmaccess --direct --force --write --default --controls
+RUN useradd -ms /bin/bash geopm
+USER geopm
