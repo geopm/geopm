@@ -16,7 +16,8 @@ namespace geopm
     class RegionHintRecommenderImp : public RegionHintRecommender
     {
         public:
-            RegionHintRecommenderImp(const std::string &fmap_path, int min_freq, int max_freq);
+            RegionHintRecommenderImp(const std::string &fmap_path, uint64_t min_freq,
+                                                                   uint64_t max_freq);
             /// @brief Recommends frequency based on region classification logits 
             ///
             /// @param [in] nn_output List of region classification names and

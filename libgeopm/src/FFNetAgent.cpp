@@ -76,9 +76,9 @@ namespace geopm
         if (freq_recommender.empty()) {
             for (geopm_domain_e domain_type : m_domain_types) {
                 std::string fpath = get_env_value(M_FREQMAP_ENVNAME.at(domain_type));
-                int min_freq = m_platform_io.read_signal(M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
+                uint64_t min_freq = m_platform_io.read_signal(M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
                                                          GEOPM_DOMAIN_BOARD, 0);
-                int max_freq = m_platform_io.read_signal(M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
+                uint64_t max_freq = m_platform_io.read_signal(M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
                                                          GEOPM_DOMAIN_BOARD, 0);
 
                 m_freq_recommender[domain_type] =
