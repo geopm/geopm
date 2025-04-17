@@ -44,15 +44,25 @@ Deploying Prometheus Client in Kubernetes
 
 After building the container to support the GEOPM Services, you may use the
 `geopm-prometheus-k8.yml` Kubernetes manifest to enable the GEOPM Access and
-Prometheus GEOPM Exporter Services.  The GEOPM Access services is provided to
+Prometheus GEOPM Exporter Services.  The GEOPM Access service is provided to
 client containers over interfaces in the `/run/geopm` mount point that is shared
 between the containers in a pod.  The interfaces are serviced by the `geopmd`
 process running in a privileged container launched with access to device driver
 interfaces.  The Prometheus GEOPM Exporter is provided on port 8000 and gives
 access to all power, energy, frequency and thermal metrics that GEOPM discovers
-on the platform.  Note that the `geopm-prometheus-k8.yml` manifest may be
-modified with any of the `geopmexporter(1)` command line options.
+on the platform.  Note that the `geopm-prometheus-k8.yml` manifest `command` may
+be modified with any of the `geopmexporter(1)` command line options.
 
+The created pod is deployed in the `geopm` namespace. Reasonable reasource
+limits have been applied, but may have to be updated depending on your
+deployment requirements.  The GEOPM Access service requires elevated privilege,
+but it is notable that the client container running the Prometheus exporter does
+not require any privilege escalation.
+
+Note that the Docker image tagged by the `docker-build.sh` script must be
+uploaded to a registry with the `docker push` command.  Modify the `image` value
+in the `geopm-promenteus-k8.yml` manifest to reflect the name of the tag in the
+registry where the Docker image has been pushed.
 
 
 Grafana Dashboard
