@@ -29,7 +29,8 @@ namespace geopm
             /// @param [in] min_freq integer containing minimum frequency
             /// @param [in] max_freq integer containing maximum frequency
             static std::unique_ptr<RegionHintRecommender> make_unique(const std::string &fmap_path,
-                                                                      int min_freq, int max_freq);
+                                                                      uint64_t min_freq,
+                                                                      uint64_t max_freq);
             /// @brief Returns a shared_ptr to a concrete object constructed
             ///        using the underlying implementation, which loads a
             ///        frequency map file into a std::map of region class
@@ -40,7 +41,8 @@ namespace geopm
             /// @param [in] min_freq integer containing minimum frequency
             /// @param [in] max_freq integer containing maximum frequency
             static std::shared_ptr<RegionHintRecommender> make_shared(const std::string &fmap_path,
-                                                                      int min_freq, int max_freq);
+                                                                      uint64_t min_freq,
+                                                                      uint64_t max_freq);
 
             virtual ~RegionHintRecommender() = default;
             /// @brief Recommends frequency based on the output from a DomainNetMap neural net
