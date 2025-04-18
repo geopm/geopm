@@ -1,13 +1,11 @@
-GEOPM Container Support
-=======================
+# GEOPM Container Support
 
 This directory contains configuration files and scripts to support GEOPM
 containerization use cases. The files include scripts for building containers
 with Docker and Kubernetes configuration files to orchestrate GEOPM services.
 
 
-GEOPM Access Service
---------------------
+## GEOPM Access Service
 
 The GEOPM Access Service is typically deployed as a systemd service, however
 this service may also be provided as a containerized deployment using
@@ -17,8 +15,7 @@ to read GEOPM metrics, or modify controls during the lifetime of the client
 container.
 
 
-Prometheus GEOPM Exporter Service
----------------------------------
+## Prometheus GEOPM Exporter Service
 
 The Prometheus GEOPM Exporter Service uses the GEOPM Access Service to sample
 telemetry and publishes aggregated metrics for a Prometheus server to scrape.
@@ -26,8 +23,7 @@ The Prometheus client container may be deployed without privilege beyond
 configuring the GEOPM Access Service.
 
 
-Building Docker Containers
---------------------------
+## Building Docker Containers
 
 A script, `docker-build.sh` is provided that uses Docker to build an Ubuntu
 based container that provides the GEOPM software packages.  These packages
@@ -39,8 +35,7 @@ by the `geopm-prometheus.Dockerfile` to create a runtime container that can
 support the GEOPM services.  The runtime container is tagged "geopm-prometheus".
 
 
-Deploying Prometheus Client in Kubernetes
------------------------------------------
+## Deploying Prometheus Client in Kubernetes
 
 After building the container to support the GEOPM Services, you may use the
 `geopm-prometheus-k8.yml` Kubernetes manifest to enable the GEOPM Access and
@@ -65,8 +60,7 @@ in the `geopm-promenteus-k8.yml` manifest to reflect the name of the tag in the
 registry where the Docker image has been pushed.
 
 
-Using Host OS for GEOPM Access
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+### Using Host OS for GEOPM Access
 
 An alternate Kubernetes manifest file `geopm-prometheus-host.yml` is provided
 that will leverage the GEOPM Access Service provided by the host OS as a SystemD
@@ -116,8 +110,7 @@ and for this reason we only recommend this modification for newer host OS
 distributions like Ubuntu Noble 24.04 where python3-grpcio has been updated.
 
 
-Grafana Dashboard
------------------
+## Grafana Dashboard
 
 See `geopm/integration/grafana` for an example dashboard that utilizes the
 metrics collected by the `geopmexporter(1)`.
