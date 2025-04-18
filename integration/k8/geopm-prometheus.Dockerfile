@@ -15,8 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the current repository context into the container
-WORKDIR /src
-COPY . /src
+COPY ../../../geopm src/geopm
 
 # Build GEOPM packages
 WORKDIR /src/geopm/libgeopmd
