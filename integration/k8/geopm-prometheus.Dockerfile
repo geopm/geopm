@@ -20,6 +20,7 @@ COPY ../../../geopm src/geopm
 # Build GEOPM packages
 WORKDIR /src/geopm/libgeopmd
 RUN ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
+RUN apt-get install -yq --no-install-recommends ./*.deb
 
 WORKDIR /src/geopm/geopmdpy
 RUN ./make_deb.sh
@@ -39,15 +40,14 @@ RUN mkdir -p /mnt/geopm-prometheus && \
 FROM ubuntu:24.04 AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && \
-    apt-get install -yq --no-install-recommends gpg wget software-properties-common python3-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update
 
 # Copy .deb packages from the build stage and install them
 COPY --from=build /mnt/geopm-prometheus /mnt/geopm-prometheus
 RUN apt-get install -yq --no-install-recommends /mnt/geopm-prometheus/*.deb python3-grpcio && \
     rm -rf /mnt/geopm-prometheus
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure GEOPM
 RUN printf \
