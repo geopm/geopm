@@ -1,4 +1,4 @@
-python3-geopmpy (@VERSION@-1) jammy; urgency=low
+python3-geopmpy (@VERSION@-1) noble; urgency=low
 
   * Update to version @VERSION@
 

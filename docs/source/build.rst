@@ -6,11 +6,6 @@ interested in installing the GEOPM packages based on a checkout from the GEOPM
 git repository. Following these instructions will assist users in creating RPM
 or Debian packages compatible with various Linux distributions.
 
-We have tested packages created through this process on SLES 15 SP3 and SP4,
-as well as Ubuntu jammy 22.04.  Feedback from installations on other
-distributions such as CentOS, openSUSE Leap, and Fedora would be greatly
-appreciated.
-
 GEOPM Service installation is available via both RPM and Debian packages. These
 packages provide cross-Linux-distribution compatibility for the installation of
 the SystemD service and facilitate a clean uninstall process.
