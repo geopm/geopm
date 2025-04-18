@@ -78,17 +78,33 @@ as a containerized service.
 
 To facilitate this you must edit the GEOPM SystemD unit file with the
 `systemctl edit geopm` command to modify the `ExecStart` field to append the
-`--grpc` option:
+`--grpc` option and modify the `Type` to be `simple`:
 
 ```
 $ sudo systemctl edit geopm
 $ cat /etc/systemd/system/geopm.service.d/override.conf
 [Service]
+Type=simple
 ExecStart=
 ExecStart=/usr/bin/geopmd --grpc
 $ sudo systemctl daemon-reload
 $ sudo systemctl restart geopm
 
+```
+
+In addition to modifying the `geopm-prometheus-host.yml` so that the `image`
+field points to the tag in your registry, the `runAsUser` and `runAsGroup`
+fields should be modified to reference a user and group ID on the host system
+(both are set to 1001 in the example manifest file) which has been granted
+access to the signals required for `geopmexporter`:
+
+```
+printf \
+"CPU_CORE_TEMPERATURE\nCPU_ENERGY\nCPU_FREQUENCY_STATUS\n"\
+"CPU_PACKAGE_TEMPERATURE\nCPU_POWER\nCPU_UNCORE_FREQUENCY_STATUS\n"\
+"DRAM_ENERGY\nDRAM_POWER\nGPU_CORE_FREQUENCY_STATUS\nGPU_ENERGY\n"\
+"GPU_POWER\nGPU_TEMPERATURE\n" | \
+    geopmaccess --direct --force --write --group 1001
 ```
 
 Note that older versions of the gRPC implementation will hang on x86 systems for

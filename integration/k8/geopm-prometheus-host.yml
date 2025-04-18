@@ -12,7 +12,6 @@ spec:
       labels:
         name: geopm-service
     spec:
-      hostPID: true
       tolerations:
       containers:
       - name: geopm-prometheus-client
@@ -22,8 +21,8 @@ spec:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
-          runAsUser: 10001
-          runAsGroup: 10001
+          runAsUser: 1001
+          runAsGroup: 1001
           capabilities:
             drop:
             - ALL
