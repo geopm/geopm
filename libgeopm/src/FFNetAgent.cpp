@@ -76,10 +76,12 @@ namespace geopm
         if (freq_recommender.empty()) {
             for (geopm_domain_e domain_type : m_domain_types) {
                 std::string fpath = get_env_value(M_FREQMAP_ENVNAME.at(domain_type));
-                uint64_t min_freq = m_platform_io.read_signal(M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
-                                                         GEOPM_DOMAIN_BOARD, 0);
-                uint64_t max_freq = m_platform_io.read_signal(M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
-                                                         GEOPM_DOMAIN_BOARD, 0);
+                //Dividing by 1e9 to reduce chance of overflow issues when calculating
+                //recommended frequency
+                double min_freq = m_platform_io.read_signal(M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
+                                                         GEOPM_DOMAIN_BOARD, 0)/1.0e9;
+                double max_freq = m_platform_io.read_signal(M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
+                                                         GEOPM_DOMAIN_BOARD, 0)/1.0e9;
 
                 m_freq_recommender[domain_type] =
                     RegionHintRecommender::make_shared(fpath, min_freq, max_freq);
@@ -228,7 +230,7 @@ namespace geopm
         m_do_write_batch = false;
 
         for (const m_domain_key_s domain_key : m_domains) {
-            double new_freq =
+            double new_freq = 1.0e9 *
                 m_freq_recommender[domain_key.type]->recommend_frequency(m_net_map[domain_key]->last_output(),
                                                                          m_perf_energy_bias);
             if (!std::isnan(new_freq) &&

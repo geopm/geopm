@@ -20,22 +20,22 @@
 namespace geopm
 {
     std::unique_ptr<RegionHintRecommender> RegionHintRecommender::make_unique(const std::string &fmap_path,
-                                                                              uint64_t min_freq,
-                                                                              uint64_t max_freq)
+                                                                              double min_freq,
+                                                                              double max_freq)
     {
         return geopm::make_unique<RegionHintRecommenderImp>(fmap_path, min_freq, max_freq);
     }
 
     std::shared_ptr<RegionHintRecommender> RegionHintRecommender::make_shared(const std::string &fmap_path,
-                                                                              uint64_t min_freq,
-                                                                              uint64_t max_freq)
+                                                                              double min_freq,
+                                                                              double max_freq)
     {
         return std::make_shared<RegionHintRecommenderImp>(fmap_path, min_freq, max_freq);
     }
 
     RegionHintRecommenderImp::RegionHintRecommenderImp(const std::string &fmap_path,
-                                                       uint64_t min_freq,
-                                                       uint64_t max_freq)
+                                                       double min_freq,
+                                                       double max_freq)
         : m_min_freq(min_freq)
         , m_max_freq(max_freq)
     {

@@ -64,6 +64,7 @@ def trace_signals(domains):
                     "CPU_FREQUENCY_STATUS@package",
                     "CPU_PACKAGE_TEMPERATURE@package",
                     "MSR::UNCORE_PERF_STATUS:FREQ@package",
+                    "MSR::QM_CTR_SCALED@package",
                     "MSR::QM_CTR_SCALED_RATE@package",
                     "CPU_INSTRUCTIONS_RETIRED@package",
                     "CPU_CYCLES_THREAD@package",
