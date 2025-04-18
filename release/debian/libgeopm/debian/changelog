@@ -1,4 +1,4 @@
-libgeopm (3.2.0-1) jammy; urgency=low
+libgeopm (3.2.0-1) noble; urgency=low
 
   * Update to version 3.2.0
   * ABI set to @geopm_abi_version@
