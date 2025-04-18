@@ -41,7 +41,7 @@ namespace geopm
                     GEOPM_DOMAIN_GPU))
         , M_NUM_GPU_CHIP(m_platform_topo.num_domain(
                          GEOPM_DOMAIN_GPU_CHIP))
-        , M_NUM_CHIP_PER_GPU(M_NUM_GPU_CHIP / M_NUM_GPU)
+        , M_NUM_CHIP_PER_GPU(M_NUM_GPU == 0 ? 0 : M_NUM_GPU_CHIP / M_NUM_GPU)
         , m_do_write_batch(false)
         , m_do_send_policy(true)
         , m_agent_domain_count(0)
@@ -57,7 +57,10 @@ namespace geopm
         , m_time({})
         , m_waiter(std::move(waiter))
     {
-
+        if (M_NUM_GPU == 0) {
+            throw Exception("GPUActivityAgent::GPUActivityAgent(): M_NUM_GPU is 0",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
     }
 
     void GPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
