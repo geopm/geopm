@@ -33,7 +33,7 @@ A script, `docker-build.sh` is provided that uses Docker to build an Ubuntu
 based container that provides the GEOPM software packages.  These packages
 provide `geopmd` and `geopmexporter` which are the entry points for the GEOPM
 Access Service and the Prometheus GEOPM Exporter Service respectively.  The
-build script uses the `geopm-prometheus-pkg.Dockerfile` to create a container
+build script uses the `geopm-prometheus.Dockerfile` to create a container
 that builds the GEOPM Access Service Ubuntu packages.  These packages are used
 by the `geopm-prometheus.Dockerfile` to create a runtime container that can
 support the GEOPM services.  The runtime container is tagged "geopm-prometheus".
@@ -63,6 +63,41 @@ Note that the Docker image tagged by the `docker-build.sh` script must be
 uploaded to a registry with the `docker push` command.  Modify the `image` value
 in the `geopm-promenteus-k8.yml` manifest to reflect the name of the tag in the
 registry where the Docker image has been pushed.
+
+
+Using Host OS for GEOPM Access
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An alternate Kubernetes manifest file `geopm-prometheus-host.yml` is provided
+that will leverage the GEOPM Access Service provided by the host OS as a SystemD
+service.  This mechanism is preferred if the Host OS already provides the GEOPM
+Access service, or if installing the GEOPM packages in the host OS is preferred
+over running a privileged container in Kubernetes.  Note that in this case there
+are no privileged containers required to provide the GEOPM Prometheus Exporter
+as a containerized service.
+
+To facilitate this you must edit the GEOPM SystemD unit file with the
+`systemctl edit geopm` command to modify the `ExecStart` field to append the
+`--grpc` option:
+
+```
+$ sudo systemctl edit geopm
+$ cat /etc/systemd/system/geopm.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=/usr/bin/geopmd --grpc
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart geopm
+
+```
+
+Note that older versions of the gRPC implementation will hang on x86 systems for
+the GEOPM use case:
+
+<https://bugs.launchpad.net/ubuntu/+source/grpc/+bug/1971114>
+
+and for this reason we only recommend this modification for newer host OS
+distributions like Ubuntu Noble 24.04 where python3-grpcio has been updated.
 
 
 Grafana Dashboard
