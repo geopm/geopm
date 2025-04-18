@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: geopm-service-pod
+  namespace: geopm
+spec:
+  selector:
+    matchLabels:
+      name: geopm-service
+  template:
+    metadata:
+      labels:
+        name: geopm-service
+    spec:
+      hostPID: true
+      tolerations:
+      containers:
+      - name: geopm-prometheus-client
+        image: geopm-prometheus:latest
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "250m"
+            memory: "128Mi"
+        volumeMounts:
+        - name: geopm-mount
+          mountPath: /run/geopm
+        ports:
+        - containerPort: 8000
+          hostPort: 8000
+        command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm/grpc.sock ]; do sleep 1; done; /usr/bin/geopmexporter --insecure-http']
+      volumes:
+      - name: geopm-mount
+        hostPath:
+          path: /run/geopm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopm-metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8000"
+spec:
+  ports:
+    - name: metrics
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-resource-limits
+  namespace: geopm
+spec:
+  limits:
+  - type: Container
+    max:
+      cpu: "1"
+      memory: "512Mi"
+    min:
+      cpu: "250m"
+      memory: "128Mi"
+    default:
+      cpu: "500m"
+      memory: "256Mi"
+    defaultRequest:
+      cpu: "250m"
+      memory: "128Mi"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-resource-quota
+  namespace: geopm
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: "1Gi"
+    limits.cpu: "4"
+    limits.memory: "2Gi"
