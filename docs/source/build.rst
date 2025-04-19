@@ -36,25 +36,22 @@ any value.  This may be required to bootstrap the GEOPM Runtime Service build
 requirements.
 
 In the example below the the ``package.sh`` script is used to build the GEOPM
-Access service packages with LevelZero enabled.  These packages are installed
-and then the ``package.sh`` script is rerun to generate the GEOPM Runtime
-Service packages, and then these are installed.
+Access service packages.  These packages are installed and then the
+``package.sh`` script is rerun to generate the GEOPM Runtime Service packages,
+and then these are installed.
 
 .. code-block:: bash
 
-   # Build libgeopmd with LevelZero support
+   # Build libgeopmd
    GEOPM_PACKAGE_SKIP_RUNTIME=1 \
-   ENABLE_LEVELZERO=1 \
    ./package.sh
    sudo apt install -y $(find -name *.deb)
    # Build GEOPM Access Service
    GEOPM_PACKAGE_SKIP_RUNTIME=1 \
-   ENABLE_LEVELZERO=1 \
    ./package.sh
    # Install packages
    sudo apt install -y $(find -name *.deb)
    # Build the GEOPM Runtime packages
-   ENABLE_LEVELZERO=1 \
    ./package.sh --disable-mpi \
                 --disable-openmp \
                 --disable-fortran \
