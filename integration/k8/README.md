@@ -1,78 +1,70 @@
 # GEOPM Container Support
 
 This directory contains configuration files and scripts to support GEOPM
-containerization use cases. The files include scripts for building containers
-with Docker and Kubernetes configuration files to orchestrate GEOPM services.
-
+containerization. It includes scripts for building containers with Docker and
+Kubernetes configuration files for orchestrating GEOPM services.
 
 ## GEOPM Access Service
 
-The GEOPM Access Service is typically deployed as a systemd service, however
-this service may also be provided as a containerized deployment using
-Kubernetes.  In this use case, a container is launched with privilege to provide
-the GEOPM Access Service.  This service can be used by unprivileged containers
-to read GEOPM metrics, or modify controls during the lifetime of the client
-container.
-
+The GEOPM Access Service is typically deployed as a systemd service. However, it
+can also be provided as a containerized deployment using Kubernetes. In this
+setup, a privileged container provides the GEOPM Access Service. This service
+allows unprivileged containers to read GEOPM metrics or modify controls during
+their lifetime.
 
 ## Prometheus GEOPM Exporter Service
 
 The Prometheus GEOPM Exporter Service uses the GEOPM Access Service to sample
-telemetry and publishes aggregated metrics for a Prometheus server to scrape.
-The Prometheus client container may be deployed without privilege beyond
-configuring the GEOPM Access Service.
-
+telemetry. It publishes aggregated metrics for a Prometheus server to
+scrape. The Prometheus client container does not require elevated privileges
+beyond configuring the GEOPM Access Service.
 
 ## Building Docker Containers
 
-A script, `docker-build.sh` is provided that uses Docker to build an Ubuntu
-based container that provides the GEOPM software packages.  These packages
-provide `geopmd` and `geopmexporter` which are the entry points for the GEOPM
-Access Service and the Prometheus GEOPM Exporter Service respectively.  The
-build script uses the `geopm-prometheus.Dockerfile` to create a container
-that builds the GEOPM Access Service Ubuntu packages.  These packages are used
-by the `geopm-prometheus.Dockerfile` to create a runtime container that can
-support the GEOPM services.  The runtime container is tagged "geopm-prometheus".
+A script, `docker-build.sh`, is provided to build an Ubuntu-based container with
+the GEOPM software packages. These packages include `geopmd` and
+`geopmexporter`, which are the entry points for the GEOPM Access Service and the
+Prometheus GEOPM Exporter Service, respectively.
 
+The build script uses the `geopm-prometheus.Dockerfile` to create a container
+that builds the GEOPM Access Service Ubuntu packages. These packages are then
+used to create a runtime container supporting the GEOPM services. The runtime
+container is tagged as "geopm-prometheus."
 
 ## Deploying Prometheus Client in Kubernetes
 
-After building the container to support the GEOPM Services, you may use the
-`geopm-prometheus-k8.yml` Kubernetes manifest to enable the GEOPM Access and
-Prometheus GEOPM Exporter Services.  The GEOPM Access service is provided to
-client containers over interfaces in the `/run/geopm` mount point that is shared
-between the containers in a pod.  The interfaces are serviced by the `geopmd`
-process running in a privileged container launched with access to device driver
-interfaces.  The Prometheus GEOPM Exporter is provided on port 8000 and gives
-access to all power, energy, frequency and thermal metrics that GEOPM discovers
-on the platform.  Note that the `geopm-prometheus-k8.yml` manifest `command` may
-be modified with any of the `geopmexporter(1)` command line options.
+After building the container, you can use the `geopm-prometheus-k8.yml`
+Kubernetes manifest to enable the GEOPM Access and Prometheus GEOPM Exporter
+Services. The GEOPM Access Service provides interfaces in the `/run/geopm` mount
+point, shared between containers in a pod. These interfaces are serviced by the
+`geopmd` process running in a privileged container with access to device driver
+interfaces.
 
-The created pod is deployed in the `geopm` namespace. Reasonable reasource
-limits have been applied, but may have to be updated depending on your
-deployment requirements.  The GEOPM Access service requires elevated privilege,
-but it is notable that the client container running the Prometheus exporter does
-not require any privilege escalation.
+The Prometheus GEOPM Exporter runs on port 8000 and provides metrics such as
+power, energy, frequency, and thermal data discovered by GEOPM. You can modify
+the `command` in the `geopm-prometheus-k8.yml` manifest to include any
+`geopmexporter(1)` command-line options.
 
-Note that the Docker image tagged by the `docker-build.sh` script must be
-uploaded to a registry with the `docker push` command.  Modify the `image` value
-in the `geopm-promenteus-k8.yml` manifest to reflect the name of the tag in the
-registry where the Docker image has been pushed.
+The pod is deployed in the `geopm` namespace. Reasonable resource limits are
+applied but may need adjustment based on your requirements. While the GEOPM
+Access Service requires elevated privileges, the Prometheus exporter container
+does not.
 
+Note: The Docker image created by the `docker-build.sh` script must be uploaded
+to a registry using the `docker push` command. Update the `image` value in the
+`geopm-prometheus-k8.yml` manifest to match the tag in the registry.
 
 ### Using Host OS for GEOPM Access
 
-An alternate Kubernetes manifest file `geopm-prometheus-host.yml` is provided
-that will leverage the GEOPM Access Service provided by the host OS as a SystemD
-service.  This mechanism is preferred if the Host OS already provides the GEOPM
-Access service, or if installing the GEOPM packages in the host OS is preferred
-over running a privileged container in Kubernetes.  Note that in this case there
-are no privileged containers required to provide the GEOPM Prometheus Exporter
-as a containerized service.
+An alternative Kubernetes manifest, `geopm-prometheus-host.yml`, allows the
+GEOPM Access Service to be provided by the host OS as a systemd service. This
+approach is preferred if the host OS already provides the GEOPM Access Service
+or if installing the GEOPM packages on the host is preferred over running a
+privileged container.
 
-To facilitate this you must edit the GEOPM SystemD unit file with the
-`systemctl edit geopm` command to modify the `ExecStart` field to append the
-`--grpc` option and modify the `Type` to be `simple`:
+To enable this, edit the GEOPM systemd unit file using the `systemctl edit
+geopm` command. Modify the `ExecStart` field to include the `--grpc` option and
+set the `Type` to `simple`:
 
 ```
 $ sudo systemctl edit geopm
@@ -83,14 +75,13 @@ ExecStart=
 ExecStart=/usr/bin/geopmd --grpc
 $ sudo systemctl daemon-reload
 $ sudo systemctl restart geopm
-
 ```
 
-In addition to modifying the `geopm-prometheus-host.yml` so that the `image`
-field points to the tag in your registry, the `runAsUser` and `runAsGroup`
-fields should be modified to reference a user and group ID on the host system
-(both are set to 1001 in the example manifest file) which has been granted
-access to the signals required for `geopmexporter`:
+Additionally, modify the `geopm-prometheus-host.yml` manifest so that the
+`image` field points to the tag in your registry. Update the `runAsUser` and
+`runAsGroup` fields to reference a user and group ID on the host system (both
+are set to 1001 in the example manifest file) that has been granted access to
+the required signals for `geopmexporter`:
 
 ```
 printf \
@@ -101,16 +92,13 @@ printf \
     geopmaccess --direct --force --write --group 1001
 ```
 
-Note that older versions of the gRPC implementation will hang on x86 systems for
-the GEOPM use case:
-
-<https://bugs.launchpad.net/ubuntu/+source/grpc/+bug/1971114>
-
-and for this reason we only recommend this modification for newer host OS
-distributions like Ubuntu Noble 24.04 where python3-grpcio has been updated.
-
+Note: Older versions of the gRPC implementation may hang on x86 systems for the
+GEOPM use case. This issue is documented here:
+<https://bugs.launchpad.net/ubuntu/+source/grpc/+bug/1971114>. For this reason,
+we recommend this modification only for newer host OS distributions, such as
+Ubuntu Noble 24.04, where `python3-grpcio` has been updated.
 
 ## Grafana Dashboard
 
-See `geopm/integration/grafana` for an example dashboard that utilizes the
-metrics collected by the `geopmexporter(1)`.
+Refer to `geopm/integration/grafana` for an example Grafana dashboard that
+utilizes the metrics collected by `geopmexporter(1)`.
