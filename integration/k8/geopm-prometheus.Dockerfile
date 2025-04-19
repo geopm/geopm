@@ -20,7 +20,7 @@ COPY ../../../geopm /src/geopm
 
 # Build GEOPM packages
 WORKDIR /src/geopm/libgeopmd
-RUN ./autogen.sh && ./configure && ENABLE_LEVELZERO=TRUE make deb
+RUN ./autogen.sh && ./configure && make deb
 RUN apt-get install -yq --no-install-recommends ./*.deb
 
 WORKDIR /src/geopm/geopmdpy
