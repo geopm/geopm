@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 export DH_VERBOSE = 1
-CODENAME := $(shell lsb_release -c 2>/dev/null | awk '{print $$2}' || echo "unknown")
 
 %:
 	dh $@ --with autoreconf 
@@ -16,10 +15,7 @@ override_dh_auto_configure:
 	if [ "$(DEB_BUILD_ARCH)" = "amd64" ] || [ "$(DEB_BUILD_ARCH)" = "arm64" ]; then \
 	    CONFIG_OPTION="--enable-nvml $$CONFIG_OPTION"; \
 	fi; \
-	if [ "$(CODENAME)" = "noble" ] && [ "$(DEB_BUILD_ARCH)" = "amd64" ]; then \
-	    CONFIG_OPTION="--enable-levelzero $$CONFIG_OPTION"; \
-	fi; \
-	if [ -n "$(ENABLE_LEVELZERO)" ]; then \
+	if [ "$(DEB_BUILD_ARCH)" = "amd64" ]; then \
 	    CONFIG_OPTION="--enable-levelzero $$CONFIG_OPTION"; \
 	fi; \
 	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d --enable-grpc $$CONFIG_OPTION
