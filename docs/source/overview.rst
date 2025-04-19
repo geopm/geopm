@@ -822,7 +822,7 @@ Writing Multiple Controls
 
         $ echo -e "CPU_FREQUENCY_MAX_CONTROL core 0 1e9\
                    \nCPU_CORE_FREQUENCY_MAX_CONTROL core 0 1.8e9"\
-                   | geopmwrite -f -"
+                   | geopmwrite -f -
 
     .. code-tab:: c
 
