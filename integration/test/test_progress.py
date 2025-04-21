@@ -216,11 +216,12 @@ class TestIntegration_progress(unittest.TestCase):
 
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
             err_msg = 'Bad fit for triad CPU {} progress'.format(cpu)
-            self.check_monotone(triad_post_df[name], err_msg)
-            self.check_progress(triad_post_df['TIME'],
-                                triad_post_df[name],
-                                max_progress,
-                                err_msg)
+            for (node, ngdf) in triad_post_df.groupby('node_name'):
+                self.check_monotone(ngdf[name], err_msg)
+                self.check_progress(ngdf['TIME'],
+                                    ngdf[name],
+                                    max_progress,
+                                    err_msg)
 
     def test_linear_progress_triad_no_omp(self):
         """Test that the triad region without OMP markup and
@@ -233,11 +234,12 @@ class TestIntegration_progress(unittest.TestCase):
         grouped_df = df.groupby('REGION_HASH')
         triad_post_df = grouped_df.get_group(triad_post_hash)
         max_progress = self._num_rank
+        for (node, ngdf) in triad_post_df.groupby('node_name'):
+            self.check_progress(ngdf['TIME'],
+                                ngdf['REGION_PROGRESS'],
+                                max_progress,
+                                'Bad fit for triad aggregated progress')
 
-        self.check_progress(triad_post_df['TIME'],
-                            triad_post_df['REGION_PROGRESS'],
-                            max_progress,
-                            'Bad fit for triad aggregated progress')
 
     def test_linear_progress_dgemm(self):
         """Test that the dgemm region with the calls to geopm_tprof_post()
@@ -252,13 +254,14 @@ class TestIntegration_progress(unittest.TestCase):
             group_name = 'REGION_HASH-cpu-{}'.format(cpu)
             grouped_df = df.groupby(group_name)
             dgemm_post_df = grouped_df.get_group(dgemm_post_hash)
-            name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            err_msg = 'Bad fit for dgemm CPU {} progress'.format(cpu)
-            self.check_monotone(dgemm_post_df[name], err_msg)
-            self.check_progress(dgemm_post_df['TIME'],
-                                dgemm_post_df[name],
-                                max_progress,
-                                err_msg)
+            for (node, ngdf) in dgemm_post_df.groupby('node_name'):
+                name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
+                err_msg = 'Bad fit for dgemm CPU {} progress on node {}'.format(cpu, node)
+                self.check_monotone(ngdf[name], err_msg)
+                self.check_progress(ngdf['TIME'],
+                                    ngdf[name],
+                                    max_progress,
+                                    err_msg)
 
     def test_zero_progress(self):
         """Test that all regions that do not contain the geopm_tprof_post()
