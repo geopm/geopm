@@ -1,23 +1,32 @@
 # GEOPM Container Support
 
-This directory contains configuration files and scripts to support GEOPM
-containerization. It includes scripts for building containers with Docker and
-Kubernetes configuration files for orchestrating GEOPM services.
+This directory contains files to support use cases for GEOPM containerization.
+These include scripts for packaging GEOPM services into Docker containers and
+configuration files to orchestrate them with Kubernetes.
 
 ## GEOPM Access Service
 
-The GEOPM Access Service is typically deployed as a systemd service. However, it
-can also be provided as a containerized deployment using Kubernetes. In this
-setup, a privileged container provides the GEOPM Access Service. This service
-allows unprivileged containers to read GEOPM metrics or modify controls during
-their lifetime.
+
+The GEOPM Access Service allows unprivileged processes to read GEOPM metrics
+or modify controls during their lifetime. It is typically deployed as a systemd
+(privileged) service. However, it can also be provided as a containerized
+deployment using Kubernetes. In this setup, a privileged Docker container
+provides the GEOPM Access Service. This allows other unprivileged containers
+access to read & modify GEOPM signals & controls during their lifetime.
+
 
 ## Prometheus GEOPM Exporter Service
 
-The Prometheus GEOPM Exporter Service uses the GEOPM Access Service to sample
-telemetry. It publishes aggregated metrics for a Prometheus server to
-scrape. The Prometheus client container does not require elevated privileges
-beyond configuring the GEOPM Access Service.
+An example of a use case that leverages the GEOPM Access Service is the
+monitoring of critical telemetry from Kubernetes nodes using the Prometheus
+framework. This framework typically follows a Client &rarr; Exporter &rarr; Server
+model. In this setup, the Prometheus clients may be deployed as unprivileged
+containers and benefit from the ability to sample node telemetry via the GEOPM
+Access Service (deployed as privileged containers on those nodes). The Prometheus
+GEOPM Exporter Service, in this directory, is a Prometheus exporter that is capable
+of aggregating metrics (sampled by the Prometheus clients) and publishing them
+(for a Prometheus server to scrape).
+
 
 ## Building Docker Containers
 
@@ -41,14 +50,15 @@ point, shared between containers in a pod. These interfaces are serviced by the
 interfaces.
 
 The Prometheus GEOPM Exporter runs on port 8000 and provides metrics such as
-power, energy, frequency, and thermal data discovered by GEOPM. You can modify
-the `command` in the `geopm-prometheus-k8.yml` manifest to include any
-`geopmexporter(1)` command-line options.
+power, energy, frequency, and thermal data sampled by the Prometheus clients
+using the GEOPM Access Service. You can modify the `command` in the
+`geopm-prometheus-k8.yml` manifest to include any `geopmexporter(1)` command-line
+options.
 
 The pod is deployed in the `geopm` namespace. Reasonable resource limits are
-applied but may need adjustment based on your requirements. While the GEOPM
-Access Service requires elevated privileges, the Prometheus exporter container
-does not.
+applied but may need adjustment based on your requirements. While the container
+with the GEOPM Access Service requires elevated privileges, the containers with
+the Prometheus exporter and the Prometheus clients do not. 
 
 Note: The Docker image created by the `docker-build.sh` script must be uploaded
 to a registry using the `docker push` command. Update the `image` value in the
@@ -93,7 +103,7 @@ printf \
 ```
 
 Note: Older versions of the gRPC implementation may hang on x86 systems for the
-GEOPM use case. This issue is documented here:
+GEOPM use case. This gRPC issue is documented here:
 <https://bugs.launchpad.net/ubuntu/+source/grpc/+bug/1971114>. For this reason,
 we recommend this modification only for newer host OS distributions, such as
 Ubuntu Noble 24.04, where `python3-grpcio` has been updated.
