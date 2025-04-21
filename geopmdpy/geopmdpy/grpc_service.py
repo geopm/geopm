@@ -153,6 +153,40 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
             result.names.append(name)
         return result
 
+    def SetGroupAccess(self, request, context):
+        group = request.group
+        allowed_signals = list(request.allowed_signals)
+        allowed_controls = list(request.allowed_controls)
+        self._platform_service.set_group_access(group, allowed_signals, allowed_controls)
+        return geopm_service_pb2.Empty()
+
+    def SetGroupAccessSignals(self, request, context):
+        group = request.group
+        allowed_signals = list(request.allowed_signals)
+        self._platform_service.set_group_access_signals(group, allowed_signals)
+        return geopm_service_pb2.Empty()
+
+    def SetGroupAccessControls(self, request, context):
+        group = request.group
+        allowed_controls = list(request.allowed_controls)
+        self._platform_service.set_group_access_controls(group, allowed_controls)
+        return geopm_service_pb2.Empty()
+
+    def GetAllAccess(self, request, context):
+        result = geopm_service_pb2.AccessLists()
+        signals, controls = self._platform_service.get_all_access()
+        result.signals.extend(signals)
+        result.controls.extend(controls)
+        return result
+
+    def GetGroupAccess(self, request, context):
+        group = request.group
+        result = geopm_service_pb2.AccessLists()
+        signals, controls = self._platform_service.get_group_access(group)
+        result.signals.extend(signals)
+        result.controls.extend(controls)
+        return result
+
     def close_inactive_clients(self):
         self._platform_service.close_inactive_clients()
 

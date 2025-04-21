@@ -220,6 +220,46 @@ impl GeopmService for GeopmServiceImp {
         let mut geopm_client = self.geopm_client.lock().await;
         Ok(geopm_client.pop_profile_region_names(request).await?)
     }
+
+    async fn set_group_access(
+        &self,
+        request: Request<geopm_package::GroupAccessRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.set_group_access(request).await?)
+    }
+
+    async fn set_group_access_signals(
+        &self,
+        request: Request<geopm_package::GroupAccessSignalsRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.set_group_access_signals(request).await?)
+    }
+
+    async fn set_group_access_controls(
+        &self,
+        request: Request<geopm_package::GroupAccessControlsRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.set_group_access_controls(request).await?)
+    }
+
+    async fn get_all_access(
+        &self,
+        request: Request<Empty>,
+    ) -> Result<Response<AccessLists>, Status> {
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.get_all_access(request).await?)
+    }
+
+    async fn get_group_access(
+        &self,
+        request: Request<geopm_package::GroupAccessQuery>,
+    ) -> Result<Response<AccessLists>, Status> {
+        let mut geopm_client = self.geopm_client.lock().await;
+        Ok(geopm_client.get_group_access(request).await?)
+    }
 }
 
 #[tokio::main]
