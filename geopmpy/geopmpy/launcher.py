@@ -338,7 +338,7 @@ class Launcher(object):
         self.num_node = num_node
         self.argv = argv
         self.argv_unparsed = argv
-        self.lib_name = 'libgeopm.so.2.1.0'
+        self.lib_name = 'libgeopm.so.2.2.0'
         try:
             self.config = Config(argv)
             self.is_geopm_enabled = True

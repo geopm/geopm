@@ -31,7 +31,7 @@ GEOPM_PROGRAM_FILTER=geopmbench numactl --cpunodebind=0 -- geopmbench ${INPUT_FI
 
 # python example
 #   GEOPM @ v3.1 requires the use of LD_PRELOAD
-LD_PRELOAD=libgeopm.so.2.1.0 GEOPM_PROGRAM_FILTER=python3 numactl --cpunodebind=1 -- python3 -c 'import time; time.sleep(120)' &
+LD_PRELOAD=libgeopm.so.2.2.0 GEOPM_PROGRAM_FILTER=python3 numactl --cpunodebind=1 -- python3 -c 'import time; time.sleep(120)' &
 #   GEOPM @ v3.2 and beyond provides a gffi module to dl_open libgeopm; LD_PRELOAD is no longer necessary
 # GEOPM_PROGRAM_FILTER=python3 python3 -c 'import geopmpy.gffi, time; time.sleep(120)' &
 

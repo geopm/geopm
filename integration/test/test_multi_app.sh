@@ -19,7 +19,7 @@ export SYSTEMD_BUS_TIMEOUT=600
 TEST_NAME=test_multi_app
 export GEOPM_PROFILE=${TEST_NAME}
 export GEOPM_PROGRAM_FILTER=geopmbench,stress-ng
-export LD_PRELOAD=libgeopm.so.2.1.0
+export LD_PRELOAD=libgeopm.so.2.2.0
 
 # GEOPM_CTL_LOCAL=true \
 GEOPM_REPORT=${TEST_NAME}_report.yaml \

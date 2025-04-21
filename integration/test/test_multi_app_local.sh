@@ -16,7 +16,7 @@ source ${GEOPM_SOURCE}/integration/config/run_env.sh
 TEST_NAME=test_multi_app_local
 export GEOPM_PROFILE=${TEST_NAME}
 export GEOPM_PROGRAM_FILTER=geopmbench,stress-ng
-export LD_PRELOAD=libgeopm.so.2.1.0
+export LD_PRELOAD=libgeopm.so.2.2.0
 
 TEMP_LOG_1=$(mktemp)
 
