@@ -208,7 +208,12 @@ class TestIntegration_progress(unittest.TestCase):
         for cpu in self.get_cpu_with_progress():
             group_name = 'REGION_HASH-cpu-{}'.format(cpu)
             grouped_df = df.groupby(group_name)
-            triad_post_df = grouped_df.get_group(triad_post_hash)
+            try:
+                triad_post_df = grouped_df.get_group(triad_post_hash)
+            except KeyError as ex:
+                msg = 'triad_with_post hash missing from trace. The Controller was most likely not sampling while the app was executing.'
+                raise Exception(msg) from ex
+
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
             err_msg = 'Bad fit for triad CPU {} progress'.format(cpu)
             self.check_monotone(triad_post_df[name], err_msg)

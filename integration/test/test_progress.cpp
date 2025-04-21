@@ -125,7 +125,7 @@ void loop_dgemm_warmup(double big_o, int count)
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
-    sleep(5);
+    sleep(10);
     int vec_size = 134217728; // 1 GiB
 
     std::vector<double> aa_vec(vec_size);
