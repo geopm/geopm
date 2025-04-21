@@ -55,20 +55,22 @@ class Access:
         """Constructor for Access class
 
             Args:
-                geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
-                    dasbus proxy for the GEOPM D-Bus interface.
+                geopm_proxy (dasbus.client.proxy.InterfaceProxy or GRPCClient): The
+                    proxy for the GEOPM interface (DBus or gRPC).
 
         """
         try:
-            geopm_proxy.PlatformGetGroupAccess
-        except DBusError as ee:
-            if 'io.github.geopm was not provided' in str(ee):
-                err_msg = "The geopm systemd service is not enabled. " \
-                          "Run with --direct or install geopm service " \
-                          "and run 'systemctl start geopm'"
-                raise RuntimeError(err_msg) from ee
+            dir(geopm_proxy)
+        except DBusError as dbus_ee:
+            if 'io.github.geopm was not provided' in str(dbus_ee):
+                # Switch to gRPC client if DBus is unavailable
+                try:
+                    from geopmdpy.grpc_client import GRPCClient  # Import the gRPC client
+                    geopm_proxy = GRPCClient()
+                except ModuleNotFoundError as grpc_ee:
+                    raise RuntimeError(f'Could not attach to GEOPM Access Service, consider "geopmccess --direct" option\nAttach with DBus error: {dbus_ee}\nAttach with gRPC error: {grpc_ee}')
             else:
-                raise ee
+                raise dbus_ee
         self._geopm_proxy = geopm_proxy
 
     def set_group_signals(self, group, signals, is_dry_run, is_force):
