@@ -142,8 +142,8 @@ class TestIntegration_hint_time(unittest.TestCase):
             expect = 1.0
             actual = raw_totals['time-hint-memory (s)']
             util.assertNear(self, expect, actual, msg=msg)
-            msg = "Application totals should have nine seconds of total time"
-            expect = 9.0 + overhead_time + init_time
+            msg = "Application totals should have fourteen seconds of total time"
+            expect = 14.0 + overhead_time + init_time
             actual = raw_totals['runtime (s)']
             util.assertNear(self, expect, actual, msg=msg)
 
