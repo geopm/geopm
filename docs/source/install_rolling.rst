@@ -317,7 +317,7 @@ by OS and OS version.  Note: the commands in this table should be run with
 
       .. tabs::
 
-         .. group-tab:: 22.04 Jammy
+         .. group-tab:: 24.04 Noble
 
             .. tabs::
 
@@ -650,7 +650,7 @@ by OS and OS version.  Note: the commands in this table should be run with
 
       .. tabs::
 
-         .. group-tab:: 22.04 Jammy
+         .. group-tab:: 24.04 Noble
 
             .. tabs::
 
