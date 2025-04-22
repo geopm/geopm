@@ -1176,7 +1176,6 @@ namespace geopm
         }
 
         int result = -1;
-        bool is_found = false;
 
         if ((signal_name.find(":METRIC:") != std::string::npos ) && //||
             //m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
