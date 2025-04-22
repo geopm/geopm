@@ -373,7 +373,7 @@ the ``root`` user.
 
       .. tabs::
 
-         .. group-tab:: 22.04 Jammy
+         .. group-tab:: 24.04 Noble
 
             .. tabs::
 
@@ -770,7 +770,7 @@ the ``root`` user.
 
       .. tabs::
 
-         .. group-tab:: 22.04 Jammy
+         .. group-tab:: 24.04 Noble
 
             .. tabs::
 

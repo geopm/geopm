@@ -119,7 +119,7 @@ with Spack.
 
 ### Examples from Install Guide
 
-For example, on Ubuntu Jammy the following commands will install the
+For example, on Ubuntu Noble the following commands will install the
 latest stable release of the GEOPM Access service and the associated development
 files:
 
