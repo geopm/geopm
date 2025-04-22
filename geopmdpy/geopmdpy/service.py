@@ -67,103 +67,71 @@ class PlatformService(object):
             if profiler_pid is not None and not self._is_client_active(profiler_pid):
                 lock.unlock(profiler_pid)
 
-    def get_group_access(self, group):
-        """Get the signal and control access lists
-
-        Read the list of allowed signals and controls for the
-        specified group.  If the group is None or the empty string
-        then the default lists of allowed signals and controls are
-        returned.
-
-        The values are securely read from files located in
-        /etc/geopm using the secure_read_file() interface.
-
-        If no secure file exist for the specified group, then two
-        empty lists are returned.
+    def get_group_access(self, group, client_pid):
+        """Get the signal and control access lists for a group.
 
         Args:
-            group (str): Name of group
+            group (str): Name of the group.
+            client_pid (int): Linux PID of the client thread.
 
         Returns:
-            list(str), list(str): Signal and control allowed lists, both in sorted order.
+            tuple: Signal and control allowed lists, both in sorted order.
 
         Raises:
-            RuntimeError: The group name is not valid on the system.
-
+            RuntimeError: If the client lacks necessary permissions.
         """
         if group == system_files.GEOPM_SERVICE_LOG_REQUEST:
+            if not system_files.has_cap_sys_admin(client_pid):
+                raise RuntimeError('Reading the GEOPM Access Service log requires CAP_SYS_ADMIN, try with "sudo" or run as "root".')
             result = (sorted(self._accessed_signals), sorted(self._accessed_controls))
         else:
             result = self._access_lists.get_group_access(group)
         return result
 
-    def set_group_access(self, group, allowed_signals, allowed_controls):
-        """Set signals and controls in the allowed lists
-
-        Write the list of allowed signals and controls for the
-        specified group.  If the group is None or the empty string
-        then the default lists of allowed signals and controls are
-        updated.
-
-        The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
-        secure_make_file() interfaces.
+    def set_group_access(self, group, allowed_signals, allowed_controls, client_pid):
+        """Set the signal and control access lists for a group.
 
         Args:
-            group (str): Name of group
-
-            allowed_signals (list(str)): Signal names that are allowed
-
-            allowed_controls (list(str)): Control names that are allowed
+            group (str): Name of the group.
+            allowed_signals (list): List of allowed signal names.
+            allowed_controls (list): List of allowed control names.
+            client_pid (int): Linux PID of the client thread.
 
         Raises:
-            RuntimeError: The group name is not valid on the system.
-
+            RuntimeError: If the client lacks necessary permissions.
         """
+        if not system_files.has_cap_sys_admin(client_pid):
+            raise RuntimeError('Setting access lists requires CAP_SYS_ADMIN, try with "sudo" or run as "root".')
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
-    def set_group_access_signals(self, group, allowed_signals):
-        """Set signals in the allowed lists
-
-        Write the list of allowed signals for the specified group.  If
-        the group is None or the empty string then the default lists
-        of allowed signal are updated.
-
-        The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
-        secure_make_file() interfaces.
+    def set_group_access_signals(self, group, allowed_signals, client_pid):
+        """Set the signal access list for a group.
 
         Args:
-            group (str): Name of group
-
-            allowed_signals (list(str)): Signal names that are allowed
+            group (str): Name of the group.
+            allowed_signals (list): List of allowed signal names.
+            client_pid (int): Linux PID of the client thread.
 
         Raises:
-            RuntimeError: The group name is not valid on the system.
-
+            RuntimeError: If the client lacks necessary permissions.
         """
+        if not system_files.has_cap_sys_admin(client_pid):
+            raise RuntimeError('Setting access lists requires CAP_SYS_ADMIN, try with "sudo" or run as "root".')
         self._access_lists.set_group_access_signals(group, allowed_signals)
 
-    def set_group_access_controls(self, group, allowed_controls):
-        """Set controls in the allowed lists
-
-        Write the list of allowed controls for the specified group.  If
-        the group is None or the empty string then the default lists
-        of allowed control are updated.
-
-        The values are securely written atomically to files located in
-        /etc/geopm using the secure_make_dirs() and
-        secure_make_file() interfaces.
+    def set_group_access_controls(self, group, allowed_controls, client_pid):
+        """Set the control access list for a group.
 
         Args:
-            group (str): Name of group
-
-            allowed_controls (list(str)): Control names that are allowed
+            group (str): Name of the group.
+            allowed_controls (list): List of allowed control names.
+            client_pid (int): Linux PID of the client thread.
 
         Raises:
-            RuntimeError: The group name is not valid on the system.
-
+            RuntimeError: If the client lacks necessary permissions.
         """
+        if not system_files.has_cap_sys_admin(client_pid):
+            raise RuntimeError('Setting access lists requires CAP_SYS_ADMIN, try with "sudo" or run as "root".')
         self._access_lists.set_group_access_controls(group, allowed_controls)
 
     def get_user_access(self, user, client_pid):
@@ -297,7 +265,7 @@ class PlatformService(object):
             result.append((name, description, domain_type))
         return result
 
-    def lock_control(self):
+    def lock_control(self, client_pid):
         """Block all write-mode sessions.
 
         A call to this method will end any currently running
@@ -327,7 +295,7 @@ class PlatformService(object):
         """
         raise NotImplementedError('PlatformService: Implementation incomplete')
 
-    def unlock_control(self):
+    def unlock_control(self, client_pid):
         """Unblock access to create new write-mode sessions.
 
         A call to this method will re-enable write-mode sessions to be
@@ -428,7 +396,7 @@ class PlatformService(object):
             watch_id = self._watch_client(client_pid)
             self._active_sessions.add_client(client_pid, signals, controls, watch_id)
 
-    def close_session(self, client_pid):
+    def close_session(self, client_pid, request_pid):
         """Close an active session for the client process.
 
         After closing a session, the client process is required to
@@ -457,6 +425,8 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
+        if client_pid != request_pid and not system_files.has_cap_sys_admin(request_pid):
+            raise RuntimeError('Closing session of another PID requires CAP_SYS_ADMIN, try with "sudo" or run with "root"')
         if not self._check_client_active(client_pid, 'PlatformCloseSession'):
             return
         reference_count = self._active_sessions.get_reference_count(client_pid)
@@ -470,7 +440,7 @@ class PlatformService(object):
         else:  # reference_count > 1:
             self._active_sessions.decrement_reference_count(client_pid)
 
-    def close_session_admin(self, client_pid):
+    def close_session_admin(self, client_pid, request_pid):
         """Close an active session for the client process completely.
 
         This administrative function is used to forcibly close an
@@ -488,6 +458,8 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
+        if system_files.has_cap_sys_admin(request_pid):
+            raise RuntimeError('Closing session of another PID requires CAP_SYS_ADMIN, try with "sudo" or run with "root"')
         self._close_session_completely(client_pid)
 
     def _close_session_completely(self, client_pid):
@@ -1017,24 +989,19 @@ class GEOPMService(object):
 
     @accepts_additional_arguments
     def PlatformGetGroupAccess(self, group, **call_info):
-        if group == '0.GEOPM_SERVICE_LOG_REQUEST':
-            self._check_cap_sys_admin(call_info, "PlatformGetGroupAccess")
-        return self._platform.get_group_access(group)
+        return self._platform.get_group_access(group, self._get_pid(**call_info))
 
     @accepts_additional_arguments
     def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls, **call_info):
-        self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
-        self._platform.set_group_access(group, allowed_signals, allowed_controls)
+        self._platform.set_group_access(group, allowed_signals, allowed_controls, self._get_pid(**call_info))
 
     @accepts_additional_arguments
     def PlatformSetGroupAccessSignals(self, group, allowed_signals, **call_info):
-        self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
-        self._platform.set_group_access_signals(group, allowed_signals)
+        self._platform.set_group_access_signals(group, allowed_signals, self._get_pid(**call_info))
 
     @accepts_additional_arguments
     def PlatformSetGroupAccessControls(self, group, allowed_controls, **call_info):
-        self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
-        self._platform.set_group_access_controls(group, allowed_controls)
+        self._platform.set_group_access_controls(group, allowed_controls, self._get_pid(**call_info))
 
     @accepts_additional_arguments
     def PlatformGetUserAccess(self, **call_info):
@@ -1051,13 +1018,11 @@ class GEOPMService(object):
 
     @accepts_additional_arguments
     def PlatformLockControl(self, **call_info):
-        self._check_cap_sys_admin(call_info, "PlatformLockControl")
-        self._platform.lock_control()
+        self._platform.lock_control(self._get_pid(**call_info))
 
     @accepts_additional_arguments
     def PlatformUnlockControl(self, **call_info):
-        self._check_cap_sys_admin(call_info, "PlatformUnLockControl")
-        self._platform.unlock_control()
+        self._platform.unlock_control(self._get_pid(**call_info))
 
     @accepts_additional_arguments
     def PlatformOpenSession(self, **call_info):
@@ -1065,15 +1030,13 @@ class GEOPMService(object):
 
     @accepts_additional_arguments
     def PlatformCloseSession(self, **call_info):
-        self._platform.close_session(self._get_pid(**call_info))
+        pid = self._get_pid(**call_info)
+        self._platform.close_session(pid, pid)
 
     @accepts_additional_arguments
     def PlatformCloseSessionAdmin(self, client_pid, **call_info):
         caller_pid = self._get_pid(**call_info)
-        # Allow user to close their own session completely (without requiring admin priv.)
-        if caller_pid != client_pid:
-            self._check_cap_sys_admin(call_info, "PlatformCloseSessionAdmin")
-        self._platform.close_session_admin(client_pid)
+        self._platform.close_session_admin(client_pid, caller_pid)
 
     @accepts_additional_arguments
     def PlatformStartBatch(self, signal_config, control_config, **call_info):
@@ -1150,8 +1113,3 @@ class GEOPMService(object):
         """
         unique_name = call_info['sender']
         return self._dbus_proxy.GetConnectionUnixProcessID(unique_name)
-
-    def _check_cap_sys_admin(self, call_info, api_name):
-        pid = self._get_pid(**call_info)
-        if not system_files.has_cap_sys_admin(pid):
-            raise RuntimeError(f'Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)')

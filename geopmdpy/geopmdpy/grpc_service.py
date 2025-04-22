@@ -157,19 +157,22 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         group = request.group
         allowed_signals = list(request.allowed_signals)
         allowed_controls = list(request.allowed_controls)
-        self._platform_service.set_group_access(group, allowed_signals, allowed_controls)
+        client_pid = self._get_client_id(request, context)
+        self._platform_service.set_group_access(group, allowed_signals, allowed_controls, client_pid)
         return geopm_service_pb2.Empty()
 
     def SetGroupAccessSignals(self, request, context):
         group = request.group
         allowed_signals = list(request.allowed_signals)
-        self._platform_service.set_group_access_signals(group, allowed_signals)
+        client_pid = self._get_client_id(request, context)
+        self._platform_service.set_group_access_signals(group, allowed_signals, client_pid)
         return geopm_service_pb2.Empty()
 
     def SetGroupAccessControls(self, request, context):
         group = request.group
         allowed_controls = list(request.allowed_controls)
-        self._platform_service.set_group_access_controls(group, allowed_controls)
+        client_pid = self._get_client_id(request, context)
+        self._platform_service.set_group_access_controls(group, allowed_controls, client_pid)
         return geopm_service_pb2.Empty()
 
     def GetAllAccess(self, request, context):
@@ -181,8 +184,9 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def GetGroupAccess(self, request, context):
         group = request.group
+        client_pid = self._get_client_id(request, context)
         result = geopm_service_pb2.AccessLists()
-        signals, controls = self._platform_service.get_group_access(group)
+        signals, controls = self._platform_service.get_group_access(group, client_pid)
         result.signals.extend(signals)
         result.controls.extend(controls)
         return result
@@ -200,6 +204,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def _get_user(self, client_id):
         uid = os.stat(f'/proc/{client_id}/status').st_uid
         return pwd.getpwuid(uid).pw_name
+
 def run():
     grpc_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
                                     'grpc-private.sock')
