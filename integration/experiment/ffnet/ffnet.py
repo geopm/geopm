@@ -99,6 +99,16 @@ def launch(app_conf, args, experiment_cli_args):
 
     targets = launch_configs(output_dir, app_conf, args.perf_energy_bias)
 
+    #Set and initialize required counters
+    init_control_path = os.path.join(output_dir, 'ffnet_init.controls')
+    with open(init_control_path, 'w') as outfile:
+        outfile.write("MSR::PQR_ASSOC:RMID board 0 0\n"
+                      "# Assigns all cores to resource monitoring association ID 0\n"
+                      "# Next, assign resource monitoring ID for QM events to match\n"
+                      "MSR::QM_EVTSEL:RMID board 0 0\n"
+                      "# Then determine Xeon Uncore Utilization\n"
+                      "MSR::QM_EVTSEL:EVENT_ID board 0 0")
+
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
@@ -107,7 +117,7 @@ def launch(app_conf, args, experiment_cli_args):
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
                                 enable_profile_traces=args.enable_profile_traces,
-                                init_control_path=None)
+                                init_control_path=init_control_path)
 
 def main(app_conf, **defaults):
     parser = argparse.ArgumentParser()
