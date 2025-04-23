@@ -1,8 +1,8 @@
 {
-    "geopmbench-0x536c798f":[2.4e9, 1e9],
-    "geopmbench-0x644f9787":[2.2e9, 1e9],
-    "geopmbench-0x725e8066":[2.0e9, 1.2e9],
-    "geopmbench-0xa74bbf35":[1.8e9, 1.2e9],
-    "geopmbench-0xd691da00":[1.6e9, 1.6e9],
-    "geopmbench-0xeebad5f7":[1.4e9, 1.4e9]
+    "geopmbench-0xa12de8ee":[2.4, 1.0],
+    "geopmbench-0x0f33c2ac":[2.2, 1.0],
+    "geopmbench-0x120a248f":[2.0, 1.2],
+    "geopmbench-0xf0e9be1c":[1.8, 1.2],
+    "geopmbench-0x68317b3c":[1.6, 1.6],
+    "geopmbench-0x5d545077":[1.4, 1.4]
 }
