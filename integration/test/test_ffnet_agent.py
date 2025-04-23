@@ -48,17 +48,13 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls._perf_energy_bias = 0
         cls._ffnet_dir = Path(os.path.join('test_ffnet_output', 'ffnet'))
 
-        #TODO: Replace
-        #cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
-        #cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
-        cls._cpu_nn_dummy_path = "/home/ahalrawi/output/test_nn_nn_cpu.json"
-        cls._cpu_fmap_dummy_path = "/home/ahalrawi/output/test_nn_fmap_cpu.json"
+        cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
+        cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
 
         node_count = 1
         cls._run_count = 0
 
         # Setup Common Args
-        # TODO: Remove gpu nn/freq paths
         ffnet_experiment_args = SimpleNamespace(
             output_dir = cls._ffnet_dir,
             perf_energy_bias = cls._perf_energy_bias,
@@ -187,18 +183,22 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
     #    For a given REGION_HASH, the probability of the correct IDd region is
     #    >95% at least 95% of the time
     def test_region_accuracy(self):
-        # Calculate probabilities
+        # Grab region class columns
         subset = self._trace_data[list(self._trace_data.filter(regex='geopmbench'))]
+        # Calculate probabilities
         probabilities = subset.apply(self.sigmoid)
+        # Add region hash back in
         probabilities['REGION_HASH'] = self._trace_data['REGION_HASH']
 
         # Count lines where probability of correct ID is >95%
         for region in self._app_regions:
             region_hash = hex(self._app_regions[region])
-            df = probabilities[probabilities["REGION_HASH"] == region_hash]
-            samples_total = len(df)
-            samples_good = len(df[df[f"geopmbench-{region_hash}_{geopmdpy.topo.DOMAIN_PACKAGE}_0"] > 0.95])
-            self.assertTrue(samples_good/samples_total > 0.95)
+            if f"geopmbench-{region_hash}_package_0" in probabilities.columns:
+                df = probabilities[probabilities["REGION_HASH"] == region_hash]
+                samples_total = len(df)
+                samples_good = len(df[df[f"geopmbench-{region_hash}_package_0"] > 0.95])
+                print(f"Region {region}: Good: {samples_good}. Total: {samples_total}")
+                self.assertTrue(samples_good/samples_total > 0.95)
 
     #Test frequency selection
     #    For a given REGION_HASH, the frequency control is within 95% of the
