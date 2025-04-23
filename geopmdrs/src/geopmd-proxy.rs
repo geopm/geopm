@@ -270,7 +270,7 @@ impl GeopmService for GeopmServiceImp {
 
     async fn get_group_access(
         &self,
-        request: Request<geopm_package::GroupAccessQuery>,
+        request: Request<geopm_package::GroupAccessRequest>,
     ) -> Result<Response<AccessLists>, Status> {
         let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
         let session_key = session_key(conn_info).unwrap();

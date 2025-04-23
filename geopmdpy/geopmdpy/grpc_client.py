@@ -102,6 +102,6 @@ class GRPCClient:
         Returns:
             tuple: A tuple containing lists of allowed signals and controls.
         """
-        request = geopm_service_pb2.GroupAccessQuery(group=group)
+        request = geopm_service_pb2.GroupAccessRequest(group=group)
         response = self.stub.GetGroupAccess(request)
         return response.signals, response.controls

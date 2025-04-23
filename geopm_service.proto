@@ -154,11 +154,6 @@ message GroupAccessRequest {
   repeated string allowed_controls = 4;
 }
 
-message GroupAccessQuery {
-  SessionKey session_key = 1;
-  string group = 2;
-}
-
 service GEOPMService {
   rpc GetUserAccess(SessionKey) returns (AccessLists);
   rpc GetSignalInfo(InfoRequest) returns (SignalInfoList);
@@ -179,5 +174,5 @@ service GEOPMService {
   rpc SetGroupAccessSignals(GroupAccessRequest) returns (Empty);
   rpc SetGroupAccessControls(GroupAccessRequest) returns (Empty);
   rpc GetAllAccess(Empty) returns (AccessLists);
-  rpc GetGroupAccess(GroupAccessQuery) returns (AccessLists);
+  rpc GetGroupAccess(GroupAccessRequest) returns (AccessLists);
 }
