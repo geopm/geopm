@@ -12,7 +12,7 @@ import torch
 from torch import nn
 import torch.utils.data as data
 
-def model_to_json(model, X_columns, y_columns, describe_net):
+def model_to_json(model, X_columns, y_column, describe_net):
     """
     Convert a PyTorch model to a JSON object that can be used by the geopm runtime.
     The model must be a fully connected neural network with sigmoid activation functions.
@@ -29,7 +29,7 @@ def model_to_json(model, X_columns, y_columns, describe_net):
        component. For example, "DRAM_POWER-package-0" refers to the power signal
        of the package component with index 0.
 
-    y_columns: A list of output column names. Each column name should be in one of
+    y_column: A list of output column names. Each column name should be in one of
        two formats: "signal_name-component-index" (as described above) or
        "trace_key", which indicates that the output should be written to the
        trace file with the corresponding column name (key).
@@ -86,7 +86,7 @@ def model_to_json(model, X_columns, y_columns, describe_net):
         else:
             rval['signal_inputs'].append(parse_signal(input_col))
 
-    for output_col in y_columns:
+    for output_col in y_column:
         if output_col.startswith("trace_"):
             rval['trace_outputs'].append(output_col[len("trace_"):])
         else:
@@ -109,14 +109,14 @@ def model_to_json(model, X_columns, y_columns, describe_net):
 # TODO: Remove trace lines transitioning between two different regions
 #       i.e. if REGION_HASH != prev line REGION_HASH, delete.
 
-def data_prep(input_trace, input_names, output_names):
+def data_prep(input_trace, input_names, output_name, num_outputs):
     # Setup training and validation sets
     train_size = int(0.8 * len(input_trace))
     val_size = len(input_trace) - train_size
 
     df_train = input_trace
     df_x_train = df_train[input_names]
-    df_y_train = df_train[output_names]
+    df_y_train = df_train[[output_name]]
 
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).long()
@@ -124,12 +124,25 @@ def data_prep(input_trace, input_names, output_names):
     train_set = torch.utils.data.TensorDataset(x_train, y_train)
     train_set, val_set = data.random_split(train_set, [train_size, val_size])
 
-    return train_set, val_set
 
-def train_model(df_traces, X_columns, y_columns, log=print):
-    train_set, val_set = data_prep(df_traces, X_columns, y_columns)
-    num_outputs = len(df_traces[y_columns[0]].unique())
+    #Weigh each region by the number of samples
+    #i.e. regions with more samples get discounted more
+    #Filling in regions with no samples with 0
+    weights = df_y_train[output_name].value_counts().max()/df_y_train[output_name].value_counts()
+    weights = torch.tensor(weights.reindex(range(num_outputs), fill_value=0).values, dtype=torch.float32)
 
+    return train_set, val_set, weights
+
+def train_model(df_traces, X_columns, y_column, num_outputs, log=print):
+    train_set, val_set, weights = data_prep(df_traces, X_columns, y_column, num_outputs)
+    print("gen_neural_net.py::train_model: Expecting " + str(num_outputs) + " outputs.")
+
+
+#TODO: DELETE
+#    model = nn.Sequential(
+#        nn.BatchNorm1d(len(X_columns)),
+#        nn.Linear(len(X_columns), num_outputs)
+#    )
     model = nn.Sequential(
         nn.BatchNorm1d(len(X_columns)),
         nn.Linear(len(X_columns), 64),
@@ -141,7 +154,7 @@ def train_model(df_traces, X_columns, y_columns, log=print):
         nn.Linear(64, num_outputs)
     )
 
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss(weight=weights)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
     n_samples = len(train_set)
@@ -182,21 +195,23 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
 
     region_ids = []
 
-    y_columns = ['region-id']
+    y_column = 'region-id'
     X_columns_domain = {
             'cpu':['CPU_POWER-package-0',
-                'CPU_FREQUENCY_STATUS-package-0',
-                'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
-                'MSR::QM_CTR_SCALED-package-0',
-                'MSR::QM_CTR_SCALED_RATE-package-0'],
+                   'DRAM_POWER-package-0',
+                   'CPU_FREQUENCY_STATUS-package-0',
+                   'CPU_PACKAGE_TEMPERATURE-package-0',
+                   'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
+                   'MSR::QM_CTR_SCALED-package-0',
+                   'MSR::QM_CTR_SCALED_RATE-package-0'],
             'gpu':['GPU_CORE_FREQUENCY_STATUS-gpu-0',
-                'GPU_POWER-gpu-0',
-                'GPU_UTILIZATION-gpu-0',
-                'GPU_CORE_ACTIVITY-gpu-0',
-                'GPU_UNCORE_ACTIVITY-gpu-0']}
+                   'GPU_POWER-gpu-0',
+                   'GPU_UTILIZATION-gpu-0',
+                   'GPU_CORE_ACTIVITY-gpu-0',
+                   'GPU_UNCORE_ACTIVITY-gpu-0']}
     ratios_domain = {
             'cpu': [['CPU_INSTRUCTIONS_RETIRED-package-0', 'TIME'],
-            ['CPU_CYCLES_THREAD-package-0', 'TIME'],
+            ['CPU_CYCLES_THREAD-package-0', 'CPU_CYCLES_REFERENCE-package-0'],
             ['CPU_ENERGY-package-0', 'TIME'],
             ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
             ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
@@ -213,7 +228,6 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
             sys.stderr.write('<geopm> Error: No app-config in input data. Have you used gen_hdf_from_fsweep.py to create this HDF?\n')
             sys.exit(1)
 
-        df["region-id"] = df["app-config"]
         dfs.append(df)
 
     df_traces = pd.concat(dfs)
@@ -235,11 +249,12 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
         sys.stderr.write('<geopm> Error: No training domain is complete\n')
         sys.exit(1)
 
-    print("Training to identify these regions:")
-    region_ids = sorted(list(df_traces["region-id"].unique()))
+    region_ids = sorted(list(df_traces["app-config"].unique()))
+    num_outputs = len(region_ids)
+    print("gen_neural_net.py: Training to identify these regions:")
     print(", ".join(region_ids))
     mapping = dict(map(reversed, enumerate(region_ids)))
-    df_traces["region-id"] = df_traces['region-id'].map(mapping)
+    df_traces[y_column] = df_traces['app-config'].map(mapping)
 
     for domain in domains_to_train:
         for num,den in ratios_domain[domain]:
@@ -248,12 +263,12 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
             df_traces[name] = df_traces[num].diff() / df_traces[den].diff()
 
         df_traces.replace([np.inf, -np.inf], np.nan, inplace=True)
-        is_missing_data = df_traces[X_columns_domain[domain] + y_columns].isna().sum(axis=1) > 0
+        is_missing_data = df_traces[X_columns_domain[domain] + [y_column]].isna().sum(axis=1) > 0
         df_traces_domain = df_traces.loc[~is_missing_data]
 
         #TODO: Check if GPU exist on system, offload training to them
         #TODO: Check for CPU optimizations to speed up training if no GPU exists
-        model = train_model(df_traces_domain, X_columns_domain[domain], y_columns)
+        model = train_model(df_traces_domain, X_columns_domain[domain], y_column, num_outputs)
 
         model_scripted = torch.jit.script(model)
         model_scripted.save(f"{output_name}_{domain}.pt")

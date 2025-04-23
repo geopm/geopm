@@ -68,6 +68,7 @@ def trace_signals(domains):
                     "MSR::QM_CTR_SCALED_RATE@package",
                     "CPU_INSTRUCTIONS_RETIRED@package",
                     "CPU_CYCLES_THREAD@package",
+                    "CPU_CYCLES_REFERENCE@package",
                     "CPU_ENERGY@package",
                     "MSR::APERF:ACNT@package",
                     "MSR::MPERF:MCNT@package",
