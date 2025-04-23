@@ -73,11 +73,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::vector<double> rval(tensor_a.get_dim());
-        const auto &vec_a = tensor_a.get_data();
-        const auto &vec_b = tensor_b.get_data();
+        double rval = 0;
+        for (int idx=0; idx<(int)tensor_b.get_dim(); idx++) {
+            rval += tensor_a[idx] * tensor_b[idx];
+        }
 
-        return std::inner_product(vec_a.begin(), vec_a.end(), vec_b.begin(), 0);
+        return rval;
     }
 
     TensorOneD TensorMathImp::sigmoid(const TensorOneD &tensor) const

@@ -299,11 +299,13 @@ namespace geopm
     {
         std::vector<std::string> tracelist;
 
+        //Adding max frequency control
         for (const m_domain_key_s domain_key : m_domains) {
             tracelist.push_back(M_MAX_FREQ_CONTROL_NAME.at(domain_key.type) +
                                     M_TRACE_SUFFIX.at(domain_key.type) +
                                     std::to_string(domain_key.index));
         }
+        //Adding region class names
         for (const m_domain_key_s domain_key : m_domains) {
             for (const std::string& trace_name : m_net_map.at(domain_key) -> trace_names()) {
                 tracelist.push_back(trace_name +
@@ -323,10 +325,12 @@ namespace geopm
     void FFNetAgent::trace_values(std::vector<double> &values)
     {
         int vidx = 0;
+        //Ading max frequency control
         for (const m_domain_key_s domain_key : m_domains) {
             values[vidx] = m_freq_control[domain_key].last_value;
             vidx++;
         }
+        //Adding region class names
         for (const auto &kv : m_net_map) {
             std::vector<double> domain_row = kv.second->trace_values();
             for (size_t idx=vidx; idx < domain_row.size(); ++idx) {

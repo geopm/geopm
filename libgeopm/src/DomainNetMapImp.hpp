@@ -72,7 +72,7 @@ namespace geopm
             };
 
             static const std::set<std::string> M_EXPECTED_KEYS;
-            // Size in bytes
+            // Max size in bytes
             static constexpr int M_MAX_NNET_SIZE = 1024 * 1024;
             std::shared_ptr<LocalNeuralNet> m_neural_net;
 
