@@ -121,7 +121,7 @@ int FFNetAgentTest::init(bool do_gpu)
         ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_GPU, _))
             .WillByDefault(Return(GPU_FREQ_MAX_CTL_IDX));
     }
-    
+
     // Test init: ask for number of domains
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .Times(1);
@@ -159,6 +159,12 @@ void FFNetAgentTest::construct()
         freq_recommender_arg[iter.first] = iter.second;
     }
 
+    //Set paths
+    setenv("GEOPM_CPU_NN_PATH", "dummy_cpu_nnet", 1);
+    setenv("GEOPM_CPU_FMAP_PATH", "dummy_cpu_fmap", 1);
+    setenv("GEOPM_GPU_NN_PATH", "dummy_gpu_nnet", 1);
+    setenv("GEOPM_GPU_FMAP_PATH", "dummy_gpu_fmap", 1);
+
     std::shared_ptr<geopm::Waiter> waiter = std::make_unique<MockWaiter>();
     m_agent = geopm::make_unique<FFNetAgent>(
             *m_platform_io,
@@ -167,6 +173,12 @@ void FFNetAgentTest::construct()
             freq_recommender_arg,
             waiter);
     m_agent->init(0, {}, false); 
+    
+    //Unset paths after init_domain_indices call
+    unsetenv("GEOPM_CPU_NN_PATH");
+    unsetenv("GEOPM_GPU_NN_PATH");
+    unsetenv("GEOPM_CPU_FMAP_PATH");
+    unsetenv("GEOPM_GPU_FMAP_PATH");
 }
 
 int FFNetAgentTest::construct_and_init(bool do_gpu)
@@ -193,7 +205,6 @@ TEST_F(FFNetAgentTest, policy_names)
     EXPECT_EQ("PERF_ENERGY_BIAS", policy_names.at(0));
 
 }
-
 
 // Test validate_policy: Accept all-nan policy
 TEST_F(FFNetAgentTest, validate_empty_policy)
@@ -278,8 +289,8 @@ TEST_F(FFNetAgentTest, adjust_platform_nans)
 TEST_F(FFNetAgentTest, adjust_platform_all)
 {
     int num_gpu = construct_and_init(true);
-    int cpu_req = 1.2e9;
-    int gpu_req = 1.0e9;
+    double cpu_req = 1.2;
+    double gpu_req = 1.0;
     int ncalls = 0;
 
     // Call to DomainNetMap to get regions
@@ -309,13 +320,13 @@ TEST_F(FFNetAgentTest, adjust_platform_all)
             .Times(ncalls);
     }
 
-    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MIN_CTL_IDX, cpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MIN_CTL_IDX, cpu_req*1e9))
         .Times(M_NUM_PKG);
-    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MAX_CTL_IDX, cpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MAX_CTL_IDX, cpu_req*1e9))
         .Times(M_NUM_PKG);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MIN_CTL_IDX, gpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MIN_CTL_IDX, gpu_req*1e9))
         .Times(num_gpu);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MAX_CTL_IDX, gpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MAX_CTL_IDX, gpu_req*1e9))
         .Times(num_gpu);
 
     m_agent->adjust_platform(m_default_policy);
@@ -328,8 +339,8 @@ TEST_F(FFNetAgentTest, adjust_platform_all)
 TEST_F(FFNetAgentTest, adjust_platform_no_gpu)
 {
     int num_gpu = construct_and_init(false);
-    int cpu_req = 1.2e9;
-    int gpu_req = 1.0e9;
+    double cpu_req = 1.2;
+    double gpu_req = 1.0;
 
     // Call to DomainNetMap to get regions
     for (const auto &net_map_pair : m_net_map) {
@@ -351,13 +362,13 @@ TEST_F(FFNetAgentTest, adjust_platform_no_gpu)
         }
     }
 
-    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MIN_CTL_IDX, cpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MIN_CTL_IDX, cpu_req*1e9))
         .Times(M_NUM_PKG);
-    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MAX_CTL_IDX, cpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQ_MAX_CTL_IDX, cpu_req*1e9))
         .Times(M_NUM_PKG);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MIN_CTL_IDX, gpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MIN_CTL_IDX, gpu_req*1e9))
         .Times(num_gpu);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MAX_CTL_IDX, gpu_req))
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQ_MAX_CTL_IDX, gpu_req*1e9))
         .Times(num_gpu);
 
     m_agent->adjust_platform(m_default_policy);
@@ -407,7 +418,16 @@ TEST_F(FFNetAgentTest, trace_names)
     std::vector<std::string> cpu_region_names = {"aib", "stream"};
     std::vector<std::string> gpu_region_names = {"parres"};
 
-    std::vector<std::string> expect_val = {"aib_cpu_0", "stream_cpu_0", "aib_cpu_1", "stream_cpu_1",
+    std::vector<std::string> expect_val = {"CPU_FREQUENCY_MAX_CONTROL_package_0",
+                                           "CPU_FREQUENCY_MAX_CONTROL_package_1",
+                                           "GPU_CORE_FREQUENCY_MAX_CONTROL_gpu_0",
+                                           "GPU_CORE_FREQUENCY_MAX_CONTROL_gpu_1",
+                                           "GPU_CORE_FREQUENCY_MAX_CONTROL_gpu_2",
+                                           "GPU_CORE_FREQUENCY_MAX_CONTROL_gpu_3",
+                                           "GPU_CORE_FREQUENCY_MAX_CONTROL_gpu_4",
+                                           "GPU_CORE_FREQUENCY_MAX_CONTROL_gpu_5",
+                                           "aib_package_0", "stream_package_0",
+                                           "aib_package_1", "stream_package_1",
                                            "parres_gpu_0", "parres_gpu_1", "parres_gpu_2",
                                            "parres_gpu_3", "parres_gpu_4", "parres_gpu_5"};
 
@@ -441,7 +461,10 @@ TEST_F(FFNetAgentTest, trace_names_no_gpu)
     std::vector<std::string> cpu_region_names = {"aib", "stream"};
     std::vector<std::string> gpu_region_names = {"parres"};
 
-    std::vector<std::string> expect_val = {"aib_cpu_0", "stream_cpu_0", "aib_cpu_1", "stream_cpu_1"};
+    std::vector<std::string> expect_val = {"CPU_FREQUENCY_MAX_CONTROL_package_0",
+                                           "CPU_FREQUENCY_MAX_CONTROL_package_1",
+                                           "aib_package_0", "stream_package_0",
+                                           "aib_package_1", "stream_package_1"};
 
     for (const auto &net_map_pair : m_net_map) {
         if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
@@ -461,82 +484,6 @@ TEST_F(FFNetAgentTest, trace_names_no_gpu)
     retval = m_agent->trace_names();
 
     EXPECT_EQ(expect_val.size(), retval.size());
-
-    for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
-        EXPECT_EQ(retval.at(idx), expect_val.at(idx));
-    }
-}
-
-// Test trace_values
-TEST_F(FFNetAgentTest, trace_values)
-{
-    size_t num_gpu = construct_and_init(true);
-    std::vector<std::vector<double>> cpu_probs;
-    std::vector<std::vector<double>> gpu_probs;
-    std::vector<double> expect_val;
-
-    for (size_t idx = 0; idx < M_NUM_PKG; ++idx) {
-        cpu_probs.push_back(std::vector<double>({1+(double)idx, 2}));
-        expect_val.push_back(1+(double)idx);
-        expect_val.push_back(2);
-
-        
-    }
-    for (size_t idx = 0; idx < num_gpu; ++idx) {
-        gpu_probs.push_back(std::vector<double>({(double)idx}));
-        expect_val.push_back((double)idx);
-    }
-
-    for (const auto &net_map_pair : m_net_map) {
-        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
-            ON_CALL(*net_map_pair.second, trace_values())
-                .WillByDefault(Return(cpu_probs.at(net_map_pair.first.second)));
-        }
-        if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
-            ON_CALL(*net_map_pair.second, trace_values())
-                .WillByDefault(Return(gpu_probs.at(net_map_pair.first.second)));
-        }
-
-        EXPECT_CALL(*net_map_pair.second, trace_values());
-    }
-
-    std::vector<double> retval(expect_val.size());
-    m_agent->trace_values(retval);
-
-    for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
-        EXPECT_EQ(retval.at(idx), expect_val.at(idx));
-    }
-}
-
-// Test trace_values no gpu
-TEST_F(FFNetAgentTest, trace_values_no_gpu)
-{
-    construct_and_init(false);
-    std::vector<std::vector<double>> cpu_probs;
-    std::vector<double> expect_val;
-
-    for (size_t idx = 0; idx < M_NUM_PKG; ++idx) {
-        cpu_probs.push_back(std::vector<double>({1+(double)idx, 2}));
-        expect_val.push_back(1+(double)idx);
-        expect_val.push_back(2);
-    }
-
-    for (const auto &net_map_pair : m_net_map) {
-        if (net_map_pair.first.first == GEOPM_DOMAIN_PACKAGE) {
-            ON_CALL(*net_map_pair.second, trace_values())
-                .WillByDefault(Return(cpu_probs.at(net_map_pair.first.second)));
-            EXPECT_CALL(*net_map_pair.second, trace_values());
-        }
-        if (net_map_pair.first.first == GEOPM_DOMAIN_GPU) {
-            ON_CALL(*net_map_pair.second, trace_values())
-                .WillByDefault(Return(std::vector<double>({0})));
-            EXPECT_CALL(*net_map_pair.second, trace_values())
-                .Times(0);
-        }
-    }
-
-    std::vector<double> retval(expect_val.size());
-    m_agent->trace_values(retval);
 
     for (std::size_t idx = 0; idx < expect_val.size() ; idx++) {
         EXPECT_EQ(retval.at(idx), expect_val.at(idx));
