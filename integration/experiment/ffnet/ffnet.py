@@ -45,12 +45,12 @@ def setup_env_paths(args):
     if not args.cpu_nn_path and not args.gpu_nn_path:
         raise RuntimeError('Must specify cpu-nn-path and/or gpu-nn-path when running ffnet experiment')
 
-    if hasattr(args, "cpu_nn_path"):
+    if hasattr(args, "cpu_nn_path") and args.cpu_nn_path is not None:
         if os.path.exists(args.cpu_nn_path):
             os.environ['GEOPM_CPU_NN_PATH'] = args.cpu_nn_path
         else:
             raise FileNotFoundError(f'File cpu-nn-path={args.cpu_nn_path} does not exist.')
-        if hasattr(args, "cpu_fmap_path"):
+        if hasattr(args, "cpu_fmap_path") and args.cpu_fmap_path is not None:
             if os.path.exists(args.cpu_fmap_path):
                 os.environ['GEOPM_CPU_FMAP_PATH'] = args.cpu_fmap_path
             else:
@@ -58,13 +58,13 @@ def setup_env_paths(args):
         else:
             raise RuntimeError('Must specify cpu-fmap-path when cpu-nn-path is specified for ffnet experiment')
 
-    if hasattr(args, "gpu_nn_path"):
+    if hasattr(args, "gpu_nn_path") and args.gpu_nn_path is not None:
         if os.path.exists(args.gpu_nn_path):
             os.environ['GEOPM_GPU_NN_PATH'] = args.gpu_nn_path
         else:
             raise FileNotFoundError(f'File gpu-nn-path={args.gpu_nn_path} does not exist.')
         if hasattr(args, "gpu_fmap_path"):
-            if os.path.exists(args.gpu_fmap_path):
+            if os.path.exists(args.gpu_fmap_path) and args.cpu_fmap_path is not None:
                 os.environ['GEOPM_GPU_FMAP_PATH'] = args.gpu_fmap_path
             else:
                 raise FileNotFoundError(f'File gpu-nn-path={args.gpu_fmap_path} does not exist.')
