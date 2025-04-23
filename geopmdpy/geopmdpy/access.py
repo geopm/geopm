@@ -375,7 +375,7 @@ class Access:
             is_group = True
 
         if ((is_write or is_edit or is_delete or is_log) and
-            (not system_files.has_cap_sys_admin(os.getpid()) or is_dry_run)):
+            (not system_files.has_cap_sys_admin(os.getpid()) and not is_dry_run)):
             raise RuntimeError('Modifying configuration files requires CAP_SYS_ADMIN, '
                                'try running with "sudo" or as "root"')
         if (is_all or is_log or is_msr_safe) and (is_write or is_edit or is_delete):
