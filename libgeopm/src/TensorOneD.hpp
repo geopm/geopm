@@ -95,7 +95,7 @@ namespace geopm
             /// @return Returns the contents of the tensor.
             const std::vector<double> &get_data() const;
 
-	    virtual ~TensorOneD() = default;
+            virtual ~TensorOneD() = default;
         private:
             std::vector<double> m_vec;
             std::shared_ptr<TensorMath> m_math;
