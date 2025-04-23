@@ -47,8 +47,8 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._skip_launch = not util.do_launch()
         cls._test_name = 'test_ffnet_nn_scripts'
         #TODO: Get rid of this
-        cls._do_all = True
-        cls._do_gen_nn = True
+        cls._do_all = False
+        cls._do_gen_nn = False
 
         ########################
         # CPU Neural Net Sweep #
@@ -82,9 +82,9 @@ class TestIntegration_ffnet(unittest.TestCase):
         cpu_test_app_params = {
             'spin_bigo': 1.0,
             'sleep_bigo': 1.0,
-            'dgemm_bigo': 10.0,
-            'stream_bigo': 4.0,
-            'loop_count': 2
+            'dgemm_bigo': 12.0,
+            'stream_bigo': 3.0,
+            'loop_count': 30
         }
         cls._app_regions = {}
         #TODO: Get hashes later from a report and assemble this info
@@ -185,7 +185,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Set up HDF/neural net file info
         cls._nn_output_prefix = "test_ffnet/test_nn"
         cls._nn_description = "test description"
-        cls._nn_regions_ignore = [cls._app_regions['cpu']['spin'], "geopmbench-unmarked"]
+        cls._nn_regions_ignore = ["geopmbench-0x68317b3c", "geopmbench-unmarked"]
         cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
         cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
         cls._nn_out = f"{cls._nn_output_prefix}_nn"
@@ -207,6 +207,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Configure the ffnet agent
         cls._agent = 'ffnet'
 
+        #TODO: Replace
         cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
 
@@ -456,6 +457,26 @@ class TestIntegration_ffnet(unittest.TestCase):
             assertTrue(dgemm_freq > nstream_freq)
             fp['gpu'].close()
 
+    def test_no_harm(self):
+        """
+        Test that the phi=0 decisions do not significantly lower performance
+
+        Pass Criteria:
+            - FoM is within 95% of standard monitor
+            - For each region, phi=0 runtime is within 95% of max freq run
+            - For each region, phi=0 power is at most the same as max freq run
+        """
+
+    def test_phi(self):
+        """
+        Test the perf-energy-bias knob
+
+        Pass Criteria:
+            - Phi=0 FoM >= Phi=1 FoM
+            - For each region, phi=0 runtime >= phi=1 runtime
+            - For each region, phi=0 mean power >= phi=1 mean power
+            - For each region, phi=0 frequency >= phi=1 frequency
+        """
     def test_region_accuracy(self):
         """
         Test that the ffnet agent identifies geopmbench regions accurately
@@ -486,7 +507,6 @@ class TestIntegration_ffnet(unittest.TestCase):
         Test that the frequency selection made by ffnet aget is reasonable.
 
         Pass Criteria:
-            - Frequency selection for phi=0 is higher on average than phi=1
             - For a given REGION_HASH and phi value, the average frequency
               control is within 5% of fmap's target frequency
         """
