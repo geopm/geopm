@@ -111,7 +111,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def CloseSession(self, request, context):
         client_id = self._get_client_id(request, context)
-        self._platform_service.close_session(client_id)
+        self._platform_service.close_session(client_id, client_id)
         return geopm_service_pb2.Empty()
 
     def RestoreControl(self, request, context):
@@ -157,21 +157,21 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         group = request.group
         allowed_signals = list(request.allowed_signals)
         allowed_controls = list(request.allowed_controls)
-        client_pid = self._get_client_id(request, context)
+        client_pid = self._get_client_id(request.session_key, context)
         self._platform_service.set_group_access(group, allowed_signals, allowed_controls, client_pid)
         return geopm_service_pb2.Empty()
 
     def SetGroupAccessSignals(self, request, context):
         group = request.group
         allowed_signals = list(request.allowed_signals)
-        client_pid = self._get_client_id(request, context)
+        client_pid = self._get_client_id(request.session_key, context)
         self._platform_service.set_group_access_signals(group, allowed_signals, client_pid)
         return geopm_service_pb2.Empty()
 
     def SetGroupAccessControls(self, request, context):
         group = request.group
         allowed_controls = list(request.allowed_controls)
-        client_pid = self._get_client_id(request, context)
+        client_pid = self._get_client_id(request.session_key, context)
         self._platform_service.set_group_access_controls(group, allowed_controls, client_pid)
         return geopm_service_pb2.Empty()
 
@@ -184,7 +184,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def GetGroupAccess(self, request, context):
         group = request.group
-        client_pid = self._get_client_id(request, context)
+        client_pid = self._get_client_id(request.session_key, context)
         result = geopm_service_pb2.AccessLists()
         signals, controls = self._platform_service.get_group_access(group, client_pid)
         result.signals.extend(signals)

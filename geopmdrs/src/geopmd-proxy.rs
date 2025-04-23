@@ -225,22 +225,37 @@ impl GeopmService for GeopmServiceImp {
         &self,
         request: Request<geopm_package::GroupAccessRequest>,
     ) -> Result<Response<Empty>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut access_request = request.into_inner();
+        access_request.session_key = Some(session_key);
+        let request = tonic::Request::new(access_request);
         let mut geopm_client = self.geopm_client.lock().await;
         Ok(geopm_client.set_group_access(request).await?)
     }
 
     async fn set_group_access_signals(
         &self,
-        request: Request<geopm_package::GroupAccessSignalsRequest>,
+        request: Request<geopm_package::GroupAccessRequest>,
     ) -> Result<Response<Empty>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut access_request = request.into_inner();
+        access_request.session_key = Some(session_key);
+        let request = tonic::Request::new(access_request);
         let mut geopm_client = self.geopm_client.lock().await;
         Ok(geopm_client.set_group_access_signals(request).await?)
     }
 
     async fn set_group_access_controls(
         &self,
-        request: Request<geopm_package::GroupAccessControlsRequest>,
+        request: Request<geopm_package::GroupAccessRequest>,
     ) -> Result<Response<Empty>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut access_request = request.into_inner();
+        access_request.session_key = Some(session_key);
+        let request = tonic::Request::new(access_request);
         let mut geopm_client = self.geopm_client.lock().await;
         Ok(geopm_client.set_group_access_controls(request).await?)
     }
@@ -257,6 +272,11 @@ impl GeopmService for GeopmServiceImp {
         &self,
         request: Request<geopm_package::GroupAccessQuery>,
     ) -> Result<Response<AccessLists>, Status> {
+        let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
+        let session_key = session_key(conn_info).unwrap();
+        let mut access_request = request.into_inner();
+        access_request.session_key = Some(session_key);
+        let request = tonic::Request::new(access_request);
         let mut geopm_client = self.geopm_client.lock().await;
         Ok(geopm_client.get_group_access(request).await?)
     }
