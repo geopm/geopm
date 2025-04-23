@@ -148,23 +148,15 @@ message Empty {
 }
 
 message GroupAccessRequest {
-  string group = 1;
-  repeated string allowed_signals = 2;
-  repeated string allowed_controls = 3;
-}
-
-message GroupAccessSignalsRequest {
-  string group = 1;
-  repeated string allowed_signals = 2;
-}
-
-message GroupAccessControlsRequest {
-  string group = 1;
-  repeated string allowed_controls = 2;
+  SessionKey session_key = 1;
+  string group = 2;
+  repeated string allowed_signals = 3;
+  repeated string allowed_controls = 4;
 }
 
 message GroupAccessQuery {
-  string group = 1;
+  SessionKey session_key = 1;
+  string group = 2;
 }
 
 service GEOPMService {
@@ -184,8 +176,8 @@ service GEOPMService {
   rpc GetProfilePids(ProfileRequest) returns (PidList);
   rpc PopProfileRegionNames(ProfileRequest) returns (NameList);
   rpc SetGroupAccess(GroupAccessRequest) returns (Empty);
-  rpc SetGroupAccessSignals(GroupAccessSignalsRequest) returns (Empty);
-  rpc SetGroupAccessControls(GroupAccessControlsRequest) returns (Empty);
+  rpc SetGroupAccessSignals(GroupAccessRequest) returns (Empty);
+  rpc SetGroupAccessControls(GroupAccessRequest) returns (Empty);
   rpc GetAllAccess(Empty) returns (AccessLists);
   rpc GetGroupAccess(GroupAccessQuery) returns (AccessLists);
 }

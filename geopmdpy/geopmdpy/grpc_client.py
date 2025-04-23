@@ -54,11 +54,11 @@ class GRPCClient:
             group (str): The Unix group name.
             allowed_signals (list): List of allowed signal names.
         """
-        request = geopm_service_pb2.GroupAccessSignalsRequest(
+        request = geopm_service_pb2.GroupAccessRequest(
             group=group,
             allowed_signals=allowed_signals
         )
-        self.stub.SetGroupAccessSignals(request)
+        self.stub.SetGroupAccess(request)
 
     def PlatformSetGroupAccessControls(self, group, allowed_controls):
         """Set the control access list for a group.
@@ -67,11 +67,11 @@ class GRPCClient:
             group (str): The Unix group name.
             allowed_controls (list): List of allowed control names.
         """
-        request = geopm_service_pb2.GroupAccessControlsRequest(
+        request = geopm_service_pb2.GroupAccessRequest(
             group=group,
             allowed_controls=allowed_controls
         )
-        self.stub.SetGroupAccessControls(request)
+        self.stub.SetGroupAccess(request)
 
     def PlatformGetAllAccess(self):
         """Get all supported signals and controls.
