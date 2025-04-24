@@ -10,7 +10,6 @@
 #include <cassert>
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm/Waiter.hpp"
@@ -315,9 +314,6 @@ namespace geopm
             }
         }
 
-        for (int ii = 0; ii < (int)tracelist.size(); ii++) {
-            std::cout << "tracelist " << ii << " " << tracelist.at(ii) << std::endl;
-        }
         return tracelist;
     }
 
