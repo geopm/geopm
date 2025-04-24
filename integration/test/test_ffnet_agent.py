@@ -50,8 +50,6 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
 
         cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
         cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
-#        cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_small_dummy.json"
-#        cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
 
         node_count = 1
         cls._run_count = 0
@@ -107,9 +105,9 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         cls._nn_dummy = cls.get_json(cls, open(cls._cpu_nn_dummy_path, "r"))
         cls._fmap_dummy = cls.get_json(cls, open(cls._cpu_fmap_dummy_path, "r"))
 
-        ###########
-        # Helpers #
-        ###########
+    ###########
+    # Helpers #
+    ###########
 
     #Launch Helper for multiple job launches
     def launch_helper(self, experiment_type, experiment_args, app_conf, experiment_cli_args):
@@ -203,12 +201,6 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
                 if samples_total > 0:
                     self.assertTrue(samples_good/samples_total > 0.95)
 
-    #Test frequency selection
-    #    For a given REGION_HASH, the frequency control is within 95% of the
-    #    phi=0.5 value
-    #def test_freq_selection(self):
-
-    ##TODO: Run at phi=0 vs phi=1, test correct frequency selection per region
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
     util.do_launch()
