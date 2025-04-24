@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
-
 #include "TensorOneD.hpp"
 #include "TensorTwoD.hpp"
 #include "DenseLayer.hpp"

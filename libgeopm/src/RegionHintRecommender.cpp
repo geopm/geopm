@@ -109,6 +109,7 @@ namespace geopm
         for (const auto &[region_name, probability] : nn_output) {
             size_t phi_idx =
                 static_cast<size_t>(std::floor(phi * (m_freq_map.at(region_name).size() - 1)));
+            // Converting to GHz to prevent overflow
             freq += exp(probability) * m_freq_map.at(region_name).at(phi_idx);
             zz += exp(probability);
         }
