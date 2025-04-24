@@ -458,7 +458,7 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
-        if not system_files.has_cap_sys_admin(request_pid):
+        if client_pid != request_pid and not system_files.has_cap_sys_admin(request_pid):
             raise RuntimeError('Closing session of another PID requires CAP_SYS_ADMIN, try with "sudo" or run with "root"')
         self._close_session_completely(client_pid)
 
