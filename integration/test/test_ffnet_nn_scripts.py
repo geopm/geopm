@@ -177,7 +177,7 @@ class TestIntegration_ffnet(unittest.TestCase):
             else:
                 #Launch GPU Frequency Sweeps for NN Generation - parres dgemm / nstream
                 for parres_app_conf in app_confs:
-                    cls.launch_helper(neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
+                    cls.launch_helper(cls, neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
 
 
         # Set up HDF/neural net file info
