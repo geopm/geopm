@@ -37,11 +37,6 @@ def model_to_json(model, X_columns, y_column, describe_net):
     def parse_signal(signal_name):
         return signal_name.split('-')[0]
         #Future: Use signal domain info
-        #if signal_name in ['TIME', 'DRAM_POWER', 'DRAM_ENERGY']:
-        #    return [signal_name, 0, 0]
-        #component_list=["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
-        #signal_list = signal_name.split('-')
-        #return [signal_list[0], component_list.index(signal_list[1].lower()), int(signal_list[2])]
 
     layers = [[]]
 
@@ -137,12 +132,6 @@ def train_model(df_traces, X_columns, y_column, num_outputs, log=print):
     train_set, val_set, weights = data_prep(df_traces, X_columns, y_column, num_outputs)
     print("gen_neural_net.py::train_model: Expecting " + str(num_outputs) + " outputs.")
 
-
-#TODO: DELETE
-#    model = nn.Sequential(
-#        nn.BatchNorm1d(len(X_columns)),
-#        nn.Linear(len(X_columns), num_outputs)
-#    )
     model = nn.Sequential(
         nn.BatchNorm1d(len(X_columns)),
         nn.Linear(len(X_columns), 64),
@@ -212,12 +201,12 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
     ratios_domain = {
             'cpu':
             [
-#                ['CPU_INSTRUCTIONS_RETIRED-package-0', 'TIME'],
-#                ['CPU_CYCLES_THREAD-package-0', 'CPU_CYCLES_REFERENCE-package-0'],
-#                ['CPU_ENERGY-package-0', 'TIME'],
-#                ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-#                ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-#                ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0'],
+                ['CPU_INSTRUCTIONS_RETIRED-package-0', 'TIME'],
+                ['CPU_CYCLES_THREAD-package-0', 'CPU_CYCLES_REFERENCE-package-0'],
+                ['CPU_ENERGY-package-0', 'TIME'],
+                ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
+                ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
+                ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0'],
             ],
             'gpu':[]}
 
