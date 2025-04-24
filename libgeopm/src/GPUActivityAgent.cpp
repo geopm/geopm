@@ -37,6 +37,7 @@ namespace geopm
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , M_POLICY_PHI_DEFAULT(0.5)
+        , M_GPU_ACTIVITY_CUTOFF(0.05)
         , M_NUM_GPU(m_platform_topo.num_domain(
                     GEOPM_DOMAIN_GPU))
         , M_NUM_GPU_CHIP(m_platform_topo.num_domain(
@@ -146,7 +147,7 @@ namespace geopm
                                            m_agent_domain,
                                            domain_idx), NAN});
             if (ALL_NAMES.count("LEVELZERO::METRIC:XVE_STALL") != 0) {
-                M_WAIT_SEC = 0.015; // Currently accessing the ZET signals is slower than expecter than expecteded.
+                //M_WAIT_SEC = 0.015; // Currently accessing the ZET signals is slower than expecter than expecteded.
                                     // Reducing the spin-wait time helps.
                 m_gpu_stall_activity.push_back({m_platform_io.push_signal("LEVELZERO::METRIC:XVE_STALL",
                                                m_agent_domain,
