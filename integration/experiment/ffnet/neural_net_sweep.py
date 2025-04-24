@@ -41,7 +41,9 @@ def explode_freq_settings(freq_range):
     frequency settings for each domain."""
 
     domain_names = list(freq_range.keys())
-    return [dict(zip(domain_names, freqs)) for freqs in itertools.product(*[freq_range[domain] for domain in domain_names])]
+    return [dict(zip(domain_names, freqs))
+            for freqs in itertools.product(*
+                                           [freq_range[domain] for domain in domain_names])]
 
 def report_signals(domains):
     signals = []
@@ -132,24 +134,22 @@ def launch(app_conf, args, experiment_cli_args):
                                                               mach,
                                                               args.min_uncore_frequency,
                                                               args.max_uncore_frequency,
-                                                              args.step_uncore_frequency
-                                                              )
+                                                              args.step_uncore_frequency)
 
     if hasattr(args, 'min_gpu_frequency') and hasattr(args, 'max_gpu_frequency'):
-        if args.min_gpu_frequency != args.max_gpu_frequency:# and machine.num_gpu() > 0:
+        if args.min_gpu_frequency != args.max_gpu_frequency and mach.num_gpu() > 0:
             if not hasattr(args, 'step_gpu_frequency'):
                 args.step_gpu_frqeuency = mach.gpu_frequency_step()
             freq_range['gpu'] = gpu_frequency_sweep.setup_gpu_frequency_bounds(
                                                     mach,
                                                     args.min_gpu_frequency,
                                                     args.max_gpu_frequency,
-                                                    args.step_gpu_frequency
-                                                    )
+                                                    args.step_gpu_frequency)
 
     targets = launch_configs(output_dir, app_conf, freq_range)
 
     extra_cli_args = launch_util.geopm_signal_args(report_signals=report_signals(freq_range.keys()),
-                                                    trace_signals=trace_signals(freq_range.keys()))
+                                                   trace_signals=trace_signals(freq_range.keys()))
     extra_cli_args += list(experiment_cli_args)
 
     #Set and initialize required counters for nn training
