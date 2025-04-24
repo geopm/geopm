@@ -30,6 +30,7 @@ from integration.experiment.uncore_frequency_sweep import gen_cpu_activity_const
 from integration.apps.arithmetic_intensity import arithmetic_intensity
 from integration.apps.minife import minife
 
+@unittest.skip('Disabled pending resolution of issue #3464.')
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 class TestIntegration_cpu_characterization(unittest.TestCase):
     @classmethod
