@@ -61,13 +61,6 @@ def process_report_files(input_dir, region_ignore):
                 region_dict.update(conf)
                 reports.append(region_dict)
 
-            #TODO: Confirm we don't need this
-            #if "Unmarked Totals" in report['Hosts'][nodename]:
-            #    region_dict = report["Hosts"][nodename]["Unmarked Totals"]
-            #    region_dict['app-config'] = f"{app_name}-unmarked"
-            #    region_dict.update(conf)
-            #    reports.append(region_dict)
-
     return pd.DataFrame(reports)
 
 # Process trace file to be ingested into HDF
