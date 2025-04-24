@@ -162,7 +162,7 @@ def train_model(df_traces, X_columns, y_column, num_outputs, log=print):
 
 
     bs = 50000
-    for epoch in range(100):
+    for epoch in range(200):
         model.train = True
         train_loss = 0
         for i in range((n_samples-1)//bs + 1):
@@ -210,12 +210,14 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
                    'GPU_CORE_ACTIVITY-gpu-0',
                    'GPU_UNCORE_ACTIVITY-gpu-0']}
     ratios_domain = {
-            'cpu': [['CPU_INSTRUCTIONS_RETIRED-package-0', 'TIME'],
-            ['CPU_CYCLES_THREAD-package-0', 'CPU_CYCLES_REFERENCE-package-0'],
-            ['CPU_ENERGY-package-0', 'TIME'],
-            ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-            ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-            ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0'],
+            'cpu':
+            [
+#                ['CPU_INSTRUCTIONS_RETIRED-package-0', 'TIME'],
+#                ['CPU_CYCLES_THREAD-package-0', 'CPU_CYCLES_REFERENCE-package-0'],
+#                ['CPU_ENERGY-package-0', 'TIME'],
+#                ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
+#                ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
+#                ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0'],
             ],
             'gpu':[]}
 
