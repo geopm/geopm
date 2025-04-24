@@ -2,5 +2,4 @@ dash>=2.15.0
 docutils>=0.14
 matplotlib>=2.2.2
 plotly>=5.18.0
-scikit-learn>=0.24.2
 torch>=1.10.2

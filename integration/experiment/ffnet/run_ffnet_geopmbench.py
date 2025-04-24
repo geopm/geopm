@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2025, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -24,4 +24,4 @@ if __name__ == '__main__':
     mach = machine.init_output_dir(args.output_dir)
     app_conf = geopmbench.create_geopmbench_appconf(mach, args)
     ffnet.launch(app_conf=app_conf, args=args,
-                           experiment_cli_args=extra_args)
+                 experiment_cli_args=extra_args)
