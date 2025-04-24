@@ -72,11 +72,11 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         # Configure the CPU test application - geopmbench
-        cls._loop_count = 2
+        cls._loop_count = 10
         cls._test_app_params = {
             'spin': 0.5,
             'sleep': 1.0,
-            'dgemm': 1.0,
+            'dgemm': 10.0,
             'stream': 2.0,
         }
         cls._app_regions = {}
