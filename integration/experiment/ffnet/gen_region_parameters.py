@@ -8,6 +8,8 @@ import pandas as pd
 from sklearn import datasets, linear_model
 import argparse
 
+_FREQUENCY_NORM_FACTOR=1e9
+
 def get_domains(table_stats):
     domains = []
     for domain in ['cpu', 'gpu', 'uncore']:
@@ -65,13 +67,13 @@ def get_energy_at_freq(table_stats, region, domain, freq):
     freq_subset = table_stats[table_stats['app-config'] == region]
 
     # Approximate by the nearest frequency
-    freq = freq_subset.iloc[(freq_subset[f'{domain}-frequency']-freq).abs().argmin()[f'{domain}-frequency']]
+    freq = freq_subset.iloc[(freq_subset[f'{domain}-frequency'] - freq).abs().argmin()[f'{domain}-frequency']]
     freq_subset = freq_subset[freq_subset[f'{domain}-frequency'] == freq]
     if len(freq_subset[energy_col]) == 0:
         return None
     return min(freq_subset[energy_col])
 
-def get_lowest_energy_freq(table_stats, domain, region, freq_perf, freq_range, freq_step = 1e8):
+def get_lowest_energy_freq(table_stats, domain, region, freq_perf, freq_range, freq_step=1e8):
     #If perf indicates max freq, don't need to do a search
     if freq_perf + freq_step >= freq_range['max_freq']:
         return freq_range['max_freq']
@@ -85,12 +87,13 @@ def get_lowest_energy_freq(table_stats, domain, region, freq_perf, freq_range, f
 
     row_idx = freq_subset[energy_col].argmin()
 
-    return (float)(freq_subset[f'{domain}-frequency'].iloc[row_idx])
+    return float(freq_subset[f'{domain}-frequency'].iloc[row_idx])
 
 def main(output_name, data_file):
     freq_range={}
     region_regression={}
     table_stats = pd.read_hdf(data_file)
+    #TODO: change to table_stats.dropna() and look for other such instances
     table_stats = table_stats[~table_stats['app-config'].isna()]
 
     domains = get_domains(table_stats)
@@ -113,7 +116,7 @@ def main(output_name, data_file):
                 freq  = get_lowest_energy_freq(table_stats, domain, region_name, freq_r, freq_range[domain])
 
                 #TODO: Figure out a cleaner way to manage giant freq numbers
-                freqs.append(freq/1e9)
+                freqs.append(freq/_FREQUENCY_NORM_FACTOR)
 
             region_parameters[domain][region_name] = freqs
         json.dump(region_parameters[domain], params_out)
@@ -122,7 +125,6 @@ def main(output_name, data_file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    #common_args.add_output_dir(parser)
     parser.add_argument('--output',
                         action='store',
                         default="region_parameters",
