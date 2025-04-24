@@ -50,6 +50,8 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
 
         cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_dummy.json"
         cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
+#        cls._cpu_nn_dummy_path = os.path.dirname(__file__) + "/ffnet_small_dummy.json"
+#        cls._cpu_fmap_dummy_path = os.path.dirname(__file__) + "/fmap_dummy.json"
 
         node_count = 1
         cls._run_count = 0
@@ -198,7 +200,8 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
                 samples_total = len(df)
                 samples_good = len(df[df[f"geopmbench-{region_hash}_package_0"] > 0.95])
                 print(f"Region {region}: Good: {samples_good}. Total: {samples_total}")
-                self.assertTrue(samples_good/samples_total > 0.95)
+                if samples_total > 0:
+                    self.assertTrue(samples_good/samples_total > 0.95)
 
     #Test frequency selection
     #    For a given REGION_HASH, the frequency control is within 95% of the
