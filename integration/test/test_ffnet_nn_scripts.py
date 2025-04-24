@@ -48,7 +48,8 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._test_name = 'test_ffnet_nn_scripts'
         #TODO: Get rid of this
         cls._do_all = False
-        cls._do_gen_nn = False
+        cls._do_gen_nn = True
+        cls._do_ffnet = True
 
         ########################
         # CPU Neural Net Sweep #
@@ -76,22 +77,31 @@ class TestIntegration_ffnet(unittest.TestCase):
             run_max_turbo = False
         )
 
-        experiment_cli_args=['--geopm-ctl=process']
+        experiment_cli_args=['--geopm-ctl=application']
 
         # Configure the CPU test application - geopmbench
+        #cpu_test_app_params = {
+        #    'spin_bigo': 0.5,
+        #    'sleep_bigo': 0.5,
+        #    'dgemm_bigo': 28.0,
+        #    'stream_bigo': 3.0,
+        #    'loop_count': 30,
+        #    'ranks-per-node' : 1
+        #}
         cpu_test_app_params = {
             'spin_bigo': 1.0,
             'sleep_bigo': 1.0,
-            'dgemm_bigo': 12.0,
-            'stream_bigo': 3.0,
-            'loop_count': 30
+            'loop_count': 5,
+            'ranks-per-node' : 1
         }
         cls._app_regions = {}
         #TODO: Get hashes later from a report and assemble this info
+        #cls._app_regions['cpu'] = {'spin':"geopmbench-0x120a248f",
+        #                           'sleep':"geopmbench-0x0f33c2ac",
+        #                           'dgemm':"geopmbench-0xa12de8ee",
+        #                           'stream':"geopmbench-0xf0e9be1c"}
         cls._app_regions['cpu'] = {'spin':"geopmbench-0x120a248f",
-                                   'sleep':"geopmbench-0x0f33c2ac",
-                                   'dgemm':"geopmbench-0xa12de8ee",
-                                   'stream':"geopmbench-0xf0e9be1c"}
+                                   'sleep':"geopmbench-0x0f33c2ac"}
 
         bench_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         bench_conf.set_loop_count(cpu_test_app_params['loop_count'])
@@ -99,7 +109,8 @@ class TestIntegration_ffnet(unittest.TestCase):
             bench_conf.append_region(region, cpu_test_app_params[f"{region}_bigo"])
         bench_conf.write()
 
-        cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()), 1)
+        cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()),
+                                                    cpu_test_app_params['ranks-per-node'])
 
         #Launch CPU Frequency Sweeps for NN Generation - geopmbench
         if cls._do_all:
@@ -246,7 +257,8 @@ class TestIntegration_ffnet(unittest.TestCase):
                 enable_profile_traces = False,
             )
 
-            cls.launch_helper(cls, ffnet, ffnet_experiment_args, ffnet_app_conf, experiment_cli_args)
+            if cls._do_ffnet:
+                cls.launch_helper(cls, ffnet, ffnet_experiment_args, ffnet_app_conf, experiment_cli_args)
 
         # Get traces and reports
         cls._trace_path = glob.glob(str(cls._ffnet_dir) + "/*phi*/*trace*")
@@ -485,23 +497,31 @@ class TestIntegration_ffnet(unittest.TestCase):
             - For a given REGION_HASH, 95% of trace lines indicate >=95%
               probability of being in the correct identified region
         """
-        return True
         # Calculate probabilities per phi
-#        for datum in cls._trace_data:
-#            cols = [col for col in df if col.startswith("geopmbench")]
-#
-#            subset = datum[list(datum.filter(regex='geopmbench'))]
-#            probabilities = subset.apply(self.sigmoid)
-#            probabilities['REGION_HASH'] = datum['REGION_HASH']
-#
-#            # Count lines where probability of correct ID is >95%
-#            for region in self._app_regions:
-#                region_hash = hex(self._app_regions[region])
-#                df = probabilities[probabilities["REGION_HASH"] == region_hash]
-#                samples_total = len(df)
-#                samples_good = len(df[df[f"geopmbench-{region_hash}_{geopmdpy.topo.DOMAIN_PACKAGE}_0"] > 0.95])
-#                self.assertTrue(samples_good/samples_total > 0.95)
-#
+        for phi in self._trace_data:
+
+            datum = self._trace_data[phi]
+            cols = [col for col in datum if col.startswith("geopmbench") and col.endswith("package_0")]
+
+            #TODO: Calculate this properly w/ softmax
+            probabilities = datum[cols].apply(self.sigmoid)
+            probabilities = probabilities.div(probabilities.sum(axis=1), axis=0)
+
+            probabilities['REGION_HASH'] = datum['REGION_HASH']
+            print(probabilities)
+            import code
+            code.interact(local=locals())
+
+            # Count lines where probability of correct ID is >95%
+            for col in cols:
+                region_hash = col.split("-")[1].split("_")[0]
+                df = probabilities[probabilities["REGION_HASH"] == region_hash]
+                samples_total = len(df)
+                samples_good = len(df[df[f"geopmbench-{region_hash}_package_0"] > 0.95])
+                print(f"Region {col}: Good: {samples_good}. Total: {samples_total}")
+                if samples_total > 0:
+                    self.assertTrue(samples_good/samples_total > 0.95)
+
     def test_frequency_selection(self):
         """
         Test that the frequency selection made by ffnet aget is reasonable.

@@ -112,7 +112,8 @@ def main(output_name, data_file):
                 freq_r, _ = get_best_runtime_freq(region_regression[domain], domain, region_name, allowable_perf_deg, freq_range[domain]);
                 freq  = get_lowest_energy_freq(table_stats, domain, region_name, freq_r, freq_range[domain])
 
-                freqs.append(freq)
+                #TODO: Figure out a cleaner way to manage giant freq numbers
+                freqs.append(freq/1e9)
 
             region_parameters[domain][region_name] = freqs
         json.dump(region_parameters[domain], params_out)
