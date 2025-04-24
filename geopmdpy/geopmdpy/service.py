@@ -796,7 +796,7 @@ class PlatformService(object):
         if not self._check_client_active(client_pid, 'PlatformStopProfile'):
             return
         self._active_sessions.stop_profile(client_pid, region_names)
-        self.close_session(client_pid)
+        self.close_session(client_pid, client_pid)
 
     def get_profile_pids(self, client_pid, profile_name):
         """Get PIDs associated with an application
