@@ -10,6 +10,7 @@
 #include <cassert>
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm/Waiter.hpp"
@@ -313,6 +314,10 @@ namespace geopm
                                     std::to_string(domain_key.index));
             }
         }
+
+        for (int ii = 0; ii < (int)tracelist.size(); ii++) {
+            std::cout << "tracelist " << ii << " " << tracelist.at(ii) << std::endl;
+        }
         return tracelist;
     }
 
@@ -325,7 +330,7 @@ namespace geopm
     void FFNetAgent::trace_values(std::vector<double> &values)
     {
         int vidx = 0;
-        //Ading max frequency control
+        //Adding max frequency control
         for (const m_domain_key_s domain_key : m_domains) {
             values[vidx] = m_freq_control[domain_key].last_value;
             vidx++;
@@ -333,9 +338,9 @@ namespace geopm
         //Adding region class names
         for (const auto &kv : m_net_map) {
             std::vector<double> domain_row = kv.second->trace_values();
-            for (size_t idx=vidx; idx < domain_row.size(); ++idx) {
-                vidx++;
+            for (size_t idx=0; idx < domain_row.size(); ++idx) {
                 values[vidx] = domain_row[idx];
+                vidx++;
             }
         }
     }
