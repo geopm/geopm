@@ -79,9 +79,9 @@ namespace geopm
                 //Dividing by 1e9 to reduce chance of overflow issues when calculating
                 //recommended frequency
                 double min_freq = m_platform_io.read_signal(M_MIN_FREQ_SIGNAL_NAME.at(domain_type),
-                                                         GEOPM_DOMAIN_BOARD, 0)/1.0e9;
+                                                         GEOPM_DOMAIN_BOARD, 0)/M_FREQ_SCALING;
                 double max_freq = m_platform_io.read_signal(M_MAX_FREQ_SIGNAL_NAME.at(domain_type),
-                                                         GEOPM_DOMAIN_BOARD, 0)/1.0e9;
+                                                         GEOPM_DOMAIN_BOARD, 0)/M_FREQ_SCALING;
 
                 m_freq_recommender[domain_type] =
                     RegionHintRecommender::make_shared(fpath, min_freq, max_freq);
@@ -230,7 +230,7 @@ namespace geopm
         m_do_write_batch = false;
 
         for (const m_domain_key_s domain_key : m_domains) {
-            double new_freq = 1.0e9 *
+            double new_freq = M_FREQ_SCALING *
                 m_freq_recommender[domain_key.type]->recommend_frequency(m_net_map[domain_key]->last_output(),
                                                                          m_perf_energy_bias);
             if (!std::isnan(new_freq) &&
@@ -302,8 +302,8 @@ namespace geopm
         //Adding max frequency control
         for (const m_domain_key_s domain_key : m_domains) {
             tracelist.push_back(M_MAX_FREQ_CONTROL_NAME.at(domain_key.type) +
-                                    M_TRACE_SUFFIX.at(domain_key.type) +
-                                    std::to_string(domain_key.index));
+                                M_TRACE_SUFFIX.at(domain_key.type) +
+                                std::to_string(domain_key.index));
         }
         //Adding region class names
         for (const m_domain_key_s domain_key : m_domains) {
@@ -356,8 +356,6 @@ namespace geopm
         std::string fmap_str = geopm::get_env(fmap);
        
         return !nnet_str.empty() && !fmap_str.empty();
-
-
     }
     std::string FFNetAgent::get_env_value(const std::string &env_var)
     {

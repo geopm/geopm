@@ -89,6 +89,7 @@ namespace geopm
 
             PlatformIO &m_platform_io;
             static constexpr double M_WAIT_SEC = 0.020;
+            static constexpr double M_FREQ_SCALING = 1e9;
             bool m_do_write_batch;
 
             std::map<std::string, double> m_policy_available;
