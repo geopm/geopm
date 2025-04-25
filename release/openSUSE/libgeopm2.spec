@@ -93,9 +93,11 @@ mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmadmin
 popd
 
 %check
+%if ! %{defined _without_check}
 pushd libgeopm
 make check || (cat ./test-suite.log && false)
 popd
+%endif
 
 %post
 ldconfig
