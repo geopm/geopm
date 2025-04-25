@@ -207,8 +207,8 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
 
-        cls._cpu_nn_path = Path(os.path.join(Path.cwd()), f"{cls._nn_out}_cpu.json")
-        cls._cpu_fmap_path = Path(os.path.join(Path.cwd()), f"{cls._nn_fmap_out}_cpu.json")
+        cls._cpu_nn_path = os.path.join(Path.cwd(), f"{cls._nn_out}_cpu.json")
+        cls._cpu_fmap_path = os.path.join(Path.cwd(), f"{cls._nn_fmap_out}_cpu.json")
 
         # Configure the CPU test application - geopmbench
         # TODO: Set up GPU run, too, if there's GPU on system and parres
@@ -400,7 +400,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         fmap_jsons = {}
         for domain in self._fmap_files:
             with open(self._fmap_files[domain], "r") as fp:
-                fmap_jsons[domain] = self.get_json(fp[domain])
+                fmap_jsons[domain] = self.get_json(fp)
 
                 #Check that the region frequency map file contains valid json
                 self.assertTrue(fmap_jsons[domain] is not None)
