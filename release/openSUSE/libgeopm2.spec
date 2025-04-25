@@ -25,6 +25,8 @@ Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gcc-c++
+BuildRequires:	gmock
+BuildRequires:	gtest
 BuildRequires:	libtool
 BuildRequires:	systemd-rpm-macros
 BuildRequires:	libelf-devel
@@ -67,6 +69,7 @@ popd
 pushd libgeopm
 %configure \
 	--docdir=%{docdir} \
+	--disable-build-gtest \
 	--disable-mpi \
 	--disable-openmp \
 	--disable-fortran \
