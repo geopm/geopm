@@ -143,9 +143,11 @@ mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmbatch
 popd
 
 %check
+%if ! %{defined _without_check}
 pushd libgeopmd
 make check || (cat ./test-suite.log && false)
 popd
+%endif
 
 %post
 ldconfig
