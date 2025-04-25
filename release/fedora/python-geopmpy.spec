@@ -60,7 +60,7 @@ popd
 
 %check
 pushd %{buildroot}%{python3_sitearch}
-python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/%{prj_name}-%{version}/test
+python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/geopm-%{version}/%{prj_name}/test
 popd
 
 %files -n python3-%{prj_name}
