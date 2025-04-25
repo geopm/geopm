@@ -75,7 +75,7 @@ class TestIntegration_ffnet(unittest.TestCase):
             run_max_turbo = False
         )
 
-        experiment_cli_args=['--geopm-ctl=application']
+        experiment_cli_args=['--geopm-ctl=process']
 
         # Configure the CPU test application - geopmbench
         cls._loop_count = 30
