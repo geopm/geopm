@@ -26,6 +26,8 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	gcc-c++
 BuildRequires:	glibc-devel
+BuildRequires:	gmock
+BuildRequires:	gtest
 BuildRequires:	libcap-devel
 BuildRequires:	libtool
 BuildRequires:	liburing-devel
@@ -120,6 +122,7 @@ popd
 pushd libgeopmd
 %configure \
 	--docdir=%{docdir} \
+	--disable-build-gtest \
 	%{?level_zero_option} \
 	%{?io_uring_option} \
 	%{?cpuid_option} \
