@@ -183,6 +183,8 @@ class TestIntegration_ffnet_agent(unittest.TestCase):
     #    For a given REGION_HASH, the probability of the correct IDd region is
     #    >95% at least 95% of the time
     def test_region_accuracy(self):
+        # Removing first trace row as it is all 0s (init)
+        self._trace_data = self._trace_data.iloc[1:]
         # Grab region class columns
         subset = self._trace_data[list(self._trace_data.filter(regex='geopmbench'))]
         # Calculate probabilities
