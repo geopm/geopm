@@ -151,10 +151,10 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return (this->m_levelzero_device_pool.frequency_range(
+                                      return this->m_levelzero_device_pool.frequency_range(
                                                    GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE)).second;
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE).second;
                                   },
                                   1e6
                                   }},
@@ -202,10 +202,10 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return (this->m_levelzero_device_pool.frequency_range(
+                                      return this->m_levelzero_device_pool.frequency_range(
                                                    GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE).first;
                                   },
                                   1e6
                                   }},
