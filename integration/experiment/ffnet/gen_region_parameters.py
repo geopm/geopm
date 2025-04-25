@@ -5,7 +5,6 @@
 
 import json
 import pandas as pd
-from sklearn import datasets, linear_model
 import argparse
 
 _FREQUENCY_NORM_FACTOR=1e9
@@ -16,6 +15,22 @@ def get_domains(table_stats):
         if f'{domain}-frequency' in table_stats.columns:
             domains.append(domain)
     return domains
+
+def calc_linear_regression(x_df, y_df):
+    if len(y_df) != len(x_df):
+        sys.stderr.write("<geopm> Error: (gen_region_parameters) Attempting a"
+                         "linear regression, mapping different size sets.\n")
+        sys.exit(1)
+    if len(y_df) == 0:
+        sys.stderr.write("<geopm> Error: (gen_region_parameters) Attempting a"
+                         "linear regression on an empty set.\n")
+        sys.exit(1)
+
+    slope = (len(y_df) * (y_df * x_df).sum() - y_df.sum() * x_df.sum())/(len(y_df) * (x_df * x_df).sum() - x_df.sum() * x_df.sum())
+
+    intercept = y_df.mean() - slope * x_df.mean()
+
+    return slope, intercept
 
 def get_domain_freq_range(domain, table_stats):
     """Returns the min and max frequency for the given domain. If the domain
@@ -29,7 +44,6 @@ def get_domain_freq_range(domain, table_stats):
 #Outputs runtime = slope * inv_freq + intercept
 def per_region_regression(table_stats, domain='cpu'):
 
-    regr = linear_model.LinearRegression()
     region_regression = {}
 
     for region in table_stats['app-config'].unique():
@@ -39,10 +53,8 @@ def per_region_regression(table_stats, domain='cpu'):
         region_inv_freq = region_inv_freq.values.reshape(-1, 1)
         region_runtime = region_runtime.values.reshape(-1, 1)
 
-        regr.fit(region_inv_freq, region_runtime)
-
-        region_regression[region] = {"slope":regr.coef_, "intercept":regr.intercept_}
-
+        slope, intercept = calc_linear_regression(region_inv_freq, region_runtime)
+        region_regression[region] = {"slope":slope, "intercept":intercept}
     return region_regression
 
 def get_best_runtime_freq(region_regression, domain, region_name, perf_deg_factor, freq_range):
