@@ -81,9 +81,11 @@ mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmadmin
 popd
 
 %check
+%if ! %{defined _without_check}
 pushd %{name}
 make check || (cat ./test-suite.log && false)
 popd
+%endif
 
 %files
 %license LICENSE-BSD-3-Clause
