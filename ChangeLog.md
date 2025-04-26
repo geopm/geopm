@@ -7,7 +7,7 @@
 - Add new signals and controls for GPU RAS metrics in LevelZeroIOGroup
 - Provide alternative to DBus for containerized solutions: gRPC over UDS
 - Improve support for hybrid CPU-GPU workloads
-- Add new signals for time-based metrics in TimeIOGroup
+- Load the the ProfileIOGroup and EpochIOGroup through plugin infrastructure
 - Improve support for Intel Speed Select Technology in SSTIOGroup
 - Add support for additional GPU features in DCGMIOGroup
 - Improve documentation for protected assets and IOGroup interfaces
