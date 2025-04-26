@@ -28,8 +28,8 @@ BuildRequires:	libtool
 BuildRequires:	liburing-devel
 BuildRequires:	systemd-devel
 BuildRequires:	zlib-ng-compat-devel
-BuildRequires: grpc-devel
-BuildRequires: protobuf-devel
+BuildRequires:	grpc-devel
+BuildRequires:	protobuf-devel
 
 %if "%{_arch}" != "x86_64"
 %define cpuid_option --disable-cpuid
