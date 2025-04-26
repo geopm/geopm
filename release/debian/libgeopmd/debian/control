@@ -14,13 +14,14 @@ Build-Depends: debhelper-compat (=13),
                libsystemd-dev (>= 221),
                liburing-dev,
                libtool,
-               libze1,
-               libze-dev,
                pkgconf,
                protobuf-compiler,
                protobuf-compiler-grpc,
                unzip,
                zlib1g-dev
+Build-Depends-Arch:
+               libze1 [amd64],
+               libze-dev [amd64]
 Standards-Version: 4.1.4
 Homepage: https://geopm.github.io
 Vcs-Git: https://github.com/geopm/geopm.git
