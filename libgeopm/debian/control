@@ -37,7 +37,8 @@ Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libgeopm2 (= ${binary:Version})
+         libgeopm2 (= ${binary:Version}),
+         libgeopmd-dev (= ${binary:Version})
 Recommends: libgeopm-doc (= ${binary:Version})
 Description: Development package for the GEOPM Runtime.  This provides
  the programming interface to libgeopm.so.  The package includes the C

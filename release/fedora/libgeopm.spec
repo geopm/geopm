@@ -31,6 +31,7 @@ BuildRequires:	libgeopmd-devel
 
 %package devel
 Summary:	Development files for %{name}
+Requires:	libgeopmd-devel
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description devel
