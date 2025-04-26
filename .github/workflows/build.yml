@@ -11,11 +11,13 @@ on:
       - dev
       - release-v3.0
       - release-v3.1
+      - release-v3.2
   pull_request:
     branches:
       - dev
       - release-v3.0
       - release-v3.1
+      - release-v3.2
 
 permissions: read-all
 
@@ -170,8 +172,7 @@ jobs:
            cat integration/service/open_pbs/*.log || true
 
   publish_obs:
-    if: github.event_name == 'push'
-    needs: build_and_test
+    if: github.event_name == 'push' && (github.ref_name == 'dev' || github.ref_name == 'release-v3.0' || github.ref_name == 'release-v3.1')
     name: "publish_obs"
     runs-on: ubuntu-latest
     env:
@@ -211,7 +212,6 @@ jobs:
       working-directory: geopmpy
       run: ./make_sdist.sh
     - name: make docs dist
-
       working-directory: docs
       run: make dist
     - name: set OSC credentials
