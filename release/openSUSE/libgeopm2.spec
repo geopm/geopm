@@ -41,6 +41,7 @@ Recommends:	libgeopm-doc
 %package -n libgeopm-devel
 Summary:	Development files for %{name}
 Group:		Development/Libraries/C and C++
+Requires:	libgeopmd-devel
 Requires:	%{name} = %{version}-%{release}
 
 %description -n libgeopm-devel
