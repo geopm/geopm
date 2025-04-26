@@ -321,7 +321,7 @@ by OS and OS version.  Note: the commands in this table should be run with
 
             .. tabs::
 
-               .. group-tab:: Nvidia GPU support + Intel GPU support
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
 
                   .. code-block:: bash
 
@@ -654,7 +654,7 @@ by OS and OS version.  Note: the commands in this table should be run with
 
             .. tabs::
 
-               .. group-tab:: Nvidia GPU support + Intel GPU support
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
 
                   .. code-block:: bash
 

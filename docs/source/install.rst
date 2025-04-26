@@ -377,7 +377,7 @@ the ``root`` user.
 
             .. tabs::
 
-               .. group-tab:: Nvidia GPU support + Intel GPU support
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
 
                   .. code-block:: bash
 
@@ -399,7 +399,7 @@ the ``root`` user.
 
             .. tabs::
 
-               .. group-tab:: Nvidia GPU support + Intel GPU support
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
 
                   .. code-block:: bash
 
@@ -774,7 +774,7 @@ the ``root`` user.
 
             .. tabs::
 
-               .. group-tab:: Nvidia GPU support + Intel GPU support
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
 
                   .. code-block:: bash
 
@@ -796,7 +796,7 @@ the ``root`` user.
 
             .. tabs::
 
-               .. group-tab:: Nvidia GPU support + Intel GPU support
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
 
                   .. code-block:: bash
 
