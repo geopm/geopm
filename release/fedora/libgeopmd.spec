@@ -90,6 +90,8 @@ popd
 %files
 %license LICENSE-BSD-3-Clause
 %doc CONTRIBUTING.rst README.md
+%doc %{_docdir}/%{name}/LICENSE-BSD-3-Clause
+%doc %{_docdir}/%{name}/VERSION
 %{_libdir}/%{name}.so.%{abi_ver}
 %{_libdir}/%{name}.so.2
 
