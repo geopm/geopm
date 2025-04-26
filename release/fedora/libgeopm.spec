@@ -39,7 +39,7 @@ The %{name}-devel package contains libraries and header files for
 applications that use %{name}.
 
 %package -n geopm-cli
-Summary:	libgeopm command-line tools
+Summary:	The libgeopm command-line tools
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	geopmd
 Requires:	python3dist(geopmpy)
@@ -62,7 +62,8 @@ pushd %{name}
 	--disable-mpi \
 	--disable-openmp \
 	--disable-fortran \
-	--disable-geopmd-local
+	--disable-geopmd-local \
+	|| ( cat config.log && false )
 %make_build
 popd
 
