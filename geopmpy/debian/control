@@ -9,7 +9,8 @@ Build-Depends: debhelper-compat (= 12),
  python3-setuptools-scm,
  python3-dev,
  python3-cffi,
- libgeopm-dev
+ libgeopm-dev,
+ libgeopmd-dev
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/geopm/geopm.git
 Homepage: https://geopm.github.io
