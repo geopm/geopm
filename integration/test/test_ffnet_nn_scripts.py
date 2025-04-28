@@ -111,12 +111,15 @@ class TestIntegration_ffnet(unittest.TestCase):
         # that a reasonable number of frequency steps is taken for NN frequency sweep
         # as some GPUs have very fine frequency steps
 
-        cls._do_gpu = False
-        cls._num_gpu = mach.num_gpu()
         parres_basepath = os.path.join(os.path.dirname(
                               os.path.dirname(os.path.realpath(__file__))),
                                               "apps/parres/Kernels/Cxx11")
-        if cls._num_gpu > 0 and os.path.exists(parres_basepath):
+        cls._do_gpu = False;
+        if ( machine.num_gpu() > 0 and
+             hasattr(machine, 'min_gpu_frequency') and
+             hasattr(machine, 'max_gpu_frequency') and
+             os.path.exists(parres_basepath) ):
+
             cls._do_gpu = True
             cls._gpu_freq_min = mach.gpu_frequency_min()
             cls._gpu_freq_max = cls._gpu_frequency_max()
