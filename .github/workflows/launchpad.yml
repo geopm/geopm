@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - dev
-      - release-v3.1
       - release-v3.2
 
 permissions: read-all
