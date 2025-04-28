@@ -395,27 +395,6 @@ the ``root`` user.
                      # Man pages for C/C++ development
                      apt install libgeopmd-doc
 
-         .. group-tab:: 24.04 Noble
-
-            .. tabs::
-
-               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
-
-                  .. code-block:: bash
-
-                     # Add Launchpad PPA
-                     add-apt-repository ppa:geopm/release-noble
-                     apt update
-                     # GEOPM Access Service python module
-                     apt install python3-geopmdpy
-                     # SystemD service configuration and geopmd executable
-                     apt install geopmd
-                     # C/C++ development files
-                     apt install libgeopmd-devel
-                     # Man pages for GEOPM Access Service
-                     apt install geopmd-doc
-                     # Man pages for C/C++ development
-                     apt install libgeopmd-doc
 
 GEOPM Runtime Service - Stable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -792,27 +771,6 @@ the ``root`` user.
                      # Man pages for C/C++ development
                      apt install libgeopm-doc
 
-         .. group-tab:: 24.04 Noble
-
-            .. tabs::
-
-               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
-
-                  .. code-block:: bash
-
-                     # Add Launchpad PPA
-                     add-apt-repository ppa:geopm/release-noble
-                     apt update
-                     # GEOPM Runtime Command Line Interface
-                     apt install geopm-cli
-                     # GEOPM Runtime Agent development files
-                     apt install libgeopm-devel
-                     # GEOPM Runtime post-processing scripts
-                     apt install python3-geopmpy
-                     # Man pages for GEOPM Runtime Service
-                     apt install geopm-doc
-                     # Man pages for C/C++ development
-                     apt install libgeopm-doc
 
 Enable the GEOPM Access Service
 -------------------------------
