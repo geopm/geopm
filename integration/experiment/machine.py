@@ -105,10 +105,14 @@ class Machine:
         return int(self.topo['package_integrated_nic'])
 
     def num_gpu(self):
-        return int(self.topo['gpu'])
+        if 'GPU_CORE_FREQUENCY_MAX_AVAIL' in self.signals:
+            return int(self.topo['gpu'])
+        return 0
 
     def num_package_integrated_gpu(self):
-        return int(self.topo['package_integrated_gpu'])
+        if 'GPU_CORE_FREQUENCY_MAX_AVAIL' in self.signals:
+            return int(self.topo['gpu'])
+        return 0
 
     def gpu_frequency_min(self):
         return self.signals['GPU_CORE_FREQUENCY_MIN_AVAIL']

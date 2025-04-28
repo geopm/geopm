@@ -1,30 +1,142 @@
-* Wed Apr 17 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.0
-- Official v3.2.0 release tag
+### Official v3.2.0 release tag
+- Mon Apr 28 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.0
 - ABI bump moving so-version from 2.1.0 -> 2.2.0 with backward compatibility for release v3.1
-- Add support for Xe DRM and i915 DRM GPU metrics and controls through SysfsIOGroup
-- Add support for cpufreq and powercap drivers in SysfsIOGroup
-- Enhance NVMLIOGroup with additional GPU performance metrics
-- Add new signals and controls for GPU RAS metrics in LevelZeroIOGroup
-- Provide alternative to DBus for containerized solutions: gRPC over UDS
-- Improve support for hybrid CPU-GPU workloads
-- Load the the ProfileIOGroup and EpochIOGroup through plugin infrastructure
-- Improve support for Intel Speed Select Technology in SSTIOGroup
-- Add support for additional GPU features in DCGMIOGroup
-- Improve documentation for protected assets and IOGroup interfaces
-- Update integration tests to cover new IOGroup features
-- Improve CI automation for testing on diverse hardware platforms
-- Fix issues with signal aliasing in SysfsIOGroup and NVMLIOGroup
-- Fix compatibility issues with recent Linux kernel versions
-- Add performance optimizations for GEOPM Service batch interface
-- Improve support for heterogeneous systems with mixed CPU and GPU architectures
-- Fix issues with signal scaling and unit consistency across IOGroups
-- Add new integration tests for GPU and CPU power management features
-- Improve support for dynamic signal discovery in SysfsIOGroup
-- Enhance support for GPU memory metrics in LevelZeroIOGroup
-- Improve compatibility with recent versions of systemd and Linux distributions
-- Add new features for managing signal and control permissions in geopmaccess
-- Update documentation for new features and clarify usage of existing APIs
-- A full list of all closed bugs: <https://github.com/geopm/geopm/issues?q=is%3Aissue%20state%3Aclosed%20label%3Abug%20closed%3A%3C2025-04-16%20closed%3A%3E2024-05-17%20>
+
+---
+
+#### Major New Features
+- **Geopmsession CLI Upgrade**:
+    - Enhanced `geopmsession` CLI with new features and options for improved usability.
+    - Added support for:
+        - Summary statistics output in YAML or CSV format using `--report-out` and `--report-format`.
+        - Trace data output with `--trace-out` and hostname-based file naming for MPI-enabled environments.
+        - MPI-based aggregation of reports across nodes with `--enable-mpi`.
+        - Configurable CSV delimiters using `--delimiter`.
+        - Periodic reporting with `--report-samples`.
+        - Input signal configuration files with `--signal-config`.
+    - Deprecated `--print-header` in favor of `--no-header` for suppressing CSV headers.
+    - Improved documentation with detailed examples for signal reading, periodic sampling, and job execution monitoring.
+    - Enhanced compatibility with MPI environments and added support for `mpi4py`.
+    - Updated CLI usage and examples to reflect the new features.
+
+- **Linux Device Driver Extensions**:
+   - Added support for powercap drivers for CPU and DRAM power management.
+   - Enhanced GPU power management support for the Xe, i915 and DRM hwmon features.
+   - Documented in [geopm_pio_sysfs.7](https://geopm.github.io/geopm_pio_sysfs.7.html).
+
+- **Prometheus Exporter**:
+   - Added a Prometheus exporter for telemetry data.
+   - Added scripting to monitor HPC jobs with Prometheus exporter.
+   - Added Grafana dashboard to visualize cluster power and energy metrics.
+   - Documented in [geopmexporter.1](https://geopm.github.io/geopmexporter.1.html).
+
+- **Containerized Solutions**:
+   - Added support for gRPC over UDS as an alternative to DBus for containerized environments.
+   - Introduced `geopmdrs` for gRPC proxy server support.
+   - Added Kubernetes manifests for deploying GEOPM Access Service.
+
+- **Golang Bindings**:
+    - Added Golang bindings for `libgeopmd` to enable containerized system services.
+
+- **Systemd Configuration**:
+   - Added documentation for configuring the GEOPM Systemd unit file.
+   - Support virtual machine clients using systemd on host OS with --grpc option.
+   - Introduced verbosity options (`GEOPM_VERBOSITY`) for debugging.
+
+- **Batch Write Interface**:
+    - Implemented batch write functionality for `geopmwrite` CLI tool.
+
+- **Frequency Balancer Agent**:
+   - Introduced a new agent to reduce workload imbalance through CPU core frequency controls including Intel Speed Select Technology (SST).
+   - Added a corresponding man page: [geopm_agent_frequency_balancer.7](https://geopm.github.io/geopm_agent_frequency_balancer.7.html).
+
+- **CPU Activity Agent**:
+   - The CPU Activity Agent has moved out of beta and is now available for production use.
+   - This agent scales CPU core and uncore frequencies based on compute activity to save energy while maintaining performance.
+   - Added a corresponding man page: [geopm_agent_cpu_activity.7](https://geopm.github.io/geopm_agent_cpu_activity.7.html).
+
+- **GPU Activity Agent**:
+   - The GPU Activity Agent has moved out of beta and is now available for production use.
+   - This agent scales GPU frequencies based on compute activity to optimize energy efficiency.
+   - Added a corresponding man page: [geopm_agent_gpu_activity.7](https://geopm.github.io/geopm_agent_gpu_activity.7.html).
+
+- **FFNet Agent**:
+   - The FFNet Agent has moved out of beta and is now available for production use.
+   - This agent uses neural networks to adjust frequencies per domain for improved energy efficiency with minimal performance loss.
+   - Added scripting to generate neural net model.
+   - Added a corresponding man page: [geopm_agent_ffnet.7](https://geopm.github.io/geopm_agent_ffnet.7.html).
+
+---
+
+#### Documentation Changes
+- **Man Pages**:
+  - Added new man pages for the `Frequency Balancer Agent`, `CPU Activity Agent`, `GPU Activity Agent`, `FFNet Agent`, `geopmexporter`, and `geopmbatch`.
+  - Introduced a detailed frequency control user guide (`frequency_guide.rst`).
+  - Updated existing man pages to reflect new features and controls.
+
+- **JSON Schema Updates**:
+  - Extended schemas to include new units like amperes and volts.
+  - Added a schema for `geopmsession_report`.
+
+- **Build Instructions**:
+  - Simplified and clarified build instructions for RPM and Debian packages.
+  - Added instructions for building containers for Kubernetes integration.
+
+---
+
+#### Enhancements to Signals and Controls
+- **New Signals and Controls**:
+  - Added signals for GPU energy, power, and frequency metrics using the DRM interface.
+  - Introduced CPU governor controls for better frequency management.
+  - Added support for powercap attributes for CPU and DRAM.
+  - The application profile signals provided as plugin enabling use with `geopmsession` and `geopmread`.
+  - Documented in [geopm_pio_sysfs.7](https://geopm.github.io/geopm_pio_sysfs.7.html).
+
+- **Improved Descriptions**:
+  - Updated signal and control descriptions to include YAML formatting for better clarity.
+  - Enhanced descriptions for MSR and sysfs attributes.
+
+---
+
+#### Bug Fixes and Improvements
+- **Performance Optimizations**:
+  - Optimized system calls and reduced overhead in key areas like batch interfaces and signal handling.
+  - Fixed scaling issue on systems using LDAP.
+
+- **LevelZero and MSR Data Correctness Issues**:
+  - Fixed issue where NaNs and negative value were being reported instead of valid data.
+  - Fixed issue with counter overflow for GPU activity timestamps.
+  - Fixed scaling factor for DRAM energy for Sapphire Rapids and later generations of Xeon.
+
+- **Fix Geopmsession First Value**:
+  - The first value for derivative signals had been reported as NaN previously.
+
+- **Code Quality**:
+  - Fixed typos and formatting issues in documentation.
+  - Improved error handling and logging in scripts and tools.
+
+- **CI/CD Enhancements**:
+  - Improved CI automation for testing on diverse hardware platforms.
+  - Updated GitHub Actions workflows to use `ubuntu-latest` and modernized dependencies.
+
+- **Integration Tests**:
+  - Fixed multiple issues with integration tests, including out-of-tree builds and compatibility with new features.
+
+---
+
+#### Packaging Changes
+- GEOPM has been included in Fedora 41, and this resulted in packaging changes.
+  - E.g. <https://packages.fedoraproject.org/pkgs/geopmd/geopmd>
+  - Consolidated and renamed packaging files for clarity.
+  - A one-to-one mapping between old and new packages does not exist (not simply a rename).
+  - `geopm-service` replaced in part by `geopmd` package.
+  - `geopm-service-devel` replaced by `libgeopmd-devel`.
+  - All systemd related files are now packaged with `geopmd`.
+  - The `geopmread` and `geopmwrite` CLI are distributed with `python3-geopmdpy`.
+
+---
+---
+
 * Fri May 17 2024 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.1.0
 - Official v3.1.0 release tag
 - ABI bump moving so-version from 2.0.0 -> 2.1.0 with backward compatibility for release v3.0
