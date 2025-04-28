@@ -44,9 +44,11 @@ class TestIntegration_ffnet(unittest.TestCase):
         """
         Setup applications, execute, and set up class variables.
         """
-        mach = machine.init_output_dir('.')
         cls._skip_launch = not util.do_launch()
         cls._test_name = 'test_ffnet_nn_scripts'
+
+        cls._top_test_dir = os.path.join(Path.cwd(), 'test_ffnet')
+        mach = machine.init_output_dir(cls._top_test_dir)
 
         # Grabbing system frequency parameters for experiment frequency bounds
         # Choosing the maximum many core frequency to remove redundant frequency sweep values
@@ -57,13 +59,14 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._node_count = 1
         cls._ranks_per_node = 1
         cls._run_count = 0
+        experiment_cli_args=['--geopm-ctl=process']
 
         ########################
         # CPU Neural Net Sweep #
         ########################
 
         # Setup Common Args
-        cls._nn_sweep_dir = Path(os.path.join(Path.cwd(),'test_ffnet', 'nn_frequency_sweep'))
+        cls._nn_sweep_dir = Path(os.path.join(cls._top_test_dir, 'nn_frequency_sweep'))
         cpu_fsweep_experiment_args = SimpleNamespace(
             output_dir=cls._nn_sweep_dir,
             node_count=cls._node_count,
@@ -74,8 +77,6 @@ class TestIntegration_ffnet(unittest.TestCase):
             cool_off_time = 3,
             run_max_turbo = False
         )
-
-        experiment_cli_args=['--geopm-ctl=process']
 
         # Configure the CPU test application - geopmbench
         cls._loop_count = 30
@@ -130,17 +131,6 @@ class TestIntegration_ffnet(unittest.TestCase):
                 cls._gpu_freq_step = coarse_step
 
             #GPU Frequency Sweeps for NN Generation - parres
-            gpu_fsweep_experiment_args = SimpleNamespace(
-                output_dir=cls._nn_sweep_dir,
-                node_count=cls._node_count,
-                max_gpu_frequency = cls._gpu_freq_max,
-                min_gpu_frequency = cls._gpu_freq_min,
-                step_gpu_frequency = cls._gpu_freq_step,
-                trial_count = 1,
-                run_max_turbo = False
-            )
-
-            # Configure the GPU test application - parres dgemm/nstream
             gpu_experiment_args = SimpleNamespace(
                 node_count=cls._node_count,
                 trial_count = 1,
@@ -183,6 +173,7 @@ class TestIntegration_ffnet(unittest.TestCase):
                 print("Warning: No parres dgemm/nstream executables were found. Cannot test GPU.")
             else:
                 #Launch GPU Frequency Sweeps for NN Generation - parres dgemm / nstream
+                print("Launching GPU Frequency sweeps for parres dgemm / nstream")
                 for parres_app_conf in app_confs:
                     cls.launch_helper(cls, neural_net_sweep, gpu_experiment_args, parres_app_conf, experiment_cli_args)
 
