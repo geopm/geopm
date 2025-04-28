@@ -153,13 +153,13 @@ def get_machine(output_dir):
     return mm
 
 def try_machine(output_dir, msg_tag=None):
-    mm = Machine()
+    mm = Machine(output_dir)
     try:
         mm.load()
         err_msg = ['Warning']
         if msg_tag:
            err_msg.append(msg_tag)
-        err_msg.append('using existing file "machine.json", delete if invalid\n')
+        err_msg.append(f'using existing file "{output_dir}/machine.json", delete if invalid\n')
         err_msg = ': '.join(err_msg)
         sys.stderr.write(err_msg)
     except RuntimeError:
