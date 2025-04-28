@@ -114,17 +114,18 @@ class TestIntegration_ffnet(unittest.TestCase):
         parres_basepath = os.path.join(os.path.dirname(
                               os.path.dirname(os.path.realpath(__file__))),
                                               "apps/parres/Kernels/Cxx11")
-        cls._do_gpu = False;
-        if ( machine.num_gpu() > 0 and
-             hasattr(machine, 'min_gpu_frequency') and
-             hasattr(machine, 'max_gpu_frequency') and
-             os.path.exists(parres_basepath) ):
+        cls._do_gpu = False
+        if (mach.num_gpu() > 0 and
+            hasattr(mach, 'min_gpu_frequency') and
+            hasattr(mach, 'max_gpu_frequency') and
+            os.path.exists(parres_basepath)):
 
             cls._do_gpu = True
+
             cls._gpu_freq_min = mach.gpu_frequency_min()
-            cls._gpu_freq_max = cls._gpu_frequency_max()
+            cls._gpu_freq_max = mach.gpu_frequency_max()
             cls._gpu_freq_step = mach.gpu_frequency_step()
-            coarse_step = round((cls._gpu_frequency_max() - mach.gpu_frequency_min())/4)
+            coarse_step = round((cls._gpu_freq_max - cls._gpu_freq_min)/4)
             if coarse_step > cls._gpu_freq_step:
                 cls._gpu_freq_step = coarse_step
 
@@ -132,8 +133,8 @@ class TestIntegration_ffnet(unittest.TestCase):
             gpu_fsweep_experiment_args = SimpleNamespace(
                 output_dir=cls._nn_sweep_dir,
                 node_count=cls._node_count,
-                max_gpu_frequency = cls._gpu_max_freq,
-                min_gpu_frequency = cls._gpu_min_freq,
+                max_gpu_frequency = cls._gpu_freq_max,
+                min_gpu_frequency = cls._gpu_freq_min,
                 step_gpu_frequency = cls._gpu_freq_step,
                 trial_count = 1,
                 run_max_turbo = False
@@ -159,15 +160,18 @@ class TestIntegration_ffnet(unittest.TestCase):
 
             cls._app_regions['gpu'] = {'dgemm':'parres_dgemm-0xDEADBEEF',
                                        'nstream':'parres_nstream-0xDEADBEEF'}
+            app_exec_names = []
+            app_confs = []
+            parres_app_paths = []
             #Get correct parres executables and set up app conf
             if util.get_service_config_value('enable_nvml') == '1':
                 app_exec_names = ["dgemm-mpi-cublas", "nstream-mpi-cuda"]
-                app_confs = [parres.create_dgemm_appconf_cuda(mach, experiment_args),
-                             parres.create_nstream_appconf_cuda(mach, experiment_args)]
+                app_confs = [parres.create_dgemm_appconf_cuda(mach, gpu_experiment_args),
+                             parres.create_nstream_appconf_cuda(mach, gpu_experiment_args)]
             elif util.get_service_config_value('enable_levelzero') == '1':
                 app_exec_names = ["dgemm-onemkl", "nstream-onemkl"]
-                app_confs = [parres.create_dgemm_appconf_oneapi(mach, experiment_args),
-                             parres.create_nstream_appconf_oneapi(mach, experiment_args)]
+                app_confs = [parres.create_dgemm_appconf_oneapi(mach, gpu_experiment_args),
+                             parres.create_nstream_appconf_oneapi(mach, gpu_experiment_args)]
             for app in app_exec_names:
                 app_path = os.path.join(parres_basepath, app)
                 if os.path.exists(app_path):
@@ -180,7 +184,7 @@ class TestIntegration_ffnet(unittest.TestCase):
             else:
                 #Launch GPU Frequency Sweeps for NN Generation - parres dgemm / nstream
                 for parres_app_conf in app_confs:
-                    cls.launch_helper(cls, neural_net_sweep, gpu_experiment_args, parres_app_conf, [], None)
+                    cls.launch_helper(cls, neural_net_sweep, gpu_experiment_args, parres_app_conf, experiment_cli_args)
 
 
         # Set up HDF/neural net file info
