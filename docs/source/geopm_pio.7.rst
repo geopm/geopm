@@ -238,10 +238,6 @@ Descriptions Of High Level Aliases
 ``REGION_PROGRESS``
     Minimum per-rank reported progress through the current region.
 
-``REGION_RUNTIME``
-    Maximum per-rank of the last recorded runtime for the current
-    region.
-
 ``TIME``
     Time elapsed since the beginning of execution.
 
