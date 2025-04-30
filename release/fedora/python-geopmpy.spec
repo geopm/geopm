@@ -18,6 +18,7 @@ License:	BSD-3-Clause
 URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
 
+BuildRequires:	gcc
 BuildRequires:	python3-cffi
 BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
