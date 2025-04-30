@@ -28,7 +28,11 @@ BuildRequires:	libcap-devel
 BuildRequires:	libtool
 BuildRequires:	liburing-devel
 BuildRequires:	systemd-devel
+%if 0%{?fedora}
 BuildRequires:	zlib-ng-compat-devel
+%else
+BuildRequires:	zlib-devel
+%endif
 BuildRequires:	grpc-devel
 BuildRequires:	protobuf-devel
 
