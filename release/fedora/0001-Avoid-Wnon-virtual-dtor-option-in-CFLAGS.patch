@@ -1,0 +1,26 @@
+From 27082795b3d8cf453864e8fc30994bb0dfe62bcf Mon Sep 17 00:00:00 2001
+From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
+Date: Wed, 30 Apr 2025 13:06:58 -0700
+Subject: [PATCH] Avoid -Wnon-virtual-dtor option in CFLAGS
+
+Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+---
+ libgeopmd/configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libgeopmd/configure.ac b/libgeopmd/configure.ac
+index 8d0f6aec2..40fa2e7bd 100644
+--- a/libgeopmd/configure.ac
++++ b/libgeopmd/configure.ac
+@@ -533,7 +533,7 @@ AC_LANG_POP([C++])
+ [CXXFLAGS="$CXXFLAGS_SAVE"]
+ [CPPFLAGS="$CPPFLAGS_SAVE"]
+ 
+-[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security -Wimplicit-fallthrough $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -fstack-protector-strong -fstack-clash-protection -include config.h"]
++[AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security -Wimplicit-fallthrough $NO_FASTMATH -fPIC -fPIE -fstack-protector-strong -fstack-clash-protection -include config.h"]
+ [AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security -Wimplicit-fallthrough $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -fPIE -fstack-protector-strong -fstack-clash-protection -include config.h"]
+ [AM_LDFLAGS="$AM_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
+ if test "x$enable_debug" != "x1" ; then
+-- 
+2.39.5 (Apple Git-154)
+

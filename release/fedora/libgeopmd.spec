@@ -16,6 +16,7 @@ Summary:	C/C++ implementation of the GEOPM access service
 License:	BSD-3-Clause
 URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
+Patch0:		0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
