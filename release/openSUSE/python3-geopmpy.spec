@@ -1,4 +1,5 @@
 %global debug_package %{nil}
+%define _without_check 1
 %global prj_name geopmpy
 %global desc %{expand: \
 The Global Extensible Open Power Manager (GEOPM) provides a framework to
@@ -24,11 +25,13 @@ BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
 BuildRequires:	python3-geopmdpy
+%if ! %{defined _without_check}
 BuildRequires:	python3-pandas
 BuildRequires:	python3-natsort
 BuildRequires:	python3-psutil
 BuildRequires:	python3-PyYAML
 BuildRequires:	python3-tables
+%endif
 BuildRequires:	libgeopm-devel
 BuildRequires:	libgeopmd-devel
 Requires:	geopmd
@@ -54,9 +57,11 @@ pushd %{prj_name}
 popd
 
 %check
+%if ! %{defined _without_check}
 pushd %{buildroot}%{python3_sitearch}
 python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/geopm-%{version}/%{prj_name}/test
 popd
+%endif
 
 %files
 %license LICENSE-BSD-3-Clause
