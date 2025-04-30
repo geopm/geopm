@@ -1,4 +1,5 @@
 %define abi_ver 2.2.0
+%define _without_check 1
 %global desc %{expand: \
 The Global Extensible Open Power Manager (GEOPM) provides a framework to
 explore power and energy optimizations on platforms with heterogeneous mixes
