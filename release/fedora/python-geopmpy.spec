@@ -1,3 +1,6 @@
+%if ! 0%{?fedora}
+%define _without_check 1
+%endif
 %global debug_package %{nil}
 %global prj_name geopmpy
 %global desc %{expand: \
@@ -24,13 +27,15 @@ BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
 BuildRequires:	python3-geopmdpy
+BuildRequires:	libgeopm-devel
+BuildRequires:	libgeopmd-devel
+%if ! %{defined _without_check}
 BuildRequires:	python3-pandas
 BuildRequires:	python3-natsort
 BuildRequires:	python3-psutil
 BuildRequires:	python3-pyyaml
 BuildRequires:	python3-tables
-BuildRequires:	libgeopm-devel
-BuildRequires:	libgeopmd-devel
+%endif
 Requires:	geopmd
 
 %description
@@ -60,9 +65,11 @@ pushd %{prj_name}
 popd
 
 %check
+%if ! %{defined _without_check}
 pushd %{buildroot}%{python3_sitearch}
 python3 -m unittest discover -p 'Test*.py' -v %{_builddir}/geopm-%{version}/%{prj_name}/test
 popd
+%endif
 
 %files -n python3-%{prj_name}
 %license LICENSE-BSD-3-Clause
