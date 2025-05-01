@@ -47,7 +47,7 @@ the ``root`` user.
                   .. code-block:: bash
 
                      # Add zypper repo
-                     zypper addrepo https://download.opensuse.org/repositories/hardware/SLE_15_SP3_Backports/hardware.repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/release/15.3/home:geopm:release.repo
                      zypper refresh
                      # GEOPM Access Service python module
                      zypper install python3-geopmdpy
@@ -127,7 +127,7 @@ the ``root`` user.
                   .. code-block:: bash
 
                      # Add zypper repo
-                     zypper addrepo https://download.opensuse.org/repositories/hardware/15.5/hardware.repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/release/15.5/home:geopm:release.repo
                      zypper refresh
                      # GEOPM Access Service python module
                      zypper install python3-geopmdpy
@@ -419,7 +419,7 @@ the ``root`` user.
                   .. code-block:: bash
 
                      # Add zypper repo
-                     zypper addrepo https://download.opensuse.org/repositories/hardware/SLE_15_SP3_Backports/hardware.repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/release/15.3/home:geopm:release.repo
                      zypper refresh
                      # GEOPM Runtime Command Line Interface
                      zypper install geopm-cli
@@ -499,7 +499,7 @@ the ``root`` user.
                   .. code-block:: bash
 
                      # Add zypper repo
-                     zypper addrepo https://download.opensuse.org/repositories/hardware/15.5/hardware.repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/release/15.5/home:geopm:release.repo
                      zypper refresh
                      # GEOPM Runtime Command Line Interface
                      zypper install geopm-cli
