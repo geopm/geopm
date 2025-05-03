@@ -40,8 +40,6 @@ jobs:
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r requirements.txt
            python3 -m pip install -r docs/requirements.txt
-           python3 -m pip install -r geopmdpy/requirements.txt
-           python3 -m pip install -r geopmpy/requirements.txt
     - name: make geopmdpy dist
       working-directory: geopmdpy
       run: ./make_sdist.sh
