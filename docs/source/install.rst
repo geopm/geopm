@@ -389,7 +389,7 @@ the ``root`` user.
                      # SystemD service configuration and geopmd executable
                      apt install geopmd
                      # C/C++ development files
-                     apt install libgeopmd-devel
+                     apt install libgeopmd-dev
                      # Man pages for GEOPM Access Service
                      apt install geopmd-doc
                      # Man pages for C/C++ development
@@ -763,7 +763,7 @@ the ``root`` user.
                      # GEOPM Runtime Command Line Interface
                      apt install geopm-cli
                      # GEOPM Runtime Agent development files
-                     apt install libgeopm-devel
+                     apt install libgeopm-dev
                      # GEOPM Runtime post-processing scripts
                      apt install python3-geopmpy
                      # Man pages for GEOPM Runtime Service
