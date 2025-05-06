@@ -1,0 +1,54 @@
+From 2dae0295e96f7d767a05d21f973dbbcb92446811 Mon Sep 17 00:00:00 2001
+From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
+Date: Mon, 5 May 2025 21:59:02 -0700
+Subject: [PATCH] Allow numpy 2.0 and higher
+
+Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+---
+ geopmpy/pyproject.toml   | 2 +-
+ geopmpy/requirements.txt | 2 +-
+ geopmpy/setup.cfg        | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/geopmpy/pyproject.toml b/geopmpy/pyproject.toml
+index 74118fab5..cb5d0fb24 100755
+--- a/geopmpy/pyproject.toml
++++ b/geopmpy/pyproject.toml
+@@ -47,7 +47,7 @@ classifiers = ["Development Status :: 5 - Production/Stable",
+ dependencies = ['cffi>=1.13.2',
+                 'cycler>=0.11.0',
+                 'natsort>=8.1.0',
+-                'numpy>=1.19.5,<2.0.0',
++                'numpy>=1.19.5',
+                 'pandas>=1.1.5',
+                 'psutil>=5.4.8',
+                 'pyyaml>=6.0.0',
+diff --git a/geopmpy/requirements.txt b/geopmpy/requirements.txt
+index 7633e4cd0..dc1bf0baa 100644
+--- a/geopmpy/requirements.txt
++++ b/geopmpy/requirements.txt
+@@ -1,7 +1,7 @@
+ cffi>=1.14.5
+ cycler>=0.11.0
+ natsort>=8.1.0
+-numpy>=1.19.5,<2.0.0
++numpy>=1.19.5
+ pandas>=1.1.5
+ psutil>=5.8.0
+ pyyaml>=6.0.0
+diff --git a/geopmpy/setup.cfg b/geopmpy/setup.cfg
+index efc66422a..a43029264 100644
+--- a/geopmpy/setup.cfg
++++ b/geopmpy/setup.cfg
+@@ -13,7 +13,7 @@ install_requires =
+     cffi>=1.11.5
+     cycler>=0.11.0
+     natsort>=8.1.0
+-    numpy>=1.19.5,<2.0.0
++    numpy>=1.19.5
+     pandas>=1.1.5
+     psutil>=5.4.8
+     pyyaml>=6.0.0
+-- 
+2.43.0
+
