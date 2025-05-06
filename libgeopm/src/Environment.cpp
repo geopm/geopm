@@ -25,13 +25,13 @@
 #include "geopm_prof.h"
 
 
+#define DEFAULT_CONFIG_PATH (GEOPM_CONFIG_PATH "/environment-default.json")
+#define OVERRIDE_CONFIG_PATH (GEOPM_CONFIG_PATH "/environment-override.json")
+
 using json11::Json;
 
 namespace geopm
 {
-    static const std::string DEFAULT_CONFIG_PATH = GEOPM_CONFIG_PATH "/environment-default.json";
-    static const std::string OVERRIDE_CONFIG_PATH = GEOPM_CONFIG_PATH "/environment-override.json";
-
     static EnvironmentImp &test_environment(void)
     {
         static EnvironmentImp instance;
