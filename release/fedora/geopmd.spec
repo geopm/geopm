@@ -19,7 +19,9 @@ URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
 
 BuildRequires:	gcc
-BuildRequires:	libgeopmd-devel
+BuildRequires:	grpc-devel
+BuildRequires:	libgeopmd-devel = %{version}
+BuildRequires:	protobuf-devel
 BuildRequires:	python3-devel
 BuildRequires:	python3-defusedxml
 BuildRequires:	python3-setuptools
@@ -29,21 +31,21 @@ BuildRequires:	python3-dasbus
 BuildRequires:	python3-jsonschema
 BuildRequires:	python3-psutil
 BuildRequires:	systemd-units
-Requires:	python3-cffi
-Requires:	python3-dasbus
-Requires:	python3-jsonschema
-Requires:	python3-psutil
+BuildRequires:	python3-grpcio
+BuildRequires:	python3-protobuf
 Requires:	python3-%{prj_name} = %{version}-%{release}
-Requires:	geopmd-cli
-Requires:	python3-grpcio
-Requires:	python3-protobuf
-
 %description
 %{desc}
 
 %package -n python3-%{prj_name}
 Summary:        Python bindings for libgeopmd
-
+Requires:	python3-cffi
+Requires:	python3-dasbus
+Requires:	python3-jsonschema
+Requires:	python3-psutil
+Requires:	python3-grpcio
+Requires:	python3-protobuf
+Requires:	geopmd-cli = %{version}
 %description -n python3-%{prj_name}
 %{desc}
 
@@ -51,6 +53,7 @@ Summary:        Python bindings for libgeopmd
 %autosetup -p1 -n geopm-%{version}
 pushd %{prj_name}
 echo %{version} > %{prj_name}/VERSION
+./protoc-gen.sh
 sed -i 's/usr\/bin/usr\/sbin/g' geopm.service
 popd
 
