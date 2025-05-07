@@ -34,7 +34,7 @@ URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
 
 BuildRequires:	gobject-introspection
-BuildRequires:	libgeopmd-devel
+BuildRequires:	libgeopmd-devel = %{version}
 BuildRequires:	python-gobject-common-devel
 BuildRequires:	python3-cffi
 BuildRequires:	python3-dasbus
@@ -45,24 +45,30 @@ BuildRequires:	python3-jsonschema
 BuildRequires:	python3-psutil
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
-Requires:	python3-cffi
-Requires:	python3-dasbus
-Requires:	python3-gobject
-Requires:	python3-jsonschema
-Requires:	python3-psutil
-Requires:	python3-%{prj_name} = %{version}-%{release}
-Requires:	geopmd-cli
 %if %{defined enable_grpc}
-Requires: python3-grpcio
-Requires: python3-protobuf
+BuildRequires:	grpc-devel
+BuildRequires:	protobuf-devel
+BuildRequires:	python3-grpcio
+BuildRequires:	python3-protobuf
 %endif
-
+Requires:	python3-%{prj_name} = %{version}-%{release}
 %description
 %{desc}
 
 %package -n python3-%{prj_name}
 Summary:        Python bindings for libgeopmd
 Group:		Development/Libraries/Python
+Requires:	python3-cffi
+Requires:	python3-dasbus
+Requires:	python3-gobject
+Requires:	python3-jsonschema
+Requires:	python3-psutil
+Requires:	python3-%{prj_name} = %{version}-%{release}
+Requires:	geopmd-cli = %{version}
+%if %{defined enable_grpc}
+Requires:	python3-grpcio
+Requires:	python3-protobuf
+%endif
 %description -n python3-%{prj_name}
 %{desc}
 
@@ -70,6 +76,9 @@ Group:		Development/Libraries/Python
 %autosetup -p1 -n geopm-%{version}
 pushd %{prj_name}
 echo %{version} > %{prj_name}/VERSION
+%if %{defined enable_grpc}
+./protoc-gen.sh
+%endif
 sed -i 's/usr\/bin/usr\/sbin/g' geopm.service
 popd
 
