@@ -1,0 +1,34 @@
+From 9755c251b08e0381f82825efac7b452e36ba93ce Mon Sep 17 00:00:00 2001
+From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
+Date: Tue, 6 May 2025 16:52:03 -0700
+Subject: [PATCH] Define macro to set defaults used by init function
+
+Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+---
+ libgeopm/src/Environment.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libgeopm/src/Environment.cpp b/libgeopm/src/Environment.cpp
+index d5c31619c..138084657 100644
+--- a/libgeopm/src/Environment.cpp
++++ b/libgeopm/src/Environment.cpp
+@@ -25,13 +25,13 @@
+ #include "geopm_prof.h"
+ 
+ 
++#define DEFAULT_CONFIG_PATH (GEOPM_CONFIG_PATH "/environment-default.json")
++#define OVERRIDE_CONFIG_PATH (GEOPM_CONFIG_PATH "/environment-override.json")
++
+ using json11::Json;
+ 
+ namespace geopm
+ {
+-    static const std::string DEFAULT_CONFIG_PATH = GEOPM_CONFIG_PATH "/environment-default.json";
+-    static const std::string OVERRIDE_CONFIG_PATH = GEOPM_CONFIG_PATH "/environment-override.json";
+-
+     static EnvironmentImp &test_environment(void)
+     {
+         static EnvironmentImp instance;
+-- 
+2.43.0
+
