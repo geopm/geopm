@@ -8,7 +8,8 @@ RUN dnf -y update && \
                    python3-build python3-cffi python3-dasbus python3-defusedxml \
                    python3-devel python3-jsonschema python3-psutil python3-setuptools \
                    which systemd-units elfutils-libelf-devel python3-pandas \
-                   python3-natsort python3-pyyaml python3-tables python3-numpy && \
+                   python3-natsort python3-pyyaml python3-tables python3-numpy python3-grpcio \
+                   python3-protobuf && \
     mkdir -p /mnt/geopm-fedora && \
     chmod a+rwx /mnt/geopm-fedora && \
     useradd -m build
