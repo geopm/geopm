@@ -32,7 +32,7 @@ used to create a runtime container supporting the GEOPM services. The runtime
 container is tagged as "geopm-prometheus."
 
 The `geopm-prometheus.Dockerfile` builds packages versioned based on the state
-of your Git repository.  An optional Fedora 41 based Docker file
+of your Git repository.  An optional Fedora 42 based Docker file
 `geopm-fedora.Dockerfile` builds the v3.2.0 tag of the upstream GEOPM Git
 repository source using the `release-v3.2-packaging` branch to download the
 Fedora packaging files.  Note that Nvidia support is not available in the Fedora
