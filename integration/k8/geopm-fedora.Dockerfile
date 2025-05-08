@@ -2,33 +2,38 @@
 FROM fedora:42 AS build
 
 RUN dnf -y update && \
-    dnf install -y autoconf automake gcc-c++ glibc-devel gmock-devel \
-                   gtest-devel libcap-devel libtool liburing-devel \
-                   systemd-devel zlib-ng-compat-devel grpc-devel \
-                   protobuf-devel awk rpmbuild lscpu \
-                   python3-setuptools_scm python3-build \
-                   libgeopmd-devel python3-cffi python3-dasbus \
-                   python3-defusedxml python3-devel python3-jsonschema \
-                   python3-psutil python3-setuptools which systemd-units \
-                   elfutils-libelf-devel python3-pandas python3-natsort \
-                   python3-pyyaml python3-tables python3-numpy && \
+    dnf install -y autoconf automake gcc-c++ glibc-devel gmock-devel gtest-devel \
+                   libcap-devel libtool liburing-devel systemd-devel zlib-ng-compat-devel \
+                   grpc-devel protobuf-devel awk rpmbuild lscpu python3-setuptools_scm \
+                   python3-build python3-cffi python3-dasbus python3-defusedxml \
+                   python3-devel python3-jsonschema python3-psutil python3-setuptools \
+                   which systemd-units elfutils-libelf-devel python3-pandas \
+                   python3-natsort python3-pyyaml python3-tables python3-numpy && \
     mkdir -p /mnt/geopm-fedora && \
     chmod a+rwx /mnt/geopm-fedora && \
     useradd -m build
 
 USER build
-ENV PACKAGING_URL=https://raw.githubusercontent.com/geopm/geopm/refs/heads/release-v3.2-packaging//release/fedora
+ENV PACKAGING_URL=https://raw.githubusercontent.com/geopm/geopm/refs/heads/release-v3.2-packaging/release/fedora
 WORKDIR /home/build
 RUN mkdir -p rpmbuild/SOURCES && \
     mkdir -p rpmbuild/SPECS && \
-    curl -sL https://github.com/geopm/geopm/archive/v3.2.0/geopm-3.2.0.tar.gz > rpmbuild/SOURCES/geopm-3.2.0.tar.gz && \
-    curl -sL ${PACKAGING_URL}/libgeopmd.spec > rpmbuild/SPECS/libgeopmd.spec && \
-    curl -sL ${PACKAGING_URL}/geopmd.spec > rpmbuild/SPECS/geopmd.spec && \
-    curl -sL ${PACKAGING_URL}/libgeopm.spec > rpmbuild/SPECS/libgeopm.spec && \
-    curl -sL ${PACKAGING_URL}/python-geopmpy.spec > rpmbuild/SPECS/python-geopmpy.spec && \
-    curl -sL ${PACKAGING_URL}/0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch > rpmbuild/SOURCES/0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch && \
-    curl -sL ${PACKAGING_URL}/0002-Allow-numpy-2.0-and-higher.patch > rpmbuild/SOURCES/0002-Allow-numpy-2.0-and-higher.patch && \
-    curl -sL ${PACKAGING_URL}/0003-Define-macro-to-set-defaults-used-by-init-function.patch > rpmbuild/SOURCES/0003-Define-macro-to-set-defaults-used-by-init-function.patch && \
+    curl -sL https://github.com/geopm/geopm/archive/v3.2.0/geopm-3.2.0.tar.gz > \
+        rpmbuild/SOURCES/geopm-3.2.0.tar.gz && \
+    curl -sL ${PACKAGING_URL}/libgeopmd.spec > \
+        rpmbuild/SPECS/libgeopmd.spec && \
+    curl -sL ${PACKAGING_URL}/geopmd.spec > \
+        rpmbuild/SPECS/geopmd.spec && \
+    curl -sL ${PACKAGING_URL}/libgeopm.spec > \
+       rpmbuild/SPECS/libgeopm.spec && \
+    curl -sL ${PACKAGING_URL}/python-geopmpy.spec > \
+        rpmbuild/SPECS/python-geopmpy.spec && \
+    curl -sL ${PACKAGING_URL}/0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch > \
+        rpmbuild/SOURCES/0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch && \
+    curl -sL ${PACKAGING_URL}/0002-Allow-numpy-2.0-and-higher.patch > \
+        rpmbuild/SOURCES/0002-Allow-numpy-2.0-and-higher.patch && \
+    curl -sL ${PACKAGING_URL}/0003-Define-macro-to-set-defaults-used-by-init-function.patch > \
+        rpmbuild/SOURCES/0003-Define-macro-to-set-defaults-used-by-init-function.patch && \
     tar xf rpmbuild/SOURCES/geopm-3.2.0.tar.gz && \
     rpmbuild -ba rpmbuild/SPECS/libgeopmd.spec
 
@@ -48,7 +53,8 @@ RUN rpmbuild -ba rpmbuild/SPECS/geopmd.spec && \
     rpmbuild -ba rpmbuild/SPECS/libgeopm.spec
 
 USER root
-RUN dnf install -y rpmbuild/RPMS/*/libgeopm-3.2.0*.rpm rpmbuild/RPMS/*/libgeopm-devel-3.2.0*.rpm rpmbuild/RPMS/*/python3-geopmdpy-3.2.0*.rpm rpmbuild/RPMS/*/geopmd-cli-3.2.0*.rpm
+RUN dnf install -y rpmbuild/RPMS/*/libgeopm-3.2.0*.rpm rpmbuild/RPMS/*/libgeopm-devel-3.2.0*.rpm \
+                   rpmbuild/RPMS/*/python3-geopmdpy-3.2.0*.rpm rpmbuild/RPMS/*/geopmd-cli-3.2.0*.rpm
 
 USER build
 RUN rpmbuild -ba rpmbuild/SPECS/python-geopmpy.spec && \
