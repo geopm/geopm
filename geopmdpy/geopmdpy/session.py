@@ -156,25 +156,148 @@ class _MPISessionIO:
     def is_rank_zero(self):
         return self._rank == 0
 
+class Agent:
+    """Base class for user-defined agents in GEOPM sessions.
+
+    Agents encapsulate custom logic for controlling and monitoring
+    GEOPM sessions. To use an agent, subclass this class and override
+    any of the methods to customize argument parsing, signal configuration,
+    trace output, and periodic update behavior.
+
+    Methods that can be overridden:
+      - update_parser: Add custom command-line arguments.
+      - update_args: Process parsed arguments.
+      - signal_config_override: Provide a custom signal configuration string.
+      - run_begin: Called at the start of a session run.
+      - run_end: Called at the end of a session run.
+      - update_loop: Called at each sampling period.
+      - header_names: Add custom trace column headers.
+      - trace_out: Provide custom trace output values.
+
+    Example usage:
+        class MyAgent(Agent):
+            def update_parser(self, parser):
+                parser.add_argument('--foo', ...)
+                return parser
+            def update_args(self, args):
+                self._foo = args.foo
+                return args
+            def update_loop(self):
+                # Custom logic here
+                pass
+
+        main(agent=MyAgent())
+    """
+    def __init__(self):
+        """Initialize the agent. Override to set up agent state."""
+        pass
+
+    def update_parser(self, parser):
+        """Update the argument parser with agent-specific options.
+
+        Args:
+            parser (argparse.ArgumentParser): The parser to update.
+
+        Returns:
+            argparse.ArgumentParser: The updated parser.
+        """
+        return parser
+
+    def update_args(self, args):
+        """Process parsed arguments and update agent state.
+
+        Args:
+            args (argparse.Namespace): Parsed command-line arguments.
+
+        Returns:
+            argparse.Namespace: The (possibly updated) arguments.
+        """
+        return args
+
+    def signal_config_override(self):
+        """Override the default signal configuration.
+
+        Returns:
+            str or None: A string containing the signal configuration,
+                         or None to use the session default (stdin).
+        """
+        return None
+
+    def run_begin(self):
+        """Called by Session at the start of each run.
+
+        Override to perform setup before the session starts.
+        """
+        pass
+
+    def run_end(self):
+        """Called by Session at the end of each run.
+
+        Override to perform cleanup after the session ends.
+        """
+        pass
+
+    def update_loop(self):
+        """Called periodically by Session during the run.
+
+        Override to implement periodic agent logic.
+        """
+        pass
+
+    def header_names(self):
+        """Return additional trace column headers provided by the agent.
+
+        Returns:
+            list of str: List of header names for custom trace columns.
+        """
+        return []
+
+    def trace_out(self):
+        """Return additional trace values provided by the agent.
+
+        Returns:
+            list of str: List of string values for custom trace columns.
+        """
+        return []
+
+def agent_factory(agent):
+    """Ensure the agent parameter is an Agent instance.
+
+    Args:
+        agent (Agent or None): The agent to use.
+
+    Returns:
+        Agent: An instance of Agent or a subclass.
+
+    Raises:
+        RuntimeError: If agent is not None and not an Agent.
+    """
+    if agent is None:
+        return Agent()
+    if not isinstance(agent, Agent):
+        raise RuntimeError('The agent parameter must be derived from the Agent class')
+    return agent
+
 class Session:
-    """Object responsible for creating a GEOPM batch read session
+    """Object responsible for creating and running a GEOPM batch read session.
 
-    This object's run() method is the main entry point for
-    geopmsession command line tool.  The inputs to run() are derived
-    from the command line options provided by the user.
+    The Session object manages the main loop for reading signals,
+    formatting output, and integrating with user-defined agents.
 
-    The Session object depends on the RequestQueue object to parse the
-    input request buffer from the user.  The Session object also
-    depends on the loop.TimedLoop object when executing a periodic
-    read session.
+    Args:
+        delimiter (str): Delimiter for CSV output.
+        agent (Agent or None): Optional agent object to customize session behavior.
 
     """
+    def __init__(self, delimiter=',', agent=None):
+        """Initialize the Session.
 
-    def __init__(self, delimiter=','):
-        """Constructor for Session class
-
+        Args:
+            delimiter (str): Delimiter for CSV output.
+            agent (Agent or None): Optional agent object.
         """
-        self._delimiter=delimiter
+        self._delimiter = delimiter
+        self._agent = agent_factory(agent)
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -252,9 +375,13 @@ class Session:
         for sample_idx in loop.TimedLoop(period, num_period):
             if sample_idx != 0:
                 pio.read_batch()
+            self._agent.update_loop()
             if out_stream is not None:
                 signals = [pio.sample(handle) for handle in signal_handles]
                 line = self.format_signals(signals, requests.get_formats())
+                agent_line = self._delimiter.join(self._agent.trace_out())
+                if agent_line != '':
+                    line = f'{line[:-1]}{self._delimiter}{agent_line}\n'
                 out_stream.write(line)
             if stats_collector is not None:
                 stats_collector.update()
@@ -265,6 +392,11 @@ class Session:
                 stats_collector.reset()
 
     def is_pid_active(self, pid):
+        """Check if pid is active
+
+        Returns:
+           bool: True if pid is active, False otherwise
+        """
         try:
             os.kill(pid, 0)
             result = True
@@ -332,17 +464,24 @@ class Session:
 
 
     def header_names(self, requests):
-        """Format trace CSV header strings for the set of requests
+        """Format trace CSV header strings for the set of requests.
+
+        Includes both the default signal headers and any additional
+        headers provided by the agent.
 
         Args:
             requests (list(tuple(str, int, int))):
                 List of request tuples. Each request comprises a signal name,
                 domain type, and domain index.
 
+        Returns:
+            list of str: List of header names for the trace output.
         """
-        return [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
+        result = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
                 if topo.domain_name(domain) != 'board' else f'"{name}"'
                 for name, domain, domain_idx in requests]
+        result.extend(self._agent.header_names())
+        return result
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
@@ -412,7 +551,8 @@ class Session:
             if do_stats:
                 report_stream = _ReportStream(stats_collector, session_io, print_header, delimiter, report_format)
             try:
-                g_session_handler = _SessionHandler(out_stream, report_stream)
+                g_session_handler = _SessionHandler(out_stream, report_stream, self._agent)
+                self._agent.run_begin()
                 self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream)
             finally:
                 g_session_handler.stop()
@@ -443,15 +583,17 @@ class _ReportStream:
         self.print_header = False
 
 class _SessionHandler:
-    def __init__(self, out_stream, report_stream):
+    def __init__(self, out_stream, report_stream, agent):
         self.out_stream = out_stream
         self.report_stream = report_stream
+        self.agent = agent
 
     def stop(self):
         if self.out_stream is not None:
             self.out_stream.flush()
         if self.report_stream is not None:
             self.report_stream.write()
+        self.agent.run_end()
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -509,8 +651,22 @@ class RequestQueue:
 
 
 class ReadRequestQueue(RequestQueue):
+    """Class to encapsulate session signal configuration requests.
+
+    """
     def __init__(self, request_stream):
-        """Constructor for ReadRequestQueue object
+        """Initialize the request queue
+
+        The constructor parses the input stream and stores the
+        requests for reading signals.  The input stream is expected
+        to contain a list of requests, one per line.  Each request
+        is a string of three words separated by white space.  The
+        first word is the signal name, the second word is the domain
+        type, and the third word is the domain index.  The domain
+        type is specified as the name string, i.e one of the
+        following strings: "board", "package", "core", "cpu",
+        "memory", "package_integrated_memory", "nic",
+        "package_integrated_nic", "gpu", "package_integrated_gpu".
 
         Args:
             request_stream (typing.IO): Input from user describing the
@@ -609,6 +765,11 @@ class ReadRequestQueue(RequestQueue):
         return self._formats
 
     def get_raw(self):
+        """Get raw string representation
+
+        Returns:
+           str: The request as a string
+        """
         return self._raw
 
 def get_parser():
@@ -643,14 +804,18 @@ def get_parser():
 
     return parser
 
-def main():
+def main(agent=None):
     """Command line interface for the geopm service batch read features.
 
-    The input to the command line tool has one request per line.  A
-    request for reading is made of up three strings separated by white
-    space.  The first string is the signal name, the second string is
-    the domain name, and the third string is the domain index.
+    This function can be used as a script entry point or called directly
+    from Python. To use a custom agent, pass an instance of a subclass
+    of Agent as the `agent` argument.
 
+    Args:
+        agent (Agent or None): Optional agent object to customize session behavior.
+
+    Returns:
+        int: 0 on success, nonzero on error.
     """
     err = 0
     trace_out = None
@@ -658,8 +823,12 @@ def main():
     _config_stream = None
     signal(SIGTERM, _term_handler)
     signal(SIGINT, _term_handler)
+    agent = agent_factory(agent)
     try:
-        args = get_parser().parse_args()
+        parser = get_parser()
+        parser = agent.update_parser(parser)
+        args = parser.parse_args()
+        args = agent.update_args(args)
         if args.version:
             print(__version_str__)
             return 0
@@ -668,7 +837,11 @@ def main():
         if args.report_samples is not None and args.trace_out == args.report_out:
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
         if args.config_path == '-':
-            config_stream = sys.stdin
+            override = agent.signal_config_override()
+            if override is None:
+                config_stream = sys.stdin
+            else:
+                config_stream = StringIO(override)
         else:
             _config_stream = open(args.config_path)
             config_stream = _config_stream
@@ -677,7 +850,7 @@ def main():
         else:
             session_io = _SessionIO(request_stream=config_stream, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
-        sess = Session(args.delimiter)
+        sess = Session(args.delimiter, agent)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
                  report_format=args.report_format, delimiter=args.delimiter, report_samples=args.report_samples)
