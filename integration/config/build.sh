@@ -39,6 +39,8 @@ if [[ ${1} == '--help' ]]; then
     exit 1
 fi
 
+python3 -m pip install --user --upgrade pip
+
 GEOPM_SOURCE=${GEOPM_SOURCE:-${PWD}}
 cd ${GEOPM_SOURCE}
 BUILD_ENV="integration/config/build_env.sh"
