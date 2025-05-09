@@ -156,6 +156,71 @@ class _MPISessionIO:
     def is_rank_zero(self):
         return self._rank == 0
 
+class Agent:
+    """Base class that documents the interfaces required by an agent
+
+    Agent objects are used to initialize a Session object and
+    define the control algorithm.
+
+    """
+    def __init__(self):
+        pass
+
+    def update_parser(self, parser):
+        """Update argument parser from geopmsession with additional arguments
+
+        """
+        return parser
+
+    def update_args(self, args):
+        """Update the arguments after they are parsed
+
+        """
+        return args
+
+    def signal_config_override(self):
+        """Return signal config string to be used by default
+
+        Return None to use stdin: session default.
+        """
+        return None
+
+    def run_begin(self):
+        """Called by Session at the start of each run
+
+        """
+        pass
+
+    def run_end(self):
+        """Called by the Session at the end of each run
+
+        """
+        pass
+
+    def update_loop(self):
+        """Called periodically by the Session
+
+        """
+        pass
+
+    def header_names(self):
+        """Returns the names of additional trace columns provided by agent
+
+        """
+        return []
+    def trace_out(self):
+        """Returns output trace values provided by agent, as list of strings
+
+        """
+        return []
+
+def default_agent(agent):
+    if agent is None:
+        return Agent()
+    if not isinstance(agent, Agent):
+        raise RuntimeError('The agent parameter must be derived from the Agent class')
+    return agent
+
 class Session:
     """Object responsible for creating a GEOPM batch read session
 
@@ -170,11 +235,12 @@ class Session:
 
     """
 
-    def __init__(self, delimiter=','):
+    def __init__(self, delimiter=',', agent=None):
         """Constructor for Session class
 
         """
-        self._delimiter=delimiter
+        self._delimiter = delimiter
+        self._agent = default_agent(agent)
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -252,9 +318,13 @@ class Session:
         for sample_idx in loop.TimedLoop(period, num_period):
             if sample_idx != 0:
                 pio.read_batch()
+            self._agent.update_loop()
             if out_stream is not None:
                 signals = [pio.sample(handle) for handle in signal_handles]
                 line = self.format_signals(signals, requests.get_formats())
+                agent_line = self._delimiter.join(self._agent.trace_out())
+                if agent_line != '':
+                    line = f'{line[:-1]}{self._delimiter}{agent_line}\n'
                 out_stream.write(line)
             if stats_collector is not None:
                 stats_collector.update()
@@ -340,9 +410,11 @@ class Session:
                 domain type, and domain index.
 
         """
-        return [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
+        result = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
                 if topo.domain_name(domain) != 'board' else f'"{name}"'
                 for name, domain, domain_idx in requests]
+        result.extend(self._agent.header_names())
+        return result
 
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
@@ -643,7 +715,7 @@ def get_parser():
 
     return parser
 
-def main():
+def main(agent=None):
     """Command line interface for the geopm service batch read features.
 
     The input to the command line tool has one request per line.  A
@@ -658,8 +730,12 @@ def main():
     _config_stream = None
     signal(SIGTERM, _term_handler)
     signal(SIGINT, _term_handler)
+    agent = default_agent(agent)
     try:
-        args = get_parser().parse_args()
+        parser = get_parser()
+        parser = agent.update_parser(parser)
+        args = parser.parse_args()
+        args = agent.update_args(args)
         if args.version:
             print(__version_str__)
             return 0
@@ -668,7 +744,11 @@ def main():
         if args.report_samples is not None and args.trace_out == args.report_out:
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
         if args.config_path == '-':
-            config_stream = sys.stdin
+            override = agent.signal_config_override()
+            if override is None:
+                config_stream = sys.stdin
+            else:
+                config_stream = StringIO(override)
         else:
             _config_stream = open(args.config_path)
             config_stream = _config_stream
@@ -677,10 +757,12 @@ def main():
         else:
             session_io = _SessionIO(request_stream=config_stream, trace_path=args.trace_out, report_path=args.report_out)
         trace_out = session_io.open_trace_stream()
-        sess = Session(args.delimiter)
+        sess = Session(args.delimiter, agent)
+        agent.run_begin()
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
                  report_format=args.report_format, delimiter=args.delimiter, report_samples=args.report_samples)
+        agent.run_end()
     except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
