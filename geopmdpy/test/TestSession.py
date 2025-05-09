@@ -17,6 +17,39 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.session import Session
     from geopmdpy.session import RequestQueue
     from geopmdpy.session import ReadRequestQueue
+    from geopmdpy.session import Agent
+
+class DummyAgent(Agent):
+    def __init__(self):
+        super().__init__()
+        self.parser_updated = False
+        self.args_updated = False
+        self.run_begin_called = False
+        self.run_end_called = False
+        self.loop_count = 0
+        self._trace_header = ['extra_col']
+        self._trace_out = ['extra_val']
+        self._override = 'signal1 board 0\n'
+    def update_parser(self, parser):
+        self.parser_updated = True
+        parser.add_argument('--dummy', action='store_true')
+        return parser
+    def update_args(self, args):
+        self.args_updated = True
+        self._dummy = getattr(args, 'dummy', False)
+        return args
+    def signal_config_override(self):
+        return self._override
+    def run_begin(self):
+        self.run_begin_called = True
+    def run_end(self):
+        self.run_end_called = True
+    def update_loop(self):
+        self.loop_count += 1
+    def header_names(self):
+        return self._trace_header
+    def trace_out(self):
+        return self._trace_out
 
 class TestSession(unittest.TestCase):
     def setUp(self):
@@ -236,6 +269,58 @@ class TestSession(unittest.TestCase):
                               runtime, period, None, False,
                               request_stream=request_stream, out_stream=out_stream)
 
+    def test_agent_update_parser_and_args(self):
+        agent = DummyAgent()
+        parser = mock.MagicMock()
+        parser.add_argument = mock.MagicMock(return_value=None)
+        updated_parser = agent.update_parser(parser)
+        self.assertTrue(agent.parser_updated)
+        args = mock.MagicMock()
+        args.dummy = True
+        updated_args = agent.update_args(args)
+        self.assertTrue(agent.args_updated)
+        self.assertTrue(agent._dummy)
+
+    def test_agent_signal_config_override(self):
+        agent = DummyAgent()
+        self.assertEqual(agent.signal_config_override(), 'signal1 board 0\n')
+
+    def test_agent_header_names_and_trace_out(self):
+        agent = DummyAgent()
+        session = Session(agent=agent)
+        # Simulate requests
+        requests = [('signal1', 0, 0)]
+        headers = session.header_names(requests)
+        self.assertIn('extra_col', headers)
+        # Simulate trace output
+        with mock.patch('geopmdpy.pio.push_signal', return_value=0), \
+             mock.patch('geopmdpy.pio.read_batch'), \
+             mock.patch('geopmdpy.pio.sample', return_value=1.0), \
+             mock.patch('geopmdpy.session.Session.format_signals', return_value='1.0,'):
+            out_stream = StringIO()
+            session.run_read(mock.MagicMock(__iter__=lambda self: iter(requests), get_formats=lambda: [0]), 1, 1, None, out_stream)
+            self.assertIn('extra_val', out_stream.getvalue())
+
+    def test_agent_run_begin_and_end(self):
+        agent = DummyAgent()
+        session = Session(agent=agent)
+        # Patch run_read to avoid actual execution
+        with mock.patch.object(session, 'run_read'):
+            session.run(1, 1, None, False, request_stream=StringIO('TIME board 0\n'), out_stream=StringIO())
+        self.assertTrue(agent.run_begin_called)
+        self.assertTrue(agent.run_end_called)
+
+    def test_agent_update_loop_called(self):
+        agent = DummyAgent()
+        session = Session(agent=agent)
+        requests = [('signal1', 0, 0)]
+        with mock.patch('geopmdpy.pio.push_signal', return_value=0), \
+             mock.patch('geopmdpy.pio.read_batch'), \
+             mock.patch('geopmdpy.pio.sample', return_value=1.0), \
+             mock.patch('geopmdpy.session.Session.format_signals', return_value='1.0,'):
+            out_stream = StringIO()
+            session.run_read(mock.MagicMock(__iter__=lambda self: iter(requests), get_formats=lambda: [0]), 2, 1, None, out_stream)
+            self.assertGreater(agent.loop_count, 0)
 
 if __name__ == '__main__':
     unittest.main()
