@@ -58,7 +58,7 @@ class GRPCClient:
             group=group,
             allowed_signals=allowed_signals
         )
-        self.stub.SetGroupAccess(request)
+        self.stub.SetGroupAccessSignals(request)
 
     def PlatformSetGroupAccessControls(self, group, allowed_controls):
         """Set the control access list for a group.
@@ -71,7 +71,7 @@ class GRPCClient:
             group=group,
             allowed_controls=allowed_controls
         )
-        self.stub.SetGroupAccess(request)
+        self.stub.SetGroupAccessControls(request)
 
     def PlatformGetAllAccess(self):
         """Get all supported signals and controls.
