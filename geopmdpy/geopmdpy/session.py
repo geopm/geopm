@@ -187,6 +187,7 @@ class Agent:
                 pass
 
         main(agent=MyAgent())
+
     """
     def __init__(self):
         """Initialize the agent. Override to set up agent state."""
@@ -200,6 +201,7 @@ class Agent:
 
         Returns:
             argparse.ArgumentParser: The updated parser.
+
         """
         return parser
 
@@ -211,6 +213,7 @@ class Agent:
 
         Returns:
             argparse.Namespace: The (possibly updated) arguments.
+
         """
         return args
 
@@ -219,28 +222,38 @@ class Agent:
 
         Returns:
             str or None: A string containing the signal configuration,
-                         or None to use the session default (stdin).
+                         or None to use the Session default (stdin).
+
         """
         return None
 
     def run_begin(self):
         """Called by Session at the start of each run.
 
-        Override to perform setup before the session starts.
+        Override to perform setup before the session starts. Calls to
+        pio.push_signal() and pio.push_control() may be made here.
+
         """
         pass
 
     def run_end(self):
         """Called by Session at the end of each run.
 
-        Override to perform cleanup after the session ends.
+        Override to perform cleanup after the session ends.  Releases any
+        resources allocated in the run_begin() method.
+
         """
         pass
 
     def update_loop(self):
         """Called periodically by Session during the run.
 
-        Override to implement periodic agent logic.
+        Override to implement periodic agent logic. This method is called by the
+        Session implementation just after a call to pio.read_batch() in the
+        timed loop, so the Agent implementation should not call
+        pio.read_batch().  Calls to pio.sample(), pio.adjust() and
+        pio.write_batch() may be part of the update_loop() implementation.
+
         """
         pass
 
@@ -249,14 +262,19 @@ class Agent:
 
         Returns:
             list of str: List of header names for custom trace columns.
+
         """
         return []
 
     def trace_out(self):
         """Return additional trace values provided by the agent.
 
+        The agent is responsible for the string format of the values returned,
+        numeric values are not allowed.
+
         Returns:
             list of str: List of string values for custom trace columns.
+
         """
         return []
 
@@ -271,6 +289,7 @@ def agent_factory(agent):
 
     Raises:
         RuntimeError: If agent is not None and not an Agent.
+
     """
     if agent is None:
         return Agent()
@@ -396,6 +415,7 @@ class Session:
 
         Returns:
            bool: True if pid is active, False otherwise
+
         """
         try:
             os.kill(pid, 0)
@@ -448,6 +468,7 @@ class Session:
 
         Raises:
             ValueError: An invalid request is present in the request queue.
+
         """
         for name, dom, dom_idx in requests:
             domain_name = topo.domain_name(dom)
@@ -476,10 +497,11 @@ class Session:
 
         Returns:
             list of str: List of header names for the trace output.
+
         """
         result = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
-                if topo.domain_name(domain) != 'board' else f'"{name}"'
-                for name, domain, domain_idx in requests]
+                  if topo.domain_name(domain) != 'board' else f'"{name}"'
+                  for name, domain, domain_idx in requests]
         result.extend(self._agent.header_names())
         return result
 
@@ -816,6 +838,7 @@ def main(agent=None):
 
     Returns:
         int: 0 on success, nonzero on error.
+
     """
     err = 0
     trace_out = None
