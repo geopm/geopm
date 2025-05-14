@@ -52,148 +52,45 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         # Grabbing system frequency parameters for experiment frequency bounds
         # Choosing the maximum many core frequency to remove redundant frequency sweep values
-        cls._cpu_max_freq = mach.frequency_max_many_core()
-        cls._cpu_min_freq = mach.frequency_min()
-        cls._cpu_freq_step = 2 * mach.frequency_step()
-
         cls._node_count = 1
-        cls._ranks_per_node = 1
+        cls._ranks_per_node = 2
         cls._run_count = 0
         experiment_cli_args=['--geopm-ctl=process']
 
-        ########################
-        # CPU Neural Net Sweep #
-        ########################
-
-        # Setup Common Args
-        cls._nn_sweep_dir = Path(os.path.join(cls._top_test_dir, 'nn_frequency_sweep'))
-        cpu_fsweep_experiment_args = SimpleNamespace(
-            output_dir=cls._nn_sweep_dir,
-            node_count=cls._node_count,
-            max_frequency = cls._cpu_max_freq,
-            min_frequency = cls._cpu_min_freq,
-            step_frequency = cls._cpu_freq_step,
-            trial_count = 1,
-            cool_off_time = 3,
-            run_max_turbo = False
-        )
-
-        # Configure the CPU test application - geopmbench
-        cls._loop_count = 30
-        #Big Os for geopmbench regions
-        cls._cpu_test_params = {
-            'spin': 0.5,
-            'sleep': 0.5,
-            'dgemm': 28.0,
-            'stream': 3.0
-        }
-        #Get region hexes
         cls._app_regions = {"cpu":{},"gpu":{}}
-        for region in cls._cpu_test_params:
-            cls._app_regions["cpu"][region] = "geopmbench-" + f"0x{hash_str(region):08x}"
 
-        bench_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
-        bench_conf.set_loop_count(cls._loop_count)
-        for region in cls._cpu_test_params:
-            bench_conf.append_region(region, cls._cpu_test_params[region])
-        bench_conf.write()
+        #####################
+        # Neural Net Sweeps #
+        #####################
+        cls._nn_sweep_dir = Path(os.path.join(cls._top_test_dir, 'nn_frequency_sweep'))
 
-        cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()),
-                                                    cls._ranks_per_node)
+        # Launch CPU Frequency Sweeps for NN Generation - geopmbench
+        cls.setup_cpu_nn_sweep(cls, mach)
+        cls.launch_helper(cls, neural_net_sweep, cls._cpu_fsweep_experiment_args,
+                          cls._cpu_app_conf, experiment_cli_args)
 
-        #Launch CPU Frequency Sweeps for NN Generation - geopmbench
-        cls.launch_helper(cls, neural_net_sweep, cpu_fsweep_experiment_args, cpu_app_conf, experiment_cli_args)
+        # Launch GPU Frequency Sweeps for NN Generation if a gpu is present
+        # and parres is built.
+        cls._do_gpu = cls.do_gpu(cls, mach)
+        if cls._do_gpu and cls.setup_gpu_nn_sweep(cls, mach):
+            for parres_app_conf in cls._gpu_app_confs:
+                cls.launch_helper(cls, neural_net_sweep, cls._gpu_experiment_args,
+                                  parres_app_conf, experiment_cli_args)
 
-        ########################
-        # GPU Neural Net Sweep #
-        ########################
-
-        # Checking if a gpu is present on the system and parres is built. If so, ensuring
-        # that a reasonable number of frequency steps is taken for NN frequency sweep
-        # as some GPUs have very fine frequency steps
-
-        parres_basepath = os.path.join(os.path.dirname(
-                              os.path.dirname(os.path.realpath(__file__))),
-                                              "apps/parres/Kernels/Cxx11")
-        cls._do_gpu = False
-        if (mach.num_gpu() > 0 and
-            hasattr(mach, 'min_gpu_frequency') and
-            hasattr(mach, 'max_gpu_frequency') and
-            os.path.exists(parres_basepath)):
-
-            cls._do_gpu = True
-
-            cls._gpu_freq_min = mach.gpu_frequency_min()
-            cls._gpu_freq_max = mach.gpu_frequency_max()
-            cls._gpu_freq_step = mach.gpu_frequency_step()
-            coarse_step = round((cls._gpu_freq_max - cls._gpu_freq_min)/4)
-            if coarse_step > cls._gpu_freq_step:
-                cls._gpu_freq_step = coarse_step
-
-            #GPU Frequency Sweeps for NN Generation - parres
-            gpu_experiment_args = SimpleNamespace(
-                node_count=cls._node_count,
-                trial_count = 1,
-                cool_off_time=3,
-                parres_cores_per_node=None,
-                parres_gpus_per_node=None,
-                parres_cores_per_rank=1,
-                parres_init_setup=None,
-                parres_exp_setup=None,
-                parres_teardown=None,
-                parres_args=None,
-                output_dir=cls._nn_sweep_dir,
-                min_gpu_frequency = cls._gpu_freq_min,
-                max_gpu_frequency = cls._gpu_freq_max,
-                step_gpu_frequency = cls._gpu_freq_step
-            )
-
-            cls._app_regions['gpu'] = {'dgemm':'parres_dgemm-0xDEADBEEF',
-                                       'nstream':'parres_nstream-0xDEADBEEF'}
-            app_exec_names = []
-            app_confs = []
-            parres_app_paths = []
-            #Get correct parres executables and set up app conf
-            if util.get_service_config_value('enable_nvml') == '1':
-                app_exec_names = ["dgemm-mpi-cublas", "nstream-mpi-cuda"]
-                app_confs = [parres.create_dgemm_appconf_cuda(mach, gpu_experiment_args),
-                             parres.create_nstream_appconf_cuda(mach, gpu_experiment_args)]
-            elif util.get_service_config_value('enable_levelzero') == '1':
-                app_exec_names = ["dgemm-onemkl", "nstream-onemkl"]
-                app_confs = [parres.create_dgemm_appconf_oneapi(mach, gpu_experiment_args),
-                             parres.create_nstream_appconf_oneapi(mach, gpu_experiment_args)]
-            for app in app_exec_names:
-                app_path = os.path.join(parres_basepath, app)
-                if os.path.exists(app_path):
-                    parres_app_paths.append(app_path)
-
-            #If no parres executables exist, error
-            if len(parres_app_paths) == 0:
-                cls._do_gpu = False
-                print("Warning: No parres dgemm/nstream executables were found. Cannot test GPU.")
-            else:
-                #Launch GPU Frequency Sweeps for NN Generation - parres dgemm / nstream
-                print("Launching GPU Frequency sweeps for parres dgemm / nstream")
-                for parres_app_conf in app_confs:
-                    cls.launch_helper(cls, neural_net_sweep, gpu_experiment_args, parres_app_conf, experiment_cli_args)
-
+        #####################
+        # Generate NN Files #
+        #####################
 
         # Set up HDF/neural net file info
         cls._nn_output_prefix = "test_ffnet/test_nn"
         cls._nn_description = "test description"
-        cls._nn_regions_ignore = [f"geopmbench-0x68317b3c", "geopmbench-unmarked"]
+        cls._nn_regions_ignore = [cls._app_regions['cpu']['spin'], "geopmbench-unmarked"]
         cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
         cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
         cls._nn_out = f"{cls._nn_output_prefix}_nn"
         cls._nn_fmap_out = f"{cls._nn_output_prefix}_fmap"
 
-        # Generate h5s
-        gen_hdf_from_fsweep.main(cls._nn_output_prefix, str(cls._nn_sweep_dir), ",".join(cls._nn_regions_ignore))
-        # Generate neural nets
-        gen_neural_net.main(cls._nn_trace_hdf, cls._nn_out)
-
-        # Generate frequency region map
-        gen_region_parameters.main(cls._nn_fmap_out, cls._nn_stats_hdf)
+        cls.gen_nn_files(cls)
 
         ###################
         # FFNet Agent Run #
@@ -210,7 +107,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         # Configure the CPU test application - geopmbench
         # TODO: Set up GPU run, too, if there's GPU on system and parres
-        ffnet_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()),
+        ffnet_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(cls._bench_conf.get_path()),
                                                       cls._ranks_per_node)
 
         for phi in cls._perf_energy_biases:
@@ -259,9 +156,132 @@ class TestIntegration_ffnet(unittest.TestCase):
             report_path = glob.glob(f"{str(cls._ffnet_dir)}/phi{phi}/*report")
             cls._report_data[phi] = geopmpy.io.RawReport(report_path[0])
 
+    def tearDown(self):
+        if sys.exc_info() != (None, None, None):
+            TestIntegration_ffnet._keep_files = True
+
+    def setup_cpu_nn_sweep(self, mach):
+        cpu_max_freq = mach.frequency_max_many_core()
+        cpu_min_freq = mach.frequency_min()
+        cpu_freq_step = 2 * mach.frequency_step()
+
+        # Setup Common Args
+        self._cpu_fsweep_experiment_args = SimpleNamespace(
+            output_dir=self._nn_sweep_dir,
+            node_count=self._node_count,
+            max_frequency = cpu_max_freq,
+            min_frequency = cpu_min_freq,
+            step_frequency = cpu_freq_step,
+            trial_count = 1,
+            cool_off_time = 3,
+            run_max_turbo = False
+        )
+
+        # Configure the CPU test application - geopmbench
+        loop_count = 30
+        #Big Os for geopmbench regions
+        cpu_test_params = {
+            'spin': 0.5,
+            'sleep': 0.5,
+            'dgemm': 28.0,
+            'stream': 3.0
+        }
+        #Get region hexes
+        for region in cpu_test_params:
+            self._app_regions["cpu"][region] = "geopmbench-" + f"0x{hash_str(region):08x}"
+
+        self._bench_conf = geopmpy.io.BenchConf(self._test_name + '_app.config')
+        self._bench_conf.set_loop_count(loop_count)
+        for region in cpu_test_params:
+            self._bench_conf.append_region(region, cpu_test_params[region])
+            self._bench_conf.append_region("barrier", 1.0)
+        self._bench_conf.write()
+
+        self._cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(self._bench_conf.get_path()),
+                                                          self._ranks_per_node)
+    def setup_gpu_nn_sweep(self, mach):
+        # Setting up a reasonable number of frequency steps
+        gpu_freq_min = mach.gpu_frequency_min()
+        gpu_freq_max = mach.gpu_frequency_max()
+        gpu_freq_step = mach.gpu_frequency_step()
+        coarse_step = round((gpu_freq_max - gpu_freq_min)/8)
+        if coarse_step > gpu_freq_step:
+            gpu_freq_step = coarse_step
+
+        # GPU Frequency Sweeps for NN Generation - parres
+        self._gpu_experiment_args = SimpleNamespace(
+            node_count=self._node_count,
+            trial_count = 1,
+            cool_off_time=3,
+            parres_cores_per_node=None,
+            parres_gpus_per_node=None,
+            parres_cores_per_rank=1,
+            parres_init_setup=None,
+            parres_exp_setup=None,
+            parres_teardown=None,
+            parres_args=None,
+            output_dir=self._nn_sweep_dir,
+            min_gpu_frequency = gpu_freq_min,
+            max_gpu_frequency = gpu_freq_max,
+            step_gpu_frequency = gpu_freq_step
+        )
+
+        self._app_regions['gpu'] = {'dgemm':'parres_dgemm-0xDEADBEEF',
+                                   'nstream':'parres_nstream-0xDEADBEEF'}
+        app_exec_names = []
+        self._gpu_app_confs = []
+        parres_app_paths = []
+        #Get correct parres executables and set up app conf
+        if util.get_service_config_value('enable_nvml') == '1':
+            app_exec_names = ["dgemm-mpi-cublas", "nstream-mpi-cuda"]
+            self._gpu_app_confs = [parres.create_dgemm_appconf_cuda(mach, self._gpu_experiment_args),
+                         parres.create_nstream_appconf_cuda(mach, self._gpu_experiment_args)]
+        elif util.get_service_config_value('enable_levelzero') == '1':
+            app_exec_names = ["dgemm-onemkl", "nstream-onemkl"]
+            self._gpu_app_confs = [parres.create_dgemm_appconf_oneapi(mach, self._gpu_experiment_args),
+                         parres.create_nstream_appconf_oneapi(mach, self._gpu_experiment_args)]
+        for app in app_exec_names:
+            app_path = os.path.join(parres_basepath, app)
+            if os.path.exists(app_path):
+                parres_app_paths.append(app_path)
+        #If no parres executables exist, error
+        if len(parres_app_paths) == 0:
+            self._do_gpu = False
+            print("Warning: No parres dgemm/nstream executables were found. Cannot test GPU.")
+            return False
+
+    def gen_nn_files(self):
+        # Generate h5s
+        ignore_string = ",".join([reg.split("-")[1] for reg in self._nn_regions_ignore])
+        gen_hdf_from_fsweep.main(self._nn_output_prefix, str(self._nn_sweep_dir), ignore_string)
+        # Generate neural nets
+        gen_neural_net.main(self._nn_trace_hdf, self._nn_out)
+
+        # Generate frequency region map
+        gen_region_parameters.main(self._nn_fmap_out, self._nn_stats_hdf)
+
+        # Clean up unneeded traces/reports
+        #TODO: Replace
+       # for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
+       #     os.remove(fpath)
+       # for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
+       #     os.remove(fpath)
+
+
     ###########
     # Helpers #
     ###########
+
+    def do_gpu(self, mach):
+        parres_basepath = os.path.join(os.path.dirname(
+                              os.path.dirname(os.path.realpath(__file__))),
+                                              "apps/parres/Kernels/Cxx11")
+        if (mach.num_gpu() > 0 and
+            hasattr(mach, 'min_gpu_frequency') and
+            hasattr(mach, 'max_gpu_frequency') and
+            os.path.exists(parres_basepath)):
+            return True
+        return False
 
     #Used to calculate region probabilities
     def sigmoid(self, x):
@@ -373,11 +393,11 @@ class TestIntegration_ffnet(unittest.TestCase):
 
                 #Check that the appropriate regions are present/ignored in trace_output
                 for region in self._app_regions[domain]:
-                    region_hash = self._app_regions[domain][region].split("-")[1]
-                    if region_hash in self._nn_regions_ignore:
-                        self.assertFalse(self._app_regions[domain][region] in nn_jsons[domain]["trace_outputs"])
+                    region_col = self._app_regions[domain][region]
+                    if region_col in self._nn_regions_ignore:
+                        self.assertFalse(region_col in nn_jsons[domain]["trace_outputs"])
                     else:
-                        self.assertTrue(self._app_regions[domain][region] in nn_jsons[domain]["trace_outputs"])
+                        self.assertTrue(region_col in nn_jsons[domain]["trace_outputs"])
 
     def test_freqmap_generation(self):
         """
@@ -406,8 +426,7 @@ class TestIntegration_ffnet(unittest.TestCase):
                 #Check that desired regions are present/ignored in json file
                 for region in self._app_regions[domain]:
                     region_col = self._app_regions[domain][region]
-                    region_hash = region_col.split("-")[1]
-                    if region_hash in self._nn_regions_ignore:
+                    if region_col in self._nn_regions_ignore:
                         self.assertFalse(region_col in fmap_jsons[domain])
                     else:
                         self.assertTrue(region_col in fmap_jsons[domain])
@@ -420,8 +439,8 @@ class TestIntegration_ffnet(unittest.TestCase):
         #Check that CPU region frequency for sleep is <= dgemm at phi=0 (could both be fmax)
         self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0] <= fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0])
 
-        #Check that CPU region frequency for spin is < dgemm at phi=1 (strictly)
-        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['stream']][-1] < fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
+        #Check that CPU region frequency for sleep is < dgemm at phi=1 (strictly)
+        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1] < fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
 
         #Check that sleep's frequency decrease (phi=0 to phi=1) is
         #greater than dgemm's frequency decrease (phi=0 to phi=1)
