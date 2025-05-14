@@ -11,6 +11,8 @@ from io import StringIO
 from dasbus.error import DBusError
 import errno
 import itertools
+import signal
+from contextlib import contextmanager
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -183,22 +185,26 @@ class TestSession(unittest.TestCase):
         day = 24 * 60 * 60
         err_msg = 'Specified a period greater than 24 hours'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(7 * day, day + 1, None, None)
+            self._session.check_read_args(7 * day, day + 1, None, None, None)
 
         err_msg = 'Specified a negative run time or period'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(-1, -1, None, None)
+            self._session.check_read_args(-1, -1, None, None, None)
 
         err_msg = 'Specified a negative run time or period'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(1, -1, None, None)
+            self._session.check_read_args(1, -1, None, None, None)
 
         err_msg = 'Specified report samples is negative'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_read_args(1, 0.01, -10, None)
+            self._session.check_read_args(1, 0.01, -10, None, None)
 
-        self._session.check_read_args(1, 1, None, None)
-        self._session.check_read_args(1, .01, 10, None)
+        err_msg = 'Cannot use pid option when launching a command'
+        with self.assertRaisesRegex(RuntimeError, err_msg):
+            self._session.check_read_args(1, 0.01, 10, 1234, ['sleep', '2'])
+
+        self._session.check_read_args(1, 1, None, None, None)
+        self._session.check_read_args(1, .01, 10, None, None)
 
     def test_run(self):
         period = 7
@@ -217,8 +223,8 @@ class TestSession(unittest.TestCase):
             self._session.run(runtime, period, None, False, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
-            scra.assert_called_once_with(runtime, period, None, None)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None)
+            scra.assert_called_once_with(runtime, period, None, None, None)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None, None)
 
     def test_run_with_header(self):
         """geopmsession prints signal-domain-idx header fields."""
@@ -239,8 +245,8 @@ class TestSession(unittest.TestCase):
             self._session.run(runtime, period, None, True, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream)
-            scra.assert_called_once_with(runtime, period, None, None)
-            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None)
+            scra.assert_called_once_with(runtime, period, None, None, None)
+            srr.assert_called_once_with(rrq_return_value, runtime, period, None, out_stream, None, None, None, None)
         self.assertEqual('"signal1","signal2-package-1"\n', out_stream.getvalue())
 
     def test_run_with_bad_request(self):
@@ -321,6 +327,73 @@ class TestSession(unittest.TestCase):
             out_stream = StringIO()
             session.run_read(mock.MagicMock(__iter__=lambda self: iter(requests), get_formats=lambda: [0]), 2, 1, None, out_stream)
             self.assertGreater(agent.loop_count, 0)
+
+    def test_run_launch_subprocess_success(self):
+        """Test that Session.run() launches and monitors a subprocess that exits cleanly."""
+        session = Session()
+        # Use a simple command that exits with 0
+        launch_cmd = ['python3', '-c', 'import time; time.sleep(0.1)']
+        with mock.patch('geopmdpy.session.ReadRequestQueue', return_value=[('signal1', 0, 0)]) as srrq, \
+             mock.patch('geopmdpy.session.Session.check_read_args'), \
+             mock.patch('geopmdpy.session.Session.check_requests'), \
+             mock.patch('geopmdpy.session.Session.run_read'), \
+             mock.patch('geopmdpy.session._ReportStream'), \
+             mock.patch('geopmdpy.session.stats.Collector', return_value=None), \
+             mock.patch('geopmdpy.session.nullcontext', side_effect=lambda: contextmanager(lambda: (yield None))()):
+            # Should not raise or print warnings for clean exit
+            out_stream = StringIO()
+            session.run(1, 0, None, False, request_stream=StringIO('signal1 board 0\n'), out_stream=out_stream, launch=launch_cmd)
+
+    def test_run_launch_subprocess_nonzero_exit(self):
+        """Test that Session.run() launches a subprocess that exits with nonzero code and prints a warning."""
+        session = Session()
+        launch_cmd = ['python3', '-c', 'import sys; sys.exit(42)']
+        # Patch push_signal/sample/read_batch to avoid real pio errors
+        mock_requests = mock.MagicMock()
+        mock_requests.__iter__.return_value = [('signal1', 0, 0)]
+        mock_requests.get_formats.return_value = [0]
+        with mock.patch('geopmdpy.session.ReadRequestQueue', return_value=mock_requests), \
+             mock.patch('geopmdpy.pio.push_signal', return_value=0), \
+             mock.patch('geopmdpy.pio.read_batch'), \
+             mock.patch('geopmdpy.pio.sample', return_value=1.0), \
+             mock.patch('geopmdpy.session.Session.check_read_args'), \
+             mock.patch('geopmdpy.session.Session.check_requests'), \
+             mock.patch('geopmdpy.session._ReportStream'), \
+             mock.patch('geopmdpy.session.stats.Collector', return_value=None), \
+             mock.patch('geopmdpy.session.nullcontext', side_effect=lambda: contextmanager(lambda: (yield None))()):
+            out_stream = StringIO()
+            with mock.patch('sys.stderr', new_callable=StringIO) as fake_stderr:
+                session.run(1, 0, None, False, request_stream=StringIO('signal1 board 0\n'), out_stream=out_stream, launch=launch_cmd)
+                fake_stderr.flush()
+                if 'terminated with non-zero return code' not in fake_stderr.getvalue():
+                    print("Captured sys.stderr:", repr(fake_stderr.getvalue()))
+                self.assertIn('terminated with non-zero return code', fake_stderr.getvalue())
+
+    def test_run_launch_subprocess_sigterm(self):
+        """Test that Session.run_read() launches and terminates the subprocess with SIGTERM."""
+        session = Session()
+        launch_cmd = ['python3', '-c', 'import time; time.sleep(10)']
+        requests = [('signal1', 0, 0)]
+        # Patch g_session_handler to a mock with set_subprocess and stop
+        import geopmdpy.session
+        geopmdpy.session.g_session_handler = mock.Mock()
+        with mock.patch('geopmdpy.pio.push_signal', return_value=0), \
+             mock.patch('geopmdpy.pio.read_batch'), \
+             mock.patch('geopmdpy.pio.sample', return_value=1.0), \
+             mock.patch('geopmdpy.session.loop.TimedLoop', return_value=[0, 1]), \
+             mock.patch('subprocess.Popen') as mock_popen, \
+             mock.patch('os.setsid', return_value=None):
+            mock_proc = mock.Mock()
+            mock_proc.poll.return_value = None
+            mock_proc.pid = 12345
+            mock_popen.return_value = mock_proc
+            out_stream = StringIO()
+            # run_read should launch the subprocess and call set_subprocess
+            session.run_read(
+                mock.MagicMock(__iter__=lambda self: iter(requests), get_formats=lambda: [0]),
+                2, 1, None, out_stream, launch=launch_cmd
+            )
+            geopmdpy.session.g_session_handler.set_subprocess.assert_called_once_with(mock_proc)
 
 if __name__ == '__main__':
     unittest.main()

@@ -10,9 +10,11 @@ import sys
 import os
 import errno
 import math
+import subprocess #nosec
 from socket import gethostname
 from io import StringIO
 from argparse import ArgumentParser
+from argparse import REMAINDER
 from signal import signal
 from signal import SIGTERM, SIGINT
 from time import sleep
@@ -37,7 +39,7 @@ _STARTUP_SLEEP = 0.005
 def _term_handler(signum, frame):
     sys.stderr.write(f'Received signal {signum}, flushing buffers and exiting.\n')
     if g_session_handler is not None:
-        g_session_handler.stop()
+        g_session_handler.stop(signum)
     sys.exit(128 + signum)
 
 def _check_valid_output(path):
@@ -341,7 +343,8 @@ class Session:
         return '{}\n'.format(self._delimiter.join(result))
 
     def run_read(self, requests, duration, period, pid, out_stream,
-                 stats_collector=None, report_samples=None, report_stream=None):
+                 stats_collector=None, report_samples=None, report_stream=None,
+                 launch=None):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -392,6 +395,10 @@ class Session:
             # Purge first sample for derivative based signals
             sleep(_STARTUP_SLEEP)
             pio.read_batch()
+        if launch:
+            pid = subprocess.Popen(launch, preexec_fn=os.setsid)
+            g_session_handler.set_subprocess(pid)
+            num_period = None
         for sample_idx in loop.TimedLoop(period, num_period):
             if sample_idx != 0:
                 pio.read_batch()
@@ -421,6 +428,8 @@ class Session:
            bool: True if pid is active, False otherwise
 
         """
+        if hasattr(pid, 'poll'):
+            return pid.poll() is None
         try:
             os.kill(pid, 0)
             result = True
@@ -437,7 +446,7 @@ class Session:
                 raise
         return result
 
-    def check_read_args(self, run_time, period, report_samples, pid):
+    def check_read_args(self, run_time, period, report_samples, pid, launch):
         """Check that the run time and period are valid for a read session
 
         Args:
@@ -462,6 +471,8 @@ class Session:
             raise RuntimeError('Specified a negative run time or period')
         if report_samples is not None and report_samples < 0:
             raise RuntimeError('Specified report samples is negative')
+        if pid is not None and launch is not None:
+            raise RuntimeError(f'Cannot use pid option when launching a command: "{' '.join(launch)}"')
 
     def check_requests(self, requests):
         """Check whether the signal requests are valid.
@@ -514,7 +525,7 @@ class Session:
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
             report_path=None, session_io=None, delimiter=',', report_format='yaml',
-            report_samples=None):
+            report_samples=None, launch=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -556,6 +567,10 @@ class Session:
             report_samples (int): If not None, enable periodic reporting after
                                   this many samples.
 
+            launch (list[str]): List of command line arguments to launch a
+                                    subprocess. The first argument is the command
+                                    to run, and the rest are its arguments.
+
         """
         global g_session_handler
         if session_io is not None:
@@ -568,7 +583,7 @@ class Session:
         else:
             requests = ReadRequestQueue(request_stream)
             do_stats = report_path is not None
-        self.check_read_args(run_time, period, report_samples, pid)
+        self.check_read_args(run_time, period, report_samples, pid, launch)
         self.check_requests(requests)
         signal_config = list(requests)
         if out_stream is not None and print_header:
@@ -581,9 +596,12 @@ class Session:
             try:
                 g_session_handler = _SessionHandler(out_stream, report_stream, self._agent)
                 self._agent.run_begin()
-                self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream)
+                self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream, launch)
             finally:
                 g_session_handler.stop()
+                subp_ret = g_session_handler.subp_return()
+                if subp_ret not in (None, 0):
+                    sys.stderr.write(f'Warning: subprocess terminated with non-zero return code: "{subp_ret}"\n\n')
                 g_session_handler = None
 
 class _ReportStream:
@@ -615,13 +633,47 @@ class _SessionHandler:
         self.out_stream = out_stream
         self.report_stream = report_stream
         self.agent = agent
+        self.subp = None
+        self.returncode = None
 
-    def stop(self):
+    def set_subprocess(self, subp):
+        self.subp = subp
+
+    def stop(self, signum=None):
         if self.out_stream is not None:
             self.out_stream.flush()
         if self.report_stream is not None:
             self.report_stream.write()
         self.agent.run_end()
+        self.kill_subp(signum)
+
+    def subp_return(self):
+        return self.returncode
+
+    def kill_subp(self, signum=None):
+        if self.subp is None:
+            return
+        self.returncode = self.subp.poll()
+        if self.returncode is not None:
+            return
+        if signum is None:
+            signum = SIGTERM
+        try:
+            pgrp = os.getpgid(self.subp.pid)
+            os.killpg(pgrp, signum)
+            try:
+                self.subp.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(pgrp, SIGKILL)
+                except OSError as ex:
+                    if ex.errno != errno.ESRCH:
+                        raise
+                self.subp.wait()
+            self.returncode = self.subp.returncode
+        except Exception as ex:
+            sys.stderr.write(f'Warning: exception raised while terminating process group "{self.subp.pid}": {ex}\n\n')
+
 
 class RequestQueue:
     """Object derived from user input that provides request information
@@ -829,7 +881,8 @@ def get_parser():
                         help='Create reports each time the specified number of periods have elapsed')
     parser.add_argument('-i', '--signal-config', dest='config_path', default='-',
                         help='Input file containing GEOPM signal requests, specify "-" to use standard input which is also the default.')
-
+    parser.add_argument('launch', nargs=REMAINDER,
+                        help='Launch a process based on command following -- and terminate session when it ends')
     return parser
 
 def main(agent=None):
@@ -865,6 +918,10 @@ def main(agent=None):
             raise RuntimeError(f'Invalid report format: {args.report_format}')
         if args.report_samples is not None and args.trace_out == args.report_out:
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
+        if args.pid and args.launch:
+            raise RuntimeError(f'Cannot use --pid option when launching a command: "{' '.join(args.launch)}"')
+        if args.launch and args.launch[0] == '--':
+            args.launch = args.launch[1:]
         if args.config_path == '-':
             override = agent.signal_config_override()
             if override is None:
@@ -882,12 +939,13 @@ def main(agent=None):
         sess = Session(args.delimiter, agent)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
-                 report_format=args.report_format, delimiter=args.delimiter, report_samples=args.report_samples)
+                 report_format=args.report_format, delimiter=args.delimiter,
+                 report_samples=args.report_samples, launch=args.launch)
     except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
             raise ee
-        sys.stderr.write('Error: {}\n\n'.format(ee))
+        sys.stderr.write(f'Error: {ee}\n\n')
         err = -1
     finally:
         if session_io is not None:
