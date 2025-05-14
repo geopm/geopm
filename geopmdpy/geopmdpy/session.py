@@ -317,6 +317,7 @@ class Session:
         """
         self._delimiter = delimiter
         self._agent = agent_factory(agent)
+        self._num_agent_trace = 0
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -398,8 +399,11 @@ class Session:
             if out_stream is not None:
                 signals = [pio.sample(handle) for handle in signal_handles]
                 line = self.format_signals(signals, requests.get_formats())
-                agent_line = self._delimiter.join(self._agent.trace_out())
-                if agent_line != '':
+                if self._num_agent_trace != 0:
+                    agent_trace = self._agent.trace_out()
+                    if len(agent_trace) != self._num_agent_trace:
+                        raise RuntimeError('Agent provided trace data of length inconsistent with the header length')
+                    agent_line = self._delimiter.join(agent_trace)
                     line = f'{line[:-1]}{self._delimiter}{agent_line}\n'
                 out_stream.write(line)
             if stats_collector is not None:
@@ -502,7 +506,9 @@ class Session:
         result = [f'"{name}-{topo.domain_name(domain)}-{domain_idx}"'
                   if topo.domain_name(domain) != 'board' else f'"{name}"'
                   for name, domain, domain_idx in requests]
-        result.extend(self._agent.header_names())
+        agent_header = self._agent.header_names()
+        self._num_agent_trace = len(agent_header)
+        result.extend(agent_header)
         return result
 
     def run(self, run_time, period, pid, print_header,
