@@ -157,10 +157,16 @@ class TestIntegration_ffnet(unittest.TestCase):
             cls._report_data[phi] = geopmpy.io.RawReport(report_path[0])
 
     def tearDown(self):
+        """
+        Clean up at end of test
+        """
         if sys.exc_info() != (None, None, None):
             TestIntegration_ffnet._keep_files = True
 
     def setup_cpu_nn_sweep(self, mach):
+        """
+        Set up frequency sweeps to train CPU neural nets
+        """
         cpu_max_freq = mach.frequency_max_many_core()
         cpu_min_freq = mach.frequency_min()
         cpu_freq_step = 2 * mach.frequency_step()
@@ -200,6 +206,9 @@ class TestIntegration_ffnet(unittest.TestCase):
         self._cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(self._bench_conf.get_path()),
                                                           self._ranks_per_node)
     def setup_gpu_nn_sweep(self, mach):
+        """
+        Set up GPU Frequency sweeps for generating neural nets
+        """
         # Setting up a reasonable number of frequency steps
         gpu_freq_min = mach.gpu_frequency_min()
         gpu_freq_max = mach.gpu_frequency_max()
@@ -251,6 +260,9 @@ class TestIntegration_ffnet(unittest.TestCase):
             return False
 
     def gen_nn_files(self):
+        """
+        Call scripts to generate neural nets/region frequency maps
+        """
         # Generate h5s
         ignore_string = ",".join([reg.split("-")[1] for reg in self._nn_regions_ignore])
         gen_hdf_from_fsweep.main(self._nn_output_prefix, str(self._nn_sweep_dir), ignore_string)
@@ -261,11 +273,10 @@ class TestIntegration_ffnet(unittest.TestCase):
         gen_region_parameters.main(self._nn_fmap_out, self._nn_stats_hdf)
 
         # Clean up unneeded traces/reports
-        #TODO: Replace
-       # for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
-       #     os.remove(fpath)
-       # for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
-       #     os.remove(fpath)
+        for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
+            os.remove(fpath)
+        for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
+            os.remove(fpath)
 
 
     ###########
@@ -273,30 +284,44 @@ class TestIntegration_ffnet(unittest.TestCase):
     ###########
 
     def do_gpu(self, mach):
+        """
+        Check if a GPU is available for training/testing
+        """
         parres_basepath = os.path.join(os.path.dirname(
                               os.path.dirname(os.path.realpath(__file__))),
                                               "apps/parres/Kernels/Cxx11")
-        if (mach.num_gpu() > 0 and
-            hasattr(mach, 'min_gpu_frequency') and
-            hasattr(mach, 'max_gpu_frequency') and
-            os.path.exists(parres_basepath)):
-            return True
+        if mach.num_gpu() > 0:
+            if hasattr(mach, 'min_gpu_frequency') and hasattr(mach, 'max_gpu_frequency'):
+                if os.path.exists(parres_basepath):
+                    return True
+                else:
+                    print("Parres is not built. Skipping GPU runs.")
+            else:
+                print("GPU on system is not configurable. Skipping GPU runs.")
+        else:
+            print("No GPUs found on system. Skipping GPU runs.")
         return False
 
-    #Used to calculate region probabilities
     def sigmoid(self, x):
+        """
+        Used to calculate region probabilities
+        """
         return 1/ (1 + np.exp(-x))
 
-    #Check if JSON is valid (used in tests below)
     def get_json(self, json_file):
+        """
+        Check if JSON is valid (used in tests below)
+        """
         try:
             json_parsed = json.load(json_file)
         except ValueError:
             json_parsed = None
         return json_parsed
 
-    #Launch Helper for multiple job launches
     def launch_helper(self, experiment_type, experiment_args, app_conf, experiment_cli_args):
+        """
+        Launch Helper for multiple job launches
+        """
         if not self._skip_launch:
             self._run_count += 1
 
