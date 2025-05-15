@@ -650,14 +650,12 @@ class _SessionHandler:
     def subp_return(self):
         return self.returncode
 
-    def kill_subp(self, signum=None):
+    def kill_subp(self, signum=SIGINT):
         if self.subp is None:
             return
         self.returncode = self.subp.poll()
         if self.returncode is not None:
             return
-        if signum is None:
-            signum = SIGTERM
         try:
             pgrp = os.getpgid(self.subp.pid)
             os.killpg(pgrp, signum)
