@@ -920,6 +920,8 @@ def main(agent=None):
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
         if args.pid and args.launch:
             raise RuntimeError(f'Cannot use --pid option when launching a command: "{' '.join(args.launch)}"')
+        if args.enable_mpi and args.launch:
+            sys.stderr.write('Warning: Using --enable-mpi and launch option is not recommended. Each MPI rank will launch the subprocess and subprocess MPI usage may be in conflict.\n\n')
         if args.launch and args.launch[0] == '--':
             args.launch = args.launch[1:]
         if args.config_path == '-':
