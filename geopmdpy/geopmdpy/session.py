@@ -471,7 +471,7 @@ class Session:
             raise RuntimeError('Specified a negative run time or period')
         if report_samples is not None and report_samples < 0:
             raise RuntimeError('Specified report samples is negative')
-        if pid is not None and launch is not None:
+        if pid is not None and launch:
             raise RuntimeError(f'Cannot use pid option when launching a command: "{' '.join(launch)}"')
 
     def check_requests(self, requests):
@@ -916,8 +916,6 @@ def main(agent=None):
             raise RuntimeError(f'Invalid report format: {args.report_format}')
         if args.report_samples is not None and args.trace_out == args.report_out:
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
-        if args.pid and args.launch:
-            raise RuntimeError(f'Cannot use --pid option when launching a command: "{' '.join(args.launch)}"')
         if args.enable_mpi and args.launch:
             sys.stderr.write('Warning: Using --enable-mpi and launch option is not recommended. Each MPI rank will launch the subprocess and subprocess MPI usage may be in conflict.\n\n')
         if args.launch and args.launch[0] == '--':
