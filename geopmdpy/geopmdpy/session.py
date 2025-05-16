@@ -195,6 +195,18 @@ class Agent:
         """Initialize the agent. Override to set up agent state."""
         pass
 
+    def help(self):
+        """Returns help message for command line interface
+
+        Message appears below the command line option documentation
+        as the epilog of the ArgumentParser.
+
+        Returns:
+            str or None: Agent specific text for --help output.
+
+        """
+        pass
+
     def update_parser(self, parser):
         """Update the argument parser with agent-specific options.
 
@@ -907,6 +919,9 @@ def main(agent=None):
     try:
         parser = get_parser()
         parser = agent.update_parser(parser)
+        agent_help = agent.help()
+        if agent_help:
+            parser.epilog = f'Agent: {agent_help}'
         args = parser.parse_args()
         args = agent.update_args(args)
         if args.version:

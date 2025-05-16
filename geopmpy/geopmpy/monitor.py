@@ -41,6 +41,12 @@ class MonitorAgent(Agent):
         super().__init__()
         self._hi_res = False
 
+    def help(self):
+        """Help documentation
+
+        """
+        return 'The monitor agent provides a default signal configuration of available metrics relating to power, energy, frequency and temperature.'
+
     def update_parser(self, parser):
         """Add --hi-res argument to the parser.
 
