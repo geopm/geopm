@@ -38,7 +38,6 @@ class MonitorAgent(Agent):
     """
     def __init__(self):
         """Initialize the MonitorAgent."""
-        super().__init__()
         self._hi_res = False
 
     def help(self):

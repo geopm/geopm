@@ -623,7 +623,6 @@ customize session behavior. This example shows a simple agent that monitors the
            python3 cpu_power_agent.py --hi-res -- sleep 5
        """
        def __init__(self):
-           super().__init__()
            self._hi_res = False
 
        def help(self):
