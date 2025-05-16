@@ -158,11 +158,11 @@ a double dash (``--``). For example:
    6.009308985
 
 This will launch ``sleep 5`` as a subprocess and monitor the TIME signal until
-the process exits. You may not use ``--pid`` and the launch option at the same
-time.
+the process exits. Using the ``--pid`` and the launch option at the same
+time is forbidden.
 
 If the geopmsession process receives a SIGTERM and SIGINT or fails dues to an
-unmanged exception, the signal is forwarded to the subprocess and all of its
+unmanaged exception, the signal is forwarded to the subprocess and all of its
 children followed by SIGKILL after 1 second.  If the geopmsession command fails
 due to an exception then the first signal sent is SIGINT.
 
@@ -611,13 +611,13 @@ customize session behavior. This example shows a simple agent that monitors the
    class CPUPowerAgent(Agent):
        """Agent for monitoring CPU power.
 
-       The CPUPowerAgent provides a --hi-res option to sample CPU power
-       at high resolution. This allows users to measure CPU power
-       at their native resolution (all domains and indices). By default,
-       CPU power is sampled at the board domain.
+       The CPUPowerAgent provides a --hi-res option to read CPU power at the
+       finest granularity available. This allows users to measure CPU power from
+       all domains and indices. By default, CPU power is sampled at the board
+       domain.
 
        Command-line options:
-         --hi-res   Measure at native resolution (all domains/indices).
+         --hi-res   Measure at finest granularity (all domains/indices).
 
        Example:
            python3 cpu_power_agent.py --hi-res -- sleep 5
@@ -630,7 +630,7 @@ customize session behavior. This example shows a simple agent that monitors the
 
        def update_parser(self, parser):
            parser.add_argument('--hi-res', action='store_true',
-                               help='Measure power at native resolution (all domains/indices)')
+                               help='Measure power at finest granularity (all domains/indices)')
            return parser
 
        def update_args(self, args):

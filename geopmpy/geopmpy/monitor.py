@@ -26,15 +26,16 @@ from geopmdpy.exporter import default_requests
 class MonitorAgent(Agent):
     """Agent for monitoring a default set of signals in a GEOPM session.
 
-    The MonitorAgent provides a --hi-res option to sample all signals
-    at their native resolution (all domains and indices). By default,
-    signals are sampled at the board domain.
+    The MonitorAgent provides a --hi-res option to read all signals at
+    the finest granularity available (all domains and indices). By
+    default, signals are sampled at the board domain.
 
     Command-line options:
-      --hi-res   Measure signals at native resolution (all domains/indices).
+      --hi-res   Measure signals at finest granularity (all domains/indices).
 
     Example:
         python -m geopmpy.monitor --hi-res
+
     """
     def __init__(self):
         """Initialize the MonitorAgent."""
@@ -56,7 +57,7 @@ class MonitorAgent(Agent):
             argparse.ArgumentParser: The updated parser.
         """
         parser.add_argument('--hi-res', action='store_true',
-                            help='Measure signals at native resolution (all domains/indices)')
+                            help='Measure signals at finest granularity (all domains/indices)')
         return parser
 
     def update_args(self, args):
