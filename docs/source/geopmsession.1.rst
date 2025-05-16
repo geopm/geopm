@@ -1,4 +1,3 @@
-
 geopmsession(1) -- Command line interface for the GEOPM service batch read features
 ===================================================================================
 
@@ -11,6 +10,7 @@ Synopsis
                        [--print-header | -n] [-d DELIMITER] [-r REPORT_OUT]
                        [-o TRACE_OUT] [--enable-mpi] [-f REPORT_FORMAT]
                        [-s REPORT_SAMPLES] [-i CONFIG_PATH]
+                       [-- LAUNCH ...]
 
 Read a signal
 ~~~~~~~~~~~~~
@@ -138,6 +138,50 @@ Options
     Input file containing GEOPM signal requests, specify "-" to use
     standard input which is also the default.
 
+
+Launch Option
+-------------
+The ``geopmsession`` tool may be used to launch and monitor a subprocess, terminating
+the session when the process exits. To use this feature, provide a command after
+a double dash (``--``). For example:
+
+.. code-block:: bash
+
+   $ echo TIME board 0 | geopmsession -p 1 -- sleep 5
+   "TIME"
+   0.001785301
+   1.008901696
+   2.008939004
+   3.009074361
+   4.009136714
+   5.009231953
+   6.009308985
+
+This will launch ``sleep 5`` as a subprocess and monitor the TIME signal until
+the process exits. You may not use ``--pid`` and the launch option at the same
+time.
+
+If the geopmsession process receives a SIGTERM and SIGINT or fails dues to an
+unmanged exception, the signal is forwarded to the subprocess and all of its
+children followed by SIGKILL after 1 second.  If the geopmsession command fails
+due to an exception then the first signal sent is SIGINT.
+
+If using ``--enable-mpi`` with the launch option, note that each MPI rank will
+launch its own subprocess, which may not be the intended behavior for MPI
+applications.
+
+
+Agent Support
+-------------
+The ``geopmsession`` tool supports Python agent plugins that can customize session
+behavior. An agent is a Python class derived from the ``Agent`` base class in
+``geopmdpy.session``. Agents can add custom command-line arguments, override the
+default signal configuration, and provide additional trace columns.  The agent
+can also implement custom logic for each sampling period including the ability
+to modify control knobs dynamically. The agent implementation uses the ``main()``
+function from the ``geopmdpy.session`` module as the entry point.
+
+
 Examples
 --------
 
@@ -159,8 +203,8 @@ core zero:
 
 .. code-block:: shell-session
 
-    $ echo "MSR::THERM_STATUS# core 0" | geopmsession -n
-    0x0000000088430800
+   $ echo "MSR::THERM_STATUS# core 0" | geopmsession -n
+   0x0000000088430800
 
 This will execute one read of the signal.
 
@@ -168,10 +212,10 @@ A couple of examples reading ``CPU_POWER`` using ``*``:
 
 .. code-block:: shell-session
 
-    $ echo "CPU_POWER * 1" | geopmsession -n
-    173.4394938352482
-    $ echo "CPU_POWER * *" | geopmsession -n
-    302.1005171817655,218.0933036104828
+   $ echo "CPU_POWER * 1" | geopmsession -n
+   62.95697469659621
+   $ echo "CPU_POWER * *" | geopmsession -n
+   69.16105633883998,74.9419453995438
 
 Reading a signal periodically
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,23 +226,26 @@ A 100ms polling period with a 300ms timeout is shown below:
 
 .. code-block:: shell-session
 
-    $ echo 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3 -n
-    0x0000000088410000
-    0x0000000088420000
-    0x0000000088420000
-    0x0000000088420000
+   $ echo 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3 -n
+   0x0000000088350800
+   0x0000000088350800
+   0x0000000088350800
+   0x0000000088360800
+
 
 Reading a set of signals
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
 Multiple signals may be specified by separating them with a newline.
 
 .. code-block:: shell-session
 
-    $ printf 'TIME board 0\nCPU_FREQUENCY_STATUS package 0\nCPU_FREQUENCY_STATUS package 1\nCPU_ENERGY package 0\nCPU_ENERGY package 1' |\
-        geopmsession -n
-    70.250978379,2434090909.090909,2775000000,198575.8842163086,88752.19470214844
+   $ printf 'TIME board 0\nCPU_FREQUENCY_STATUS package *\nCPU_ENERGY package *\n' > session.config
+   $ geopmsession -i config.txt
+   "TIME","CPU_FREQUENCY_STATUS-package-0","CPU_FREQUENCY_STATUS-package-1","CPU_ENERGY-package-0","CPU_ENERGY-package-1"
+   0.658525605,1000000000,1105000000,51985.06903076172,216490.1282958984
 
-Signals may also be specified in a separate file using the ``-i`` option.
+Signals may be specified in a separate file using the ``-i`` option.
 
 
 Reading a set of signals and getting summary statistics
@@ -222,90 +269,132 @@ An example yaml report is shown below:
 .. code-block:: yaml
 
    host: "cluster-node-11"
-   sample-time-first: "2024-08-14T18:23:58.545153099-0700"
-   sample-time-total: 9.99976
+   sample-time-first: "2025-05-16T09:08:53.160991796-0700"
+   sample-time-total: 10.0013
    sample-count: 2001
-   sample-period-mean: 0.00499988
-   sample-period-std: 5.43807e-05
+   sample-period-mean: 0.00500067
+   sample-period-std: 0.000494084
    metrics:
      TIME:
        count: 2001
-       first: 0.0825453
-       last: 10.0823
-       min: 0.0825453
-       max: 10.0823
-       mean: 5.08268
-       std: 2.88873
+       first: 1.13225
+       last: 11.1336
+       min: 1.13225
+       max: 11.1336
+       mean: 6.13339
+       std: 2.88899
      CPU_POWER:
-       count: 2000
-       first: 71.9161
-       last: 54.9997
-       min: 36.8681
-       max: 75.2159
-       mean: 50.1323
-       std: 6.61714
+       count: 2001
+       first: 81.3372
+       last: 114.556
+       min: 81.3372
+       max: 145.638
+       mean: 117.871
+       std: 7.55413
      CPU_FREQUENCY_STATUS:
        count: 2001
-       first: 1.69773e+09
-       last: 1.75341e+09
+       first: 1.0775e+09
+       last: 1.0375e+09
        min: 1e+09
-       max: 2.49659e+09
-       mean: 1.5542e+09
-       std: 3.72332e+08
+       max: 1.3325e+09
+       mean: 1.07005e+09
+       std: 3.80748e+07
+
 
 The same report rendered into csv format:
 
 .. code-block:: text
 
-    "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last","CPU_FREQUENCY_STATUS-min","CPU_FREQUENCY_STATUS-max","CPU_FREQUENCY_STATUS-mean","CPU_FREQUENCY_STATUS-std","CPU_POWER-count","CPU_POWER-first","CPU_POWER-last","CPU_POWER-min","CPU_POWER-max","CPU_POWER-mean","CPU_POWER-std","TIME-count","TIME-first","TIME-last","TIME-min","TIME-max","TIME-mean","TIME-std"
-    "cluster-node-11","2025-03-10T21:51:23.189529258-0700",10.001955031000001,2001,0.0050009775155000005,0.00010043535451280228,2001,847115384.6153846,850000000.0,821153846.1538461,873076923.0769231,847851314.7272667,3590132.1103830505,2001,399.14601612728563,300.103422331257,274.8583842263399,399.14601612728563,321.0146130526503,17.236293555024577,2001,6.143247742,16.145202773,6.143247742,16.145202773,11.144727482043468,2.8891493308338507
+   "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_FREQUENCY_STATUS-count","CPU_FREQUENCY_STATUS-first","CPU_FREQUENCY_STATUS-last","CPU_FREQUENCY_STATUS-min","CPU_FREQUENCY_STATUS-max","CPU_FREQUENCY_STATUS-mean","CPU_FREQUENCY_STATUS-std","CPU_POWER-count","CPU_POWER-first","CPU_POWER-last","CPU_POWER-min","CPU_POWER-max","CPU_POWER-mean","CPU_POWER-std","TIME-count","TIME-first","TIME-last","TIME-min","TIME-max","TIME-mean","TIME-std"
+   "cluster-node-11","2025-05-16T09:09:16.559516035-0700",10.000596301,2001,0.0050002981505,0.0004777162996813195,2001,1085000000.0,1172500000.0,1000000000.0,1282500000.0,1071716016.9915042,38699360.87433021,2001,134.5205438626066,132.45502415239116,104.55274444442776,148.3458434284852,119.53508979088977,5.258855212642797,2001,1.574881395,11.575477696,1.574881395,11.575477696,6.576009187958503,2.888976620038315
+
+
+Launching a process and monitoring signals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell-session
+
+   $ echo TIME board 0 | geopmsession -p 0.5 -- sleep 5
+   "TIME"
+   0.005026064
+   0.513985594
+   1.013916775
+   1.513919136
+   2.013917347
+   2.513900635
+   3.0139143
+   3.513901374
+   4.013907436
+   4.513900239
+   5.013895239
+   5.513876408
+
+This launches ``sleep 5`` and monitors the TIME signal until it detects that the
+``sleep`` command has exited.
 
 Reading signals during a job execution
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Signals can be read and summary statistics gathered during job execution using
-the ``--pid`` option. If both the ``--pid`` and ``-t`` options are used,
+the launch or ``--pid`` option. If both the ``--pid`` and ``-t`` options are used,
 geopmsession will end when either the process ends or when the specified time
 elapses, whichever is shorter. Below is an example gathering ``CPU_POWER``
-while running ``sleep``. 
+while running ``sleep``.
 
 
 .. code-block:: shell-session
 
-    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1
-    [1] 862433
-    nan
-    223.9936557537629
-    216.5137820024834
-    213.0681419975341
-    213.0355731062416
-    212.6023058240874
+   $ echo "CPU_POWER package 0" | geopmsession -p 1 -- sleep 5
+   "CPU_POWER-package-0"
+   62.54857725485511
+   50.5686841290089
+   57.63407322142274
+   61.1508168939381
+   60.71903156269835
+   59.50978494274343
+   58.25752970206295
+
+
+.. code-block:: shell-session
+
+   $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1
+      [1] 3100339
+      "CPU_POWER-package-0"
+      30.59618629083503
+      40.73598509986576
+      38.79754643472621
+      39.32981634681103
+      38.70242242812028
+      [1]+  Done                    sleep 5
 
 An example gathering summary statistics while executing a job:
 
 .. code-block:: shell-session
 
-    $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" | geopmsession --pid $apppid -p 1 -r -
-    [1] 863118
-    "CPU_POWER-package-0"
-    192.0918491664253
-    229.5852100126677
-    228.7564573775396
-    host: "cluster-node-11"
-    sample-time-first: "2025-03-11T11:44:16.347674498-0700"
-    sample-time-total: 2.00134
-    sample-count: 3
-    sample-period-mean: 1.00067
-    sample-period-std: 0.000850531
-    metrics:
-      CPU_POWER-package-0:
-        count: 3
-        first: 192.092
-        last: 228.756
-        min: 192.092
-        max: 229.585
-        mean: 216.811
-        std: 21.4116
+   $ echo "CPU_POWER package 0" | geopmsession -p 1 -r - -- sleep 5
+   "CPU_POWER-package-0"
+   39.15323231457158
+   39.9597792259686
+   40.38713156571379
+   40.3391948981358
+   40.10173665761857
+   39.93951912781292
+   39.83074165703577
+   host: "cluster-node-11"
+   sample-time-first: "2025-05-16T09:19:42.253776983-0700"
+   sample-time-total: 6.00905
+   sample-count: 7
+   sample-period-mean: 1.00151
+   sample-period-std: 0.00372384
+   metrics:
+     CPU_POWER-package-0:
+       count: 7
+       first: 39.1532
+       last: 39.8307
+       min: 39.1532
+       max: 40.3871
+       mean: 39.9588
+       std: 0.411159
 
 
 Note that the samples are output followed by summary statistics. To output the
@@ -330,51 +419,88 @@ In the yaml output below, note that each report is appended, separated by
 
 .. code-block:: yaml
 
-     host: "cluster-node-11"
-     sample-time-first: "2025-03-13T13:48:17.484751575-0700"
-     sample-time-total: 1.001
-     sample-count: 11
-     sample-period-mean: 0.1001
-     sample-period-std: 0.000300337
-     metrics:
-       CPU_POWER-package-0:
-         count: 11
-         first: 57.3536
-         last: 158.705
-         min: 57.3536
-         max: 160.906
-         mean: 149.869
-         std: 30.7383
+   host: "cluster-node-11"
+   sample-time-first: "2025-05-16T09:21:12.854647716-0700"
+   sample-time-total: 1.0005
+   sample-count: 11
+   sample-period-mean: 0.10005
+   sample-period-std: 0.00017891
+   metrics:
+     CPU_POWER-package-0:
+       count: 11
+       first: 26.1087
+       last: 41.1297
+       min: 26.1087
+       max: 42.36
+       mean: 37.5301
+       std: 4.85142
 
-    ---
+   ---
 
-    host: "cluster-node-11"
-    sample-time-first: "2025-03-13T13:48:18.585712016-0700"
-    sample-time-total: 0.200019
-    sample-count: 3
-    sample-period-mean: 0.10001
-    sample-period-std: 6.89358e-06
-    metrics:
-      CPU_POWER-package-0:
-        count: 3
-        first: 159.354
-        last: 159.576
-        min: 159.354
-        max: 160.12
-        mean: 159.683
-        std: 0.394004
-      [1]+  Done                    sleep 5
+   host: "cluster-node-11"
+   sample-time-first: "2025-05-16T09:21:13.955151931-0700"
+   sample-time-total: 0.899985
+   sample-count: 10
+   sample-period-mean: 0.0999983
+   sample-period-std: 7.34092e-05
+   metrics:
+     CPU_POWER-package-0:
+       count: 10
+       first: 39.0531
+       last: 39.4301
+       min: 35.197
+       max: 40.6032
+       mean: 38.1963
+       std: 2.09879
+
+   ---
+
+   host: "cluster-node-11"
+   sample-time-first: "2025-05-16T09:21:14.955165125-0700"
+   sample-time-total: 0.899977
+   sample-count: 10
+   sample-period-mean: 0.0999974
+   sample-period-std: 5.01953e-05
+   metrics:
+     CPU_POWER-package-0:
+       count: 10
+       first: 37.8657
+       last: 41.0475
+       min: 36.256
+       max: 44.8203
+       mean: 40.6383
+       std: 3.36432
+
+   ---
+
+   host: "cluster-node-11"
+   sample-time-first: "2025-05-16T09:21:15.955163708-0700"
+   sample-time-total: 0.600004
+   sample-count: 7
+   sample-period-mean: 0.100001
+   sample-period-std: 0.000118453
+   metrics:
+     CPU_POWER-package-0:
+       count: 7
+       first: 38.3654
+       last: 39.4388
+       min: 34.8214
+       max: 39.4388
+       mean: 36.8331
+       std: 1.82103
+
 
 Sample csv output below shows each statistics sample output on a new row:
 
 .. code-block:: shell-session
 
-     $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" |\
-       geopmsession --pid $apppid -p 0.1 -r - -o /dev/null -s 10 -f csv
-     "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_POWER-package-0-count","CPU_POWER-package-0-first","CPU_POWER-package-0-last","CPU_POWER-package-0-min","CPU_POWER-package-0-max","CPU_POWER-package-0-mean","CPU_POWER-package-0-std"
-     "cluster-node-11","2025-03-13T13:55:06.330688844-0700",1.0008504780000003,11,0.10008504780000002,0.00022674563801204308,11,280.7375126848722,193.37615094901133,193.37615094901133,280.7375126848722,208.08585636276703,24.588834377550775
-     "cluster-node-11","2025-03-13T13:55:07.431262159-0700",0.8999735640000002,10,0.09999706266666669,8.698831894196923e-05,10,191.878186704736,175.91600106253898,175.91600106253898,191.878186704736,185.4971100742497,5.352722675096535
-     "cluster-node-11","2025-03-13T13:55:08.431459737-0700",0.200098412,3,0.100049206,7.587538605975476e-05,3,172.07603810585476,166.7683539071519,166.7683539071519,172.07603810585476,169.3263499495176,2.6590293883676446
+   $ sleep 5 & apppid=$!; echo "CPU_POWER package 0" |\
+   geopmsession --pid $apppid -p 0.1 -r - -o /dev/null -s 10 -f csv
+   "host","sample-time-first","sample-time-total","sample-count","sample-period-mean","sample-period-std","CPU_POWER-package-0-count","CPU_POWER-package-0-first","CPU_POWER-package-0-last","CPU_POWER-package-0-min","CPU_POWER-package-0-max","CPU_POWER-package-0-mean","CPU_POWER-package-0-std"
+   "cluster-node-11","2025-05-16T09:23:33.620790309-0700",1.000574921,11,0.10005749209999999,0.0001964757920469247,11,39.44969148140212,41.9486178974159,34.84014539393113,41.9486178974159,36.49265394626341,2.465552738326359
+   "cluster-node-11","2025-05-16T09:23:34.721404331-0700",0.899903938,10,0.09998932644444444,3.917289581063831e-05,10,43.77618495751115,39.447376090215,35.07951019074365,44.37725410303373,39.60711256469672,3.6046116965994814
+   "cluster-node-11","2025-05-16T09:23:35.721373075-0700",0.8999950860000001,10,0.09999945400000002,0.00010700698475670486,10,40.55431660299817,39.64840048680215,34.56523283529788,40.81876798613059,38.042165265899925,2.384395315318058
+   "cluster-node-11","2025-05-16T09:23:36.721240770-0700",0.6000795879999998,7,0.10001326466666664,7.467743569208487e-05,7,40.97335095740563,34.912491389496914,34.912491389496914,41.4496234018482,38.75680603826903,2.716795748688028
 
 
 Gathering Reports using MPI
@@ -402,70 +528,125 @@ An example report is shown below:
 .. code-block:: yaml
 
    host: "cluster-node-11"
-   sample-time-first: "2024-08-14T17:50:00.895968647-0700"
-   sample-time-total: 9.99973
+   sample-time-first: "2025-05-16T09:26:37.114177564-0700"
+   sample-time-total: 10.0011
    sample-count: 2001
-   sample-period-mean: 0.00499987
-   sample-period-std: 5.22108e-05
+   sample-period-mean: 0.00500056
+   sample-period-std: 0.000493951
    metrics:
      TIME:
        count: 2001
-       first: 0.0849912
-       last: 10.0847
-       min: 0.0849912
-       max: 10.0847
-       mean: 5.08514
-       std: 2.88873
+       first: 0.668767
+       last: 10.6699
+       min: 0.668767
+       max: 10.6699
+       mean: 5.66989
+       std: 2.88899
      CPU_POWER:
-       count: 2000
-       first: 58.2713
-       last: 63.4941
-       min: 41.1496
-       max: 89.1348
-       mean: 55.8502
-       std: 6.41338
+       count: 2001
+       first: 84.186
+       last: 117.827
+       min: 77.7429
+       max: 141.491
+       mean: 118.953
+       std: 7.03585
      CPU_FREQUENCY_STATUS:
        count: 2001
-       first: 2.17727e+09
-       last: 1.75341e+09
+       first: 1.04375e+09
+       last: 1.035e+09
        min: 1e+09
-       max: 2.58636e+09
-       mean: 1.55674e+09
-       std: 3.7101e+08
+       max: 1.25625e+09
+       mean: 1.07255e+09
+       std: 3.91874e+07
 
    ---
 
    host: "cluster-node-12"
-   sample-time-first: "2024-08-14T17:50:01.033367154-0700"
-   sample-time-total: 10.0003
+   sample-time-first: "2025-05-16T09:26:37.112549059-0700"
+   sample-time-total: 10.0012
    sample-count: 2001
-   sample-period-mean: 0.00500015
-   sample-period-std: 5.06152e-05
+   sample-period-mean: 0.00500062
+   sample-period-std: 0.000465038
    metrics:
      TIME:
        count: 2001
-       first: 0.0846359
-       last: 10.0849
-       min: 0.0846359
-       max: 10.0849
-       mean: 5.085
-       std: 2.88887
+       first: 1.10684
+       last: 11.1081
+       min: 1.10684
+       max: 11.1081
+       mean: 6.10793
+       std: 2.88901
      CPU_POWER:
-       count: 2000
-       first: 60.455
-       last: 70.6912
-       min: 46.394
-       max: 89.6428
-       mean: 61.7341
-       std: 5.20186
+       count: 2001
+       first: 76.1151
+       last: 118.133
+       min: 76.1151
+       max: 142.527
+       mean: 119.894
+       std: 7.05624
      CPU_FREQUENCY_STATUS:
        count: 2001
-       first: 1.70568e+09
-       last: 1.69773e+09
+       first: 1.045e+09
+       last: 1.045e+09
        min: 1e+09
-       max: 2.56136e+09
-       mean: 1.54734e+09
-       std: 3.63195e+08
+       max: 1.28e+09
+       mean: 1.07346e+09
+       std: 4.24776e+07
+
+
+Writing a Custom Agent
+----------------------
+
+The ``geopmsession`` command line tool supports Python agent plugins that can
+customize session behavior. This example shows a simple agent that monitors the
+``CPU_POWER`` signal at high or low resolution.
+
+.. code-block:: python
+
+   #!/usr/bin/env python
+   # File: cpu_power_agent.py
+   from geopmdpy.session import main
+   from geopmdpy.session import Agent
+
+   class CPUPowerAgent(Agent):
+       """Agent for monitoring CPU power.
+
+       The CPUPowerAgent provides a --hi-res option to sample CPU power
+       at high resolution. This allows users to measure CPU power
+       at their native resolution (all domains and indices). By default,
+       CPU power is sampled at the board domain.
+
+       Command-line options:
+         --hi-res   Measure at native resolution (all domains/indices).
+
+       Example:
+           python3 cpu_power_agent.py --hi-res -- sleep 5
+       """
+       def __init__(self):
+           super().__init__()
+           self._hi_res = False
+
+       def help(self):
+           return 'Measure CPU_POWER as default signal configuration'
+
+       def update_parser(self, parser):
+           parser.add_argument('--hi-res', action='store_true',
+                               help='Measure power at native resolution (all domains/indices)')
+           return parser
+
+       def update_args(self, args):
+           self._hi_res = args.hi_res
+           return args
+
+       def signal_config_override(self):
+           if self._hi_res:
+               return "CPU_POWER * *"
+           else:
+               return "CPU_POWER board 0"
+
+   if __name__ == '__main__':
+       main(CPUPowerAgent())
+
 
 See Also
 --------
