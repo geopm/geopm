@@ -27,9 +27,12 @@ namespace geopm
             double *m_matrix_a;
             double *m_matrix_b;
             double *m_matrix_c;
-            size_t m_matrix_size;
+            const size_t m_matrix_m_size;
+            const size_t m_matrix_n_size;
+            const size_t m_matrix_k_size;
             const size_t m_pad_size;
             const int m_num_warmup;
+            const int m_num_repeat;
         private:
             void cleanup(void);
             void warmup(void);
