@@ -117,10 +117,6 @@ namespace geopm
         num_progress_updates(big_o_in);
 
         m_matrix_size = matrix_size(big_o_in, m_num_progress_updates);
-        while (m_matrix_size > 128 * 1024 * 1024) {
-            m_matrix_size /= 2;
-        }
-
         if (big_o_in && m_big_o != big_o_in) {
             size_t mem_size = sizeof(double) * (m_matrix_size * (m_matrix_size + m_pad_size));
             int err = posix_memalign((void **)&m_matrix_a, m_pad_size, mem_size);
