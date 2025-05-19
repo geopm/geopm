@@ -33,6 +33,7 @@ namespace geopm
         private:
             void cleanup(void);
             void warmup(void);
+            void num_progress_updates(double big_o_in);
 
             uint64_t m_start_rid;
     };
