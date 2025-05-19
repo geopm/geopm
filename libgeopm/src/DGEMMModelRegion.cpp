@@ -76,6 +76,35 @@ namespace geopm
         free(m_matrix_a);
     }
 
+    static uint64_t matrix_size(double big_o, size_t num_progress_updates)
+    {
+        return (uint64_t)pow(4e9 * big_o / num_progress_updates, 1.0/3.0);
+    }
+
+    void DGEMMModelRegion::num_progress_updates(double big_o_in)
+    {
+        if (!m_do_progress) {
+            m_num_progress_updates = 1;
+        }
+        else if (big_o_in > 1.0) {
+            m_num_progress_updates = (uint64_t)(100.0 * big_o_in);
+        }
+        else {
+            m_num_progress_updates = 100;
+        }
+        bool is_small = false;
+        do {
+            uint64_t msize = matrix_size(big_o_in, m_num_progress_updates);
+            if (msize > 134217728ULL) {
+                m_num_progress_updates *= 2;
+            }
+            else {
+                is_small = true;
+            }
+        } while (!is_small);
+        (void)geopm_tprof_init(m_num_progress_updates);
+    }
+
     void DGEMMModelRegion::big_o(double big_o_in)
     {
         if (m_big_o && m_big_o != big_o_in) {
@@ -87,7 +116,11 @@ namespace geopm
 
         num_progress_updates(big_o_in);
 
-        m_matrix_size = (int)pow(4e9 * big_o_in / m_num_progress_updates, 1.0/3.0);
+        m_matrix_size = matrix_size(big_o_in, m_num_progress_updates);
+        while (m_matrix_size > 128 * 1024 * 1024) {
+            m_matrix_size /= 2;
+        }
+
         if (big_o_in && m_big_o != big_o_in) {
             size_t mem_size = sizeof(double) * (m_matrix_size * (m_matrix_size + m_pad_size));
             int err = posix_memalign((void **)&m_matrix_a, m_pad_size, mem_size);
