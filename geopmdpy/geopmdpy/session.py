@@ -484,7 +484,8 @@ class Session:
         if report_samples is not None and report_samples < 0:
             raise RuntimeError('Specified report samples is negative')
         if pid is not None and launch:
-            raise RuntimeError(f'Cannot use pid option when launching a command: "{' '.join(launch)}"')
+            cmd = ' '.join(launch)
+            raise RuntimeError(f'Cannot use pid option when launching a command: "{cmd}"')
 
     def check_requests(self, requests):
         """Check whether the signal requests are valid.
