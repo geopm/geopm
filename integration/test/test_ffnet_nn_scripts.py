@@ -45,6 +45,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         Setup applications, execute, and set up class variables.
         """
         cls._skip_launch = not util.do_launch()
+        cls._remove_traces = True
         cls._test_name = 'test_ffnet_nn_scripts'
 
         cls._top_test_dir = os.path.join(Path.cwd(), 'test_ffnet')
@@ -58,6 +59,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         cls._app_regions = {"cpu":{},"gpu":{}}
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 10, 5.0, 5.0, 5.0, 3.0)
 
         #####################
         # Neural Net Sweeps #
@@ -65,7 +67,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._nn_sweep_dir = Path(os.path.join(cls._top_test_dir, 'nn_frequency_sweep'))
 
         # Launch CPU Frequency Sweeps for NN Generation - geopmbench
-        cls.setup_cpu_nn_sweep(cls, mach)
+        cls._cpu_fsweep_experiment_args = cls.setup_cpu_nn_sweep(cls, mach)
         cls.launch_helper(cls, neural_net_sweep, cls._cpu_fsweep_experiment_args,
                           cls._cpu_app_conf, experiment_cli_args)
 
@@ -84,7 +86,10 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Set up HDF/neural net file info
         cls._nn_output_prefix = "test_ffnet/test_nn"
         cls._nn_description = "test description"
-        cls._nn_regions_ignore = [cls._app_regions['cpu']['spin'], "geopmbench-unmarked"]
+        #Adding MPI regions to ignore list for a cleaner test
+        cls._nn_regions_ignore = [cls._app_regions['cpu']['spin'], "geopmbench-unmarked",
+                                  "geopmbench-0x5d545077", "geopmbench-0x68317b3c",
+                                  "geopmbench-0x82e72b30", "geopmbench-0xa176e473"]
         cls._nn_stats_hdf = f"{cls._nn_output_prefix}_stats.h5"
         cls._nn_trace_hdf = f"{cls._nn_output_prefix}_traces.h5"
         cls._nn_out = f"{cls._nn_output_prefix}_nn"
@@ -107,8 +112,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         # Configure the CPU test application - geopmbench
         # TODO: Set up GPU run, too, if there's GPU on system and parres
-        ffnet_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(cls._bench_conf.get_path()),
-                                                      cls._ranks_per_node)
+        ffnet_app_conf = geopmbench.GeopmbenchAppConf(cls._bench_conf_path, cls._ranks_per_node)
 
         for phi in cls._perf_energy_biases:
             ffnet_dir = Path(os.path.join(cls._ffnet_dir, f'phi{phi}'))
@@ -163,6 +167,32 @@ class TestIntegration_ffnet(unittest.TestCase):
         if sys.exc_info() != (None, None, None):
             TestIntegration_ffnet._keep_files = True
 
+    def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
+        # Configure the CPU test application - geopmbench
+        loop_count = loop_count
+        #Big Os for geopmbench regions
+        cpu_test_params = {
+            'spin': spin,
+            'sleep': sleep,
+            'dgemm': dgemm,
+            'stream': stream
+        }
+        #Get region hexes
+        for region in cpu_test_params:
+            self._app_regions["cpu"][region] = "geopmbench-" + f"0x{hash_str(region):08x}"
+
+        bench_conf = geopmpy.io.BenchConf(self._test_name + '_app.config')
+        bench_conf.set_loop_count(loop_count)
+        for region in cpu_test_params:
+            bench_conf.append_region(region, cpu_test_params[region])
+            bench_conf.append_region("barrier", 1.0)
+        bench_conf.write()
+        self._bench_conf_path = os.path.abspath(bench_conf.get_path())
+
+        cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(bench_conf.get_path()),
+                                                    self._ranks_per_node)
+        return cpu_app_conf
+
     def setup_cpu_nn_sweep(self, mach):
         """
         Set up frequency sweeps to train CPU neural nets
@@ -172,7 +202,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         cpu_freq_step = 2 * mach.frequency_step()
 
         # Setup Common Args
-        self._cpu_fsweep_experiment_args = SimpleNamespace(
+        cpu_fsweep_experiment_args = SimpleNamespace(
             output_dir=self._nn_sweep_dir,
             node_count=self._node_count,
             max_frequency = cpu_max_freq,
@@ -182,29 +212,8 @@ class TestIntegration_ffnet(unittest.TestCase):
             cool_off_time = 3,
             run_max_turbo = False
         )
+        return cpu_fsweep_experiment_args
 
-        # Configure the CPU test application - geopmbench
-        loop_count = 30
-        #Big Os for geopmbench regions
-        cpu_test_params = {
-            'spin': 0.5,
-            'sleep': 0.5,
-            'dgemm': 28.0,
-            'stream': 3.0
-        }
-        #Get region hexes
-        for region in cpu_test_params:
-            self._app_regions["cpu"][region] = "geopmbench-" + f"0x{hash_str(region):08x}"
-
-        self._bench_conf = geopmpy.io.BenchConf(self._test_name + '_app.config')
-        self._bench_conf.set_loop_count(loop_count)
-        for region in cpu_test_params:
-            self._bench_conf.append_region(region, cpu_test_params[region])
-            self._bench_conf.append_region("barrier", 1.0)
-        self._bench_conf.write()
-
-        self._cpu_app_conf = geopmbench.GeopmbenchAppConf(os.path.abspath(self._bench_conf.get_path()),
-                                                          self._ranks_per_node)
     def setup_gpu_nn_sweep(self, mach):
         """
         Set up GPU Frequency sweeps for generating neural nets
@@ -273,10 +282,11 @@ class TestIntegration_ffnet(unittest.TestCase):
         gen_region_parameters.main(self._nn_fmap_out, self._nn_stats_hdf)
 
         # Clean up unneeded traces/reports
-        for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
-            os.remove(fpath)
-        for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
-            os.remove(fpath)
+        if self._remove_traces:
+            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
+                os.remove(fpath)
+            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
+                os.remove(fpath)
 
 
     ###########
@@ -491,17 +501,26 @@ class TestIntegration_ffnet(unittest.TestCase):
             - For each region, phi=0 power is at most the same as max freq run
         """
 
-    @unittest.skip("Skipping, pending ffnet debug")
     def test_phi(self):
         """
         Test the perf-energy-bias knob
 
         Pass Criteria:
-            - Phi=0 FoM >= Phi=1 FoM
-            - For each region, phi=0 runtime >= phi=1 runtime
-            - For each region, phi=0 mean power >= phi=1 mean power
             - For each region, phi=0 frequency >= phi=1 frequency
+            - DGEMM phi=0 runtime <= phi=1 runtime
+            - STREAM phi=0 energy >= phi=1 energy
         """
+        for host in self._report_data[0].host_names():
+            dgemm_perf = self._report_data[0].raw_region(host, "dgemm")
+            dgemm_ee = self._report_data[1].raw_region(host, "dgemm")
+            stream_perf = self._report_data[0].raw_region(host, "stream")
+            stream_ee = self._report_data[1].raw_region(host, "stream")
+
+            self.assertTrue(dgemm_perf["frequency (Hz)"] >= dgemm_ee["frequency (Hz)"])
+            self.assertTrue(stream_perf["frequency (Hz)"] >= stream_ee["frequency (Hz)"])
+            self.assertTrue(stream_perf["package-energy (J)"] >= stream_ee["package-energy (J)"])
+            self.assertTrue(dgemm_perf["runtime (s)"] <= dgemm_ee["runtime (s)"])
+
     @unittest.skip("Skipping, pending ffnet debug")
     def test_region_accuracy(self):
         """
