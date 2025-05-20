@@ -51,12 +51,11 @@ namespace geopm
         , m_matrix_a(NULL)
         , m_matrix_b(NULL)
         , m_matrix_c(NULL)
-        , m_matrix_m_size(8192)
-        , m_matrix_n_size(2048)
-        , m_matrix_k_size(4096)
+        , m_matrix_m_size(4096)
+        , m_matrix_n_size(1024)
+        , m_matrix_k_size(2048)
         , m_pad_size(geopm::hardware_destructive_interference_size)
         , m_num_warmup(4)
-        , m_num_repeat(100)
     {
         m_name = "dgemm";
         m_do_imbalance = do_imbalance;
@@ -106,7 +105,7 @@ namespace geopm
 
         if (big_o_in && m_big_o != big_o_in) {
             // Allocate A: M x K
-            size_t mem_size_a = sizeof(double) * (m_matrix_m_size * (m_matrix_k_size + m_pad_size));
+            size_t mem_size_a = sizeof(double) * (m_matrix_m_size + m_pad_size) * m_matrix_k_size;
             int err = posix_memalign((void **)&m_matrix_a, m_pad_size, mem_size_a);
             if (err) {
                 throw Exception("DGEMMModelRegion::big_o(): posix_memalign() failed",
@@ -119,7 +118,7 @@ namespace geopm
                 m_matrix_a[i] = 2.0 * i;
             }
             // Allocate B: K x N
-            size_t mem_size_b = sizeof(double) * (m_matrix_k_size * (m_matrix_n_size + m_pad_size));
+            size_t mem_size_b = sizeof(double) * (m_matrix_k_size + m_pad_size) * m_matrix_n_size;
             err = posix_memalign((void **)&m_matrix_b, m_pad_size, mem_size_b);
             if (err) {
                 free(m_matrix_a);
@@ -134,7 +133,7 @@ namespace geopm
                 m_matrix_b[i] = 3.0 * i;
             }
             // Allocate C: M x N
-            size_t mem_size_c = sizeof(double) * (m_matrix_m_size * (m_matrix_n_size + m_pad_size));
+            size_t mem_size_c = sizeof(double) * (m_matrix_m_size + m_pad_size) * m_matrix_n_size;
             err = posix_memalign((void **)&m_matrix_c, m_pad_size, mem_size_c);
             if (err) {
                 free(m_matrix_b);
@@ -165,27 +164,25 @@ namespace geopm
         int M = m_matrix_m_size;
         int N = m_matrix_n_size;
         int K = m_matrix_k_size;
-        int LDA = m_matrix_k_size + m_pad_size / sizeof(double); // leading dimension of A: K
-        int LDB = m_matrix_n_size + m_pad_size / sizeof(double); // leading dimension of B: N
-        int LDC = m_matrix_n_size + m_pad_size / sizeof(double); // leading dimension of C: N
+        int LDA = m_matrix_m_size + m_pad_size / sizeof(double); // leading dimension of A: M
+        int LDB = m_matrix_k_size + m_pad_size / sizeof(double); // leading dimension of B: K
+        int LDC = m_matrix_m_size + m_pad_size / sizeof(double); // leading dimension of C: M
         double alpha = 2.0;
         double beta = 3.0;
         char transa = 'n';
         char transb = 'n';
         if (m_big_o != 0.0) {
             if (m_verbosity) {
-                std::cout << "Executing " << m_matrix_m_size << " x " << m_matrix_n_size << " DGEMM "
-                          << m_num_progress_updates * m_num_repeat << " times." << std::endl << std::flush;
+                std::cout << "Executing " << m_matrix_m_size << " x "
+                          << m_matrix_n_size << " DGEMM "
+                          << m_num_progress_updates << std::endl;
             }
             ModelRegion::region_enter();
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegion::loop_enter(i);
 
-                for (int repeat_count = 0; repeat_count != m_num_repeat; ++repeat_count) {
-                    // MKL/BLAS expects column-major, so LDA/LDB/LDC are leading dimensions.
-                    dgemm(&transa, &transb, &M, &N, &K, &alpha,
-                          m_matrix_a, &LDA, m_matrix_b, &LDB, &beta, m_matrix_c, &LDC);
-                }
+                dgemm(&transa, &transb, &M, &N, &K, &alpha, m_matrix_a, &LDA,
+                      m_matrix_b, &LDB, &beta, m_matrix_c, &LDC);
 
                 ModelRegion::loop_exit();
             }
