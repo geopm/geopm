@@ -477,6 +477,69 @@ class TestPlatformService(unittest.TestCase):
                      mock.call().__exit__(None, None, None)]
             mock_open.assert_has_calls(calls)
 
+    def test_close_all_sessions_terminates_write_session_first(self):
+        # Test that close_all_sessions closes the write session first and logs info.
+        session_data1 = self.open_mock_session('user1', client_pid=1001)
+        session_data2 = self.open_mock_session('user2', client_pid=1002)
+        # Simulate write_pid is 1002
+        self._platform_service._write_pid = 1002
+        self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[1001, 1002])
+        # Track the order of closed sessions
+        closed_sessions = []
+        def close_session_admin_side_effect(client_pid, request_pid):
+            closed_sessions.append(client_pid)
+        self._platform_service.close_session_admin = mock.MagicMock(side_effect=close_session_admin_side_effect)
+        with mock.patch('sys.stderr.write') as mock_stderr:
+            self._platform_service.close_all_sessions()
+            # Write session (1002) should be closed first
+            self.assertEqual(closed_sessions[0], 1002)
+            self.assertIn(1001, closed_sessions)
+            self.assertIn(1002, closed_sessions)
+            # Info log should mention all closed PIDs
+            info_calls = [call for call in mock_stderr.call_args_list if 'Closed all sessions' in str(call)]
+            self.assertTrue(info_calls)
+
+    def test_close_all_sessions_handles_exceptions(self):
+        # Test that exceptions in close_session_admin are logged and do not stop other closures
+        session_data1 = self.open_mock_session('user1', client_pid=2001)
+        session_data2 = self.open_mock_session('user2', client_pid=2002)
+        self._platform_service._write_pid = 2001
+        self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[2001, 2002])
+        def close_session_admin_side_effect(client_pid, request_pid):
+            if client_pid == 2001:
+                raise RuntimeError("Injected error for write_pid")
+        self._platform_service.close_session_admin = mock.MagicMock(side_effect=close_session_admin_side_effect)
+        with mock.patch('sys.stderr.write') as mock_stderr:
+            self._platform_service.close_all_sessions()
+            # Should log a warning for the exception
+            warning_calls = [call for call in mock_stderr.call_args_list if 'Warning: <geopm-service>:' in str(call)]
+            self.assertTrue(warning_calls)
+            # Should still attempt to close the other session
+            self.assertEqual(self._platform_service.close_session_admin.call_count, 2)
+
+    def test_close_all_sessions_no_write_pid(self):
+        # Test that close_all_sessions works if _write_pid is None
+        session_data1 = self.open_mock_session('user1', client_pid=3001)
+        session_data2 = self.open_mock_session('user2', client_pid=3002)
+        self._platform_service._write_pid = None
+        self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[3001, 3002])
+        closed_sessions = []
+        self._platform_service.close_session_admin = mock.MagicMock(side_effect=lambda pid, req: closed_sessions.append(pid))
+        with mock.patch('sys.stderr.write'):
+            self._platform_service.close_all_sessions()
+            self.assertCountEqual(closed_sessions, [3001, 3002])
+
+    def test_close_all_sessions_empty(self):
+        # Test that close_all_sessions does nothing if there are no clients
+        self._platform_service._write_pid = None
+        self._mock_active_sessions.get_clients = mock.MagicMock(return_value=[])
+        self._platform_service.close_session_admin = mock.MagicMock()
+        with mock.patch('sys.stderr.write') as mock_stderr:
+            self._platform_service.close_all_sessions()
+            self._platform_service.close_session_admin.assert_not_called()
+            # Should not log info about closed sessions
+            info_calls = [call for call in mock_stderr.call_args_list if 'Closed all sessions' in str(call)]
+            self.assertFalse(info_calls)
 
 if __name__ == '__main__':
     unittest.main()

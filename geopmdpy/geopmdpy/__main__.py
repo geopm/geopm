@@ -5,7 +5,7 @@
 from dasbus.loop import EventLoop
 from dasbus.connection import SystemMessageBus
 from signal import signal
-from signal import SIGTERM
+from signal import SIGTERM, SIGINT
 
 import sys
 import os
@@ -19,12 +19,20 @@ ALLOW_WRITES_BACKUP_PATH = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'ms
 
 _bus = None
 _loop = None
+_service = None
 
 def term_handler(signum, frame):
     if signum == SIGTERM:
         stop()
+    if signum == SIGINT:
+        pause()
 
 def stop():
+    pause()
+    if _service is not None:
+        _service.close_all_sessions()
+
+def pause():
     global _bus
     if _bus is not None:
         _bus.disconnect()
@@ -34,7 +42,8 @@ def stop():
 
 def main_dbus():
     signal(SIGTERM, term_handler)
-    global _bus, _loop
+    signal(SIGINT, term_handler)
+    global _bus, _loop, _service
     _loop = EventLoop()
     _bus = SystemMessageBus()
     with RestorableFileWriter(
@@ -44,13 +53,13 @@ def main_dbus():
         try:
             if not os.path.exists('/dev/cpu/msr_batch'):
                 writer.backup_and_try_update('on\n')
-            geopm_service = service.GEOPMService()
-            geopm_service.topo_rm_cache()
-            _bus.publish_object("/io/github/geopm", geopm_service)
+            _service = service.GEOPMService()
+            _service.topo_rm_cache()
+            _bus.publish_object("/io/github/geopm", _service)
             _bus.register_service("io.github.geopm")
             _loop.run()
         finally:
-            stop()
+            pause()
 
 def main_grpc():
     try:
