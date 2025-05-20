@@ -1,10 +1,10 @@
 Service Administrators
 ======================
 
-This guide covers GEOPM's integration with the Linux OS, directories
-influenced by GEOPM, the utilization of files within those directories, and a
-command-line tool for configuring the GEOPM Service. For further details,
-explore the subsequent sections:
+This guide covers GEOPM's integration with the Linux OS, directories influenced
+by GEOPM, the utilization of files within those directories, and a command-line
+tool for configuring the GEOPM Service. For further details, explore the
+subsequent sections:
 
 - :doc:`Install Guide <install>`
 - :doc:`Security Guide <security>`
@@ -13,10 +13,46 @@ explore the subsequent sections:
 Linux Integration
 -----------------
 
-The GEOPM Service integrates seamlessly with the Linux OS through Systemd. It
-is packaged within the geopm-service binary package, and administrators can install it
-using their respective package management systems. Use ``systemctl``
-to interact with ``geopm`` Systemd Unit.
+The GEOPM Service integrates seamlessly with the Linux OS through Systemd. It is
+packaged within the ``geopmd`` binary package, and administrators can install it
+using their respective package management systems. Use ``systemctl`` to interact
+with the ``geopm`` Systemd Unit.
+
+**Systemctl Command Behavior**
+
+- **start**:
+
+  Starts the GEOPM Access Service. All required state files in `/run/geopm` are
+  initialized, and the service begins accepting client connections. Any stale
+  session files from previous runs are cleaned up as part of startup.
+
+- **stop**:
+
+  Stops the GEOPM Access Service. All active client sessions are closed
+  gracefully before the service terminates. This includes restoring any hardware
+  controls (such as power limits) to their default or saved state, and cleaning
+  up session files in `/run/geopm`. The write-mode session (if any) is closed
+  first to ensure hardware state is restored.
+
+- **restart**:
+
+  Re-initialize the service.  Similar to running ``stop`` followed by ``start``,
+  except that all sessions remain open through the process and controls are not
+  restored.
+
+- **enable**:
+
+  Configures the GEOPM Access Service to start automatically at boot. This does
+  not immediately start the service, but ensures it will be started on the next
+  system boot.
+
+**Note:**
+The service is robust to unexpected shutdowns. If the geopmd process ends for
+any reason, all state required to restart is preserved.  To be certain that all
+controls are restored to their original configuration, the administrator should
+run ``systemctl stop geopm``. Administrators can monitor the system journal for
+info and warning messages about session closure and hardware state restoration
+during these operations.
 
 
 GEOPM Service Files
@@ -71,7 +107,7 @@ Configuring Systemd Unit File
 -----------------------------
 
 The GEOPM Systemd unit is configured with the ``geopm.service`` file that is
-installed as part of the ``geopm-service`` package.  This configuration file may
+installed as part of the ``geopmd`` package.  This configuration file may
 be amended using the command ``systemctl edit geopm.service``. See
 `systemctl(1) <https://man7.org/linux/man-pages/man1/systemctl.1.html>`_ for
 more details.
