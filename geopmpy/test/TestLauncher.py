@@ -78,7 +78,8 @@ def mock_popen_srun(*args, **kwargs):
 
 class TestLauncher(unittest.TestCase):
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
-    def test_process_count(self, mock_popen):
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(88)))
+    def test_process_count(self, mock__get_cpuset, mock_popen):
         """ Test that geopm requests an additional rank for itself by default.
         """
         launcher = geopmpy.launcher.Factory().create(
@@ -100,7 +101,8 @@ class TestLauncher(unittest.TestCase):
         self.assertEqual('3', srun_args[srun_args.index('-n') + 1])
 
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
-    def test_non_file_output(self, mock_popen):
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(88)))
+    def test_non_file_output(self, mock__get_cpuset, mock_popen):
         """ Test that the launcher can redirect stdout and stderr to a non-file writable object.
         """
         out_stream = StringIO()
@@ -115,7 +117,8 @@ class TestLauncher(unittest.TestCase):
         self.assertIn(UNITTEST_WORKLOAD_STDERR.decode(), error_stream.getvalue())
 
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
-    def test_main(self, mock_popen):
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(88)))
+    def test_main(self, mock__get_cpuset, mock_popen):
         """ Test that the geopm CLI correctly feeds ntasks and nodes to the launcher.
         """
         with mock.patch('sys.argv', ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process', '--geopm-program-filter', 'unittest_workload',
@@ -137,7 +140,8 @@ class TestLauncher(unittest.TestCase):
         self.assertEqual('6', srun_args[srun_args.index('-n') + 1])
 
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
-    def test_quoted_args(self, mock_popen):
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(88)))
+    def test_quoted_args(self, mock__get_cpuset, mock_popen):
         """ Test that the geopm CLI correctly passes through quoted args.
         """
         workload_command = "unittest_workload 'multiple words'"
@@ -151,7 +155,8 @@ class TestLauncher(unittest.TestCase):
         self.assertEqual(srun_popen_args[-3:], ['--', 'unittest_workload', 'multiple words'])
 
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
-    def test_affinity_disable(self, mock_popen):
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(88)))
+    def test_affinity_disable(self, mock__get_cpuset, mock_popen):
         """ Test that geopm does not emit affinity related env options when affinity
             is disabled.
         """
@@ -165,7 +170,8 @@ class TestLauncher(unittest.TestCase):
         self.assertNotIn('OMP_PROC_BIND', srun_kwargs['env'].keys())
 
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
-    def test_affinity_enable(self, mock_popen):
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(88)))
+    def test_affinity_enable(self, mock__get_cpuset, mock_popen):
         """ Test that geopm does emit affinity related env options when affinity
             is enabled.
         """
@@ -177,6 +183,28 @@ class TestLauncher(unittest.TestCase):
 
         self.assertIn('--cpu-bind', srun_args[0])
         self.assertIn('OMP_PROC_BIND', srun_kwargs['env'].keys())
+
+    @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
+    @mock.patch('geopmpy.launcher._get_cpuset', return_value=list(range(2, 88)))
+    def test_affinity_enable_cgroup(self, mock__get_cpuset, mock_popen):
+        """ Test that geopm emits affinity options respecting cgroup constraints (CPUs 0 and 1 excluded). """
+        launcher = geopmpy.launcher.Factory().create(
+                ['unittest_geopm_launcher', 'srun', '--geopm-ctl=process', '--geopm-affinity-enable', '--geopm-program-filter', 'unittest_workload', 'unittest_workload'],
+                num_rank = 2, num_node = 1)
+        launcher.run()
+        srun_args, srun_kwargs = mock_popen.call_args
+
+        self.assertIn('--cpu-bind', srun_args[0])
+        self.assertIn('OMP_PROC_BIND', srun_kwargs['env'].keys())
+
+        cpu_bind_masks = srun_args[0][6].split(':')[1].split(',')
+        self.assertGreater(len(cpu_bind_masks), 0, "No CPU masks found in the '--cpu-bind' argument.")
+
+        disallowed_cpus = 0x3  # Binary: 0011, meaning CPUs 0 and 1 are excluded
+        for mask in cpu_bind_masks:
+            # Convert the mask from hex to binary and check if it excludes CPUs 0 and 1
+            mask_value = int(mask, 16)
+            self.assertEqual(mask_value & disallowed_cpus, 0, f"CPU mask {mask} does not exclude CPUs 0 and 1 as expected.")
 
 if __name__ == '__main__':
     unittest.main()
