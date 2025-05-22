@@ -106,6 +106,53 @@ def range_str(values):
     return ','.join(result)
 
 
+def _get_cpuset():
+    """
+    Returns a list of valid CPUs for the current process.
+    Ported from C++ Helper::get_cpuset().
+    """
+    proc_path = '/proc/self/cpuset'
+    try:
+        with open(proc_path) as f:
+            cpuset_cgroup = f.read().strip()
+    except Exception as ex:
+        raise RuntimeError(f'<geopm> geopmpy.launcher: Failed to read {proc_path}: {ex}')
+
+    possible_paths = [
+        f'/sys/fs/cgroup/cpuset{cpuset_cgroup}/cpuset.effective_cpus',
+        f'/sys/fs/cgroup{cpuset_cgroup}/cpuset.cpus.effective'
+    ]
+
+    cpus_content = None
+    cpuset_file = None
+    for path in possible_paths:
+        try:
+            with open(path) as f:
+                cpus_content = f.read().strip()
+            cpuset_file = path
+            break
+        except Exception:
+            continue
+
+    if cpus_content is None:
+        raise RuntimeError('<geopm> geopmpy.launcher: Failed to read cpuset.cpus.effective from any expected location')
+
+    result = []
+    for part in cpus_content.split(','):
+        if '-' in part: # CPU range (e.g., "0-207")
+            try:
+                start, end = map(int, part.split('-'))
+                result.extend(range(start, end + 1))
+            except Exception as ex:
+                raise RuntimeError(f'<geopm> geopmpy.launcher: Invalid CPU range in {cpuset_file}: {ex}')
+        elif part: # Single CPU number
+            try:
+                result.append(int(part))
+            except Exception as ex:
+                raise RuntimeError(f'<geopm> geopmpy.launcher: Invalid CPU number in {cpuset_file}: {ex}')
+    return result
+
+
 class Config(object):
     """
     GEOPM configuration object.  Used to interpret command line
@@ -448,6 +495,10 @@ class Launcher(object):
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
                 # exclude 2 cores for GEOPM and OS
                 available_cores = self.num_linux_cpu // self.thread_per_core - 2
+                allowed_cores = len(_get_cpuset()) // self.thread_per_core - 2
+                if available_cores > allowed_cores:
+                    sys.stderr.write(f'Warning: <geopm> geopmpy.launcher: Number of available cores ({available_cores}) is greater than the number of allowed cores ({allowed_cores}); limiting to {allowed_cores} for app rank placement\n')
+                    available_cores = allowed_cores
                 core_per_rank = available_cores // self.rank_per_node
                 if self.config.allow_ht_pinning:
                     self.cpu_per_rank = core_per_rank * self.thread_per_core
@@ -701,6 +752,11 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         app_cpu_per_node = app_rank_per_node * self.cpu_per_rank
         # Total number of cores per node
         core_per_node = self.core_per_socket * self.num_socket
+        allowed_cpuset = _get_cpuset()
+        allowed_core_per_node = len(allowed_cpuset) // self.thread_per_core
+        if os.getenv('GEOPM_DEBUG') and allowed_core_per_node < core_per_node:
+            sys.stderr.write(f'Warning: <geopm> geopmpy.launcher: Number of available cores ({core_per_node}) does not match the number of allowed cores ({allowed_core_per_node}); limiting to {allowed_core_per_node} for app rank AND controller placement\n')
+        core_per_node = allowed_core_per_node
 
         # Number of application ranks per socket (floored)
         rank_per_socket = app_rank_per_node // self.num_socket
@@ -773,6 +829,10 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         if self.config.get_ctl() == 'process' or is_geopmctl:
             result.insert(0, {geopm_ctl_cpu})
 
+        # At this point, result is a list of sets of CPU ranges.  Use these
+        # ranges as indices into allowed_cpuset to convert the existing ranges
+        # into ranges that map to allowed CPUs.
+        result = [{allowed_cpuset[ii] for ii in jj} for jj in result]
         return result
 
     def parse_launcher_argv(self):
@@ -1052,6 +1112,10 @@ class SrunLauncher(Launcher):
             self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             aff_list = self.affinity_list(is_geopmctl)
+            mask_list = [range_str(cpu_set) for cpu_set in aff_list]
+            if not self.quiet:
+                print(f'<geopm> geopmpy.launcher: Range style mask list: {mask_list}')
+
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             help_msg, err = pid.communicate()
             if help_msg.find(b'--mpibind') != -1:
