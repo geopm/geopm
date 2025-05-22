@@ -293,6 +293,14 @@ application if the application is not affinitized to a CPU on every core. If
 the application is using all cores of the system, the GEOPM control thread
 will be pinned to the highest logical CPU.
 
+.. note::
+
+    For systems that utilize cpuset restrictions through cgroups,
+    ``geopmlaunch`` will automatically detect these constraints and limit the
+    CPU affinity of ``geopmctl`` to the allowed set. This behavior ensures
+    proper operation in containerized environments and when running under
+    resource managers that enforce CPU constraints.
+
 Configuring System-wide Runtime Policy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -224,6 +224,12 @@ namespace geopm
     /// @return True if all values in the vector are NAN
     bool GEOPM_PUBLIC
         is_all_nan(const std::vector<double> &vec);
+
+    /// @brief Get the CPUs available to the specified process based on cgroup constraints.
+    /// @param [in] pid Process ID to check, 0 means the current process
+    /// @return Set of CPU IDs that the process can use
+    std::set<int> GEOPM_PUBLIC
+        get_cpuset(int pid);
 }
 
 #endif

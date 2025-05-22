@@ -458,6 +458,7 @@ namespace geopm
     {
         int result = m_num_cpu - 1;
         int num_core = m_topo.num_domain(GEOPM_DOMAIN_CORE);
+        std::set<int> allowed_cpus = geopm::get_cpuset(0);
         bool found_inactive_core = false;
         bool found_inactive_cpu = false;
         std::vector<bool> is_core_active(num_core, false);
@@ -473,6 +474,9 @@ namespace geopm
                                                                   core_idx);
                 GEOPM_DEBUG_ASSERT(inactive_cpu.size() != 0,
                                    "Valid core index returned no nested CPUs");
+                if (allowed_cpus.find(*(inactive_cpu.rbegin())) == allowed_cpus.end()) {
+                    continue;
+                }
                 result = *(inactive_cpu.rbegin());
                 found_inactive_core = true;
                 found_inactive_cpu = true;
@@ -481,7 +485,8 @@ namespace geopm
         }
         if (!found_inactive_core) {
             for (int cpu_idx = m_num_cpu - 1; cpu_idx != -1; --cpu_idx) {
-                if(!m_is_cpu_active[cpu_idx]) {
+                if(!m_is_cpu_active[cpu_idx] &&
+                   (allowed_cpus.find(cpu_idx) != allowed_cpus.end())) {
                     result = cpu_idx;
                     found_inactive_cpu = true;
                     break;

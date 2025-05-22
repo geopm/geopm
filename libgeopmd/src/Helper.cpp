@@ -459,4 +459,76 @@ namespace geopm
         return std::all_of(vec.begin(), vec.end(),
                            [](double x) -> bool { return std::isnan(x); });
     }
+
+    std::set<int> get_cpuset(int pid)
+    {
+        std::set<int> result;
+        std::string cpuset_cgroup;
+        std::string proc_path = (pid == 0 ? "/proc/self/cpuset" : "/proc/" + std::to_string(pid) + "/cpuset");
+        try {
+            cpuset_cgroup = read_file(proc_path);
+            cpuset_cgroup.erase(std::remove(cpuset_cgroup.begin(), cpuset_cgroup.end(), '\n'), cpuset_cgroup.end());
+        }
+        catch (const Exception &ex) {
+            throw Exception("Helper::get_cpuset(): Failed to read " + proc_path,
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        std::vector<std::string> possible_paths = {
+            "/sys/fs/cgroup/cpuset" + cpuset_cgroup + "/cpuset.effective_cpus",
+            "/sys/fs/cgroup" + cpuset_cgroup + "/cpuset.cpus.effective"
+        };
+
+        std::string cpus_content;
+        std::string cpuset_file;
+        bool found_file = false;
+
+        for (const auto &path : possible_paths) {
+            try {
+                cpus_content = read_file(path);
+                cpus_content.erase(std::remove(cpus_content.begin(), cpus_content.end(), '\n'), cpus_content.end());
+                cpuset_file = path;
+                found_file = true;
+                break;
+            }
+            catch (const Exception &ex) {
+                // Continue trying other paths
+            }
+        }
+
+        if (!found_file) {
+            throw Exception("Helper::get_cpuset(): Failed to read cpuset effective CPUs from any expected location",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        std::vector<std::string> ranges = string_split(cpus_content, ",");
+        for (const auto &range : ranges) {
+            size_t hyphen_pos = range.find('-');
+            if (hyphen_pos == std::string::npos) {
+                // Single CPU number
+                try {
+                    result.insert(std::stoi(range));
+                }
+                catch (const std::exception &ex) {
+                    throw Exception("Helper::get_cpuset(): Invalid CPU number in " + cpuset_file,
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+            }
+            else {
+                // CPU range (e.g., "0-207")
+                try {
+                    int start = std::stoi(range.substr(0, hyphen_pos));
+                    int end = std::stoi(range.substr(hyphen_pos + 1));
+                    for (int cpu = start; cpu <= end; ++cpu) {
+                        result.insert(cpu);
+                    }
+                }
+                catch (const std::exception &ex) {
+                    throw Exception("Helper::get_cpuset(): Invalid CPU range in " + cpuset_file,
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+            }
+        }
+        return result;
+    }
 }
