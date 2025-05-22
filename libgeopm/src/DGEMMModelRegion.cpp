@@ -173,9 +173,9 @@ namespace geopm
         char transb = 'n';
         if (m_big_o != 0.0) {
             if (m_verbosity) {
-                std::cout << "Executing " << m_matrix_m_size << " x "
-                          << m_matrix_n_size << " DGEMM "
-                          << m_num_progress_updates << std::endl;
+                std::cout << "Executing DGEMM (M=" << m_matrix_m_size
+                          << ", N=" << m_matrix_n_size
+                          << ", K=" << m_matrix_k_size << ")" << std::endl;
             }
             ModelRegion::region_enter();
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
