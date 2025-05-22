@@ -51,11 +51,11 @@ namespace geopm
         , m_matrix_a(NULL)
         , m_matrix_b(NULL)
         , m_matrix_c(NULL)
-        , m_matrix_m_size(4096)
-        , m_matrix_n_size(1024)
-        , m_matrix_k_size(2048)
-        , m_pad_size(geopm::hardware_destructive_interference_size)
-        , m_num_warmup(4)
+        , m_matrix_m_size(4096) // Matrix sizing chosen to
+        , m_matrix_n_size(1024) // consume high  power without
+        , m_matrix_k_size(2048) // running for too long.
+        , m_pad_size(geopm::hardware_destructive_interference_size) // Pad to avoid false sharing
+        , m_num_warmup(4) // Do 4 preliminary runs to "warm up the cache"
     {
         m_name = "dgemm";
         m_do_imbalance = do_imbalance;
@@ -90,6 +90,9 @@ namespace geopm
     void DGEMMModelRegion::num_progress_updates(double big_o_in)
     {
         m_num_progress_updates = (uint64_t)(100.0 * big_o_in);
+        if (m_num_progress_updates == 0) {
+            m_num_progress_updates = 1;
+        }
         (void)geopm_tprof_init(m_num_progress_updates);
     }
 
