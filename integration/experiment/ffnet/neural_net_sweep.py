@@ -62,6 +62,7 @@ def trace_signals(domains):
     signals = []
     if 'cpu' in domains:
         signals += ["CPU_POWER@package",
+                    "REGION_HASH@package",
                     "DRAM_POWER@package",
                     "CPU_FREQUENCY_STATUS@package",
                     "CPU_PACKAGE_TEMPERATURE@package",

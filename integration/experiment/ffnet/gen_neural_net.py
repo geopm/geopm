@@ -151,7 +151,7 @@ def train_model(df_traces, X_columns, y_column, num_outputs, log=print):
 
 
     bs = 50000
-    for epoch in range(200):
+    for epoch in range(100):
         model.train = True
         train_loss = 0
         for i in range((n_samples-1)//bs + 1):
@@ -186,13 +186,13 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
 
     y_column = 'region-id'
     X_columns_domain = {
-            'cpu':['CPU_POWER-package-0',
-                   'DRAM_POWER-package-0',
-                   'CPU_FREQUENCY_STATUS-package-0',
-                   'CPU_PACKAGE_TEMPERATURE-package-0',
-                   'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
-                   'MSR::QM_CTR_SCALED-package-0',
-                   'MSR::QM_CTR_SCALED_RATE-package-0'],
+            'cpu':['CPU_POWER',
+                   'DRAM_POWER',
+                   'CPU_FREQUENCY_STATUS',
+                   'CPU_PACKAGE_TEMPERATURE',
+                   'MSR::UNCORE_PERF_STATUS:FREQ',
+                   'MSR::QM_CTR_SCALED',
+                   'MSR::QM_CTR_SCALED_RATE'],
             'gpu':['GPU_CORE_FREQUENCY_STATUS-gpu-0',
                    'GPU_POWER-gpu-0',
                    'GPU_UTILIZATION-gpu-0',
@@ -201,12 +201,11 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
     ratios_domain = {
             'cpu':
             [
-                ['CPU_INSTRUCTIONS_RETIRED-package-0', 'TIME'],
-                ['CPU_CYCLES_THREAD-package-0', 'CPU_CYCLES_REFERENCE-package-0'],
-                ['CPU_ENERGY-package-0', 'TIME'],
-                ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-                ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-                ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0'],
+                ['CPU_INSTRUCTIONS_RETIRED', 'TIME'],
+                ['CPU_CYCLES_THREAD', 'CPU_CYCLES_REFERENCE'],
+                ['CPU_ENERGY', 'TIME'],
+                ['MSR::PPERF:PCNT', 'MSR::MPERF:MCNT'],
+                ['MSR::PPERF:PCNT', 'MSR::APERF:ACNT'],
             ],
             'gpu':[]}
 

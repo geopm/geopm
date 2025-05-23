@@ -94,12 +94,24 @@ def process_trace_files(sweep_dir, region_ignore):
 
         trace_df['node'] = nodename
 
+        # Remove board-level signals (except TIME)
+        cols = [col for col in trace_df if col.find("-")==-1]
+        cols.remove('TIME')
+        trace_df.drop(cols, axis=1, inplace=True)
+
+        # Add data from each package as separate rows rather than separate columns
+        pkg0_df = trace_df.drop([col for col in trace_df if col.endswith("-package-1")],axis=1)
+        pkg0_df.rename(columns=lambda x: x.replace("-package-0", ""), inplace=True)
+        pkg1_df = trace_df.drop([col for col in trace_df if col.endswith("-package-0")],axis=1)
+        pkg1_df.rename(columns=lambda x: x.replace("-package-1", ""), inplace=True)
+
+        trace_pkg_df = pd.concat([pkg0_df, pkg1_df], axis=0)
         # Help uniquely identify different configurations of a single app, used to train on
         # instead of REGION_HASH
-        trace_df['app-config'] = app_name + '-' + trace_df['REGION_HASH']
-        trace_df = trace_df[~trace_df['app-config'].isin(region_ignore)]
+        trace_pkg_df['app-config'] = app_name + '-' + trace_pkg_df['REGION_HASH']
+        trace_pkg_df = trace_pkg_df[~trace_pkg_df['app-config'].isin(region_ignore)]
 
-        all_dfs.append(trace_df)
+        all_dfs.append(trace_pkg_df)
     return pd.concat(all_dfs, ignore_index=True)
 
 
