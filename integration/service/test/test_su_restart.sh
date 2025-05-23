@@ -28,9 +28,7 @@ fi
 ${TEST_SCRIPT} &
 test_pid=$!
 sleep 2
-sudo systemctl stop geopm
-sleep 1
-sudo systemctl start geopm
+sudo systemctl restart geopm
 wait $test_pid
 result=$?
 if [ $result -eq 0 ]; then
