@@ -189,10 +189,8 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
             'cpu':['CPU_POWER',
                    'DRAM_POWER',
                    'CPU_FREQUENCY_STATUS',
-                   'CPU_PACKAGE_TEMPERATURE',
-                   'MSR::UNCORE_PERF_STATUS:FREQ',
-                   'MSR::QM_CTR_SCALED',
-                   'MSR::QM_CTR_SCALED_RATE'],
+                   'MSR::UNCORE_PERF_STATUS:FREQ'
+                   ],
             'gpu':['GPU_CORE_FREQUENCY_STATUS-gpu-0',
                    'GPU_POWER-gpu-0',
                    'GPU_UTILIZATION-gpu-0',
@@ -205,7 +203,7 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
                 ['CPU_CYCLES_THREAD', 'CPU_CYCLES_REFERENCE'],
                 ['CPU_ENERGY', 'TIME'],
                 ['MSR::PPERF:PCNT', 'MSR::MPERF:MCNT'],
-                ['MSR::PPERF:PCNT', 'MSR::APERF:ACNT'],
+                ['MSR::PPERF:PCNT', 'MSR::APERF:ACNT']
             ],
             'gpu':[]}
 

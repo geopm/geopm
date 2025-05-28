@@ -92,8 +92,6 @@ def process_trace_files(sweep_dir, region_ignore):
         trace_df = trace_df[trace_df['REGION_HASH'].notna()]
         trace_df = trace_df[~trace_df['REGION_HASH'].isin(region_ignore)]
 
-        trace_df['node'] = nodename
-
         # Remove board-level signals (except TIME)
         cols = [col for col in trace_df if col.find("-")==-1]
         cols.remove('TIME')
@@ -109,6 +107,7 @@ def process_trace_files(sweep_dir, region_ignore):
         # Help uniquely identify different configurations of a single app, used to train on
         # instead of REGION_HASH
         trace_pkg_df['app-config'] = app_name + '-' + trace_pkg_df['REGION_HASH']
+        trace_pkg_df['node'] = nodename
         trace_pkg_df = trace_pkg_df[~trace_pkg_df['app-config'].isin(region_ignore)]
 
         all_dfs.append(trace_pkg_df)

@@ -59,7 +59,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 10, 5.0, 5.0, 5.0, 3.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 10.0, 10.0, 5.0, 10.0)
 
         #####################
         # Neural Net Sweeps #
@@ -104,6 +104,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Configure the ffnet agent
         cls._agent = 'ffnet'
 
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 3.0)
         cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
 
@@ -161,14 +162,16 @@ class TestIntegration_ffnet(unittest.TestCase):
             cls._report_data[phi] = geopmpy.io.RawReport(report_path[0])
 
     def tearDown(self):
-        """
-        Clean up at end of test
-        """
-        if sys.exc_info() != (None, None, None):
-            TestIntegration_ffnet._keep_files = True
+        if self._remove_traces:
+            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
+                os.remove(fpath)
+            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
+                os.remove(fpath)
 
     def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
-        # Configure the CPU test application - geopmbench
+        """
+        Configure the CPU test application - geopmbench
+        """
         loop_count = loop_count
         #Big Os for geopmbench regions
         cpu_test_params = {
@@ -281,13 +284,6 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Generate frequency region map
         gen_region_parameters.main(self._nn_fmap_out, self._nn_stats_hdf)
 
-        # Clean up unneeded traces/reports
-        if self._remove_traces:
-            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
-                os.remove(fpath)
-            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
-                os.remove(fpath)
-
 
     ###########
     # Helpers #
@@ -375,16 +371,15 @@ class TestIntegration_ffnet(unittest.TestCase):
             - If running on GPUs, GPU trace columns are present
             - If not running on GPUs, GPU trace columns are not present
         """
-        cpu_trace_columns = ['node', 'app-config', 'TIME', 'CPU_POWER-package-0',
-                             'CPU_FREQUENCY_STATUS-package-0',
-                             'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
-                             'MSR::QM_CTR_SCALED_RATE-package-0',
-                             'CPU_INSTRUCTIONS_RETIRED-package-0',
-                             'CPU_CYCLES_THREAD-package-0',
-                             'CPU_ENERGY-package-0',
-                             'MSR::APERF:ACNT-package-0',
-                             'MSR::PPERF:PCNT-package-0',
-                             'MSR::PPERF:PCNT-package-0']
+        cpu_trace_columns = ['node', 'app-config', 'TIME', 'CPU_POWER',
+                             'CPU_FREQUENCY_STATUS',
+                             'MSR::UNCORE_PERF_STATUS:FREQ',
+                             'CPU_INSTRUCTIONS_RETIRED',
+                             'CPU_CYCLES_THREAD',
+                             'CPU_ENERGY',
+                             'MSR::APERF:ACNT',
+                             'MSR::PPERF:PCNT',
+                             'MSR::MPERF:MCNT']
 
         gpu_trace_columns = ['GPU_CORE_FREQUENCY_STATUS-gpu-0',
                              'GPU_POWER-gpu-0',
@@ -490,16 +485,28 @@ class TestIntegration_ffnet(unittest.TestCase):
             nstream_freq = fmap_jsons["gpu"][self._app_regions['gpu']['nstream']][-1]
             assertTrue(dgemm_freq > nstream_freq)
 
-    @unittest.skip("Skipping, pending ffnet debug")
     def test_no_harm(self):
         """
         Test that the phi=0 decisions do not significantly lower performance
 
         Pass Criteria:
-            - FoM is within 95% of standard monitor
-            - For each region, phi=0 runtime is within 95% of max freq run
-            - For each region, phi=0 power is at most the same as max freq run
+            - For each region, phi=0 dgemm/stream runtime is within 5% of max
+              freq run
+            - For each region, phi=0 dgemm/stream energy consumption is at most
+              1.05x max freq run energy consumption
         """
+        max_freq_fname = glob.glob(f"{str(self._nn_sweep_dir)}/geopmbench_frequency_map_cpu{self._cpu_fsweep_experiment_args.max_frequency}*.report")
+        max_freq_report_data = geopmpy.io.RawReport(max_freq_fname)
+        for host in max_freq_report_data.host_names():
+            dgemm_max = max_freq_report_data.raw_region(host, "dgemm")
+            stream_max = max_freq_report_data.raw_region(host, "stream")
+            dgemm_ffnet = self._report_data[0].raw_region(host, "dgemm")
+            stream_ffnet = self._report_data[0].raw_region(host, "stream")
+
+            self.assertTrue(dgemm_perf["runtime (s)"] * 0.95 <= dgemm_max["runtime (s)"])
+            self.assertTrue(stream_perf["runtime (s)"] * 0.95 <= stream_max["runtime (s)"])
+            self.assertTrue(dgemm_perf["package-energy (J)"] * 0.95 <= dgemm_ee["package-energy (J)"])
+            self.assertTrue(stream_perf["package-energy (J)"] * 0.95 <= stream_ee["package-energy (J)"])
 
     def test_phi(self):
         """
