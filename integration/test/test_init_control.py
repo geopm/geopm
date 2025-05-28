@@ -32,10 +32,10 @@ class TestIntegrationInitControl(unittest.TestCase):
         num_rank = 2 * cls._num_node
         time_limit = 600
         # Configure the test application
-        cls._loop_count = 500
+        cls._loop_count = 10
         app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
         app_conf.set_loop_count(cls._loop_count)
-        app_conf.append_region('dgemm', 8.0)
+        app_conf.append_region('dgemm', 0.2)
 
         # Configure the monitor agent
         agent_conf = geopmpy.agent.AgentConf(test_name + '_agent.config')

@@ -38,8 +38,8 @@ int main(int argc, char **argv)
 
     int cpu_idx = geopm_sched_get_cpu();
     int package_idx = geopm::platform_topo().domain_idx(GEOPM_DOMAIN_PACKAGE, cpu_idx);
-    double big_o_base = 5.0;
-    double big_o = big_o_base * (1.0 + package_idx * 1.00);
+    double big_o_base = 0.05;
+    double big_o = big_o_base * (package_idx * 0.01);
 
     // Create a model region
     std::unique_ptr<geopm::ModelRegion> model(

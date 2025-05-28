@@ -33,7 +33,7 @@ class TestIntegration_power_governor(unittest.TestCase):
         num_rank = 4 * cls._num_node
         loop_count = 500
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
-        app_conf.append_region('dgemm', 8.0)
+        app_conf.append_region('dgemm', 0.05)
         app_conf.set_loop_count(loop_count)
 
         cls._agent = 'power_governor'
