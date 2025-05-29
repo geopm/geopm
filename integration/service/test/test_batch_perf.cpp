@@ -9,6 +9,7 @@
 #include <string>
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_time.h"
 
 
@@ -16,6 +17,7 @@ int run(int num_loop, double delay)
 {
     auto &pio = geopm::platform_io();
     const auto &topo = geopm::platform_topo();
+    geopm::enable_fixed_counters(pio);
     std::vector<std::pair<std::string, int> > signal_list = {{"TIME", GEOPM_DOMAIN_BOARD},
                                                              {"CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_CPU},
                                                              {"CPU_INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU},

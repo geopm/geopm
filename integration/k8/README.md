@@ -70,7 +70,7 @@ set the `Type` to `simple`:
 $ sudo systemctl edit geopm
 $ cat /etc/systemd/system/geopm.service.d/override.conf
 [Service]
-Type=simple
+Type=notify
 ExecStart=
 ExecStart=/usr/bin/geopmd --grpc
 $ sudo systemctl daemon-reload
