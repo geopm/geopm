@@ -59,7 +59,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 10.0, 10.0, 5.0, 10.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 5, 5.0, 5.0, 5.0, 3.0)
 
         #####################
         # Neural Net Sweeps #
@@ -97,6 +97,13 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         cls.gen_nn_files(cls)
 
+        #TODO: Figure out a way to keep traces if there are any failures
+        if cls._remove_traces:
+            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
+                os.remove(fpath)
+            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
+                os.remove(fpath)
+
         ###################
         # FFNet Agent Run #
         ###################
@@ -104,7 +111,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Configure the ffnet agent
         cls._agent = 'ffnet'
 
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 3.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 5.0)
         cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
 
@@ -162,11 +169,11 @@ class TestIntegration_ffnet(unittest.TestCase):
             cls._report_data[phi] = geopmpy.io.RawReport(report_path[0])
 
     def tearDown(self):
-        if self._remove_traces:
-            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
-                os.remove(fpath)
-            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
-                os.remove(fpath)
+        """
+        Clean up at end of test
+        """
+        if sys.exc_info() != (None, None, None):
+            TestIntegration_ffnet.keep_files = True
 
     def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
         """
