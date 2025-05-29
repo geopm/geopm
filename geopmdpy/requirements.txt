@@ -12,3 +12,4 @@ seaborn[stats]>=0.11.2
 protobuf>=3.12.4
 grpcio>=1.30.2
 defusedxml>=0.7.1
+sdnotify>=0.3.1

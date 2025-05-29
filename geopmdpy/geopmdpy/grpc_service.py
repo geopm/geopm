@@ -9,6 +9,8 @@ import pwd
 import grpc
 import subprocess # nosec
 from concurrent import futures
+from sdnotify import SystemdNotifier
+from time import sleep
 from . import geopm_service_pb2_grpc
 from . import geopm_service_pb2
 from . import service
@@ -208,6 +210,8 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 def run():
     grpc_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
                                     'grpc-private.sock')
+    grpc_public_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
+                                           'grpc.sock')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     geopm_proxy = GEOPMServiceProxy()
     geopm_service_pb2_grpc.add_GEOPMServiceServicer_to_server(geopm_proxy, server)
@@ -218,6 +222,9 @@ def run():
     server.start()
 
     with subprocess.Popen('geopmd-proxy') as proxy:
+        while not os.path.exists(grpc_public_socket_path):
+            sleep(0.001)
+        SystemdNotifier().notify('READY=1')
         while server.wait_for_termination(geopm_proxy.watch_interval()):
             geopm_proxy.close_inactive_clients()
         proxy.terminate()
