@@ -51,9 +51,6 @@ extern "C"
                 err = geopm::exception_handler(std::current_exception(), true);
             }
         }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
-        }
         return err;
     }
 
@@ -67,9 +64,6 @@ extern "C"
             catch (...) {
                 err = geopm::exception_handler(std::current_exception(), true);
             }
-        }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
         }
         return err;
     }
@@ -85,9 +79,6 @@ extern "C"
                 err = geopm::exception_handler(std::current_exception(), true);
             }
         }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
-        }
         return err;
     }
 
@@ -102,9 +93,6 @@ extern "C"
                 err = geopm::exception_handler(std::current_exception(), true);
             }
         }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
-        }
         return err;
     }
 
@@ -118,9 +106,6 @@ extern "C"
             catch (...) {
                 err = geopm::exception_handler(std::current_exception(), true);
             }
-        }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
         }
         return err;
     }
@@ -164,9 +149,6 @@ extern "C"
             catch (...) {
                 err = geopm::exception_handler(std::current_exception(), true);
             }
-        }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
         }
         return err;
     }
