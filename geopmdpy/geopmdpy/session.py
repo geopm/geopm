@@ -14,7 +14,7 @@ from socket import gethostname
 from io import StringIO
 from argparse import ArgumentParser
 from signal import signal
-from signal import SIGTERM, SIGINT
+from signal import SIGTERM, SIGINT, SIGKILL
 from time import sleep
 from . import topo
 from . import pio
