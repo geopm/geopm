@@ -141,6 +141,42 @@ if test "x$with_mpif77" != x; then
   MPIF77=$with_mpif77
 fi
 
+AC_ARG_ENABLE([openblas],
+  [AS_HELP_STRING([--enable-openblas], [Build openblasging code and compile with -O0 -g])],
+[if test "x$enable_openblas" = "xno" ; then
+  enable_openblas="0"
+else
+  enable_openblas="1"
+fi
+],
+[enable_openblas="0"]
+)
+
+AC_ARG_WITH([openblas], [AS_HELP_STRING([--with-openblas=PATH],
+            [specify directory for installed OpenBLAS package.])])
+if test "x$with_openblas" != x; then
+  enable_openblas="1"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_openblas/include"
+  LD_LIBRARY_PATH="$with_openblas/lib:$LD_LIBRARY_PATH"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_openblas/lib"
+fi
+AC_ARG_WITH([openblas-include], [AS_HELP_STRING([--with-openblas-include=PATH],
+            [specify directory for the installed openblas include files.])])
+if test "x$with_openblas_include" != x; then
+  enable_openblas="1"
+  AM_CPPFLAGS="$AM_CPPFLAGS -I$with_openblas_include"
+fi
+AC_ARG_WITH([openblas-lib], [AS_HELP_STRING([--with-openblas-lib=PATH],
+            [specify directory for installed openblas library])])
+if test "x$with_openblas_lib" != x; then
+  enable_openblas="1"
+  LD_LIBRARY_PATH="$with_openblas_lib:$LD_LIBRARY_PATH"
+  AM_LDFLAGS="$AM_LDFLAGS -L$with_openblas_lib"
+fi
+if test "x$enable_openblas" == "x1"; then
+  AC_DEFINE([GEOPM_ENABLE_OPENBLAS], [ ], [Enables openblas bindings for DGEMM])
+fi
+
 AC_ARG_ENABLE([mpi],
   [AS_HELP_STRING([--disable-mpi], [Do not link to MPI])],
 [if test "x$enable_mpi" = "xno" ; then
@@ -431,6 +467,14 @@ if test "x$enable_beta" = "x1" ; then
       exit -1])
   AC_CHECK_HEADER([sqlite3.h], [], [
       echo "missing sqlite3.h: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-include"
+      exit -1])
+fi
+if test "x$enable_openblas" = "x1" ; then
+  AC_CHECK_LIB([openblas], [dgemm_], [], [
+      echo "missing libopenblas: use --with-openblas or --with-openblas-lib"
+      exit -1])
+  AC_CHECK_HEADER([f77blas.h], [], [
+      echo "missing f77blas.h: use --with-openblas or --with-openblas-include"
       exit -1])
 fi
 

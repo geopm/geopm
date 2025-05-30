@@ -16,6 +16,9 @@
 
 #ifdef GEOPM_ENABLE_MKL
 #include <mkl.h>
+#elif defined(GEOPM_ENABLE_OPENBLAS)
+#include <f77blas.h>
+#define dgemm dgemm_
 #else
 // Terrible DGEMM implementation should only be used if there is no
 // BLAS support.  Build assumes that the Intel(R) Math Kernel Library
