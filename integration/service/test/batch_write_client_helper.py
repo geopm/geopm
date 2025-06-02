@@ -7,10 +7,16 @@ from geopmdpy import pio
 from time import sleep
 from os import getpid
 from dasbus.connection import SystemMessageBus
+from dasbus.error import DBusError
 
 def main():
     bus = SystemMessageBus()
     proxy = bus.get_proxy('io.github.geopm', '/io/github/geopm')
+    try:
+        dir(proxy)
+    except DBusError as dbus_ee:
+        from geopmdpy.grpc_client import GRPCClient  # Import the gRPC client
+        proxy = GRPCClient()
     proxy.PlatformStartProfile("testing")
 
     index = pio.push_control("SERVICE::MSR::PERF_CTL:FREQ", "core", 0)
