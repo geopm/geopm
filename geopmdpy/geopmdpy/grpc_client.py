@@ -93,7 +93,7 @@ class GRPCClient:
         response = self.stub.GetUserAccess(request)
         return response.signals, response.controls
 
-    def GetGroupAccess(self, group):
+    def PlatformGetGroupAccess(self, group):
         """Get the signal and control access lists for a group.
 
         Args:
@@ -105,3 +105,17 @@ class GRPCClient:
         request = geopm_service_pb2.GroupAccessRequest(group=group)
         response = self.stub.GetGroupAccess(request)
         return response.signals, response.controls
+
+    def PlatformStartProfile(self, profile_name):
+        """Start profiling for the calling process
+
+        """
+        request = geopm_service_pb2.ProfileRequest(profile_name=profile_name)
+        self.stub.StartProfile(request)
+
+    def PlatformStopProfile(self, region_names):
+        """Stop profiling for the calling process
+
+        """
+        request = geopm_service_pb2.ProfileRequest(region_names=region_names)
+        self.stub.StopProfile(request)
