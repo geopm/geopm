@@ -1,20 +1,145 @@
-Getting Started
-===============
+=================
+ Getting Started
+=================
 
-The GEOPM project consists of a two-tiered software structure: the **GEOPM
-Service** and the **GEOPM Runtime**. The **GEOPM Service** stands out by offering a
-secure userspace interface, facilitating access to hardware telemetry and
-configurations. On the other hand, the **GEOPM Runtime** empowers end-users to
-delve deeper into their application profiles for refined data analysis.
-Additionally, it provides the option to implement active hardware configuration
-algorithms, paving the way for enhanced energy efficiency.
+GEOPM (Global Extensible Open Power Manager) is a software framework that
+enables users and administrators to **safely and securely modify hardware
+settings for the duration of a process session**. This unique capability allows
+for dynamic, user-driven power and performance tuning—enabling energy efficiency
+and workload optimization that is not possible with traditional system tools.
 
-For in-depth information see: :doc:`service` or :doc:`runtime`.
+GEOPM is deployed in production on large-scale systems (e.g., Aurora) and is
+used by HPC centers and cloud providers to help users and administrators meet
+power, performance, and sustainability goals.
+
+.. note::
+
+    For a quick reference on GEOPM commands, see:
+
+      - :doc:`geopmread.1`
+      - :doc:`geopmwrite.1`
+      - :doc:`geopmsession.1`
+
+----
+
+|:zap:| Why Use GEOPM?
+======================
+
+GEOPM provides a **secure userspace interface** for modifying hardware controls
+(such as CPU power limits and frequencies) for the duration of a user session or
+job. This means:
+
+- **Users can safely adjust hardware settings** (e.g., power limits,
+  frequencies) for their own jobs, without affecting other users or the system
+  as a whole.
+
+- **All changes are automatically reverted** at the end of the session, ensuring
+  system integrity and preventing persistent misconfiguration.
+
+- **Administrators retain fine-grained control** over which users and groups can
+  access which hardware features, with full auditability.
+
+This capability is especially valuable for:
+
+- **HPC and cloud users** who want to optimize performance per watt for their
+  workloads.
+
+- **System administrators** who want to enable user-driven tuning while
+  maintaining security and stability.
+
+- **Sustainability initiatives** that require power capping or energy-aware
+  scheduling.
+
+----
+
+|:rocket:| Example: Power Management for Memory-Bound HPC Workloads
+===================================================================
+
+GEOPM is particularly effective for memory-bound workloads, where reducing CPU
+power limits can lower energy consumption with minimal impact on performance.
+
+
+**Key Takeaways:**
+
+- For memory-bound workloads, reducing CPU package power limit via GEOPM can
+  significantly lower system power consumption with minimal impact on
+  performance, up to a certain threshold.
+
+- The optimal setting ("sweet spot") depends on the workload behavior and user's
+  preference for balancing energy efficiency and performance.
+
+- This demonstrates the practical value of exposing user-controllable power
+  management through GEOPM, enabling end users to optimize for performance per
+  watt based on workload characteristics.
+
+----
+
+|:wrench:| How to Set Power Limits with GEOPM
+=============================================
+
+GEOPM provides command-line tools to read and write hardware settings. The most
+common use case is to set a power limit or frequency limit for your job or session.
+
+**Example: Setting and Reading CPU Power Limit**
+
+.. code-block:: bash
+
+    # Read the default power limit for package 0
+    geopmread CPU_POWER_LIMIT_DEFAULT package 0
+
+    # Reduce the power limit by 100W and apply it
+    NEW_LIMIT=$(( $(geopmread CPU_POWER_LIMIT_DEFAULT package 0) - 100 ))
+    geopmwrite CPU_POWER_LIMIT_CONTROL package 0 $NEW_LIMIT
+
+    # Verify the new power limit
+    geopmread CPU_POWER_LIMIT_CONTROL package 0
+
+**Example: Measuring Power Consumption During a Job**
+
+.. code-block:: bash
+
+    # Read initial energy
+    ENERGY_BEGIN=$(geopmread CPU_ENERGY package 0)
+    sleep 10
+    ENERGY_END=$(geopmread CPU_ENERGY package 0)
+    python3 -c "print(f'Package 0 energy: {float($ENERGY_END) - float($ENERGY_BEGIN)} joules')"
+
+**Example: Detailed Power Monitoring with geopmsession**
+
+.. code-block:: bash
+
+    printf "TIME board 0\nCPU_ENERGY * *" | geopmsession -r- -p 0.01 -- sleep 1
+
+This will output a time series of energy readings for each package during the
+execution of the `sleep 1` command.
+
+For more details, see the `geopmsession` documentation:
+https://geopm.github.io/geopmsession.1.html#reading-signals-during-a-job-execution
+
+----
+
+|:shield:| Security and Safe Access
+===================================
+
+GEOPM is designed to be secure and robust for multi-user environments:
+
+- **Session-based control:** All hardware changes are scoped to the user's
+  session and reverted at the end.
+
+- **Access control:** Administrators can grant or restrict access to specific
+  hardware features per user or group.
+
+- **Auditability:** All changes are logged and can be audited.
+
+- **No persistent changes:** Hardware is always restored to a safe state after
+  each session.
+
+For more information, see the :doc:`security` guide.
 
 ----
 
 |:computer:| Install GEOPM
---------------------------
+==========================
 
 To check if GEOPM is installed on your system you may try querying the command
 line interfaces for the GEOPM version.  For example:
@@ -29,32 +154,96 @@ this command errors with ``command not found``.
 ----
 
 |:card_file_box:| Platform Topology
------------------------------------
+===================================
+
+GEOPM provides tools to discover the hardware topology of your system, including
+domains such as board, package, core, cpu, memory, and more. While this is not
+unique to GEOPM, it is essential for advanced tuning and control.
 
 .. _topo-diagram:
 .. figure:: https://geopm.github.io/images/platform-topo-diagram.svg
     :alt: Topology Encapsulation Diagram
     :align: center
 
-We refer to the different hardware layers within a system as *domains*.  GEOPM
-has support for the following domains:
+.. note::
 
-* Board
-* Package
-* Core (physical)
-* CPU (Linux logical)
-* Memory
-* Package Integrated Memory
-* NIC
-* Package Integrated NIC
-* GPU
-* Package Integrated GPU
-* GPU Chip
+   For more information on the domain types and topology APIs, see:
 
-For more information on the domain types, see: :ref:`geopm_topo.3:Domain Types`.
+   - :ref:`geopm_topo.3:Domain Types`
+   - :ref:`Python API <geopmdpy.7:geopmdpy.topo>`
+   - :doc:`C API <geopm_topo.3>`
+   - :doc:`C++ API <geopm::PlatformTopo.3>`
 
-Code Examples
-^^^^^^^^^^^^^
+----
+
+|:microscope:| Reading Telemetry
+================================
+
+GEOPM enables users to read a wide variety of hardware telemetry signals (e.g.,
+frequency, power, energy, temperature) at different domains. This is useful for
+real-time monitoring and analysis, but the unique value of GEOPM is in its safe,
+session-based control features.
+
+.. note::
+
+   For more information, see the documentation for
+
+     - :doc:`geopmread <geopmread.1>`
+     - :doc:`geopmsession <geopmsession.1>`
+     - :ref:`Python API <geopmdpy.7:geopmdpy.pio>`
+     - :doc:`C API <geopm_pio.3>`
+     - :doc:`C++ API <geopm::PlatformIO.3>`
+
+----
+
+|:gear:| Enact Hardware-based Settings
+======================================
+
+GEOPM enables users to write hardware controls (e.g., set power limits,
+frequencies) safely and securely. See the section below for examples and the
+:doc:`geopmwrite <geopmwrite.1>` documentation for details.
+
+.. note::
+
+   For more information, see the documentation for
+
+     - :doc:`geopmwrite <geopmwrite.1>`
+     - :ref:`Python API <geopmdpy.7:geopmdpy.pio>`
+     - :doc:`C API <geopm_pio.3>`
+     - :doc:`C++ API <geopm::PlatformIO.3>`
+
+----
+
+|:straight_ruler:| Measure Performance
+======================================
+
+GEOPM provides runtime tools for collecting telemetry and profiling
+applications, including integration with MPI and OpenMP.
+
+----
+
+|:alembic:| Examples and Details
+================================
+
+See the rest of this guide for advanced usage, including batch reads,
+profiling, and agent-based tuning.  These topics include detailed code
+examples.
+
+The GEOPM project consists of a two-tiered software structure: the **GEOPM
+Service** and the **GEOPM Runtime**. The **GEOPM Service** stands out by offering a
+secure userspace interface, facilitating access to hardware telemetry and
+configurations. On the other hand, the **GEOPM Runtime** empowers end-users to
+delve deeper into their application profiles for refined data analysis.
+Additionally, it provides the option to implement active hardware configuration
+algorithms, paving the way for enhanced energy efficiency.
+
+For in-depth information see: :doc:`service` or :doc:`runtime`.
+
+----
+
+
+|:card_file_box:| Platform Topology Example
+-------------------------------------------
 
 All of the code examples require linking against ``libgeopmd`` for C/C++.  The
 Python examples require that your ``PYTHONPATH`` contains the ``geopmdpy``
@@ -150,8 +339,8 @@ topology.
 
 ----
 
-|:microscope:| Reading Telemetry
---------------------------------
+|:microscope:| Reading Telemetry Examples
+-----------------------------------------
 
 We refer to any bit of telemetry that can be read with the Service as a
 *signal*.  Each signal has a native domain.  For example, the native domain of
@@ -166,14 +355,14 @@ and the :doc:`C <geopm_pio.3>`, :doc:`C++ <geopm::PlatformIO.3>`, and :doc:`Pyth
 <geopmdpy.7>` APIs for ``PlatformIO`` in their respective languages.
 
 Listing All Available Signals
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ geopmread
 
 Listing Signal Information
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
 
@@ -204,7 +393,7 @@ Listing Signal Information
         iogroup: MSRIOGroup
 
 Reading Signals
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
 
 .. tabs::
 
@@ -296,7 +485,7 @@ Reading Signals
 
 
 Understanding Aggregation
-^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The telemetry that is output from ``geopmread`` or the APIs will automatically
 be aggregated based on the requested domain and the aggregation
@@ -328,7 +517,7 @@ consumed by all packages, cores, and CPUs in the system, one would issue a
 For more information about aggregation types, see: :doc:`geopm::Agg.3`.
 
 Video Demo: Using ``geopmread``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. raw:: html
 
     <video src="https://geopm.github.io/images/geopmread.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
@@ -336,7 +525,7 @@ Video Demo: Using ``geopmread``
 ----
 
 Reading Multiple Signals
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~
 To fetch platform telemetry and output it to the console or a file:
 
 - From the command-line: Use `geopmsession`. Its input arguments are similar to `geopmread`,
@@ -493,7 +682,7 @@ To fetch platform telemetry and output it to the console or a file:
 For more information on ``geopmsession`` see: :doc:`geopmsession.1`.
 
 Capturing Telemetry Over Time
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``geopmsession`` can also capture data over time with the ``-p`` and ``-t``
 options. This behavior is easily implemented in code along with the batch read
@@ -671,15 +860,15 @@ interface.
 Again, for more information on ``geopmsession`` see :doc:`geopmsession.1`.
 
 Video Demo: Using ``geopmsession``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. raw:: html
 
     <video src="https://geopm.github.io/images/geopmsession.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
 
-|:gear:| Enact Hardware-based Settings
---------------------------------------
+|:gear:| Enact Hardware-based Settings Examples
+-----------------------------------------------
 
 We refer to any hardware setting that can be manipulated through the Service as
 a *control*.  Like signals, each control has a native domain.  Any control can
@@ -693,14 +882,14 @@ APIs for ``PlatformIO`` to enact hardware controls in their respective
 languages.
 
 Listing All Available Controls
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ geopmwrite
 
 Listing Control Information
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -722,7 +911,7 @@ Listing Control Information
         iogroup: MSRIOGroup
 
 Writing Controls
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 
 .. tabs::
 
@@ -812,7 +1001,7 @@ Writing Controls
         $ geopmread CPU_FREQUENCY_MAX_CONTROL core 0
 
 Writing Multiple Controls
-^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs::
 
@@ -969,7 +1158,7 @@ Writing Multiple Controls
         $ geopmread CPU_FREQUENCY_MAX_CONTROL core 0
 
 Understanding Disaggregation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Just as signals can be aggregated to a more coarse domain from their native
 one, controls can be disaggregated from a coarse domain to their native domain.
@@ -1012,15 +1201,15 @@ at the ``board`` domain will result in each ``package`` receiving a limit of
 100 W.
 
 Video Demo: Using ``geopmwrite``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. raw:: html
 
     <video src="https://geopm.github.io/images/geopmwrite.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
 
-|:straight_ruler:| Measure Performance
---------------------------------------
+|:straight_ruler:| Measure Performance Examples
+-----------------------------------------------
 
 The GEOPM Runtime offers capabilities for collecting telemetry throughout an
 application's execution. If you want to measure a particular segment of an
@@ -1040,7 +1229,7 @@ separate application (useful for non-MPI applications).  For more information,
 see the ``--geopm-ctl`` :ref:`option description <geopm-ctl option>`.
 
 Using ``geopmlaunch`` with MPI Applications
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -1064,7 +1253,7 @@ option to ``geopmlaunch``.  For more information about ``geompmlaunch`` see:
 
 
 Profiling Applications without ``geopmlaunch``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``geopmlaunch(1)`` command may not be best suited for your needs if you are
 running a non-MPI application, or if you are running an MPI application but the
@@ -1140,7 +1329,7 @@ runtime, please refer to the `GEOPM Environment Variables
 the GEOPM documentation.
 
 Profiling Specific Parts of an Application
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Runtime supports the automatic profiling of various application regions through several methods:
 
@@ -1210,7 +1399,7 @@ our GitHub repository <https://github.com/geopm/geopm/tree/dev/integration/tutor
 ---------------------------
 
 Breaking Down Signal/Control Names
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Signal and control names in GEOPM are categorized into two types: low-level and high-level.
 
@@ -1240,7 +1429,7 @@ For more information about the currently supported aliases and IOGroups, see:
 :ref:`geopm_pio.7:Aliasing Signals And Controls`.
 
 Nuances in Setting CPU Frequency
-""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 GEOPM supports multiple interfaces to manipulate frequency and there are
 nuanced interactions with OS drivers. See the
@@ -1263,7 +1452,7 @@ how and when to use these interfaces.
 .. WIP
 
 Using the Programmable Counters
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The programmable counters available on various CPUs can be read with
 ``geopmread`` from the command-line and through the use of the
