@@ -1,5 +1,5 @@
-geopmsession(1) -- Command line interface for the GEOPM service batch read features
-===================================================================================
+geopmsession(1) -- sample platform information over time
+========================================================
 
 Synopsis
 --------
