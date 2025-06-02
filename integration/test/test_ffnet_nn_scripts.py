@@ -59,7 +59,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 5, 5.0, 5.0, 5.0, 3.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 5.0, 5.0, 5.0, 1)
 
         #####################
         # Neural Net Sweeps #
@@ -99,9 +99,9 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         #TODO: Figure out a way to keep traces if there are any failures
         if cls._remove_traces:
-            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.report"):
+            for fpath in glob.glob(f"{cls._nn_sweep_dir}/*.report"):
                 os.remove(fpath)
-            for fpath in glob.glob(f"{self._nn_sweep_dir}/*.trace-*"):
+            for fpath in glob.glob(f"{cls._nn_sweep_dir}/*.trace-*"):
                 os.remove(fpath)
 
         ###################
@@ -111,7 +111,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Configure the ffnet agent
         cls._agent = 'ffnet'
 
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 5.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 1)
         cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
 
@@ -160,8 +160,8 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         for phi in cls._perf_energy_biases:
             #Get traces
-            trace_path = glob.glob(f"{str(cls._ffnet_dir)}/phi{phi}/*trace*")
-            trace = geopmpy.io.AppOutput(traces=trace_path[0])
+            trace = geopmpy.io.AppOutput(traces="*trace*",
+                                         dir_name=os.path.join(cls._ffnet_dir, f"phi{phi}"))
             cls._trace_data[phi] = trace.get_trace_data()
 
             #Get report
@@ -173,9 +173,9 @@ class TestIntegration_ffnet(unittest.TestCase):
         Clean up at end of test
         """
         if sys.exc_info() != (None, None, None):
-            TestIntegration_ffnet.keep_files = True
+            TestIntegration_ffnet._keep_files = True
 
-    def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
+    def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1):
         """
         Configure the CPU test application - geopmbench
         """
@@ -184,8 +184,8 @@ class TestIntegration_ffnet(unittest.TestCase):
         cpu_test_params = {
             'spin': spin,
             'sleep': sleep,
-            'dgemm': dgemm,
-            'stream': stream
+            'dgemm':dgemm,
+            'stream':1.0
         }
         #Get region hexes
         for region in cpu_test_params:
@@ -194,7 +194,11 @@ class TestIntegration_ffnet(unittest.TestCase):
         bench_conf = geopmpy.io.BenchConf(self._test_name + '_app.config')
         bench_conf.set_loop_count(loop_count)
         for region in cpu_test_params:
-            bench_conf.append_region(region, cpu_test_params[region])
+            if region == 'stream':
+                for stream_iter in range(stream):
+                    bench_conf.append_region(region, 1.0)
+            else:
+                bench_conf.append_region(region, cpu_test_params[region])
             bench_conf.append_region("barrier", 1.0)
         bench_conf.write()
         self._bench_conf_path = os.path.abspath(bench_conf.get_path())
@@ -502,7 +506,8 @@ class TestIntegration_ffnet(unittest.TestCase):
             - For each region, phi=0 dgemm/stream energy consumption is at most
               1.05x max freq run energy consumption
         """
-        max_freq_fname = glob.glob(f"{str(self._nn_sweep_dir)}/geopmbench_frequency_map_cpu{self._cpu_fsweep_experiment_args.max_frequency}*.report")
+        max_freq = "{:.1e}".format(self._cpu_fsweep_experiment_args.max_frequency)
+        max_freq_fname = glob.glob(f"{str(self._nn_sweep_dir)}/geopmbench_frequency_map_cpu{max_freq}*.report")[0]
         max_freq_report_data = geopmpy.io.RawReport(max_freq_fname)
         for host in max_freq_report_data.host_names():
             dgemm_max = max_freq_report_data.raw_region(host, "dgemm")
@@ -510,10 +515,10 @@ class TestIntegration_ffnet(unittest.TestCase):
             dgemm_ffnet = self._report_data[0].raw_region(host, "dgemm")
             stream_ffnet = self._report_data[0].raw_region(host, "stream")
 
-            self.assertTrue(dgemm_perf["runtime (s)"] * 0.95 <= dgemm_max["runtime (s)"])
-            self.assertTrue(stream_perf["runtime (s)"] * 0.95 <= stream_max["runtime (s)"])
-            self.assertTrue(dgemm_perf["package-energy (J)"] * 0.95 <= dgemm_ee["package-energy (J)"])
-            self.assertTrue(stream_perf["package-energy (J)"] * 0.95 <= stream_ee["package-energy (J)"])
+            self.assertTrue(dgemm_ffnet["runtime (s)"] * 0.95 <= dgemm_max["runtime (s)"])
+            self.assertTrue(stream_ffnet["runtime (s)"] * 0.95 <= stream_max["runtime (s)"])
+            self.assertTrue(dgemm_ffnet["package-energy (J)"] * 0.95 <= dgemm_max["package-energy (J)"])
+            self.assertTrue(stream_ffnet["package-energy (J)"] * 0.95 <= stream_max["package-energy (J)"])
 
     def test_phi(self):
         """
