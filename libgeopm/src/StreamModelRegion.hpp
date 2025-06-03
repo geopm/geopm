@@ -21,8 +21,9 @@ namespace geopm
             StreamModelRegion(const StreamModelRegion &other) = delete;
             StreamModelRegion &operator=(const StreamModelRegion &other) = delete;
             virtual ~StreamModelRegion();
-            void big_o(double big_o);
-            void run(void);
+            void big_o(double big_o) override;
+            void run(void) override;
+            void num_progress_updates(double big_o_in) override;
         protected:
             double *m_array_a;
             double *m_array_b;
