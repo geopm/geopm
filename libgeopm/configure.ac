@@ -142,7 +142,7 @@ if test "x$with_mpif77" != x; then
 fi
 
 AC_ARG_ENABLE([openblas],
-  [AS_HELP_STRING([--enable-openblas], [Build openblasging code and compile with -O0 -g])],
+  [AS_HELP_STRING([--enable-openblas], [Build openblasging code])],
 [if test "x$enable_openblas" = "xno" ; then
   enable_openblas="0"
 else
