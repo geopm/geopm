@@ -47,6 +47,15 @@ namespace geopm
         free(m_array_a);
     }
 
+    void StreamModelRegion::num_progress_updates(double big_o_in)
+    {
+        m_num_progress_updates = (uint64_t)(100.0 * big_o_in);
+        if (m_num_progress_updates == 0) {
+            m_num_progress_updates = 1;
+        }
+        (void)geopm_tprof_init(m_num_progress_updates);
+    }
+
     void StreamModelRegion::big_o(double big_o_in)
     {
         if (m_big_o && m_big_o != big_o_in) {
@@ -59,7 +68,7 @@ namespace geopm
 
         num_progress_updates(big_o_in);
 
-        m_array_len = (size_t)(5e8 * big_o_in);
+        m_array_len = 33554432ULL; // 768 MB total allocation for three arrays
         if (big_o_in && m_big_o != big_o_in) {
             int err = posix_memalign((void **)&m_array_a, m_align, m_array_len * sizeof(double));
             if (!err) {
@@ -93,25 +102,16 @@ namespace geopm
                 std::cout << "Executing " << m_array_len * m_num_progress_updates << " array length stream triadd."  << std::endl << std::flush;
             }
             ModelRegion::region_enter();
-            size_t block_size = m_array_len / m_num_progress_updates;
             double scalar = 3.0;
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegion::loop_enter(i);
 #ifdef GEOPM_ENABLE_OMPT
 #pragma omp parallel for
 #endif
-                for (size_t j = 0; j < block_size; ++j) {
-                    m_array_a[i * block_size + j] = m_array_b[i * block_size + j] + scalar * m_array_c[i * block_size + j];
+                for (size_t j = 0; j < m_array_len; ++j) {
+                    m_array_a[j] = m_array_b[j] + scalar * m_array_c[j];
                 }
-
                 ModelRegion::loop_exit();
-            }
-            size_t remainder = m_array_len;
-            if (block_size != 0) {
-                remainder = m_array_len % block_size;
-            }
-            for (uint64_t j = 0; j < remainder; ++j) {
-                m_array_a[m_num_progress_updates * block_size + j] = m_array_b[m_num_progress_updates * block_size + j] + scalar * m_array_c[m_num_progress_updates * block_size + j];
             }
             ModelRegion::region_exit();
         }
