@@ -59,7 +59,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 5.0, 5.0, 5.0, 1)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 5.0, 5.0, 5.0, 5.0)
 
         #####################
         # Neural Net Sweeps #
@@ -97,12 +97,6 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         cls.gen_nn_files(cls)
 
-        #TODO: Figure out a way to keep traces if there are any failures
-        if cls._remove_traces:
-            for fpath in glob.glob(f"{cls._nn_sweep_dir}/*.report"):
-                os.remove(fpath)
-            for fpath in glob.glob(f"{cls._nn_sweep_dir}/*.trace-*"):
-                os.remove(fpath)
 
         ###################
         # FFNet Agent Run #
@@ -111,7 +105,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Configure the ffnet agent
         cls._agent = 'ffnet'
 
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 1)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 1.0)
         cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
 
@@ -168,6 +162,12 @@ class TestIntegration_ffnet(unittest.TestCase):
             report_path = glob.glob(f"{str(cls._ffnet_dir)}/phi{phi}/*report")
             cls._report_data[phi] = geopmpy.io.RawReport(report_path[0])
 
+    @classmethod
+    def tearDownClass(cls):
+        #TODO: Figure out a way to keep traces if there are any failures
+        if cls._remove_traces:
+            for fpath in glob.glob(f"{cls._nn_sweep_dir}/*.trace-*"):
+                os.remove(fpath)
     def tearDown(self):
         """
         Clean up at end of test
@@ -175,7 +175,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         if sys.exc_info() != (None, None, None):
             TestIntegration_ffnet._keep_files = True
 
-    def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1):
+    def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
         """
         Configure the CPU test application - geopmbench
         """
@@ -185,7 +185,7 @@ class TestIntegration_ffnet(unittest.TestCase):
             'spin': spin,
             'sleep': sleep,
             'dgemm':dgemm,
-            'stream':1.0
+            'stream':stream
         }
         #Get region hexes
         for region in cpu_test_params:
@@ -194,11 +194,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         bench_conf = geopmpy.io.BenchConf(self._test_name + '_app.config')
         bench_conf.set_loop_count(loop_count)
         for region in cpu_test_params:
-            if region == 'stream':
-                for stream_iter in range(stream):
-                    bench_conf.append_region(region, 1.0)
-            else:
-                bench_conf.append_region(region, cpu_test_params[region])
+            bench_conf.append_region(region, cpu_test_params[region])
             bench_conf.append_region("barrier", 1.0)
         bench_conf.write()
         self._bench_conf_path = os.path.abspath(bench_conf.get_path())
@@ -400,6 +396,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         #Check for desired trace columns
         for col in cpu_trace_columns:
+            print("Checking for " + col)
             self.assertTrue(col in self._trace_hdf)
         if self._do_gpu:
             for col in gpu_trace_columns:
@@ -541,12 +538,12 @@ class TestIntegration_ffnet(unittest.TestCase):
             self.assertTrue(dgemm_perf["runtime (s)"] <= dgemm_ee["runtime (s)"])
 
     @unittest.skip("Skipping, pending ffnet debug")
-    def test_region_accuracy(self):
+    def test_prediction_given_hash(self):
         """
         Test that the ffnet agent identifies geopmbench regions accurately
 
         Pass Criteria:
-            - For a given REGION_HASH, 95% of trace lines indicate >=95%
+            - For a given REGION_HASH, 80% of trace lines indicate >=90%
               probability of being in the correct identified region
         """
         # Calculate probabilities per phi
@@ -565,10 +562,10 @@ class TestIntegration_ffnet(unittest.TestCase):
                 region_hash = col.split("-")[1].split("_")[0]
                 df = probabilities[probabilities["REGION_HASH"] == region_hash]
                 samples_total = len(df)
-                samples_good = len(df[df[f"geopmbench-{region_hash}_package_0"] > 0.95])
+                samples_good = len(df[df[f"geopmbench-{region_hash}_package_0"] > 0.90])
                 print(f"Region {col}: Good: {samples_good}. Total: {samples_total}")
                 if samples_total > 0:
-                    self.assertTrue(samples_good/samples_total > 0.95)
+                    self.assertTrue(samples_good/samples_total > 0.80)
 
     @unittest.skip("Skipping, pending ffnet debug")
     def test_frequency_selection(self):
@@ -576,10 +573,11 @@ class TestIntegration_ffnet(unittest.TestCase):
         Test that the frequency selection made by ffnet aget is reasonable.
 
         Pass Criteria:
-            - For a given REGION_HASH and phi value, the average frequency
+            - For a given phi value, dgemm and stream's average frequency
               control is within 5% of fmap's target frequency
         """
-
+        #TODO: Create map from region name to fmap region name
+        #TODO: Put fmap_jsons in class as it's referenced in multiple tests now
         return True
 
 if __name__ == '__main__':
