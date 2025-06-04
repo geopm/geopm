@@ -49,7 +49,7 @@ namespace geopm
 
     void StreamModelRegion::num_progress_updates(double big_o_in)
     {
-        m_num_progress_updates = (uint64_t)(100.0 * big_o_in);
+        m_num_progress_updates = (uint64_t)(25.0 * big_o_in);
         if (m_num_progress_updates == 0) {
             m_num_progress_updates = 1;
         }
@@ -68,7 +68,7 @@ namespace geopm
 
         num_progress_updates(big_o_in);
 
-        m_array_len = 33554432ULL; // 768 MB total allocation for three arrays
+        m_array_len = 134217728ULL; // 3 GB total allocation for three arrays
         if (big_o_in && m_big_o != big_o_in) {
             int err = posix_memalign((void **)&m_array_a, m_align, m_array_len * sizeof(double));
             if (!err) {
