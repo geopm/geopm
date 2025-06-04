@@ -36,6 +36,8 @@ from integration.experiment.ffnet import gen_hdf_from_fsweep
 from integration.experiment.ffnet import gen_neural_net
 from integration.experiment.ffnet import gen_region_parameters
 
+ffnet_fails_errors = 0
+
 @util.skip_unless_do_launch()
 
 class TestIntegration_ffnet(unittest.TestCase):
@@ -164,14 +166,19 @@ class TestIntegration_ffnet(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        #TODO: Figure out a way to keep traces if there are any failures
-        if cls._remove_traces:
+        if cls._remove_traces and ffnet_fails_errors == 0:
             for fpath in glob.glob(f"{cls._nn_sweep_dir}/*.trace-*"):
                 os.remove(fpath)
     def tearDown(self):
         """
         Clean up at end of test
         """
+        # If there are any failures or errors, change ffnet_fails_errors
+        # so that the trace files will not be removed.
+        result = self._outcome.result
+        if result.errors or result.failures:
+            ffnet_fails_errors += 1
+
         if sys.exc_info() != (None, None, None):
             TestIntegration_ffnet._keep_files = True
 
@@ -396,7 +403,6 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         #Check for desired trace columns
         for col in cpu_trace_columns:
-            print("Checking for " + col)
             self.assertTrue(col in self._trace_hdf)
         if self._do_gpu:
             for col in gpu_trace_columns:

@@ -189,6 +189,8 @@ def main(input_list, output_name="nnet", describe_net="A neural net."):
             'cpu':['CPU_POWER',
                    'DRAM_POWER',
                    'CPU_FREQUENCY_STATUS',
+                   'MSR::QM_CTR_SCALED',
+                   'MSR::QM_CTR_SCALED_RATE',
                    'MSR::UNCORE_PERF_STATUS:FREQ'
                    ],
             'gpu':['GPU_CORE_FREQUENCY_STATUS-gpu-0',
