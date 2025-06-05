@@ -1,5 +1,5 @@
-Service Clients
-===============
+User Guide for Client APIs
+==========================
 
 The GEOPM Service enhances the PlatformIO interfaces by ensures
 reliability and quality.  Users of the GEOPM service can
