@@ -3,7 +3,7 @@ User Guide for GEOPM Runtime
 
 The GEOPM Runtime is software designed to enhance energy efficiency of
 applications through active hardware configuration. See
-:ref:`Getting Started Guide <overview:|:straight_ruler:| Measure Performance>`
+:ref:`Getting Started Guide <tutorial:|:straight_ruler:| Measure Performance>`
 for information on how to begin using the GEOPM Runtime.
 
 User Model
@@ -275,7 +275,7 @@ runtime must be passed through environment variables and some features of the
 ``geopmlaunch`` command (such as process CPU affinity management) will not be
 available.  Please consult the :doc:`geopm(7)<geopm.7>` man page for
 documentation of the environment variables used by the GEOPM runtime that would
-otherwise be controlled by the wrapper script and see :ref:`overview:Profiling Applications without ``geopmlaunch```
+otherwise be controlled by the wrapper script and see :ref:`tutorial:Profiling Applications without ``geopmlaunch```
 for details.
 
 CPU Affinity Requirements
