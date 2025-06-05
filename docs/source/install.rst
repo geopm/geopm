@@ -903,7 +903,6 @@ Further Documentation
    :maxdepth: 1
 
    geopmaccess.1
-   admin
    install_rolling
    build
    devel
