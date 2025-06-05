@@ -10,5 +10,6 @@ A guide for controlling frequency is also provided.
    :maxdepth: 1
 
    service
+   client
    runtime
    frequency_guide

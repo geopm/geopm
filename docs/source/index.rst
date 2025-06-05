@@ -79,7 +79,10 @@ Documentation
    :maxdepth: 1
 
    overview
+   tutorial
    install
+   admin
+   security
    user_guides
    contrib
    devel
