@@ -77,6 +77,7 @@ Architecture
 
 .. image:: https://geopm.github.io/images/geopm-service-diagram.svg
    :target: https://geopm.github.io/pdf/geopm-service-diagram.pdf
+   :width: 720
    :alt:
 
 The architectural diagram shows the relationship between IOGroups and the GEOPM
