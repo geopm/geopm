@@ -49,7 +49,7 @@ running the build of the two directories `geopm/geopmdpy` and `geopm/libgeopmd`,
 it may also be used as a stand-alone solution in place of:
 
 ```bash
-python -m pip install "geopmdpy @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy"
+python3 -m pip install "geopmdpy @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy"
 
 ```
 
@@ -80,4 +80,4 @@ on `libgeopmd`, so it should be built before running tests.  Alternatively, run
 `LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopmd/.libs" python3 -m unittest discover -p 'Test*.py'`
 
 Execute a single test case with
-`LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopm/.libs" python -m unittest <one.or.more.test.modules.or.classes.or.functions>`.
+`LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/../libgeopm/.libs" python3 -m unittest <one.or.more.test.modules.or.classes.or.functions>`.
