@@ -21,6 +21,7 @@ Type=dbus
 BusName=io.github.geopm
 ExecStart=/usr/bin/geopmd
 Restart=always
+TimeoutSec=5
 
 [Install]
 WantedBy=multi-user.target
