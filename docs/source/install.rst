@@ -905,5 +905,4 @@ Further Documentation
    geopmaccess.1
    install_rolling
    build
-   devel
    spack
