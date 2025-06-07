@@ -59,7 +59,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         experiment_cli_args=['--geopm-ctl=process']
 
         cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 5.0, 5.0, 5.0, 5.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 4.0, 3.0, 5.0, 6.0)
 
         #####################
         # Neural Net Sweeps #
@@ -176,7 +176,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         if TestIntegration_ffnet._remove_traces:
             result = self._outcome.result
             if result.errors or result.failures:
-                TestIntegration._remove_traces = False
+                TestIntegration_ffnet._remove_traces = False
 
         if sys.exc_info() != (None, None, None):
             TestIntegration_ffnet._keep_files = True
@@ -549,8 +549,8 @@ class TestIntegration_ffnet(unittest.TestCase):
         Test that the ffnet agent identifies geopmbench regions accurately
 
         Pass Criteria:
-            - For a given REGION_HASH, 80% of trace lines indicate >=90%
-              probability of being in the correct identified region
+            - For a given REGION_HASH, the mean probability of the
+              respective correct region domain is > 90%
         """
         # Calculate probabilities per phi
         for phi in self._trace_data:
@@ -558,35 +558,41 @@ class TestIntegration_ffnet(unittest.TestCase):
             datum = self._trace_data[phi]
             cols = [col for col in datum if col.startswith("geopmbench") and col.endswith("package_0")]
 
-            probabilities = datum[cols].apply(self.sigmoid)
-            probabilities = probabilities.div(probabilities.sum(axis=1), axis=0)
-
-            probabilities['REGION_HASH'] = datum['REGION_HASH']
-
-            # Count lines where probability of correct ID is >90%
             for col in cols:
                 region_hash = col.split("-")[1].split("_")[0]
-                df = probabilities[probabilities["REGION_HASH"] == region_hash]
-                samples_total = len(df)
-                samples_good = len(df[df[f"geopmbench-{region_hash}_package_0"] > 0.80])
-                avg_prob = df[f"geopmbench-{region_hash}_package_0"].mean()
-                print(f"Region {col}: Good: {samples_good}. Total: {samples_total}, Mean: {avg_prob}")
-                if samples_total > 0:
-                    self.assertTrue(samples_good/samples_total > 0.80)
+                df = datum[datum["REGION_HASH"] == region_hash]
+                exps = df[cols].apply(np.exp, axis=1)
+                avg_prob = (exps[col]/exps.sum(axis=1)).mean(axis=0)
+                print(f'Region {col}: Avg correct probability = {avg_prob}')
+                self.assertTrue(avg_prob >= 0.90)
 
-    @unittest.skip("Skipping, pending ffnet debug")
+    #TODO: Extend to GPU
+    @unittest.skip("Skipping, must replace with frequency control to account for avx.")
     def test_frequency_selection(self):
         """
         Test that the frequency selection made by ffnet aget is reasonable.
 
         Pass Criteria:
-            - For a given phi value, dgemm and stream's average frequency
-              control is within 5% of fmap's target frequency
+            - For phi=1, a region's average frequency
+              control is within 10% of fmap's target frequency
         """
-
-        #TODO: Create map from region name to fmap region name
         #TODO: Put fmap_jsons in class as it's referenced in multiple tests now
-        return True
+        target_freqs = {}
+        with open(self._fmap_files['cpu'], "r") as fp:
+            fmap_json = self.get_json(fp)
+
+            for region in self._app_regions['cpu']:
+                region_col = self._app_regions['cpu'][region]
+                if region_col not in self._nn_regions_ignore:
+                    target_freqs[region] = fmap_json[region_col][-1]
+                    target_freqs[region] = fmap_json[region_col][0]
+
+        for host in self._report_data[0].host_names():
+            for region in target_freqs:
+                if region in self._report_data[0].region_names(host):
+                    self.assertLess(abs(target_freqs[region]
+                                        - 1e-9*self._report_data[0].raw_region(host, region)["frequency (Hz)"])
+                                    / target_freqs[region], 0.1)
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
