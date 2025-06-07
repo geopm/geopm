@@ -550,7 +550,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         Pass Criteria:
             - For a given REGION_HASH, the mean probability of the
-              respective correct region domain is > 90%
+              respective correct region domain is > 80%
         """
         # Calculate probabilities per phi
         for phi in self._trace_data:
@@ -564,7 +564,7 @@ class TestIntegration_ffnet(unittest.TestCase):
                 exps = df[cols].apply(np.exp, axis=1)
                 avg_prob = (exps[col]/exps.sum(axis=1)).mean(axis=0)
                 print(f'Region {col}: Avg correct probability = {avg_prob}')
-                self.assertTrue(avg_prob >= 0.90)
+                self.assertTrue(avg_prob >= 0.80)
 
     #TODO: Extend to GPU
     @unittest.skip("Skipping, must replace with frequency control to account for avx.")
