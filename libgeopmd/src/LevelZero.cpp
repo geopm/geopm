@@ -421,18 +421,17 @@ namespace geopm
                         m_devices.at(device_idx).
                             subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_ALL).push_back(0);
                     }
-
-                    //TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL.
-                    //      We can do a check for COMPUTE_ALL and then fallback to change to
-                    //      ZES_ENGINE_GROUP_COMPUTE/COPY_SINGLE, but we have to
-                    //      aggregate the signals in that case
-                    else if (property.type == ZES_ENGINE_GROUP_COMPUTE_ALL) {
+                    // If the property type is "all" then absolute time may be off by a factor of num chips per GPU
+                    else if (property.type == ZES_ENGINE_GROUP_COMPUTE_ALL ||
+                             property.type == ZES_ENGINE_GROUP_COMPUTE_SINGLE) {
                         m_devices.at(device_idx).
                             subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
                         m_devices.at(device_idx).
                             subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(0);
                     }
-                    else if (property.type == ZES_ENGINE_GROUP_COPY_ALL) {
+                    // If the property type is "all" then absolute time may be off by a factor of num chips per GPU
+                    else if (property.type == ZES_ENGINE_GROUP_COPY_ALL ||
+                             property.type == ZES_ENGINE_GROUP_COPY_SINGLE) {
                         m_devices.at(device_idx).
                             subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY).push_back(handle);
                         m_devices.at(device_idx).
