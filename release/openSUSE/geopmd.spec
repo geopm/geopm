@@ -95,10 +95,8 @@ pushd %{prj_name}
 %py3_install
 mkdir -p %{buildroot}%{_sysconfdir}/geopm
 chmod 0700 %{buildroot}%{_sysconfdir}/geopm
-%if "%{_bindir}" != "%{_sbindir}"
 mkdir -p %{buildroot}%{_sbindir}
 mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmd
-%endif
 install -D -p -m 644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 install -D -p -m 644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
 install -D -p -m 644 geopm.service %{buildroot}%{_unitdir}/geopm.service
