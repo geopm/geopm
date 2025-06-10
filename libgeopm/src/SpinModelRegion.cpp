@@ -6,6 +6,9 @@
 #include "SpinModelRegion.hpp"
 
 #include <iostream>
+#include <thread>
+#include <atomic>
+#include <time.h>
 
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
@@ -48,23 +51,30 @@ namespace geopm
     {
         if (m_big_o != 0.0) {
             if (m_verbosity) {
-                std::cout << "Executing " << m_big_o << " second spin."  << std::endl << std::flush;
+                std::cout << "Executing " << m_big_o << " second spin." << std::endl << std::flush;
             }
             ModelRegion::region_enter();
-            for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
-                ModelRegion::loop_enter(i);
-                double timeout = 0.0;
-                struct geopm_time_s start = {{0,0}};
-                struct geopm_time_s curr = {{0,0}};
-                (void)geopm_time(&start);
-                while (timeout < m_delay) {
-                    run_atom();
-                    (void)geopm_time(&curr);
-                    timeout = geopm_time_diff(&start, &curr);
-                }
 
+            std::atomic<int> shared_value{0};
+
+            for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
+                ModelRegion::loop_enter(i);
+                // Thread 1: Sleep and update shared_value
+                auto worker_thread = std::thread([&shared_value](double delay) {
+                    struct timespec sleep_time = {0, 0};
+                    sleep_time.tv_sec = static_cast<time_t>(delay);
+                    sleep_time.tv_nsec = static_cast<long>((delay - sleep_time.tv_sec) * 1e9);
+                    clock_nanosleep(CLOCK_REALTIME, 0, &sleep_time, nullptr);
+                    shared_value.store(1, std::memory_order_release);
+                }, m_delay);
+
+                // Thread 2: Main thread waits for shared_value to change
+                while (shared_value.load(std::memory_order_acquire) == 0);
+
+                worker_thread.join();
                 ModelRegion::loop_exit();
             }
+
             ModelRegion::region_exit();
         }
     }
