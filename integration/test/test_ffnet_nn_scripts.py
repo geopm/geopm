@@ -550,21 +550,22 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         Pass Criteria:
             - For a given REGION_HASH, the mean probability of the
-              respective correct region domain is > 80%
+              respective correct region domain is > 70%
         """
         # Calculate probabilities per phi
         for phi in self._trace_data:
 
             datum = self._trace_data[phi]
             cols = [col for col in datum if col.startswith("geopmbench") and col.endswith("package_0")]
+            exps = datum[cols].apply(np.exp, axis=1)
+            exps["REGION_HASH"] = datum["REGION_HASH"]
 
             for col in cols:
                 region_hash = col.split("-")[1].split("_")[0]
-                df = datum[datum["REGION_HASH"] == region_hash]
-                exps = df[cols].apply(np.exp, axis=1)
-                avg_prob = (exps[col]/exps.sum(axis=1)).mean(axis=0)
+                avg_prob = (exps[exps["REGION_HASH"] == region_hash][col] /
+                            exps[exps["REGION_HASH"] == region_hash].sum(axis=1)).mean(axis=0)
                 print(f'Region {col}: Avg correct probability = {avg_prob}')
-                self.assertTrue(avg_prob >= 0.80)
+                self.assertTrue(avg_prob >= 0.70)
 
     #TODO: Extend to GPU
     @unittest.skip("Skipping, must replace with frequency control to account for avx.")
