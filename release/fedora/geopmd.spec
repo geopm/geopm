@@ -54,7 +54,9 @@ Requires:	geopmd-cli = %{version}
 pushd %{prj_name}
 echo %{version} > %{prj_name}/VERSION
 ./protoc-gen.sh
+%if "%{_bindir}" != "%{_sbindir}"
 sed -i 's/usr\/bin/usr\/sbin/g' geopm.service
+%endif
 popd
 
 %build

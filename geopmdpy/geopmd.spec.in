@@ -85,7 +85,9 @@ echo %{version} > %{prj_name}/VERSION
 %if %{defined enable_grpc}
 ./protoc-gen.sh
 %endif
+%if "%{_bindir}" != "%{_sbindir}"
 sed -i 's/usr\/bin/usr\/sbin/g' geopm.service
+%endif
 
 %build
 %py3_build
