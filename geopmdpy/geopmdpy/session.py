@@ -34,11 +34,29 @@ except ImportError as ex:
 g_session_handler = None
 _STARTUP_SLEEP = 0.005
 
+class TerminationExit(SystemExit):
+    """Exception raised when a termination signal is received.
+
+    This exception is used to signal that the session should terminate
+    due to a signal like SIGINT or SIGTERM. The signum attribute
+    contains the signal number that caused the termination.
+    Attributes:
+        signum (int): The signal number that caused the termination.
+        code (int): The exit code, which is 128 + signum.
+    Args:
+        signum (int): The signal number that caused the termination.
+    Inherits from SystemExit to allow graceful termination of the session.
+    """
+    def __init__(self, signum):
+        super().__init__(128 + signum)
+        self.code = 128 + signum
+        self.signum = signum
+
+    def __str__(self):
+        return f'Received signal {self.signum}, flushing buffers and exiting'
+
 def _term_handler(signum, frame):
-    sys.stderr.write(f'Received signal {signum}, flushing buffers and exiting.\n')
-    if g_session_handler is not None:
-        g_session_handler.stop()
-    sys.exit(128 + signum)
+    raise TerminationExit(signum)
 
 def _check_valid_output(path):
     return path is not None and path != '/dev/null'
@@ -681,11 +699,16 @@ def main():
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
                  report_format=args.report_format, delimiter=args.delimiter, report_samples=args.report_samples)
+    except TerminationExit as term_err:
+        if 'GEOPM_DEBUG' in os.environ:
+            raise
+        sys.stderr.write(f'{term_err}.\n\n')
+        err = term_err.code
     except Exception as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
-            raise ee
-        sys.stderr.write('Error: {}\n\n'.format(ee))
+            raise
+        sys.stderr.write(f'Error: {ee}\n\n')
         err = -1
     finally:
         if session_io is not None:
