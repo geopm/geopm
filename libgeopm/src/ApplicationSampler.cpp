@@ -454,11 +454,27 @@ namespace geopm
         return result;
     }
 
+    std::set<int> ApplicationSamplerImp::get_cpuset_fallback(void)
+    {
+        std::set<int> allowed_cpus;
+        try {
+            allowed_cpus = geopm::get_cpuset(0);
+        }
+        catch (const geopm::Exception &ex) {
+            // If /proc/self/cpuset is unavailable, fall back to all CPUs
+            int num_cpu = m_topo.num_domain(GEOPM_DOMAIN_CPU);
+            for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+                allowed_cpus.insert(cpu_idx);
+            }
+        }
+        return allowed_cpus;
+    }
+
     int ApplicationSamplerImp::sampler_cpu(void)
     {
         int result = m_num_cpu - 1;
         int num_core = m_topo.num_domain(GEOPM_DOMAIN_CORE);
-        std::set<int> allowed_cpus = geopm::get_cpuset(0);
+        std::set<int> allowed_cpus = get_cpuset_fallback();
         bool found_inactive_core = false;
         bool found_inactive_cpu = false;
         std::vector<bool> is_core_active(num_core, false);

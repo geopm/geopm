@@ -61,6 +61,7 @@ namespace geopm
             void update_cpu_active(void);
             void update_start(void);
             void update_stop(void);
+            std::set<int> get_cpuset_fallback(void);
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
             std::shared_ptr<ApplicationStatus> m_status;
