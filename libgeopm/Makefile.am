@@ -389,6 +389,16 @@ model_source_files = src/All2allModelRegion.cpp \
                      src/TimedScalingModelRegion.hpp \
                      # end
 
+dgemm_gpu_files = src/DGEMMGPUModelRegion.cpp \
+                  src/DGEMMGPUModelRegion.hpp \
+                  #end
+
+if ENABLE_ONEAPI
+    model_source_files += $(dgemm_gpu_files)
+else
+    EXTRA_DIST += $(dgemm_gpu_files)
+endif
+
 libgeopm_la_SOURCES += $(model_source_files)
 
 geopmbench_SOURCES = src/geopmbench_main.cpp \
