@@ -10,7 +10,7 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		geopmd
-Version:	3.2.0
+Version:	3.2.1
 Release:	%autorelease
 Summary:	GEOPM daemon
 

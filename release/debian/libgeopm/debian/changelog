@@ -1,6 +1,6 @@
-libgeopm (3.2.0-1) noble; urgency=low
+libgeopm (3.2.1-1) noble; urgency=low
 
-  * Update to version 3.2.0
+  * Update to version 3.2.1
   * ABI set to @geopm_abi_version@
   * Latest tagged release <https://github.com/geopm/geopm/releases/tag/v3.0.0>
 

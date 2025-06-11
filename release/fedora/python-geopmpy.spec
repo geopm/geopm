@@ -13,14 +13,13 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		python-%{prj_name}
-Version:	3.2.0
+Version:	3.2.1
 Release:	%autorelease
 Summary:	Python bindings for libgeopm
 
 License:	BSD-3-Clause
 URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
-Patch0:		0002-Allow-numpy-2.0-and-higher.patch
 
 BuildRequires:	gcc
 BuildRequires:	python3-cffi

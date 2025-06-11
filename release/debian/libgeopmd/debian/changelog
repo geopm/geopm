@@ -1,6 +1,6 @@
-libgeopmd (3.2.0-1) noble; urgency=low
+libgeopmd (3.2.1-1) noble; urgency=low
 
-  * Update to version 3.2.0
+  * Update to version 3.2.1
   * ABI set to @geopm_abi_version@
 
  -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  Mon, 24 Feb 2025 09:34:16 -0800
