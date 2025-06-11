@@ -33,6 +33,7 @@ BuildRequires:	python3-psutil
 BuildRequires:	systemd-units
 BuildRequires:	python3-grpcio
 BuildRequires:	python3-protobuf
+BuildRequires:	python3-sdnotify
 Requires:	python3-%{prj_name} = %{version}-%{release}
 %description
 %{desc}
@@ -45,6 +46,7 @@ Requires:	python3-jsonschema
 Requires:	python3-psutil
 Requires:	python3-grpcio
 Requires:	python3-protobuf
+Requires:	python3-sdnotify
 Requires:	geopmd-cli = %{version}
 %description -n python3-%{prj_name}
 %{desc}
