@@ -10,6 +10,11 @@
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm_time.h"
 
+#ifdef __INTEL_COMPILER
+#pragma warning push
+#pragma warning disable 177  // function was declared but never referenced
+#endif
+
 static void __attribute__((constructor)) geopm_lib_init(void)
 {
     if (geopm::environment().do_profile()) {
@@ -27,4 +32,8 @@ static void __attribute__((constructor)) geopm_lib_init(void)
         }
     }
 }
+
+#ifdef __INTEL_COMPILER
+#pragma warning pop
+#endif
 
