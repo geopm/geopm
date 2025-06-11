@@ -1,7 +1,5 @@
 libgeopm (3.2.1-1) noble; urgency=low
 
   * Update to version 3.2.1
-  * ABI set to @geopm_abi_version@
-  * Latest tagged release <https://github.com/geopm/geopm/releases/tag/v3.0.0>
 
  -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  Mon, 24 Feb 2025 09:34:16 -0800
