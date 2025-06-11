@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <cmath>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include "geopm_prof.h"
 #include "geopm_hint.h"
@@ -103,8 +103,8 @@ namespace geopm
 
         if (big_o_in && m_big_o != big_o_in) {
             try {
-                // Initialize SYCL queue for GPU execution
-                m_queue = new cl::sycl::queue(cl::sycl::gpu_selector{});
+                // Initialize SYCL queue for GPU execution using modern selector
+                m_queue = new sycl::queue(sycl::gpu_selector_v);
                 
                 // Allocate host matrices
                 // Allocate A: M x K
@@ -147,14 +147,14 @@ namespace geopm
                 }
 
                 // Create SYCL buffers
-                m_matrix_a_buffer = new cl::sycl::buffer<double, 2>(
-                    m_host_matrix_a, cl::sycl::range<2>(m_matrix_m_size, m_matrix_k_size));
-                m_matrix_b_buffer = new cl::sycl::buffer<double, 2>(
-                    m_host_matrix_b, cl::sycl::range<2>(m_matrix_k_size, m_matrix_n_size));
-                m_matrix_c_buffer = new cl::sycl::buffer<double, 2>(
-                    m_host_matrix_c, cl::sycl::range<2>(m_matrix_m_size, m_matrix_n_size));
+                m_matrix_a_buffer = new sycl::buffer<double, 2>(
+                    m_host_matrix_a, sycl::range<2>(m_matrix_m_size, m_matrix_k_size));
+                m_matrix_b_buffer = new sycl::buffer<double, 2>(
+                    m_host_matrix_b, sycl::range<2>(m_matrix_k_size, m_matrix_n_size));
+                m_matrix_c_buffer = new sycl::buffer<double, 2>(
+                    m_host_matrix_c, sycl::range<2>(m_matrix_m_size, m_matrix_n_size));
 
-            } catch (cl::sycl::exception &e) {
+            } catch (sycl::exception &e) {
                 cleanup();
                 throw Exception("DGEMMGPUModelRegion::big_o(): SYCL error: " + std::string(e.what()),
                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -197,22 +197,29 @@ namespace geopm
                     ModelRegion::loop_enter(i);
 
                     // Submit SYCL kernel for DGEMM computation
-                    m_queue->submit([&](cl::sycl::handler &cgh) {
-                        auto a_acc = m_matrix_a_buffer->get_access<cl::sycl::access::mode::read>(cgh);
-                        auto b_acc = m_matrix_b_buffer->get_access<cl::sycl::access::mode::read>(cgh);
-                        auto c_acc = m_matrix_c_buffer->get_access<cl::sycl::access::mode::read_write>(cgh);
+                    m_queue->submit([&](sycl::handler &cgh) {
+                        auto a_acc = m_matrix_a_buffer->get_access<sycl::access::mode::read>(cgh);
+                        auto b_acc = m_matrix_b_buffer->get_access<sycl::access::mode::read>(cgh);
+                        auto c_acc = m_matrix_c_buffer->get_access<sycl::access::mode::read_write>(cgh);
+
+                        // Fix the capture for kernel function - capture required variables explicitly
+                        size_t m_size = m_matrix_m_size;
+                        size_t n_size = m_matrix_n_size;
+                        size_t k_size = m_matrix_k_size;
+                        double alpha_val = alpha;
+                        double beta_val = beta;
                         
                         cgh.parallel_for<class dgemmGPU>(
-                            cl::sycl::range<2>(m_matrix_m_size, m_matrix_n_size),
-                            [=](cl::sycl::id<2> idx) {
+                            sycl::range<2>(m_size, n_size),
+                            [=](sycl::id<2> idx) {
                                 int i = idx[0];
                                 int j = idx[1];
                                 
                                 double sum = 0.0;
-                                for (size_t k = 0; k < m_matrix_k_size; ++k) {
+                                for (size_t k = 0; k < k_size; ++k) {
                                     sum += a_acc[i][k] * b_acc[k][j];
                                 }
-                                c_acc[i][j] = alpha * sum + beta * c_acc[i][j];
+                                c_acc[i][j] = alpha_val * sum + beta_val * c_acc[i][j];
                             }
                         );
                     });
@@ -222,7 +229,7 @@ namespace geopm
                     
                     ModelRegion::loop_exit();
                 }
-            } catch (cl::sycl::exception &e) {
+            } catch (sycl::exception &e) {
                 std::cerr << "SYCL exception caught during kernel execution: " << e.what() << std::endl;
             }
             
