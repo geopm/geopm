@@ -151,7 +151,7 @@ jobs:
       if: matrix.service-asan-flag != 'enable-asan' && matrix.base-asan-flag != 'enable-asan'
       working-directory: geopmpy
       env:
-        LD_LIBRARY_PATH: ../libgeopm/.libs:${LD_LIBRARY_PATH}
+        LD_LIBRARY_PATH: ../libgeopm/.libs:../libgeopmd/.libs:${LD_LIBRARY_PATH}
       run: python3 test
     - name: test geopmdgo
       if: matrix.service-asan-flag != 'enable-asan'
