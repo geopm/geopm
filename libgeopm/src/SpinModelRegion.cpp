@@ -69,7 +69,9 @@ namespace geopm
                 }, m_delay);
 
                 // Thread 2: Main thread waits for shared_value to change
-                while (shared_value.load(std::memory_order_acquire) == 0);
+                while (shared_value.load(std::memory_order_acquire) == 0) {
+                    run_atom();
+                }
 
                 worker_thread.join();
                 ModelRegion::loop_exit();
