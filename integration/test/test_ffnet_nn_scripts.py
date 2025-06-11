@@ -58,13 +58,14 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._run_count = 0
         experiment_cli_args=['--geopm-ctl=process']
 
-        cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 4.0, 3.0, 5.0, 6.0)
-
         #####################
         # Neural Net Sweeps #
         #####################
         cls._nn_sweep_dir = Path(os.path.join(cls._top_test_dir, 'nn_frequency_sweep'))
+
+        cls._app_regions = {"cpu":{},"gpu":{}}
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, "nn_sweep", 1, 4.0, 3.0, 5.0, 6.0)
+
 
         # Launch CPU Frequency Sweeps for NN Generation - geopmbench
         cls._cpu_fsweep_experiment_args = cls.setup_cpu_nn_sweep(cls, mach)
@@ -105,9 +106,9 @@ class TestIntegration_ffnet(unittest.TestCase):
         # Configure the ffnet agent
         cls._agent = 'ffnet'
 
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, 1, 1.0, 1.0, 1.0, 1.0)
-        cls._perf_energy_biases = [0, 0.5, 1]
         cls._ffnet_dir = Path(os.path.join(Path.cwd(), 'test_ffnet', 'ffnet'))
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, 'ffnet', 1, 1.0, 1.0, 1.0, 1.0)
+        cls._perf_energy_biases = [0, 0.5, 1]
 
         cls._cpu_nn_path = os.path.join(Path.cwd(), f"{cls._nn_out}_cpu.json")
         cls._cpu_fmap_path = os.path.join(Path.cwd(), f"{cls._nn_fmap_out}_cpu.json")
@@ -181,28 +182,28 @@ class TestIntegration_ffnet(unittest.TestCase):
         if sys.exc_info() != (None, None, None):
             TestIntegration_ffnet._keep_files = True
 
-    def setup_geopmbench(self, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
+    def setup_geopmbench(self, fname, loop_count=1, spin=1.0, sleep=1.0, dgemm=1.0, stream=1.0):
         """
         Configure the CPU test application - geopmbench
         """
         loop_count = loop_count
         #Big Os for geopmbench regions
         cpu_test_params = {
-            'spin': spin,
-            'sleep': sleep,
-            'dgemm':dgemm,
             'stream':stream,
+            'spin': spin,
+            'dgemm':dgemm,
+            'sleep': sleep,
             'all2all':1.0
         }
         #Get region hexes
         for region in cpu_test_params:
             self._app_regions["cpu"][region] = "geopmbench-" + f"0x{hash_str(region):08x}"
 
-        bench_conf = geopmpy.io.BenchConf(self._test_name + '_app.config')
+        bench_conf = geopmpy.io.BenchConf(Path(os.path.join(self._top_test_dir, f'{fname}.config')))
         bench_conf.set_loop_count(loop_count)
         for region in cpu_test_params:
-            bench_conf.append_region(region, cpu_test_params[region])
             bench_conf.append_region("barrier", 1.0)
+            bench_conf.append_region(region, cpu_test_params[region])
         bench_conf.write()
         self._bench_conf_path = os.path.abspath(bench_conf.get_path())
 
