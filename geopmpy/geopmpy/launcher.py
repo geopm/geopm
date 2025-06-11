@@ -31,7 +31,7 @@ import tempfile
 
 from collections import OrderedDict
 from . import __version__
-
+from geopmdpy import topo
 
 class Factory(object):
     def __init__(self):
@@ -111,45 +111,43 @@ def _get_cpuset():
     Returns a list of valid CPUs for the current process.
     Ported from C++ Helper::get_cpuset().
     """
-    proc_path = '/proc/self/cpuset'
-    try:
-        with open(proc_path) as f:
-            cpuset_cgroup = f.read().strip()
-    except Exception as ex:
-        raise RuntimeError(f'<geopm> geopmpy.launcher: Failed to read {proc_path}: {ex}')
-
-    possible_paths = [
-        f'/sys/fs/cgroup/cpuset{cpuset_cgroup}/cpuset.effective_cpus',
-        f'/sys/fs/cgroup{cpuset_cgroup}/cpuset.cpus.effective'
-    ]
-
-    cpus_content = None
-    cpuset_file = None
-    for path in possible_paths:
-        try:
-            with open(path) as f:
-                cpus_content = f.read().strip()
-            cpuset_file = path
-            break
-        except Exception:
-            continue
-
-    if cpus_content is None:
-        raise RuntimeError('<geopm> geopmpy.launcher: Failed to read cpuset.cpus.effective from any expected location')
-
     result = []
-    for part in cpus_content.split(','):
-        if '-' in part: # CPU range (e.g., "0-207")
+    cpuset_path = '/proc/self/cpuset'
+
+    try:
+        with open(cpuset_path) as f:
+            cpuset_cgroup = f.read().strip()
+
+        possible_paths = [
+            f'/sys/fs/cgroup/cpuset{cpuset_cgroup}/cpuset.effective_cpus',
+            f'/sys/fs/cgroup{cpuset_cgroup}/cpuset.cpus.effective'
+        ]
+
+        for path in possible_paths:
             try:
-                start, end = map(int, part.split('-'))
-                result.extend(range(start, end + 1))
-            except Exception as ex:
-                raise RuntimeError(f'<geopm> geopmpy.launcher: Invalid CPU range in {cpuset_file}: {ex}')
-        elif part: # Single CPU number
-            try:
-                result.append(int(part))
-            except Exception as ex:
-                raise RuntimeError(f'<geopm> geopmpy.launcher: Invalid CPU number in {cpuset_file}: {ex}')
+                with open(path) as f:
+                    cpus_content = f.read().strip()
+
+                # Parse CPU ranges and build result list
+                for part in cpus_content.split(','):
+                    if '-' in part:  # CPU range (e.g., "0-207")
+                        start, end = map(int, part.split('-'))
+                        result.extend(range(start, end + 1))
+                    elif part:  # Single CPU number
+                        result.append(int(part))
+
+                # If we successfully parsed this path, stop trying others
+                break
+            except Exception:
+                # Try next path
+                continue
+    except Exception:
+        # Fall through to default behavior if we can't read cpuset_path
+        pass
+
+    if len(result) == 0:
+        result = list(range(topo.num_domain(topo.DOMAIN_CPU)))
+
     return result
 
 
