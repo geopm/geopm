@@ -170,9 +170,7 @@ unique to GEOPM, it is essential for advanced tuning and control.
    For more information on the domain types and topology APIs, see:
 
    - :ref:`geopm_topo.3:Domain Types`
-   - :ref:`Python API <geopmdpy.7:geopmdpy.topo>`
-   - :doc:`C API <geopm_topo.3>`
-   - :doc:`C++ API <geopm::PlatformTopo.3>`
+   - See the :ref:`Platform Topology section of the Tutorial <tutorial:platform-topology>` for example usage in Bash, C, C++, Python, and Golang.
 
 ----
 
@@ -186,13 +184,11 @@ session-based control features.
 
 .. note::
 
-   For more information, see the documentation for
+   For more information, see:
 
      - :doc:`geopmread <geopmread.1>`
      - :doc:`geopmsession <geopmsession.1>`
-     - :ref:`Python API <geopmdpy.7:geopmdpy.pio>`
-     - :doc:`C API <geopm_pio.3>`
-     - :doc:`C++ API <geopm::PlatformIO.3>`
+     - See the :ref:`Reading Telemetry section of the Tutorial <tutorial:reading-telemetry>` for example usage in Bash, C, C++, Python, and Golang.
 
 ----
 
@@ -205,12 +201,10 @@ frequencies) safely and securely. See the section below for examples and the
 
 .. note::
 
-   For more information, see the documentation for
+   For more information, see:
 
      - :doc:`geopmwrite <geopmwrite.1>`
-     - :ref:`Python API <geopmdpy.7:geopmdpy.pio>`
-     - :doc:`C API <geopm_pio.3>`
-     - :doc:`C++ API <geopm::PlatformIO.3>`
+     - See the :ref:`Enact Hardware-based Settings section of the Tutorial <tutorial:enact-hardware-based-settings>` for example usage in Bash, C, C++, Python, and Golang..
 
 ----
 
@@ -219,3 +213,7 @@ frequencies) safely and securely. See the section below for examples and the
 
 GEOPM provides runtime tools for collecting telemetry and profiling
 applications, including integration with MPI and OpenMP.
+
+.. note::
+
+   For more information, see the :ref:`Measure Performance section of the Tutorial <tutorial:measure-performance>` for example usage and details.
