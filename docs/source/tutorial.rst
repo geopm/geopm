@@ -24,6 +24,8 @@ For in-depth descriptions of these two parts of the GEOPM software see:
 ----
 
 
+.. _tutorial:platform-topology:
+
 |:card_file_box:| Platform Topology
 -----------------------------------
 
@@ -120,6 +122,8 @@ topology.
         }
 
 ----
+
+.. _tutorial:reading-telemetry:
 
 |:microscope:| Reading Telemetry
 --------------------------------
@@ -461,6 +465,7 @@ To fetch platform telemetry and output it to the console or a file:
             fmt.Printf("Current CPU frequency for core 0 = %f\n", frequency)
         }
 
+
 For more information on ``geopmsession`` see: :doc:`geopmsession.1`.
 
 Capturing Telemetry Over Time
@@ -648,6 +653,8 @@ Video Demo: Using ``geopmsession``
     <video src="https://geopm.github.io/images/geopmsession.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
+
+.. _tutorial:enact-hardware-based-settings:
 
 |:gear:| Enact Hardware-based Settings
 --------------------------------------
@@ -989,6 +996,8 @@ Video Demo: Using ``geopmwrite``
     <video src="https://geopm.github.io/images/geopmwrite.webm" type="video/webm" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ----
+
+.. _tutorial:measure-performance:
 
 |:straight_ruler:| Measure Performance
 --------------------------------------
