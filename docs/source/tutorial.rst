@@ -29,6 +29,12 @@ For in-depth descriptions of these two parts of the GEOPM software see:
 |:card_file_box:| Platform Topology
 -----------------------------------
 
+.. _topo-diagram:
+
+.. figure:: https://geopm.github.io/images/platform-topo-diagram.svg
+    :alt: Topology Encapsulation Diagram
+    :align: center
+
 All of the code examples require linking against ``libgeopmd`` for C/C++.  The
 Python examples require that your ``PYTHONPATH`` contains the ``geopmdpy``
 module and that ``libgeopmd`` is available in your ``LD_LIBRARY_PATH``.
