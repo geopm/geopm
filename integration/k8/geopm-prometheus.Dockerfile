@@ -10,7 +10,7 @@ RUN apt-get update && \
     protobuf-compiler-grpc unzip zlib1g-dev python3-all python3-setuptools \
     python3-setuptools-scm wget debhelper-compat dh-python curl zstd \
     python3-cffi libze1 libze-dev python3-dev python3-defusedxml \
-    python3-build fakeroot && \
+    python3-build fakeroot python3-sdnotify && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
