@@ -332,6 +332,8 @@ Launching a process and monitoring signals
 This launches ``sleep 5`` and monitors the TIME signal until it detects that the
 ``sleep`` command has exited.
 
+.. _geopmsession.1:reading-signals-during-a-job-execution:
+
 Reading signals during a job execution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -50,6 +50,10 @@ This capability is especially valuable for:
 - **Sustainability initiatives** that require power capping or energy-aware
   scheduling.
 
+.. note::
+
+   For more information on the GEOPM Access Service see :doc:`service`.
+
 ----
 
 |:rocket:| Example: Power Management for Memory-Bound HPC Workloads
@@ -104,6 +108,11 @@ common use case is to set a power limit or frequency limit for your job or sessi
     ENERGY_END=$(geopmread CPU_ENERGY package 0)
     python3 -c "print(f'Package 0 energy: {float($ENERGY_END) - float($ENERGY_BEGIN)} joules')"
 
+.. note::
+
+   For more details, see the :doc:`geopmread.1`.
+
+
 **Example: Detailed Power Monitoring with geopmsession**
 
 .. code-block:: bash
@@ -113,8 +122,9 @@ common use case is to set a power limit or frequency limit for your job or sessi
 This will output a time series of energy readings for each package during the
 execution of the `sleep 1` command.
 
-For more details, see the `geopmsession` documentation:
-https://geopm.github.io/geopmsession.1.html#reading-signals-during-a-job-execution
+.. note::
+
+   For more details, see the :ref:`job execution section <geopmsession.1:reading-signals-during-a-job-execution>`.
 
 ----
 
@@ -134,7 +144,9 @@ GEOPM is designed to be secure and robust for multi-user environments:
 - **No persistent changes:** Hardware is always restored to a safe state after
   each session.
 
-For more information, see the :doc:`security` guide.
+.. note::
+
+   For more information, see the :doc:`security` guide.
 
 ----
 
@@ -148,8 +160,10 @@ line interfaces for the GEOPM version.  For example:
 
    geopmread --version
 
-Follow the :doc:`install` for details about how to install GEOPM if
-this command errors with ``command not found``.
+.. note::
+
+   Follow the :doc:`install` for details about how to install GEOPM if
+   this command errors with ``command not found``.
 
 ----
 
@@ -159,11 +173,6 @@ this command errors with ``command not found``.
 GEOPM provides tools to discover the hardware topology of your system, including
 domains such as board, package, core, cpu, memory, and more. While this is not
 unique to GEOPM, it is essential for advanced tuning and control.
-
-.. _topo-diagram:
-.. figure:: https://geopm.github.io/images/platform-topo-diagram.svg
-    :alt: Topology Encapsulation Diagram
-    :align: center
 
 .. note::
 
