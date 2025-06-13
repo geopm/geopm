@@ -569,32 +569,28 @@ class TestIntegration_ffnet(unittest.TestCase):
                 self.assertTrue(avg_prob >= 0.70)
 
     #TODO: Extend to GPU
-    @unittest.skip("Skipping, must replace with frequency control to account for avx.")
     def test_frequency_selection(self):
         """
         Test that the frequency selection made by ffnet aget is reasonable.
+        Note: Not using dgemm due to AVX
 
         Pass Criteria:
-            - For phi=1, a region's average frequency
-              control is within 10% of fmap's target frequency
+            - For stream and spin, average frequency
+              control is within 15% of fmap's target frequency
+              for a given value of phi
         """
-        #TODO: Put fmap_jsons in class as it's referenced in multiple tests now
         target_freqs = {}
         with open(self._fmap_files['cpu'], "r") as fp:
             fmap_json = self.get_json(fp)
+            for phi in self._perf_energy_biases:
+                idx = int(phi * (len(fmap_json[self._app_regions['cpu']['stream']]) - 1))
+                target_stream = fmap_json[self._app_regions['cpu']['stream']][idx]
+                idx = int(phi * (len(fmap_json[self._app_regions['cpu']['spin']]) - 1))
+                target_spin = fmap_json[self._app_regions['cpu']['spin']][idx]
 
-            for region in self._app_regions['cpu']:
-                region_col = self._app_regions['cpu'][region]
-                if region_col not in self._nn_regions_ignore:
-                    target_freqs[region] = fmap_json[region_col][-1]
-                    target_freqs[region] = fmap_json[region_col][0]
-
-        for host in self._report_data[0].host_names():
-            for region in target_freqs:
-                if region in self._report_data[0].region_names(host):
-                    self.assertLess(abs(target_freqs[region]
-                                        - 1e-9*self._report_data[0].raw_region(host, region)["frequency (Hz)"])
-                                    / target_freqs[region], 0.1)
+                for host in self._report_data[phi].host_names():
+                    self.assertLess(abs(target_stream - 1e-9 * self._report_data[phi].raw_region(host, 'stream')["frequency (Hz)"]) / target_stream, 0.15)
+                    self.assertLess(abs(target_spin - 1e-9 * self._report_data[phi].raw_region(host, 'spin')["frequency (Hz)"]) / target_spin, 0.15)
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
