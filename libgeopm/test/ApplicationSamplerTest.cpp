@@ -74,7 +74,7 @@ void ApplicationSamplerTest::SetUp()
     std::vector<bool> is_active {true, true, false, false};
     m_mock_topo = geopm::make_unique<MockPlatformTopo>();
     EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillOnce(Return(m_num_cpu));
+        .WillRepeatedly(Return(m_num_cpu));
     geopm::time_zero_reset({{0, 0}});
     m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status,
                                                             *m_mock_topo,
