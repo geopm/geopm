@@ -591,18 +591,19 @@ class TestIntegration_ffnet(unittest.TestCase):
                 print(f'Region {col}: Avg correct probability = {avg_prob}')
                 self.assertGreaterEqual(avg_prob, self._MIN_REGION_PROBABILITY)
 
-    #TODO: Extend to GPU
     def test_frequency_selection(self):
         """
-        Test that the frequency selection made by ffnet aget is reasonable.
+        Test that the frequency selection made by ffnet agent is reasonable.
         Note: Not using dgemm due to AVX
 
         Pass Criteria:
             - For stream and spin, average frequency
               control is within _MAX_FREQ_DEVIATION of fmap's target frequency
               for a given value of phi
+            - For GPU regions (if available), average frequency
+              control is within _MAX_FREQ_DEVIATION of fmap's target frequency
         """
-        target_freqs = {}
+        # Test CPU frequency selection
         with open(self._fmap_files['cpu'], "r") as fp:
             fmap_json = self.get_json(fp)
             for phi in self._perf_energy_biases:
@@ -616,6 +617,28 @@ class TestIntegration_ffnet(unittest.TestCase):
                     spin_freq_ratio = abs(target_spin - 1e-9 * self._report_data[phi].raw_region(host, 'spin')["frequency (Hz)"]) / target_spin
                     self.assertLess(stream_freq_ratio, self._MAX_FREQ_DEVIATION)
                     self.assertLess(spin_freq_ratio, self._MAX_FREQ_DEVIATION)
+
+        # Test GPU frequency selection if GPU is available
+        if self._do_gpu:
+            with open(self._fmap_files['gpu'], "r") as fp:
+                gpu_fmap_json = self.get_json(fp)
+                for phi in self._perf_energy_biases:
+                    # Calculate target frequencies for each GPU region at current phi
+                    gpu_targets = {}
+                    for region_type in ['dgemm', 'nstream']:
+                        region_name = self._app_regions['gpu'][region_type]
+                        if region_name in gpu_fmap_json:
+                            idx = int(phi * (len(gpu_fmap_json[region_name]) - 1))
+                            gpu_targets[region_type] = gpu_fmap_json[region_name][idx]
+
+                    # Check each region's actual frequency against target (converted to GHz)
+                    for host in self._report_data[phi].host_names():
+                        for region_type, target_freq in gpu_targets.items():
+                            if self._report_data[phi].has_region(host, region_type):
+                                actual_freq = 1e-9 * self._report_data[phi].raw_region(host, region_type)["frequency (Hz)"]
+                                freq_diff_ratio = abs(target_freq - actual_freq) / target_freq
+                                print(f"GPU {region_type} phi={phi}: target={target_freq:.2f}GHz, actual={actual_freq:.2f}GHz, diff={freq_diff_ratio:.2%}")
+                                self.assertLess(freq_diff_ratio, self._MAX_FREQ_DEVIATION)
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
