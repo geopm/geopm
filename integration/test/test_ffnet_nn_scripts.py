@@ -40,6 +40,20 @@ from integration.experiment.ffnet import gen_region_parameters
 @util.skip_unless_do_launch()
 class TestIntegration_ffnet(unittest.TestCase):
     _remove_traces = True
+
+    # Test configuration constants
+    _NODE_COUNT = 1
+    _RANKS_PER_NODE = 2
+
+    # Frequency sweep constants
+    _COARSE_GPU_FREQ_STEPS = 8
+
+    # Performance thresholds
+    _MIN_REGION_PROBABILITY = 0.70
+    _MAX_FREQ_DEVIATION = 0.15
+    _MIN_PERF_RATIO = 0.95
+    _MIN_ENERGY_RATIO = 0.95
+
     @classmethod
     def setUpClass(cls):
         """
@@ -53,8 +67,8 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         # Grabbing system frequency parameters for experiment frequency bounds
         # Choosing the maximum many core frequency to remove redundant frequency sweep values
-        cls._node_count = 1
-        cls._ranks_per_node = 2
+        cls._node_count = cls._NODE_COUNT
+        cls._ranks_per_node = cls._RANKS_PER_NODE
         cls._run_count = 0
         experiment_cli_args=['--geopm-ctl=process']
 
@@ -240,7 +254,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         gpu_freq_min = mach.gpu_frequency_min()
         gpu_freq_max = mach.gpu_frequency_max()
         gpu_freq_step = mach.gpu_frequency_step()
-        coarse_step = round((gpu_freq_max - gpu_freq_min)/8)
+        coarse_step = round((gpu_freq_max - gpu_freq_min)/self._COARSE_GPU_FREQ_STEPS)
         if coarse_step > gpu_freq_step:
             gpu_freq_step = coarse_step
 
@@ -483,17 +497,18 @@ class TestIntegration_ffnet(unittest.TestCase):
                     self.assertTrue(all(x>=y for x,y in zip(freq_list, freq_list[1:])))
 
         #Check that CPU region frequency for sleep is <= dgemm at phi=0 (could both be fmax)
-        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0] <= fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0])
+        self.assertLessEqual(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0],
+                             fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0])
 
         #Check that CPU region frequency for sleep is < dgemm at phi=1 (strictly)
-        self.assertTrue(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1] < fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
+        self.assertLess(fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1],
+                        fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1])
 
         #Check that sleep's frequency decrease (phi=0 to phi=1) is
         #greater than dgemm's frequency decrease (phi=0 to phi=1)
         df_sleep = fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][0] - fmap_jsons["cpu"][self._app_regions['cpu']['sleep']][-1]
-
         df_dgemm = fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][0] - fmap_jsons["cpu"][self._app_regions['cpu']['dgemm']][-1]
-        self.assertTrue(df_sleep >= df_dgemm)
+        self.assertGreaterEqual(df_sleep, df_dgemm)
 
         if self._do_gpu is True:
             #Check that parres nstream's frequency at phi=1 is less than dgemm's frequency at phi=1
@@ -506,10 +521,10 @@ class TestIntegration_ffnet(unittest.TestCase):
         Test that the phi=0 decisions do not significantly lower performance
 
         Pass Criteria:
-            - For each region, phi=0 dgemm/stream runtime is within 5% of max
+            - For each region, phi=0 dgemm/stream runtime is within _MIN_PERF_RATIO of max
               freq run
-            - For each region, phi=0 dgemm/stream energy consumption is at most
-              1.05x max freq run energy consumption
+            - For each region, phi=0 dgemm/stream energy consumption x _MIN_ENERGY_RATIO
+              is at most max freq run energy consumption
         """
         max_freq = "{:.1e}".format(self._cpu_fsweep_experiment_args.max_frequency)
         max_freq_fname = glob.glob(f"{str(self._nn_sweep_dir)}/geopmbench_frequency_map_cpu{max_freq}*.report")[0]
@@ -520,10 +535,13 @@ class TestIntegration_ffnet(unittest.TestCase):
             dgemm_ffnet = self._report_data[0].raw_region(host, "dgemm")
             stream_ffnet = self._report_data[0].raw_region(host, "stream")
 
-            self.assertTrue(dgemm_ffnet["runtime (s)"] * 0.95 <= dgemm_max["runtime (s)"])
-            self.assertTrue(stream_ffnet["runtime (s)"] * 0.95 <= stream_max["runtime (s)"])
-            self.assertTrue(dgemm_ffnet["package-energy (J)"] * 0.95 <= dgemm_max["package-energy (J)"])
-            self.assertTrue(stream_ffnet["package-energy (J)"] * 0.95 <= stream_max["package-energy (J)"])
+            # Check runtime performance - should be within MIN_PERF_RATIO  degradation of max freq run
+            self.assertLessEqual(dgemm_ffnet["runtime (s)"] * self._MIN_PERF_RATIO, dgemm_max["runtime (s)"])
+            self.assertLessEqual(stream_ffnet["runtime (s)"] * self._MIN_PERF_RATIO, stream_max["runtime (s)"])
+
+            # Check energy performance - should be within MIN_ENERGY_RATIO degradation of max freq run
+            self.assertLessEqual(dgemm_ffnet["package-energy (J)"] * self._MIN_ENERGY_RATIO, dgemm_max["package-energy (J)"])
+            self.assertLessEqual(stream_ffnet["package-energy (J)"] * self._MIN_ENERGY_RATIO, stream_max["package-energy (J)"])
 
     def test_phi(self):
         """
@@ -540,10 +558,15 @@ class TestIntegration_ffnet(unittest.TestCase):
             stream_perf = self._report_data[0].raw_region(host, "stream")
             stream_ee = self._report_data[1].raw_region(host, "stream")
 
-            self.assertTrue(dgemm_perf["frequency (Hz)"] >= dgemm_ee["frequency (Hz)"])
-            self.assertTrue(stream_perf["frequency (Hz)"] >= stream_ee["frequency (Hz)"])
-            self.assertTrue(stream_perf["package-energy (J)"] >= stream_ee["package-energy (J)"])
-            self.assertTrue(dgemm_perf["runtime (s)"] <= dgemm_ee["runtime (s)"])
+            #DGEMM/stream Frequency for phi=0 should be >= phi=1
+            self.assertGreaterEqual(dgemm_perf["frequency (Hz)"], dgemm_ee["frequency (Hz)"])
+            self.assertGreaterEqual(stream_perf["frequency (Hz)"], stream_ee["frequency (Hz)"])
+
+            #Stream energy for phi=0 should be >= phi=1
+            self.assertGreaterEqual(stream_perf["package-energy (J)"], stream_ee["package-energy (J)"])
+
+            #DGEMM runtime for phi=0 should be <= phi=1
+            self.assertLessEqual(dgemm_perf["runtime (s)"], dgemm_ee["runtime (s)"])
 
     def test_prediction_given_hash(self):
         """
@@ -551,7 +574,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         Pass Criteria:
             - For a given REGION_HASH, the mean probability of the
-              respective correct region domain is > 70%
+              respective correct region domain is _MIN_REGION_PROBABILITY
         """
         # Calculate probabilities per phi
         for phi in self._trace_data:
@@ -566,7 +589,7 @@ class TestIntegration_ffnet(unittest.TestCase):
                 avg_prob = (exps[exps["REGION_HASH"] == region_hash][col] /
                             exps[exps["REGION_HASH"] == region_hash].sum(axis=1)).mean(axis=0)
                 print(f'Region {col}: Avg correct probability = {avg_prob}')
-                self.assertTrue(avg_prob >= 0.70)
+                self.assertGreaterEqual(avg_prob, self._MIN_REGION_PROBABILITY)
 
     #TODO: Extend to GPU
     def test_frequency_selection(self):
@@ -576,7 +599,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         Pass Criteria:
             - For stream and spin, average frequency
-              control is within 15% of fmap's target frequency
+              control is within _MAX_FREQ_DEVIATION of fmap's target frequency
               for a given value of phi
         """
         target_freqs = {}
@@ -589,8 +612,10 @@ class TestIntegration_ffnet(unittest.TestCase):
                 target_spin = fmap_json[self._app_regions['cpu']['spin']][idx]
 
                 for host in self._report_data[phi].host_names():
-                    self.assertLess(abs(target_stream - 1e-9 * self._report_data[phi].raw_region(host, 'stream')["frequency (Hz)"]) / target_stream, 0.15)
-                    self.assertLess(abs(target_spin - 1e-9 * self._report_data[phi].raw_region(host, 'spin')["frequency (Hz)"]) / target_spin, 0.15)
+                    stream_freq_ratio = abs(target_stream - 1e-9 * self._report_data[phi].raw_region(host, 'stream')["frequency (Hz)"]) / target_stream
+                    spin_freq_ratio = abs(target_spin - 1e-9 * self._report_data[phi].raw_region(host, 'spin')["frequency (Hz)"]) / target_spin
+                    self.assertLess(stream_freq_ratio, self._MAX_FREQ_DEVIATION)
+                    self.assertLess(spin_freq_ratio, self._MAX_FREQ_DEVIATION)
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
