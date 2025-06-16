@@ -78,7 +78,7 @@ class TestIntegration_ffnet(unittest.TestCase):
         cls._nn_sweep_dir = Path(os.path.join(cls._top_test_dir, 'nn_frequency_sweep'))
 
         cls._app_regions = {"cpu":{},"gpu":{}}
-        cls._cpu_app_conf = cls.setup_geopmbench(cls, "nn_sweep", 1, 4.0, 3.0, 5.0, 6.0)
+        cls._cpu_app_conf = cls.setup_geopmbench(cls, "nn_sweep", 1, 4.0, 4.0, 5.0, 6.0)
 
 
         # Launch CPU Frequency Sweeps for NN Generation - geopmbench
@@ -558,15 +558,19 @@ class TestIntegration_ffnet(unittest.TestCase):
             stream_perf = self._report_data[0].raw_region(host, "stream")
             stream_ee = self._report_data[1].raw_region(host, "stream")
 
-            #DGEMM/stream Frequency for phi=0 should be >= phi=1
-            self.assertGreaterEqual(dgemm_perf["frequency (Hz)"], dgemm_ee["frequency (Hz)"])
-            self.assertGreaterEqual(stream_perf["frequency (Hz)"], stream_ee["frequency (Hz)"])
+            #Frequency for phi=0 should be >= phi=1
+            self.assertGreaterEqual(int(dgemm_perf["frequency (Hz)"]),
+                                    int(dgemm_ee["frequency (Hz)"]))
+            self.assertGreaterEqual(int(stream_perf["frequency (Hz)"]),
+                                    int(stream_ee["frequency (Hz)"]))
 
             #Stream energy for phi=0 should be >= phi=1
-            self.assertGreaterEqual(stream_perf["package-energy (J)"], stream_ee["package-energy (J)"])
+            self.assertGreaterEqual(stream_perf["package-energy (J)"],
+                                    stream_ee["package-energy (J)"])
 
             #DGEMM runtime for phi=0 should be <= phi=1
-            self.assertLessEqual(dgemm_perf["runtime (s)"], dgemm_ee["runtime (s)"])
+            self.assertLessEqual(dgemm_perf["runtime (s)"],
+                                 dgemm_ee["runtime (s)"])
 
     def test_prediction_given_hash(self):
         """
