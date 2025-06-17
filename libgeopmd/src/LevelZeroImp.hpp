@@ -152,7 +152,10 @@ namespace geopm
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_temp_handle_t> > temp_domain_max;
-                std::vector<std::vector<zes_engine_handle_t> > engine_domain;
+                // This are enum geopm_levelzero_domain_e indexed, then subdevice indexed,
+                // then compute engine indexed because there may be multiple compute
+                // engines per tile.
+                std::vector<std::vector<std::vector<zes_engine_handle_t> > > engine_domain;
                 mutable std::vector<std::vector<uint64_t> > cached_timestamp;
 
                 //uint32_t num_subdevice_perf_domain;
