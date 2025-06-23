@@ -51,7 +51,8 @@ def report_signals(domains):
         signals += ["CPU_CYCLES_THREAD@package",
                     "CPU_CYCLES_REFERENCE@package",
                     "TIME@package",
-                    "CPU_ENERGY@package"]
+                    "CPU_ENERGY@package",
+                    "CPU_CORE_FREQUENCY_STATUS@package"]
     if 'gpu' in domains:
         signals += ["GPU_CORE_FREQUENCY_STATUS@board",
                     "GPU_CORE_FREQUENCY_MIN_CONTROL@board",

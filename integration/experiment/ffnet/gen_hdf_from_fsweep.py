@@ -14,6 +14,63 @@ try:
 except ImportError:
     from yaml import SafeLoader
 
+def get_package_count(region_dict):
+    """Determine the number of packages by counting TIME@package fields in the region_dict.
+
+    Args:
+        region_dict: Dictionary containing region data from the report
+
+    Returns:
+        int: Number of packages detected
+    """
+    package_count = 0
+    while f'TIME@package-{package_count}' in region_dict:
+        package_count += 1
+
+    # Fallback to default if no packages are detected
+    if package_count == 0:
+        package_count = 1  # Assume at least one package
+
+    return package_count
+
+def process_region_for_packages(region_dict, nodename, app_name, region_id, freqs):
+    """Process a region for all packages and return list of region entries.
+
+    Args:
+        region_dict: Dictionary containing region data
+        nodename: Name of the node
+        app_name: Name of the application
+        region_id: ID of the region (hash or "0xDEADBEEF")
+        freqs: Dictionary of frequencies
+
+    Returns:
+        list: List of region entries for each package
+    """
+    entries = []
+    num_packages = get_package_count(region_dict)
+
+    for pkg_idx in range(num_packages):
+        conf = {}
+        # node and package
+        conf['node'] = nodename
+        conf['package'] = pkg_idx
+
+        # frequencies
+        for device in freqs:
+            if freqs[device] is not None:
+                conf[f"{device}-frequency"] = freqs[device]
+
+        # Get per-package frequency if available
+        if f'CPU_CORE_FREQUENCY_STATUS-package-{pkg_idx}' in region_dict:
+            conf['cpu-frequency'] = region_dict[f'CPU_CORE_FREQUENCY_STATUS-package-{pkg_idx}']
+
+        region_entry = region_dict.copy()
+        region_entry['app-config'] = app_name + '-' + region_id
+        region_entry.update(conf)
+        entries.append(region_entry)
+
+    return entries
+
 def process_report_files(input_dir, region_ignore):
     reports = []
 
@@ -37,29 +94,17 @@ def process_report_files(input_dir, region_ignore):
                 freqs[device] =  float(report["Policy"][lookup_str[device]])
 
         for nodename in report["Hosts"]:
-            conf = {}
-            #node
-            conf['node'] = nodename
-
-            #frequencies
-            for device in freqs:
-                if freqs[device] is not None:
-                    conf[f"{device}-frequency"] = freqs[device]
-
             #app-config
             if "Regions" in report["Hosts"][nodename]:
                 for region_dict in report["Hosts"][nodename]["Regions"]:
                     format_region = format(region_dict['hash'], '#010x')
                     if format_region not in region_ignore and app_name + "-" + format_region not in region_ignore:
-                        region_dict['app-config'] = app_name + '-' + format_region
-                        region_dict.update(conf)
-                        reports.append(region_dict)
+                        # Process per-package data
+                        reports.extend(process_region_for_packages(region_dict, nodename, app_name, format_region, freqs))
             else:
                 # Handle sweeps done with python infrastructure that does not have regions or a region hash
                 region_dict = report["Hosts"][nodename]["Application Totals"]
-                region_dict['app-config'] = app_name + '-' + "0xDEADBEEF"
-                region_dict.update(conf)
-                reports.append(region_dict)
+                reports.extend(process_region_for_packages(region_dict, nodename, app_name, "0xDEADBEEF", freqs))
 
     return pd.DataFrame(reports)
 
@@ -97,17 +142,31 @@ def process_trace_files(sweep_dir, region_ignore):
         cols.remove('TIME')
         trace_df.drop(cols, axis=1, inplace=True)
 
-        # Add data from each package as separate rows rather than separate columns
-        pkg0_df = trace_df.drop([col for col in trace_df if col.endswith("-package-1")],axis=1)
-        pkg0_df.rename(columns=lambda x: x.replace("-package-0", ""), inplace=True)
-        pkg1_df = trace_df.drop([col for col in trace_df if col.endswith("-package-0")],axis=1)
-        pkg1_df.rename(columns=lambda x: x.replace("-package-1", ""), inplace=True)
+        # Determine how many packages we have in the trace file
+        package_counts = set()
+        for col in trace_df.columns:
+            if "-package-" in col:
+                pkg_idx = int(col.split("-package-")[1])
+                package_counts.add(pkg_idx)
 
-        trace_pkg_df = pd.concat([pkg0_df, pkg1_df], axis=0)
+        # Add data from each package as separate rows rather than separate columns
+        pkg_dfs = []
+        for pkg_idx in sorted(package_counts):
+            # Drop columns from other packages
+            other_pkg_cols = [col for col in trace_df.columns
+                              if "-package-" in col and not col.endswith(f"-package-{pkg_idx}")]
+            pkg_df = trace_df.drop(other_pkg_cols, axis=1)
+            # Rename columns to remove package suffix
+            pkg_df.rename(columns=lambda x: x.replace(f"-package-{pkg_idx}", ""), inplace=True)
+            # Add package identifier
+            pkg_df['package'] = pkg_idx
+            pkg_dfs.append(pkg_df)
+        trace_pkg_df = pd.concat(pkg_dfs, axis=0) if pkg_dfs else pd.DataFrame()
         # Help uniquely identify different configurations of a single app, used to train on
         # instead of REGION_HASH
         trace_pkg_df['app-config'] = app_name + '-' + trace_pkg_df['REGION_HASH']
         trace_pkg_df['node'] = nodename
+        # Filter out ignored regions
         trace_pkg_df = trace_pkg_df[~trace_pkg_df['app-config'].isin(region_ignore)]
 
         all_dfs.append(trace_pkg_df)
@@ -130,6 +189,7 @@ def main(output_prefix, frequency_sweep_dirs, region_ignore=None):
     #recommendations
     keep_columns = [
                 'node',
+                'package',
                 'app-config',
                 'runtime (s)',
                 'cpu-frequency',
@@ -170,7 +230,6 @@ def main(output_prefix, frequency_sweep_dirs, region_ignore=None):
     pd \
     .concat(trace_dfs, ignore_index=True) \
     .to_hdf(f"{output_prefix}_traces.h5", "traces", mode='w')
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
