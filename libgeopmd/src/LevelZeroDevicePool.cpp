@@ -247,7 +247,8 @@ namespace geopm
 
     std::pair<uint64_t, uint64_t> LevelZeroDevicePoolImp::active_time_pair(int domain,
                                                                            unsigned int domain_idx,
-                                                                           int l0_domain) const
+                                                                           int l0_domain,
+                                                                           int engine_idx) const
     {
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
@@ -255,20 +256,18 @@ namespace geopm
                             " is not supported for the engine domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        // TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
-        //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
         check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
                             __func__, __LINE__);
 
         return m_levelzero.active_time_pair(dev_subdev_idx_pair.first, l0_domain,
-                                            dev_subdev_idx_pair.second);
+                                            dev_subdev_idx_pair.second, engine_idx);
     }
 
     static double convert_active_timestamp(uint64_t value, uint64_t &last_value, uint64_t &rollover_count, uint64_t &original_value)
     {
-        static const int num_bits = 32;
+        static const int num_bits = 32; // TODO: change to 64 after verifying the rest works.
         static const uint64_t overflow = (1ULL << num_bits);
         static const double overflow_d = overflow;
         static const uint64_t mask = overflow - 1;
@@ -294,7 +293,7 @@ namespace geopm
 
     static double convert_active_time(uint64_t value, uint64_t &last_value, uint64_t &rollover_count)
     {
-        static const int num_bits = 32;
+        static const int num_bits = 32; // TODO: change to 64 after verifying the rest works.
         static const uint64_t overflow = (1ULL << num_bits);
         static const double overflow_d = overflow;
         static const uint64_t mask = overflow - 1;
@@ -317,23 +316,28 @@ namespace geopm
                             " is not supported for the engine domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        // TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
-        //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
         check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
                             __func__, __LINE__);
 
-        uint64_t active_timestamp =  m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
-                                                                       dev_subdev_idx_pair.second);
-        auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
-        auto &active_timestamp_last = m_active_timestamp_last.try_emplace(l0_domain, num_chip, 0ULL).first->second;
-        auto &active_timestamp_rollover = m_active_timestamp_rollover.try_emplace(l0_domain, num_chip, 0ULL).first->second;
-        auto &active_timestamp_original = m_active_timestamp_original.try_emplace(l0_domain, num_chip, 0ULL).first->second;
+        // TODO query engine count instead
+        static const int engine_count = 4;
+        double active_time_total = 0;
+        for (int engine_idx = 0; engine_idx < engine_count; ++engine_idx) {
+            uint64_t active_timestamp =  m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
+                                                                           dev_subdev_idx_pair.second, engine_idx);
+            auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
+            auto &active_timestamp_last = m_active_timestamp_last.try_emplace(l0_domain, num_chip, std::vector<uint64_t>(engine_count, 0ULL)).first->second;
+            auto &active_timestamp_rollover = m_active_timestamp_rollover.try_emplace(l0_domain, num_chip, std::vector<uint64_t>(engine_count, 0ULL)).first->second;
+            auto &active_timestamp_original = m_active_timestamp_original.try_emplace(l0_domain, num_chip, std::vector<uint64_t>(engine_count, 0ULL)).first->second;
 
-        return convert_active_timestamp(active_timestamp, active_timestamp_last[domain_idx],
-                                        active_timestamp_rollover[domain_idx],
-                                        active_timestamp_original[domain_idx]);
+            active_time_total += convert_active_timestamp(
+                    active_timestamp, active_timestamp_last[domain_idx][engine_idx],
+                    active_timestamp_rollover[domain_idx][engine_idx],
+                    active_timestamp_original[domain_idx][engine_idx]);
+        }
+        return active_time_total;
     }
 
     double LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
@@ -345,21 +349,28 @@ namespace geopm
                             " is not supported for the engine domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        //TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
-        //      device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
         check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
                             __func__, __LINE__);
-        uint64_t active_time = m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
-                                                       dev_subdev_idx_pair.second);
 
-        auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
-        auto &active_time_last = m_active_time_last.try_emplace(l0_domain, num_chip, 0ULL).first->second;
-        auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, num_chip, 0ULL).first->second;
+        // TODO query engine count instead
+        static const int engine_count = 4;
+        double active_time_total = 0;
+        for (int engine_idx = 0; engine_idx < engine_count; ++engine_idx) {
+            uint64_t active_time = m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
+                                                           dev_subdev_idx_pair.second,
+                                                           engine_idx);
 
-        return convert_active_time(active_time, active_time_last[domain_idx],
-                                   active_time_rollover[domain_idx]);
+            auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
+            auto &active_time_last = m_active_time_last.try_emplace(l0_domain, num_chip, std::vector<uint64_t>(engine_count, 0ULL)).first->second;
+            auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, num_chip, std::vector<uint64_t>(engine_count, 0ULL)).first->second;
+
+            active_time_total += convert_active_time(
+                    active_time, active_time_last[domain_idx][engine_idx],
+                    active_time_rollover[domain_idx][engine_idx]);
+        }
+        return active_time_total;
     }
 
     int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,

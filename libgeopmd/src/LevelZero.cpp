@@ -407,6 +407,14 @@ namespace geopm
                 .at(geopm::LevelZero::M_DOMAIN_COMPUTE).resize(m_devices.at(device_idx).m_num_subdevice);
             m_devices.at(device_idx).subdevice.engine_domain
                 .at(geopm::LevelZero::M_DOMAIN_MEMORY).resize(m_devices.at(device_idx).m_num_subdevice);
+            m_devices.at(device_idx).subdevice.cached_timestamp
+                .at(geopm::LevelZero::M_DOMAIN_ALL).resize(m_devices.at(device_idx).m_num_subdevice);
+            m_devices.at(device_idx).subdevice.cached_timestamp
+                .at(geopm::LevelZero::M_DOMAIN_COMPUTE).resize(m_devices.at(device_idx).m_num_subdevice);
+            m_devices.at(device_idx).subdevice.cached_timestamp
+                .at(geopm::LevelZero::M_DOMAIN_MEMORY).resize(m_devices.at(device_idx).m_num_subdevice);
+            m_devices.at(device_idx).subdevice.cached_timestamp
+                .at(geopm::LevelZero::M_DOMAIN_ALL).resize(m_devices.at(device_idx).m_num_subdevice);
             for (auto handle : engine_domain) {
                 zes_engine_properties_t property = {};
                 check_ze_result(zesEngineGetProperties(handle, &property),
@@ -425,21 +433,24 @@ namespace geopm
                             subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_ALL)
                             .at(property.subdeviceId).push_back(handle);
                         m_devices.at(device_idx).
-                            subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_ALL).push_back(0);
+                            subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_ALL)
+                            .at(property.subdeviceId).push_back(0);
                     }
                     else if (property.type == ZES_ENGINE_GROUP_COMPUTE_SINGLE) {
                         m_devices.at(device_idx).
                             subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE)
                             .at(property.subdeviceId).push_back(handle);
                         m_devices.at(device_idx).
-                            subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(0);
+                            subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_COMPUTE)
+                            .at(property.subdeviceId).push_back(0);
                     }
                     else if (property.type == ZES_ENGINE_GROUP_COPY_SINGLE) {
                         m_devices.at(device_idx).
                             subdevice.engine_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY)
                             .at(property.subdeviceId).push_back(handle);
                         m_devices.at(device_idx).
-                            subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_MEMORY).push_back(0);
+                            subdevice.cached_timestamp.at(geopm::LevelZero::M_DOMAIN_MEMORY)
+                            .at(property.subdeviceId).push_back(0);
                     }
                 }
             }
@@ -920,34 +931,31 @@ namespace geopm
     }
 
     uint64_t LevelZeroImp::active_time_timestamp(unsigned int l0_device_idx,
-                                                 int l0_domain, int l0_domain_idx) const
+                                                 int l0_domain, int l0_domain_idx, int engine_idx) const
     {
-        return m_devices.at(l0_device_idx).subdevice.cached_timestamp.at(l0_domain).at(l0_domain_idx);
+        return m_devices.at(l0_device_idx).subdevice.cached_timestamp.at(l0_domain).at(l0_domain_idx).at(engine_idx);
     }
 
     uint64_t LevelZeroImp::active_time(unsigned int l0_device_idx,
-                                       int l0_domain, int l0_domain_idx) const
+                                       int l0_domain, int l0_domain_idx, int engine_idx) const
     {
-        return active_time_pair(l0_device_idx, l0_domain, l0_domain_idx).first;
+        return active_time_pair(l0_device_idx, l0_domain, l0_domain_idx, engine_idx).first;
     }
 
     std::pair<uint64_t,uint64_t> LevelZeroImp::active_time_pair(unsigned int l0_device_idx,
-                                                                int l0_domain, int l0_domain_idx) const
+                                                                int l0_domain, int l0_domain_idx,
+                                                                int engine_idx) const
     {
-        uint64_t result_active = 0;
-        uint64_t result_timestamp = 0;
         zes_engine_stats_t stats = {};
-        for (auto& handle : m_devices.at(l0_device_idx).
-                                         subdevice.engine_domain.at(l0_domain).at(l0_domain_idx)) {
-            check_ze_result(zesEngineGetActivity(handle, &stats),
-                            GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
-                            ": Sysman failed to get engine group activity.", __LINE__);
-            result_active += stats.activeTime;
-            result_timestamp += stats.timestamp;
-        }
+        auto& handle = m_devices.at(l0_device_idx).subdevice.engine_domain.at(l0_domain).at(l0_domain_idx).at(engine_idx);
+        check_ze_result(zesEngineGetActivity(handle, &stats),
+                        GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                        ": Sysman failed to get engine group activity.", __LINE__);
+        uint64_t result_active = stats.activeTime;
+        uint64_t result_timestamp = stats.timestamp;
         // Cache the timestamp for the active time
         m_devices.at(l0_device_idx).
-            subdevice.cached_timestamp.at(l0_domain).at(l0_domain_idx) = result_timestamp;
+            subdevice.cached_timestamp.at(l0_domain).at(l0_domain_idx).at(engine_idx) = result_timestamp;
         return {result_active, result_timestamp};
     }
 

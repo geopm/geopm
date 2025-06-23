@@ -127,18 +127,20 @@ namespace geopm
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @param [in] l0_domain_idx The LevelZero index indicating a particular
             ///        domain of the GPU.
+            /// @param [in] engine_idx The index of the engine within the given GPU domain
             /// @return GPU active time and timestamp in microseconds.
             virtual std::pair<uint64_t, uint64_t> active_time_pair(unsigned int l0_device_idx, int l0_domain,
-                                                                   int l0_domain_idx) const = 0;
+                                                                   int l0_domain_idx, int engine_idx) const = 0;
             /// @brief Get the LevelZero device active time in microseconds
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @param [in] l0_domain_idx The LevelZero index indicating a particular
             ///        domain of the GPU.
+            /// @param [in] engine_idx The index of the engine within the given GPU domain
             /// @return GPU active time in microseconds.
             virtual uint64_t active_time(unsigned int l0_device_idx, int l0_domain,
-                                         int l0_domain_idx) const = 0;
+                                         int l0_domain_idx, int engine_idx) const = 0;
             /// @brief Get the cachced LevelZero device timestamp for the
             ///        active time value in microseconds
             /// @param [in] l0_device_idx The index indicating a particular
@@ -148,7 +150,8 @@ namespace geopm
             ///        domain of the GPU.
             /// @return GPU device timestamp for the active time value in microseconds.
             virtual uint64_t active_time_timestamp(unsigned int l0_device_idx,
-                                                   int l0_domain, int l0_domain_idx) const = 0;
+                                                   int l0_domain, int l0_domain_idx,
+                                                   int engine_idx) const = 0;
             /// @brief Get the number of LevelZero power domains of a certain type
             /// @param [in] geopm_domain The GEOPM domain being targeted
             /// @param [in] l0_device_idx The LevelZero device being targeted

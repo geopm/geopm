@@ -92,7 +92,8 @@ namespace geopm
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @return GPU active time and timestamp in microseconds.
             virtual std::pair<uint64_t, uint64_t> active_time_pair(int domain, unsigned int domain_idx,
-                                                                   int l0_domain) const = 0;
+                                                                   int l0_domain,
+                                                                   int engine_idx) const = 0;
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
             /// @brief Get the LevelZero device active time in microseconds
             /// @return GPU active time in microseconds.

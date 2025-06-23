@@ -43,7 +43,7 @@ namespace geopm
                                    int l0_domain) const override;
             std::pair<uint64_t, uint64_t> active_time_pair(int domain,
                                                            unsigned int device_idx,
-                                                           int l0_domain) const override;
+                                                           int l0_domain, int engine_idx) const override;
             double active_time(int domain, unsigned int device_idx,
                                int l0_domain) const override;
             double active_time_timestamp(int domain, unsigned int device_idx,
@@ -102,11 +102,11 @@ namespace geopm
             void check_idx_range(int domain, unsigned int domain_idx) const;
             void check_domain_exists(int size, const char *func, int line) const;
             std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
-            mutable std::map<int, std::vector<uint64_t> > m_active_time_last; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_time_rollover; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_last; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_rollover; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_original; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector< std::vector<uint64_t> > > m_active_time_last; // Map from l0_domain to vector over gpu chips, containing vectors over engines
+            mutable std::map<int, std::vector< std::vector<uint64_t> > > m_active_time_rollover; // Map from l0_domain to vector over gpu chips, containing vectors over engines
+            mutable std::map<int, std::vector< std::vector<uint64_t> > > m_active_timestamp_last; // Map from l0_domain to vector over gpu chips, containing vectors over engines
+            mutable std::map<int, std::vector< std::vector<uint64_t> > > m_active_timestamp_rollover; // Map from l0_domain to vector over gpu chips, containing vectors over engines
+            mutable std::map<int, std::vector< std::vector<uint64_t> > > m_active_timestamp_original; // Map from l0_domain to vector over gpu chips, containing vectors over engines
     };
 }
 #endif
