@@ -12,7 +12,7 @@ _FREQUENCY_NORM_FACTOR=1e9
 def get_domains(table_stats):
     domains = []
     for domain in ['cpu', 'gpu', 'uncore']:
-        if f'{domain}-frequency' in table_stats.columns:
+        if f'{domain}-frequency-ctl' in table_stats.columns:
             domains.append(domain)
     return domains
 
@@ -39,6 +39,9 @@ def get_domain_freq_range(domain, table_stats):
     if f'{domain}-frequency' in table_stats:
         return {'min_freq' : min(table_stats[f'{domain}-frequency']),
                 'max_freq' : max(table_stats[f'{domain}-frequency'])}
+    elif f'{domain}-frequency-ctl' in table_stats:
+        return {'min_freq' : min(table_stats[f'{domain}-frequency-ctl']),
+                'max_freq' : max(table_stats[f'{domain}-frequency-ctl'])}
     return None
 
 #Outputs runtime = slope * inv_freq + intercept

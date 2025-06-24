@@ -377,8 +377,10 @@ class TestIntegration_ffnet(unittest.TestCase):
             - If not running on GPUs, GPU stats columns are not present
         """
 
-        cpu_stats_columns = ["node", "app-config", "runtime (s)",
-                             "cpu-frequency", "package-energy (J)"]
+        cpu_stats_columns = ["node", "package", "app-config",
+                             "runtime (s)", "runtime-pkg",
+                             "cpu-frequency-ctl", "cpu-frequency-pkg",
+                             "package-energy (J)"]
         gpu_stats_columns = ["gpu-frequency", "gpu-energy (J)"]
 
         #Check for desired stats columns

@@ -48,21 +48,23 @@ def process_region_for_packages(region_dict, nodename, app_name, region_id, freq
     """
     entries = []
     num_packages = get_package_count(region_dict)
-
     for pkg_idx in range(num_packages):
         conf = {}
-        # node and package
+        # node, package, and runtime
         conf['node'] = nodename
         conf['package'] = pkg_idx
+        conf['runtime-pkg'] = region_dict[f'TIME@package-{pkg_idx}']
 
-        # frequencies
+        # Frequencies - from policy and report status
+        freq_lookup = {"cpu":f"CPU_FREQUENCY_STATUS@package-{pkg_idx}",
+                       "gpu":"GPU_CORE_FREQUENCY_STATUS",
+                       "uncore":"CPU_UNCORE_FREQUENCY_STATUS@package-{pkg_idx}"}
+
         for device in freqs:
             if freqs[device] is not None:
-                conf[f"{device}-frequency"] = freqs[device]
-
-        # Get per-package frequency if available
-        if f'CPU_CORE_FREQUENCY_STATUS-package-{pkg_idx}' in region_dict:
-            conf['cpu-frequency'] = region_dict[f'CPU_CORE_FREQUENCY_STATUS-package-{pkg_idx}']
+                conf[f'{device}-frequency-ctl'] = freqs[device]
+            if freq_lookup[device] in region_dict:
+                conf[f'{device}-frequency'] = float(region_dict[f'{freq_lookup[device]}'])
 
         region_entry = region_dict.copy()
         region_entry['app-config'] = app_name + '-' + region_id
@@ -102,7 +104,7 @@ def process_report_files(input_dir, region_ignore):
                         # Process per-package data
                         reports.extend(process_region_for_packages(region_dict, nodename, app_name, format_region, freqs))
             else:
-                # Handle sweeps done with python infrastructure that does not have regions or a region hash
+                # Handle sweeps with no markup for regions or region hashes (e.g. GPU workloads)
                 region_dict = report["Hosts"][nodename]["Application Totals"]
                 reports.extend(process_region_for_packages(region_dict, nodename, app_name, "0xDEADBEEF", freqs))
 
@@ -192,10 +194,13 @@ def main(output_prefix, frequency_sweep_dirs, region_ignore=None):
                 'package',
                 'app-config',
                 'runtime (s)',
+                'runtime-pkg',
+                'cpu-frequency-ctl',
                 'cpu-frequency',
                 'package-energy (J)',
             ]
     want_columns = [
+            'gpu-frequency-ctl',
             'gpu-frequency',
             'gpu-energy (J)',
             'uncore-frequency',
