@@ -267,7 +267,7 @@ namespace geopm
 
     static double convert_active_timestamp(uint64_t value, uint64_t &last_value, uint64_t &rollover_count, uint64_t &original_value)
     {
-        static const int num_bits = 32; // TODO: change to 64 after verifying the rest works.
+        static const int num_bits = 52;
         static const uint64_t overflow = (1ULL << num_bits);
         static const double overflow_d = overflow;
         static const uint64_t mask = overflow - 1;
