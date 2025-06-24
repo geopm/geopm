@@ -162,7 +162,7 @@ def launch(app_conf, args, experiment_cli_args):
                       "# Next, assign resource monitoring ID for QM events to match\n"
                       "MSR::QM_EVTSEL:RMID board 0 0\n"
                       "# Then determine Xeon Uncore Utilization\n"
-                      "MSR::QM_EVTSEL:EVENT_ID board 0 3")
+                      "MSR::QM_EVTSEL:EVENT_ID board 0 2")
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,

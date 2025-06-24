@@ -379,7 +379,7 @@ class TestIntegration_ffnet(unittest.TestCase):
 
         cpu_stats_columns = ["node", "package", "app-config",
                              "runtime (s)", "runtime-pkg",
-                             "cpu-frequency-ctl", "cpu-frequency-pkg",
+                             "cpu-frequency-ctl", "cpu-frequency",
                              "package-energy (J)"]
         gpu_stats_columns = ["gpu-frequency", "gpu-energy (J)"]
 
