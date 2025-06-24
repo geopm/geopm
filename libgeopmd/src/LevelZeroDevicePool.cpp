@@ -321,8 +321,8 @@ namespace geopm
         check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
                             __func__, __LINE__);
 
-        // TODO query engine count instead
-        static const int engine_count = 4;
+        const int engine_count = m_levelzero.num_engine(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
+
         double active_time_total = 0;
         for (int engine_idx = 0; engine_idx < engine_count; ++engine_idx) {
             uint64_t active_timestamp =  m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
@@ -354,8 +354,7 @@ namespace geopm
         check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first, l0_domain),
                             __func__, __LINE__);
 
-        // TODO query engine count instead
-        static const int engine_count = 4;
+        const int engine_count = m_levelzero.num_engine(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
         double active_time_total = 0;
         for (int engine_idx = 0; engine_idx < engine_count; ++engine_idx) {
             uint64_t active_time = m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,

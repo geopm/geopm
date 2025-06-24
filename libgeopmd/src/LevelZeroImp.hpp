@@ -24,6 +24,7 @@ namespace geopm
             virtual ~LevelZeroImp() = default;
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
+            int num_engine(unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
             int frequency_domain_count(unsigned int l0_device_idx,
                                        int domain) const override;
             double frequency_status(unsigned int l0_device_idx,

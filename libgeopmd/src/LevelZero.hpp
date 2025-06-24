@@ -33,6 +33,9 @@ namespace geopm
             /// @param [in] domain The GEOPM domain type being targeted
             /// @return Number of LevelZero GPUs or GPU chips.
             virtual int num_gpu(int domain) const = 0;
+
+            virtual int num_engine(unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const = 0;
+
             /// @brief Get the number of LevelZero frequency domains of a certain type
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @return GPU frequency domain count.

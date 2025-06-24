@@ -629,6 +629,11 @@ namespace geopm
         return result;
     }
 
+    int LevelZeroImp::num_engine(unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.engine_domain.at(l0_domain).at(l0_domain_idx).size();
+    }
+
     int LevelZeroImp::power_domain_count(int geopm_domain,
                                          unsigned int l0_device_idx,
                                          int l0_domain) const
