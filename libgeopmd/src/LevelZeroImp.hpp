@@ -229,7 +229,7 @@ namespace geopm
             struct m_device_info_s {
                 ze_driver_handle_t driver;
                 zes_device_handle_t device_handle;
-                ze_device_properties_t property;
+                zes_device_properties_t property;
                 uint32_t num_subdevice;
                 std::vector<zes_device_handle_t> subdevice_handle;
 
@@ -274,7 +274,7 @@ namespace geopm
             uint32_t m_num_gpu;
             uint32_t m_num_gpu_subdevice;
 
-            std::vector<ze_driver_handle_t> m_levelzero_driver;
+            std::vector<zes_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
 
             static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
