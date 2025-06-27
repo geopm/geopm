@@ -25,6 +25,8 @@ parser.add_argument('--show-min-max-range', action='store_true',
                     help='Show the source data min-max range as shaded regions')
 parser.add_argument('--show-samples', action='store_true',
                     help='Show the source data samples as scatterplot points')
+parser.add_argument('--show-legend', action='store_true',
+                    help='Show the legend in the plot')
 parser.add_argument('--reports', nargs='+')
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Print additional information about coefficient selection.')
@@ -212,7 +214,8 @@ if args.plot_path is not None:
         ax.set_ylabel('Slowdown (w.r.t. 100% power)')
         ax.yaxis.set_major_formatter(mtick.PercentFormatter(1))
         ax.xaxis.set_major_formatter(mtick.PercentFormatter(1))
-        ax.legend()
+        if args.show_legend:
+            ax.legend()
         fig.savefig(args.plot_path, bbox_inches='tight')
 
 
