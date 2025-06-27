@@ -54,9 +54,16 @@ for config_file_path in args.config_files:
 
     try:
         merge_field_if_absent_or_equal('node_profile_name', merged_config, config)
+    except Exception as e:
+        print(f'Warning: Ambiguous node_profile_name in the merged config file. Reason: {e}', file=sys.stderr)
+
+    try:
         merge_field_if_absent_or_equal('max_power', merged_config, config)
-        for profile_name in config['profiles']:
-            merge_field_if_absent_or_equal(profile_name, merged_config['profiles'], config['profiles'])
+        for profile_name, profile_data in config['profiles'].items():
+            if profile_name not in merged_config['profiles']:
+                merged_config['profiles'][profile_name] = {}
+            merge_field_if_absent_or_equal('hosts', merged_config['profiles'][profile_name], config['profiles'][profile_name])
+            merge_field_if_absent_or_equal('model', merged_config['profiles'][profile_name], config['profiles'][profile_name])
     except Exception as e:
         print(f'Failed to add {config_file_path} to the merged config file. Reason: {e}', file=sys.stderr)
         exit_with_error = True
