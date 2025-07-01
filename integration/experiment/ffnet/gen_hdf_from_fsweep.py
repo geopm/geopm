@@ -41,7 +41,7 @@ def process_region_for_packages(region_dict, nodename, app_name, region_id, freq
         nodename: Name of the node
         app_name: Name of the application
         region_id: ID of the region (hash or "0xDEADBEEF")
-        freqs: Dictionary of frequencies
+        freqs: Dictionary of average region frequencies keyed by device, where device is one of "cpu", "gpu", or "uncore" (for cpu uncore)
 
     Returns:
         list: List of region entries for each package
