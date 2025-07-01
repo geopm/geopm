@@ -23,5 +23,5 @@ if __name__ == '__main__':
     mach = machine.init_output_dir(args.output_dir)
     app_conf = arithmetic_intensity.create_appconf(mach, args)
     ffnet.launch(app_conf=app_conf,
-                            args=args,
-                            experiment_cli_args=extra_args)
+                 args=args,
+                 experiment_cli_args=extra_args)
