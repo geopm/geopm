@@ -808,7 +808,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (domain_idx < 2) {
+        if (domain_idx < 12) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
@@ -827,7 +827,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (domain_idx < 2) {
+        if (domain_idx < 12) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 

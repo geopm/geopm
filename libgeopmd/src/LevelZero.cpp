@@ -224,9 +224,7 @@ namespace geopm
             engine_domain_cache(gpu_idx);
             temperature_domain_cache(gpu_idx);
             ras_domain_cache(gpu_idx);
-            if (gpu_idx < 1) {
-                metric_group_init(gpu_idx);
-            }
+            metric_group_init(gpu_idx);
         }
     }
 
