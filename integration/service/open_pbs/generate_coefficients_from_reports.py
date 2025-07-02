@@ -190,23 +190,25 @@ if args.plot_path is not None:
             if args.per_host:
                 for host_name, host_data in profile_data['hosts'].items():
                     y = slowdown_at_power(X, host_data['model']['x0'], host_data['model']['A'], host_data['model']['B'], host_data['model']['C'])
-                    ax.plot(X, y, label=f'{profile_name}@{host_name}')
+                    line, = ax.plot(X, y, label=f'{profile_name}@{host_name}')
                     if args.show_min_max_range:
                         slowdown_range = df.loc[
                             (df['profile'] == profile_name) & (df['host'] == host_name) & (df['BOARD_POWER_LIMIT_CONTROL'] != 0)
-                        ].groupby('BOARD_POWER_LIMIT_CONTROL')['slowdown'].agg(['min', 'max'])
-                        ax.fill_between(slowdown_range.index/args.max_power, slowdown_range['min'], slowdown_range['max'], alpha=0.5)
+                        ].groupby('BOARD_POWER_LIMIT_CONTROL')['slowdown'].quantile([0, 0.25, 0.75, 1]).unstack()
+                        ax.fill_between(slowdown_range.index/args.max_power, slowdown_range.loc[:, 0.25], slowdown_range.loc[:, 0.75], alpha=0.4, color=line.get_color(), linewidth=0)
+                        ax.fill_between(slowdown_range.index/args.max_power, slowdown_range.loc[:, 0], slowdown_range.loc[:, 1], alpha=0.1, color=line.get_color(), linewidth=0)
                     if args.show_samples:
                         plot_df = df.loc[(df['profile'] == profile_name) & (df['host'] == host_name) & (df['BOARD_POWER_LIMIT_CONTROL'] != 0)]
                         ax.scatter(plot_df['BOARD_POWER_LIMIT_CONTROL']/args.max_power, plot_df['slowdown'])
 
             else:
                 y = slowdown_at_power(X, profile_data['model']['x0'], profile_data['model']['A'], profile_data['model']['B'], profile_data['model']['C'])
-                ax.plot(X, y, label=profile_name)
+                line, = ax.plot(X, y, label=profile_name)
                 if args.show_min_max_range:
                     slowdown_range = df.loc[(df['profile'] == profile_name) & (df['BOARD_POWER_LIMIT_CONTROL'] != 0)].groupby(
-                            'BOARD_POWER_LIMIT_CONTROL')['slowdown'].agg(['min', 'max'])
-                    ax.fill_between(slowdown_range.index/args.max_power, slowdown_range['min'], slowdown_range['max'], alpha=0.5)
+                            'BOARD_POWER_LIMIT_CONTROL')['slowdown'].quantile([0, 0.25, 0.75, 1]).unstack()
+                    ax.fill_between(slowdown_range.index/args.max_power, slowdown_range.loc[:, 0.25], slowdown_range.loc[:, 0.75], alpha=0.4, color=line.get_color(), linewidth=0)
+                    ax.fill_between(slowdown_range.index/args.max_power, slowdown_range.loc[:, 0], slowdown_range.loc[:, 1], alpha=0.1, color=line.get_color(), linewidth=0)
                 if args.show_samples:
                     plot_df = df.loc[(df['profile'] == profile_name) & (df['BOARD_POWER_LIMIT_CONTROL'] != 0)]
                     ax.scatter(plot_df['BOARD_POWER_LIMIT_CONTROL']/args.max_power, plot_df['slowdown'])
