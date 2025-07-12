@@ -681,15 +681,9 @@ namespace geopm
 
     void LevelZeroImp::metric_destroy(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
-        GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) == true,
-                           "metric caching for GPU " + std::to_string(l0_device_idx) +
-                           ", CHIP " + std::to_string(l0_domain_idx) +
-                           " not completed prior to metric_destroy call.");
-
-        GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) == true,
-                           "metric initialization for GPU " + std::to_string(l0_device_idx) +
-                           ", CHIP " + std::to_string(l0_domain_idx) +
-                           " not completed prior to metric_destroy call.");
+        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) ||
+            m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx))
+            return;
 
         ze_result_t ze_result;
 
