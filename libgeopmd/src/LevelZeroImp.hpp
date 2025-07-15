@@ -186,8 +186,6 @@ namespace geopm
                 std::vector<uint32_t> num_metric;
                 std::vector<uint32_t> num_reports;
                 std::vector<bool> metric_domain_cached;
-                std::vector<ze_event_pool_handle_t> event_pool;
-                std::vector<ze_event_handle_t> metric_notifcation_event;
                 std::vector<zet_metric_streamer_handle_t> metric_streamer;
                 std::vector<zet_metric_group_handle_t> metric_group_handle; //ComputeBasic only
                 std::vector<size_t> zet_data_size;
@@ -250,6 +248,10 @@ namespace geopm
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
+
+            static constexpr uint32_t NOTIFY_EVERY_N_REPORTS = 1;
+            static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
+            static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
 
             void metric_group_init(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
