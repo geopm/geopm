@@ -14,4 +14,4 @@ if [ ! -e VERSION ]; then
 	set -x
     fi
 fi
-ACLOCAL_PATH=/usr/share/aclocal autoreconf -i -f
+ACLOCAL_PATH=${ACLOCAL_PATH:-/usr/share/aclocal} autoreconf -i -f
