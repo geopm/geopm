@@ -268,12 +268,8 @@ namespace geopm
 
     static double convert_active_timestamp(uint64_t value, uint64_t &last_value, uint64_t &rollover_count, uint64_t &original_value)
     {
-        static const int num_bits = 63;
-        static const uint64_t overflow = (1ULL << num_bits);
-        static const double overflow_d = overflow;
-        static const uint64_t mask = overflow - 1;
+        static const double overflow_d = static_cast<double>(UINT64_MAX) + 1.0;
 
-        value &= mask;
         if (original_value > value) {
             ++rollover_count;
         }
@@ -291,15 +287,9 @@ namespace geopm
         return rollover_count * overflow_d + value;
     }
 
-
     static double convert_active_time(uint64_t value, uint64_t &last_value, uint64_t &rollover_count)
     {
-        static const int num_bits = 63;
-        static const uint64_t overflow = (1ULL << num_bits);
-        static const double overflow_d = overflow;
-        static const uint64_t mask = overflow - 1;
-
-        value &= mask;
+        static const double overflow_d = static_cast<double>(UINT64_MAX) + 1.0;
         if (last_value > value) {
             ++rollover_count;
         }
