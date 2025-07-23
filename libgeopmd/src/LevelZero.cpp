@@ -890,11 +890,13 @@ namespace geopm
             ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req,
                                                   &m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
                                                   m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
-            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                            "LevelZero::" + std::string(__func__) +
-                            ": LevelZero Read Data failed",
-                            __LINE__);
-            if (m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx) > 0) {
+// Skip when no data is available
+            if (ze_result != ZE_RESULT_NOT_READY &&
+                m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx) > 0) {
+                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                                "LevelZero::" + std::string(__func__) +
+                                ": LevelZero Read Data failed",
+                                __LINE__);
                 metric_calc(l0_device_idx, l0_domain_idx,
                             m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
                             m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx));
@@ -1524,7 +1526,13 @@ namespace geopm
               {ZE_RESULT_ERROR_INVALID_NULL_POINTER,
                "ZE_RESULT_ERROR_INVALID_NULL_POINTER"},
               {ZE_RESULT_ERROR_UNKNOWN,
-               "ZE_RESULT_ERROR_UNKNOWN"}
+               "ZE_RESULT_ERROR_UNKNOWN"},
+              {ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY,
+               "ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY"},
+              {ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY,
+               "ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY"},
+              {ZE_RESULT_WARNING_DROPPED_DATA,
+               "ZE_RESULT_WARNING_DROPPED_DATA"}
         };
 
         std::string error_string = std::to_string(ze_result);
