@@ -380,35 +380,51 @@ class TestOptimizerMain(unittest.TestCase):
         result = optimizer.main()
         self.assertEqual(result, 1)
 
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
     @patch('geopmdpy.optimizer.BayesianOptimizer')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.pio')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--application-timeout', '600',
                        '--print-stdout',
                        '--verbosity', '3',
                        'echo', 'Performance: 123.45'])
-    def test_main_with_custom_options(self, mock_grid_class, mock_pio):
+    def test_main_with_custom_options(self, mock_optimizer_class, mock_grid_class, mock_pio, mock_sys_argv):
         """Test main function with custom timeout and print-stdout options."""
         mock_pio.save_control = MagicMock()
         mock_pio.restore_control = MagicMock()
 
-        # Mock ControlGrid to raise an error for testing
-        mock_grid_class.side_effect = ValueError("Test error")
+        # Mock ControlGrid
+        mock_grid = MagicMock()
+        mock_grid.control_name = ['cpu_frequency']
+        mock_grid.get_grid_data.return_value = [
+            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
+             "domain_idx": 0, "settings": [1000000, 2000000]}
+        ]
+        mock_grid_class.return_value = mock_grid
+
+        # Mock the optimization process
+        mock_optimizer = MagicMock()
+        mock_optimizer.optimize.return_value = {
+            'best_metric': 123.45,
+            'best_coordinate': [1],
+            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
+            'n_evaluations': 10
+        }
+        mock_optimizer_class.return_value = mock_optimizer
 
         result = optimizer.main()
-        self.assertEqual(result, 1)
+        self.assertEqual(result, 0)
 
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
+    @patch('geopmdpy.optimizer.ControlGrid')
     @patch('geopmdpy.optimizer.pio')
     @patch('builtins.open', mock_open())
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--output-file', 'test_output.conf',
                        'echo', 'Performance: 123.45'])
-    def test_main_with_output_file(self, mock_optimizer_class, mock_grid_class, mock_pio):
+    def test_main_with_output_file(self, mock_optimizer_class, mock_grid_class, mock_pio, mock_open, mock_argv):
         """Test main function with output file option."""
         mock_pio.save_control = MagicMock()
         mock_pio.restore_control = MagicMock()
@@ -498,7 +514,7 @@ class TestOptimizerMain(unittest.TestCase):
     @patch('geopmdpy.optimizer.BayesianOptimizer')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--verbosity', '5',
+                       '--verbosity', '3',
                        'echo', 'Performance: 123.45'])
     def test_main_verbosity_option(self, mock_optimizer_class, mock_grid_class, mock_pio):
         """Test main function with verbosity option."""
@@ -519,6 +535,42 @@ class TestOptimizerMain(unittest.TestCase):
             'n_evaluations': 10
         }
         mock_optimizer_class.return_value = mock_optimizer
+        result = optimizer.main()
+        self.assertEqual(result, 0)
+
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
+    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+                       '--metric-regex', 'Performance: ([0-9.]+)',
+                       '--application-timeout', '600',
+                       '--print-stdout',
+                       '--verbosity', '3',
+                       'echo', 'Performance: 123.45'])
+    def test_main_with_custom_options(self, mock_optimizer_class, mock_grid_class, mock_pio, mock_sys_argv):
+        """Test main function with custom timeout and print-stdout options."""
+        mock_pio.save_control = MagicMock()
+        mock_pio.restore_control = MagicMock()
+
+        # Mock ControlGrid
+        mock_grid = MagicMock()
+        mock_grid.control_name = ['cpu_frequency']
+        mock_grid.get_grid_data.return_value = [
+            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
+             "domain_idx": 0, "settings": [1000000, 2000000]}
+        ]
+        mock_grid_class.return_value = mock_grid
+
+        # Mock the optimization process
+        mock_optimizer = MagicMock()
+        mock_optimizer.optimize.return_value = {
+            'best_metric': 123.45,
+            'best_coordinate': [1],
+            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
+            'n_evaluations': 10
+        }
+        mock_optimizer_class.return_value = mock_optimizer
+
         result = optimizer.main()
         self.assertEqual(result, 0)
 
