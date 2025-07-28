@@ -173,6 +173,31 @@ class ApplicationEvaluator:
                 f"Could not convert extracted value to float: {metric_str}"
             )
 
+def get_energy(domain: str):
+    all_signals = pio.signal_names()
+    if domain == 'board':
+        if "BOARD_ENERGY" in all_signals:
+            return pio.read_signal("BOARD_ENERGY", 0, 0)
+        # If we don't have board energy sum all components
+        result = 0
+        if "GPU_ENERGY" in all_signals:
+            result = pio.read_signal("GPU_ENERGY", 0, 0)
+        if "CPU_ENERGY" in all_signals:
+            result += pio.read_signal("CPU_ENERGY", 0, 0)
+        if "DRAM_ENERGY" in all_signals:
+            result += pio.read_signal("DRAM_ENERGY", 0, 0)
+    elif domain == 'cpu':
+        if "CPU_ENERGY" in all_signals:
+            result = pio.read_signal("CPU_ENERGY", 0, 0)
+    elif domain == 'gpu':
+        if "GPU_ENERGY" in all_signals:
+            result = pio.read_signal("GPU_ENERGY", 0, 0)
+    else:
+        raise ValueError(f'Unsupported domain {domain}, must be one of "board", "gpu", or "cpu"')
+    if result == 0:
+        raise OptimizationError("No energy signals available to compute efficiency")
+    return result
+
 
 class BayesianOptimizer:
     """Bayesian optimizer for control parameter tuning."""
@@ -230,7 +255,8 @@ class BayesianOptimizer:
         return space
 
     def optimize(self, trials: int = 50, n_initial_points: int = 10,
-                 random_state: int = 42, use_efficiency: int = 0) -> dict:
+                 random_state: int = 42, use_efficiency: int = 0,
+                 efficiency_domain: str = None) -> dict:
         """Run Bayesian optimization.
 
         Args:
@@ -241,24 +267,11 @@ class BayesianOptimizer:
                 0: use metric directly
                 1: maximizing, divide by average power
                 -1: minimizing, multiply by average power
+            efficiency_domain: Domain to measure energy
 
         Returns:
             dict: Optimization results including best configuration and value
         """
-        def get_energy():
-            all_signals = pio.signal_names()
-            if "BOARD_ENERGY" in all_signals:
-                return pio.read_signal("BOARD_ENERGY", 0, 0)
-            result = 0
-            if "GPU_ENERGY" in all_signals:
-                result = pio.read_signal("GPU_ENERGY", 0, 0)
-            if "CPU_ENERGY" in all_signals:
-                result += pio.read_signal("CPU_ENERGY", 0, 0)
-            if "DRAM_ENERGY" in all_signals:
-                result += pio.read_signal("DRAM_ENERGY", 0, 0)
-            if result == 0:
-                raise OptimizationError("No energy signals available to compute efficiency")
-            return result
 
         @use_named_args(self.space)
         def objective(**params):
@@ -289,10 +302,10 @@ class BayesianOptimizer:
             # Evaluate application
             if use_efficiency:
                 start_time = pio.read_signal("TIME", 0, 0)
-                start_energy = get_energy()
+                start_energy = get_energy(efficiency_domain)
             metric = self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
             if use_efficiency:
-                end_energy = get_energy()
+                end_energy = get_energy(efficiency_domain)
                 end_time = pio.read_signal("TIME", 0, 0)
                 average_power = (end_energy - start_energy) / (end_time - start_time)
                 logger.info(f"Average power consumed: {average_power} W")
@@ -436,8 +449,9 @@ def get_parser():
     )
     parser.add_argument(
         '--efficiency',
-        action='store_true',
-        help='Optimize for efficiency by dividing the metric by the average power consumed',
+        default=None,
+        dest='efficiency_domain',
+        help='Optimize for efficiency by dividing the metric by the average power consumed over the specified domain',
     )
 
     # Application launch command
@@ -516,17 +530,25 @@ def main():
         if args.defer_write:
             config_file = args.output_file
         optimizer = BayesianOptimizer(control_grid, evaluator, config_file)
-        if not args.efficiency:
+        if args.efficiency_domain is None:
             efficiency = 0
         elif args.minimize:
             efficiency = -1
         else:
             efficiency = 1
+        if (args.efficiency_domain is not None and
+            args.efficiency_domain not in ('board', 'gpu', 'cpu')):
+            raise ValueError(f'Unsupported domain {domain}, must be one of "board", "gpu", or "cpu"')
+
+        if efficency != 0:
+            sys.stderr.write('Warning: the --efficiency option does not handle energy counter rollover properly, this may result in failures due to "negative power" measurements')
+
         result = optimizer.optimize(
             trials=args.trials,
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
-            use_efficiency=efficiency
+            use_efficiency=efficiency,
+            efficiency_domain=args.efficiency_domain
         )
 
         # Print results

@@ -316,7 +316,7 @@ class ControlGrid:
         for idx, dim in enumerate(self.get_grid_data()):
             result.append((dim["control"], dim["domain"], dim["domain_idx"], dim["settings"][coordinate[idx]]))
             min_control = dim["control"].replace("_MAX_", "_MIN_")
-            if min_control != dim["control"] and min_control in pio.control_names():
+            if min_control != dim["control"] and min_control in pio.control_names() and min_control != "CPU_FREQUENCY_MIN_CONTROL":
                 result.append((min_control, dim["domain"], dim["domain_idx"], dim["settings"][coordinate[idx]]))
         return result
 
