@@ -65,10 +65,15 @@ grpc = [
     "grpcio>=1.30.2",
     "protobuf>=3.12.4",
 ]
+optimize = [
+    "scikit-optimize>=0.10.2",
+]
 
 [project.scripts]
 geopmd = "geopmdpy.__main__:main"
 geopmaccess = "geopmdpy.access:main"
+geopmgrid = "geopmdpy.grid:main"
+geopmopt = "geopmdpy.optimizer:main"
 geopmread = "geopmdpy.read:main"
 geopmsession = "geopmdpy.session:main"
 geopmexporter = "geopmdpy.exporter:main"
