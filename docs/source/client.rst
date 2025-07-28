@@ -44,3 +44,5 @@ Command Line Tools
 - Prometheus exporter :doc:`geopmsession(1) <geopmexporter.1>`
 - Read time series of values :doc:`geopmsession(1) <geopmsession.1>`
 - Manage access :doc:`geopmaccess(1) <geopmaccess.1>`
+- Define control grid :doc:`geopmgrid(1) <geopmgrid.1>`
+- Optimize application :doc:`geopmopt(1) <geopmopt.1>`

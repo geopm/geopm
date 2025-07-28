@@ -461,4 +461,6 @@ See Also
 :doc:`geopmaccess(1) <geopmaccess.1>`,
 :doc:`geopmexporter(1) <geopmexporter.1>`,
 :doc:`geopmsession(1) <geopmsession.1>`,
+:doc:`geopmgrid(1) <geopmgrid.1>`,
+:doc:`geopmopt(1) <geopmopt.1>`,
 `ld.so(8) <https://man7.org/linux/man-pages/man8/ld.so.8.html>`_
