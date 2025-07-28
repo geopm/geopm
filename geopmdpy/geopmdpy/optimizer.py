@@ -230,14 +230,17 @@ class BayesianOptimizer:
         return space
 
     def optimize(self, trials: int = 50, n_initial_points: int = 10,
-                 random_state: int = 42, use_efficiency: bool = False) -> dict:
+                 random_state: int = 42, use_efficiency: int = 0) -> dict:
         """Run Bayesian optimization.
 
         Args:
             trials: Number of optimization iterations
             n_initial_points: Number of random initial evaluations
             random_state: Random seed for reproducibility
-            use_efficiency: Whether to optimize for efficiency (metric / average power)
+            use_efficiency: Whether to optimize for efficiency
+                0: use metric directly
+                1: maximizing, divide by average power
+                -1: minimizing, multiply by average power
 
         Returns:
             dict: Optimization results including best configuration and value
@@ -295,7 +298,11 @@ class BayesianOptimizer:
                 logger.info(f"Average power consumed: {average_power} W")
                 if average_power <= 0:
                     raise OptimizationError("Average power consumed is non-positive")
-                metric /= average_power
+                if use_efficiency == 1:
+                    metric /= average_power
+                elif use_efficiency == -1:
+                    metric *= average_power
+
 
             # Store evaluation history
             self.evaluation_history.append({
@@ -509,11 +516,17 @@ def main():
         if args.defer_write:
             config_file = args.output_file
         optimizer = BayesianOptimizer(control_grid, evaluator, config_file)
+        if not args.efficiency:
+            efficiency = 0
+        elif args.minimize:
+            efficiency = -1
+        else:
+            efficiency = 1
         result = optimizer.optimize(
             trials=args.trials,
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
-            use_efficiency=args.efficiency
+            use_efficiency=efficiency
         )
 
         # Print results
