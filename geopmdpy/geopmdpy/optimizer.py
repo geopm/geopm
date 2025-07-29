@@ -175,13 +175,13 @@ class ApplicationEvaluator:
 
 def get_energy(domain: str):
     all_signals = pio.signal_names()
+    result = 0  # Initialize result to 0 for all domains
     if domain == 'board':
         if "BOARD_ENERGY" in all_signals:
             return pio.read_signal("BOARD_ENERGY", 0, 0)
         # If we don't have board energy sum all components
-        result = 0
         if "GPU_ENERGY" in all_signals:
-            result = pio.read_signal("GPU_ENERGY", 0, 0)
+            result += pio.read_signal("GPU_ENERGY", 0, 0)
         if "CPU_ENERGY" in all_signals:
             result += pio.read_signal("CPU_ENERGY", 0, 0)
         if "DRAM_ENERGY" in all_signals:

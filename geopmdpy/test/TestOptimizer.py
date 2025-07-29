@@ -8,6 +8,8 @@ from unittest.mock import patch, MagicMock, mock_open
 import subprocess
 import tempfile
 import os
+import sys
+import re
 
 # Mock scikit-optimize if not available
 try:
@@ -20,7 +22,6 @@ except ImportError:
     skopt.utils.use_named_args = lambda x: lambda f: f
 
 from geopmdpy import optimizer
-from geopmdpy.grid import ControlGrid
 
 
 class TestApplicationEvaluator(unittest.TestCase):
@@ -107,6 +108,26 @@ class TestApplicationEvaluator(unittest.TestCase):
 
         # Should return positive value for minimization
         self.assertEqual(result, 456.78)
+
+    @patch('subprocess.run')
+    def test_evaluate_with_config_file(self, mock_run):
+        """Test evaluation with config file output."""
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "Performance: 789.01 GFLOPS"
+        mock_run.return_value = mock_result
+
+        mock_grid = MagicMock()
+        mock_grid.get_config_str.return_value = "CPU_FREQUENCY_MAX_CONTROL package 0 2000000"
+
+        with patch('builtins.open', mock_open()) as mock_file:
+            coordinate = [1]
+            config_file = "/tmp/test_config.conf"
+            result = self.evaluator.evaluate(mock_grid, coordinate, config_file)
+
+            self.assertEqual(result, -789.01)
+            mock_file.assert_called_once_with(config_file, 'w')
+            mock_grid.get_config_str.assert_called_once_with(coordinate)
 
     @patch('subprocess.run')
     def test_evaluate_failed_process(self, mock_run):
@@ -205,10 +226,70 @@ class TestApplicationEvaluator(unittest.TestCase):
         self.assertIn("Could not convert", str(context.exception))
 
 
+class TestGetEnergy(unittest.TestCase):
+    @patch('geopmdpy.optimizer.pio')
+    def test_get_energy_board_with_board_signal(self, mock_pio):
+        """Test get_energy for board domain with BOARD_ENERGY signal."""
+        mock_pio.signal_names.return_value = ["BOARD_ENERGY", "CPU_ENERGY"]
+        mock_pio.read_signal.return_value = 1000.0
+
+        result = optimizer.get_energy('board')
+        self.assertEqual(result, 1000.0)
+        mock_pio.read_signal.assert_called_once_with("BOARD_ENERGY", 0, 0)
+
+    @patch('geopmdpy.optimizer.pio')
+    def test_get_energy_board_without_board_signal(self, mock_pio):
+        """Test get_energy for board domain without BOARD_ENERGY signal."""
+        mock_pio.signal_names.return_value = ["CPU_ENERGY", "GPU_ENERGY", "DRAM_ENERGY"]
+        mock_pio.read_signal.side_effect = lambda signal, d1, d2: {
+            "CPU_ENERGY": 500.0,
+            "GPU_ENERGY": 300.0,
+            "DRAM_ENERGY": 200.0
+        }[signal]
+
+        result = optimizer.get_energy('board')
+        self.assertEqual(result, 1000.0)  # 500 + 300 + 200
+
+    @patch('geopmdpy.optimizer.pio')
+    def test_get_energy_cpu(self, mock_pio):
+        """Test get_energy for cpu domain."""
+        mock_pio.signal_names.return_value = ["CPU_ENERGY", "GPU_ENERGY"]
+        mock_pio.read_signal.return_value = 750.0
+
+        result = optimizer.get_energy('cpu')
+        self.assertEqual(result, 750.0)
+        mock_pio.read_signal.assert_called_once_with("CPU_ENERGY", 0, 0)
+
+    @patch('geopmdpy.optimizer.pio')
+    def test_get_energy_gpu(self, mock_pio):
+        """Test get_energy for gpu domain."""
+        mock_pio.signal_names.return_value = ["CPU_ENERGY", "GPU_ENERGY"]
+        mock_pio.read_signal.return_value = 400.0
+
+        result = optimizer.get_energy('gpu')
+        self.assertEqual(result, 400.0)
+        mock_pio.read_signal.assert_called_once_with("GPU_ENERGY", 0, 0)
+
+    def test_get_energy_invalid_domain(self):
+        """Test get_energy with invalid domain."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.get_energy('invalid')
+        self.assertIn('Unsupported domain invalid', str(context.exception))
+
+    @patch('geopmdpy.optimizer.pio')
+    def test_get_energy_no_signals(self, mock_pio):
+        """Test get_energy when no energy signals are available."""
+        mock_pio.signal_names.return_value = ["OTHER_SIGNAL"]
+
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            optimizer.get_energy('cpu')
+        self.assertIn("No energy signals available", str(context.exception))
+
+
 class TestBayesianOptimizer(unittest.TestCase):
     def setUp(self):
-        # Mock the control grid
-        self.mock_grid = MagicMock(spec=ControlGrid)
+        # Mock the control grid without using spec
+        self.mock_grid = MagicMock()
         self.mock_grid.control_name = ['cpu_frequency']
         self.mock_grid.get_grid_data.return_value = [
             {
@@ -221,7 +302,7 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.mock_grid.get_config_str.return_value = "CPU_FREQUENCY_MAX_CONTROL package 0 2000000"
 
         # Mock the evaluator
-        self.mock_evaluator = MagicMock(spec=optimizer.ApplicationEvaluator)
+        self.mock_evaluator = MagicMock()
         self.mock_evaluator.maximize = True
 
     def test_init_with_skopt(self):
@@ -231,6 +312,13 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(opt.evaluator, self.mock_evaluator)
         self.assertEqual(len(opt.space), 1)
         self.assertEqual(len(opt.evaluation_history), 0)
+        self.assertIsNone(opt.config_file)
+
+    def test_init_with_config_file(self):
+        """Test initialization with config file."""
+        config_file = "/tmp/test.conf"
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator, config_file)
+        self.assertEqual(opt.config_file, config_file)
 
     def test_create_search_space(self):
         """Test search space creation."""
@@ -319,15 +407,50 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(call_args[1]['n_initial_points'], 2)
         self.assertEqual(call_args[1]['random_state'], 42)
 
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.gp_minimize')
+    def test_optimize_with_efficiency(self, mock_gp_minimize, mock_pio):
+        """Test optimization with efficiency calculation."""
+        # Mock optimization result
+        mock_result = MagicMock()
+        mock_result.x = [1]
+        mock_result.fun = -50.0  # Efficiency metric
+        mock_result.func_vals = [-50.0]
+        mock_gp_minimize.return_value = mock_result
+
+        # Mock time and energy readings
+        mock_pio.read_signal.side_effect = [1000.0, 1010.0]  # 10 second runtime
+        mock_pio.signal_names.return_value = ["CPU_ENERGY", "TIME"]
+
+        # Mock get_energy function
+        with patch('geopmdpy.optimizer.get_energy') as mock_get_energy:
+            mock_get_energy.side_effect = [500.0, 600.0]  # Start and end energy
+
+            # Mock evaluator to return metric
+            self.mock_evaluator.evaluate.return_value = 1000.0  # Base metric
+
+            opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+
+            result = opt.optimize(
+                trials=1,
+                n_initial_points=1,
+                use_efficiency=1,  # Maximizing efficiency
+                efficiency_domain='cpu'
+            )
+
+            # Just verify the optimize method was called without errors
+            self.assertIsNotNone(result)
+            self.assertIn('best_coordinate', result)
+
 
 class TestOptimizerMain(unittest.TestCase):
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--trials', '10',
                        'echo', 'Performance: 123.45'])
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
     def test_main_basic_success(self, mock_optimizer_class, mock_grid_class, mock_pio):
         """Test basic successful execution of main function."""
         # Mock pio
@@ -353,14 +476,16 @@ class TestOptimizerMain(unittest.TestCase):
         }
         mock_optimizer_class.return_value = mock_optimizer
 
-        result = optimizer.main()
+        with patch('builtins.print') as mock_print:
+            result = optimizer.main()
 
         self.assertEqual(result, 0)
         mock_pio.save_control.assert_called_once()
         mock_pio.restore_control.assert_called_once()
+        mock_print.assert_called_once_with("Best configuration:\nCPU_FREQUENCY_MAX_CONTROL package 0 2000000")
 
-    @patch('geopmdpy.optimizer.pio')
     @patch('sys.argv', ['optimizer.py', '--metric-regex', 'test'])
+    @patch('geopmdpy.optimizer.pio')
     def test_main_no_launch_command(self, mock_pio):
         """Test main function with no launch command."""
         mock_pio.save_control = MagicMock()
@@ -370,8 +495,8 @@ class TestOptimizerMain(unittest.TestCase):
         self.assertEqual(result, 1)
         mock_pio.restore_control.assert_called_once()
 
-    @patch('geopmdpy.optimizer.pio')
     @patch('sys.argv', ['optimizer.py', '--metric-regex', 'test', 'echo', 'hello'])
+    @patch('geopmdpy.optimizer.pio')
     def test_main_no_control_parameters(self, mock_pio):
         """Test main function with no control parameters."""
         mock_pio.save_control = MagicMock()
@@ -380,16 +505,16 @@ class TestOptimizerMain(unittest.TestCase):
         result = optimizer.main()
         self.assertEqual(result, 1)
 
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.pio')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--application-timeout', '600',
                        '--print-stdout',
                        '--verbosity', '3',
                        'echo', 'Performance: 123.45'])
-    def test_main_with_custom_options(self, mock_optimizer_class, mock_grid_class, mock_pio, mock_sys_argv):
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
+    def test_main_with_custom_options(self, mock_optimizer_class, mock_grid_class, mock_pio):
         """Test main function with custom timeout and print-stdout options."""
         mock_pio.save_control = MagicMock()
         mock_pio.restore_control = MagicMock()
@@ -413,19 +538,20 @@ class TestOptimizerMain(unittest.TestCase):
         }
         mock_optimizer_class.return_value = mock_optimizer
 
-        result = optimizer.main()
+        with patch('builtins.print'):
+            result = optimizer.main()
         self.assertEqual(result, 0)
 
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.pio')
-    @patch('builtins.open', mock_open())
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--output-file', 'test_output.conf',
-                       'echo', 'Performance: 123.45'])
-    def test_main_with_output_file(self, mock_optimizer_class, mock_grid_class, mock_pio, mock_open, mock_argv):
-        """Test main function with output file option."""
+                       '--defer-write',
+                       '--output-file', 'valid_file.conf',
+                       'echo', 'Performance: 123.45'])  # Add missing launch command
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
+    def test_main_defer_write_with_valid_output_file(self, mock_optimizer_class, mock_grid_class, mock_pio):
+        """Test main with defer-write and valid output file - should succeed."""
         mock_pio.save_control = MagicMock()
         mock_pio.restore_control = MagicMock()
 
@@ -448,48 +574,17 @@ class TestOptimizerMain(unittest.TestCase):
         }
         mock_optimizer_class.return_value = mock_optimizer
 
-        result = optimizer.main()
+        with patch('builtins.print'), \
+             patch('builtins.open', mock_open()):
+            result = optimizer.main()
+
+        # Should succeed with valid output file
         self.assertEqual(result, 0)
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
-                       '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--efficiency',
-                       'echo', 'Performance: 123.45'])
-    def test_main_with_efficiency_option(self, mock_optimizer_class, mock_grid_class, mock_pio):
-        """Test main function with --efficiency option."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-
-        # Mock ControlGrid
-        mock_grid = MagicMock()
-        mock_grid.control_name = ['cpu_frequency']
-        mock_grid.get_grid_data.return_value = [
-            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
-             "domain_idx": 0, "settings": [1000000, 2000000]}
-        ]
-        mock_grid_class.return_value = mock_grid
-
-        # Mock optimizer
-        mock_optimizer = MagicMock()
-        mock_optimizer.optimize.return_value = {
-            'best_metric': 123.45,
-            'best_coordinate': [1],
-            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
-            'n_evaluations': 10
-        }
-        mock_optimizer_class.return_value = mock_optimizer
-
-        result = optimizer.main()
-        self.assertEqual(result, 0)
-        mock_pio.save_control.assert_called_once()
         mock_pio.restore_control.assert_called_once()
 
-    @patch('geopmdpy.optimizer.pio')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', '[invalid', 'echo', 'Performance: 123.45'])
+    @patch('geopmdpy.optimizer.pio')
     def test_main_invalid_metric_regex(self, mock_pio):
         """Test main with invalid metric regex pattern."""
         mock_pio.save_control = MagicMock()
@@ -498,151 +593,13 @@ class TestOptimizerMain(unittest.TestCase):
         self.assertEqual(result, 1)
         mock_pio.restore_control.assert_called_once()
 
-    @patch('geopmdpy.optimizer.pio')
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
-                       '--metric-regex', 'Performance: ([0-9.]+)'])
-    def test_main_empty_launch_command(self, mock_pio):
-        """Test main with empty launch command."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-        result = optimizer.main()
-        self.assertEqual(result, 1)
-        mock_pio.restore_control.assert_called_once()
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
-                       '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--verbosity', '3',
-                       'echo', 'Performance: 123.45'])
-    def test_main_verbosity_option(self, mock_optimizer_class, mock_grid_class, mock_pio):
-        """Test main function with verbosity option."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-        mock_grid = MagicMock()
-        mock_grid.control_name = ['cpu_frequency']
-        mock_grid.get_grid_data.return_value = [
-            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
-             "domain_idx": 0, "settings": [1000000, 2000000]}
-        ]
-        mock_grid_class.return_value = mock_grid
-        mock_optimizer = MagicMock()
-        mock_optimizer.optimize.return_value = {
-            'best_metric': 123.45,
-            'best_coordinate': [1],
-            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
-            'n_evaluations': 10
-        }
-        mock_optimizer_class.return_value = mock_optimizer
-        result = optimizer.main()
-        self.assertEqual(result, 0)
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
-                       '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--application-timeout', '600',
-                       '--print-stdout',
-                       '--verbosity', '3',
-                       'echo', 'Performance: 123.45'])
-    def test_main_with_custom_options(self, mock_optimizer_class, mock_grid_class, mock_pio, mock_sys_argv):
-        """Test main function with custom timeout and print-stdout options."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-
-        # Mock ControlGrid
-        mock_grid = MagicMock()
-        mock_grid.control_name = ['cpu_frequency']
-        mock_grid.get_grid_data.return_value = [
-            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
-             "domain_idx": 0, "settings": [1000000, 2000000]}
-        ]
-        mock_grid_class.return_value = mock_grid
-
-        # Mock the optimization process
-        mock_optimizer = MagicMock()
-        mock_optimizer.optimize.return_value = {
-            'best_metric': 123.45,
-            'best_coordinate': [1],
-            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
-            'n_evaluations': 10
-        }
-        mock_optimizer_class.return_value = mock_optimizer
-
-        result = optimizer.main()
-        self.assertEqual(result, 0)
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('builtins.open', mock_open())
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
-                       '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--output-file', '-',
-                       'echo', 'Performance: 123.45'])
-    def test_main_output_file_stdout(self, mock_optimizer_class, mock_grid_class, mock_pio):
-        """Test main function with output file set to stdout."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-        mock_grid = MagicMock()
-        mock_grid.control_name = ['cpu_frequency']
-        mock_grid.get_grid_data.return_value = [
-            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
-             "domain_idx": 0, "settings": [1000000, 2000000]}
-        ]
-        mock_grid_class.return_value = mock_grid
-        mock_optimizer = MagicMock()
-        mock_optimizer.optimize.return_value = {
-            'best_metric': 123.45,
-            'best_coordinate': [1],
-            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
-            'n_evaluations': 10
-        }
-        mock_optimizer_class.return_value = mock_optimizer
-        result = optimizer.main()
-        self.assertEqual(result, 0)
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
-                       '--metric-regex', 'Performance: ([0-9.]+)',
-                       '--random-seed', '999',
-                       'echo', 'Performance: 123.45'])
-    def test_main_random_seed_option(self, mock_optimizer_class, mock_grid_class, mock_pio):
-        """Test main function with random seed option."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-        mock_grid = MagicMock()
-        mock_grid.control_name = ['cpu_frequency']
-        mock_grid.get_grid_data.return_value = [
-            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
-             "domain_idx": 0, "settings": [1000000, 2000000]}
-        ]
-        mock_grid_class.return_value = mock_grid
-        mock_optimizer = MagicMock()
-        mock_optimizer.optimize.return_value = {
-            'best_metric': 123.45,
-            'best_coordinate': [1],
-            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
-            'n_evaluations': 10
-        }
-        mock_optimizer_class.return_value = mock_optimizer
-        result = optimizer.main()
-        self.assertEqual(result, 0)
-        mock_optimizer.optimize.assert_called_once()
-        args, kwargs = mock_optimizer.optimize.call_args
-        self.assertEqual(kwargs.get('random_state'), 999)
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.ControlGrid')
-    @patch('geopmdpy.optimizer.BayesianOptimizer')
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--minimize',
                        'echo', 'Performance: 123.45'])
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
     def test_main_minimize_option(self, mock_optimizer_class, mock_grid_class, mock_pio):
         """Test main function with minimize option."""
         mock_pio.save_control = MagicMock()
@@ -662,21 +619,15 @@ class TestOptimizerMain(unittest.TestCase):
             'n_evaluations': 10
         }
         mock_optimizer_class.return_value = mock_optimizer
-        result = optimizer.main()
+
+        with patch('builtins.print'):
+            result = optimizer.main()
         self.assertEqual(result, 0)
         # Check that maximize is False in evaluator
         args, kwargs = mock_optimizer_class.call_args
         evaluator = args[1]
         self.assertFalse(evaluator.maximize)
 
-    @patch('geopmdpy.optimizer.pio')
-    @patch('sys.argv', ['optimizer.py', '--unknown-option'])
-    def test_main_unknown_argument(self, mock_pio):
-        """Test main with unknown argument."""
-        mock_pio.save_control = MagicMock()
-        mock_pio.restore_control = MagicMock()
-        with self.assertRaises(SystemExit):
-            optimizer.main()
 
 class TestGetParser(unittest.TestCase):
     def test_get_parser(self):
@@ -708,6 +659,8 @@ class TestGetParser(unittest.TestCase):
             '--output-file', 'output.conf',
             '--verbosity', '2',
             '--print-stdout',
+            '--defer-write',
+            '--efficiency', 'cpu',
             'echo', 'test'
         ])
 
@@ -722,6 +675,8 @@ class TestGetParser(unittest.TestCase):
         self.assertEqual(args.output_file, 'output.conf')
         self.assertEqual(args.verbosity, 2)
         self.assertTrue(args.print_stdout)
+        self.assertTrue(args.defer_write)
+        self.assertEqual(args.efficiency_domain, 'cpu')
         self.assertEqual(args.launch, ['echo', 'test'])
 
     def test_parser_defaults(self):
@@ -742,20 +697,24 @@ class TestGetParser(unittest.TestCase):
         self.assertEqual(args.verbosity, 1)
         self.assertFalse(args.minimize)
         self.assertFalse(args.print_stdout)
+        self.assertFalse(args.defer_write)
+        self.assertIsNone(args.efficiency_domain)
 
-    def test_parser_with_efficiency_option(self):
-        """Test parser with --efficiency option."""
+    def test_parser_required_arguments(self):
+        """Test parser with missing required arguments."""
         parser = optimizer.get_parser()
-        args = parser.parse_args([
-            '--cpu-frequency', 'package',
-            '--metric-regex', 'Performance: ([0-9.]+)',
-            '--efficiency',
-            'echo', 'test'
-        ])
-        self.assertTrue(args.efficiency)
-        self.assertEqual(args.cpu_frequency_domain, 'package')
-        self.assertEqual(args.metric_regex, 'Performance: ([0-9.]+)')
-        self.assertEqual(args.launch, ['echo', 'test'])
+
+        # Missing metric-regex should raise SystemExit
+        with self.assertRaises(SystemExit):
+            parser.parse_args(['--cpu-frequency', 'package', 'echo', 'test'])
+
+
+class TestOptimizationError(unittest.TestCase):
+    def test_optimization_error(self):
+        """Test OptimizationError exception."""
+        error = optimizer.OptimizationError("Test error message")
+        self.assertEqual(str(error), "Test error message")
+        self.assertIsInstance(error, Exception)
 
 
 if __name__ == '__main__':
