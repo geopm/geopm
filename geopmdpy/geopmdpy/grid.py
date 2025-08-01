@@ -88,19 +88,18 @@ class ControlGrid:
         self.do_write = False
 
         args = self.parser.parse_args(argv)
+        # Special case for GPU power and frequency - determine Intel vs NVML
+        gpu_suffix = "_intel" if "LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL" in pio.signal_names() else "_nvml"
+
         # Process all control type arguments dynamically
         for control_key in _CLI_FLAG_TO_CONTROL.keys():
-            flag_name = control_key.replace('_', '-')
-            domain = getattr(args, f'{control_key}_domain', None)
+            if control_key.startswith('gpu_') and control_key.endswith(gpu_suffix):
+                arg_attr = f'{control_key[:-len(gpu_suffix)]}_domain'
+            else:
+                arg_attr = f'{control_key}_domain'
+            domain = getattr(args, arg_attr, None)
             if domain is not None:
-                if control_key == "gpu_power":
-                    # Special case for GPU power - determine Intel vs NVML
-                    if "LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL" in pio.signal_names():
-                        self.add_dimension("gpu_power_intel", domain)
-                    else:
-                        self.add_dimension("gpu_power_nvml", domain)
-                else:
-                    self.add_dimension(control_key, domain)
+                self.add_dimension(control_key, domain)
 
         self.grid_data = self._get_grid_data()
         if args.coordinate is not None:
@@ -183,23 +182,25 @@ class ControlGrid:
             self.domain_idx.append(domain_idx)
         return len(self.control_name) - 1
 
-    def get_minimum(self, control_name: str) -> float:
+    def get_minimum(self, control_name: str, domain: str) -> float:
         """Get the minimum value for a control parameter.
         Args:
             control_name (str): Name of the control to query.
+            domain (str): Name of domain where the control applies.
         Returns:
             float: Minimum value for the specified control.
         """
-        return self._get_range(control_name, 1)
+        return self._get_range(control_name, domain, 1)
 
-    def get_maximum(self, control_name: str) -> float:
+    def get_maximum(self, control_name: str, domain: str) -> float:
         """Get the maximum value for a control parameter.
         Args:
             control_name (str): Name of the control to query.
+            domain (str): Name of domain where the control applies.
         Returns:
             float: Maximum value for the specified control.
         """
-        return self._get_range(control_name, 2)
+        return self._get_range(control_name, domain, 2)
 
     def get_step(self, control_name: str) -> float:
         """Get the step size for a control parameter.
@@ -208,12 +209,13 @@ class ControlGrid:
         Returns:
             float: Step size for the specified control.
         """
-        return self._get_range(control_name, 3)
+        return self._get_range(control_name, 'board', 3)
 
-    def _get_range(self, control_name: str, index: int) -> float:
+    def _get_range(self, control_name: str, domain: str, index: int) -> float:
         """Get a specific range value for a control parameter.
         Args:
             control_name (str): Name of the control to query.
+            domain (str): Name of domain where the control applies.
             index (int): Index of the range value to retrieve (1: min, 2: max, 3: step).
         Returns:
             float: The requested range value for the specified control.
@@ -224,7 +226,7 @@ class ControlGrid:
         if type(key) is not str:
             return key
         else:
-            return pio.read_signal(key, topo.DOMAIN_BOARD, 0)
+            return pio.read_signal(key, domain, 0)
 
     def get_dimensions(self) -> List[tuple]:
         """Get the dimensions of the control grid.
@@ -241,8 +243,8 @@ class ControlGrid:
         """
         control = self.control_name[dimension_idx]
         domain = self.domain_type[dimension_idx]
-        min = self.get_minimum(control)
-        max = self.get_maximum(control)
+        min = self.get_minimum(control, domain)
+        max = self.get_maximum(control, domain)
         step = self.get_step(control)
         num_step = int((max - min) / step) + 1
         if min + step * (num_step - 1) != max:
@@ -357,7 +359,9 @@ def main():
     """
     try:
         grid = ControlGrid(sys.argv[1:])
-        print(grid.run())
+        stdout = grid.run()
+        if stdout:
+            print(stdout)
     except Exception as e:
         if "GEOPM_DEBUG" in os.environ:
             raise
