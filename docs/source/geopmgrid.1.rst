@@ -29,22 +29,22 @@ Generate configuration for a grid point
 
 .. code-block:: bash
 
-    geopmgrid --cpu-frequency package --coordinate 0
+    geopmgrid --cpu-frequency package --coordinate 3 5
 
 Generate configuration from file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    echo "0 1" > coordinate.txt
-    geopmgrid --cpu-frequency package --cpu-power board --coordinate-file coordinate.txt
-
-Apply configuration to platform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    geopmgrid --cpu-frequency package --coordinate 0 --write
+    echo "13 8" > coordinate.txt
+    geopmgrid --cpu-frequency board --cpu-power board --coordinate-file coordinate.txt
+
+Apply configuration to platform
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    geopmgrid --cpu-frequency package --coordinate 3 5 --write
 
 Get Help
 ~~~~~~~~
@@ -75,7 +75,7 @@ The grid tool operates in several modes:
 3. **Direct application**: Add the ``--write`` flag to directly apply the
    configuration to the platform using the GEOPM service.
 
-The tool integrates with the GEOPM Platform I/O (PIO) interface to determine
+The tool integrates with the GEOPM PlatformIO (pio) interface to determine
 available parameter ranges, step sizes, and valid domains for each control type.
 
 
@@ -88,49 +88,52 @@ Control Parameters
 --cpu-frequency CPU_FREQUENCY_DOMAIN  .. _cpu-frequency option:
 
     Define a grid dimension over CPU_FREQUENCY_MAX_CONTROL for the specified
-    domain. Valid domains include 'package', 'core', and others depending on
-    platform capabilities.
+    domain. Valid domains include 'board', 'package', 'core', and on some
+    platforms 'cpu' depending on capabilities.
 
 --cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN  .. _cpu-uncore-frequency option:
 
     Define a grid dimension over CPU_UNCORE_FREQUENCY_MAX_CONTROL for the
-    specified domain. Typically used with 'package' domain.
+    specified domain. The uncore frequency can be controlled on the 'board' or
+    'package' domain.
 
 --cpu-power CPU_POWER_DOMAIN  .. _cpu-power option:
 
     Define a grid dimension over CPU_POWER_LIMIT_CONTROL for the specified
-    domain. Commonly used with 'package' or 'board' domains.
+    domain. Commonly used with 'board', or 'package' domains.
 
 --gpu-frequency GPU_FREQUENCY_DOMAIN  .. _gpu-frequency option:
 
     Define a grid dimension over GPU_CORE_FREQUENCY_MAX_CONTROL for the
-    specified domain. Used with 'gpu' or 'gpu_chip' domains.
+    specified domain. Valid domains include 'board', 'gpu', and on some
+    platforms 'gpu_chip'.
 
 --gpu-power GPU_POWER_DOMAIN  .. _gpu-power option:
 
     Define a grid dimension over GPU_POWER_LIMIT_CONTROL for the specified
-    domain. The tool automatically detects whether to use Intel Level Zero
-    or NVIDIA NVML interfaces.
+    domain. Typically applied at the 'board', or 'gpu' domain.
 
 --board-power BOARD_POWER_DOMAIN  .. _board-power option:
 
     Define a grid dimension over BOARD_POWER_LIMIT_CONTROL for the specified
-    domain. Typically used with 'board' domain.
+    domain. Only valid with 'board' domain.
 
 Grid Navigation
 ~~~~~~~~~~~~~~~
 
---coordinate COORDINATE [COORDINATE ...]  .. _coordinate option:
+--coordinate COORDINATE  .. _coordinate option:
 
-    Specify a coordinate within the grid to generate configuration for.
-    The number of coordinates must match the number of defined grid dimensions.
-    Each coordinate is an integer index into the corresponding dimension's
-    parameter range.
+    Specify a coordinate within the grid to generate configuration for.  The
+    number of white-space-separated integer values in COORDINATE must match the
+    number of defined grid dimensions.  Each coordinate is an integer index into
+    the corresponding dimension's parameter range. For example, to express grid
+    point (2, 1, 0) use ``--coordinate 2 1 0``.
 
 --coordinate-file COORDINATE_FILE  .. _coordinate-file option:
 
-    Read grid coordinates from a file. The file should contain space-separated
-    integer coordinates corresponding to each grid dimension.
+    Read grid coordinates from a file. The file should contain
+    white-space-separated integer coordinates corresponding to each grid
+    dimension.
 
 --coordinate-range  .. _coordinate-range option:
 
@@ -142,10 +145,9 @@ Actions
 
 --write  .. _write option:
 
-    Apply the configuration to the platform using the GEOPM service. Requires
-    either ``--coordinate`` or ``--coordinate-file`` to specify which grid
-    point to apply. This option pushes the control values directly to the
-    platform hardware.
+    Apply the configuration to the platform. Requires either ``--coordinate`` or
+    ``--coordinate-file`` to specify which grid point to apply. This option
+    pushes the control values directly to the platform hardware.
 
 -h, --help  .. _help option:
 
@@ -163,10 +165,11 @@ Define a grid over CPU frequency for all packages and display its dimensions:
 .. code-block:: shell-session
 
    $ geopmgrid --cpu-frequency package --coordinate-range
-   Dimension 0: 21 points
+   28 28
 
-This shows that the CPU frequency grid has 21 available frequency settings
-across all package domains.
+This shows that the CPU frequency grid has 28 available frequency settings
+across both package domains. This implies that valid coordinate values are 0
+through 27.
 
 Generating configuration commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,11 +178,12 @@ Generate geopmwrite commands for a specific grid point:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --coordinate 10
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 0 2400000000
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 1 2400000000
+   $ geopmgrid --cpu-frequency package --coordinate 10 15
+   CPU_FREQUENCY_MAX_CONTROL package 0 2000000000.0
+   CPU_FREQUENCY_MAX_CONTROL package 1 2500000000.0
 
-This generates commands to set CPU frequency to 2.4 GHz for all packages.
+This generates a ``geopmwrite(1)`` configuration file that sets package 0 to 2 GHz
+and package 1 to 2.5 GHz.
 
 Multi-dimensional grid exploration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -189,17 +193,16 @@ Define a 2D grid over CPU frequency and power limit:
 .. code-block:: shell-session
 
    $ geopmgrid --cpu-frequency package --cpu-power package --coordinate-range
-   Dimension 0: 21 points
-   Dimension 1: 150 points
+   28 28 155 155
 
-   $ geopmgrid --cpu-frequency package --cpu-power package --coordinate 10 75
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 0 2400000000
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 1 2400000000
-   geopmwrite CPU_POWER_LIMIT_CONTROL package 0 125000000
-   geopmwrite CPU_POWER_LIMIT_CONTROL package 1 125000000
+   $ geopmgrid --cpu-frequency package --cpu-power package --coordinate 12 17 125 101
+   CPU_FREQUENCY_MAX_CONTROL package 0 2200000000.0
+   CPU_FREQUENCY_MAX_CONTROL package 1 2700000000.0
+   CPU_POWER_LIMIT_CONTROL package 0 271.0
+   CPU_POWER_LIMIT_CONTROL package 1 247.0
 
-This creates a 2D grid with 21×150 = 3,150 possible configurations and
-generates commands for coordinate (10, 75).
+This creates a 4D grid with 28x28x155x155 = 18,835,600 possible configurations
+and generates commands for coordinate (12, 17, 125, 101).
 
 Using coordinate files
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -208,12 +211,14 @@ Store coordinates in a file for repeated use:
 
 .. code-block:: shell-session
 
-   $ echo "10 75" > my_config.coord
+   $ echo 18 14 122 96 > my_config.coord
    $ geopmgrid --cpu-frequency package --cpu-power package --coordinate-file my_config.coord
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 0 2400000000
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 1 2400000000
-   geopmwrite CPU_POWER_LIMIT_CONTROL package 0 125000000
-   geopmwrite CPU_POWER_LIMIT_CONTROL package 1 125000000
+   CPU_FREQUENCY_MAX_CONTROL package 0 2800000000.0
+   CPU_FREQUENCY_MAX_CONTROL package 1 2400000000.0
+   CPU_POWER_LIMIT_CONTROL package 0 268.0
+   CPU_POWER_LIMIT_CONTROL package 1 242.0
+
+This can also be helpful for systems with high dimensionality.
 
 Direct platform configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -222,7 +227,7 @@ Apply a configuration directly to the platform:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --coordinate 15 --write
+   $ geopmgrid --cpu-frequency package --coordinate 15 19 --write
 
 This immediately applies the configuration to the platform hardware without
 printing the intermediate geopmwrite commands.
@@ -235,12 +240,20 @@ Define grids for GPU controls:
 .. code-block:: shell-session
 
    $ geopmgrid --gpu-frequency gpu --gpu-power gpu --coordinate-range
-   Dimension 0: 15 points
-   Dimension 1: 50 points
-
-   $ geopmgrid --gpu-frequency gpu --gpu-power gpu --coordinate 7 25
-   geopmwrite GPU_CORE_FREQUENCY_MAX_CONTROL gpu 0 1200000000
-   geopmwrite GPU_POWER_LIMIT_CONTROL gpu 0 200000000
+   187 187 187 187 101 101 101 101
+   $ geopmgrid --gpu-frequency gpu --gpu-power gpu --coordinate 111 122 133 144 80 90 100 70
+   GPU_CORE_FREQUENCY_MAX_CONTROL gpu 0 967500000.0
+   GPU_CORE_FREQUENCY_MIN_CONTROL gpu 0 967500000.0
+   GPU_CORE_FREQUENCY_MAX_CONTROL gpu 1 1050000000.0
+   GPU_CORE_FREQUENCY_MIN_CONTROL gpu 1 1050000000.0
+   GPU_CORE_FREQUENCY_MAX_CONTROL gpu 2 1132500000.0
+   GPU_CORE_FREQUENCY_MIN_CONTROL gpu 2 1132500000.0
+   GPU_CORE_FREQUENCY_MAX_CONTROL gpu 3 1215000000.0
+   GPU_CORE_FREQUENCY_MIN_CONTROL gpu 3 1215000000.0
+   GPU_POWER_LIMIT_CONTROL gpu 0 280
+   GPU_POWER_LIMIT_CONTROL gpu 1 290
+   GPU_POWER_LIMIT_CONTROL gpu 2 300
+   GPU_POWER_LIMIT_CONTROL gpu 3 270
 
 Complete system grid
 ~~~~~~~~~~~~~~~~~~~~
@@ -249,17 +262,16 @@ Define a comprehensive grid covering multiple subsystems:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --cpu-power package \
-             --gpu-frequency gpu --board-power board \
-             --coordinate-range
-   Dimension 0: 21 points
-   Dimension 1: 150 points
-   Dimension 2: 15 points
-   Dimension 3: 100 points
+   $ geopmgrid --cpu-frequency board \
+               --cpu-uncore-frequency board \
+               --cpu-power board \
+               --gpu-frequency board \
+               --gpu-power board \
+               --coordinate-range
+   28 15 155 187 1001
 
-This creates a 4D grid with 21×150×15×100 = 4,725,000 possible configurations
-for comprehensive system optimization.
-
+This creates a 5D grid with 28x15x155x187x1001 = 12,185,873,700 possible
+configurations for comprehensive system optimization.
 
 Domain Types
 ------------
@@ -269,6 +281,7 @@ The tool supports various domain types depending on the platform and control typ
 **CPU Controls:**
 - ``package``: CPU package/socket level
 - ``core``: Individual CPU core level
+- ``cpu``: Linux logical CPU (hardware thread)
 
 **GPU Controls:**
 - ``gpu``: GPU device level
@@ -327,7 +340,7 @@ parameter spaces for Bayesian optimization.
 monitoring sessions to study parameter effects.
 
 **With geopmlaunch:** Grid configurations can be used in conjunction with
-application launches for parameter sweeps.
+application launches for parameter sweeps with the --geopm-init-control option.
 
 
 See Also
@@ -339,3 +352,4 @@ See Also
 :doc:`geopmread(1) <geopmread.1>`,
 :doc:`geopmopt(1) <geopmopt.1>`,
 :doc:`geopmsession(1) <geopmsession.1>`
+:doc:`geopmlaunch(1) <geopmlaunch.1>`
