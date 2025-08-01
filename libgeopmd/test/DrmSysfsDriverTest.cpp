@@ -50,7 +50,7 @@ void DrmSysfsDriverTest::SetUp()
 
 TEST_F(DrmSysfsDriverTest, iogroup_plugin_name_matches_driver_name)
 {
-    EXPECT_EQ("TEST_DRIVER_PREFIX from driver: test_driver", m_driver->driver());
+    EXPECT_EQ("TEST_DRIVER_PREFIX", m_driver->driver());
     EXPECT_EQ("DRM", DrmSysfsDriver::plugin_name_drm());
     EXPECT_EQ("ACCEL", DrmSysfsDriver::plugin_name_accel());
 }
