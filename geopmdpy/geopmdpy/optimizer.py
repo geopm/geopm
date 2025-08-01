@@ -480,7 +480,8 @@ def main():
         format='%(levelname)s: %(message)s'
     )
 
-    pio.save_control()
+    if not args.defer_write:
+        pio.save_control()
     try:
         # Remove leading '--' from launch command if present
         launch_command = args.launch
@@ -571,7 +572,8 @@ def main():
         logger.error(f"Error: {e}")
         err = 1
     finally:
-        pio.restore_control()
+        if not args.defer_write:
+            pio.restore_control()
     return err
 
 if __name__ == "__main__":
