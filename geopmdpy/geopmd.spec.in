@@ -43,7 +43,6 @@ BuildRequires:	python3-psutil
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
 BuildRequires:	python3-sdnotify
-BuildRequires:	python3-scikit-optimize
 %if %{defined suse_version}
 BuildRequires:	gobject-introspection
 BuildRequires:	python-gobject-common-devel
@@ -69,7 +68,6 @@ Requires:	python3-jsonschema
 Requires:	python3-psutil
 Requires:	python3-sdnotify
 Requires:	geopmd-cli
-Requires:	python3-scikit-optimize
 
 %if %{defined suse_version}
 Requires:	python3-gobject
