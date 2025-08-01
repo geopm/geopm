@@ -199,7 +199,7 @@ namespace geopm
 
     std::string DrmSysfsDriver::driver(void) const
     {
-        return M_DRIVER_SIGNAL_PREFIX + " from driver: " + m_drm_topo.driver_name();
+        return M_DRIVER_SIGNAL_PREFIX;
     }
 
     std::map<std::string, SysfsDriver::properties_s> DrmSysfsDriver::properties(void) const
