@@ -479,6 +479,7 @@ def main():
         level=log_levels[args.verbosity],
         format='%(levelname)s: %(message)s'
     )
+    print_exception = args.verbosity >= 3 or "GEOPM_DEBUG" in os.environ
 
     if not args.defer_write:
         pio.save_control()
@@ -567,7 +568,7 @@ def main():
             logger.info(f"Best configuration written to {args.output_file}")
 
     except Exception as e:
-        if "GEOPM_DEBUG" in os.environ:
+        if print_exception:
             raise
         logger.error(f"Error: {e}")
         err = 1
