@@ -16,7 +16,7 @@ Synopsis
                    --metric-regex METRIC_REGEX [--minimize] [--random-seed RANDOM_SEED]
                    [--application-timeout APPLICATION_TIMEOUT]
                    [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
-                   [--print-stdout] [--defer-write] [--efficiency]
+                   [--print-stdout] [--defer-write] [--efficiency EFFICENCY_DOMAIN]
                    [-- LAUNCH ...]
 
 Optimize CPU frequency for performance
@@ -24,25 +24,36 @@ Optimize CPU frequency for performance
 
 .. code-block:: bash
 
-    geopmopt --cpu-frequency package --metric-regex "GFLOPS: ([0-9.]+)" \
-             --trials 50 -- ./benchmark
+    geopmopt --verbosity=2 \
+             --cpu-frequency board \
+             --cpu-uncore-frequency board \
+             --metric-regex 'Performance: ([0-9.]+)' \
+             --trials 30 \
+             -- ./dgemm_bench.sh
 
-Optimize multiple parameters with efficiency focus
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    geopmopt --cpu-frequency package --cpu-power board \
-             --metric-regex "Performance: ([0-9.]+)" \
-             --efficiency --trials 100 -- python ml_training.py
-
-Minimize energy consumption
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optimize multiple CPU parameters with efficiency focus
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    geopmopt --cpu-frequency package --metric-regex "Energy: ([0-9.]+)" \
-             --minimize --trials 30 -- ./energy_app
+    geopmopt --cpu-frequency board \
+             --cpu-power board \
+             --metric-regex 'Elapsed time: ([0-9.]+)' \
+             --minimize \
+             --efficiency cpu \
+             --trials 30 \
+             -- ./mixed_workload.sh
+
+Minimize energy consumption and tune each CPU package independently
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    geopmopt --cpu-frequency package \
+             --metric-regex "Energy: ([0-9.]+)" \
+             --minimize \
+             --trials 30 \
+             -- energy_app
 
 Get Help
 ~~~~~~~~
@@ -76,7 +87,7 @@ The optimizer works by:
    expressions to extract numeric performance metrics.
 
 The tool requires the ``scikit-optimize`` package for Bayesian optimization
-functionality: ``pip install scikit-optimize``
+functionality: ``python3 -m pip install scikit-optimize``
 
 
 Options
@@ -108,21 +119,22 @@ Control Parameters
 
 --gpu-power GPU_POWER_DOMAIN  .. _gpu-power option:
 
-    Include GPU power limit control in the optimization space. The tool
-    automatically detects Intel Level Zero or NVIDIA NVML interfaces.
+    Include GPU power limit control in the optimization space.
 
---board-power BOARD_POWER_DOMAIN  .. _board-power option:
+--board-power board  .. _board-power option:
 
     Include system-level power limit control in the optimization space for
-    comprehensive power management.
+    comprehensive power management. The only valid domain for this option is
+    ``board`` and this option is only available on some platforms that support
+    the ``BOARD_POWER_LIMIT_CONTROL`` PlatformIO control.
 
 Optimization Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 --trials TRIALS  .. _trials option:
 
-    Number of optimization iterations to perform. More trials generally lead
-    to better results but take longer. Default: 50.
+    Number of optimization iterations to perform. More trials generally lead to
+    better results but take longer. Default: 50.
 
 --n-initial-points N_INITIAL_POINTS  .. _n-initial-points option:
 
@@ -149,10 +161,15 @@ Optimization Configuration
     Timeout in seconds for application execution. Applications exceeding this
     timeout are terminated. Default: 300.
 
---efficiency  .. _efficiency option:
+--efficiency EFFICIENCY_DOMAIN  .. _efficiency option:
 
     Optimize for efficiency by dividing the extracted metric by average power
     consumption. This finds configurations that maximize performance per watt.
+    When the ``--minimize option`` is provided, the average power consumption is
+    multiplied rather than divided.  This will minimize energy to completion if
+    the metric is time to completion.  The EFFICIENCY_DOMAIN determines the
+    components included in the power calculation and valid values are 'board',
+    'cpu', or 'gpu'.
 
 Output and Logging
 ~~~~~~~~~~~~~~~~~~
@@ -160,7 +177,8 @@ Output and Logging
 --output-file OUTPUT_FILE  .. _output-file option:
 
     Write the best configuration to a file in geopmwrite format. Use '-' for
-    stdout (default). The configuration can be applied later with geopmwrite.
+    stdout (default). The configuration can be applied later with ``geopmwrite`` or
+    through ``geopmlaunch --geopm-init-config``.
 
 --verbosity {0,1,2,3}  .. _verbosity option:
 
@@ -174,18 +192,23 @@ Output and Logging
 
 --defer-write  .. _defer-write option:
 
-    Defer writing control configurations until the end of optimization.
-    Requires ``--output-file``. Useful for avoiding configuration conflicts
-    during optimization.
+    Defer writing control configurations to another tool such as ``geopmwrite``
+    or ``geopmlaunch --geopm-init-control``. This is especially useful for
+    running in a distributed environment or avoiding configuration conflicts
+    between process sessions. Requires ``--output-file`` which is updated prior
+    to each application trial and then after the last trial the optimal
+    configuration is written to the same file path.
 
 Application Launch
 ~~~~~~~~~~~~~~~~~~
 
 LAUNCH ...  .. _launch option:
 
-    Command and arguments to launch the application for evaluation. Specified
-    after a double dash (``--``). The application should produce the target
-    metric in its standard output.
+    Command and arguments to launch the application for evaluation. These may be
+    specified after a double dash (``--``) to avoid any parser option
+    conflicts. The application should produce the target metric in its standard
+    output.  To generate the target metric, it may be useful to wrap the
+    application in a bash script that derives and prints the figure of merit.
 
 -h, --help  .. _help option:
 
@@ -202,61 +225,68 @@ Optimize CPU frequency for a compute-intensive benchmark:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package \
-             --metric-regex "GFLOPS: ([0-9.]+)" \
-             --trials 30 \
-             -- ./stream_benchmark
+   $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
+   $ geopmopt --verbosity=2 \
+              --cpu-frequency board \
+              --cpu-uncore-frequency board \
+              --metric-regex 'Elapsed time: ([0-9.]+)' \
+              --minimize \
+              --trials 30 \
+              -- bash -c "/usr/bin/time -f'Elapsed time: %e' geopmbench geopmbench.conf |& cat"
    INFO: Starting Bayesian optimization with 30 evaluations...
-   INFO: Evaluation 1: coordinate=[10], metric=45.2
-   INFO: Evaluation 2: coordinate=[15], metric=48.7
+   INFO: Evaluation 1: coordinate=[22, 1], metric=54.33
+   INFO: Evaluation 2: coordinate=[21, 4], metric=49.52
+   INFO: Evaluation 3: coordinate=[12, 1], metric=54.35
+   INFO: Evaluation 4: coordinate=[12, 2], metric=50.78
    ...
+   INFO: Evaluation 30: coordinate=[4, 3], metric=51.66
    INFO: Optimization completed!
-   INFO: Best metric: 52.3
-   INFO: Best coordinate: [18]
+   INFO: Best metric: 45.81
+   INFO: Best coordinate: [18, 6]
+   INFO: Number of evaluations: 30
    Best configuration:
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 0 2800000000
-   geopmwrite CPU_FREQUENCY_MAX_CONTROL package 1 2800000000
+   CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
+   CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 1600000000.0
+   CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1600000000.0
 
 Multi-parameter optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Optimize both CPU frequency and power for balanced performance:
+Optimize both CPU frequency and power for maximum performance:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package --cpu-power board \
-             --metric-regex "Score: ([0-9.]+)" \
-             --trials 100 \
-             --output-file best_config.txt \
-             -- python ml_workload.py
-   INFO: Starting Bayesian optimization with 100 evaluations...
+   $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
+   $ geopmopt --verbosity=2 \
+              --cpu-frequency board \
+              --cpu-uncore-frequency board \
+              --cpu-power board \
+              --metric-regex 'Elapsed time: ([0-9.]+)' \
+              --minimize \
+              --trials 30 \
+              -- bash -c "/usr/bin/time -f'Elapsed time: %e' geopmbench geopmbench.conf |& cat"
+   INFO: Starting Bayesian optimization with 30 evaluations...
+   INFO: Evaluation 1: coordinate=[22, 3, 120], metric=51.0
+   INFO: Evaluation 2: coordinate=[16, 6, 15], metric=81.11
+   INFO: Evaluation 3: coordinate=[12, 5, 22], metric=77.08
+   INFO: Evaluation 4: coordinate=[18, 1, 111], metric=55.49
    ...
-   INFO: Best configuration written to best_config.txt
+   INFO: Evaluation 30: coordinate=[21, 10, 9], metric=85.8
+   INFO: Optimization completed!
+   INFO: Best metric: 45.05
+   INFO: Best coordinate: [27, 14, 154]
+   INFO: Number of evaluations: 30
+   Best configuration:
+   CPU_FREQUENCY_MAX_CONTROL board 0 3700000000.0
+   CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 2400000000.0
+   CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 2400000000.0
+   CPU_POWER_LIMIT_CONTROL board 0 300.0
 
 The resulting configuration file can be applied with:
 
 .. code-block:: shell-session
 
-   $ geopmwrite -c best_config.txt
-
-Energy efficiency optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Find the most energy-efficient configuration:
-
-.. code-block:: shell-session
-
-   $ geopmopt --cpu-frequency package \
-             --metric-regex "Operations: ([0-9]+)" \
-             --efficiency \
-             --trials 50 \
-             -- ./compute_workload
-   INFO: Starting Bayesian optimization with 50 evaluations...
-   INFO: Evaluation 1: coordinate=[8], metric=245.6 (efficiency mode)
-   ...
-
-The ``--efficiency`` flag automatically measures power consumption and optimizes
-for operations per watt rather than raw performance.
+   $ geopmwrite -f best_config.txt
 
 Minimization optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -270,6 +300,29 @@ Minimize execution time or energy consumption:
              --minimize \
              --trials 40 \
              -- ./timed_benchmark
+
+Energy efficiency optimization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Find the most energy-efficient configuration:
+
+.. code-block:: shell-session
+
+   $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
+   $ geopmopt --verbosity=2 \
+              --cpu-frequency board \
+              --cpu-uncore-frequency board \
+              --cpu-power board \
+              --metric-regex 'Elapsed time: ([0-9.]+)' \
+              --minimize \
+              --efficiency cpu \
+              --trials 30 \
+              -- bash -c "/usr/bin/time -f'Elapsed time: %e' geopmbench geopmbench.conf |& cat"
+
+The ``--efficiency`` flag automatically measures power consumption and optimizes
+for operations per watt rather than raw performance.  In the above example the
+`--minimize` option is also provided and the reported metric is
+time-to-completion, so this will minimize total energy consumed.
 
 Debug mode with application output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -415,11 +468,15 @@ The ``geopmopt`` tool integrates with the broader GEOPM ecosystem:
 **GEOPM Service:** Leverages the PIO interface for hardware control and
 energy measurement.
 
-**Configuration Output:** Generates standard geopmwrite commands that can
+**Configuration Output:** Generates standard geopmwrite configurations that can
 be saved and reused.
 
 **Session Monitoring:** Can be combined with ``geopmsession`` for detailed
 performance analysis during optimization.
+
+**GEOPM Runtime:** When using the ``--defer-write`` option ``geopmopt`` can be
+combined with ``geopmlauch --geopm-init-control`` to obtain per region metrics
+or distribute write commands across a multi-node allocation.
 
 
 See Also
