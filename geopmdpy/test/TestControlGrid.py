@@ -115,12 +115,12 @@ class TestControlGrid(TestCase):
 
     def test_get_minimum(self):
         """Test getting minimum value for a control"""
-        min_freq = self.grid.get_minimum('cpu_frequency')
+        min_freq = self.grid.get_minimum('cpu_frequency', 'board')
         self.assertIsInstance(min_freq, float)
 
     def test_get_maximum(self):
         """Test getting maximum value for a control"""
-        max_freq = self.grid.get_maximum('cpu_frequency')
+        max_freq = self.grid.get_maximum('cpu_frequency', 'board')
         self.assertIsInstance(max_freq, float)
 
     def test_get_step(self):
@@ -131,13 +131,13 @@ class TestControlGrid(TestCase):
     def test_get_range_with_numeric_value(self):
         """Test _get_range with numeric values like power controls"""
         # Test with cpu_power which has a numeric step value
-        step = self.grid._get_range('cpu_power', 3)
+        step = self.grid._get_range('cpu_power', 'board', 3)
         self.assertEqual(step, 1)
 
     def test_get_range_invalid_control(self):
         """Test _get_range with invalid control name"""
         with self.assertRaises(ValueError) as context:
-            self.grid._get_range('invalid_control', 1)
+            self.grid._get_range('invalid_control', 'board', 1)
         self.assertIn("Control invalid_control is not recognized", str(context.exception))
 
     def test_get_dimensions(self):
