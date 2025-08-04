@@ -150,6 +150,10 @@ namespace geopm
             auto driver_cards = get_cards_from_most_frequent_driver(drm_card_paths);
             m_driver_name = driver_cards.first;
             drm_card_paths = driver_cards.second;
+            if (geopm::verbosity_level() >= 2) {
+                    std::cerr << "DrmGpuTopo::" << std::string(__func__)
+                              << ": Using driver: " << m_driver_name << std::endl;
+            }
         }
         else {
             throw Exception("DrmGpuTopo::" + std::string(__func__) +
