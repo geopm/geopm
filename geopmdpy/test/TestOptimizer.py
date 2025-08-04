@@ -580,7 +580,9 @@ class TestOptimizerMain(unittest.TestCase):
 
         # Should succeed with valid output file
         self.assertEqual(result, 0)
-        mock_pio.restore_control.assert_called_once()
+        mock_pio.save_control.assert_not_called()
+        mock_pio.restore_control.assert_not_called()
+        
 
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', '[invalid', 'echo', 'Performance: 123.45'])
