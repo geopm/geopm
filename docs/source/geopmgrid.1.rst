@@ -221,7 +221,7 @@ Store coordinates in a file for repeated use:
 This can also be helpful for systems with high dimensionality.
 
 Direct platform configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apply a configuration directly to the platform:
 
@@ -276,7 +276,7 @@ configurations for comprehensive system optimization.
 Domain Types
 ------------
 
-The tool supports various domain types depending on the platform and control type:
+``geopmgrid`` supports various domain types depending on the platform and control type:
 
 **CPU Controls:**
 - ``package``: CPU package/socket level

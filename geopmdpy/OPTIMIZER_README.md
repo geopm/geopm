@@ -201,7 +201,7 @@ The optimizer handles various failure modes:
 
 ### Common Issues
 
-1. **Import Error**: Install scikit-optimize: `pip install scikit-optimize`
+1. **Import Error**: Install scikit-optimize: `python3 -m pip install scikit-optimize`
 2. **No Metric Found**: Check that your regex matches the application output
 3. **Configuration Failures**: Verify GEOPM service is running and accessible
 4. **Slow Convergence**: Increase `--trials` or check parameter ranges

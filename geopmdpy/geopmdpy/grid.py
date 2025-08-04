@@ -26,7 +26,7 @@ _CLI_FLAG_TO_CONTROL = {
     "cpu_uncore_frequency": (
         "CPU_UNCORE_FREQUENCY_MAX_CONTROL",
         "CPU_FREQUENCY_MIN_AVAIL",
-        "CPU_UNCORE_FREQUENCY_MAX_CONTROL", # Read current limit and use as maximum
+        "CPU_UNCORE_FREQUENCY_MAX_CONTROL", # The current limit is read dynamically and used as the maximum value because it reflects the hardware's current configuration.
         "CPU_FREQUENCY_STEP",
     ),
     "cpu_power": (
@@ -44,7 +44,7 @@ _CLI_FLAG_TO_CONTROL = {
     "gpu_power_nvml": (
         "GPU_POWER_LIMIT_CONTROL",
         _DEFAULT_POWER_MIN,
-        "GPU_POWER_LIMIT_CONTROL", # Read current limit and use as maximum
+        "GPU_POWER_LIMIT_CONTROL", # The current limit is dynamically read and used as the maximum value. This behavior is implemented in the pio module.
         _DEFAULT_POWER_STEP,
     ),
     "gpu_power_intel": (
