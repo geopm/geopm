@@ -27,7 +27,7 @@ try:
 except ImportError:
     raise ImportError(
         "scikit-optimize is required for Bayesian optimization. "
-        "Install with: pip install scikit-optimize"
+        "Install with: python3 -m pip install scikit-optimize"
     )
 
 from . import pio

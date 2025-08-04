@@ -296,10 +296,10 @@ Minimize execution time or energy consumption:
 .. code-block:: shell-session
 
    $ geopmopt --cpu-frequency package \
-             --metric-regex "Runtime: ([0-9.]+) seconds" \
-             --minimize \
-             --trials 40 \
-             -- ./timed_benchmark
+              --metric-regex "Runtime: ([0-9.]+) seconds" \
+              --minimize \
+              --trials 40 \
+              -- ./timed_benchmark
 
 Energy efficiency optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,10 +349,10 @@ Optimize GPU parameters for machine learning workloads:
 .. code-block:: shell-session
 
    $ geopmopt --gpu-frequency gpu --gpu-power gpu \
-             --metric-regex "Training speed: ([0-9.]+) samples/sec" \
-             --trials 60 \
-             --application-timeout 600 \
-             -- python train_model.py
+              --metric-regex "Training speed: ([0-9.]+) samples/sec" \
+              --trials 60 \
+              --application-timeout 600 \
+              -- python train_model.py
 
 Complex multi-dimensional optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -362,12 +362,12 @@ Optimize across all available control dimensions:
 .. code-block:: shell-session
 
    $ geopmopt --cpu-frequency package --cpu-power package \
-             --gpu-frequency gpu --board-power board \
-             --metric-regex "Overall score: ([0-9.]+)" \
-             --trials 200 \
-             --n-initial-points 20 \
-             --random-seed 123 \
-             -- ./comprehensive_benchmark
+              --gpu-frequency gpu --board-power board \
+              --metric-regex "Overall score: ([0-9.]+)" \
+              --trials 200 \
+              --n-initial-points 20 \
+              --random-seed 123 \
+              -- ./comprehensive_benchmark
 
 
 Metric Extraction

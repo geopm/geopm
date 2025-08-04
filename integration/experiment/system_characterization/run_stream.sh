@@ -13,7 +13,8 @@ CONFIG_FILE=$1
 REGION=stream
 CORE_COUNT=$(geopmread -d | grep "core" | awk '{print $2}')
 RANK_COUNT=2
-export OMP_NUM_THREADS=$(((CORE_COUNT-4)/RANK_COUNT))
+RESERVED_CORES=${RESERVED_CORES:-4} # Default to 4 reserved cores if not set
+export OMP_NUM_THREADS=$(((CORE_COUNT-RESERVED_CORES)/RANK_COUNT))
 echo '{"loop-count": 1,"region": ["stream"],"big-o": [1.0]}' > geopmbench.conf
 geopmlaunch pals \
             -n ${RANK_COUNT} -ppn ${RANK_COUNT} \
