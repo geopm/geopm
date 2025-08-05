@@ -1,3 +1,6 @@
+#  Copyright (c) 2015 - 2025 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 
 SWEEP_TYPE="CPU"  # can be either "CPU" or "GPU"
 PROGRAM_NAME="binary_name"
