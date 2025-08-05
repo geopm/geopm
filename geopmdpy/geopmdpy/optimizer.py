@@ -542,9 +542,6 @@ def main():
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
 
-        if efficiency != 0:
-            sys.stderr.write('Warning: the --efficiency option does not handle energy counter rollover properly, this may result in failures due to "negative power" measurements\n')
-
         result = optimizer.optimize(
             trials=args.trials,
             n_initial_points=args.n_initial_points,

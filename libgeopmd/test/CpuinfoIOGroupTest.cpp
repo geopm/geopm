@@ -69,12 +69,8 @@ TEST_F(CpuinfoIOGroupTest, valid_signals)
 TEST_F(CpuinfoIOGroupTest, read_signal)
 {
     CpuinfoIOGroup freq_limits(m_cpufreq_min_path, m_cpufreq_max_path, m_cpuid_sticker);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_CPU, 0);
     EXPECT_DOUBLE_EQ(1.3e9, freq);
-
-    // cannot read from wrong domain
-    EXPECT_THROW(freq_limits.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_PACKAGE, 0),
-                 Exception);
 }
 
 TEST_F(CpuinfoIOGroupTest, cpuid_sticker_not_supported)
@@ -87,15 +83,11 @@ TEST_F(CpuinfoIOGroupTest, push_signal)
 {
     CpuinfoIOGroup freq_limits(m_cpufreq_min_path, m_cpufreq_max_path, m_cpuid_sticker);
 
-    int idx = freq_limits.push_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0);
+    int idx = freq_limits.push_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_CPU, 0);
     EXPECT_GT(idx, 0);
     freq_limits.read_batch();
     double freq = freq_limits.sample(idx);
     EXPECT_DOUBLE_EQ(1.3e9, freq);
-
-    // cannot push to wrong domain
-    EXPECT_THROW(freq_limits.push_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_PACKAGE, 0),
-                 Exception);
 }
 
 TEST_F(CpuinfoIOGroupTest, plugin)

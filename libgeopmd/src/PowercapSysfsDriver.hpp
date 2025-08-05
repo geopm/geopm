@@ -6,11 +6,15 @@
 #ifndef POWERCAPSYSFSDRIVER_HPP_INCLUDE
 #define POWERCAPSYSFSDRIVER_HPP_INCLUDE
 
+#include <memory>
+#include <vector>
+
 #include "SysfsDriver.hpp"
 #include "geopm/IOGroup.hpp"
 
 namespace geopm
 {
+    class RolloverGenerator;
     class PowercapSysfsDriver : public SysfsDriver
     {
         public:
@@ -31,6 +35,7 @@ namespace geopm
             const std::map<std::string, std::string> M_POWERCAP_RESOURCE_BY_NAME;
             std::map<std::string, int> m_domain_map;
             const std::string M_POWERCAP_DIRECTORY;
+            double m_rollover_factor;
     };
 }
 
