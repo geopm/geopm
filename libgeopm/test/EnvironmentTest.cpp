@@ -708,6 +708,35 @@ TEST_F(EnvironmentTest, signal_parser)
     );
 }
 
+TEST_F(EnvironmentTest, signal_parser_bad_signals)
+{
+    std::string environment_variable_contents;
+
+    // Observe the leading , in following variable
+    environment_variable_contents = ",CPU_FREQUENCY_MIN_AVAIL,CPUINFO::FREQ_STEP,TIME";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        geopm::environment_signal_parser(m_platform_io.signal_names(), environment_variable_contents),
+        GEOPM_ERROR_INVALID,
+        "Dangling comma in environment variable"
+    );
+
+    // Extra , in the middle of the variable
+    environment_variable_contents = "CPU_FREQUENCY_MIN_AVAIL,,CPUINFO::FREQ_STEP,TIME";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        geopm::environment_signal_parser(m_platform_io.signal_names(), environment_variable_contents),
+        GEOPM_ERROR_INVALID,
+        "Dangling comma in environment variable"
+    );
+
+    // Dangling , at the end of the variable
+    environment_variable_contents = "CPU_FREQUENCY_MIN_AVAIL,CPUINFO::FREQ_STEP,TIME,";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        geopm::environment_signal_parser(m_platform_io.signal_names(), environment_variable_contents),
+        GEOPM_ERROR_INVALID,
+        "Dangling comma in environment variable"
+    );
+}
+
 TEST_F(EnvironmentTest, program_filter)
 {
     // The program_invocation_short_name is expected to be geopm_test
