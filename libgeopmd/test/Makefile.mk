@@ -42,6 +42,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/DrmGpuTopoTest.cpp \
                           test/DrmSysfsDriverTest.cpp \
                           test/RatioSignalTest.cpp \
+                          test/RolloverGeneratorTest.cpp \
                           test/DomainControlTest.cpp \
                           test/ExceptionTest.cpp \
                           test/geopm_test.cpp \

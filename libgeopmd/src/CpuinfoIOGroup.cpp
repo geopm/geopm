@@ -156,6 +156,11 @@ namespace geopm
         return false;
     }
 
+    bool CpuinfoIOGroup::is_valid_domain(int domain_type) const
+    {
+        return platform_topo().is_nested_domain(GEOPM_DOMAIN_CPU, domain_type);
+    }
+
     int CpuinfoIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = GEOPM_DOMAIN_INVALID;
@@ -180,13 +185,13 @@ namespace geopm
     int CpuinfoIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("CpuinfoIOGroup::push_signal(): " + signal_name +
-                            "not valid for CpuinfoIOGroup",
+            throw Exception("CpuinfoIOGroup::push_signal(): \"" + signal_name +
+                            "\" not valid for CpuinfoIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (domain_type != GEOPM_DOMAIN_BOARD) {
-            throw Exception("CpuinfoIOGroup::push_signal(): domain_type " + std::to_string(domain_type) +
-                            "not valid for CpuinfoIOGroup",
+        if (!is_valid_domain(domain_type)) {
+            throw Exception("CpuinfoIOGroup::push_signal(): domain type \"" + std::to_string(domain_type) +
+                            "\" not valid for CpuinfoIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return std::distance(m_signal_available.begin(), m_signal_available.find(signal_name));
@@ -231,13 +236,13 @@ namespace geopm
     double CpuinfoIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("CpuinfoIOGroup::read_signal(): " + signal_name +
-                            "not valid for CpuinfoIOGroup",
+            throw Exception("CpuinfoIOGroup::read_signal(): \"" + signal_name +
+                            "\" is not valid for CpuinfoIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (domain_type != GEOPM_DOMAIN_BOARD) {
-            throw Exception("CpuinfoIOGroup:read_signal(): domain_type " + std::to_string(domain_type) +
-                            "not valid for CpuinfoIOGroup",
+        if (!is_valid_domain(domain_type)) {
+            throw Exception("CpuinfoIOGroup::read_signal(): domain type \"" + std::to_string(domain_type) +
+                            "\" not valid for CpuinfoIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_signal_available.find(signal_name)->second.value;
@@ -293,7 +298,7 @@ namespace geopm
             result =  "    description: " + it->second.description + '\n'; // Includes alias_for if applicable
             result += "    units: " + IOGroup::units_to_string(it->second.units) + '\n';
             result += "    aggregation: " + Agg::function_to_name(it->second.agg_function) + '\n';
-            result += "    domain: " + platform_topo().domain_type_to_name(GEOPM_DOMAIN_BOARD) + '\n';
+            result += "    domain: " + platform_topo().domain_type_to_name(GEOPM_DOMAIN_CPU) + '\n';
             result += "    iogroup: CpuinfoIOGroup";
         }
 #ifdef GEOPM_DEBUG

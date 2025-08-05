@@ -11,10 +11,12 @@
 #include <cmath>
 #include <cstring>
 #include <sstream>
+#include <string>
 
 #include "geopm/Helper.hpp"
 
 #include "SysfsIOGroup.hpp"
+#include "RolloverGenerator.hpp"
 #include "geopm/PlatformTopo.hpp"
 
 static const std::string POWERCAP_DIRECTORY = "/sys/class/powercap";
@@ -105,7 +107,17 @@ namespace geopm
         : M_PROPERTIES{SysfsDriver::parse_properties_json(plugin_name(), powercap_sysfs_json())}
         , M_POWERCAP_RESOURCE_BY_NAME(load_powercap_resource_by_name(powercap_directory))
         , M_POWERCAP_DIRECTORY(powercap_directory)
+        , m_rollover_factor(0.0)
     {
+        try {
+            std::string factor_path = attribute_path("POWERCAP::CPU_MAX_ENERGY_RANGE", 0);
+            std::string contents = geopm::read_file(factor_path);
+            m_rollover_factor = 1e-6 * std::stoll(contents);
+         }
+         catch (...) {
+             throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+         }
     }
 
     int PowercapSysfsDriver::domain_type(const std::string &name) const
@@ -150,10 +162,18 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         double scaling_factor = prop_it->second.scaling_factor;
-        return [scaling_factor](const std::string &content) {
+        std::shared_ptr<RolloverGenerator> rollover_ptr = nullptr;
+        if (signal_name.find("ENERGY") != std::string::npos) {
+            rollover_ptr = std::make_shared<RolloverGenerator>();
+            rollover_ptr->set_factor(m_rollover_factor);
+        }
+        return [scaling_factor, rollover_ptr](const std::string &content) {
             double result = static_cast<double>(NAN);
             try {
                 result = static_cast<double>(std::stoull(content) * scaling_factor);
+                if (rollover_ptr != nullptr) {
+                    result = rollover_ptr->update(result);
+                }
             }
             catch (const std::invalid_argument &ex) {}
             catch (const std::out_of_range &ex) {}

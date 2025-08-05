@@ -219,6 +219,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/PowercapSysfsDriver.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
+                       src/RolloverGenerator.cpp \
+                       src/RolloverGenerator.hpp \
                        src/SaveControl.cpp \
                        src/SDBus.hpp \
                        src/SDBusMessage.hpp \
