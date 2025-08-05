@@ -224,9 +224,13 @@ class ControlGrid:
             raise ValueError(f"Control {control_name} is not recognized.")
         key = _CLI_FLAG_TO_CONTROL[control_name][index]
         if type(key) is not str:
-            return key
+            result = key
         else:
-            return pio.read_signal(key, domain, 0)
+            try:
+                result = pio.read_signal(key, domain, 0)
+            except RuntimeError:
+                result = pio.read_signal(key, 0, 0)
+        return result
 
     def get_dimensions(self) -> List[tuple]:
         """Get the dimensions of the control grid.
