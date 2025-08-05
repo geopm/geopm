@@ -166,7 +166,7 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             else {
-                result = GEOPM_DOMAIN_BOARD;
+                result = GEOPM_DOMAIN_CPU;
             }
         }
         return result;
