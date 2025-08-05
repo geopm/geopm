@@ -177,8 +177,8 @@ Output and Logging
 --output-file OUTPUT_FILE  .. _output-file option:
 
     Write the best configuration to a file in geopmwrite format. Use '-' for
-    stdout (default). The configuration can be applied later with ``geopmwrite`` or
-    through ``geopmlaunch --geopm-init-config``.
+    stdout (default). The configuration can be applied later with
+    ``geopmwrite --config`` or through ``geopmlaunch --geopm-init-control``.
 
 --verbosity {0,1,2,3}  .. _verbosity option:
 

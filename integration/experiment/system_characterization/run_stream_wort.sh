@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#  Copyright (c) 2015 - 2025 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 
 CORE_COUNT=$(geopmread -d | grep "core" | awk '{print $2}')
 RANK_COUNT=2
