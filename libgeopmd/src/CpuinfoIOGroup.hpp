@@ -132,7 +132,7 @@ namespace geopm
         private:
             /// @brief Add support for an alias of a signal by name.
             void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
-
+            bool is_valid_domain(int domain_type) const;
             struct m_signal_info_s {
                 double value;
                 int units;

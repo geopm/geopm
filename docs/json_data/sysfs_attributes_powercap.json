@@ -65,6 +65,17 @@
             "units": "seconds",
             "writeable": true,
             "alias": "DRAM_POWER_TIME_WINDOW_CONTROL"
+        },
+        "CPU_MAX_ENERGY_RANGE": {
+            "attribute": "max_energy_range_uj",
+            "scalar": 1e-6,
+            "description": "Rollover value in units of joules.",
+            "aggregation": "expect_same",
+            "behavior": "constant",
+            "format": "double",
+            "units": "joules",
+            "writeable": false,
+            "alias": "CPU_MAX_ENERGY_RANGE"
         }
     }
 }

@@ -47,6 +47,7 @@ class PowercapFakeDirManager
 
                 // Create "name" file
                 write_file(package_dir + "/name", "package-" + std::to_string(socket));
+                write_file(package_dir + "/max_energy_range_uj", "262143328850");
 
                 // Create constraint directory and files
                 std::string constraint_dir = package_dir + "/constraint_0";
