@@ -19,6 +19,11 @@ namespace geopm
 
         auto individual_signals = geopm::string_split(environment_variable_contents, ",");
         for (const auto &signal : individual_signals) {
+            if (signal.empty()) {
+                throw Exception("Dangling comma in environment variable. Contents: \"" +
+                                environment_variable_contents + "\"",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             auto signal_domain = geopm::string_split(signal, "@");
             if (valid_signals.find(signal_domain[0]) == valid_signals.end()) {
                 throw Exception("Invalid signal : " + signal_domain[0],
