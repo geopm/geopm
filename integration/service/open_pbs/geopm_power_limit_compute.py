@@ -30,12 +30,7 @@ from geopmdpy import system_files
 _SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
-_MAX_POWER_LIMIT_RESOURCE = "geopm-max-node-power-limit"
-_MIN_POWER_LIMIT_RESOURCE = "geopm-min-node-power-limit"
 _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
-_DEFAULT_SLOWDOWN_RESOURCE = "geopm-default-slowdown"
-_JOB_TYPE_RESOURCE = "geopm-job-type"
-_DEFAULT_SLOWDOWN = 0.0
 
 _power_limit_control = {
         "name": "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT",

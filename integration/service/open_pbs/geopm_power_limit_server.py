@@ -31,7 +31,6 @@ _DEFAULT_SLOWDOWN_RESOURCE = "geopm-default-slowdown"
 _JOB_TYPE_RESOURCE = "geopm-job-type"
 _DEFAULT_SLOWDOWN = 0.0
 
-
 def reject_event(msg):
     e = pbs.event()
     e.reject(f"{e.hook_name}: {msg}")
