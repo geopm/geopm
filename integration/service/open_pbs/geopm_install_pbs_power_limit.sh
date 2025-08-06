@@ -10,6 +10,7 @@ JOB_RESOURCE="geopm-job-power-limit"
 JOB_TYPE_RESOURCE="geopm-job-type"
 DEFAULT_SLOWDOWN_RESOURCE="geopm-default-slowdown"
 NODE_CAP_HOOK="geopm_power_limit"
+QUEUEJOB_HOOK="geopm_power_limit_queuejob"
 REMOVE_OPT="--remove"
 SAVED_CONTROLS_BASE_DIR="/run/geopm/pbs-hooks"
 
@@ -72,9 +73,20 @@ install() {
     else
         echo "$NODE_CAP_HOOK hook already exists"
     fi
-    echo "Importing and configuring hook..."
-    qmgr -c "import hook $NODE_CAP_HOOK application/x-python default ${NODE_CAP_HOOK}.py" || exit 1
-    qmgr -c "set hook $NODE_CAP_HOOK event='queuejob,runjob,execjob_prologue,execjob_epilogue'" || exit 1
+    echo "Importing and configuring prologue/epilogue hook..."
+    qmgr -c "import hook $NODE_CAP_HOOK application/x-python default geopm_power_limit_compute.py" || exit 1
+    qmgr -c "set hook $NODE_CAP_HOOK event='execjob_prologue,execjob_epilogue'" || exit 1
+
+    out=`qmgr -c "list hook" | grep "$QUEUEJOB_HOOK"`
+    if [ -z "$out" ]; then
+        echo "Creating $QUEUEJOB_HOOK hook..."
+        qmgr -c "create hook $QUEUEJOB_HOOK" || exit 1
+    else
+        echo "$QUEUEJOB_HOOK hook already exists"
+    fi
+    echo "Importing and configuring queuejob hook..."
+    qmgr -c "import hook $QUEUEJOB_HOOK application/x-python default geopm_power_limit_server.py" || exit 1
+    qmgr -c "set hook $QUEUEJOB_HOOK event='queuejob'" || exit 1
 
     echo "Done."
 }
@@ -103,7 +115,15 @@ remove() {
         echo "$NODE_CAP_HOOK hook not found"
     else
         echo "Removing $NODE_CAP_HOOK hook..."
-        qmgr -c "delete hook $EXECHOST_HOOK" || exit 1
+        qmgr -c "delete hook $NODE_CAP_HOOK" || exit 1
+    fi
+
+    out=`qmgr -c "list hook" | grep "$QUEUEJOB_HOOK"`
+    if [ -z "$out" ]; then
+        echo "$QUEUEJOB_HOOK hook not found"
+    else
+        echo "Removing $QUEUEJOB_HOOK hook..."
+        qmgr -c "delete hook $QUEUEJOB_HOOK" || exit 1
     fi
 
     rm -rf "$SAVED_CONTROLS_BASE_DIR"
@@ -116,6 +136,8 @@ if [ $# -eq 0 ]; then
     echo "$SCHED_CONFIG_MODIFIED_MESSAGE"
     echo ""
     echo "GEOPM PBS plugins have been installed but are not yet configured."
+    echo "The prologue/epilogue hook ($NODE_CAP_HOOK) needs to be installed on all compute nodes."
+    echo "The queuejob hook ($QUEUEJOB_HOOK) needs to be installed on the PBS server."
     echo "To set a power limit across jobs, set resources_available for $JOB_RESOURCE"
     echo "To set a minimum node power limit, use $NODE_MIN_RESOURCE"
     echo "To set a maximum node power limit, use $NODE_MAX_RESOURCE"

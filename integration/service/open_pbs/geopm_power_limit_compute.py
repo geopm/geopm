@@ -1,7 +1,10 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-
+# This file contains the prologue and epilogue hooks for GEOPM power limiting
+# functionality in PBS environments. It should be installed on compute nodes.
+# The queuejob functionality is in a separate file (geopm_power_limit_server.py)
+# which should be installed on the PBS server.
 
 import sys
 
@@ -368,93 +371,6 @@ def do_power_limit_epilogue():
         restore_controls_from_file(_SAVED_CONTROLS_FILE)
     e.accept()
 
-
-def do_power_limit_queuejob():
-    """GEOPM handler for queuejob PBS events. This handler sets a preliminary
-    job power resource request on a queued job so that the scheduler knows
-    the minimum amount of power needed by the job.
-    """
-    server = pbs.server()
-
-    requested_resources = pbs.event().job.Resource_List
-    submitted_node_limit = requested_resources[_POWER_LIMIT_RESOURCE]
-    submitted_job_limit = requested_resources[_JOB_POWER_LIMIT_RESOURCE]
-    max_power_in_pbs_server = server.resources_available[_JOB_POWER_LIMIT_RESOURCE]
-    if max_power_in_pbs_server is None:
-        # No high-level power limit is set. Nothing to do here.
-        pbs.event().accept()
-        return
-
-    min_power_per_node = server.resources_available[_MIN_POWER_LIMIT_RESOURCE]
-    if min_power_per_node is None:
-        pbs.event().reject(f'{_MIN_POWER_LIMIT_RESOURCE} must be configured.')
-
-    max_power_per_node = server.resources_available[_MAX_POWER_LIMIT_RESOURCE]
-    if max_power_per_node is None:
-        pbs.event().reject(f'{_MAX_POWER_LIMIT_RESOURCE} must be configured.')
-
-    min_power_per_node = float(min_power_per_node)
-    max_power_per_node = float(max_power_per_node)
-    max_power_in_pbs_server = float(max_power_in_pbs_server)
-
-    if (max_power_in_pbs_server is None
-            and submitted_node_limit is None
-            and submitted_job_limit is None):
-        # No limit has been specified by the admin or by the user, so we have
-        # nothing to do here.
-        return
-
-    # No nodes have been assigned to this job yet since it is still queued. We
-    # need to base our power request on how many PBS chunks were requested.
-    # Note: the user is allowed to change the request until just before the
-    # runjob event.
-    # TODO: Also need to do the same thing on modifyjob events?
-    node_count = 0
-    select = repr(requested_resources['select'])
-    for chunk in select.split('+'):
-        nchunks = 1
-        for c in chunk.split(':'):
-            kv = c.split('=')
-            if len(kv) == 1:
-                nchunks = int(kv[0])
-        node_count += nchunks
-
-    pbs.logmsg(pbs.LOG_DEBUG, f'submitted node limit: {submitted_node_limit}, '
-                              f'job limit: {submitted_job_limit}, nodes: {node_count}, '
-                              f'min power per node: {min_power_per_node}')
-
-    # This hook is meant to influence the scheduler's job-power-driven
-    # decisions, so we do not set node limit here (we do that in runjob).
-    job_power_limit = max(
-        min_power_per_node * node_count,
-        (submitted_job_limit or 0),
-        (submitted_node_limit or 0) * node_count)
-    if submitted_job_limit is None and submitted_node_limit is None:
-        # If the user is willing to accept some slowdown and didn't request a
-        # specific power limit, then set a power cap that is modeled to cause
-        # the allowed slowdown.
-
-        job_type = requested_resources[_JOB_TYPE_RESOURCE]
-        slowdown = float(requested_resources[_DEFAULT_SLOWDOWN_RESOURCE]) if requested_resources[_DEFAULT_SLOWDOWN_RESOURCE] is not None else _DEFAULT_SLOWDOWN
-        if slowdown < 0:
-            pbs.event().reject(f'{_DEFAULT_SLOWDOWN_RESOURCE} must be at least 0. Requested value: {slowdown}')
-            return
-
-        job_min_limit = predict_power_cap_at_performance_factor(
-                job_type, slowdown, min_power_per_node, max_power_per_node) * node_count
-        pbs.logmsg(pbs.LOG_DEBUG, f'job_min_limit = {job_min_limit}')
-        job_power_limit = max(job_power_limit, job_min_limit)
-
-    job_power_limit = min(job_power_limit,
-                          max_power_per_node * node_count)
-    if max_power_in_pbs_server is not None:
-        # By default, cap the power low enough that it won't be
-        # stuck waiting for more resources than are in the server.
-        job_power_limit = min(job_power_limit, max_power_in_pbs_server)
-
-    requested_resources[_JOB_POWER_LIMIT_RESOURCE] = job_power_limit
-
-
 def hook_main():
     try:
         event_type = pbs.event().type
@@ -462,8 +378,6 @@ def hook_main():
             do_power_limit_prologue()
         elif event_type == pbs.EXECJOB_EPILOGUE:
             do_power_limit_epilogue()
-        elif event_type == pbs.QUEUEJOB:
-            do_power_limit_queuejob()
         else:
             reject_event("Power limit hook incorrectly configured!")
     except SystemExit:
