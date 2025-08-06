@@ -3,16 +3,15 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Resources needed for the server
 NODE_RESOURCE="geopm-node-power-limit"
 NODE_MAX_RESOURCE="geopm-max-node-power-limit"
 NODE_MIN_RESOURCE="geopm-min-node-power-limit"
 JOB_RESOURCE="geopm-job-power-limit"
 JOB_TYPE_RESOURCE="geopm-job-type"
 DEFAULT_SLOWDOWN_RESOURCE="geopm-default-slowdown"
-NODE_CAP_HOOK="geopm_power_limit"
 QUEUEJOB_HOOK="geopm_power_limit_queuejob"
 REMOVE_OPT="--remove"
-SAVED_CONTROLS_BASE_DIR="/run/geopm/pbs-hooks"
 
 SCHED_CONFIG_MODIFIED_MESSAGE="\
 Note: ${PBS_HOME}/sched_priv/sched_config has been modified, but modifications
@@ -27,14 +26,14 @@ print_usage() {
     Usage: $0 [${REMOVE_OPT}]
 
     Invoking this script with no arguments installs the GEOPM power limit
-    hook.
+    server hook for queuejob events.
 
-    Use the --remove option to uninstall the hook. This will also remove the
-    $NODE_RESOURCE resource and the saved controls directory.
+    Use the --remove option to uninstall the hook and related resources.
     "
 }
 
 install() {
+    # Create all resources needed for the server side
     for resource in $NODE_RESOURCE $NODE_MAX_RESOURCE $NODE_MIN_RESOURCE $JOB_RESOURCE $DEFAULT_SLOWDOWN_RESOURCE
     do
         out=`qmgr -c "list resource" | grep "$resource"`
@@ -66,17 +65,7 @@ install() {
             sed -i -e "s/^resources: \"\([^\"]\+\)\"$/resources: \"\1, ${JOB_RESOURCE}\"/g" "${PBS_HOME}/sched_priv/sched_config"
     fi
 
-    out=`qmgr -c "list hook" | grep "$NODE_CAP_HOOK"`
-    if [ -z "$out" ]; then
-        echo "Creating $NODE_CAP_HOOK hook..."
-        qmgr -c "create hook $NODE_CAP_HOOK" || exit 1
-    else
-        echo "$NODE_CAP_HOOK hook already exists"
-    fi
-    echo "Importing and configuring prologue/epilogue hook..."
-    qmgr -c "import hook $NODE_CAP_HOOK application/x-python default geopm_power_limit_compute.py" || exit 1
-    qmgr -c "set hook $NODE_CAP_HOOK event='execjob_prologue,execjob_epilogue'" || exit 1
-
+    # Set up the queuejob hook
     out=`qmgr -c "list hook" | grep "$QUEUEJOB_HOOK"`
     if [ -z "$out" ]; then
         echo "Creating $QUEUEJOB_HOOK hook..."
@@ -99,6 +88,7 @@ remove() {
             echo "$JOB_RESOURCE not found in the list of consumable scheduler resources"
     fi
 
+    # Remove resources
     for resource in $NODE_RESOURCE $NODE_MAX_RESOURCE $NODE_MIN_RESOURCE $JOB_RESOURCE $DEFAULT_SLOWDOWN_RESOURCE $JOB_TYPE_RESOURCE
     do
         out=`qmgr -c "list resource" | grep "$resource"`
@@ -110,14 +100,7 @@ remove() {
         fi
     done
 
-    out=`qmgr -c "list hook" | grep "$NODE_CAP_HOOK"`
-    if [ -z "$out" ]; then
-        echo "$NODE_CAP_HOOK hook not found"
-    else
-        echo "Removing $NODE_CAP_HOOK hook..."
-        qmgr -c "delete hook $NODE_CAP_HOOK" || exit 1
-    fi
-
+    # Remove the queuejob hook
     out=`qmgr -c "list hook" | grep "$QUEUEJOB_HOOK"`
     if [ -z "$out" ]; then
         echo "$QUEUEJOB_HOOK hook not found"
@@ -126,8 +109,6 @@ remove() {
         qmgr -c "delete hook $QUEUEJOB_HOOK" || exit 1
     fi
 
-    rm -rf "$SAVED_CONTROLS_BASE_DIR"
-
     echo "Done."
 }
 
@@ -135,9 +116,7 @@ if [ $# -eq 0 ]; then
     install
     echo "$SCHED_CONFIG_MODIFIED_MESSAGE"
     echo ""
-    echo "GEOPM PBS plugins have been installed but are not yet configured."
-    echo "The prologue/epilogue hook ($NODE_CAP_HOOK) needs to be installed on all compute nodes."
-    echo "The queuejob hook ($QUEUEJOB_HOOK) needs to be installed on the PBS server."
+    echo "GEOPM PBS server hook has been installed but is not yet configured."
     echo "To set a power limit across jobs, set resources_available for $JOB_RESOURCE"
     echo "To set a minimum node power limit, use $NODE_MIN_RESOURCE"
     echo "To set a maximum node power limit, use $NODE_MAX_RESOURCE"

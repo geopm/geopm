@@ -236,9 +236,17 @@ The GEOPM power limit hooks require:
 
 Installation
 ------------
-Prior to being able to use the power limit feature, the
-``geopm-node-power-limit`` and ``geopm-job-power-limit`` resources and the
-power limit hook need to be installed on the OpenPBS server.
+The GEOPM power limiting functionality uses two separate hooks that need to be installed in different places:
+
+1. The server hook (``geopm_power_limit_server.py``) needs to be installed on the PBS server
+2. The compute hook (``geopm_power_limit_compute.py``) needs to be installed on all compute nodes
+
+Two installation scripts are provided to simplify the installation process:
+
+1. ``geopm_install_pbs_power_limit_server.sh`` - Installs the server-side hook and resources
+2. ``geopm_install_pbs_power_limit_compute.sh`` - Installs the compute-node hook
+
+Prior to being able to use the power limit feature, you need to run these scripts on the respective systems.
 
 The resources can be created with the following commands:
 
@@ -311,5 +319,5 @@ submission timeline below.
     classDef event fill:#dde9af
     classDef hook fill:#4472c4,color:#fff
 
-For convenience, a script is provided to perform these installation commands:
-``geopm_install_pbs_power_limit.sh``
+For convenience, two scripts are provided to perform these installation commands:
+``geopm_install_pbs_power_limit_server.sh`` and ``geopm_install_pbs_power_limit_compute.sh``
