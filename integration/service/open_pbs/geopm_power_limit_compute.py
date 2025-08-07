@@ -3,7 +3,7 @@
 #
 # This file contains the prologue and epilogue hooks for GEOPM power limiting
 # functionality in PBS environments. It should be installed on compute nodes.
-# The queuejob functionality is in a separate file (geopm_power_limit_server.py)
+# The server/queuejob functionality is in a separate file (geopm_power_limit_server.py)
 # which should be installed on the PBS server.
 
 import sys
