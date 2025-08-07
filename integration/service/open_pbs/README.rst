@@ -228,7 +228,7 @@ Requirements
 The GEOPM power limit hooks require:
 
 - OpenPBS
-- geopmdpy (and libgeopmd) on nodes where the power limit feature is needed
+- geopmdpy (and libgeopmd) on nodes where the power limit feature is needed (compute hook only)
 - This feature requires platform vendor HW support. In particular, it requires
   HW support for the ``MSR::PLATFORM_POWER_LIMIT`` MSRs (``PL1_POWER_LIMIT``,
   ``PL1_TIME_WINDOW``, ``PL1_CLAMP_ENABLE``, ``PL1_LIMIT_ENABLE``), and the
@@ -236,17 +236,9 @@ The GEOPM power limit hooks require:
 
 Installation
 ------------
-The GEOPM power limiting functionality uses two separate hooks that need to be installed in different places:
-
-1. The server hook (``geopm_power_limit_server.py``) needs to be installed on the PBS server
-2. The compute hook (``geopm_power_limit_compute.py``) needs to be installed on all compute nodes
-
-Two installation scripts are provided to simplify the installation process:
-
-1. ``geopm_install_pbs_power_limit_server.sh`` - Installs the server-side hook and resources
-2. ``geopm_install_pbs_power_limit_compute.sh`` - Installs the compute-node hook
-
-Prior to being able to use the power limit feature, you need to run these scripts on the respective systems.
+Prior to being able to use the power limit feature, the
+``geopm-node-power-limit`` and ``geopm-job-power-limit`` resources and the
+power limit hook need to be installed on the OpenPBS server.
 
 The resources can be created with the following commands:
 
@@ -284,23 +276,25 @@ The hooks to enforce node power caps are available in the GEOPM
 
 These can be installed with the following commands:
 
-For the prologue and epilogue hooks on compute nodes:
-::
-
-   qmgr -c "create hook geopm_power_limit"
-   qmgr -c "import hook geopm_power_limit application/x-python default geopm_power_limit_compute.py"
-   qmgr -c "set hook geopm_power_limit event='execjob_prologue,execjob_epilogue'"
-
 For the queuejob hook on the PBS server:
+
 ::
 
-   qmgr -c "create hook geopm_power_limit_queuejob"
-   qmgr -c "import hook geopm_power_limit_queuejob application/x-python default geopm_power_limit_server.py"
-   qmgr -c "set hook geopm_power_limit_queuejob event='queuejob'"
+   qmgr -c "create hook geopm_power_limit_server"
+   qmgr -c "import hook geopm_power_limit_server application/x-python default geopm_power_limit_server.py"
+   qmgr -c "set hook geopm_power_limit_server event='queuejob'"
+
+For the prologue and epilogue hooks on compute nodes:
+
+::
+
+   qmgr -c "create hook geopm_power_limit_compute"
+   qmgr -c "import hook geopm_power_limit_compute application/x-python default geopm_power_limit_compute.py"
+   qmgr -c "set hook geopm_power_limit_compute event='execjob_prologue,execjob_epilogue'"
 
 Note how the hooks need to be configured to run in three events: job prologue,
-job epilogue, and queuejob, but on different parts of the system. The purpose of each hook is illustrated in the job
-submission timeline below.
+job epilogue, and queuejob, but on different parts of the system. The purpose of each hook is illustrated
+in the job submission timeline below.
 
 .. code:: mermaid
 
@@ -319,5 +313,5 @@ submission timeline below.
     classDef event fill:#dde9af
     classDef hook fill:#4472c4,color:#fff
 
-For convenience, two scripts are provided to perform these installation commands:
+For convenience, two scripts are provided to perform these installation commands on their respective targets:
 ``geopm_install_pbs_power_limit_server.sh`` and ``geopm_install_pbs_power_limit_compute.sh``
