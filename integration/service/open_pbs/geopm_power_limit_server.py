@@ -1,7 +1,7 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-# This file contains the queuejob hook for GEOPM power limiting functionality
+# This file contains the server hook for GEOPM power limiting functionality
 # in PBS environments. It should be installed on the PBS server.
 # The prologue and epilogue hooks are in a separate file (geopm_power_limit_compute.py)
 # which should be installed on compute nodes.
@@ -145,8 +145,8 @@ def do_power_limit_queuejob():
     max_power_in_pbs_server = float(max_power_in_pbs_server)
 
     if (max_power_in_pbs_server is None
-            and submitted_node_limit is None
-            and submitted_job_limit is None):
+        and submitted_node_limit is None
+        and submitted_job_limit is None):
         # No limit has been specified by the admin or by the user, so we have
         # nothing to do here.
         return
