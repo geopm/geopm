@@ -26,6 +26,8 @@ import pbs
 from geopmdpy import pio
 from geopmdpy import system_files
 
+os.environ["ZES_ENABLE_SYSMAN"] = "1"
+os.environ["ZE_FLAT_DEVICE_HIERARCHY"] = "COMPOSITE"
 
 _SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
