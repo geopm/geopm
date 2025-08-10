@@ -150,6 +150,10 @@ namespace geopm
             // signals like CPUFREQ::SCALING_CUR_FREQ or
             // POWERCAP::CPU_ENERGY_CONSUMED will be read through the service if
             // the ServiceIOGroup is loaded.
+#ifdef GEOPM_ENABLE_LEVELZERO
+            register_plugin(LevelZeroIOGroup::plugin_name(),
+                            LevelZeroIOGroup::make_plugin);
+#endif
             register_plugin(CpufreqSysfsDriver::plugin_name(),
                             CpufreqSysfsDriver::make_plugin);
             register_plugin(PowercapSysfsDriver::plugin_name(),

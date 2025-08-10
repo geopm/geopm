@@ -24,6 +24,7 @@ namespace geopm
             virtual ~LevelZeroImp() = default;
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
+            int num_engine(unsigned int l0_device_idx, int l0_domain, int l0_domain_idx) const override;
             int frequency_domain_count(unsigned int l0_device_idx,
                                        int domain) const override;
             double frequency_status(unsigned int l0_device_idx,
@@ -48,11 +49,13 @@ namespace geopm
                                    int l0_domain_idx) const override;
             int engine_domain_count(unsigned int l0_device_idx, int domain) const override;
             std::pair<uint64_t, uint64_t> active_time_pair(unsigned int l0_device_idx,
-                                                           int l0_domain, int l0_domain_idx) const override;
+                                                           int l0_domain, int l0_domain_idx,
+                                                           int engine_idx) const override;
             uint64_t active_time(unsigned int l0_device_idx, int l0_domain,
-                                 int l0_domain_idx) const override;
+                                 int l0_domain_idx, int engine_idx) const override;
             uint64_t active_time_timestamp(unsigned int l0_device_idx,
-                                           int l0_domain, int l0_domain_idx) const override;
+                                           int l0_domain, int l0_domain_idx,
+                                           int engine_idx) const override;
             int power_domain_count(int geopm_domain, unsigned int l0_device_idx,
                                    int l0_domain) const override;
             std::pair<uint64_t, uint64_t> energy_pair(int geopm_domain, unsigned int l0_device_idx,
@@ -152,8 +155,13 @@ namespace geopm
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_temp_handle_t> > temp_domain_max;
-                std::vector<std::vector<zes_engine_handle_t> > engine_domain;
-                mutable std::vector<std::vector<uint64_t> > cached_timestamp;
+                // This are enum geopm_levelzero_domain_e indexed, then subdevice indexed,
+                // then compute engine indexed because there may be multiple compute
+                // engines per tile.
+                std::vector<std::vector<std::vector<zes_engine_handle_t> > > engine_domain;
+
+                // cached_timestamp[L0 Domain Type, L0 subdevice idx, Engine]
+                mutable std::vector<std::vector<std::vector<uint64_t> > > cached_timestamp;
 
                 //uint32_t num_subdevice_perf_domain;
                 std::vector<std::vector<zes_perf_handle_t>> perf_domain;
