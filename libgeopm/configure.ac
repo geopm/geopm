@@ -76,6 +76,30 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
+# Add oneapi flag and macro
+AC_ARG_ENABLE([oneapi],
+  [AS_HELP_STRING([--enable-oneapi], [Enable Intel oneAPI support])],
+[if test "x$enable_oneapi" = "xno" ; then
+  enable_oneapi="0"
+else
+  enable_oneapi="1"
+fi
+],
+[enable_oneapi="0"]
+)
+AC_SUBST([enable_oneapi])
+AM_CONDITIONAL([ENABLE_ONEAPI], [test "x$enable_oneapi" = "x1"])
+if test "x$enable_oneapi" = "x1" ; then
+  AC_DEFINE([ENABLE_ONEAPI], [1], [Define if Intel oneAPI support is enabled])
+  if test "$CXX" = "icpx" ; then
+    AM_CXXFLAGS="$AM_CXXFLAGS -fsycl"
+  else
+    AC_MSG_ERROR([OneAPI/SYCL support requires Intel's icpx compiler. Current compiler is $CXX.
+      Please use the Intel oneAPI compiler (icpx) with --enable-oneapi or set CXX=icpx before running configure.
+      Download from: https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html])
+  fi
+fi
+
 AC_ARG_ENABLE([build-gtest],
   [AS_HELP_STRING([--disable-build-gtest], [Do not download and build google test and google mock, system install required])],
 [if test "x$enable_build_gtest" = "xno" ; then
