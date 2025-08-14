@@ -258,6 +258,8 @@ namespace geopm
             std::vector<std::shared_ptr<Control> > m_control_pushed;
 
             std::shared_ptr<SaveControl> m_mock_save_ctl;
+            // Mapping of control index to enable bit control index
+            std::map<int, int> m_power_control_enable_idx;
     };
 }
 
