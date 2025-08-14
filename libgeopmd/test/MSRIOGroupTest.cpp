@@ -131,7 +131,7 @@ void MSRIOGroupTest::SetUp()
     // suppress mock calls from initializing rdt signals
     EXPECT_CALL(*m_msrio, read_msr(_, _)).Times(AtLeast(0));
     EXPECT_CALL(*m_msrio, system_write_mask(_)).WillRepeatedly(Return(~0ULL));
-    EXPECT_CALL(*m_mock_cpuid, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_SKX));
+    EXPECT_CALL(*m_mock_cpuid, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_SPR));
     // suppress mock calls from initializing MSR fields from JSON config
     EXPECT_CALL(*m_msrio, add_read(_, _, _)).Times(AnyNumber());
     EXPECT_CALL(*m_msrio, add_write(_, _, _)).Times(AnyNumber());
@@ -563,7 +563,7 @@ TEST_F(MSRIOGroupTest, read_signal_energy)
     result = m_msrio_group->read_signal("CPU_ENERGY", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_NEAR(100, result, 0.0001);
 
-    value = 3276799;  // 15uJ units
+    value = 819200;  // 61uJ units
     EXPECT_CALL(*m_msrio, read_msr(0, dram_energy_offset)).WillOnce(Return(value));
     result = m_msrio_group->read_signal("DRAM_ENERGY", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_NEAR(50, result, 0.0001);
@@ -846,14 +846,15 @@ TEST_F(MSRIOGroupTest, push_control)
     EXPECT_EQ(freq_idx_0, idx3);
 
     uint64_t pl1_limit_offset = 0x610;
-    EXPECT_CALL(*m_msrio, add_write(0, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(4, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(8, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(12, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(1, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(5, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(9, pl1_limit_offset));
-    EXPECT_CALL(*m_msrio, add_write(13, pl1_limit_offset));
+    // For the main power limit control and the enable bit control (called twice per CPU)
+    EXPECT_CALL(*m_msrio, add_write(0, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(4, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(8, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(12, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(1, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(5, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(9, pl1_limit_offset)).Times(2);
+    EXPECT_CALL(*m_msrio, add_write(13, pl1_limit_offset)).Times(2);
     // pushing power limit reads lock bit
     EXPECT_CALL(*m_msrio, read_msr(0, pl1_limit_offset));  // cpu 0 for pkg 0
     EXPECT_CALL(*m_msrio, read_msr(2, pl1_limit_offset));  // cpu 2 for pkg 1
@@ -895,15 +896,15 @@ TEST_F(MSRIOGroupTest, adjust)
     EXPECT_CALL(*m_msrio, add_write(8, perf_ctl_offset)).WillOnce(Return(PERF_CTL_2));
     EXPECT_CALL(*m_msrio, add_write(12, perf_ctl_offset)).WillOnce(Return(PERF_CTL_3));
     int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0);
-    uint64_t pl1_limit_offset = 0x610;
-    EXPECT_CALL(*m_msrio, add_write(0, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_0));
-    EXPECT_CALL(*m_msrio, add_write(4, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_1));
-    EXPECT_CALL(*m_msrio, add_write(8, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_2));
-    EXPECT_CALL(*m_msrio, add_write(12, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_3));
-    EXPECT_CALL(*m_msrio, add_write(1, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_4));
-    EXPECT_CALL(*m_msrio, add_write(5, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_5));
-    EXPECT_CALL(*m_msrio, add_write(9, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_6));
-    EXPECT_CALL(*m_msrio, add_write(13, pl1_limit_offset)).WillOnce(Return(PL1_LIMIT_7));
+    uint64_t pl1_limit_offset = 0x610; // Times(2) below for the automatic handling of the limit-enable bit
+    EXPECT_CALL(*m_msrio, add_write(0, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_0));
+    EXPECT_CALL(*m_msrio, add_write(4, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_1));
+    EXPECT_CALL(*m_msrio, add_write(8, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_2));
+    EXPECT_CALL(*m_msrio, add_write(12, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_3));
+    EXPECT_CALL(*m_msrio, add_write(1, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_4));
+    EXPECT_CALL(*m_msrio, add_write(5, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_5));
+    EXPECT_CALL(*m_msrio, add_write(9, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_6));
+    EXPECT_CALL(*m_msrio, add_write(13, pl1_limit_offset)).Times(2).WillRepeatedly(Return(PL1_LIMIT_7));
     // pushing power limit reads lock bit
     // @todo: not getting called??
     //EXPECT_CALL(*m_msrio, read_msr(0, pl1_limit_offset));  // cpu 0 for pkg 0
@@ -914,9 +915,11 @@ TEST_F(MSRIOGroupTest, adjust)
 
     uint64_t perf_ctl_mask = 0xFF00;
     uint64_t pl1_limit_mask = 0x7FFF;
+    uint64_t pl1_limit_enable_mask = 0x8000;
     // Set frequency to 1 GHz, power to 100W
     uint64_t encoded_freq = 0xA00ULL;
     uint64_t encoded_power = 0x500ULL;
+    uint64_t encoded_power_enable = 0x8000ULL;
     {
     // all CPUs on core 0
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
@@ -924,6 +927,14 @@ TEST_F(MSRIOGroupTest, adjust)
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
     // all CPUs on package 0
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power_enable, pl1_limit_enable_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
@@ -952,6 +963,14 @@ TEST_F(MSRIOGroupTest, adjust)
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
     // all CPUs on package 0
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power_enable, pl1_limit_enable_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
@@ -973,6 +992,14 @@ TEST_F(MSRIOGroupTest, adjust)
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
     // all CPUs on package 0
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power_enable, pl1_limit_enable_mask));
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power_enable, pl1_limit_enable_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
@@ -1530,4 +1557,49 @@ TEST_F(MSRIOGroupTest, turbo_ratio_limit_writability)
                 << "Expected no control for " << signal_name_oss.str();
         }
     }
+}
+
+TEST_F(MSRIOGroupTest, power_limit_enable_bit)
+{
+    const uint64_t platform_power_limit_offset = 0x65C;
+    const int pl1_limit_enable_bit = 17;
+    const uint64_t pl1_limit_enable_mask = 1ULL << pl1_limit_enable_bit;
+    const int PL1_LIMIT_0 = 102;
+
+    // When BOARD_POWER_LIMIT_CONTROL is pushed, it should also push the enable limit control
+    // Expect 2 add_write calls per CPU: one for BOARD_POWER_LIMIT_CONTROL and one for MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE
+    for (int ii = 0; ii < m_num_cpu; ++ii){
+        EXPECT_CALL(*m_msrio, add_write(ii, platform_power_limit_offset)).Times(2)
+            .WillRepeatedly(Return(PL1_LIMIT_0));
+    }
+
+    // Push BOARD_POWER_LIMIT_CONTROL
+    int power_limit_idx = m_msrio_group->push_control("BOARD_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD, 0);
+
+    // Test case 1: Setting power limit to a non-zero value
+    // Expect that the power limit is set to the provided value and the enable bit is set to 1
+    const uint64_t encoded_power_200w = 0x640ULL;  // 200W in 1/8W units
+    // Set limit enable bit to 1
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, pl1_limit_enable_mask, pl1_limit_enable_mask)).Times(m_num_cpu);
+    // Set power limit to 200
+    // The PL1_POWER_LIMIT field is 16:0, which is 1 less than the PL1_LIMIT_ENABLE
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power_200w, pl1_limit_enable_mask - 1)).Times(m_num_cpu);
+
+    m_msrio_group->adjust(power_limit_idx, 200);
+
+    // Test case 2: Setting power limit to 0
+    // Expect that the power limit is set to 0 and the enable bit is also set to 0
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, 0, pl1_limit_enable_mask)).Times(m_num_cpu);
+    // Set power limit to 0
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, 0, pl1_limit_enable_mask - 1)).Times(m_num_cpu);
+
+    m_msrio_group->adjust(power_limit_idx, 0);
+
+    // Test case 3: Setting power limit back to a non-zero value
+    // Expect that the enable bit is set back to 1
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, pl1_limit_enable_mask, pl1_limit_enable_mask)).Times(m_num_cpu);
+    // Set power limit to 200
+    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power_200w, pl1_limit_enable_mask - 1)).Times(m_num_cpu);
+
+    m_msrio_group->adjust(power_limit_idx, 200);
 }
