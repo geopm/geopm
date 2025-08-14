@@ -822,18 +822,21 @@ namespace geopm
                 is_found = true;
             }
         }
-        if (control_name == "CPU_POWER_LIMIT_CONTROL") {
-            write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
-        }
-        else if (control_name == "BOARD_POWER_LIMIT_CONTROL") {
-            write_control("MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
-        }
 
         if (!is_found) {
             result = m_control_pushed.size();
             m_control_pushed.push_back(control);
             control->setup_batch();
             m_is_adjusted.push_back(false);
+
+            if (control_name == "CPU_POWER_LIMIT_CONTROL" || control_name == "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT") {
+                int enable_idx = push_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx);
+                m_power_control_enable_idx[result] = enable_idx;
+            }
+            else if (control_name == "BOARD_POWER_LIMIT_CONTROL" || control_name == "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT") {
+                int enable_idx = push_control("MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx);
+                m_power_control_enable_idx[result] = enable_idx;
+            }
         }
         return result;
     }
@@ -882,6 +885,16 @@ namespace geopm
             throw Exception("MSRIOGroup::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        // Check if this is a power limit control that needs its enable bit set
+        auto it = m_power_control_enable_idx.find(control_idx);
+        if (it != m_power_control_enable_idx.end()) {
+            // If setting power limit to 0, disable the limit-enable bit, otherwise enable the bit
+            double enable_val = (setting != 0.0) ? 1.0 : 0.0;
+            m_control_pushed[it->second]->adjust(enable_val);
+            m_is_adjusted[it->second] = true;
+        }
+
         m_control_pushed[control_idx]->adjust(setting);
         m_is_adjusted[control_idx] = true;
     }
@@ -923,11 +936,13 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == "CPU_POWER_LIMIT_CONTROL") {
-            write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+        if (control_name == "CPU_POWER_LIMIT_CONTROL" || control_name == "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT") {
+            double enable_val = (setting != 0.0) ? 1.0 : 0.0;
+            write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, enable_val);
         }
-        else if (control_name == "BOARD_POWER_LIMIT_CONTROL") {
-            write_control("MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+        else if (control_name == "BOARD_POWER_LIMIT_CONTROL" || control_name == "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT") {
+            double enable_val = (setting != 0.0) ? 1.0 : 0.0;
+            write_control("MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, enable_val);
         }
         std::shared_ptr<Control> control = m_control_available.at(control_name).controls[domain_idx];
         control->write(setting);
