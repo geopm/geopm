@@ -6,6 +6,8 @@
 
 #include "MSRFieldSignal.hpp"
 
+#include <cmath>
+
 #include "geopm_field.h"
 #include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
@@ -29,7 +31,12 @@ namespace geopm
         , m_is_batch_ready(false)
         , m_rollover_gen(std::make_shared<RolloverGenerator>())
     {
-        m_rollover_gen->set_factor(static_cast<double>((1ULL << m_num_bit) - 1) + 1.0);
+        if (m_num_bit < 64) {
+            m_rollover_gen->set_factor(static_cast<double>(1ULL << m_num_bit));
+        }
+        else {
+            m_rollover_gen->set_factor(pow(2, m_num_bit));
+        }
         /// @todo: some of these are not logic errors if MSR data
         /// comes from user input files or if this interface is
         /// public. Alternatively, checks for these at the json
