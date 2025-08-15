@@ -110,13 +110,24 @@ namespace geopm
         , M_POWERCAP_DIRECTORY(powercap_directory)
         , m_rollover_factor(0.0)
     {
-        try {
-            std::string factor_path = attribute_path("POWERCAP::CPU_MAX_ENERGY_RANGE", 0);
-            std::string contents = geopm::read_file(factor_path);
-            m_rollover_factor = 1e-6 * std::stoll(contents);
+         std::string factor_path = attribute_path("POWERCAP::CPU_MAX_ENERGY_RANGE", 0);
+         std::string contents;
+         try {
+             contents = geopm::read_file(factor_path);
          }
-         catch (...) {
-             throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs",
+         catch (const Exception &ex) {
+             throw geopm::Exception("PowercapSysfsDriver: Unable to read RAPL rollover file from sysfs: \"" + factor_path + "\"",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+         }
+         try {
+             m_rollover_factor = 1e-6 * std::stoll(contents);
+         }
+         catch (const std::invalid_argument &ex) {
+             throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs, invalid string: \"" + contents + "\"",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+         }
+         catch (const std::out_of_range &ex) {
+             throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs, out of range: \"" + contents + "\"",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
          }
     }
