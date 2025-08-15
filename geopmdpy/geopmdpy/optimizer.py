@@ -182,12 +182,18 @@ def get_energy(domain: str):
         # If we don't have board energy sum all components
         if "GPU_ENERGY" in all_signals:
             result += pio.read_signal("GPU_ENERGY", 0, 0)
-        if "CPU_ENERGY" in all_signals:
+        # Prefer powercap for energy measurements over default
+        if "POWERCAP::CPU_ENERGY_CONSUMED" in all_signals:
+            result += pio.read_signal("POWERCAP::CPU_ENERGY_CONSUMED", 0, 0)
+        elif "CPU_ENERGY" in all_signals:
             result += pio.read_signal("CPU_ENERGY", 0, 0)
         if "DRAM_ENERGY" in all_signals:
             result += pio.read_signal("DRAM_ENERGY", 0, 0)
     elif domain == 'cpu':
-        if "CPU_ENERGY" in all_signals:
+        # Prefer powercap for energy measurements over default
+        if "POWERCAP::CPU_ENERGY_CONSUMED" in all_signals:
+            result += pio.read_signal("POWERCAP::CPU_ENERGY_CONSUMED", 0, 0)
+        elif "CPU_ENERGY" in all_signals:
             result = pio.read_signal("CPU_ENERGY", 0, 0)
     elif domain == 'gpu':
         if "GPU_ENERGY" in all_signals:
