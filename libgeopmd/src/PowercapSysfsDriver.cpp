@@ -12,6 +12,7 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "geopm/Helper.hpp"
 
@@ -167,7 +168,7 @@ namespace geopm
             rollover_ptr = std::make_shared<RolloverGenerator>();
             rollover_ptr->set_factor(m_rollover_factor);
         }
-        return [scaling_factor, rollover_ptr](const std::string &content) {
+        return [scaling_factor, rollover_ptr = std::move(rollover_ptr)](const std::string &content) {
             double result = static_cast<double>(NAN);
             try {
                 result = static_cast<double>(std::stoull(content) * scaling_factor);
