@@ -30,7 +30,7 @@ _CLI_FLAG_TO_CONTROL = {
         "CPU_FREQUENCY_STEP",
     ),
     "cpu_power": (
-        "CPU_POWER_LIMIT_CONTROL",
+        "POWERCAP::CPU_POWER_LIMIT",
         "CPU_POWER_MIN_AVAIL",
         "CPU_POWER_LIMIT_DEFAULT",
         _DEFAULT_POWER_STEP,
