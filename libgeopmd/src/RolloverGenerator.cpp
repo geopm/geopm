@@ -3,10 +3,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <string>
-#include <cmath>
 #include "RolloverGenerator.hpp"
-#include "geopm/Exception.hpp"
 
 namespace geopm
 {

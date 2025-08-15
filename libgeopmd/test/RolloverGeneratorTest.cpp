@@ -80,6 +80,7 @@ TEST_F(RolloverGeneratorTest, test_64_bit_width)
     EXPECT_EQ(rollover_factor, gen.update(0));
     EXPECT_EQ(rollover_factor + 1.0, gen.update(1));
     double expected = 2.0 * rollover_factor + 1.0;
+    // IEEE 754 double precision floating point mantissa bit width is 51
     double error = 1 << (64 - 51);
     EXPECT_NEAR(expected, gen.update(0), error);
 }
