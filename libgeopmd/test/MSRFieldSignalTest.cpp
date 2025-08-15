@@ -143,19 +143,19 @@ TEST_F(MSRFieldSignalTest, read_overflow)
     result = sig->read();
     EXPECT_DOUBLE_EQ(expected, result);
 
-    expected = 4.0;
+    expected = 20.0;
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x0004)));
     result = sig->read();
     EXPECT_DOUBLE_EQ(expected, result);
 
-    expected = 10.0;
+    expected = 26.0;
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x000A)));
     result = sig->read();
     EXPECT_DOUBLE_EQ(expected, result);
 
-    expected = 1.0;
+    expected = 33.0;
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x0001)));
     result = sig->read();

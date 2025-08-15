@@ -11,6 +11,7 @@
 #include "geopm_debug.hpp"
 #include "geopm/Helper.hpp"
 #include "MSR.hpp"  // for enums
+#include "RolloverGenerator.hpp"
 
 namespace geopm
 {
@@ -23,13 +24,12 @@ namespace geopm
         , m_shift(begin_bit)
         , m_num_bit(end_bit - begin_bit + 1)
         , m_mask(((1ULL << m_num_bit) - 1) << begin_bit)
-        , m_subfield_max((1ULL << m_num_bit) - 1)
         , m_function(function)
         , m_scalar(scalar)
-        , m_last_field(0)
-        , m_num_overflow(0)
         , m_is_batch_ready(false)
+        , m_rollover_gen(std::make_shared<RolloverGenerator>())
     {
+        m_rollover_gen->set_factor(static_cast<double>((1ULL << m_num_bit) - 1) + 1.0);
         /// @todo: some of these are not logic errors if MSR data
         /// comes from user input files or if this interface is
         /// public. Alternatively, checks for these at the json
@@ -52,13 +52,10 @@ namespace geopm
         }
     }
 
-    double MSRFieldSignal::convert_raw_value(double val,
-                                     uint64_t &last_field,
-                                     int &num_overflow) const
+    double MSRFieldSignal::convert_raw_value(double val) const
     {
         uint64_t field = geopm_signal_to_field(val);
         uint64_t subfield = (field & m_mask) >> m_shift;
-        uint64_t subfield_last = (last_field & m_mask) >> m_shift;
         double result = NAN;
 
         uint64_t float_y, float_z;
@@ -75,10 +72,7 @@ namespace geopm
                 result = (1ULL << float_y) * (1.0 + float_z / 4.0);
                 break;
             case MSR::M_FUNCTION_OVERFLOW:
-                if (subfield_last > subfield) {
-                    ++num_overflow;
-                }
-                result = subfield + ((m_subfield_max + 1.0) * num_overflow);
+                result = m_rollover_gen->update(subfield);
                 break;
             case MSR::M_FUNCTION_SCALE:
                 result = subfield;
@@ -91,7 +85,6 @@ namespace geopm
                 break;
         }
         result *= m_scalar;
-        last_field = field;
         return result;
     }
 
@@ -101,13 +94,11 @@ namespace geopm
             throw Exception("setup_batch() must be called before sample().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        return convert_raw_value(m_raw_msr->sample(), m_last_field, m_num_overflow);
+        return convert_raw_value(m_raw_msr->sample());
     }
 
     double MSRFieldSignal::read(void) const
     {
-        uint64_t last_field = 0;
-        int num_overflow = 0;
-        return convert_raw_value(m_raw_msr->read(), last_field, num_overflow);
+        return convert_raw_value(m_raw_msr->read());
     }
 }

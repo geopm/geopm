@@ -16,6 +16,7 @@
 
 namespace geopm
 {
+    class RolloverGenerator;
     /// Encapsulates conversion of MSR bitfields to double signal
     /// values in SI units.
     /// @todo: most implementation is the same as MSREncode class.
@@ -36,9 +37,7 @@ namespace geopm
             double sample(void) override;
             double read(void) const override;
         private:
-            double convert_raw_value(double val,
-                                     uint64_t &last_field,
-                                     int &num_overflow) const;
+            double convert_raw_value(double val) const;
             /// Underlying raw MSR that contains the field.  This
             /// should be a RawMSRSignal in most cases but a base
             /// class pointer is used for testing and only the public
@@ -51,12 +50,10 @@ namespace geopm
             const int m_shift;
             const int m_num_bit;
             const uint64_t m_mask;
-            const uint64_t m_subfield_max;
             const int m_function;
             const double m_scalar;
-            uint64_t m_last_field;
-            int m_num_overflow;
             bool m_is_batch_ready;
+            std::shared_ptr<RolloverGenerator> m_rollover_gen;
     };
 }
 
