@@ -19,7 +19,7 @@ namespace geopm
         private:
             double m_last_value;
             double m_rollover_factor;
-            uint64_t m_num_overflow;
+            double m_rollover_total;
     };
 }
 

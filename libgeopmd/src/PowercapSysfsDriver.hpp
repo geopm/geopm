@@ -6,9 +6,6 @@
 #ifndef POWERCAPSYSFSDRIVER_HPP_INCLUDE
 #define POWERCAPSYSFSDRIVER_HPP_INCLUDE
 
-#include <memory>
-#include <vector>
-
 #include "SysfsDriver.hpp"
 #include "geopm/IOGroup.hpp"
 
