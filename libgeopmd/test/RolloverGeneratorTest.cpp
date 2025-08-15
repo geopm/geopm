@@ -7,8 +7,6 @@
 
 #include "geopm/SaveControl.hpp"
 
-#include <iostream>
-
 #include "gtest/gtest.h"
 
 #include "geopm_test.hpp"
@@ -54,7 +52,7 @@ TEST_F(RolloverGeneratorTest, test_two_bit_width)
 {
     auto gen = RolloverGenerator();
     gen.set_factor(pow(2, 2));
-    for (int idx = 0; idx < 4; ++idx) {
+    for (int idx = 0; idx < 10; ++idx) {
         int value = idx % 4;
         EXPECT_EQ(idx, gen.update(value))  << "Two bit counter";
     }
@@ -68,7 +66,7 @@ TEST_F(RolloverGeneratorTest, test_32_bit_width)
     double rollover_factor = static_cast<double>(UINT32_MAX) + 1.0;
     EXPECT_EQ(rollover_factor, gen.update(0));
     EXPECT_EQ(rollover_factor + 1.0, gen.update(1));
-    EXPECT_NEAR(2.0 * rollover_factor + 1.0, gen.update(0), 1);
+    EXPECT_EQ(2.0 * rollover_factor, gen.update(0));
 }
 
 TEST_F(RolloverGeneratorTest, test_64_bit_width)
@@ -79,7 +77,7 @@ TEST_F(RolloverGeneratorTest, test_64_bit_width)
     EXPECT_EQ(1, gen.update(1));
     EXPECT_EQ(rollover_factor, gen.update(0));
     EXPECT_EQ(rollover_factor + 1.0, gen.update(1));
-    double expected = 2.0 * rollover_factor + 1.0;
+    double expected = 2.0 * rollover_factor;
     // IEEE 754 double precision floating point mantissa bit width is 51
     double error = 1 << (64 - 51);
     EXPECT_NEAR(expected, gen.update(0), error);

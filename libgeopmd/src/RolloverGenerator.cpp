@@ -10,7 +10,7 @@ namespace geopm
     RolloverGenerator::RolloverGenerator()
         : m_last_value(0.0)
         , m_rollover_factor(0.0)
-        , m_num_overflow(0)
+        , m_rollover_total(0.0)
     {
 
     }
@@ -23,11 +23,9 @@ namespace geopm
     double RolloverGenerator::update(double value)
     {
         if (m_last_value > value) {
-            ++m_num_overflow;
+            m_rollover_total += m_rollover_factor;
         }
-        double rollover = m_rollover_factor * m_num_overflow;
-        double result = value + rollover;
         m_last_value = value;
-        return result;
+        return value + m_rollover_total;
     }
 }
