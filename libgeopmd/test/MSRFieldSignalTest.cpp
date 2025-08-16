@@ -136,26 +136,27 @@ TEST_F(MSRFieldSignalTest, read_overflow)
     std::unique_ptr<Signal> sig = geopm::make_unique<MSRFieldSignal>(m_raw, 0, 3,
                                                                      MSR::M_FUNCTION_OVERFLOW, 1.0);
     double result = NAN, expected = NAN;
-    // no overflow for any sequence of values
+
+    // no overflow
     expected = 5.0;
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x0005)));
     result = sig->read();
     EXPECT_DOUBLE_EQ(expected, result);
-
-    expected = 20.0;
+    // one overflow
+    expected = 20.0; // 4 + 16
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x0004)));
     result = sig->read();
     EXPECT_DOUBLE_EQ(expected, result);
-
-    expected = 26.0;
+    // still one overflow
+    expected = 26.0; // 10 + 16
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x000A)));
     result = sig->read();
     EXPECT_DOUBLE_EQ(expected, result);
-
-    expected = 33.0;
+    // multiple overflow
+    expected = 33.0; // 1 + 16 + 16
     EXPECT_CALL(*m_raw, read())
         .WillOnce(Return(geopm_field_to_signal(0x0001)));
     result = sig->read();
