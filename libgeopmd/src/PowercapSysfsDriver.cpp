@@ -110,26 +110,34 @@ namespace geopm
         , M_POWERCAP_DIRECTORY(powercap_directory)
         , m_rollover_factor(0.0)
     {
-         std::string factor_path = attribute_path("POWERCAP::CPU_MAX_ENERGY_RANGE", 0);
-         std::string contents;
-         try {
-             contents = geopm::read_file(factor_path);
-         }
-         catch (const Exception &ex) {
-             throw geopm::Exception("PowercapSysfsDriver: Unable to read RAPL rollover file from sysfs: \"" + factor_path + "\"",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-         }
-         try {
-             m_rollover_factor = 1e-6 * std::stoll(contents);
-         }
-         catch (const std::invalid_argument &ex) {
-             throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs, invalid string: \"" + contents + "\"",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-         }
-         catch (const std::out_of_range &ex) {
-             throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs, out of range: \"" + contents + "\"",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-         }
+        std::string signal_name = "POWERCAP::CPU_MAX_ENERGY_RANGE";
+        std::string factor_path = attribute_path(signal_name, 0);
+        std::string property_key = name_to_property_key(signal_name);
+        auto prop_it = M_PROPERTIES.find(property_key);
+        if (prop_it == M_PROPERTIES.end()) {
+            throw Exception("PowercapSysfsDriver::signal_parse(): Unknown signal name: " + signal_name,
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        double scaling_factor = prop_it->second.scaling_factor;
+        std::string contents;
+        try {
+            contents = geopm::read_file(factor_path);
+        }
+        catch (const Exception &ex) {
+            throw geopm::Exception("PowercapSysfsDriver: Unable to read RAPL rollover file from sysfs: \"" + factor_path + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        try {
+            m_rollover_factor = scaling_factor * std::stoll(contents);
+        }
+        catch (const std::invalid_argument &ex) {
+            throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs, invalid string: \"" + contents + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        catch (const std::out_of_range &ex) {
+            throw geopm::Exception("PowercapSysfsDriver: Unable to parse RAPL rollover from sysfs, out of range: \"" + contents + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
     }
 
     int PowercapSysfsDriver::domain_type(const std::string &name) const
