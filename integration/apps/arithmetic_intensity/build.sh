@@ -10,8 +10,8 @@ set -e
 source ../build_func.sh
 
 if [[ $# -eq 0 ]]; then
-    echo 'Building from 12d0c5a'
-    TOPHASH=12d0c5a
+    echo 'Building from ee57389'
+    TOPHASH=ee57389
 elif [[ $# -eq 1 ]]; then
     echo 'Building from head of main'
     TOPHASH=$1
