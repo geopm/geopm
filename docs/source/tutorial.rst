@@ -2,7 +2,7 @@
 Tutorial
 ========
 
-The tutrial provides more detail and examples compared to the :doc:`overview`,
+The tutorial provides more detail and examples compared to the :doc:`overview`,
 but not as much detail as may be found in :doc:`reference`.  This guide starts
 by defining basic concepts and concludes with tips about advanced use cases
 including batch reads, profiling, and agent-based tuning.  These topics include
