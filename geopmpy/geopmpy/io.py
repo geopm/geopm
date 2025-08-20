@@ -22,7 +22,13 @@ import copy
 import yaml
 import io
 import hashlib
-
+if os.getenv('GEOPM_USE_UNSAFE_HDF5') is not None:
+    from pandas import read_hdf
+else:
+    def read_hdf(path, name):
+        if not os.path.exists(path):
+            raise IOError(f'Trace HDF5 file {path} not detected')
+        raise ImportWarning('Refusing to read HDF5 format files: file format could result in arbitrary code execution. To enable "export GEOPM_USE_UNSAFE_HDF5=1"')
 from distutils.spawn import find_executable
 from natsort import natsorted
 from . import __version__
@@ -103,14 +109,17 @@ class AppOutput(object):
                     if regen_cache:
                         os.remove(trace_h5_name)
 
+                do_load_raw = True
                 try:
-                    self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
+                    self._traces_df = read_hdf(trace_h5_name, 'trace')
+                    do_load_raw = False
                     if verbose:
-                        sys.stdout.write('Loaded traces from {}.\n'.format(trace_h5_name))
+                        sys.stdout.write(f'Loaded traces from {trace_h5_name}.\n')
+                except ImportWarning as err:
+                    sys.stderr.write(f'Warning: <geopm> geopmpy.io: {err}.\n')
                 except IOError as err:
-                    sys.stderr.write('Warning: <geopm> geopmpy.io: Trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
-                                     .format(trace_h5_name))
-
+                    sys.stderr.write(f'Warning: <geopm> geopmpy.io: Trace HDF5 file not detected or older than traces {err}.\n')
+                if do_load_raw:
                     self.parse_traces(trace_paths, verbose)
                     # Cache traces dataframe
                     try:
@@ -118,7 +127,7 @@ class AppOutput(object):
                             sys.stdout.write('Generating HDF5 files... ')
                         self._traces_df.to_hdf(trace_h5_name, 'trace')
                     except ImportError as error:
-                        sys.stderr.write('Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {}\n'.format(str(error)))
+                        sys.stderr.write(f'Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {error}\n')
 
                     if verbose:
                         sys.stdout.write('Done.\n')
@@ -869,22 +878,24 @@ class RawReportCollection(object):
                     sys.stdout.write('Attempting to read {}...\n'.format(self._report_h5_name))
                 # load dataframes from cache
                 try:
-                    self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
+                    self._reports_df = read_hdf(self._report_h5_name, 'report')
                 except KeyError:
                     pass # No regions in cached report
-                self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
+                self._app_reports_df = read_hdf(self._report_h5_name, 'app_report')
                 try:
-                    self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
+                    self._unmarked_reports_df = read_hdf(self._report_h5_name, 'unmarked_report')
                 except KeyError:
                     pass
                 try:
-                    self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
+                    self._epoch_reports_df = read_hdf(self._report_h5_name, 'epoch_report')
                 except KeyError:
                     pass
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(self._report_h5_name))
+            except ImportWarning as err:
+                sys.stderr.write(f'Warning: <geopm> geopmpy.io: {err}.\n')
             except IOError:
-                sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
+                sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.\n'
                                  .format(self._report_h5_name))
                 self.parse_reports(report_paths, verbose)
 
