@@ -493,7 +493,11 @@ class Launcher(object):
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
                 # exclude 2 cores for GEOPM and OS
                 available_cores = self.num_linux_cpu // self.thread_per_core - 2
+                if available_cores < 0:
+                    raise RuntimeError(f'<geopm> geopmpy.launcher: Insufficient cores available: calculated {available_cores} available cores (need at least 2 cores for GEOPM and OS overhead)')
                 allowed_cores = len(_get_cpuset()) // self.thread_per_core - 2
+                if allowed_cores < 0:
+                    raise RuntimeError(f'<geopm> geopmpy.launcher: Insufficient cores available: calculated {allowed_cores} allowed cores (need at least 2 cores for GEOPM and OS overhead)')
                 if available_cores > allowed_cores:
                     sys.stderr.write(f'Warning: <geopm> geopmpy.launcher: Number of available cores ({available_cores}) is greater than the number of allowed cores ({allowed_cores}); limiting to {allowed_cores} for app rank placement\n')
                     available_cores = allowed_cores
