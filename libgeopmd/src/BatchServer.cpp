@@ -223,8 +223,8 @@ namespace geopm
                     out_message = BatchStatus::M_MESSAGE_TERMINATE;
                     break;
                 default:
-                    throw Exception("BatchServerImp::run_batch(): Received unknown response from client: " +
-                                    std::to_string(in_message), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    throw Exception("BatchServerImp::run_batch(): Received unknown response from client",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     break;
             }
             // If in_message came from client send response
