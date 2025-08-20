@@ -14,19 +14,16 @@ import os
 import sys
 import re
 
-# Mock scikit-optimize if not available
+# Skip test if skopt not available
+skip_test = False
+skip_msg = 'The skopt module is required to test optimizer'
 try:
     import skopt
+    from geopmdpy import optimizer
 except ImportError:
-    # Create mock skopt module
-    skopt = MagicMock()
-    skopt.gp_minimize = MagicMock()
-    skopt.space.Integer = MagicMock()
-    skopt.utils.use_named_args = lambda x: lambda f: f
+    skip_test = True
 
-from geopmdpy import optimizer
-
-
+@unittest.skipIf(skip_test, skip_msg)
 class TestApplicationEvaluator(unittest.TestCase):
     def setUp(self):
         self.launch_command = ["echo", "Performance: 123.45"]
@@ -229,6 +226,7 @@ class TestApplicationEvaluator(unittest.TestCase):
         self.assertIn("Could not convert", str(context.exception))
 
 
+@unittest.skipIf(skip_test, skip_msg)
 class TestGetEnergy(unittest.TestCase):
     @patch('geopmdpy.optimizer.pio')
     def test_get_energy_board_with_board_signal(self, mock_pio):
@@ -289,6 +287,7 @@ class TestGetEnergy(unittest.TestCase):
         self.assertIn("No energy signals available", str(context.exception))
 
 
+@unittest.skipIf(skip_test, skip_msg)
 class TestBayesianOptimizer(unittest.TestCase):
     def setUp(self):
         # Mock the control grid without using spec
@@ -446,6 +445,7 @@ class TestBayesianOptimizer(unittest.TestCase):
             self.assertIn('best_coordinate', result)
 
 
+@unittest.skipIf(skip_test, skip_msg)
 class TestOptimizerMain(unittest.TestCase):
     @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
@@ -634,6 +634,7 @@ class TestOptimizerMain(unittest.TestCase):
         self.assertFalse(evaluator.maximize)
 
 
+@unittest.skipIf(skip_test, skip_msg)
 class TestGetParser(unittest.TestCase):
     def test_get_parser(self):
         """Test argument parser creation."""
@@ -714,6 +715,7 @@ class TestGetParser(unittest.TestCase):
             parser.parse_args(['--cpu-frequency', 'package', 'echo', 'test'])
 
 
+@unittest.skipIf(skip_test, skip_msg)
 class TestOptimizationError(unittest.TestCase):
     def test_optimization_error(self):
         """Test OptimizationError exception."""
