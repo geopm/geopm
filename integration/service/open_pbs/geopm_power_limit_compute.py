@@ -294,6 +294,9 @@ def do_power_limit_prologue():
     job_id = e.job.id
     server_job = pbs.server().job(job_id)
 
+    if os.path.exists(_SAVED_CONTROLS_FILE):
+        restore_controls_from_file(_SAVED_CONTROLS_FILE)
+
     node_power_limit_requested = False
     try:
         node_power_limit_str = server_job.Resource_List[_POWER_LIMIT_RESOURCE]
@@ -309,8 +312,6 @@ def do_power_limit_prologue():
         pass
 
     if not node_power_limit_requested and not job_power_limit_requested:
-        if os.path.exists(_SAVED_CONTROLS_FILE):
-            restore_controls_from_file(_SAVED_CONTROLS_FILE)
         e.accept()
         return
 
@@ -376,7 +377,7 @@ def hook_main():
         elif event_type == pbs.EXECJOB_EPILOGUE:
             do_power_limit_epilogue()
         else:
-            reject_event("Power limit hook incorrectly configured!")
+            reject_event("Power limit compute hook incorrectly configured!")
     except SystemExit:
         pass
     except:
