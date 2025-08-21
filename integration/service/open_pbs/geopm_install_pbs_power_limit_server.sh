@@ -74,7 +74,7 @@ install() {
     fi
     echo "Importing and configuring server hook..."
     qmgr -c "import hook $SERVER_HOOK application/x-python default $SERVER_HOOK.py" || exit 1
-    qmgr -c "set hook $SERVER_HOOK event='queuejob'" || exit 1
+    qmgr -c "set hook $SERVER_HOOK event='queuejob,modifyjob'" || exit 1
 
     echo "Done."
 }

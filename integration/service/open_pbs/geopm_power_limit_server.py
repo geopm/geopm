@@ -155,7 +155,6 @@ def do_power_limit_queuejob():
     # need to base our power request on how many PBS chunks were requested.
     # Note: the user is allowed to change the request until just before the
     # runjob event.
-    # TODO: Also need to do the same thing on modifyjob events?
     node_count = 0
     select = repr(requested_resources['select'])
     for chunk in select.split('+'):
@@ -201,14 +200,23 @@ def do_power_limit_queuejob():
 
     requested_resources[_JOB_POWER_LIMIT_RESOURCE] = job_power_limit
 
+def do_power_limit_modifyjob():
+    """GEOPM handler for modifyjob PBS events. This handler simply calls the
+    queue job handler to reevaluate the server-specified vs. user-specified
+    resources.
+    """
+    do_power_limit_queuejob()
+
 
 def hook_main():
     try:
         event_type = pbs.event().type
         if event_type == pbs.QUEUEJOB:
             do_power_limit_queuejob()
+        elif event_type == pbs.MODIFYJOB:
+            do_power_limit_modifyjob()
         else:
-            reject_event("Power limit queuejob hook incorrectly configured!")
+            reject_event("Power limit server hook incorrectly configured!")
     except SystemExit:
         pass
     except:
