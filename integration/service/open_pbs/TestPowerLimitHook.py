@@ -143,6 +143,25 @@ class TestPowerLimitPrologue(unittest.TestCase):
         self._mock_event.accept.assert_called_once()
         self._mock_event.reject.assert_not_called()
 
+    def test_power_limit_request_zero(self, mock_secure_make_dirs,
+                                 mock_write_control, mock_read_signal):
+        REQUESTED_POWER_LIMIT = 0
+
+        self._mock_server_job.Resource_List = {
+            compute_hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT,
+        }
+
+        compute_hook.do_power_limit_prologue()
+
+        # Assert prologue gets the right server job
+        self._mock_server.job.assert_called_with(self.JOB_ID)
+        # Hook returns when bool(limit) == False
+        mock_secure_make_dirs.assert_not_called()
+        mock_write_control.assert_not_called()
+        # Assert hook accepts event
+        self._mock_event.accept.assert_called_once()
+        self._mock_event.reject.assert_not_called()
+
     def test_invalid_power_limit(self, mock_secure_make_dirs,
                                  mock_write_control, mock_read_signal):
         REQUESTED_POWER_LIMIT = "not a number"
@@ -598,6 +617,66 @@ class TestPowerLimitQueuejob(unittest.TestCase):
         self.assertEqual(self._mock_event_job.Resource_List[server_hook._JOB_POWER_LIMIT_RESOURCE],
                          self._MAX_NODE_POWER_LIMIT * .5)
 
+
+class TestPowerLimitModifyjob(unittest.TestCase):
+    def setUp(self):
+        self._mock_pbs = server_hook.pbs
+        self._mock_server = mock.Mock()
+        self._mock_event = mock.Mock()
+        self._mock_event_job = mock.Mock()
+        self._mock_event_job_o = mock.Mock()
+
+        self._mock_pbs.server.return_value = self._mock_server
+        self._mock_pbs.event.return_value = self._mock_event
+        self._mock_event.job = self._mock_event_job
+        self._mock_event.job_o = self._mock_event_job_o
+
+        self._mock_event_job.Resource_List = {
+            server_hook._JOB_POWER_LIMIT_RESOURCE: None,
+            server_hook._POWER_LIMIT_RESOURCE: None,
+            server_hook._DEFAULT_SLOWDOWN_RESOURCE: None,
+            server_hook._JOB_TYPE_RESOURCE: None,
+        }
+        self._mock_event_job_o.Resource_List = {
+            server_hook._JOB_POWER_LIMIT_RESOURCE: None,
+            server_hook._POWER_LIMIT_RESOURCE: None,
+            server_hook._DEFAULT_SLOWDOWN_RESOURCE: None,
+            server_hook._JOB_TYPE_RESOURCE: None,
+        }
+
+        self._mock_server.resources_available = {
+            server_hook._JOB_POWER_LIMIT_RESOURCE: None,
+            server_hook._MAX_POWER_LIMIT_RESOURCE: None,
+            server_hook._MIN_POWER_LIMIT_RESOURCE: None,
+        }
+
+    def test_modifyjob_with_new_power_limit(self):
+        NEW_POWER_LIMIT = 600
+        self._mock_event_job.Resource_List[server_hook._POWER_LIMIT_RESOURCE] = NEW_POWER_LIMIT
+
+        server_hook.do_power_limit_modifyjob()
+
+        # Assert the new power limit is retained
+        self.assertEqual(self._mock_event_job.Resource_List[server_hook._POWER_LIMIT_RESOURCE], NEW_POWER_LIMIT)
+
+    def test_modifyjob_without_new_power_limit(self):
+        self._mock_event_job_o.Resource_List[server_hook._POWER_LIMIT_RESOURCE] = 500
+
+        # Emulate PBS logic
+        self._mock_event_job.Resource_List = copy.deepcopy(self._mock_event_job_o.Resource_List)
+
+        server_hook.do_power_limit_modifyjob()
+
+        # Assert the original power limit is retained
+        self.assertEqual(self._mock_event_job.Resource_List[server_hook._POWER_LIMIT_RESOURCE], 500)
+
+    def test_modifyjob_with_no_original_power_limit(self):
+        self._mock_event_job_o.Resource_List[server_hook._POWER_LIMIT_RESOURCE] = None
+
+        server_hook.do_power_limit_modifyjob()
+
+        # Assert no power limit is set
+        self.assertIsNone(self._mock_event_job.Resource_List[server_hook._POWER_LIMIT_RESOURCE])
 
 
 if __name__ == "__main__":
