@@ -31,6 +31,8 @@ best. If computation on a given node is heterogeneous (i.e. some CPUs are given
 more work or more critical work than others), SST features are likely to work
 best.
 
+----
+
 Linux Frequency Drivers
 -----------------------
 
@@ -67,6 +69,8 @@ systems that support that feature. The ``performance`` governor is more likely
 to adhere to GEOPM frequency decisions. The ``powersave`` governor tends to
 lower CPU frequency when cores are running idle.
 
+----
+
 Direct Frequency Requests
 -------------------------
 
@@ -91,37 +95,42 @@ GPU Frequency
 ~~~~~~~~~~~~~
 
 Similar to CPU uncore frequency, GPU frequencies are specified via a min and max.
-Some hardware has underlying logic that require
-``GPU_CORE_FREQUENCY_MIN_CONTROL`` to always be less than
-``GPU_CORE_FREQUENCY_MAX_CONTROL``. If you try to set the min control greater
-than the max or the max control less than the min, it will result in a failure.
-To avoid this issue, use the batch interface on geopmwrite.
+
+.. note::
+
+    Some hardware has underlying logic that requires
+    ``GPU_CORE_FREQUENCY_MIN_CONTROL`` to always be less than
+    ``GPU_CORE_FREQUENCY_MAX_CONTROL``. If you try to set the min control greater
+    than the max or the max control less than the min, it will result in a failure.
+    To avoid this issue, use the batch interface on geopmwrite.
 
 Example: Set GPU 0 frequency to 1.0 GHz
 
 .. code-block:: bash
 
-    $ echo -e "GPU_CORE_FREQUENCY_MAX_CONTROL gpu 0 1e9\
-               \nGPU_CORE_FREQUENCY_MIN_CONTROL gpu 0 1e9"\
-               | geopmwrite -f -"
+    $ echo -e "GPU_CORE_FREQUENCY_MIN_CONTROL gpu 0 1e9 \n\
+               GPU_CORE_FREQUENCY_MAX_CONTROL gpu 0 1e9" \
+               | geopmwrite -f -
 
 Example: Let GPU 1 frequency float between 800 MHz and 1.2 GHz
 
 .. code-block:: bash
 
-    $ echo -e "GPU_CORE_FREQUENCY_MAX_CONTROL gpu 1 8e8\
-               \nGPU_CORE_FREQUENCY_MIN_CONTROL gpu 1 1.2e9"\
-               | geopmwrite -f -"
+    $ echo -e "GPU_CORE_FREQUENCY_MIN_CONTROL gpu 1 8e8 \n\
+               GPU_CORE_FREQUENCY_MAX_CONTROL gpu 1 1.2e9" \
+               | geopmwrite -f -
 
 Example: Set all GPU frequencies to use the full frequency range.
 
 .. code-block:: bash
 
-     $ echo -e "GPU_CORE_FREQUENCY_MIN_CONTROL board 0\
-                `geopmread GPU_CORE_FREQUENCY_MIN_AVAIL board 0`\
-                \nGPU_CORE_FREQUENCY_MAX_CONTROL board 0\
-                `geopmread GPU_CORE_FREQUENCY_MAX_AVAIL board 0`"\
+     $ echo -e "GPU_CORE_FREQUENCY_MIN_CONTROL board 0 \
+                $(geopmread GPU_CORE_FREQUENCY_MIN_AVAIL board 0) \
+                \nGPU_CORE_FREQUENCY_MAX_CONTROL board 0 \
+                $(geopmread GPU_CORE_FREQUENCY_MAX_AVAIL board 0)" \
                 | geopmwrite -f -
+
+----
 
 Intel Hardware P-States (HWP)
 -----------------------------
@@ -129,7 +138,7 @@ Intel Hardware P-States (HWP)
 Users of Intel Hardware P-States (HWP) can set per-CPU or per-socket hints,
 like desired energy-perf bias and suggested min/max frequency range. These
 hints are ingested along with hardware telemetry and used to allow the CPU
-to steer its own frequency setting dynamically. This allows the system to 
+to steer its own frequency setting dynamically. This allows the system to
 respond more rapidly than the OS could to changes in workload behavior while
 maintaining power requirements and desired user priority.
 
@@ -186,6 +195,7 @@ efficient.
     $ geopmread CPU_FREQUENCY_STATUS cpu 4
     1000000000
 
+----
 
 Intel Speed Select Technology (SST)
 -----------------------------------
