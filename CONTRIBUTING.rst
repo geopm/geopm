@@ -150,3 +150,32 @@ is as follows:
    marked "Approve".  Once the request is approved by all reviewers
    and all CI checks are passing, the change will be integrated into
    the GEOPM development branch by a maintainer.
+
+Generative AI Usage
+-------------------
+
+Code or other content generated in whole or in part using generative
+AI tools can be contributed to the GEOPM project. However,
+contributors must adhere to the following guidelines, which are based
+on the Linux Foundation's recommendations:
+
+- Ensure that the terms and conditions of the generative AI tool do
+  not impose any restrictions on the output that conflict with the
+  project's open source license, intellectual property policies, or
+  the Open Source Definition.
+- If the AI-generated output includes pre-existing copyrighted
+  materials (including open source code) authored or owned by third
+  parties, contributors must confirm they have permission to use,
+  modify, and contribute such materials. This permission must comply
+  with the project's licensing policies.
+- Provide notice and attribution for any third-party materials
+  included in the contribution, along with information about the
+  applicable license terms.
+- When possible, use AI tools that offer features to suppress or flag
+  responses similar to third-party materials, and review flagged
+  content for compliance with licensing requirements.
+
+Contributors should also comply with their employer's policies
+regarding the use of AI tools for software development. For more
+details, refer to the Linux Foundation's guidelines on generative AI
+usage: https://www.linuxfoundation.org/legal/generative-ai
