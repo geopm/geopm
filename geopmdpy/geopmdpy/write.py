@@ -31,17 +31,30 @@ def print_controls():
 def batch(input_stream):
     requests = [line.split() for line in input_stream.readlines()]
     ctl_idx = []
+    settings = []
+    control_names = pio.control_names()
     for rr in requests:
-        if len(requests) == 0:
+        if len(rr) == 0:
             continue # ignore empty lines
-        if len(requests) != 3:
-            raise RuntimeError(f'Number of words per line in configuration file must be 3, got {len(requests)}')
+        if len(rr) != 4:
+            raise RuntimeError(f'Number of words per line in configuration file must be 4, got {requests}')
+        name = rr[0]
+        if name not in control_names:
+            raise ValueError(f'Control name unknown: {name}')
+        domain = topo.domain_type(rr[1])
         try:
-            ctl_idx.append(pio.push_control(rr[0], rr[1], int(rr[2])))
-        except Exception as ex:
-            raise RuntimeError(f'Unable to parse request configuration line: {" ".join(rr)}') from ex
-    for ii, rr in enumerate(requests):
-        pio.adjust(ctl_idx[ii], float(rr[3]))
+            domain_idx = int(rr[2])
+        except ValueError:
+            raise ValueError(f'Could not convert domain index into a number: {rr[2]}')
+        if domain_idx < 0 or domain_idx >= topo.num_domain(domain):
+            raise ValueError(f'Domain index out of bounds: {domain_idx}')
+        try:
+            settings.append(float(rr[3]))
+        except ValueError:
+            raise ValueError(f'Could not convert setting to floating point number: "{rr[3]}"')
+        ctl_idx.append(pio.push_control(name, domain, domain_idx))
+    for par in zip(ctl_idx, settings):
+        pio.adjust(*par)
     pio.write_batch()
 
 def run():
