@@ -10,6 +10,8 @@ from unittest import mock
 import json
 import os
 import copy
+import tempfile
+import shutil
 
 mock.patch.dict("sys.modules", pbs=mock.MagicMock()).start()
 mock.patch("cffi.FFI.dlopen").start()
@@ -18,6 +20,7 @@ import geopm_power_limit_server as server_hook
 
 
 SAVED_CONTROLS_FILE = "saved_controls.json"
+RESOURCE_TMP_DIR = tempfile.mkdtemp(prefix='geopm_test_resources_')
 
 CURRENT_SETTINGS = [
         {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW",
@@ -42,6 +45,16 @@ CURRENT_SETTINGS_REF = {
         d["name"]: {k: v for (k, v) in d.items() if k != "name"}
         for d in CURRENT_SETTINGS
     }
+
+def resource_file_path(job_id):
+    return os.path.join(RESOURCE_TMP_DIR, f"{job_id}.resources")
+
+
+def write_resource_file(job_id, resource_kv):
+    # resource_kv: dict of {name: value}; values written verbatim
+    parts = [f"{k}={'' if v is None else v}" for k, v in resource_kv.items()]
+    with open(resource_file_path(job_id), 'w') as f:
+        f.write(';'.join(parts))
 
 
 def read_signal(name, domain_type, domain_idx):
@@ -68,6 +81,12 @@ def write_settings_to_file(file_name, settings):
 
 def setUpModule():
     compute_hook._SAVED_CONTROLS_FILE = SAVED_CONTROLS_FILE
+    compute_hook._RESOURCE_FILE_SEARCH_PATH = RESOURCE_TMP_DIR
+
+
+def tearDownModule():
+    shutil.rmtree(RESOURCE_TMP_DIR, ignore_errors=True)
+
 
 class MockAttr():
     def __init__(self, value):
@@ -87,32 +106,31 @@ class MockAttr():
 @mock.patch("geopmdpy.system_files.secure_make_dirs")
 class TestPowerLimitPrologue(unittest.TestCase):
     JOB_ID = 1
+    HOOK_CONFIG_PATH = 'fake/file/path'
 
     def setUp(self):
-        self._mock_pbs = server_hook.pbs
+        self._mock_pbs = compute_hook.pbs
         self._mock_event = mock.Mock()
-        self._mock_server = mock.Mock()
-        self._mock_server_job = mock.Mock()
-
-        self._mock_pbs.event.return_value = self._mock_event
-        self._mock_pbs.server.return_value = self._mock_server
-        self._mock_server.job.return_value = self._mock_server_job
-
+        self._mock_pbs.event.return_value = self._mock_event  # Only first call should occur in hook code
         self._mock_event.job.id = self.JOB_ID
+        self._mock_pbs.hook_config_filename = self.HOOK_CONFIG_PATH
 
     def tearDown(self):
         try:
             os.unlink(SAVED_CONTROLS_FILE)
         except:
             pass
+        try:
+            os.unlink(resource_file_path(self.JOB_ID))
+        except:
+            pass
 
     def test_power_limit_request(self, mock_secure_make_dirs,
                                  mock_write_control, mock_read_signal):
         REQUESTED_POWER_LIMIT = 240000000
-
-        self._mock_server_job.Resource_List = {
-            compute_hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT,
-        }
+        write_resource_file(self.JOB_ID, {
+            compute_hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT
+        })
 
         # Prepare expectations
         new_settings = copy.deepcopy(compute_hook._controls)
@@ -127,10 +145,8 @@ class TestPowerLimitPrologue(unittest.TestCase):
                                         power_limit_setting["domain_idx"],
                                         power_limit_setting["setting"]))
 
-        compute_hook.do_power_limit_prologue()
+        compute_hook.do_power_limit_prologue(self._mock_event)
 
-        # Assert prologue gets the right server job
-        self._mock_server.job.assert_called_with(self.JOB_ID)
         # Assert saved controls path is created securely
         mock_secure_make_dirs.assert_called_with(compute_hook._SAVED_CONTROLS_PATH)
         # Assert settings are saved to file
@@ -144,17 +160,14 @@ class TestPowerLimitPrologue(unittest.TestCase):
         self._mock_event.reject.assert_not_called()
 
     def test_power_limit_request_zero(self, mock_secure_make_dirs,
-                                 mock_write_control, mock_read_signal):
+                                      mock_write_control, mock_read_signal):
         REQUESTED_POWER_LIMIT = 0
+        write_resource_file(self.JOB_ID, {
+            compute_hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT
+        })
 
-        self._mock_server_job.Resource_List = {
-            compute_hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT,
-        }
+        compute_hook.do_power_limit_prologue(self._mock_event)
 
-        compute_hook.do_power_limit_prologue()
-
-        # Assert prologue gets the right server job
-        self._mock_server.job.assert_called_with(self.JOB_ID)
         # Hook returns when bool(limit) == False
         mock_secure_make_dirs.assert_not_called()
         mock_write_control.assert_not_called()
@@ -164,16 +177,15 @@ class TestPowerLimitPrologue(unittest.TestCase):
 
     def test_invalid_power_limit(self, mock_secure_make_dirs,
                                  mock_write_control, mock_read_signal):
-        REQUESTED_POWER_LIMIT = "not a number"
-
-        self._mock_server_job.Resource_List = {
-                compute_hook._POWER_LIMIT_RESOURCE: REQUESTED_POWER_LIMIT}
+        write_resource_file(self.JOB_ID, {
+            compute_hook._POWER_LIMIT_RESOURCE: "not_a_number"
+        })
         self._mock_pbs.EXECJOB_PROLOGUE = 'execjob_prologue_event_type'
         self._mock_event.type = self._mock_pbs.EXECJOB_PROLOGUE
         self._mock_event.reject.side_effect = RuntimeError
 
         with self.assertRaises(RuntimeError):
-            compute_hook.do_power_limit_prologue()
+            compute_hook.do_power_limit_prologue(self._mock_event)
 
         # Assert job gets removed from queue upon failure
         self._mock_event.job.delete.assert_called_once()
@@ -186,9 +198,9 @@ class TestPowerLimitPrologue(unittest.TestCase):
 
     def test_event_without_power_limit(self, mock_secure_make_dirs,
                                        mock_write_control, mock_read_signal):
-        self._mock_server_job.Resource_List = {}
+        write_resource_file(self.JOB_ID, {})
 
-        compute_hook.do_power_limit_prologue()
+        compute_hook.do_power_limit_prologue(self._mock_event)
 
         # Assert hook accepts the event
         self._mock_event.accept.assert_called_once()
@@ -199,7 +211,7 @@ class TestPowerLimitPrologue(unittest.TestCase):
 
     def test_power_settings_restored(self, mock_secure_make_dirs,
                                      mock_write_control, mock_read_signal):
-        self._mock_server_job.Resource_List = {}
+        write_resource_file(self.JOB_ID, {})
 
         # Simulate epilogue not being able to run and settings from prior job
         # still in place.
@@ -209,7 +221,7 @@ class TestPowerLimitPrologue(unittest.TestCase):
         # execution. Using an exception here to simulate the same side effect.
         self._mock_event.accept.side_effect = RuntimeError
         with self.assertRaises(RuntimeError):
-            compute_hook.do_power_limit_prologue()
+            compute_hook.do_power_limit_prologue(self._mock_event)
 
         # Assert hook accepts the event
         self._mock_event.accept.assert_called_once()
@@ -229,10 +241,9 @@ class TestPowerLimitPrologue(unittest.TestCase):
                                  mock_write_control, mock_read_signal):
         JOB_POWER_LIMIT = 300
         MAX_NODE_POWER_LIMIT = 200
-        self._mock_server_job.Resource_List = {
-            compute_hook._JOB_POWER_LIMIT_RESOURCE: JOB_POWER_LIMIT,
-        }
-
+        write_resource_file(self.JOB_ID, {
+            compute_hook._JOB_POWER_LIMIT_RESOURCE: JOB_POWER_LIMIT
+        })
         A1 = 1
         A2 = A1  # Same model for each node --> Same power limit for each node
         mock_file_contents = dict(
@@ -266,8 +277,20 @@ class TestPowerLimitPrologue(unittest.TestCase):
         power_limit_setting = compute_hook._power_limit_control.copy()
 
         self._mock_pbs.get_local_nodename.return_value = node1.name
-        with mock.patch("builtins.open", mock.mock_open(read_data=json.dumps(mock_file_contents))):
-            compute_hook.do_power_limit_prologue()
+
+        def mock_open_side_effect(filename, *args, **kwargs):
+            if filename == RESOURCE_TMP_DIR + f"/{self.JOB_ID}.resources":
+                return mock.mock_open(read_data=f"{compute_hook._JOB_POWER_LIMIT_RESOURCE}={JOB_POWER_LIMIT}").return_value
+            elif filename == self.HOOK_CONFIG_PATH:
+                return mock.mock_open(read_data=json.dumps(mock_file_contents)).return_value
+            elif filename == SAVED_CONTROLS_FILE:
+                return mock.mock_open().return_value
+            else:
+                raise FileNotFoundError(f"File not found: {filename}")
+
+        with mock.patch("builtins.open", side_effect=mock_open_side_effect):
+            compute_hook.do_power_limit_prologue(self._mock_event)
+
         node_1_power_write = next(
             call[0][3] for call in mock_write_control.call_args_list
             if call[0][0] == power_limit_setting["name"] and
@@ -276,8 +299,8 @@ class TestPowerLimitPrologue(unittest.TestCase):
         mock_write_control.reset_mock()
 
         self._mock_pbs.get_local_nodename.return_value = node2.name
-        with mock.patch("builtins.open", mock.mock_open(read_data=json.dumps(mock_file_contents))):
-            compute_hook.do_power_limit_prologue()
+        with mock.patch("builtins.open", side_effect=mock_open_side_effect):
+            compute_hook.do_power_limit_prologue(self._mock_event)
         node_2_power_write = next(
             call[0][3] for call in mock_write_control.call_args_list
             if call[0][0] == power_limit_setting["name"] and
@@ -299,14 +322,17 @@ class TestPowerLimitPrologue(unittest.TestCase):
         # Test that both nodes have the same expected slowdown
         self.assertAlmostEqual(node_1_slowdown, node_2_slowdown)
 
+        # Test the job was accepted; prologue called twice
+        self._mock_event.accept.assert_has_calls([mock.call(), mock.call()])
+        self._mock_event.reject.assert_not_called()
+
     def test_non_uniform_power_limit(self, mock_secure_make_dirs,
                                      mock_write_control, mock_read_signal):
         JOB_POWER_LIMIT = 300
         MAX_NODE_POWER_LIMIT = 200
-        self._mock_server_job.Resource_List = {
-            compute_hook._JOB_POWER_LIMIT_RESOURCE: JOB_POWER_LIMIT,
-        }
-
+        write_resource_file(self.JOB_ID, {
+            compute_hook._JOB_POWER_LIMIT_RESOURCE: JOB_POWER_LIMIT
+        })
         A1 = 1
         A2 = 1.1  # A1 != A2 --> Expect non-uniform power caps
         mock_file_contents = dict(
@@ -340,10 +366,20 @@ class TestPowerLimitPrologue(unittest.TestCase):
         self._mock_event.vnode_list.values.return_value = [node1, node2]
         power_limit_setting = compute_hook._power_limit_control.copy()
 
+        def mock_open_side_effect(filename, *args, **kwargs):
+            if filename == RESOURCE_TMP_DIR + f"/{self.JOB_ID}.resources":
+                return mock.mock_open(read_data=f"{compute_hook._JOB_POWER_LIMIT_RESOURCE}={JOB_POWER_LIMIT}").return_value
+            elif filename == self.HOOK_CONFIG_PATH:
+                return mock.mock_open(read_data=json.dumps(mock_file_contents)).return_value
+            elif filename == SAVED_CONTROLS_FILE:
+                return mock.mock_open().return_value
+            else:
+                raise FileNotFoundError(f"File not found: {filename}")
+
         # Simulate each of node 1 and node 2 getting their prologues called
         self._mock_pbs.get_local_nodename.return_value = node1.name
-        with mock.patch("builtins.open", mock.mock_open(read_data=json.dumps(mock_file_contents))):
-            compute_hook.do_power_limit_prologue()
+        with mock.patch("builtins.open", side_effect=mock_open_side_effect):
+            compute_hook.do_power_limit_prologue(self._mock_event)
         node_1_power_write = next(
             call[0][3] for call in mock_write_control.call_args_list
             if call[0][0] == power_limit_setting["name"] and
@@ -352,8 +388,8 @@ class TestPowerLimitPrologue(unittest.TestCase):
         mock_write_control.reset_mock()
 
         self._mock_pbs.get_local_nodename.return_value = node2.name
-        with mock.patch("builtins.open", mock.mock_open(read_data=json.dumps(mock_file_contents))):
-            compute_hook.do_power_limit_prologue()
+        with mock.patch("builtins.open", side_effect=mock_open_side_effect):
+            compute_hook.do_power_limit_prologue(self._mock_event)
         node_2_power_write = next(
             call[0][3] for call in mock_write_control.call_args_list
             if call[0][0] == power_limit_setting["name"] and
@@ -366,6 +402,84 @@ class TestPowerLimitPrologue(unittest.TestCase):
         self.assertLessEqual(node_1_power_write, MAX_NODE_POWER_LIMIT)
         self.assertLessEqual(node_2_power_write, MAX_NODE_POWER_LIMIT)
         self.assertGreaterEqual(node_1_power_write, 0)
+
+        # Test the job was accepted; prologue called twice
+        self._mock_event.accept.assert_has_calls([mock.call(), mock.call()])
+        self._mock_event.reject.assert_not_called()
+
+
+@mock.patch("geopmdpy.pio.write_control")
+class TestPowerLimitEpilogue(unittest.TestCase):
+    def setUp(self):
+        self._mock_pbs = compute_hook.pbs
+        self._mock_event = mock.Mock()
+        self._mock_pbs.event.return_value = self._mock_event
+
+    def tearDown(self):
+        try:
+            os.unlink(SAVED_CONTROLS_FILE)
+        except:
+            pass
+
+    def test_no_settings_to_restore(self, mock_write_control):
+        self.assertFalse(os.path.exists(SAVED_CONTROLS_FILE))
+        compute_hook.do_power_limit_epilogue()
+        self._mock_event.accept.assert_called_once()
+        mock_write_control.assert_not_called()
+
+    def test_settings_restored(self, mock_write_control):
+        write_settings_to_file(SAVED_CONTROLS_FILE, CURRENT_SETTINGS)
+        compute_hook.do_power_limit_epilogue()
+        self._mock_event.accept.assert_called_once()
+        expected_calls = [
+            mock.call(d["name"], d["domain_type"], d["domain_idx"],
+                      d["setting"])
+            for d in CURRENT_SETTINGS]
+        mock_write_control.assert_has_calls(expected_calls, any_order=True)
+        self.assertFalse(os.path.exists(SAVED_CONTROLS_FILE))
+
+    def test_invalid_saved_controls_file(self, mock_write_control):
+        write_settings_to_file(SAVED_CONTROLS_FILE, [{"name": "BAD", "foo": "bar"}])
+        self._mock_event.reject.side_effect = RuntimeError
+        with self.assertRaises(RuntimeError):
+            compute_hook.do_power_limit_epilogue()
+        self._mock_event.reject.assert_called_once()
+        self._mock_event.accept.assert_not_called()
+        mock_write_control.assert_not_called()
+
+
+# Main hook tests (single cached event expectation)
+@mock.patch("geopm_power_limit_compute.do_power_limit_prologue")
+@mock.patch("geopm_power_limit_compute.do_power_limit_epilogue")
+class TestPowerLimitMain(unittest.TestCase):
+    def setUp(self):
+        self._mock_pbs = compute_hook.pbs
+        self._mock_event = mock.Mock()
+        self._mock_pbs.event.return_value = self._mock_event
+        self._mock_pbs.EXECJOB_PROLOGUE = 1
+        self._mock_pbs.EXECJOB_EPILOGUE = 2
+
+    def test_prologue(self, mock_epilogue, mock_prologue):
+        self._mock_event.type = self._mock_pbs.EXECJOB_PROLOGUE
+        compute_hook.hook_main()
+        mock_epilogue.assert_not_called()
+        mock_prologue.assert_called_once()
+        self._mock_event.reject.assert_not_called()
+
+    def test_epilogue(self, mock_epilogue, mock_prologue):
+        self._mock_event.type = self._mock_pbs.EXECJOB_EPILOGUE
+        compute_hook.hook_main()
+        mock_epilogue.assert_called_once()
+        mock_prologue.assert_not_called()
+        self._mock_event.reject.assert_not_called()
+
+    def test_invalid_event(self, mock_epilogue, mock_prologue):
+        self._mock_event.type = 999
+        compute_hook.hook_main()
+        mock_epilogue.assert_not_called()
+        mock_prologue.assert_not_called()
+        self._mock_event.reject.assert_called_once()
+        self._mock_event.accept.assert_not_called()
         self.assertGreaterEqual(node_2_power_write, 0)
         self.assertNotEqual(node_1_power_write, node_2_power_write)
 
@@ -393,7 +507,7 @@ class TestPowerLimitEpilogue(unittest.TestCase):
         # Ensure there is no file prior to running the test
         self.assertFalse(os.path.exists(SAVED_CONTROLS_FILE))
 
-        compute_hook.do_power_limit_epilogue()
+        compute_hook.do_power_limit_epilogue(self._mock_event)
 
         # Assert hook accepts event
         self._mock_event.accept.assert_called_once()
@@ -404,7 +518,7 @@ class TestPowerLimitEpilogue(unittest.TestCase):
         # Create some settings to restore
         write_settings_to_file(SAVED_CONTROLS_FILE, CURRENT_SETTINGS)
 
-        compute_hook.do_power_limit_epilogue()
+        compute_hook.do_power_limit_epilogue(self._mock_event)
 
         # Assert hook accepts the event
         self._mock_event.accept.assert_called_once()
@@ -426,7 +540,7 @@ class TestPowerLimitEpilogue(unittest.TestCase):
         self._mock_event.reject.side_effect = RuntimeError
 
         with self.assertRaises(RuntimeError):
-            compute_hook.do_power_limit_epilogue()
+            compute_hook.do_power_limit_epilogue(self._mock_event)
 
         # Assert hook rejects the event
         self._mock_event.reject.assert_called_once()
