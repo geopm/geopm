@@ -7,6 +7,7 @@
 # which should be installed on the PBS server.
 
 import sys
+import glob
 
 PYTHON_PATHS = [
         "/usr/lib/python3.6/site-packages",
@@ -29,6 +30,7 @@ from geopmdpy import system_files
 os.environ["ZES_ENABLE_SYSMAN"] = "1"
 os.environ["ZE_FLAT_DEVICE_HIERARCHY"] = "COMPOSITE"
 
+_RESOURCE_FILE_SEARCH_PATH = "/var/tmp"
 _SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
@@ -230,103 +232,129 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
     return min(max(min_power_per_node, result), max_power_per_node)
 
 
-def read_controls(controls):
+def read_controls(event, controls):
     try:
         for c in controls:
             c["setting"] = pio.read_signal(c["name"], c["domain_type"],
                                            c["domain_idx"])
     except RuntimeError as e:
-        reject_event(f"Unable to read signal {c['name']}: {e}")
+        reject_event(event, f"Unable to read signal {c['name']}: {e}")
 
 
-def write_controls(controls):
+def write_controls(event, controls):
     try:
         for c in controls:
             pio.write_control(c["name"], c["domain_type"], c["domain_idx"],
                               c["setting"])
     except RuntimeError as e:
-        reject_event(f"Unable to write control {c['name']}: {e}")
+        reject_event(event, f"Unable to write control {c['name']}: {e}")
 
 
-def resource_to_float(resource_name, resource_str):
+def resource_to_float(event, resource_name, resource_str):
     try:
         value = float(resource_str)
         return value
     except ValueError:
-        reject_event(f"Invalid value provided for: {resource_name}")
+        reject_event(event, f"Invalid value provided for: {resource_name}")
 
 
-def save_controls_to_file(file_name, controls):
+def save_controls_to_file(event, file_name, controls):
     try:
         with open(file_name, "w") as f:
             f.write(json.dumps(controls))
     except (OSError, ValueError) as e:
-        reject_event(f"Unable to write to saved controls file: {e}")
+        reject_event(event, f"Unable to write to saved controls file: {e}")
 
 
-def reject_event(msg):
-    e = pbs.event()
-    if e.type in [pbs.EXECJOB_PROLOGUE, pbs.EXECJOB_EPILOGUE]:
-        e.job.delete()
-    e.reject(f"{e.hook_name}: {msg}")
+def reject_event(event, msg):
+    if event.type in [pbs.EXECJOB_PROLOGUE, pbs.EXECJOB_EPILOGUE]:
+        event.job.delete()
+    event.reject(f"{event.hook_name}: {msg}")
 
 
-def restore_controls_from_file(file_name):
+def restore_controls_from_file(event, file_name):
     controls_json = None
     try:
         with open(file_name) as f:
             controls_json = f.read()
     except (OSError, ValueError) as e:
-        reject_event(f"Unable to read saved controls file: {e}")
+        reject_event(event, f"Unable to read saved controls file: {e}")
 
     try:
         controls = json.loads(controls_json)
         if not controls:
-            reject_event("Encountered empty saved controls file")
-        write_controls(controls)
+            reject_event(event, "Encountered empty saved controls file")
+        write_controls(event, controls)
     except (json.decoder.JSONDecodeError, KeyError, TypeError) as e:
-        reject_event(f"Malformed saved controls file: {e}")
+        reject_event(event, f"Malformed saved controls file: {e}")
     os.unlink(file_name)
 
 
-def do_power_limit_prologue():
-    e = pbs.event()
-    job_id = e.job.id
-    server_job = pbs.server().job(job_id)
+def parse_resource_file(event, path):
+    result = {}
+    if not path:
+        return result
+    try:
+        with open(path) as f:
+            data = f.read()
+        for pair in data.split(';'):
+            pair = pair.strip()
+            if not pair:
+                continue
+            if '=' in pair:
+                k, v = pair.split('=', 1)
+                result[k.strip()] = v.strip()
+    except FileNotFoundError as e:
+        reject_event(event, f"logue resources file not found: {e}")
+    return result
+
+
+def load_resources(event, job_id):
+    prefix = str(job_id)
+    pattern = os.path.join(_RESOURCE_FILE_SEARCH_PATH, f"{prefix}*.resources")
+    matches = glob.glob(pattern)
+    name =  matches[0] if matches else None
+
+    return parse_resource_file(event, name)
+
+
+def do_power_limit_prologue(event):
+    job_id = event.job.id
 
     if os.path.exists(_SAVED_CONTROLS_FILE):
-        restore_controls_from_file(_SAVED_CONTROLS_FILE)
+        restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
 
-    node_power_limit_requested = False
-    try:
-        node_power_limit_str = server_job.Resource_List[_POWER_LIMIT_RESOURCE]
-        node_power_limit_requested = bool(node_power_limit_str)
-    except KeyError:
-        pass
+    resource_dict = load_resources(event, job_id)
 
-    job_power_limit_requested = False
-    try:
-        job_power_limit_str = server_job.Resource_List[_JOB_POWER_LIMIT_RESOURCE]
-        job_power_limit_requested = bool(job_power_limit_str)
-    except KeyError:
-        pass
+    node_power_limit_str = resource_dict.get(_POWER_LIMIT_RESOURCE)
+    if node_power_limit_str is not None:
+        node_power_limit = resource_to_float(event, _POWER_LIMIT_RESOURCE, node_power_limit_str)
+        node_power_limit_requested = (node_power_limit > 0)
+    else:
+        node_power_limit_requested = False
+
+    job_power_limit_str = resource_dict.get(_JOB_POWER_LIMIT_RESOURCE)
+    if job_power_limit_str is not None:
+        job_power_limit = resource_to_float(event, _JOB_POWER_LIMIT_RESOURCE, job_power_limit_str)
+        job_power_limit_requested = (job_power_limit > 0)
+    else:
+        job_power_limit_requested = False
 
     if not node_power_limit_requested and not job_power_limit_requested:
-        e.accept()
+        event.accept()
         return
 
     if node_power_limit_requested:
         # The user requested a specific node power limit. Do not modify it.
-        power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, node_power_limit_str)
+        power_limit = node_power_limit
     elif job_power_limit_requested:
         # A job power limit has been requested without a specific node power limit.
         # Let's use the node power models to distribute the job power limit.
-        job_power_limit = resource_to_float(_JOB_POWER_LIMIT_RESOURCE, job_power_limit_str)
         hook_config = None
         if pbs.hook_config_filename is not None:
             with open(pbs.hook_config_filename) as f:
                 hook_config = json.load(f)
-        vnode_names = [v.name for v in e.vnode_list.values()]
+        vnode_names = [v.name for v in event.vnode_list.values()]
         use_uniform_limit = True
         if hook_config is not None and 'node_profile_name' in hook_config:
             job_type = hook_config['node_profile_name']
@@ -338,7 +366,7 @@ def do_power_limit_prologue():
                     A = [host_models[host]['A'] for host in vnode_names]
                     B = [host_models[host]['B'] for host in vnode_names]
                     C = [host_models[host]['C'] for host in vnode_names]
-                except ValueError:
+                except (ValueError, KeyError):
                     pbs.logmsg(pbs.LOG_WARNING, 'GEOPM PBS config has an incomplete set of host models. Using uniform power limits.')
                 else:
                     use_uniform_limit = False
@@ -353,37 +381,41 @@ def do_power_limit_prologue():
             job_node_count = len(vnode_names)
             power_limit = job_power_limit / job_node_count
 
-    pbs.logmsg(pbs.LOG_DEBUG, f"{e.hook_name}: Requested power limit: {power_limit}")
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Requested power limit: {power_limit}")
     current_settings = copy.deepcopy(_controls)
-    read_controls(current_settings)
+    read_controls(event, current_settings)
     system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
-    save_controls_to_file(_SAVED_CONTROLS_FILE, current_settings)
+    save_controls_to_file(event, _SAVED_CONTROLS_FILE, current_settings)
     _power_limit_control["setting"] = power_limit
-    write_controls(_controls)
-    e.accept()
+    write_controls(event, _controls)
+    event.accept()
 
 
-def do_power_limit_epilogue():
-    e = pbs.event()
+def do_power_limit_epilogue(event):
     if os.path.exists(_SAVED_CONTROLS_FILE):
-        restore_controls_from_file(_SAVED_CONTROLS_FILE)
-    e.accept()
+        restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
+    event.accept()
+
 
 def hook_main():
     try:
-        event_type = pbs.event().type
+        event = pbs.event()
+        event_type = event.type
         if event_type == pbs.EXECJOB_PROLOGUE:
-            do_power_limit_prologue()
+            do_power_limit_prologue(event)
         elif event_type == pbs.EXECJOB_EPILOGUE:
-            do_power_limit_epilogue()
+            do_power_limit_epilogue(event)
         else:
-            reject_event("Power limit compute hook incorrectly configured!")
+            reject_event(event, "Power limit compute hook incorrectly configured!")
     except SystemExit:
         pass
     except:
         _, e, _ = sys.exc_info()
-        reject_event(f"Unexpected error: {str(e)}")
-
+        try:
+            event = event if 'event' in locals() else pbs.event()
+            reject_event(event, f"Unexpected error: {str(e)}")
+        except:
+            pass
 
 # Begin hook...
 hook_main()
