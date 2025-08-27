@@ -32,6 +32,10 @@ def batch(input_stream):
     requests = [line.split() for line in input_stream.readlines()]
     ctl_idx = []
     for rr in requests:
+        if len(requests) == 0:
+            continue # ignore empty lines
+        if len(requests) != 3:
+            raise RuntimeError(f'Number of words per line in configuration file must be 3, got {len(requests)}')
         try:
             ctl_idx.append(pio.push_control(rr[0], rr[1], int(rr[2])))
         except Exception as ex:
