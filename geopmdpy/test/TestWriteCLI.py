@@ -90,11 +90,10 @@ class TestWriteCLI(unittest.TestCase):
 
     def test_batch_from_file_success(self):
         content = "CTRL_A cpu 0 1.0\nCTRL_A cpu 1 2.0\n\n"
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
+        with tempfile.NamedTemporaryFile('w') as tf:
             tf.write(content)
             tf.flush()
             path = tf.name
-        try:
             sys.argv = ['prog', '-f', path]
             with patch('geopmdpy.write.pio.control_names', return_value=['CTRL_A']), \
                  patch('geopmdpy.write.topo.domain_type', return_value=0), \
@@ -107,8 +106,6 @@ class TestWriteCLI(unittest.TestCase):
             self.assertEqual([call('CTRL_A', 0, 0), call('CTRL_A', 0, 1)], p_push.call_args_list)
             self.assertEqual([call('i0', 1.0), call('i1', 2.0)], p_adjust.call_args_list)
             p_batch.assert_called_once()
-        finally:
-            os.unlink(path)
 
     def test_batch_from_stdin_success(self):
         sys.argv = ['prog', '-f', '-']
@@ -127,20 +124,17 @@ class TestWriteCLI(unittest.TestCase):
         p_batch.assert_called_once()
 
     def test_batch_invalid_line_error_main_too_few(self):
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
+        with tempfile.NamedTemporaryFile('w') as tf:
             tf.write("too few tokens\n")
             tf.flush()
             path = tf.name
-        try:
             sys.argv = ['prog', '-f', path]
             rc = write.main()
             self.assertEqual(-1, rc)
             self.assertIn('Number of words per line in configuration file must be 4', self._stderr.getvalue())
-        finally:
-            os.unlink(path)
 
     def test_batch_invalid_line_error_main_too_many(self):
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
+        with tempfile.NamedTemporaryFile('w', delete=False) as tf:
             tf.write("too many tokens per line\n")
             tf.flush()
             path = tf.name
@@ -153,25 +147,21 @@ class TestWriteCLI(unittest.TestCase):
             os.unlink(path)
 
     def test_batch_unknown_control_main(self):
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
+        with tempfile.NamedTemporaryFile('w') as tf:
             tf.write("UNKNOWN cpu 0 1.0\n")
             tf.flush()
             path = tf.name
-        try:
             sys.argv = ['prog', '-f', path]
             with patch('geopmdpy.write.pio.control_names', return_value=['CTRL_A']):
                 rc = write.main()
             self.assertEqual(-1, rc)
             self.assertIn('Control name unknown: UNKNOWN', self._stderr.getvalue())
-        finally:
-            os.unlink(path)
 
     def test_batch_domain_index_out_of_bounds_main(self):
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
+        with tempfile.NamedTemporaryFile('w') as tf:
             tf.write("CTRL_A cpu 9 1.0\n")
             tf.flush()
             path = tf.name
-        try:
             sys.argv = ['prog', '-f', path]
             with patch('geopmdpy.write.pio.control_names', return_value=['CTRL_A']), \
                  patch('geopmdpy.write.topo.domain_type', return_value=0), \
@@ -179,8 +169,6 @@ class TestWriteCLI(unittest.TestCase):
                 rc = write.main()
             self.assertEqual(-1, rc)
             self.assertIn('Domain index out of bounds: 9', self._stderr.getvalue())
-        finally:
-            os.unlink(path)
 
 if __name__ == '__main__':
     unittest.main()
