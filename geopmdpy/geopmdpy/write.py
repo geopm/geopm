@@ -37,7 +37,7 @@ def batch(input_stream):
         if len(rr) == 0:
             continue # ignore empty lines
         if len(rr) != 4:
-            raise RuntimeError(f'Number of words per line in configuration file must be 4, got {requests}')
+            raise RuntimeError(f'Number of words per line in configuration file must be 4, got {len(rr)}')
         name = rr[0]
         if name not in control_names:
             raise ValueError(f'Control name unknown: {name}')
