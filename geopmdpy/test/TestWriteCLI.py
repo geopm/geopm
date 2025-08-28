@@ -126,9 +126,22 @@ class TestWriteCLI(unittest.TestCase):
         p_adjust.assert_called_once_with('ix', 3.14)
         p_batch.assert_called_once()
 
-    def test_batch_invalid_line_error_main(self):
+    def test_batch_invalid_line_error_main_too_few(self):
         with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
             tf.write("too few tokens\n")
+            tf.flush()
+            path = tf.name
+        try:
+            sys.argv = ['prog', '-f', path]
+            rc = write.main()
+            self.assertEqual(-1, rc)
+            self.assertIn('Number of words per line in configuration file must be 4', self._stderr.getvalue())
+        finally:
+            os.unlink(path)
+
+    def test_batch_invalid_line_error_main_too_many(self):
+        with tempfile.NamedTemporaryFile('w+', delete=False) as tf:
+            tf.write("too many tokens per line\n")
             tf.flush()
             path = tf.name
         try:
