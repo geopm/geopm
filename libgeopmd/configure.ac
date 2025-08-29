@@ -299,6 +299,23 @@ fi
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board GPUs])
+  # Check for NVML Applications Clock support to enable readback proxy
+  have_nvml_app_clock=0
+  AC_CHECK_LIB([nvidia-ml], [nvmlDeviceGetApplicationsClock], [have_nvml_app_clock=1], [have_nvml_app_clock=0])
+  if test "x$have_nvml_app_clock" = "x1" ; then
+    AC_LANG_PUSH([C++])
+    AC_COMPILE_IFELSE([
+        AC_LANG_PROGRAM([[#include <nvml.h>]], [[int x = NVML_CLOCK_GRAPHICS; (void)x;]])
+      ],[
+        have_nvml_app_clock=1
+      ],[
+        have_nvml_app_clock=0
+      ])
+    AC_LANG_POP([C++])
+  fi
+  if test "x$have_nvml_app_clock" = "x1" ; then
+    AC_DEFINE([GEOPM_NVML_READBACK_USE_APPLICATIONS_CLOCK], [ ], [Use NVML Applications Clock to read back GPU SM frequency control])
+  fi
 else
   ENABLE_NVML=False
 fi

@@ -361,6 +361,22 @@ namespace geopm
                           std::to_string(gpu_idx) + ".", __LINE__);
     }
 
+    bool NVMLDevicePoolImp::applications_clock_sm(int gpu_idx, unsigned int &app_freq_mhz) const
+    {
+        check_gpu_range(gpu_idx);
+        unsigned int result = 0;
+        nvmlReturn_t nvml_result = nvmlDeviceGetApplicationsClock(m_nvml_device.at(gpu_idx), NVML_CLOCK_GRAPHICS, &result);
+        if (nvml_result == NVML_ERROR_NOT_SUPPORTED ||
+            nvml_result == NVML_ERROR_NO_PERMISSION) {
+            return false;
+        }
+        check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
+                          ": NVML failed to get applications clock (graphics) for GPU " +
+                          std::to_string(gpu_idx) + ".", __LINE__);
+        app_freq_mhz = result;
+        return true;
+    }
+
     void NVMLDevicePoolImp::power_control(int gpu_idx, int setting) const
     {
         check_gpu_range(gpu_idx);
