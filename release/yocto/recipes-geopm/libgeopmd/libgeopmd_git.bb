@@ -37,8 +37,23 @@ DEPENDS += " \
     ${@bb.utils.contains('PACKAGECONFIG', 'libcap', 'libcap', '', d)} \
 "
 
-FILES:${PN} += "${libdir}/libgeopmd.so.*"
-FILES:${PN}-dev += "${includedir} ${libdir}/libgeopmd.so ${libdir}/pkgconfig/*.pc"
+PACKAGES =+ "${PN}-dev ${PN}-staticdev"
+
+# Runtime package: shared library SONAMEs and installed tools
+FILES:${PN} = " \
+    ${bindir}/geopmbatch \
+    ${libdir}/libgeopmd.so.* \
+"
+
+# Development package: headers, .so devel symlink, and pkg-config files
+FILES:${PN}-dev = " \
+    ${includedir} \
+    ${libdir}/libgeopmd.so \
+    ${libdir}/pkgconfig \
+"
+
+# Static development (if produced by upstream build)
+FILES:${PN}-staticdev = "${libdir}/*.a ${libdir}/*.la"
 
 RRECOMMENDS:${PN} += "${@bb.utils.contains('PACKAGECONFIG', 'systemd', 'systemd', '', d)}"
 
