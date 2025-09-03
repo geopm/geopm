@@ -36,7 +36,7 @@ namespace geopm
 
             virtual void frequency_control_sm(int gpu_idx, int min_freq, int max_freq) const override;
             virtual void frequency_reset_control(int gpu_idx) const override;
-            virtual bool applications_clock_sm(int gpu_idx, unsigned int &app_freq_mhz) const override;
+            virtual bool frequency_control_sm_settings(int gpu_idx, unsigned int &min_freq_mhz, unsigned int &max_freq_mhz) const override;
             virtual void power_control(int gpu_idx, int setting) const override;
             virtual bool is_privileged_access(void) const override;
             virtual void reset(void) override;

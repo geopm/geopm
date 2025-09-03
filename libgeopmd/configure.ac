@@ -299,23 +299,6 @@ fi
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board GPUs])
-  # Check for NVML Applications Clock support to enable readback proxy
-  have_nvml_app_clock=0
-  AC_CHECK_LIB([nvidia-ml], [nvmlDeviceGetApplicationsClock], [have_nvml_app_clock=1], [have_nvml_app_clock=0])
-  if test "x$have_nvml_app_clock" = "x1" ; then
-    AC_LANG_PUSH([C++])
-    AC_COMPILE_IFELSE([
-        AC_LANG_PROGRAM([[#include <nvml.h>]], [[int x = NVML_CLOCK_GRAPHICS; (void)x;]])
-      ],[
-        have_nvml_app_clock=1
-      ],[
-        have_nvml_app_clock=0
-      ])
-    AC_LANG_POP([C++])
-  fi
-  if test "x$have_nvml_app_clock" = "x1" ; then
-    AC_DEFINE([GEOPM_NVML_READBACK_USE_APPLICATIONS_CLOCK], [ ], [Use NVML Applications Clock to read back GPU SM frequency control])
-  fi
 else
   ENABLE_NVML=False
 fi
@@ -331,7 +314,7 @@ if test "x$enable_cnl_iogroup" = "x1" ; then
   AC_DEFINE([GEOPM_CNL_IOGROUP], [ ], [Enables the CNL IOGroup])
 fi
 AC_SUBST([enable_cnl_iogroup])
-
+0
 AC_ARG_WITH([nvml], [AS_HELP_STRING([--with-nvml=PATH],
             [specify directory for installed nvml package.])])
 if test "x$with_nvml" != x; then
@@ -469,9 +452,14 @@ if test "x$enable_nvml" = "x1" ; then
     AC_CHECK_LIB([nvidia-ml], [nvmlSystemGetCudaDriverVersion], [], [
         echo "missing libnvidia-ml: NVML library is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
+    # Check for NVML get Clock support to enable readback
+    AC_CHECK_LIB([nvidia-ml], [nvmlDeviceGetCurrentClockFreqs], [have_nvml_get_clock=1], [have_nvml_get_clock=0])
     AC_CHECK_HEADER([nvml.h], [], [
         echo "missing nvml.h: NVML header is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
+    if test "x$have_nvml_get_clock" = "x1" ; then
+        AC_DEFINE([GEOPM_NVML_USE_GET_CLOCK], [ ], [Use NVML Applications Clock to read back GPU SM frequency control])
+    fi
 fi
 
 if test "x$enable_levelzero" = "x1" ; then

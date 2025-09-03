@@ -123,11 +123,12 @@ namespace geopm
             /// @param [in] gpu_idx The index indicating a particular
             ///        GPU.
             virtual void frequency_reset_control(int gpu_idx) const = 0;
-            /// @brief Query NVML Applications Clock for the SM (graphics) domain.
+            /// @brief Query NVML Clock for the SM (graphics) domain.
             /// @param [in] gpu_idx The index indicating a particular GPU.
-            /// @param [out] app_freq_mhz Applications Clock for SM/graphics in MHz.
+            /// @param [out] min_freq_mhz Minimum Clock for SM/graphics in MHz.
+            /// @param [out] max_freq_mhz Maximum Clock for SM/graphics in MHz.
             /// @return true if retrieved; false if unsupported or not permitted.
-            virtual bool applications_clock_sm(int gpu_idx, unsigned int &app_freq_mhz) const = 0;
+            virtual bool frequency_control_sm_settings(int gpu_idx, unsigned int &min_freq_mhz, unsigned int &max_freq_mhz) const = 0;
             /// @brief Set power limit for NVML device.
             /// @param [in] gpu_idx The index indicating a particular
             ///        GPU.

@@ -5,6 +5,7 @@
 
 
 #include <cmath>
+#include <cstring>
 
 #include <fstream>
 #include <iostream>
@@ -361,20 +362,62 @@ namespace geopm
                           std::to_string(gpu_idx) + ".", __LINE__);
     }
 
-    bool NVMLDevicePoolImp::applications_clock_sm(int gpu_idx, unsigned int &app_freq_mhz) const
+    bool NVMLDevicePoolImp::frequency_control_sm_settings(int gpu_idx, unsigned int &min_freq_mhz, unsigned int &max_freq_mhz) const
     {
+#ifndef GEOPM_NVML_USE_GET_CLOCK
+        return false;
+#else
         check_gpu_range(gpu_idx);
-        unsigned int result = 0;
-        nvmlReturn_t nvml_result = nvmlDeviceGetApplicationsClock(m_nvml_device.at(gpu_idx), NVML_CLOCK_GRAPHICS, &result);
+        nvmlReturn_t nvml_result = NVML_ERROR_NOT_SUPPORTED;
+        nvmlDeviceCurrentClockFreqs_t result;
+        std::memset(&result, 0, sizeof(result));
+        result.version = nvmlDeviceCurrentClockFreqs_v1;  // set required version
+        nvml_result = nvmlDeviceGetCurrentClockFreqs(m_nvml_device.at(gpu_idx), &result);
         if (nvml_result == NVML_ERROR_NOT_SUPPORTED ||
             nvml_result == NVML_ERROR_NO_PERMISSION) {
             return false;
         }
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get applications clock (graphics) for GPU " +
+                          ": NVML failed to get clock (graphics) for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
-        app_freq_mhz = result;
+        std::string result_string = result.str;
+        auto tokens = geopm::string_split(result_string, ", ");
+        if (tokens.size() < 3) {
+            throw geopm::Exception("NVMLDevicePoolImp::frequency_control_sm_settings(): "
+                                   "Failed to parse result from NVML, too few tokens: \"" +
+                                   result_string + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        auto key_val = geopm::string_split(tokens[1], "=");
+        if (key_val.size() != 2) {
+            throw geopm::Exception("NVMLDevicePoolImp::frequency_control_sm_settings(): "
+                                   "Failed to parse result from NVML, expected \"key=value\" and got: \"" +
+                                   tokens[1] + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if (key_val[0] != "nvclockmin") {
+            throw geopm::Exception("NVMLDevicePoolImp::frequency_control_sm_settings(): "
+                                   "Failed to parse result from NVML, invalid key, expected \"nvclockmin\" and got: \"" +
+                                   key_val[0] + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        min_freq_mhz = std::stoi(key_val[1]);
+        key_val = geopm::string_split(tokens[2], "=");
+        if (key_val.size() != 2) {
+            throw geopm::Exception("NVMLDevicePoolImp::frequency_control_sm_settings(): "
+                                   "Failed to parse result from NVML, expected \"key=value\" and got: \"" +
+                                   tokens[2] + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if (key_val[0] != "nvclockmax") {
+            throw geopm::Exception("NVMLDevicePoolImp::frequency_control_sm_settings(): "
+                                   "Failed to parse result from NVML, invalid key, expected \"nvclockmax\" and got: \"" +
+                                   key_val[0] + "\"",
+                                   GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        max_freq_mhz = std::stoi(key_val[1]);
         return true;
+#endif
     }
 
     void NVMLDevicePoolImp::power_control(int gpu_idx, int setting) const
