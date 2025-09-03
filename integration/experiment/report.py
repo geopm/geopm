@@ -14,7 +14,9 @@ import pandas
 def extract_trial(name):
     ''' Remove the iteration number after the last underscore. '''
     pieces = name.split('_')
-    return '_'.join(pieces[:-1]), int(pieces[-1])
+    # Assuming following report name template: 
+    # <appname>_boardcap_<platform powercap val>_core_<freq val>_uncore_<freq val>_trial_<val>_<sweep-name>-<hostname>.report
+    return '_'.join(pieces[:-2]), int(pieces[-2])
 
 
 def prepare_columns(df):

@@ -15,6 +15,9 @@ produce recommended settings for CPU and GPU activity agents.
   GPU frequency sweep results and generate ConstConfigIO recommendations for the
   GPU Activity Agent.
 
+- **gen_plot_heatmap.py**: Script to generate a core-uncore heat map under a given
+  power cap
+
 - **host_config.py**: Utility to combine host-specific configuration files into
   a single configuration.
 
@@ -32,10 +35,12 @@ produce recommended settings for CPU and GPU activity agents.
 - **sys_charac_platfom_sweeps.sh**: Wrapper script to facilitate CPU & GPU frequency
   sweeps under multiple platform-level power caps.
 
-- **sys_charac_utils.sh**: Bash script containing utility functions to setup the
+- **utils.sh**: Bash script containing utility functions to setup the
   run environment and automate the launch of CPU and GPU frequency sweeps.
 
 - **test_host_config.py**: Unit tests for the `host_config.py` utility.
+
+
 
 These tools are intended for use in benchmarking and tuning system parameters to
 optimize energy efficiency and performance with GEOPM.
