@@ -3,11 +3,12 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
+module load geopm-runtime
 export GEOPM_SOURCE="${GEOPM_SOURCE?-Set GEOPM_SOURCE to full path of file with initialization parameters}"
+export PYTHONPATH=${GEOPM_SOURCE}/:${GEOPM_SOURCE}/geopmpy/:${GEOPM_SOURCE}/geopmdpy/:${HOME}/.local/lib/python3.6/site-packages/:$PYTHONPATH
 
-source ${GEOPM_SOURCE}/integration/experiment/system_characterization/set_env.sh
 source ${GEOPM_SOURCE}/integration/experiment/system_characterization/set_vars.sh
-source ${GEOPM_SOURCE}/integration/experiment/system_characterization/sys_charac_utils.sh
+source ${GEOPM_SOURCE}/integration/experiment/system_characterization/utils.sh
 
 ## Run frequency sweeps under multiple platform-level power caps
 START_TIME=${SECONDS}
