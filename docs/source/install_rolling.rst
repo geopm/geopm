@@ -562,6 +562,8 @@ by OS and OS version.  Note: the commands in this table should be run with
 
          .. group-tab:: 9_Stream
 
+            .. tabs::
+
                .. group-tab:: Intel GPU support
 
                   .. code-block:: bash
