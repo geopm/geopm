@@ -661,6 +661,8 @@ the ``root`` user.
 
          .. group-tab:: 9_Stream
 
+            .. tabs::
+
                .. group-tab:: Intel GPU support
 
                   .. code-block:: bash
