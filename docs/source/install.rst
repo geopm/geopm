@@ -32,6 +32,13 @@ Access Service<service>` and its dependency packages are broken down by OS and O
 version. Note: the commands in this table should be run with ``sudo`` or as
 the ``root`` user.
 
+.. note::
+
+   For Rocky Linux and CentOS installations, the Extra Packages for Enterprise Linux (EPEL)
+   repository must be enabled to satisfy dependencies that are not provided by the base
+   distribution repositories. Follow the official EPEL enablement instructions in the Fedora
+   documentation: https://docs.fedoraproject.org/en-US/epel/getting-started/
+
 .. tabs::
 
    .. group-tab:: openSUSE
