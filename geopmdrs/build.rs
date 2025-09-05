@@ -4,5 +4,7 @@
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tonic_build::compile_protos("./geopm_service.proto")?;
+    // Link to system installed libgeopmd
+    println!("cargo:rustc-link-lib=dylib=geopmd");
     Ok(())
 }

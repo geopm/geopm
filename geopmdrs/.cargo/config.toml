@@ -1,5 +1,6 @@
 [source.crates-io]
-replace-with = "vendored-sources"
+# Temporarily disable vendoring override for new exporter build. Re-enable with vendor directory.
+# replace-with = "vendored-sources"
 
 [source.vendored-sources]
 directory = "vendor"
