@@ -383,10 +383,14 @@ def do_power_limit_prologue(event):
 
     pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Requested power limit: {power_limit}")
     current_settings = copy.deepcopy(_controls)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to read current power limit settings")
     read_controls(event, current_settings)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to make save directory: {_SAVED_CONTROLS_PATH}")
     system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to save current power limit settings to: {_SAVED_CONTROLS_FILE}")
     save_controls_to_file(event, _SAVED_CONTROLS_FILE, current_settings)
     _power_limit_control["setting"] = power_limit
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to write new power limit settings")
     write_controls(event, _controls)
     event.accept()
 
