@@ -226,6 +226,19 @@ by a call to `dlopen(3) <https://man7.org/linux/man-pages/man3/dlopen.3.html>`_.
 Please see the ``gcc`` documentation for the
 `constructor attribute <https://gcc.gnu.org/onlinedocs/gcc-4.3.0/gcc/Function-Attributes.html>`_.
 
+.. note::
+
+    Some compilers (and higher warning levels) may emit an unused-function
+    warning for the static constructor symbol when it is only referenced
+    implicitly by the dynamic loader.  To suppress this spurious warning we
+    decorate all GEOPM plugin constructor functions with both attributes:
+
+    ``__attribute__((constructor, unused))``
+
+    This dual attribute declaration is required for consistency across
+    supported compiler toolchains and is recommended for all out-of-tree
+    plugins as well.
+
 Plugin Class Static Methods
 ---------------------------
 
@@ -263,7 +276,7 @@ information.  This code is located in the GEOPM source under ``tutorial/iogroup`
        #include "ExampleIOGroup.hpp"
 
        // Called during dlopen() to register plugin
-       static void __attribute__((constructor))
+       static void __attribute__((constructor, unused))
        register_plugin_example_iogroup(void)
        {
            geopm::PluginFactory<geopm::IOGroup> &iof =
@@ -301,7 +314,7 @@ information.  This code is located in the GEOPM source under ``tutorial/agent``.
        #include "ExampleAgent.hpp"
 
        // Called during dlopen() to register plugin
-       static void __attribute__((constructor))
+       static void __attribute__((constructor, unused))
        register_plugin_example_agent(void)
        {
            geopm::PluginFactory<geopm::Agent> &af =
