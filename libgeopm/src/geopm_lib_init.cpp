@@ -10,7 +10,7 @@
 #include "geopm/PlatformIOProf.hpp"
 #include "geopm_time.h"
 
-static void __attribute__((constructor)) geopm_lib_init(void)
+static void __attribute__((constructor, unused)) geopm_lib_init(void)
 {
     if (geopm::environment().do_profile()) {
         try {
