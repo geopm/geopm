@@ -319,7 +319,9 @@ def load_resources(event, job_id):
 
 
 def do_power_limit_prologue(event):
+    pbs.logmsg(pbs.LOG_DEBUG, f"Entering prologue")
     job_id = event.job.id
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Job ID: {job_id}")
 
     if os.path.exists(_SAVED_CONTROLS_FILE):
         restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
@@ -396,6 +398,7 @@ def do_power_limit_prologue(event):
 
 
 def do_power_limit_epilogue(event):
+    pbs.logmsg(pbs.LOG_DEBUG, f"Entering epilogue")
     if os.path.exists(_SAVED_CONTROLS_FILE):
         restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
     event.accept()
