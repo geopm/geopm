@@ -136,6 +136,15 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_logo = 'https://geopm.github.io/images/geopm-logo-clear.png'
 
+# Ensure custom static path is included
+html_static_path = ['_static']
+
+# Issue #3965: Add custom JS to fix colon-containing filenames misinterpreted
+# as URL schemes
+def setup(app):
+    # Inject post-processing script for search result links with colon-based names
+    app.add_js_file('colon_scheme_fix.js')
+
 # -- Options for manual page output -------------------------------------------------
 
 rst_files = [
