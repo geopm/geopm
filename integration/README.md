@@ -42,20 +42,12 @@ Prerequisites
 -------------
 Prior to running these tests for the first time, users must:
 
-1. Build and install `libgeopm`, `libgeopmd`, `geopmpy`, and `libgeopmdpy`
+1. Build and install `libgeopm`, `libgeopmd`, `geopmpy`, and `geopmdpy`
 2. Build any binaries used by the integration tests
 3. Setup test environment variables
 
 Follow the build and installation steps outlined in the `libgeopm`,
-`libgeopmd`, `geopmpy`, and `libgeopmdpy` READMEs.
-
-Build the integration tests by running:
-
-```
-./autogen.sh
-./configure
-make -j
-```
+`libgeopmd`, `geopmpy`, and `geopmdpy` READMEs.
 
 Setup the test environment by editing your `~/.bashrc` (or other shell
 initialization file) to include the following:
@@ -69,19 +61,29 @@ initialization file) to include the following:
 * `.geopmrc`: Additionally, `~/.geopmrc` should have the following contents (at a minimum):
   ```
   #!/bin/bash
-  
+
   # Path to the GEOPM source code
   export GEOPM_SOURCE=${HOME}/geopm
-  
+
   # Path to the installation artifacts for GEOPM
   export GEOPM_INSTALL=${HOME}/build/geopm
-  
+
   # Path to location for job output directories
   export GEOPM_WORKDIR=${HOME}/output
-  
+
   # Path to location of application archives
   export GEOPM_APPS_SOURCES=${HOME}/geopm_apps
-  
+
   # Path to system override for environment setup (OPTIONAL)
   export GEOPM_SYSTEM_ENV=${GEOPM_SOURCE}/integration/config/<UNIQUE MACHINE NAME>_env.sh
   ```
+
+Build the integration tests by running:
+
+```
+source ${GEOPM_SOURCE}/integration/config/run_env.sh
+cd ${GEOPM_SOURCE}/integration
+./autogen.sh
+./configure --with-geopm=${GEOPM_INSTALL} --with-geopm-fortran-include=${GEOPM_INSTALL}/lib/ifx/modules/geopm-x86_64 --disable-geopmd-local --disable-geopm-local
+make -j
+```
