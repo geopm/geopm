@@ -24,7 +24,7 @@ using geopm::PlatformTopo;
 
 // Registers this IOGroup with the IOGroup factory, making it visible
 // to PlatformIO when the plugin is first loaded.
-static void __attribute__((constructor)) example_iogroup_load(void)
+static void __attribute__((constructor, unused)) example_iogroup_load(void)
 {
     geopm::iogroup_factory().register_plugin(ExampleIOGroup::plugin_name(),
                                              ExampleIOGroup::make_plugin);
