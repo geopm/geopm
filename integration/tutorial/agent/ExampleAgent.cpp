@@ -23,7 +23,7 @@ using geopm::PlatformTopo;
 
 // Registers this Agent with the Agent factory, making it visible
 // to the Controller when the plugin is first loaded.
-static void __attribute__((constructor)) example_agent_load(void)
+static void __attribute__((constructor, unused)) example_agent_load(void)
 {
     geopm::agent_factory().register_plugin(ExampleAgent::plugin_name(),
                                            ExampleAgent::make_plugin,

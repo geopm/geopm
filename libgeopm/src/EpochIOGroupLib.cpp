@@ -9,7 +9,7 @@
 
 namespace geopm
 {
-    static void __attribute__((constructor)) epoch_iogroup_load(void)
+    static void __attribute__((constructor, unused)) epoch_iogroup_load(void)
     {
         if (!geopm::has_cap_sys_admin()) {
             iogroup_factory().register_plugin(EpochIOGroup::plugin_name(),
