@@ -238,11 +238,14 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
 
 
 def read_controls(event, controls):
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: In read_controls()...")
     try:
         for c in controls:
+            pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Reading signal {c['name']}...")
             c["setting"] = pio.read_signal(c["name"], c["domain_type"],
                                            c["domain_idx"])
     except RuntimeError as e:
+        pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Unable to read signal {c['name']}: {e}")
         reject_event(event, f"Unable to read signal {c['name']}: {e}")
 
 
