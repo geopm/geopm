@@ -522,7 +522,7 @@ class PlatformService(object):
             with system_files.WriteLock(self._RUN_PATH, self._PROFILER_LOCK_NAME) as lock:
                 if lock.try_lock() == client_pid:
                     lock.unlock(client_pid)
-        if start_num_client != 0 and self._active_sessions.get_clients() == 0:
+        if start_num_client != 0 and len(self._active_sessions.get_clients()) == 0:
             self._pio.reset()
 
     def _close_session_write(self, lock, pid):
