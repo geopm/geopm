@@ -34,9 +34,9 @@ class TestPIOReset(unittest.TestCase):
 
     @staticmethod
     def print_sample(signals, signal_idxs):
-        for i, idx in enumerate(signal_idxs):
+        for idx in signal_idxs:
             value = pio.sample(idx)
-            print(f"{signals[i]}: {value}")
+            print(f"{idx}: {value}")
 
     def test_pio_reset(self):
         print("Pushing and reading signals...")
