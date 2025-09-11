@@ -13,6 +13,8 @@ from unittest import mock
 from collections import Counter
 from contextlib import contextmanager
 
+# test_report_cache requires the use of read_hdf() from pandas
+os.environ["GEOPM_USE_UNSAFE_HDF5"] = "1"
 import geopmpy.io
 
 
