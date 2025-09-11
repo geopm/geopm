@@ -892,11 +892,12 @@ class RawReportCollection(object):
                     pass
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(self._report_h5_name))
-            except ImportWarning as err:
-                sys.stderr.write(f'Warning: <geopm> geopmpy.io: {err}.\n')
-            except IOError:
-                sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.\n'
-                                 .format(self._report_h5_name))
+            except (IOError, ImportWarning) as err:
+                if type(err) is IOError:
+                    sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.\n')
+                else:
+                    sys.stderr.write(f'Warning: <geopm> geopmpy.io: {err}.\n')
+
                 self.parse_reports(report_paths, verbose)
 
                 # Cache report dataframe
