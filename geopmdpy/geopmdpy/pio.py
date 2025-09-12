@@ -9,6 +9,7 @@ signals and writing controls from system components.
 
 """
 
+import sys
 
 from . import gffi
 from . import topo
@@ -130,10 +131,13 @@ def read_signal(signal_name, domain_type, domain_idx):
         float: The value of the signal read in SI units.
 
     """
+    sys.stderr.write("DEBUGGING geopmdpy: pio.read_signal called with signal_name={}, domain_type={}, domain_idx={}\n".format(signal_name, domain_type, domain_idx))
     result_cdbl = gffi.gffi.new("double*")
     signal_name_cstr = gffi.gffi.new("char[]", signal_name.encode())
     domain_type = topo.domain_type(domain_type)
+    sys.stderr.write("DEBUGGING geopmdpy: About to call geopm_pio_read_signal()...\n")
     err = gffi.dl_geopmd.geopm_pio_read_signal(signal_name_cstr, domain_type, domain_idx, result_cdbl)
+    sys.stderr.write("DEBUGGING geopmdpy: Back from call to geopm_pio_read_signal().\n")
     if err < 0:
         raise RuntimeError('geopm_pio_read_signal() failed: {}'.format(error.message(err)))
     return result_cdbl[0]

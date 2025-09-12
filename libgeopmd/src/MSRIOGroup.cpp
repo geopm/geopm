@@ -888,6 +888,8 @@ namespace geopm
 
     double MSRIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
+        std::cerr << "DEBUGGING libgeopmd: In MSRIOGroup()::read_signal() for signal_name=" << signal_name
+                  << ", domain_type=" << domain_type << ", domain_idx=" << domain_idx << std::endl;
         if (!is_valid_signal(signal_name)) {
             throw Exception("MSRIOGroup::read_signal(): signal name \"" +
                             signal_name + "\" not found",
@@ -902,6 +904,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::shared_ptr<Signal> ref_sig = m_signal_available.at(signal_name).signals[domain_idx];
+        std::cerr << "DEBUGGING libgeopmd: In PlatformIOImp()::read_signal(): About to read signal" << std::endl;
         return ref_sig->read();
     }
 

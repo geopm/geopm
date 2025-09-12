@@ -402,6 +402,7 @@ def do_power_limit_prologue(event):
     _power_limit_control["setting"] = power_limit
     pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to write new power limit settings")
     write_controls(event, _controls)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to accept job")
     event.accept()
 
 

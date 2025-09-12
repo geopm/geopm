@@ -6,6 +6,7 @@
 
 #include "PlatformIOImp.hpp"
 
+#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <algorithm>
@@ -41,6 +42,7 @@ namespace geopm
 
     PlatformIO &platform_io(void)
     {
+        std::cerr << "DEBUGGING libgeopmd: In platform_io() singleton constructor..." << std::endl;
         return platform_io_helper(false);
     }
 
@@ -64,6 +66,7 @@ namespace geopm
         , m_iogroup_list(std::move(iogroup_list))
         , m_do_restore(false)
     {
+        std::cerr << "DEBUGGING libgeopmd: In PlatformIOImp() constructor..." << std::endl;
         if (m_iogroup_list.empty()) {
             for (const auto &it : IOGroup::iogroup_names()) {
                 try {
@@ -81,6 +84,7 @@ namespace geopm
                 }
             }
         }
+        std::cerr << "DEBUGGING libgeopmd: Completed PlatformIOImp() constructor" << std::endl;
     }
 
     void PlatformIOImp::register_iogroup(std::shared_ptr<IOGroup> iogroup)
@@ -564,6 +568,7 @@ namespace geopm
                                       int domain_type,
                                       int domain_idx)
     {
+        std::cerr << "DEBUGGING libgeopmd: In PlatformIOImp()::read_signal()..." << std::endl;
         if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformIOImp::read_signal(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -589,8 +594,10 @@ namespace geopm
             }
             else {
                 try {
+                    std::cerr << "DEBUGGING libgeopmd: In PlatformIOImp()::read_signal(): About to call IOGroup -> read_signal()..." << std::endl;
                     result = ii->read_signal(signal_name, domain_type, domain_idx);
                     is_read_successful = true;
+                    std::cerr << "DEBUGGING libgeopmd: In PlatformIOImp()::read_signal(): Completed IOGroup read_signal()" << std::endl;
                 }
                 catch (const geopm::Exception &ex) {
                     err_msg += std::string(ex.what()) + "\n";
@@ -952,6 +959,8 @@ extern "C" {
     {
         int err = 0;
         try {
+            fprintf(stderr, "DEBUGGING libgeopmd: In geopm_pio_read_signal for signal %s\n", signal_name);
+            fflush(stderr);
             *result = geopm::platform_io().read_signal(signal_name, domain_type, domain_idx);
         }
         catch (...) {
