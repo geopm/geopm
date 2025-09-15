@@ -59,6 +59,21 @@ _controls = [
     ]
 
 
+def print_env():
+    pbs.logmsg(pbs.LOG_DEBUG, f"DEBUGGING: GEOPM hook: Printing environment variables...")
+    env = []
+    for k, v in os.environ.items():
+        env.append(f"{k}={v}")
+    pbs.logmsg(pbs.LOG_DEBUG, "DEBUGGING: GEOPM hook:  " + "\n".join(env))
+
+    path = []
+    for k in sys.path:
+        path.append(f"{k}")
+    pbs.logmsg(pbs.LOG_DEBUG, "DEBUGGING: GEOPM hook:  " + "\n".join(path))
+
+    pbs.logmsg(pbs.LOG_DEBUG, f"DEBUGGING: GEOPM hook:  geopmdpy location: {pio.__file__}" )
+
+
 def clip_list(list_to_clip, min_value, max_value):
     """Clip each element in a list.
     """
@@ -335,6 +350,7 @@ def do_power_limit_prologue(event):
         restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
 
     resource_dict = load_resources(event, job_id)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Loaded resources: {resource_dict}")
 
     node_power_limit_str = resource_dict.get(_POWER_LIMIT_RESOURCE)
     if node_power_limit_str is not None:
@@ -415,6 +431,7 @@ def do_power_limit_epilogue(event):
 
 def hook_main():
     try:
+        print_env()
         event = pbs.event()
         event_type = event.type
         if event_type == pbs.EXECJOB_PROLOGUE:
