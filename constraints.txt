@@ -1,0 +1,9 @@
+# Central constraints file to aid reproducible CI builds and vulnerability remediation.
+# Generated manually to pin critical security-sensitive packages.
+# Update via: pip-compile --generate-hashes requirements.in (future enhancement)
+# Versions selected to include latest security fixes as of 2025-09.
+
+protobuf==4.25.8
+# Bumped to grpcio 1.63.0 to obtain Py3.12 manylinux prebuilt wheels on Ubuntu Noble (1.56.2 triggered source build failures). Vulnerability fix (GHSA-496j-2rq6-j6cc) already included in >=1.56.2.
+grpcio==1.63.0
+pygments==2.15.1

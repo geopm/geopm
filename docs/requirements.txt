@@ -1,5 +1,6 @@
 sphinx>=4.5.0
 sphinx_rtd_theme>=1.0.0
 sphinxemoji>=0.2.0
-pygments>=2.13.0
+# PYSEC-2023-117 (CVE-2022-40896) fixed in 2.15.1
+pygments>=2.15.1
 sphinx-tabs>=3.3.1
