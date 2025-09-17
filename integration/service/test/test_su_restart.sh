@@ -14,6 +14,12 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     exit 0
 fi
 
+SYSTEMD_VERSION=$(systemctl --version | grep systemd | awk '{print $2}')
+if [[ ${SYSTEMD_VERSION} -lt 244 ]]; then
+    echo "Warning: Skipping $0 because systemd does not support RestartKillSignal" 1>&2
+    exit 0
+fi
+
 # PARAMETERS
 CONTROL=MSR::PERF_CTL:FREQ
 TEST_DIR=$(dirname $(readlink -f $0))
