@@ -24,7 +24,7 @@ performance objectives.}
 %endif
 
 Name:           geopmd
-Version:	3.2.0
+Version:	3.2.1
 Release:	%autorelease
 Summary:	GEOPM daemon
 
@@ -45,6 +45,7 @@ BuildRequires:	python3-jsonschema
 BuildRequires:	python3-psutil
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm
+BuildRequires:	python3-sdnotify
 %if %{defined enable_grpc}
 BuildRequires:	grpc-devel
 BuildRequires:	protobuf-devel
@@ -63,6 +64,7 @@ Requires:	python3-dasbus
 Requires:	python3-gobject
 Requires:	python3-jsonschema
 Requires:	python3-psutil
+Requires:	python3-sdnotify
 Requires:	python3-%{prj_name} = %{version}-%{release}
 Requires:	geopmd-cli = %{version}
 %if %{defined enable_grpc}

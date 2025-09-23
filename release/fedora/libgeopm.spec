@@ -9,14 +9,13 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		libgeopm
-Version:	3.2.0
+Version:	3.2.1
 Release:	%autorelease
 Summary:	C/C++ implementation of the GEOPM runtime service
 
 License:	BSD-3-Clause
 URL:		https://geopm.github.io
 Source0:	https://github.com/geopm/geopm/archive/v%{version}/geopm-%{version}.tar.gz
-Patch0:		0003-Define-macro-to-set-defaults-used-by-init-function.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
