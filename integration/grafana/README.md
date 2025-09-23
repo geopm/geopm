@@ -84,10 +84,9 @@ Grafana, a user local install of `clush(1)` is not required.
 
 #### GEOPM Install
 
-The `geopmexporter(1)` is not available in a stable release (feature will be
-available as of v3.2.0).  The user must build and install a development snapshot
-of GEOPM if a version of GEOPM that supports `geopmexporter(1)` is not installed
-system-wide e.g.:
+The `geopmexporter(1)` is available in all releases after v3.2.  The user must
+build and install a development snapshot of GEOPM if a version of GEOPM that
+supports `geopmexporter(1)` is not installed system-wide e.g.:
 
 ```bash
     # Install latest development snapshot of GEOPM

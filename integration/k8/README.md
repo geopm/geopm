@@ -33,9 +33,9 @@ container is tagged as "geopm-prometheus."
 
 The `geopm-prometheus.Dockerfile` builds packages versioned based on the state
 of your Git repository.  An optional Fedora 42 based Docker file
-`geopm-fedora.Dockerfile` builds the v3.2.0 tag of the upstream GEOPM Git
-repository source using the `release-v3.2-packaging` branch to download the
-Fedora packaging files.  Note that Nvidia support is not available in the Fedora
+`geopm-fedora.Dockerfile` builds the v3.2.1 tag of the upstream GEOPM Git
+repository source using the `release-v3.2` branch to download the Fedora
+packaging files.  Note that Nvidia support is not available in the Fedora
 packaging.
 
 ## Deploying Prometheus Client in Kubernetes
