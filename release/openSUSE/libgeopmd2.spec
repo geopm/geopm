@@ -14,7 +14,7 @@ performance objectives.}
 %endif
 
 Name:		libgeopmd2
-Version:	3.2.0
+Version:	3.2.1
 Release:	%autorelease
 Summary:	C/C++ implementation of the GEOPM access service
 
