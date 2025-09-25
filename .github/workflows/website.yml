@@ -38,8 +38,8 @@ jobs:
     - name: Install python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
-           python3 -m pip install -r requirements.txt
-           python3 -m pip install -r docs/requirements.txt
+           python3 -m pip install -r requirements.txt -c constraints.txt
+           python3 -m pip install -r docs/requirements.txt -c constraints.txt
     - name: make geopmdpy dist
       working-directory: geopmdpy
       run: ./make_sdist.sh

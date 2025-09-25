@@ -30,7 +30,7 @@ jobs:
     - name: install geopmpy and geopmdpy python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
-           python3 -m pip install -r docs/requirements.txt
+           python3 -m pip install -r docs/requirements.txt -c constraints.txt
     - name: install cargo-deb
       run: cargo install cargo-deb
     - name: configure libgeopmd dir
