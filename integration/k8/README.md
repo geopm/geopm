@@ -84,6 +84,21 @@ $ sudo systemctl daemon-reload
 $ sudo systemctl restart geopm
 ```
 
+For some operating systems like CentOS and RHEL the path for `geopmd` may be
+`/usr/sbin/geopmd`.  This can be checked with the command `which geopmd`. In
+this case, be sure to use the correct path when editing the geopmd control file.
+
+```
+$ sudo systemctl edit geopm
+$ cat /etc/systemd/system/geopm.service.d/override.conf
+[Service]
+Type=notify
+ExecStart=
+ExecStart=/usr/sbin/geopmd --grpc
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart geopm
+```
+
 Additionally, modify the `geopm-prometheus-host.yml` manifest so that the
 `image` field points to the tag in your registry. Update the `runAsUser` and
 `runAsGroup` fields to reference a user and group ID on the host system (both
