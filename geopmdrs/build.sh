@@ -18,4 +18,7 @@ fi
 sed -e "s|@VERSION@|$(cat VERSION)|" Cargo.toml.in > Cargo.toml
 cargo vendor
 cargo build
+cargo build -r
+cargo install cargo-deb
 cargo deb
+echo "Warning, unable to build a RPM package, if required, add target/release/geopmd-proxy to the PATH of geopmd"
