@@ -1,0 +1,28 @@
+Source: geopmd-proxy
+Section: utils
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (=13),
+               debhelper (>= 11~),
+               build-essential,
+               pkgconf,
+               cargo,
+               rustc,
+               libssl-dev,
+               zlib1g-dev
+Standards-Version: 4.1.4
+Homepage: https://geopm.github.io
+Vcs-Git: https://github.com/geopm/geopm.git
+Vcs-Browser: https://github.com/geopm/geopm.git
+Rules-Requires-Root: no
+
+Package: geopmd-proxy
+Section: utils
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: GEOPM gRPC UDS credential proxy server
+ The geopmd-proxy binary is a Rust implementation of a gRPC Unix Domain
+ Socket (UDS) credential forwarding proxy required to work around missing
+ UDS credential support in the primary geopmd service implementation.
+ It listens on a permissive UDS and forwards requests with credentials to
+ the root-only geopmd service.

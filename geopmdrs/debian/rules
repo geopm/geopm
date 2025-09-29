@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+# Use release mode for performance
+# Respect DEB_BUILD_OPTIONS=nocheck for skipping tests later.
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	cargo build --release
+
+override_dh_auto_test:
+	if [ "${DEB_BUILD_OPTIONS#*nocheck*}" = "${DEB_BUILD_OPTIONS}" ]; then \
+	  cargo test --release || echo "No tests" ; \
+	fi
+
+override_dh_auto_install:
+	mkdir -p debian/tmp/usr/sbin
+	install -m 0755 target/release/geopmd-proxy debian/tmp/usr/sbin/geopmd-proxy
