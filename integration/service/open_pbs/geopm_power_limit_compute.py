@@ -23,8 +23,8 @@ import copy
 import math
 
 import pbs
+import subprocess # nosec
 
-from geopmdpy import pio
 from geopmdpy import system_files
 
 os.environ["ZES_ENABLE_SYSMAN"] = "1"
@@ -251,13 +251,21 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
 
     return min(max(min_power_per_node, result), max_power_per_node)
 
+def pio_read_signal(name, domain, domain_idx):
+    pid = subprocess.run(['geopmread', name, str(domain), str(domain_idx)],
+                         check=True, text=True, capture_output=True)
+    return float(pid.stdout)
+
+def pio_write_control(name, domain, domain_idx, setting):
+    subprocess.run(['geopmwrite', name, str(domain), str(domain_idx), str(setting)],
+                   check=True)
 
 def read_controls(event, controls):
     pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: In read_controls()...")
     try:
         for c in controls:
             pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Reading signal {c['name']}...")
-            c["setting"] = pio.read_signal(c["name"], c["domain_type"],
+            c["setting"] = pio_read_signal(c["name"], c["domain_type"],
                                            c["domain_idx"])
     except RuntimeError as e:
         pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Unable to read signal {c['name']}: {e}")
@@ -267,7 +275,7 @@ def read_controls(event, controls):
 def write_controls(event, controls):
     try:
         for c in controls:
-            pio.write_control(c["name"], c["domain_type"], c["domain_idx"],
+            pio_write_control(c["name"], c["domain_type"], c["domain_idx"],
                               c["setting"])
     except RuntimeError as e:
         reject_event(event, f"Unable to write control {c['name']}: {e}")
