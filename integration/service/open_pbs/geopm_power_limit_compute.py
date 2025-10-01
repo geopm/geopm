@@ -1,9 +1,13 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-
+# This file contains the prologue and epilogue hooks for GEOPM power limiting
+# functionality in PBS environments. It should be installed on compute nodes.
+# The server/queuejob functionality is in a separate file (geopm_power_limit_server.py)
+# which should be installed on the PBS server.
 
 import sys
+import glob
 
 PYTHON_PATHS = [
         "/usr/lib/python3.6/site-packages",
@@ -19,20 +23,18 @@ import copy
 import math
 
 import pbs
+import subprocess # nosec
 
-from geopmdpy import pio
 from geopmdpy import system_files
 
+os.environ["ZES_ENABLE_SYSMAN"] = "1"
+os.environ["ZE_FLAT_DEVICE_HIERARCHY"] = "COMPOSITE"
 
+_RESOURCE_FILE_SEARCH_PATH = "/var/tmp"
 _SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
-_MAX_POWER_LIMIT_RESOURCE = "geopm-max-node-power-limit"
-_MIN_POWER_LIMIT_RESOURCE = "geopm-min-node-power-limit"
 _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
-_DEFAULT_SLOWDOWN_RESOURCE = "geopm-default-slowdown"
-_JOB_TYPE_RESOURCE = "geopm-job-type"
-_DEFAULT_SLOWDOWN = 0.0
 
 _power_limit_control = {
         "name": "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT",
@@ -55,6 +57,21 @@ _controls = [
          "domain_idx": 0,
          "setting": 1}
     ]
+
+
+def print_env():
+    pbs.logmsg(pbs.LOG_DEBUG, f"DEBUGGING: GEOPM hook: Printing environment variables...")
+    env = []
+    for k, v in os.environ.items():
+        env.append(f"{k}={v}")
+    pbs.logmsg(pbs.LOG_DEBUG, "DEBUGGING: GEOPM hook:  " + "\n".join(env))
+
+    path = []
+    for k in sys.path:
+        path.append(f"{k}")
+    pbs.logmsg(pbs.LOG_DEBUG, "DEBUGGING: GEOPM hook:  " + "\n".join(path))
+
+    pbs.logmsg(pbs.LOG_DEBUG, f"DEBUGGING: GEOPM hook:  geopmdpy location: {pio.__file__}" )
 
 
 def clip_list(list_to_clip, min_value, max_value):
@@ -150,21 +167,24 @@ def allocate_budget_to_nodes(budget, max_node_power, x0, A, B, C):
     return slowdown, power_by_node
 
 
-def get_model_from_config(hook_config, job_type, per_host=False):
+def get_model_from_config(hook_config, job_type, per_host=False, event=None):
     if hook_config is None or job_type is None:
         return None
 
     if 'profiles' not in hook_config:
-        pbs.logmsg(pbs.LOG_WARNING, 'Missing profiles section in the GEOPM PBS config')
+        if event is not None:
+            pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Missing profiles section in the GEOPM PBS config")
         return None
 
     model_max_power = hook_config.get("max_power", None)
     if model_max_power is None:
-        pbs.logmsg(pbs.LOG_WARNING, 'Missing max_power in the GEOPM PBS config')
+        if event is not None:
+            pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Missing max_power in the GEOPM PBS config")
         return None
 
     if job_type not in hook_config['profiles']:
-        pbs.logmsg(pbs.LOG_WARNING, f'Requested job type {job_type} has no performance model in the GEOPM PBS config')
+        if event is not None:
+            pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Requested job type {job_type} has no performance model in the GEOPM PBS config")
         return None
 
     profile = hook_config['profiles'][job_type]
@@ -187,7 +207,8 @@ def get_model_from_config(hook_config, job_type, per_host=False):
             B = float(model_coefficients['B'])
             C = float(model_coefficients['C'])
         except:
-            pbs.logmsg(pbs.LOG_WARNING, f'Invalid coefficients for profile {job_type} in GEOPM PBS config')
+            if event is not None:
+                pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Invalid coefficients for profile {job_type} in GEOPM PBS config")
             return None
 
         return {
@@ -199,7 +220,7 @@ def get_model_from_config(hook_config, job_type, per_host=False):
         }
 
 
-def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_node, max_power_per_node):
+def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_node, max_power_per_node, event=None):
     """Predict the node power cap needed to achieve a target slowdown for a
     given job type. If job_type is None or is not configured, this function
     assumes a 1:1 linear mapping between power and performance (half power
@@ -211,7 +232,7 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
         with open(pbs.hook_config_filename) as f:
             hook_config = json.load(f)
 
-    model = get_model_from_config(hook_config, job_type)
+    model = get_model_from_config(hook_config, job_type, event=event)
     do_use_model = model is not None
 
     if do_use_model:
@@ -220,7 +241,8 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
             # Solve for the positive root (less than 100% of max power) at '-slowdown' offset:
             result = model['max_power'] * (model['x0'] - (-model['B'] + math.sqrt(model['B']**2 - 4 * model['A'] * (model['C'] - slowdown))) / (2 * model['A']))
         except Exception as e:
-            pbs.logmsg(pbs.LOG_WARNING, f'Unable to estimate job power. {str(e)}')
+            if event is not None:
+                pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Unable to estimate job power. {str(e)}")
             do_use_model = False
 
     if not do_use_model:
@@ -229,107 +251,148 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
 
     return min(max(min_power_per_node, result), max_power_per_node)
 
+def pio_read_signal(name, domain, domain_idx):
+    pid = subprocess.run(['geopmread', name, str(domain), str(domain_idx)],
+                         check=True, text=True, capture_output=True)
+    return float(pid.stdout)
 
-def read_controls(controls):
+def pio_write_control(name, domain, domain_idx, setting):
+    subprocess.run(['geopmwrite', name, str(domain), str(domain_idx), str(setting)],
+                   check=True)
+
+def read_controls(event, controls):
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: In read_controls()...")
     try:
         for c in controls:
-            c["setting"] = pio.read_signal(c["name"], c["domain_type"],
+            pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Reading signal {c['name']}...")
+            c["setting"] = pio_read_signal(c["name"], c["domain_type"],
                                            c["domain_idx"])
     except RuntimeError as e:
-        reject_event(f"Unable to read signal {c['name']}: {e}")
+        pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: Unable to read signal {c['name']}: {e}")
+        reject_event(event, f"Unable to read signal {c['name']}: {e}")
 
 
-def write_controls(controls):
+def write_controls(event, controls):
     try:
         for c in controls:
-            pio.write_control(c["name"], c["domain_type"], c["domain_idx"],
+            pio_write_control(c["name"], c["domain_type"], c["domain_idx"],
                               c["setting"])
     except RuntimeError as e:
-        reject_event(f"Unable to write control {c['name']}: {e}")
+        reject_event(event, f"Unable to write control {c['name']}: {e}")
 
 
-def resource_to_float(resource_name, resource_str):
+def resource_to_float(event, resource_name, resource_str):
     try:
         value = float(resource_str)
         return value
     except ValueError:
-        reject_event(f"Invalid value provided for: {resource_name}")
+        reject_event(event, f"Invalid value provided for: {resource_name}")
 
 
-def save_controls_to_file(file_name, controls):
+def save_controls_to_file(event, file_name, controls):
     try:
         with open(file_name, "w") as f:
             f.write(json.dumps(controls))
     except (OSError, ValueError) as e:
-        reject_event(f"Unable to write to saved controls file: {e}")
+        reject_event(event, f"Unable to write to saved controls file: {e}")
 
 
-def reject_event(msg):
-    e = pbs.event()
-    if e.type in [pbs.EXECJOB_PROLOGUE, pbs.EXECJOB_EPILOGUE]:
-        e.job.delete()
-    e.reject(f"{e.hook_name}: {msg}")
+def reject_event(event, msg):
+    if event.type in [pbs.EXECJOB_PROLOGUE, pbs.EXECJOB_EPILOGUE]:
+        event.job.delete()
+    event.reject(f"{event.hook_name}: {msg}")
 
 
-def restore_controls_from_file(file_name):
+def restore_controls_from_file(event, file_name):
     controls_json = None
     try:
         with open(file_name) as f:
             controls_json = f.read()
     except (OSError, ValueError) as e:
-        reject_event(f"Unable to read saved controls file: {e}")
+        reject_event(event, f"Unable to read saved controls file: {e}")
 
     try:
         controls = json.loads(controls_json)
         if not controls:
-            reject_event("Encountered empty saved controls file")
-        write_controls(controls)
+            reject_event(event, "Encountered empty saved controls file")
+        write_controls(event, controls)
     except (json.decoder.JSONDecodeError, KeyError, TypeError) as e:
-        reject_event(f"Malformed saved controls file: {e}")
+        reject_event(event, f"Malformed saved controls file: {e}")
     os.unlink(file_name)
 
 
-def do_power_limit_prologue():
-    e = pbs.event()
-    job_id = e.job.id
-    server_job = pbs.server().job(job_id)
-
-    node_power_limit_requested = False
+def parse_resource_file(event, path):
+    result = {}
+    if not path:
+        return result
     try:
-        node_power_limit_str = server_job.Resource_List[_POWER_LIMIT_RESOURCE]
-        node_power_limit_requested = bool(node_power_limit_str)
-    except KeyError:
-        pass
+        with open(path) as f:
+            data = f.read()
+        for pair in data.split(';'):
+            pair = pair.strip()
+            if not pair:
+                continue
+            if '=' in pair:
+                k, v = pair.split('=', 1)
+                result[k.strip()] = v.strip()
+    except FileNotFoundError as e:
+        reject_event(event, f"logue resources file not found: {e}")
+    return result
 
-    job_power_limit_requested = False
-    try:
-        job_power_limit_str = server_job.Resource_List[_JOB_POWER_LIMIT_RESOURCE]
-        job_power_limit_requested = bool(job_power_limit_str)
-    except KeyError:
-        pass
+
+def load_resources(event, job_id):
+    prefix = str(job_id)
+    pattern = os.path.join(_RESOURCE_FILE_SEARCH_PATH, f"{prefix}*.resources")
+    matches = glob.glob(pattern)
+    name =  matches[0] if matches else None
+
+    return parse_resource_file(event, name)
+
+
+def do_power_limit_prologue(event):
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Entering prologue")
+    job_id = event.job.id
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Job ID: {job_id}")
+
+    if os.path.exists(_SAVED_CONTROLS_FILE):
+        restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
+
+    resource_dict = load_resources(event, job_id)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Loaded resources: {resource_dict}")
+
+    node_power_limit_str = resource_dict.get(_POWER_LIMIT_RESOURCE)
+    if node_power_limit_str is not None:
+        node_power_limit = resource_to_float(event, _POWER_LIMIT_RESOURCE, node_power_limit_str)
+        node_power_limit_requested = (node_power_limit > 0)
+    else:
+        node_power_limit_requested = False
+
+    job_power_limit_str = resource_dict.get(_JOB_POWER_LIMIT_RESOURCE)
+    if job_power_limit_str is not None:
+        job_power_limit = resource_to_float(event, _JOB_POWER_LIMIT_RESOURCE, job_power_limit_str)
+        job_power_limit_requested = (job_power_limit > 0)
+    else:
+        job_power_limit_requested = False
 
     if not node_power_limit_requested and not job_power_limit_requested:
-        if os.path.exists(_SAVED_CONTROLS_FILE):
-            restore_controls_from_file(_SAVED_CONTROLS_FILE)
-        e.accept()
+        event.accept()
         return
 
     if node_power_limit_requested:
         # The user requested a specific node power limit. Do not modify it.
-        power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, node_power_limit_str)
+        power_limit = node_power_limit
     elif job_power_limit_requested:
         # A job power limit has been requested without a specific node power limit.
         # Let's use the node power models to distribute the job power limit.
-        job_power_limit = resource_to_float(_JOB_POWER_LIMIT_RESOURCE, job_power_limit_str)
         hook_config = None
         if pbs.hook_config_filename is not None:
             with open(pbs.hook_config_filename) as f:
                 hook_config = json.load(f)
-        vnode_names = [v.name for v in e.vnode_list.values()]
+        vnode_names = [v.name for v in event.vnode_list.values()]
         use_uniform_limit = True
         if hook_config is not None and 'node_profile_name' in hook_config:
             job_type = hook_config['node_profile_name']
-            host_models = get_model_from_config(hook_config, job_type, per_host=True)
+            host_models = get_model_from_config(hook_config, job_type, per_host=True, event=event)
             if host_models is not None:
                 max_node_power = host_models['max_power']
                 try:
@@ -337,8 +400,8 @@ def do_power_limit_prologue():
                     A = [host_models[host]['A'] for host in vnode_names]
                     B = [host_models[host]['B'] for host in vnode_names]
                     C = [host_models[host]['C'] for host in vnode_names]
-                except ValueError:
-                    pbs.logmsg(pbs.LOG_WARNING, 'GEOPM PBS config has an incomplete set of host models. Using uniform power limits.')
+                except (ValueError, KeyError):
+                    pbs.logmsg(pbs.LOG_WARNING, f"{event.hook_name}: GEOPM PBS config has an incomplete set of host models. Using uniform power limits.")
                 else:
                     use_uniform_limit = False
                     slowdown, power_by_node = allocate_budget_to_nodes(
@@ -352,126 +415,48 @@ def do_power_limit_prologue():
             job_node_count = len(vnode_names)
             power_limit = job_power_limit / job_node_count
 
-    pbs.logmsg(pbs.LOG_DEBUG, f"{e.hook_name}: Requested power limit: {power_limit}")
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Requested power limit: {power_limit}")
     current_settings = copy.deepcopy(_controls)
-    read_controls(current_settings)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to read current power limit settings")
+    read_controls(event, current_settings)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to make save directory: {_SAVED_CONTROLS_PATH}")
     system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
-    save_controls_to_file(_SAVED_CONTROLS_FILE, current_settings)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to save current power limit settings to: {_SAVED_CONTROLS_FILE}")
+    save_controls_to_file(event, _SAVED_CONTROLS_FILE, current_settings)
     _power_limit_control["setting"] = power_limit
-    write_controls(_controls)
-    e.accept()
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to write new power limit settings")
+    write_controls(event, _controls)
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: About to accept job")
+    event.accept()
 
 
-def do_power_limit_epilogue():
-    e = pbs.event()
+def do_power_limit_epilogue(event):
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Entering epilogue")
     if os.path.exists(_SAVED_CONTROLS_FILE):
-        restore_controls_from_file(_SAVED_CONTROLS_FILE)
-    e.accept()
-
-
-def do_power_limit_queuejob():
-    """GEOPM handler for queuejob PBS events. This handler sets a preliminary
-    job power resource request on a queued job so that the scheduler knows
-    the minimum amount of power needed by the job.
-    """
-    server = pbs.server()
-
-    requested_resources = pbs.event().job.Resource_List
-    submitted_node_limit = requested_resources[_POWER_LIMIT_RESOURCE]
-    submitted_job_limit = requested_resources[_JOB_POWER_LIMIT_RESOURCE]
-    max_power_in_pbs_server = server.resources_available[_JOB_POWER_LIMIT_RESOURCE]
-    if max_power_in_pbs_server is None:
-        # No high-level power limit is set. Nothing to do here.
-        pbs.event().accept()
-        return
-
-    min_power_per_node = server.resources_available[_MIN_POWER_LIMIT_RESOURCE]
-    if min_power_per_node is None:
-        pbs.event().reject(f'{_MIN_POWER_LIMIT_RESOURCE} must be configured.')
-
-    max_power_per_node = server.resources_available[_MAX_POWER_LIMIT_RESOURCE]
-    if max_power_per_node is None:
-        pbs.event().reject(f'{_MAX_POWER_LIMIT_RESOURCE} must be configured.')
-
-    min_power_per_node = float(min_power_per_node)
-    max_power_per_node = float(max_power_per_node)
-    max_power_in_pbs_server = float(max_power_in_pbs_server)
-
-    if (max_power_in_pbs_server is None
-            and submitted_node_limit is None
-            and submitted_job_limit is None):
-        # No limit has been specified by the admin or by the user, so we have
-        # nothing to do here.
-        return
-
-    # No nodes have been assigned to this job yet since it is still queued. We
-    # need to base our power request on how many PBS chunks were requested.
-    # Note: the user is allowed to change the request until just before the
-    # runjob event.
-    # TODO: Also need to do the same thing on modifyjob events?
-    node_count = 0
-    select = repr(requested_resources['select'])
-    for chunk in select.split('+'):
-        nchunks = 1
-        for c in chunk.split(':'):
-            kv = c.split('=')
-            if len(kv) == 1:
-                nchunks = int(kv[0])
-        node_count += nchunks
-
-    pbs.logmsg(pbs.LOG_DEBUG, f'submitted node limit: {submitted_node_limit}, '
-                              f'job limit: {submitted_job_limit}, nodes: {node_count}, '
-                              f'min power per node: {min_power_per_node}')
-
-    # This hook is meant to influence the scheduler's job-power-driven
-    # decisions, so we do not set node limit here (we do that in runjob).
-    job_power_limit = max(
-        min_power_per_node * node_count,
-        (submitted_job_limit or 0),
-        (submitted_node_limit or 0) * node_count)
-    if submitted_job_limit is None and submitted_node_limit is None:
-        # If the user is willing to accept some slowdown and didn't request a
-        # specific power limit, then set a power cap that is modeled to cause
-        # the allowed slowdown.
-
-        job_type = requested_resources[_JOB_TYPE_RESOURCE]
-        slowdown = float(requested_resources[_DEFAULT_SLOWDOWN_RESOURCE]) if requested_resources[_DEFAULT_SLOWDOWN_RESOURCE] is not None else _DEFAULT_SLOWDOWN
-        if slowdown < 0:
-            pbs.event().reject(f'{_DEFAULT_SLOWDOWN_RESOURCE} must be at least 0. Requested value: {slowdown}')
-            return
-
-        job_min_limit = predict_power_cap_at_performance_factor(
-                job_type, slowdown, min_power_per_node, max_power_per_node) * node_count
-        pbs.logmsg(pbs.LOG_DEBUG, f'job_min_limit = {job_min_limit}')
-        job_power_limit = max(job_power_limit, job_min_limit)
-
-    job_power_limit = min(job_power_limit,
-                          max_power_per_node * node_count)
-    if max_power_in_pbs_server is not None:
-        # By default, cap the power low enough that it won't be
-        # stuck waiting for more resources than are in the server.
-        job_power_limit = min(job_power_limit, max_power_in_pbs_server)
-
-    requested_resources[_JOB_POWER_LIMIT_RESOURCE] = job_power_limit
+        restore_controls_from_file(event, _SAVED_CONTROLS_FILE)
+    event.accept()
 
 
 def hook_main():
     try:
-        event_type = pbs.event().type
+        print_env()
+        event = pbs.event()
+        event_type = event.type
         if event_type == pbs.EXECJOB_PROLOGUE:
-            do_power_limit_prologue()
+            do_power_limit_prologue(event)
         elif event_type == pbs.EXECJOB_EPILOGUE:
-            do_power_limit_epilogue()
-        elif event_type == pbs.QUEUEJOB:
-            do_power_limit_queuejob()
+            do_power_limit_epilogue(event)
         else:
-            reject_event("Power limit hook incorrectly configured!")
+            reject_event(event, "Power limit compute hook incorrectly configured!")
     except SystemExit:
         pass
     except:
         _, e, _ = sys.exc_info()
-        reject_event(f"Unexpected error: {str(e)}")
-
+        try:
+            event = event if 'event' in locals() else pbs.event()
+            reject_event(event, f"Unexpected error: {str(e)}")
+        except:
+            pass
 
 # Begin hook...
 hook_main()
