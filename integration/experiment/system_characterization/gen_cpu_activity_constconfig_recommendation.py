@@ -231,6 +231,9 @@ def main():
                                  'multiple frequency domains or settings are impacted (i.e. core frequency causes '
                                  'an uncore frequency change) and the achieved frequency does not reflect this '
                                  'behavior.')
+        parser.add_argument('--boardcap', required=True, dest='boardcap',
+                            action='store', default=False,
+                            help='Platform-level board power cap')
 
         args = parser.parse_args()
 
@@ -238,7 +241,7 @@ def main():
         if len(region_list) != 2:
             raise RuntimeError('Exactly two regions are required')
 
-        df = geopmpy.io.RawReportCollection('*cpufreqsweep*' + args.hostname + '*report', dir_name=args.input_path).get_df()
+        df = geopmpy.io.RawReportCollection('*boardcap_' + args.boardcap + '*cpufreqsweep*' + args.hostname + '*report', dir_name=args.input_path).get_df()
 
         if args.uncore_energy_margin < 0 or args.core_energy_margin < 0:
             raise RuntimeError('Core & Uncore energy margin must be non-negative')

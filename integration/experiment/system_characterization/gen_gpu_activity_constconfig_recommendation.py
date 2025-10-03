@@ -159,14 +159,17 @@ def main():
                                  'multiple frequency domains or settings are impacted (i.e. core frequency causes '
                                  'an uncore frequency change) and the achieved frequency does not reflect this '
                                  'behavior.')
+        parser.add_argument('--boardcap', required=True, dest='boardcap',
+                            action='store', default=False,
+                            help='Platform-level board power cap')
+
         args = parser.parse_args()
 
         input_path = Path(args.input_path)
         if not input_path.exists():
             raise RuntimeError(f"Input path '{input_path}' does not exist.")
 
-        with geopmpy.io.RawReportCollection('*gpufreqsweep*' + args.hostname + '*report', dir_name=str(input_path)) as report_collection:
-            df = report_collection.get_df()
+        df = geopmpy.io.RawReportCollection('*boardcap_' + args.boardcap + '*gpufreqsweep*' + args.hostname + '*report', dir_name=args.input_path).get_df()
 
         mach = machine.get_machine(str(input_path))
         output = get_config_from_frequency_sweep(df, mach, args.gpu_energy_margin,
