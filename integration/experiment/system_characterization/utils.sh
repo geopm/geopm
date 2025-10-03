@@ -17,9 +17,7 @@ CPU_PHYSICAL_CORE_CNT=$(geopmread -d | grep core | awk '{print $2}')
 CPU_PHYSICAL_CORE_CNT_AVAILABLE=$(( ${CPU_PHYSICAL_CORE_CNT} - ${CORE_SKIP_CNT} ))
 
 mkdir -p $EMPTY_SWEEP_OUTPUT_DIR
-cd $EMPTY_SWEEP_OUTPUT_DIR
-python3 -c "from integration.experiment import machine; machine.Machine().save()"
-cd -
+python3 -c "from integration.experiment import machine; import os; DIR=os.environ.get('EMPTY_SWEEP_OUTPUT_DIR'); machine.try_machine(DIR)"
 echo "Writing logs and reports to ${EMPTY_SWEEP_OUTPUT_DIR}"
 
 

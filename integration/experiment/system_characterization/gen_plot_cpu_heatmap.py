@@ -153,11 +153,11 @@ if __name__ == '__main__':
     parser.add_argument('--plot-3d', dest='plot_3d',
                         action='store_true', default=False,
                         help='plot as a 3D surface instead of a heatmap')
-    parser.add_argument('--hostname', dest='hostname',
-                        action='store', default=False,
+    parser.add_argument('--hostname', required=True, dest='hostname',
+                        action='store', default=None,
                         help='Hostname of the node to which the report belongs')
-    parser.add_argument('--boardcap', dest='boardcap',
-                        action='store', default=False,
+    parser.add_argument('--boardcap', required=True, dest='boardcap',
+                        action='store', default=None,
                         help='Platform-level board power cap')
 
     args = parser.parse_args()
