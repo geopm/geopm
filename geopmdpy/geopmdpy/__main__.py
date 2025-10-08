@@ -53,8 +53,11 @@ def main_dbus():
         try:
             if not os.path.exists('/dev/cpu/msr_batch'):
                 writer.backup_and_try_update('on\n')
+            try:
+                os.unlink('/run/geopm/geopm-topo-cache')
+            except (FileNotFoundError, PermissionError):
+                pass
             _service = service.GEOPMService()
-            _service.topo_rm_cache()
             _bus.publish_object("/io/github/geopm", _service)
             _bus.register_service("io.github.geopm")
             _loop.run()
