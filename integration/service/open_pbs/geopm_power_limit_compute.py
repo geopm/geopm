@@ -23,6 +23,7 @@ import copy
 import math
 
 import pbs
+import signal
 
 from geopmdpy import pio
 from geopmdpy import system_files
@@ -233,13 +234,21 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
 
 
 def read_controls(event, controls):
+    # Unblock SIGCHLD temporarily (hook env may have it blocked); restore after all reads.
+    old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, [])  # Query current mask (no change)
+    did_unblock = False
+    if signal.SIGCHLD in old_mask:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGCHLD])
+        did_unblock = True
     try:
         for c in controls:
             c["setting"] = pio.read_signal(c["name"], c["domain_type"],
                                            c["domain_idx"])
     except RuntimeError as e:
         reject_event(event, f"Unable to read signal {c['name']}: {e}")
-
+    finally:
+        if did_unblock:
+            signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
 
 def write_controls(event, controls):
     try:

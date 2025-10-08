@@ -54,6 +54,15 @@ static int geopm_topo_popen(const char *cmd, FILE **fid)
     int err = 0;
     *fid = NULL;
 
+    // Unblock SIGCHLD to ensure handler runs; prevents infinite loop if caller blocked it.
+    sigset_t old_sig_mask;
+    sigset_t sigchld_set;
+    sigemptyset(&sigchld_set);
+    sigaddset(&sigchld_set, SIGCHLD);
+    if (sigprocmask(SIG_UNBLOCK, &sigchld_set, &old_sig_mask) != 0) {
+        return errno ? errno : GEOPM_ERROR_RUNTIME;
+    }
+
     struct sigaction save_action;
     g_popen_complete_signal_action.sa_handler = geopm_topo_popen_complete;
     sigemptyset(&g_popen_complete_signal_action.sa_mask);
@@ -62,13 +71,20 @@ static int geopm_topo_popen(const char *cmd, FILE **fid)
     if (!err) {
         *fid = popen(cmd, "r");
         while (*fid && !g_is_popen_complete) {
-
+            // Waiting for SIGCHLD to set g_is_popen_complete
         }
         g_is_popen_complete = 0;
         sigaction(SIGCHLD, &save_action, NULL);
-        if (*fid == NULL) {
+        if (sigprocmask(SIG_SETMASK, &old_sig_mask, NULL) != 0) {
             err = errno ? errno : GEOPM_ERROR_RUNTIME;
         }
+        if (*fid == NULL && !err) {
+            err = errno ? errno : GEOPM_ERROR_RUNTIME;
+        }
+    }
+    else {
+        // Restore original mask if handler setup failed
+        sigprocmask(SIG_SETMASK, &old_sig_mask, NULL);
     }
     return err;
 }
