@@ -271,12 +271,12 @@ the PBS scheduler is running.
 The hooks to enforce node power caps are available in the GEOPM
 ``integration/service/open_pbs`` directory and are split into two files:
 
-1. ``geopm_power_limit_compute.py`` - Contains prologue and epilogue hooks that need to be installed on compute nodes
-2. ``geopm_power_limit_server.py`` - Contains the queuejob and modifyjob hooks that need to be installed on the PBS server
+1. ``geopm_power_limit_compute.py`` - Contains prologue and epilogue hooks; depends on geopmdpy
+2. ``geopm_power_limit_server.py`` - Contains the queuejob and modifyjob hooks; no geopmdpy dependency
 
 These can be installed with the following commands:
 
-For the queuejob and modifyjob hooks on the PBS server:
+For the queuejob and modifyjob hooks:
 
 ::
 
@@ -284,7 +284,7 @@ For the queuejob and modifyjob hooks on the PBS server:
    qmgr -c "import hook geopm_power_limit_server application/x-python default geopm_power_limit_server.py"
    qmgr -c "set hook geopm_power_limit_server event='queuejob,modifyjob'"
 
-For the prologue and epilogue hooks on compute nodes:
+For the prologue and epilogue hooks:
 
 ::
 
@@ -293,7 +293,7 @@ For the prologue and epilogue hooks on compute nodes:
    qmgr -c "set hook geopm_power_limit_compute event='execjob_prologue,execjob_epilogue'"
 
 Note how the hooks need to be configured to run in four events: job prologue,
-job epilogue, queuejob, and modifyjob, but on different parts of the system. The purpose of each hook is illustrated
+job epilogue, queuejob, and modifyjob. The purpose of each hook is illustrated
 in the job submission timeline below.
 
 .. code:: mermaid
@@ -313,5 +313,5 @@ in the job submission timeline below.
     classDef event fill:#dde9af
     classDef hook fill:#4472c4,color:#fff
 
-For convenience, two scripts are provided to perform these installation commands on their respective targets:
+For convenience, two scripts are provided to perform these installation commands:
 ``geopm_install_pbs_power_limit_server.sh`` and ``geopm_install_pbs_power_limit_compute.sh``
