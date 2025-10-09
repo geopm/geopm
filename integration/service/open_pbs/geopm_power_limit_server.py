@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 # This file contains the server hook for GEOPM power limiting functionality
-# in PBS environments. It should be installed on the PBS server.
+# in PBS environments. It should be installed on the PBS server host.
 # The prologue and epilogue hooks are in a separate file (geopm_power_limit_compute.py)
 # which should be installed on compute nodes.
 
