@@ -228,7 +228,8 @@ Requirements
 The GEOPM power limit hooks require:
 
 - OpenPBS
-- geopmdpy (and libgeopmd) on nodes where the power limit feature is needed (compute hook only)
+- geopmdpy (and libgeopmd) on nodes where the power limit feature is needed
+  (compute hook only)
 - This feature requires platform vendor HW support. In particular, it requires
   HW support for the ``MSR::PLATFORM_POWER_LIMIT`` MSRs (``PL1_POWER_LIMIT``,
   ``PL1_TIME_WINDOW``, ``PL1_CLAMP_ENABLE``, ``PL1_LIMIT_ENABLE``), and the
@@ -313,5 +314,6 @@ in the job submission timeline below.
     classDef event fill:#dde9af
     classDef hook fill:#4472c4,color:#fff
 
-For convenience, two scripts are provided to perform these installation commands:
-``geopm_install_pbs_power_limit_server.sh`` and ``geopm_install_pbs_power_limit_compute.sh``
+For convenience, two scripts are provided to perform these installation
+commands: ``geopm_install_pbs_power_limit_server.sh`` and
+``geopm_install_pbs_power_limit_compute.sh``
