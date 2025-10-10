@@ -5,7 +5,7 @@
 
 module load geopm-runtime
 export GEOPM_SOURCE="${GEOPM_SOURCE?-Set GEOPM_SOURCE to full path of file with initialization parameters}"
-export PYTHONPATH=${GEOPM_SOURCE}/:${GEOPM_SOURCE}/geopmpy/:${GEOPM_SOURCE}/geopmdpy/:${HOME}/.local/lib/python3.6/site-packages/:$PYTHONPATH
+export PYTHONPATH=${GEOPM_SOURCE}/:$PYTHONPATH
 
 source ${GEOPM_SOURCE}/integration/experiment/system_characterization/set_vars.sh
 source ${GEOPM_SOURCE}/integration/experiment/system_characterization/utils.sh
