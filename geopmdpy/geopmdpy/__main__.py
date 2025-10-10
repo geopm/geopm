@@ -16,6 +16,7 @@ from geopmdpy.restorable_file_writer import RestorableFileWriter
 
 ALLOW_WRITES_PATH = '/sys/module/msr/parameters/allow_writes'
 ALLOW_WRITES_BACKUP_PATH = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'msr-saved-allow-writes')
+TOPO_CACHE_PATH = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH, 'geopm-topo-cache')
 
 _bus = None
 _loop = None
@@ -54,7 +55,7 @@ def main_dbus():
             if not os.path.exists('/dev/cpu/msr_batch'):
                 writer.backup_and_try_update('on\n')
             try:
-                os.unlink('/run/geopm/geopm-topo-cache')
+                os.unlink(TOPO_CACHE_PATH)
             except (FileNotFoundError, PermissionError):
                 pass
             _service = service.GEOPMService()
