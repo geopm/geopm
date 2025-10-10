@@ -13,7 +13,9 @@ import copy
 import tempfile
 import shutil
 
-mock.patch.dict("sys.modules", pbs=mock.MagicMock()).start()
+pbs_mock=mock.MagicMock()
+pbs_mock.hook_config_filename = None
+mock.patch.dict("sys.modules", pbs=pbs_mock).start()
 mock.patch("cffi.FFI.dlopen").start()
 import geopm_power_limit_compute as compute_hook
 import geopm_power_limit_server as server_hook

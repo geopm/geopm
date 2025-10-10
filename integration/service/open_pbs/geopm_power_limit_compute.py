@@ -8,22 +8,23 @@
 
 import sys
 import glob
-
-PYTHON_PATHS = [
-        "/usr/lib/python3.6/site-packages",
-        "/usr/lib64/python3.6/site-packages"]
-
-for p in PYTHON_PATHS:
-    if p not in sys.path:
-        sys.path.insert(0, p)
-
 import os
 import json
 import copy
 import math
-
-import pbs
 import signal
+import pbs
+
+path_config = {"aux_lib_paths": ["/usr/lib/python3.6/site-packages",
+                                 "/usr/lib64/python3.6/site-packages"]}
+
+if pbs.hook_config_filename is not None:
+    with open(pbs.hook_config_filename) as f:
+        path_config.update(json.loads(f.read()))
+
+for p in path_config['aux_lib_paths']:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from geopmdpy import pio
 from geopmdpy import system_files
