@@ -35,7 +35,7 @@ def extract_columns(df):
     df_filtered = df.copy()
 
     # Use requested frequency from the agent
-    df_filtered['requested gpu-frequency (Hz)'] = df['FREQ_GPU_DEFAULT']
+    df_filtered['requested gpu-frequency (Hz)'] = df['GPU_CORE_FREQUENCY_MIN_CONTROL']
 
     # these are the only columns we need
     try:

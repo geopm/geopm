@@ -1,22 +1,24 @@
 #!/bin/bash
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
-#
+
+# This script is sourced from set_vars.sh
 
 set -e
 set -x
 
-if [[ -z "$SWEEP_TYPE" ]]; then
+if [[ -z "${SWEEP_TYPE}" ]]; then
   echo "Please set all variables under set_vars.sh"
   exit 1
 fi
 
+export EMPTY_SWEEP_OUTPUT_DIR
 INIT_CONTROLS_LIST="${EMPTY_SWEEP_OUTPUT_DIR}/init_controls-${HOSTNAME}.lst"
 CORE_SKIP_CNT=`echo -e ${CORE_SKIP_LIST//,/\\n} | wc -l`
 CPU_PHYSICAL_CORE_CNT=$(geopmread -d | grep core | awk '{print $2}')
 CPU_PHYSICAL_CORE_CNT_AVAILABLE=$(( ${CPU_PHYSICAL_CORE_CNT} - ${CORE_SKIP_CNT} ))
 
-mkdir -p $EMPTY_SWEEP_OUTPUT_DIR
+mkdir -p ${EMPTY_SWEEP_OUTPUT_DIR}
 python3 -c "from integration.experiment import machine; import os; DIR=os.environ.get('EMPTY_SWEEP_OUTPUT_DIR'); machine.try_machine(DIR)"
 echo "Writing logs and reports to ${EMPTY_SWEEP_OUTPUT_DIR}"
 
@@ -54,7 +56,7 @@ launch_sweep () {
           geopmlaunch pals \
             -n ${RANK_COUNT} -ppn ${RANK_COUNT} \
             --cpu-bind list:${RANK_BIND_LIST} \
-            --geopm-init-control=$INIT_CONTROLS_LIST \
+            --geopm-init-control=${INIT_CONTROLS_LIST} \
             --geopm-ctl=application \
             --geopm-preload \
             --geopm-profile="${PROGRAM_NAME}" \
@@ -81,10 +83,10 @@ launch_cpu_sweep () {
         
                 set_rank_bind_list
 
-                for ((p="$CORE_MIN_FREQ"; p<="$CORE_MAX_FREQ"; p=p+"$CORE_FREQ_STEP")); do
-                    for ((u="$UNCORE_MIN_FREQ"; u<="$UNCORE_MAX_FREQ"; u=u+"$UNCORE_FREQ_STEP")); do
+                for ((p="${CORE_MIN_FREQ}"; p<="${CORE_MAX_FREQ}"; p=p+"${CORE_FREQ_STEP}")); do
+                    for ((u="${UNCORE_MIN_FREQ}"; u<="${UNCORE_MAX_FREQ}"; u=u+"${UNCORE_FREQ_STEP}")); do
                 
-                      printf "${EXTRA_CONTROLS}" > $INIT_CONTROLS_LIST
+                      printf "${EXTRA_CONTROLS}" > ${INIT_CONTROLS_LIST}
                       printf "%s\n" \
                              "MSR::PQR_ASSOC:RMID board 0 0" \
                              "MSR::QM_EVTSEL:RMID board 0 0" \
@@ -93,7 +95,7 @@ launch_cpu_sweep () {
                              "CPU_FREQUENCY_MAX_CONTROL board 0 ${p}" \
                              "CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 ${u}" \
                              "CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 ${u}" \
-                             >> $INIT_CONTROLS_LIST
+                             >> ${INIT_CONTROLS_LIST}
         
                       for ((t=0; t<"$TRIAL_COUNT"; t++)); do
                 
