@@ -1,14 +1,10 @@
 #!/bin/bash
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
-#
 
-module load geopm-runtime
-export GEOPM_SOURCE="${GEOPM_SOURCE?-Set GEOPM_SOURCE to full path of file with initialization parameters}"
-export PYTHONPATH=${GEOPM_SOURCE}/:$PYTHONPATH
 
-source ${GEOPM_SOURCE}/integration/experiment/system_characterization/set_vars.sh
-source ${GEOPM_SOURCE}/integration/experiment/system_characterization/sys_charac_utils.sh
+export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source ${SCRIPT_DIR}/set_vars.sh
 
 # Run frequency sweeps under multiple platform-level power caps
 START_TIME=${SECONDS}
