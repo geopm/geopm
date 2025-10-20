@@ -13,7 +13,18 @@ Subdirectories include:
 
 ## Set Up a Development Environment
 
-Run `pip install .` to install this package. Optionally use the `-e`
+Ensure pip is up-to-date before proceeding:
+```bash
+python3 -m pip install --upgrade pip
+```
+
+Install the optional dependencies to enable the `geopmopt` command and
+`geopmdpy.optimizer` module:
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Run `python3 -m pip install .` to install this package. Optionally use the `-e`
 installation option to install in editable mode (so you don't need to reinstall
 between updating python source code and re-running tests). The install command
 will also install the python execution-time dependencies of this package.
