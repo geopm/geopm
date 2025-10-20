@@ -151,12 +151,14 @@ cd ${GEOPM_SOURCE}
 
 # Build/Install geopmdpy
 if [ -z ${GEOPM_SKIP_SERVICE_INSTALL} ]; then
+    SETUPTOOLS_SCM_PRETEND_VERSION=$(git describe) \
     CC=gcc LIBRARY_PATH=${GEOPM_INSTALL}/lib C_INCLUDE_PATH=${GEOPM_INSTALL}/include \
         python3 -m pip install ./geopmdpy
 fi
 
 # Build/Install geopmpy
 if [ -z ${GEOPM_SKIP_RUNTIME_INSTALL} ]; then
+    SETUPTOOLS_SCM_PRETEND_VERSION=$(git describe) \
     CC=gcc LIBRARY_PATH=${GEOPM_INSTALL}/lib C_INCLUDE_PATH=${GEOPM_INSTALL}/include \
         python3 -m pip install ./geopmpy
 fi
