@@ -32,6 +32,7 @@ with ``--prefix=$HOME/build/geopm`` and your python extensions are compiled
 with gcc, then run:
 
 ```bash
+SETUPTOOLS_SCM_PRETEND_VERSION=$(git describe) \
 CC=gcc \
 LIBRARY_PATH=$HOME/build/geopm/lib \
 C_INCLUDE_PATH=$HOME/build/geopm/include \

@@ -25,7 +25,14 @@ where to search for GEOPM. For example, if you built and installed ``libgeopm``
 with ``--prefix=$HOME/build/geopm`` and your python extensions are compiled
 with gcc, then run:
 
-    CC=gcc LIBRARY_PATH=$HOME/build/geopm/lib C_INCLUDE_PATH=$HOME/build/geopm/include pip install ./
+```bash
+SETUPTOOLS_SCM_PRETEND_VERSION=$(git describe) \
+CC=gcc \
+LIBRARY_PATH=$HOME/build/geopm/lib \
+C_INCLUDE_PATH=$HOME/build/geopm/include \
+python3 -m pip install ./
+
+```
 
 to build and install this package.
 
