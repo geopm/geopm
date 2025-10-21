@@ -169,7 +169,7 @@ def main():
         if not input_path.exists():
             raise RuntimeError(f"Input path '{input_path}' does not exist.")
 
-        df = geopmpy.io.RawReportCollection('*boardcap_' + args.boardcap + '*gpufreqsweep*' + args.hostname + '*report', dir_name=args.input_path).get_df()
+        df = geopmpy.io.RawReportCollection('*boardcap_' + args.boardcap + '*gpufreqsweep*' + args.hostname + '*report', dir_name=args.input_path).get_app_df()
 
         mach = machine.get_machine(str(input_path))
         output = get_config_from_frequency_sweep(df, mach, args.gpu_energy_margin,
