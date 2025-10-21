@@ -6,8 +6,7 @@
 export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source ${SCRIPT_DIR}/set_vars.sh
 
-
-## Run frequency sweeps under multiple platform-level power caps
+# Run frequency sweeps under multiple platform-level power caps
 START_TIME=${SECONDS}
 
 if [ "${SWEEP_TYPE}" == "CPU" ]; then
