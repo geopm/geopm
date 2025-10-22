@@ -26,9 +26,11 @@ produce recommended settings for CPU and GPU activity agents.
 
 - **run_aib.sh**: Run the AIB benchmark and generate a GEOPM report.
 
-- **run_stream.sh**: Run the Stream benchmark and generate a GEOPM report.
+- **run_stream.sh**: Run the Stream benchmark with the GEOPM runtime and generate
+  a GEOPM report.
 
-- **run_stream_wort.sh**: Run the geopmbench benchmark and display the elapsed time.
+- **run_stream_wort.sh**: Run the Stream benchmark without the GEOPM runtime
+  and display the elapsed time.
 
 - **set_vars.sh**: Sample file listing all the input variables that are used by
   the node characterization scripts.

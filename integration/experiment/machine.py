@@ -36,7 +36,6 @@ class Machine:
 
     def save(self):
         glob_pattern = os.path.join(os.path.dirname(self.path), '*.report')
-
         if os.path.exists(self.path) and glob.glob(glob_pattern):
             raise RuntimeError('<geopm> Machine.save(): function called twice with same path, and reports exist in the same directory.  File exists: {}'.format(self.path))
         self._query()
