@@ -9,6 +9,7 @@ source ${SCRIPT_DIR}/set_vars.sh
 # Run frequency sweeps under multiple platform-level power caps
 START_TIME=${SECONDS}
 
+EXTRA_SIGNALS="BOARD_ENERGY@board,BOARD_POWER_LIMIT_CONTROL@board,BOARD_POWER@board"
 if [ "${SWEEP_TYPE}" == "CPU" ]; then
         launch_cpu_sweep 
 elif [ "${SWEEP_TYPE}" == "GPU" ]; then
