@@ -2,28 +2,29 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
+# This script is the launcher for platform power & frequency sweeps
+# for system characterization
 
-export SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export GEOPM_SOURCE="${GEOPM_SOURCE?- Set path to GEOPM source code}"
+export SCRIPT_DIR="${GEOPM_SOURCE}/integration/experiment/system_characterization"
 source ${SCRIPT_DIR}/set_vars.sh
+source ${SCRIPT_DIR}/utils.sh
+
 
 # Run frequency sweeps under multiple platform-level power caps
 START_TIME=${SECONDS}
 
-EXTRA_SIGNALS="BOARD_ENERGY@board,BOARD_POWER_LIMIT_CONTROL@board,BOARD_POWER@board"
 for ((l="$BOARD_MIN_POWER"; l<="$BOARD_MAX_POWER"; l=l+"$BOARD_POWER_STEP")); do
 
-        EXTRA_CONTROLS="MSR::PLATFORM_POWER_LIMIT:PL1_CLAMP_ENABLE board 0 1\nMSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE board 0 1\nMSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT board 0 ${l}\n" 
         echo "sweep type is $SWEEP_TYPE "
 
         if [ "${SWEEP_TYPE}" == "CPU" ]; then
                 launch_cpu_sweep 
-
         elif [ "${SWEEP_TYPE}" == "GPU" ]; then
                 launch_gpu_sweep
-
         else
                 echo "*** Incorrect SWEEP TYPE ***"
-
+                exit 0
         fi
 done
 

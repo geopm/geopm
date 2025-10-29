@@ -12,15 +12,27 @@ if [[ -z "${SWEEP_TYPE}" ]]; then
   exit 1
 fi
 
-export EMPTY_SWEEP_OUTPUT_DIR
 INIT_CONTROLS_LIST="${EMPTY_SWEEP_OUTPUT_DIR}/init_controls-${HOSTNAME}.lst"
 CORE_SKIP_CNT=`echo -e ${CORE_SKIP_LIST//,/\\n} | wc -l`
 CPU_PHYSICAL_CORE_CNT=$(geopmread -d | grep core | awk '{print $2}')
 CPU_PHYSICAL_CORE_CNT_AVAILABLE=$(( ${CPU_PHYSICAL_CORE_CNT} - ${CORE_SKIP_CNT} ))
+EXTRA_SIGNALS="BOARD_ENERGY@board,BOARD_POWER_LIMIT_CONTROL@board,BOARD_POWER@board"
 
 mkdir -p ${EMPTY_SWEEP_OUTPUT_DIR}
 python3 -c "from integration.experiment import machine; import os; DIR=os.environ.get('EMPTY_SWEEP_OUTPUT_DIR'); machine.try_machine(DIR)"
 echo "Writing logs and reports to ${EMPTY_SWEEP_OUTPUT_DIR}"
+
+
+set_platform_pow_caps() {
+
+         if (( PLATFORM_POWER_ENABLE == 1 )); then
+            PROLOGUE_CONTROLS="MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE board 0 0\n"
+            EPILOGUE_CONTROLS="MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT board 0 ${l}\nMSR::PLATFORM_POWER_LIMIT:PL1_CLAMP_ENABLE board 0 1\nMSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE board 0 1\n"
+         else
+            PROLOGUE_CONTROL=""
+            EPILOGUE_CONTROLS=""
+         fi
+}
 
 
 set_rank_bind_list () {
@@ -86,7 +98,9 @@ launch_cpu_sweep () {
                 for ((p="${CORE_MIN_FREQ}"; p<="${CORE_MAX_FREQ}"; p=p+"${CORE_FREQ_STEP}")); do
                     for ((u="${UNCORE_MIN_FREQ}"; u<="${UNCORE_MAX_FREQ}"; u=u+"${UNCORE_FREQ_STEP}")); do
                 
-                      printf "${EXTRA_CONTROLS}" > ${INIT_CONTROLS_LIST}
+                      set_platform_pow_caps
+                      rm -rf ${INIT_CONTROLS_LIST}
+                      printf "${PROLOGUE_CONTROLS}" > ${INIT_CONTROLS_LIST}
                       printf "%s\n" \
                              "MSR::PQR_ASSOC:RMID board 0 0" \
                              "MSR::QM_EVTSEL:RMID board 0 0" \
@@ -96,6 +110,7 @@ launch_cpu_sweep () {
                              "CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 ${u}" \
                              "CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 ${u}" \
                              >> ${INIT_CONTROLS_LIST}
+                      printf "${EPILOGUE_CONTROLS}" >> ${INIT_CONTROLS_LIST}
         
                       for ((t=0; t<"$TRIAL_COUNT"; t++)); do
                 
@@ -124,11 +139,14 @@ launch_gpu_sweep () {
 
                 for ((p="$GPU_CORE_MIN_FREQ"; p<="$GPU_CORE_MAX_FREQ"; p=p+"$GPU_CORE_FREQ_STEP")); do
         
-                      printf "${EXTRA_CONTROLS}" > $INIT_CONTROLS_LIST
+                      set_platform_pow_caps
+                      rm -rf ${INIT_CONTROLS_LIST}
+                      printf "${PROLOGUE_CONTROLS}" > ${INIT_CONTROLS_LIST}
                       printf "%s\n" \
                              "GPU_CORE_FREQUENCY_MIN_CONTROL board 0 ${p}" \
                              "GPU_CORE_FREQUENCY_MAX_CONTROL board 0 ${p}" \
                              >> $INIT_CONTROLS_LIST
+                      printf "${EPILOGUE_CONTROLS}" >> ${INIT_CONTROLS_LIST}
                 
                       for ((t=0; t<"$TRIAL_COUNT"; t++)); do
                           echo "=== GPU POWER-FREQ SWEEP: Trial $t, GPU CORE $p, BOARD POWER $l==="

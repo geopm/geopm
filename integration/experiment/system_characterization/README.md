@@ -18,8 +18,11 @@ produce recommended settings for CPU and GPU activity agents.
   GPU frequency sweep results and generate ConstConfigIO recommendations for the
   GPU Activity Agent.
 
-- **gen_plot_heatmap.py**: Script to generate a core-uncore heat map under a given
-  power cap
+- **gen_plot_cpu_heatmap.py**: Script to generate a core-uncore heat map under a given
+  platform power cap
+
+- **gen_plot_gpu_heatmap.py**: Script to generate a heat map of gpu-frequency v/s 
+  platform power cap
 
 - **host_config.py**: Utility to combine host-specific configuration files into
   a single configuration.
