@@ -16,7 +16,7 @@ Synopsis
                    --metric-regex METRIC_REGEX [--minimize] [--random-seed RANDOM_SEED]
                    [--application-timeout APPLICATION_TIMEOUT]
                    [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
-                   [--print-stdout] [--defer-write] [--efficiency EFFICENCY_DOMAIN]
+                   [--print-stdout] [--defer-write] [--efficiency EFFICIENCY_DOMAIN]
                    [-- LAUNCH ...]
 
 Optimize CPU frequency for performance
@@ -165,7 +165,7 @@ Optimization Configuration
 
     Optimize for efficiency by dividing the extracted metric by average power
     consumption. This finds configurations that maximize performance per watt.
-    When the ``--minimize option`` is provided, the average power consumption is
+    When the ``--minimize`` option is provided, the average power consumption is
     multiplied rather than divided.  This will minimize energy to completion if
     the metric is time to completion.  The EFFICIENCY_DOMAIN determines the
     components included in the power calculation and valid values are 'board',
@@ -475,7 +475,7 @@ be saved and reused.
 performance analysis during optimization.
 
 **GEOPM Runtime:** When using the ``--defer-write`` option ``geopmopt`` can be
-combined with ``geopmlauch --geopm-init-control`` to obtain per region metrics
+combined with ``geopmlaunch --geopm-init-control`` to obtain per region metrics
 or distribute write commands across a multi-node allocation.
 
 
