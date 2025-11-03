@@ -38,10 +38,7 @@ produce recommended settings for CPU and GPU activity agents.
 - **set_vars.sh**: Sample file listing all the input variables that are used by
   the node characterization scripts.
 
-- **sys_charac_freq_sweeps.sh**: Wrapper script to facilitate CPU & GPU frequency
-  sweeps independent of platform-level power caps.
-
-- **sys_charac_platfom_sweeps.sh**: Wrapper script to facilitate CPU & GPU frequency
+- **platform_sweeps.sh**: Wrapper script to facilitate CPU & GPU frequency
   sweeps under multiple platform-level power caps.
 
 - **test_host_config.py**: Unit tests for the `host_config.py` utility.
