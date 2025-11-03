@@ -2,13 +2,13 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
-# This script is sourced from set_vars.sh
+# This script is sourced from platform_sweeps.sh
 
 set -e
 set -x
 
 if [[ -z "${SWEEP_TYPE}" ]]; then
-  echo "Please set all variables under set_vars.sh"
+  echo "Please source set_vars.sh to initialize user parameters"
   exit 1
 fi
 
@@ -25,13 +25,8 @@ echo "Writing logs and reports to ${EMPTY_SWEEP_OUTPUT_DIR}"
 
 set_platform_pow_caps() {
 
-         if (( PLATFORM_POWER_ENABLE == 1 )); then
             PROLOGUE_CONTROLS="MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE board 0 0\n"
-            EPILOGUE_CONTROLS="MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT board 0 ${l}\nMSR::PLATFORM_POWER_LIMIT:PL1_CLAMP_ENABLE board 0 1\nMSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE board 0 1\n"
-         else
-            PROLOGUE_CONTROL=""
-            EPILOGUE_CONTROLS=""
-         fi
+            EPILOGUE_CONTROLS="MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT board 0 ${REQ_PLATFORM_CAP}\nMSR::PLATFORM_POWER_LIMIT:PL1_CLAMP_ENABLE board 0 1\nMSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE board 0 1\n"
 }
 
 
@@ -112,11 +107,11 @@ launch_cpu_sweep () {
                              >> ${INIT_CONTROLS_LIST}
                       printf "${EPILOGUE_CONTROLS}" >> ${INIT_CONTROLS_LIST}
         
-                      for ((t=0; t<"$TRIAL_COUNT"; t++)); do
+                      for ((t=0; t<"${TRIAL_COUNT}"; t++)); do
                 
-                          echo "=== CPU POWER-FREQ SWEEP: Trial $t, CPU CORE $p, CPU UNCORE $u, BOARD POWER $l==="
-                          REPORT_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${l}_core_${p}_uncore_${u}_trial_${t}_cpufreqsweep-${HOSTNAME}.report"
-                          LOG_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${l}_core_${p}_uncore_${u}_trial_${t}_cpufreqsweep-${HOSTNAME}.log"
+                          echo "=== CPU POWER-FREQ SWEEP: Trial ${t}, CPU CORE ${p}, CPU UNCORE ${u}, BOARD POWER ${REQ_PLATFORM_CAP}==="
+                          REPORT_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${REQ_PLATFORM_CAP}_core_${p}_uncore_${u}_trial_${t}_cpufreqsweep-${HOSTNAME}.report"
+                          LOG_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${REQ_PLATFORM_CAP}_core_${p}_uncore_${u}_trial_${t}_cpufreqsweep-${HOSTNAME}.log"
 
                           launch_sweep
                 
@@ -137,21 +132,22 @@ launch_gpu_sweep () {
                 
                 set_rank_bind_list
 
-                for ((p="$GPU_CORE_MIN_FREQ"; p<="$GPU_CORE_MAX_FREQ"; p=p+"$GPU_CORE_FREQ_STEP")); do
+                for ((p="${GPU_CORE_MIN_FREQ}"; p<="${GPU_CORE_MAX_FREQ}"; p=p+"${GPU_CORE_FREQ_STEP}")); do
         
                       set_platform_pow_caps
+
                       rm -rf ${INIT_CONTROLS_LIST}
                       printf "${PROLOGUE_CONTROLS}" > ${INIT_CONTROLS_LIST}
                       printf "%s\n" \
                              "GPU_CORE_FREQUENCY_MIN_CONTROL board 0 ${p}" \
                              "GPU_CORE_FREQUENCY_MAX_CONTROL board 0 ${p}" \
-                             >> $INIT_CONTROLS_LIST
+                             >> ${INIT_CONTROLS_LIST}
                       printf "${EPILOGUE_CONTROLS}" >> ${INIT_CONTROLS_LIST}
                 
-                      for ((t=0; t<"$TRIAL_COUNT"; t++)); do
-                          echo "=== GPU POWER-FREQ SWEEP: Trial $t, GPU CORE $p, BOARD POWER $l==="
-                          REPORT_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${l}_gpucore_${p}_trial_${t}_gpufreqsweep-${HOSTNAME}.report"
-                          LOG_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${l}_gpucore_${p}_trial_${t}_gpufreqsweep-${HOSTNAME}.log"
+                      for ((t=0; t<"${TRIAL_COUNT}"; t++)); do
+                          echo "=== GPU POWER-FREQ SWEEP: Trial ${t}, GPU CORE ${p}, BOARD POWER ${REQ_PLATFORM_CAP}==="
+                          REPORT_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${REQ_PLATFORM_CAP}_gpucore_${p}_trial_${t}_gpufreqsweep-${HOSTNAME}.report"
+                          LOG_FILE_PATH="${EMPTY_SWEEP_OUTPUT_DIR}/${PROGRAM_NAME}_boardcap_${REQ_PLATFORM_CAP}_gpucore_${p}_trial_${t}_gpufreqsweep-${HOSTNAME}.log"
 
                           launch_sweep
 
