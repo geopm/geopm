@@ -28,7 +28,7 @@ def print_info_all():
 def print_controls():
     print('\n'.join(pio.control_names()))
 
-def batch(input_stream):
+def parse_batch(input_stream):
     requests = [line.split() for line in input_stream.readlines()]
     ctl_idx = []
     settings = []
@@ -53,7 +53,11 @@ def batch(input_stream):
         except ValueError:
             raise ValueError(f'Could not convert setting to floating point number: "{rr[3]}"')
         ctl_idx.append(pio.push_control(name, domain, domain_idx))
-    for par in zip(ctl_idx, settings):
+    return zip(ctl_idx, settings)
+
+def batch(input_stream):
+    adjust_par = parse_batch(input_stream)
+    for par in adjust_par:
         pio.adjust(*par)
     pio.write_batch()
 
