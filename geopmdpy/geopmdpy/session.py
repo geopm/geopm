@@ -374,7 +374,7 @@ class Session:
 
     def run_read(self, requests, duration, period, pid, out_stream,
                  stats_collector=None, report_samples=None, report_stream=None,
-                 launch=None):
+                 launch=None, ready_fd=None):
         """Run a read mode session
 
         Periodically read the requested signals. A line of text will
@@ -429,6 +429,9 @@ class Session:
             pid = subprocess.Popen(launch, preexec_fn=os.setsid)
             g_session_handler.set_subprocess(pid)
             num_period = None
+        if ready_fd is not None:
+            os.write(ready_fd, b'1')
+            os.close(ready_fd)
         for sample_idx in loop.TimedLoop(period, num_period):
             if sample_idx != 0:
                 pio.read_batch()
@@ -556,7 +559,7 @@ class Session:
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
             report_path=None, session_io=None, delimiter=',', report_format='yaml',
-            report_samples=None, launch=None):
+            report_samples=None, launch=None, ready_fd=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -627,7 +630,7 @@ class Session:
             try:
                 g_session_handler = _SessionHandler(out_stream, report_stream, self._agent)
                 self._agent.run_begin()
-                self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream, launch)
+                self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream, launch, ready_fd)
             finally:
                 g_session_handler.stop()
                 subp_ret = g_session_handler.subp_return()
@@ -912,6 +915,8 @@ def get_parser():
                         help='Input file containing GEOPM signal requests, specify "-" to use standard input which is also the default.')
     parser.add_argument('launch', nargs=REMAINDER,
                         help='Launch a process based on command following -- and terminate session when it ends')
+    parser.add_argument('--daemon', dest='daemon_pid_file', default=None,
+                        help='Run session as a daemon and write the daemon PID to the specified file.')
     return parser
 
 def main(agent=None):
@@ -943,6 +948,20 @@ def main(agent=None):
             parser.epilog = f'Agent: {agent_help}'
         args = parser.parse_args()
         args = agent.update_args(args)
+        ready_fd = None
+        if args.daemon_pid_file is not None:
+            rfd, ready_fd = os.pipe()
+            daemon_pid = os.fork()
+            if daemon_pid > 0:
+                os.close(ready_fd)
+                with open(args.daemon_pid_file, 'w') as pidfile:
+                    pidfile.write(str(daemon_pid))
+                with os.fdopen(rfd) as rfile:
+                    rfile.read()
+                return 0
+            os.close(rfd)
+            os.setsid()
+            os.umask(0)
         if args.version:
             print(__version_str__)
             return 0
@@ -972,7 +991,7 @@ def main(agent=None):
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
                  report_format=args.report_format, delimiter=args.delimiter,
-                 report_samples=args.report_samples, launch=args.launch)
+                 report_samples=args.report_samples, launch=args.launch, ready_fd=ready_fd)
     except TerminationExit as term_err:
         if 'GEOPM_DEBUG' in os.environ:
             raise
