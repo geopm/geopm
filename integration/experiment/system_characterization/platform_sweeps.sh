@@ -6,9 +6,9 @@
 # for node characterization
 
 
-export SWEEP_TYPE="${SWEEP_TYPE?- Set SWEEP_TYPE to either CPU or GPU}"
-export GEOPM_SOURCE="${GEOPM_SOURCE?- Set GEOPM_SOURCE to path to GEOPM source code}"
-export EMPTY_SWEEP_OUTPUT_DIR="${EMPTY_SWEEP_OUTPUT_DIR?- Set EMPTY_SWEEP_OUTPUT_DIR to an empty directory accessible from the compute node being characterized}"
+export SWEEP_TYPE="${SWEEP_TYPE:? Set SWEEP_TYPE to either CPU or GPU}"
+export GEOPM_SOURCE="${GEOPM_SOURCE:? Set GEOPM_SOURCE to path to GEOPM source code}"
+export EMPTY_SWEEP_OUTPUT_DIR="${EMPTY_SWEEP_OUTPUT_DIR:? Set EMPTY_SWEEP_OUTPUT_DIR to an empty directory accessible from the compute node being characterized}"
 
 export SCRIPT_DIR="${GEOPM_SOURCE}/integration/experiment/system_characterization"
 source ${SCRIPT_DIR}/set_vars.sh ${SWEEP_TYPE} # this script checks for validity of ${1}
