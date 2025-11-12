@@ -1,4 +1,4 @@
-geopm-doc (@VERSION@-1) noble; urgency=low
+geopm-doc (@VERSION@-1) @DISTRO@; urgency=low
 
   * Update to version @VERSION@
 

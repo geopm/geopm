@@ -11,12 +11,13 @@ def setup():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     package_name = os.path.basename(script_dir)
     version = get_version(f'{script_dir}/..')
+    distro = os.environ.get('DEBIAN_DISTRO', 'noble')
     with open(f'{script_dir}/{package_name}/VERSION', 'w') as fid:
         fid.write(version)
     date = datetime.today().astimezone().strftime('%a, %d %b %Y %H:%M:%S %z')
     with open(f'{script_dir}/debian/changelog.in') as fid:
        changelog = fid.read()
-    changelog = changelog.replace('@VERSION@', version).replace('@DATE@', date)
+    changelog = changelog.replace('@VERSION@', version).replace('@DATE@', date).replace('@DISTRO@', distro)
     with open(f'{script_dir}/debian/changelog', 'w') as fid:
         fid.write(changelog)
     with open(f'{script_dir}/geopmd.spec.in') as fid:
