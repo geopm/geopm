@@ -18,6 +18,15 @@ DATE=`LANG=C date -R`
 AC_SUBST(DATE)
 AC_DEFINE_UNQUOTED([DATE], ["$DATE"], [Date string suitable for debian changelog])
 
+[if ! test -z "$DEBIAN_DISTRO"; then
+  DISTRO=$DEBIAN_DISTRO
+else
+  DISTRO=noble
+fi
+]
+
+AC_SUBST(DISTRO)
+
 LT_PREREQ([2.2.6])
 
 AC_ARG_ENABLE([debug],
