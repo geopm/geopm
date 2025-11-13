@@ -89,6 +89,21 @@ static std::vector<std::string> get_file_paths_with_pattern(
     return paths;
 }
 
+static bool gt_path_has_ccs_engine(const std::string &gt_path)
+{
+    std::vector<std::string> engine_entries;
+    try {
+        engine_entries = geopm::list_directory_files(gt_path + "/engines");
+    }
+    catch (const geopm::Exception &) {
+        return false;
+    }
+    return std::any_of(engine_entries.begin(), engine_entries.end(),
+                       [](const std::string &entry) {
+                           return geopm::string_begins_with(entry, "ccs");
+                       });
+}
+
 // Query which driver provides each card. Return the pair of (driver name) and
 // (vector of card drm paths) of the driver with the most cards present.
 using DriverName = std::string;
@@ -171,6 +186,28 @@ namespace geopm
             if (tile_paths_in_card.size() == 0) {
                 tile_paths_in_card =
                     get_file_paths_with_pattern(card_path + "/device/tile0", GPU_TILE_REGEX);
+            }
+            std::vector<std::string> compute_tile_paths;
+            std::vector<std::string> non_compute_tile_paths;
+            compute_tile_paths.reserve(tile_paths_in_card.size());
+            non_compute_tile_paths.reserve(tile_paths_in_card.size());
+            for (const auto &tile_path : tile_paths_in_card) {
+                if (gt_path_has_ccs_engine(tile_path)) {
+                    compute_tile_paths.push_back(tile_path);
+                }
+                else {
+                    non_compute_tile_paths.push_back(tile_path);
+                }
+            }
+            if (!compute_tile_paths.empty()) {
+                if (geopm::verbosity_level() >= 2) {
+                    for (const auto &non_compute_path : non_compute_tile_paths) {
+                        std::cerr << "DrmGpuTopo::" << __func__
+                                  << ": ignoring tile without compute engines: "
+                                  << non_compute_path << std::endl;
+                    }
+                }
+                tile_paths_in_card = std::move(compute_tile_paths);
             }
             if (tiles_per_card == -1) {
                 tiles_per_card = tile_paths_in_card.size();

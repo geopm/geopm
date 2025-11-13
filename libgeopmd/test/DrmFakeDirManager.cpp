@@ -5,11 +5,13 @@
 
 #include "DrmFakeDirManager.hpp"
 
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include <sstream>
+#include <system_error>
 #include <stdexcept>
 #include <string>
 
@@ -118,6 +120,28 @@ void DrmFakeDirManager::create_tile_in_card(int card_idx, int tile_idx)
                                 "Could not create directory at " + tile_path);
     }
     m_created_dirs.push_back(tile_path);
+}
+
+void DrmFakeDirManager::create_tile_engine_dir(int card_idx, int tile_idx,
+                                               const std::string &engine_dir_name)
+{
+    std::ostringstream oss;
+    oss << m_base_dir_path << "/card" << card_idx << "/gt/gt" << tile_idx << "/engines";
+    auto engines_dir = oss.str();
+    errno = 0;
+    if (mkdir(engines_dir.c_str(), 0755) == -1 && errno != EEXIST) {
+        throw std::system_error(errno, std::generic_category(),
+                                "Could not create directory at " + engines_dir);
+    }
+    if (errno != EEXIST) {
+        m_created_dirs.push_back(engines_dir);
+    }
+    auto engine_dir_path = engines_dir + "/" + engine_dir_name;
+    if (mkdir(engine_dir_path.c_str(), 0755) == -1) {
+        throw std::system_error(errno, std::generic_category(),
+                                "Could not create directory at " + engine_dir_path);
+    }
+    m_created_dirs.push_back(engine_dir_path);
 }
 
 void DrmFakeDirManager::write_file_in_card_tile(int card_idx, int tile_idx,
