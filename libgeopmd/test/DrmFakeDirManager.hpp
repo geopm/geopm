@@ -18,6 +18,8 @@ class DrmFakeDirManager
         void create_card(int card_idx, int numa_node);
         void create_card_hwmon(int card_idx, int hwmon_idx);
         void create_tile_in_card(int card_idx, int tile_idx);
+        void create_tile_engine_dir(int card_idx, int tile_idx,
+                                    const std::string &engine_dir_name);
         void write_file_in_card_tile(int card_idx, int tile_idx,
                                      const std::string &file_name,
                                      const std::string &contents);

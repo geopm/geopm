@@ -62,6 +62,21 @@ TEST_F(DrmGpuTopoTest, num_gpu)
     }
 }
 
+TEST_F(DrmGpuTopoTest, ignore_tiles_without_ccs)
+{
+    m_dir_manager->create_card(0, 0);
+    m_dir_manager->create_tile_in_card(0, 0);
+    m_dir_manager->create_tile_engine_dir(0, 0, "ccs");
+    m_dir_manager->create_tile_in_card(0, 1);
+    m_dir_manager->create_tile_engine_dir(0, 1, "rcs");
+
+    DrmGpuTopo topo(m_dir_manager->get_driver_dir());
+    EXPECT_EQ(1, topo.num_gpu());
+    EXPECT_EQ(1, topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP));
+    EXPECT_THAT(topo.gt_path(0), EndsWith("/gt0"));
+    EXPECT_THROW(topo.gt_path(1), geopm::Exception);
+}
+
 TEST_F(DrmGpuTopoTest, unbalanced_gpu_chips)
 {
     m_dir_manager->create_card(0, 0);
