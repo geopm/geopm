@@ -104,7 +104,7 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
         try:
             # Using a quadratic model: slowdown = A * (x0 - percent_of_tdp)^2 + B * (x0 - percent_of_tdp) + C
             # Solve for the positive root (less than 100% of max power) at '-slowdown' offset:
-            result = model['max_power'] * (model['x0'] - (-model['B'] + math.sqrt(model['B']**2 - 4 * model['A'] * (model['C'] - slowdown))) / (2 * model['A']))
+            result = model['max_power'] * (model['x0'] - (-model['B'] + math.sqrt(abs(model['B']**2 - 4 * model['A'] * (model['C'] - slowdown)))) / (2 * model['A']))
         except Exception as e:
             pbs.logmsg(pbs.LOG_WARNING, f'Unable to estimate job power. {str(e)}')
             do_use_model = False

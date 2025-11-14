@@ -73,7 +73,7 @@ def slowdown_at_power(power, x0, A, B, C):
 
 
 def power_at_slowdown(slowdown, x0, A, B, C):
-    return clip_list([(x0n - (-Bn + math.sqrt(Bn**2 - 4 * An * (Cn - slowdown))) / (2 * An))
+    return clip_list([(x0n - (-Bn + math.sqrt(abs(Bn**2 - 4 * An * (Cn - slowdown)))) / (2 * An))
                       for x0n, An, Bn, Cn in zip(x0, A, B, C)], 0, 1)
 
 
