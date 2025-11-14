@@ -397,7 +397,7 @@ namespace geopm
                 no_support = false;
                 if (ii->control_domain_type(control_name) == domain_type) {
                     bool do_push_control = false;
-                    int val;
+                    double val;
                     try {
                         // Attempt to read then write the control to ensure batch writes will succeed
                         val = ii->read_signal(control_name, domain_type, domain_idx);
