@@ -17,8 +17,10 @@ import numpy as np
 # Import the PBS hook so we can plot the output of its power-balancing routines
 # Mock out the GEOPM and PBS stuff since this plots what-if scenarios from the
 # hook config data and we don't intend to interact with actual system controls.
-mock.patch.dict("sys.modules", pbs=mock.MagicMock(), geopmdpy=mock.MagicMock()).start()
-import geopm_power_limit
+pbs_mock=mock.MagicMock()
+pbs_mock.hook_config_filename = None
+mock.patch.dict("sys.modules", pbs=pbs_mock, geopmdpy=mock.MagicMock()).start()
+import geopm_power_limit_compute
 
 
 parser = argparse.ArgumentParser()
@@ -44,7 +46,7 @@ if args.job_type is None:
     job_type = hook_config['node_profile_name']
 else:
     job_type = args.job_type
-host_models = geopm_power_limit.get_model_from_config(hook_config, job_type, per_host=True)
+host_models = geopm_power_limit_compute.get_model_from_config(hook_config, job_type, per_host=True)
 max_node_power = host_models['max_power']
 
 vnode_names = list(hook_config['profiles'][job_type]['hosts'])
@@ -60,13 +62,13 @@ plt.style.use('seaborn')
 
 average_caps = args.power_caps
 budget_allocations = [
-    geopm_power_limit.allocate_budget_to_nodes(average_cap * len(vnode_names), max_node_power, x0, A, B, C)
+    geopm_power_limit_compute.allocate_budget_to_nodes(average_cap * len(vnode_names), max_node_power, x0, A, B, C)
     for average_cap in average_caps
 ]
 
 # Worst/slowest node if uniform power caps are applied
 uniform_power_slowdowns = [
-    geopm_power_limit.slowdown_at_power(average_cap / max_node_power, x0, A, B, C)
+    geopm_power_limit_compute.slowdown_at_power(average_cap / max_node_power, x0, A, B, C)
     for average_cap in average_caps
 ]
 non_uniform_power_slowdowns = [
