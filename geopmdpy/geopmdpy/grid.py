@@ -5,6 +5,7 @@
 import sys
 import json
 import os
+import math
 from . import pio
 from . import topo
 from argparse import ArgumentParser
@@ -61,6 +62,44 @@ _CLI_FLAG_TO_CONTROL = {
     ),
 }
 
+def add_grid_cli_arguments(parser: ArgumentParser) -> None:
+    """Register control-domain and override arguments on a parser."""
+    for flag, control in _CLI_FLAG_TO_CONTROL.items():
+        if flag == 'gpu_power_intel':
+            cli_flag = 'gpu_power'
+        elif flag == 'gpu_power_nvml':
+            continue
+        else:
+            cli_flag = flag
+        flag_dash = cli_flag.replace('_', '-')
+        parser.add_argument(
+            f"--{flag_dash}",
+            default=None,
+            dest=f'{cli_flag}_domain',
+            help=f"Provide a grid over {control[0]} for the given domain.",
+        )
+        parser.add_argument(
+            f"--{flag_dash}-min",
+            type=float,
+            default=None,
+            dest=f'{cli_flag}_min',
+            help=f"Override the minimum value used when constructing the {control[0]} grid.",
+        )
+        parser.add_argument(
+            f"--{flag_dash}-max",
+            type=float,
+            default=None,
+            dest=f'{cli_flag}_max',
+            help=f"Override the maximum value used when constructing the {control[0]} grid.",
+        )
+        parser.add_argument(
+            f"--{flag_dash}-step",
+            type=float,
+            default=None,
+            dest=f'{cli_flag}_step',
+            help=f"Override the step size used when constructing the {control[0]} grid.",
+        )
+
 class ControlGrid:
     """
     ControlGrid class to manage control grid configurations.
@@ -88,6 +127,7 @@ class ControlGrid:
         self.do_write = False
 
         args = self.parser.parse_args(argv)
+        self.range_overrides = self._collect_range_overrides(args)
         # Special case for GPU power and frequency - determine Intel vs NVML
         gpu_suffix = "_intel" if "LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL" in pio.signal_names() else "_nvml"
 
@@ -121,18 +161,7 @@ class ControlGrid:
             ArgumentParser: Configured argument parser.
         """
         parser = ArgumentParser(description="Define an N dimensional control grid")
-        for flag, control in _CLI_FLAG_TO_CONTROL.items():
-            if flag == 'gpu_power_intel':
-                flag = 'gpu_power'
-            elif flag == 'gpu_power_nvml':
-                continue
-            flag_dash = flag.replace('_', '-')
-            parser.add_argument(
-                f"--{flag_dash}",
-                default=None,
-                dest=f'{flag}_domain',
-                help=f"Provide a grid over {control[0]} for the given domain.",
-            )
+        add_grid_cli_arguments(parser)
         grp = parser.add_mutually_exclusive_group()
         grp.add_argument(
             "--coordinate",
@@ -157,6 +186,33 @@ class ControlGrid:
             help="Write configuration to the platform"
         )
         return parser
+
+    @staticmethod
+    def _base_flag(control_name: str) -> str:
+        for suffix in ('_intel', '_nvml'):
+            if control_name.endswith(suffix):
+                return control_name[:-len(suffix)]
+        return control_name
+
+    def _collect_range_overrides(self, args) -> dict:
+        overrides = {}
+        for control_key in _CLI_FLAG_TO_CONTROL.keys():
+            base_flag = self._base_flag(control_key)
+            min_override = getattr(args, f'{base_flag}_min', None)
+            max_override = getattr(args, f'{base_flag}_max', None)
+            step_override = getattr(args, f'{base_flag}_step', None)
+            control_overrides = {}
+            if min_override is not None:
+                control_overrides['min'] = float(min_override)
+            if max_override is not None:
+                control_overrides['max'] = float(max_override)
+            if step_override is not None:
+                if step_override <= 0:
+                    raise ValueError(f"Step override for {base_flag} must be positive")
+                control_overrides['step'] = float(step_override)
+            if control_overrides:
+                overrides[control_key] = control_overrides
+        return overrides
 
     def add_dimension(self, control_name: str, domain: Union[int, str]) -> int:
         """Add a dimension to the control grid.
@@ -222,6 +278,13 @@ class ControlGrid:
         """
         if control_name not in _CLI_FLAG_TO_CONTROL:
             raise ValueError(f"Control {control_name} is not recognized.")
+        override = self.range_overrides.get(control_name, {})
+        if index == 1 and 'min' in override:
+            return override['min']
+        if index == 2 and 'max' in override:
+            return override['max']
+        if index == 3 and 'step' in override:
+            return override['step']
         key = _CLI_FLAG_TO_CONTROL[control_name][index]
         if type(key) is not str:
             result = key
@@ -247,15 +310,22 @@ class ControlGrid:
         """
         control = self.control_name[dimension_idx]
         domain = self.domain_type[dimension_idx]
-        min = self.get_minimum(control, domain)
-        max = self.get_maximum(control, domain)
+        minimum = self.get_minimum(control, domain)
+        maximum = self.get_maximum(control, domain)
         step = self.get_step(control)
-        num_step = int((max - min) / step) + 1
-        if min + step * (num_step - 1) != max:
+        if step <= 0:
+            raise ValueError(f"Grid for {control} has a non-positive step size.")
+        if maximum < minimum:
+            raise ValueError(f"Grid for {control} has maximum less than minimum.")
+        span = maximum - minimum
+        steps_float = span / step if span else 0.0
+        steps_int = int(round(steps_float))
+        if not math.isclose(steps_float, steps_int, rel_tol=1e-9, abs_tol=1e-12):
             raise ValueError(f"Grid for {control} is not evenly divisible by step size.")
+        num_step = steps_int + 1
         if num_step <= 0:
             raise ValueError(f"Grid for {control} has no steps.")
-        return [min + idx * step for idx in range(num_step)]
+        return [minimum + idx * step for idx in range(num_step)]
 
     def _get_grid_data(self) -> List[dict]:
         """Get the grid data for all dimensions.
