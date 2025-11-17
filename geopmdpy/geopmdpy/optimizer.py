@@ -491,16 +491,13 @@ def main():
         grid_args = []
         dimension_specified = False
         for control_flag in _CLI_FLAG_TO_CONTROL.keys():
-            if control_flag == 'gpu_power_nvml':
-                continue
-            base_flag = 'gpu_power' if control_flag == 'gpu_power_intel' else control_flag
-            flag_dash = base_flag.replace('_', '-')
-            domain = getattr(args, f'{base_flag}_domain', None)
+            flag_dash = control_flag.replace('_', '-')
+            domain = getattr(args, f'{control_flag}_domain', None)
             if domain is not None:
                 dimension_specified = True
                 grid_args.extend([f'--{flag_dash}', domain])
             for suffix in ('min', 'max', 'step'):
-                value = getattr(args, f'{base_flag}_{suffix}', None)
+                value = getattr(args, f'{control_flag}_{suffix}', None)
                 if value is not None:
                     grid_args.extend([f'--{flag_dash}-{suffix}', str(value)])
 

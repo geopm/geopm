@@ -17,6 +17,7 @@ from typing import Optional, Union, List
 _DEFAULT_POWER_MAX = 6000
 _DEFAULT_POWER_MIN = 200
 _DEFAULT_POWER_STEP = 1
+_DEFAULT_FREQUENCY_STEP = 100e6
 _CLI_FLAG_TO_CONTROL = {
     "cpu_frequency": (
         "CPU_FREQUENCY_MAX_CONTROL",
@@ -40,18 +41,12 @@ _CLI_FLAG_TO_CONTROL = {
         "GPU_CORE_FREQUENCY_MAX_CONTROL",
         "GPU_CORE_FREQUENCY_MIN_AVAIL",
         "GPU_CORE_FREQUENCY_MAX_AVAIL",
-        "GPU_CORE_FREQUENCY_STEP",
+        ("GPU_CORE_FREQUENCY_STEP", _DEFAULT_FREQUENCY_STEP),
     ),
-    "gpu_power_nvml": (
+    "gpu_power": (
         "GPU_POWER_LIMIT_CONTROL",
-        _DEFAULT_POWER_MIN,
-        "GPU_POWER_LIMIT_CONTROL", # The current limit is dynamically read and used as the maximum value. This behavior is implemented in the pio module.
-        _DEFAULT_POWER_STEP,
-    ),
-    "gpu_power_intel": (
-        "GPU_POWER_LIMIT_CONTROL",
-        "LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL",
-        "LEVELZERO::GPU_POWER_LIMIT_DEFAULT",
+        ("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL", _DEFAULT_POWER_MIN),
+        ("LEVELZERO::GPU_POWER_LIMIT_DEFAULT", "GPU_POWER_LIMIT_CONTROL"),
         _DEFAULT_POWER_STEP,
     ),
     "board_power": (
@@ -65,38 +60,32 @@ _CLI_FLAG_TO_CONTROL = {
 def add_grid_cli_arguments(parser: ArgumentParser) -> None:
     """Register control-domain and override arguments on a parser."""
     for flag, control in _CLI_FLAG_TO_CONTROL.items():
-        if flag == 'gpu_power_intel':
-            cli_flag = 'gpu_power'
-        elif flag == 'gpu_power_nvml':
-            continue
-        else:
-            cli_flag = flag
-        flag_dash = cli_flag.replace('_', '-')
+        flag_dash = flag.replace('_', '-')
         parser.add_argument(
             f"--{flag_dash}",
             default=None,
-            dest=f'{cli_flag}_domain',
+            dest=f'{flag}_domain',
             help=f"Provide a grid over {control[0]} for the given domain.",
         )
         parser.add_argument(
             f"--{flag_dash}-min",
             type=float,
             default=None,
-            dest=f'{cli_flag}_min',
+            dest=f'{flag}_min',
             help=f"Override the minimum value used when constructing the {control[0]} grid.",
         )
         parser.add_argument(
             f"--{flag_dash}-max",
             type=float,
             default=None,
-            dest=f'{cli_flag}_max',
+            dest=f'{flag}_max',
             help=f"Override the maximum value used when constructing the {control[0]} grid.",
         )
         parser.add_argument(
             f"--{flag_dash}-step",
             type=float,
             default=None,
-            dest=f'{cli_flag}_step',
+            dest=f'{flag}_step',
             help=f"Override the step size used when constructing the {control[0]} grid.",
         )
 
@@ -128,16 +117,10 @@ class ControlGrid:
 
         args = self.parser.parse_args(argv)
         self.range_overrides = self._collect_range_overrides(args)
-        # Special case for GPU power and frequency - determine Intel vs NVML
-        gpu_suffix = "_intel" if "LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL" in pio.signal_names() else "_nvml"
 
         # Process all control type arguments dynamically
         for control_key in _CLI_FLAG_TO_CONTROL.keys():
-            if control_key.startswith('gpu_') and control_key.endswith(gpu_suffix):
-                arg_attr = f'{control_key[:-len(gpu_suffix)]}_domain'
-            else:
-                arg_attr = f'{control_key}_domain'
-            domain = getattr(args, arg_attr, None)
+            domain = getattr(args, f'{control_key}_domain', None)
             if domain is not None:
                 self.add_dimension(control_key, domain)
 
@@ -187,20 +170,12 @@ class ControlGrid:
         )
         return parser
 
-    @staticmethod
-    def _base_flag(control_name: str) -> str:
-        for suffix in ('_intel', '_nvml'):
-            if control_name.endswith(suffix):
-                return control_name[:-len(suffix)]
-        return control_name
-
     def _collect_range_overrides(self, args) -> dict:
         overrides = {}
         for control_key in _CLI_FLAG_TO_CONTROL.keys():
-            base_flag = self._base_flag(control_key)
-            min_override = getattr(args, f'{base_flag}_min', None)
-            max_override = getattr(args, f'{base_flag}_max', None)
-            step_override = getattr(args, f'{base_flag}_step', None)
+            min_override = getattr(args, f'{control_key}_min', None)
+            max_override = getattr(args, f'{control_key}_max', None)
+            step_override = getattr(args, f'{control_key}_step', None)
             control_overrides = {}
             if min_override is not None:
                 control_overrides['min'] = float(min_override)
@@ -208,7 +183,7 @@ class ControlGrid:
                 control_overrides['max'] = float(max_override)
             if step_override is not None:
                 if step_override <= 0:
-                    raise ValueError(f"Step override for {base_flag} must be positive")
+                    raise ValueError(f"Step override for {control_key} must be positive")
                 control_overrides['step'] = float(step_override)
             if control_overrides:
                 overrides[control_key] = control_overrides
@@ -286,14 +261,29 @@ class ControlGrid:
         if index == 3 and 'step' in override:
             return override['step']
         key = _CLI_FLAG_TO_CONTROL[control_name][index]
-        if type(key) is not str:
-            result = key
-        else:
+        return self._resolve_range_value(key, domain)
+
+    def _resolve_range_value(self, key, domain: Union[int, str]):
+        """Resolve a range value, supporting tuples of fallbacks."""
+        if isinstance(key, tuple):
+            last_error = None
+            for candidate in key:
+                try:
+                    return self._resolve_range_value(candidate, domain)
+                except RuntimeError as err:
+                    last_error = err
+                    continue
+            if last_error is not None:
+                raise last_error
+            raise ValueError("No valid value found for range tuple")
+        if isinstance(key, (int, float)):
+            return key
+        if isinstance(key, str):
             try:
-                result = pio.read_signal(key, domain, 0)
+                return pio.read_signal(key, domain, 0)
             except RuntimeError:
-                result = pio.read_signal(key, 0, 0)
-        return result
+                return pio.read_signal(key, 0, 0)
+        raise TypeError(f"Unsupported range key type: {type(key)}")
 
     def get_dimensions(self) -> List[tuple]:
         """Get the dimensions of the control grid.
