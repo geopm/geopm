@@ -31,7 +31,7 @@ except ImportError:
     )
 
 from . import pio
-from .grid import ControlGrid, _CLI_FLAG_TO_CONTROL
+from .grid import ControlGrid, _CLI_FLAG_TO_CONTROL, add_grid_cli_arguments
 
 # Module-level logger
 logger = logging.getLogger(__name__)
@@ -374,18 +374,7 @@ def get_parser():
     parser = ArgumentParser(description="Bayesian optimization for control parameter tuning")
 
     # Control grid options (similar to grid.py)
-    for flag, control in _CLI_FLAG_TO_CONTROL.items():
-        if flag == 'gpu_power_intel':
-            flag = 'gpu_power'
-        elif flag == 'gpu_power_nvml':
-            continue
-        flag_dash = flag.replace('_', '-')
-        parser.add_argument(
-            f"--{flag_dash}",
-            default=None,
-            dest=f'{flag}_domain',
-            help=f"Provide a grid over {control[0]} for the given domain.",
-        )
+    add_grid_cli_arguments(parser)
 
     # Optimization options
     parser.add_argument(
@@ -500,17 +489,22 @@ def main():
 
         # Create control grid from arguments
         grid_args = []
-        for flag in _CLI_FLAG_TO_CONTROL.keys():
-            if flag in ['gpu_power_nvml']:
+        dimension_specified = False
+        for control_flag in _CLI_FLAG_TO_CONTROL.keys():
+            if control_flag == 'gpu_power_nvml':
                 continue
-            if flag == 'gpu_power_intel':
-                flag = 'gpu_power'
-
-            domain = getattr(args, f'{flag}_domain', None)
+            base_flag = 'gpu_power' if control_flag == 'gpu_power_intel' else control_flag
+            flag_dash = base_flag.replace('_', '-')
+            domain = getattr(args, f'{base_flag}_domain', None)
             if domain is not None:
-                grid_args.extend([f'--{flag.replace("_", "-")}', domain])
+                dimension_specified = True
+                grid_args.extend([f'--{flag_dash}', domain])
+            for suffix in ('min', 'max', 'step'):
+                value = getattr(args, f'{base_flag}_{suffix}', None)
+                if value is not None:
+                    grid_args.extend([f'--{flag_dash}-{suffix}', str(value)])
 
-        if not grid_args:
+        if not dimension_specified:
             raise ValueError("Error: No control parameters specified")
 
         control_grid = ControlGrid(grid_args)
