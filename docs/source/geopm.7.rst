@@ -269,7 +269,7 @@ specified regardless of the values set in the calling environment.
 
 GEOPM Environment Variables
 ---------------------------
-``GEOPM_NUM_PROC``
+``GEOPM_NUM_PROC`` - *integer* (default: 1)
   The number of processes to be tracked and profiled by the controller on each
   compute node. The controller will wait until this number of processes request
   profiling before starting the control loop and subsequent requests for
@@ -279,92 +279,92 @@ GEOPM Environment Variables
   using the ``geopmlaunch`` CLI.  The ``geopmlaunch`` tool will infer this
   parameter based on the values passed to the underlying launch command, so the
   user does not have to set it explicitly.
-``GEOPM_PROGRAM_FILTER``
+``GEOPM_PROGRAM_FILTER`` - *string* (comma separated list)
   Required comma separated list of program invocation names of
   processes which are intended to be profiled and tracked by the
   controller.  See the ``--geopm-program-filter``
   :ref:`option description <geopm-program-filter option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
-``GEOPM_REPORT``
+``GEOPM_REPORT`` - *string*
   The path to which a GEOPM report file is saved. See the
   ``--geopm-report`` :ref:`option description <geopm-report option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_REPORT_SIGNALS``
+``GEOPM_REPORT_SIGNALS`` - *string* (comma separated signal names)
   Additional signals that are included in a GEOPM report. See the
   ``--geopm-report-signals`` :ref:`option description <geopm-report-signals
   option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_TRACE``
+``GEOPM_TRACE`` - *string*
   The path and base name to which each per-host GEOPM trace file is saved. See the
   ``--geopm-trace`` :ref:`option description <geopm-trace option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_TRACE_SIGNALS``
+``GEOPM_TRACE_SIGNALS`` - *string* (comma separated signal names)
   Additional signals that are included in a GEOPM trace. See the
   ``--geopm-trace-signals`` :ref:`option description <geopm-trace-signals
   option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_TRACE_PROFILE``
+``GEOPM_TRACE_PROFILE`` - *string*
   The path and base name to which each per-host GEOPM profile trace file is
   saved. See the ``--geopm-trace-profile`` :ref:`option description
   <geopm-trace-profile option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for
   more details.
-``GEOPM_TRACE_ENDPOINT_POLICY``
+``GEOPM_TRACE_ENDPOINT_POLICY`` - *string*
   The path to an endpoint policy trace file is generated. See the
   ``--geopm-trace-endpoint-policy`` :ref:`option description <geopm-trace-endpoint-policy
   option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_PROFILE``
+``GEOPM_PROFILE`` - *string* (default: "default")
   The name of the profile written in the GEOPM report file. See the
   ``--geopm-profile`` :ref:`option description <geopm-profile option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_CTL``
+``GEOPM_CTL`` - *string*
   The type of GEOPM controller to use. See the
   ``--geopm-ctl`` :ref:`option description <geopm-ctl option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_AGENT``
+``GEOPM_AGENT`` - *string* (default: "monitor")
   The type of agent to run in the GEOPM HPC runtime. See the
   ``--geopm-agent`` :ref:`option description <geopm-agent option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_POLICY``
+``GEOPM_POLICY`` - *signal*
   The path to the GEOPM policy JSON file to use for the selected agent. See the
   ``--geopm-policy`` :ref:`option description <geopm-policy option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_ENDPOINT``
+``GEOPM_ENDPOINT`` - *string*
   The prefix for shared memory keys used by the GEOPM endpoint. See the
   ``--geopm-endpoint`` :ref:`option description <geopm-endpoint option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_TIMEOUT``
+``GEOPM_TIMEOUT`` - *integer* (default: 30)
   The count of seconds that the application will wait for the GEOPM controller
   to connect over shared memory before timing out. See the
   ``--geopm-timeout`` :ref:`option description <geopm-timeout option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_PLUGIN_PATH``
-  The colon-separated list of search paths for GEOPM plugins. See the
+``GEOPM_PLUGIN_PATH`` - *string*
+  The colon-separated list of extra search paths for GEOPM plugins. See the
   ``--geopm-plugin-path`` :ref:`option description <geopm-plugin-path option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_DEBUG_ATTACH``
+``GEOPM_DEBUG_ATTACH`` - *integer*
   An MPI rank number to wait in MPI_Init for a debugger to attach. See the
   ``--geopm-debug-attach`` :ref:`option description <geopm-debug-attach option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_DISABLE_HYPERTHREADS``
+``GEOPM_DISABLE_HYPERTHREADS`` - *string*
   Set to any value to prevent the launcher from pinning to multiple
   hyperthreads per CPU core. See the ``--geopm-hyperthreads-disable``
   :ref:`option description <geopm-hyperthreads-disable option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_OMPT_ENABLE``
+``GEOPM_OMPT_ENABLE`` - *string*
   Set to any value to enable OpenMP region detection as described in
   :ref:`geopm.7:integration with ompt`.  See the ``--geopm-ompt-enable``
   :ref:`option description <geopm-ompt-enable option>` in :doc:`geopmlaunch(1)
   <geopmlaunch.1>` for more details.
-``GEOPM_INIT_CONTROL``
+``GEOPM_INIT_CONTROL`` - *string*
   The path to the control initialization file.  See the ``--geopm-init-control``
   :ref:`option description <geopm-init-control option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_PERIOD``
+``GEOPM_PERIOD`` - *float* (default: agent defined)
   The control loop period in seconds, if not specified this is determined by
   the Agent. See the ``--geopm-period`` :ref:`option description <geopm-period option>`
   in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
-``GEOPM_MSR_CONFIG_PATH``
+``GEOPM_MSR_CONFIG_PATH`` - *string*
   The colon-separated list of search paths for additional MSR definitions. See
   :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` for more details.
-``GEOPM_CTL_LOCAL``
+``GEOPM_CTL_LOCAL`` - *string*
   Disable communication between controllers running on different
   compute nodes and produce one report file per host.  Enabled by
   default when MPI is not compiled into the GEOPM Runtime.  See the

@@ -306,20 +306,29 @@ GEOPM Options
                       Specify the Agent type.  The Agent defines the control
                       algorithm used by the GEOPM runtime.  Available agents
                       are: ``"monitor"`` (default, enables profiling features
-                      only), ``"power_balancer"`` (optimizes runtime under a power
-                      cap), ``"power_governor"`` (enforces a uniform power cap),
-                      ``"frequency_balancer"`` (reduces imbalance across CPU cores),
-                      and ``"frequency_map"`` (runs each region at a specified
-                      frequency).  See :doc:`geopm_agent_monitor(7)
+                      only), ``"power_balancer"`` (optimizes runtime under a
+                      power cap), ``"power_governor"`` (enforces a uniform
+                      power cap), ``"frequency_balancer"`` (reduces imbalance
+                      across CPU cores), ``"frequency_map"`` (runs each region
+                      at a specified frequency), ``cpu_activity`` (scale CPU
+                      frequency based on CPU activity), ``gpu_activity`` (set
+                      GPU frequency based on GPU compute activity), and
+                      ``ffnet`` (manages frequency and power based on a neural
+                      network model).
+                      See :doc:`geopm_agent_monitor(7)
                       <geopm_agent_monitor.7>`,
                       :doc:`geopm_agent_power_balancer(7)
                       <geopm_agent_power_balancer.7>`,
                       :doc:`geopm_agent_power_governor(7)
                       <geopm_agent_power_governor.7>`,
                       :doc:`geopm_agent_frequency_balancer(7)
-                      <geopm_agent_frequency_balancer.7>`, and
+                      <geopm_agent_frequency_balancer.7>`,
                       :doc:`geopm_agent_frequency_map(7)
-                      <geopm_agent_frequency_map.7>` and
+                      <geopm_agent_frequency_map.7>`,
+                      :doc:`geopm_agent_cpu_activity(7)
+                      <geopm_agent_cpu_activity.7>`,
+                      :doc:`geopm_agent_gpu_activity(7)
+                      <geopm_agent_gpu_activity.7>`, and
                       :doc:`geopm_agent_ffnet(7)
                       <geopm_agent_ffnet.7>` for descriptions of each
                       agent.
