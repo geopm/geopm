@@ -390,14 +390,14 @@ GEOPM Options
 --geopm-affinity-enable  .. _geopm-affinity-enable option:
 
                           GEOPM will choose CPU affinity settings to minimize
-			  interference between the GEOPM Runtime, the OS, and the
-			  application.  When specified, the launcher will emit
-			  command line arguments and/or environment variables
-			  related to affinity settings for the underlying
-			  launcher.  The user should refrain from using of
-			  command line options or environment variable that are
-			  known to modify application CPU affinity when
-			  specifying this option for ``geopmlaunch``.
+                          interference between the GEOPM Runtime, the OS, and
+                          the application.  When specified, the launcher will
+                          emit command line arguments and/or environment
+                          variables related to affinity settings for the
+                          underlying launcher.  The user should refrain from
+                          using of command line options or environment variable
+                          that are known to modify application CPU affinity
+                          when specifying this option for ``geopmlaunch``.
 
 --geopm-endpoint endpoint  .. _geopm-endpoint option:
 
@@ -601,6 +601,15 @@ GEOPM Options
                         bash or other ancillary commands that are not
                         part of the main application process set.  See
                         `program_invocation_name(3)` for more details.
+--geopm-launch-verbose  .. _geopm-launch-verbose option:
+
+                        Emit the launch script and per-rank affinity
+                        configuration to stderr.
+--geopm-launch-script path  .. _geopm-launch-script option:
+
+                            Emit the launch script and per-rank affinity to an
+                            output file specified by path.  This bash script can
+                            then be executed without the use of launcher.py
 
 
 Examples
