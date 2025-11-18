@@ -51,6 +51,9 @@ VERSION:
 DATE:
 	date +'%a, %d %b %Y %H:%M:%S %z' > $@
 
+DISTRO:
+	if [ -z "$(DEBIAN_DISTRO)" ]; then echo "noble" > DISTRO; else echo $(DEBIAN_DISTRO) > DISTRO; fi
+
 MANIFEST:
 	git ls-tree --full-tree --name-only -r HEAD | grep '^docs/' > MANIFEST.partial
 	ls source/*.[1-9].rst | sed -e 's|source/\(.*\)\.rst|docs/build/man/\1|' >> MANIFEST.partial
@@ -61,10 +64,11 @@ MANIFEST:
 	sort MANIFEST.partial > $@
 	rm MANIFEST.partial
 
-dist: man VERSION DATE MANIFEST
-	VERSION=`cat VERSION` && DATE=`cat DATE` && \
+dist: man VERSION DATE MANIFEST DISTRO
+	VERSION=`cat VERSION` && DATE=`cat DATE` && DISTRO=`cat DISTRO` && \
 	cat debian/changelog.in | sed -e "s|@VERSION@|$$VERSION|g" \
-	                              -e "s|@DATE@|$$DATE|g" > debian/changelog && \
+	                              -e "s|@DATE@|$$DATE|g" \
+	                              -e "s|@DISTRO@|$$DISTRO|g" > debian/changelog && \
 	sed -e "s|@ARCHIVE@|geopm-doc-$$VERSION|" -e "s|@VERSION@|$$VERSION|" geopm-doc.spec.in > geopm-doc.spec && \
 	cd .. && tar -T docs/MANIFEST --transform="s|docs|geopm-doc-$$VERSION|" -h -zcvf geopm-doc-$$VERSION.tar.gz && \
 	mv geopm-doc-$$VERSION.tar.gz docs
