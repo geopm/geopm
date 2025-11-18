@@ -6,16 +6,35 @@ Synopsis
 
 .. code-block:: bash
 
-   usage: geopmgrid [-h] [--cpu-frequency CPU_FREQUENCY_DOMAIN]
-                    [--cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN]
-                    [--cpu-power CPU_POWER_DOMAIN]
-                    [--gpu-frequency GPU_FREQUENCY_DOMAIN]
-                    [--gpu-power GPU_POWER_DOMAIN]
-                    [--board-power BOARD_POWER_DOMAIN]
-                    [--coordinate COORDINATE [COORDINATE ...] |
-                     --coordinate-file COORDINATE_FILE |
-                     --coordinate-range]
-                    [--write]
+    usage: geopmgrid [-h]
+                     [--cpu-frequency CPU_FREQUENCY_DOMAIN]
+                     [--cpu-frequency-min CPU_FREQUENCY_MIN]
+                     [--cpu-frequency-max CPU_FREQUENCY_MAX]
+                     [--cpu-frequency-step CPU_FREQUENCY_STEP]
+                     [--cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN]
+                     [--cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN]
+                     [--cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX]
+                     [--cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP]
+                     [--cpu-power CPU_POWER_DOMAIN]
+                     [--cpu-power-min CPU_POWER_MIN]
+                     [--cpu-power-max CPU_POWER_MAX]
+                     [--cpu-power-step CPU_POWER_STEP]
+                     [--gpu-frequency GPU_FREQUENCY_DOMAIN]
+                     [--gpu-frequency-min GPU_FREQUENCY_MIN]
+                     [--gpu-frequency-max GPU_FREQUENCY_MAX]
+                     [--gpu-frequency-step GPU_FREQUENCY_STEP]
+                     [--gpu-power GPU_POWER_DOMAIN]
+                     [--gpu-power-min GPU_POWER_MIN]
+                     [--gpu-power-max GPU_POWER_MAX]
+                     [--gpu-power-step GPU_POWER_STEP]
+                     [--board-power BOARD_POWER_DOMAIN]
+                     [--board-power-min BOARD_POWER_MIN]
+                     [--board-power-max BOARD_POWER_MAX]
+                     [--board-power-step BOARD_POWER_STEP]
+                     [--coordinate COORDINATE [COORDINATE ...] |
+                      --coordinate-file COORDINATE_FILE |
+                      --coordinate-range]
+                     [--write]
 
 Display grid dimensions
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,16 +110,59 @@ Control Parameters
     domain. Valid domains include 'board', 'package', 'core', and on some
     platforms 'cpu' depending on capabilities.
 
+--cpu-frequency-min CPU_FREQUENCY_MIN  .. _cpu-frequency-min option:
+
+    Override the automatically detected minimum CPU frequency when constructing
+    the grid. The supplied value is used for all selected domains.
+
+--cpu-frequency-max CPU_FREQUENCY_MAX  .. _cpu-frequency-max option:
+
+    Override the automatically detected maximum CPU frequency when constructing
+    the grid. The supplied value is used for all selected domains.
+
+--cpu-frequency-step CPU_FREQUENCY_STEP  .. _cpu-frequency-step option:
+
+    Override the step size used to enumerate CPU frequency settings when
+    constructing the grid.
+
 --cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN  .. _cpu-uncore-frequency option:
 
     Define a grid dimension over CPU_UNCORE_FREQUENCY_MAX_CONTROL for the
     specified domain. The uncore frequency can be controlled on the 'board' or
     'package' domain.
 
+--cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN  .. _cpu-uncore-frequency-min option:
+
+    Override the automatically detected minimum CPU uncore frequency when
+    constructing the grid.
+
+--cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX  .. _cpu-uncore-frequency-max option:
+
+    Override the automatically detected maximum CPU uncore frequency when
+    constructing the grid.
+
+--cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP  .. _cpu-uncore-frequency-step option:
+
+    Override the step size used to enumerate CPU uncore frequency settings.
+
 --cpu-power CPU_POWER_DOMAIN  .. _cpu-power option:
 
     Define a grid dimension over CPU_POWER_LIMIT_CONTROL for the specified
     domain. Commonly used with 'board', or 'package' domains.
+
+--cpu-power-min CPU_POWER_MIN  .. _cpu-power-min option:
+
+    Override the automatically detected minimum CPU power limit when
+    constructing the grid.
+
+--cpu-power-max CPU_POWER_MAX  .. _cpu-power-max option:
+
+    Override the automatically detected maximum CPU power limit when
+    constructing the grid.
+
+--cpu-power-step CPU_POWER_STEP  .. _cpu-power-step option:
+
+    Override the step size used to enumerate CPU power limit settings.
 
 --gpu-frequency GPU_FREQUENCY_DOMAIN  .. _gpu-frequency option:
 
@@ -108,15 +170,57 @@ Control Parameters
     specified domain. Valid domains include 'board', 'gpu', and on some
     platforms 'gpu_chip'.
 
+--gpu-frequency-min GPU_FREQUENCY_MIN  .. _gpu-frequency-min option:
+
+    Override the automatically detected minimum GPU frequency when constructing
+    the grid.
+
+--gpu-frequency-max GPU_FREQUENCY_MAX  .. _gpu-frequency-max option:
+
+    Override the automatically detected maximum GPU frequency when constructing
+    the grid.
+
+--gpu-frequency-step GPU_FREQUENCY_STEP  .. _gpu-frequency-step option:
+
+    Override the step size used to enumerate GPU frequency settings.
+
 --gpu-power GPU_POWER_DOMAIN  .. _gpu-power option:
 
     Define a grid dimension over GPU_POWER_LIMIT_CONTROL for the specified
     domain. Typically applied at the 'board', or 'gpu' domain.
 
+--gpu-power-min GPU_POWER_MIN  .. _gpu-power-min option:
+
+    Override the automatically detected minimum GPU power limit when
+    constructing the grid.
+
+--gpu-power-max GPU_POWER_MAX  .. _gpu-power-max option:
+
+    Override the automatically detected maximum GPU power limit when
+    constructing the grid.
+
+--gpu-power-step GPU_POWER_STEP  .. _gpu-power-step option:
+
+    Override the step size used to enumerate GPU power limit settings.
+
 --board-power BOARD_POWER_DOMAIN  .. _board-power option:
 
     Define a grid dimension over BOARD_POWER_LIMIT_CONTROL for the specified
     domain. Only valid with 'board' domain.
+
+--board-power-min BOARD_POWER_MIN  .. _board-power-min option:
+
+    Override the automatically detected minimum board-level power limit when
+    constructing the grid.
+
+--board-power-max BOARD_POWER_MAX  .. _board-power-max option:
+
+    Override the automatically detected maximum board-level power limit when
+    constructing the grid.
+
+--board-power-step BOARD_POWER_STEP  .. _board-power-step option:
+
+    Override the step size used to enumerate board-level power settings.
 
 Grid Navigation
 ~~~~~~~~~~~~~~~
