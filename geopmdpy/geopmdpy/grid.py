@@ -263,7 +263,31 @@ class ControlGrid:
         return self._resolve_range_value(key, domain)
 
     def _resolve_range_value(self, key, domain: Union[int, str]) -> float:
-        """Resolve a range value, supporting tuples of fallbacks."""
+        """
+        Resolve a range value for a control parameter, supporting multiple fallback mechanisms.
+
+        Args:
+            key (Union[str, int, float, tuple]): The identifier for the range value. This can be:
+                - A string: The name of a signal to read via pio.read_signal.
+                - An int or float: The value is returned directly.
+                - A tuple: A sequence of fallback keys. Each candidate is tried in order until one succeeds.
+                  If all candidates fail (raise RuntimeError), the last error is raised.
+            domain (Union[int, str]): The domain identifier or type to use when reading a signal.
+
+        Returns:
+            float: The resolved range value for the control parameter.
+
+        Fallback behavior for tuple-type keys:
+            If `key` is a tuple, each element is treated as a candidate key. The method recursively attempts
+            to resolve each candidate in order. The first candidate that does not raise a RuntimeError is used,
+            and its value is returned. If all candidates fail, the last RuntimeError is raised. If the tuple is empty,
+            a ValueError is raised.
+
+        Raises:
+            RuntimeError: If all tuple candidates fail with a RuntimeError.
+            ValueError: If no valid value is found for a tuple key.
+            TypeError: If the key is of an unsupported type.
+        """
         if isinstance(key, tuple):
             last_error = None
             for candidate in key:
