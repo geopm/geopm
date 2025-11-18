@@ -183,7 +183,7 @@ class TestControlGrid(TestCase):
 
         with self.assertRaises(ValueError) as context:
             self.grid.get_dimension_grid(0)
-        self.assertIn("Grid for cpu_frequency has no steps", str(context.exception))
+        self.assertIn("Grid for cpu_frequency has maximum less than minimum", str(context.exception))
 
     def test_get_grid_data(self):
         """Test getting grid data structure"""
@@ -277,7 +277,7 @@ class TestControlGrid(TestCase):
         """Test that all control mappings are properly defined"""
         expected_controls = [
             'cpu_frequency', 'cpu_uncore_frequency', 'cpu_power',
-            'gpu_frequency', 'gpu_power_nvml', 'gpu_power_intel'
+            'gpu_frequency', 'gpu_power'
         ]
 
         for control in expected_controls:
@@ -357,24 +357,24 @@ class TestControlGrid(TestCase):
                     self.assertEqual(result, 1)
                     mock_print.assert_called_once_with("Error: Test error")
 
-    def test_gpu_power_intel_vs_nvml_detection(self):
-        """Test GPU power control type detection (Intel vs NVML)"""
-        # This test verifies that the GPU power logic exists and can be triggered
-        # The actual detection logic is tested indirectly through the main functionality
+    def test_gpu_power_tuple_resolution(self):
+        """Test GPU power tuple-based range resolution"""
+        mapping = grid._CLI_FLAG_TO_CONTROL['gpu_power']
+        self.assertIsInstance(mapping[1], tuple)
+        self.assertIsInstance(mapping[2], tuple)
 
-        # Test that both gpu_power_intel and gpu_power_nvml are defined in the control mappings
-        self.assertIn('gpu_power_intel', grid._CLI_FLAG_TO_CONTROL)
-        self.assertIn('gpu_power_nvml', grid._CLI_FLAG_TO_CONTROL)
+        # Simulate failure for the first tuple entry and ensure fallback is used
+        def fake_read(signal, domain, idx):
+            if signal.startswith("LEVELZERO::"):
+                raise RuntimeError("signal unavailable")
+            return 123.0 if signal == "GPU_POWER_LIMIT_CONTROL" else 456.0
 
-        # Test that the gpu_power_intel mapping has the expected Intel-specific signals
-        intel_mapping = grid._CLI_FLAG_TO_CONTROL['gpu_power_intel']
-        self.assertEqual(intel_mapping[1], "LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL")
-        self.assertEqual(intel_mapping[2], "LEVELZERO::GPU_POWER_LIMIT_DEFAULT")
+        self.mock_pio.read_signal.side_effect = fake_read
+        minimum = self.grid.get_minimum('gpu_power', 'board')
+        maximum = self.grid.get_maximum('gpu_power', 'board')
 
-        # Test that the gpu_power_nvml mapping has the expected NVML-specific configuration
-        nvml_mapping = grid._CLI_FLAG_TO_CONTROL['gpu_power_nvml']
-        self.assertEqual(nvml_mapping[1], 200)  # _DEFAULT_POWER_MIN
-        self.assertEqual(nvml_mapping[2], "GPU_POWER_LIMIT_CONTROL")  # Uses current as max
+        self.assertEqual(minimum, 200)  # Falls back to default numeric value
+        self.assertEqual(maximum, 123.0)  # Falls back to alternate signal
 
     def test_all_argument_types_defined(self):
         """Test that all control arguments are properly defined and processed"""
