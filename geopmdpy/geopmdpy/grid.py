@@ -262,7 +262,7 @@ class ControlGrid:
         key = _CLI_FLAG_TO_CONTROL[control_name][index]
         return self._resolve_range_value(key, domain)
 
-    def _resolve_range_value(self, key, domain: Union[int, str]):
+    def _resolve_range_value(self, key, domain: Union[int, str]) -> float:
         """Resolve a range value, supporting tuples of fallbacks."""
         if isinstance(key, tuple):
             last_error = None
@@ -307,7 +307,10 @@ class ControlGrid:
         if maximum < minimum:
             raise ValueError(f"Grid for {control} has maximum less than minimum.")
         span = maximum - minimum
-        steps_float = span / step if span else 0.0
+        if math.isclose(span, 0.0, rel_tol=1e-9, abs_tol=1e-12):
+            # Zero-span: return a single value grid
+            return [minimum]
+        steps_float = span / step
         steps_int = int(round(steps_float))
         if not math.isclose(steps_float, steps_int, rel_tol=1e-9, abs_tol=1e-12):
             raise ValueError(f"Grid for {control} is not evenly divisible by step size.")
