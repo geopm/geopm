@@ -270,6 +270,9 @@ specified regardless of the values set in the calling environment.
 GEOPM Environment Variables
 ---------------------------
 ``GEOPM_NUM_PROC`` - *integer* (default: 1)
+  **Required to be set in the environment of geopmctl when using geopmctl
+  or in the environment of the application otherwise.**
+
   The number of processes to be tracked and profiled by the controller on each
   compute node. The controller will wait until this number of processes request
   profiling before starting the control loop and subsequent requests for
@@ -280,6 +283,8 @@ GEOPM Environment Variables
   parameter based on the values passed to the underlying launch command, so the
   user does not have to set it explicitly.
 ``GEOPM_PROGRAM_FILTER`` - *string* (comma separated list)
+  **Required to be set in the environment of the application.**
+
   Required comma separated list of program invocation names of
   processes which are intended to be profiled and tracked by the
   controller.  See the ``--geopm-program-filter``
@@ -322,7 +327,7 @@ GEOPM Environment Variables
   The type of agent to run in the GEOPM HPC runtime. See the
   ``--geopm-agent`` :ref:`option description <geopm-agent option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_POLICY`` - *signal*
+``GEOPM_POLICY`` - *string*
   The path to the GEOPM policy JSON file to use for the selected agent. See the
   ``--geopm-policy`` :ref:`option description <geopm-policy option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
@@ -373,6 +378,13 @@ GEOPM Environment Variables
 
 Other Environment Variables
 ---------------------------
+``LD_PRELOAD``
+  **Required unless the application is linked to libgeopm**
+
+  Forces the dynamic linker to load the ``libgeopm`` shared library
+  before any other shared libraries.  This is required for the application
+  profiling interfaces to work correctly.
+
 ``LD_DYNAMIC_WEAK``
   When dynamically linking an application to ``libgeopm`` for any
   features supported by the PMPI profiling of the MPI runtime it may
@@ -383,6 +395,20 @@ Other Environment Variables
   symbols, e.g. ``"-lgeopm -lmpi"``, linking order precedence will
   enforce the required override of the MPI interface symbols and the
   ``LD_DYNAMIC_WEAK`` environment variable is not required at runtime.
+
+Example
+-------
+A minimal example of how to launch `geopmctl` as a separate application
+alongside the target application (sleep) when not using :doc:`geopmlaunch(1)
+<geopmlaunch.1>`:
+
+.. code-block:: bash
+
+   #!/bin/bash
+
+   GEOPM_REPORT=geopm.report GEOPM_NUM_PROC=1 mpiexec --ppn 1 -n 1 geopmctl &
+
+   GEOPM_PROGRAM_FILTER=sleep mpiexec --ppn 1 -n 1 --env=LD_PRELOAD=libgeopm.so.2.2.0 sleep 30
 
 Misc
 ----
