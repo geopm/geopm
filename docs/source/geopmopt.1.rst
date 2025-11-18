@@ -6,18 +6,37 @@ Synopsis
 
 .. code-block:: bash
 
-   usage: geopmopt [-h] [--cpu-frequency CPU_FREQUENCY_DOMAIN]
-                   [--cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN]
-                   [--cpu-power CPU_POWER_DOMAIN]
-                   [--gpu-frequency GPU_FREQUENCY_DOMAIN]
-                   [--gpu-power GPU_POWER_DOMAIN]
-                   [--board-power BOARD_POWER_DOMAIN]
-                   [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
-                   --metric-regex METRIC_REGEX [--minimize] [--random-seed RANDOM_SEED]
-                   [--application-timeout APPLICATION_TIMEOUT]
-                   [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
-                   [--print-stdout] [--defer-write] [--efficiency EFFICIENCY_DOMAIN]
-                   [-- LAUNCH ...]
+    usage: geopmopt [-h]
+                    [--cpu-frequency CPU_FREQUENCY_DOMAIN]
+                    [--cpu-frequency-min CPU_FREQUENCY_MIN]
+                    [--cpu-frequency-max CPU_FREQUENCY_MAX]
+                    [--cpu-frequency-step CPU_FREQUENCY_STEP]
+                    [--cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN]
+                    [--cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN]
+                    [--cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX]
+                    [--cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP]
+                    [--cpu-power CPU_POWER_DOMAIN]
+                    [--cpu-power-min CPU_POWER_MIN]
+                    [--cpu-power-max CPU_POWER_MAX]
+                    [--cpu-power-step CPU_POWER_STEP]
+                    [--gpu-frequency GPU_FREQUENCY_DOMAIN]
+                    [--gpu-frequency-min GPU_FREQUENCY_MIN]
+                    [--gpu-frequency-max GPU_FREQUENCY_MAX]
+                    [--gpu-frequency-step GPU_FREQUENCY_STEP]
+                    [--gpu-power GPU_POWER_DOMAIN]
+                    [--gpu-power-min GPU_POWER_MIN]
+                    [--gpu-power-max GPU_POWER_MAX]
+                    [--gpu-power-step GPU_POWER_STEP]
+                    [--board-power BOARD_POWER_DOMAIN]
+                    [--board-power-min BOARD_POWER_MIN]
+                    [--board-power-max BOARD_POWER_MAX]
+                    [--board-power-step BOARD_POWER_STEP]
+                    [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
+                    --metric-regex METRIC_REGEX [--minimize] [--random-seed RANDOM_SEED]
+                    [--application-timeout APPLICATION_TIMEOUT]
+                    [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
+                    [--print-stdout] [--defer-write] [--efficiency EFFICIENCY_DOMAIN]
+                    [-- LAUNCH ...]
 
 Optimize CPU frequency for performance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,24 +121,95 @@ Control Parameters
     domain. The optimizer will explore different CPU frequency settings to
     find optimal performance.
 
+--cpu-frequency-min CPU_FREQUENCY_MIN  .. _cpu-frequency-min option:
+
+    Override the automatically detected CPU frequency minimum before creating the
+    optimization grid. This narrows the candidate settings explored by the optimizer.
+
+--cpu-frequency-max CPU_FREQUENCY_MAX  .. _cpu-frequency-max option:
+
+    Override the automatically detected CPU frequency maximum before creating the
+    optimization grid. This narrows the candidate settings explored by the optimizer.
+
+--cpu-frequency-step CPU_FREQUENCY_STEP  .. _cpu-frequency-step option:
+
+    Override the step size used to enumerate CPU frequency settings. This controls
+    the resolution of the optimization grid.
+
 --cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN  .. _cpu-uncore-frequency option:
 
     Include CPU uncore frequency control in the optimization space. Useful
     for memory-intensive applications where uncore frequency affects performance.
+
+--cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN  .. _cpu-uncore-frequency-min option:
+
+    Override the automatically detected minimum for CPU uncore frequency when
+    constructing the optimization grid.
+
+--cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX  .. _cpu-uncore-frequency-max option:
+
+    Override the automatically detected maximum for CPU uncore frequency when
+    constructing the optimization grid.
+
+--cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP  .. _cpu-uncore-frequency-step option:
+
+    Override the step size used to enumerate CPU uncore frequency settings.
 
 --cpu-power CPU_POWER_DOMAIN  .. _cpu-power option:
 
     Include CPU power limit control in the optimization space. Allows the
     optimizer to find optimal power-performance trade-offs.
 
+--cpu-power-min CPU_POWER_MIN  .. _cpu-power-min option:
+
+    Override the automatically detected minimum CPU power limit before the
+    optimization grid is created.
+
+--cpu-power-max CPU_POWER_MAX  .. _cpu-power-max option:
+
+    Override the automatically detected maximum CPU power limit before the
+    optimization grid is created.
+
+--cpu-power-step CPU_POWER_STEP  .. _cpu-power-step option:
+
+    Override the step size used to enumerate CPU power limit settings.
+
 --gpu-frequency GPU_FREQUENCY_DOMAIN  .. _gpu-frequency option:
 
     Include GPU frequency control in the optimization space for GPU-accelerated
     applications.
 
+--gpu-frequency-min GPU_FREQUENCY_MIN  .. _gpu-frequency-min option:
+
+    Override the automatically detected minimum GPU frequency prior to building
+    the optimization grid.
+
+--gpu-frequency-max GPU_FREQUENCY_MAX  .. _gpu-frequency-max option:
+
+    Override the automatically detected maximum GPU frequency prior to building
+    the optimization grid.
+
+--gpu-frequency-step GPU_FREQUENCY_STEP  .. _gpu-frequency-step option:
+
+    Override the step size used to enumerate GPU frequency settings.
+
 --gpu-power GPU_POWER_DOMAIN  .. _gpu-power option:
 
     Include GPU power limit control in the optimization space.
+
+--gpu-power-min GPU_POWER_MIN  .. _gpu-power-min option:
+
+    Override the automatically detected minimum GPU power limit before the
+    optimization grid is created.
+
+--gpu-power-max GPU_POWER_MAX  .. _gpu-power-max option:
+
+    Override the automatically detected maximum GPU power limit before the
+    optimization grid is created.
+
+--gpu-power-step GPU_POWER_STEP  .. _gpu-power-step option:
+
+    Override the step size used to enumerate GPU power limit settings.
 
 --board-power board  .. _board-power option:
 
@@ -127,6 +217,20 @@ Control Parameters
     comprehensive power management. The only valid domain for this option is
     ``board`` and this option is only available on some platforms that support
     the ``BOARD_POWER_LIMIT_CONTROL`` PlatformIO control.
+
+--board-power-min BOARD_POWER_MIN  .. _board-power-min option:
+
+    Override the automatically detected minimum board-level power limit before
+    the optimization grid is created.
+
+--board-power-max BOARD_POWER_MAX  .. _board-power-max option:
+
+    Override the automatically detected maximum board-level power limit before
+    the optimization grid is created.
+
+--board-power-step BOARD_POWER_STEP  .. _board-power-step option:
+
+    Override the step size used to enumerate board-level power settings.
 
 Optimization Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
