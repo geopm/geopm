@@ -1,11 +1,19 @@
-To get started with rust, install the toolchain via rustup.  More info can be found here: https://rustup.rs/
+# GEOPM Rust Implementation
 
-`build.sh` also requires cargo-deb.  Install it via:
+To get started with rust, install the toolchain via rustup.  More info can be
+found here: https://rustup.rs/
+
+To build the release version of `geopmd-proxy` run:
+
 ```
-cargo install cargo-deb
+cargo build -r
 ```
 
-# geopmdrs
+The `build.sh` script builds the debug binary, release binary, and debian
+package. Note: Running the `build.sh` script will also install the cargo-deb
+package into your Rust environment if it is not already installed.
+
+## geopmd-proxy
 
 Directory contains the implementation for the geopmd gRPC UDS proxy server.  This
 proxy server is required to work around the lack of support for UDS credentials

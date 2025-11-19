@@ -18,6 +18,7 @@
 *.dsc
 *.tar.gz
 *.deb
+*.ddeb
 *.buildinfo
 *.changes
 VERSION

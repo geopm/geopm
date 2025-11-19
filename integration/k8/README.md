@@ -69,9 +69,16 @@ approach is preferred if the host OS already provides the GEOPM Access Service
 or if installing the GEOPM packages on the host is preferred over running a
 privileged container.
 
-To enable this, edit the GEOPM systemd unit file using the `systemctl edit
-geopm` command. Modify the `ExecStart` field to include the `--grpc` option and
-set the `Type` to `simple`:
+A prerequisite for using the host OS for GEOPM access is to build the install
+the `geopmd-proxy` Rust binary in the system path. On debian based systems,
+packaging the `geopmd-proxy` file is enabled with the `cargo deb` command, but
+there is currently no support for RPM based packaging of the `geopmd-proxy`
+staticly linked binary executable. See the `geopmdrs/README.md` file for more
+information about `geopmd-proxy`.
+
+To enable `geopmd` to communicate via a containerized UDS, edit the GEOPM
+systemd unit file using the `systemctl edit geopm` command. Modify the
+`ExecStart` field to include the `--grpc` option and set the `Type` to `simple`:
 
 ```
 $ sudo systemctl edit geopm
@@ -80,6 +87,36 @@ $ cat /etc/systemd/system/geopm.service.d/override.conf
 Type=notify
 ExecStart=
 ExecStart=/usr/bin/geopmd --grpc
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart geopm
+```
+
+For some operating systems like CentOS and RHEL the path for `geopmd` may be
+`/usr/sbin/geopmd`.  To address this inconsistency, some additional logic can be
+added to the `ExecStart` variable.
+
+On non-Debian based operating systems, packaging for geopmd-proxy does not
+exist, but since `geopmd-proxy` is a staticly linked binary, it can be moved to
+any path accessable when the GEOPM systemd service starts without any additional
+runtime linking requirements.
+
+To build the release version of the geopmd-proxy
+```
+cd geopm/geopmdrs
+cargo build -r
+sudo mv target/release/geopmd-proxy <PATH_TO_GEOPMD_PROXY>
+```
+
+After moving the `geopmd-proxy` binary to an accessable location, modify the
+geopm service systemd unit.
+
+```
+$ sudo systemctl edit geopm
+$ cat /etc/systemd/system/geopm.service.d/override.conf
+[Service]
+Type=notify
+ExecStart=
+ExecStart=/bin/bash -c 'PATH=<PATH_TO_GEOPMD_PROXY>:$PATH test -e /usr/sbin/geopmd && /usr/sbin/geopmd --grpc || /usr/bin/geopmd --grpc'
 $ sudo systemctl daemon-reload
 $ sudo systemctl restart geopm
 ```

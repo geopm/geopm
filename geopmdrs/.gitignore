@@ -2,3 +2,10 @@ Cargo.lock
 Cargo.toml
 target
 vendor
+/debian/.debhelper/
+/debian/changelog
+/debian/debhelper-build-stamp
+/debian/files
+/debian/geopmd-proxy/
+/debian/tmp/
+geopmd-proxy.spec

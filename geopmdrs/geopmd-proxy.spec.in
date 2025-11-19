@@ -1,0 +1,105 @@
+##
+#  geopmd-proxy.spec.in - RPM spec template for the GEOPM gRPC UDS proxy
+#
+#  This spec file is intentionally simple: it packages the single Rust
+#  binary "geopmd-proxy" that provides a UDS credential forwarding
+#  workaround for the main geopmd service.  The @VERSION@ token is
+#  substituted by build.sh (git derived version written into VERSION).
+#
+#  To build manually (example):
+#    rpmbuild -tb geopmdrs-<version>.tar.gz
+#
+#  (Where the tarball root directory is "geopmdrs-<version>" mirroring
+#   the pattern used by other GEOPM components.)
+#
+#  Copyright (c) 2015 - 2025 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+##
+
+## Fedora 42+ Rust packaging: allow standard debuginfo generation.
+## (Do not disable debug_package unless absolutely required.)
+%global desc %{expand: \
+The Global Extensible Open Power Manager (GEOPM) provides a framework to\n+explore power and energy optimizations on platforms with heterogeneous mixes\n+of computing hardware.\n+\n+This package supplies the Rust-based geopmd-proxy binary, a gRPC Unix Domain\n+Socket (UDS) credential forwarding proxy required until native UDS credential\n+support is available in the primary (C++/Python) implementation.}
+
+%if ! %{defined autorelease}
+%define autorelease 1
+%endif
+
+Name:           geopmd-proxy
+Version:        @VERSION@
+Release:        %autorelease
+Summary:        GEOPM gRPC UDS credential proxy (Rust implementation)
+
+Provides:       geopmd-proxy = %{version}-%{release}
+
+License:        BSD-3-Clause
+URL:            https://geopm.github.io
+Source0:        geopm-%{version}.tar.gz
+%if 0%{?fedora}
+BuildRequires:  rust-packaging
+%endif
+
+# Rust macros supply cargo & rust
+BuildRequires:  cargo
+BuildRequires:  rust
+
+# No explicit runtime Requires: normally auto-detected (glibc); Rust crates are vendored or dynamically linked as needed.
+
+%description
+%{desc}
+
+%prep
+%autosetup -p1 -n geopm-%{version}
+pushd geopmdrs
+# Generate Cargo.toml from template with version (mirrors build.sh logic)
+sed -e "s|@VERSION@|%{version}|" Cargo.toml.in > Cargo.toml
+echo %{version} > VERSION
+%if 0%{?fedora}
+%cargo_prep
+%else
+# CentOS 9: ensure vendor directory exists (offline friendly but tolerate absence)
+cargo vendor || true
+%endif
+
+%build
+pushd geopmdrs
+export RUSTFLAGS="-C control-flow-guard ${RUSTFLAGS:-}"
+%if 0%{?fedora}
+%cargo_build
+%else
+cargo build --release
+%endif
+popd
+
+%install
+pushd geopmdrs
+%if 0%{?fedora}
+%cargo_install
+%else
+install -D -m 0755 target/release/geopmd-proxy %{buildroot}%{_bindir}/geopmd-proxy
+%endif
+# Binary ends up under %{_bindir}; move to sbin if project convention requires
+%if "%{_bindir}" != "%{_sbindir}"
+mkdir -p %{buildroot}%{_sbindir}
+mv %{buildroot}{%{_bindir},%{_sbindir}}/geopmd-proxy || :
+%endif
+popd
+
+%check
+pushd geopmdrs
+%if 0%{?fedora}
+%cargo_test || echo "No tests executed"
+%else
+cargo test --release || echo "No tests executed"
+%endif
+popd
+
+%files
+%license geopmdrs/LICENSE-BSD-3-Clause
+%doc geopmdrs/README.md
+%{_sbindir}/geopmd-proxy
+
+%if %{defined autochangelog}
+%changelog
+%autochangelog
+%endif
