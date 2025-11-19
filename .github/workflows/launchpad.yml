@@ -86,8 +86,8 @@ jobs:
            dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./libgeopm/*.changes
            dput ppa:${{ secrets.LAUNCHPAD_USER }}/${LAUNCHPAD_PPA} ./docs/*.changes
 
-  publish_launchpad_plucky:
-    name: "publish_plucky"
+  publish_launchpad_next:
+    name: "publish_next"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -95,7 +95,7 @@ jobs:
         fetch-depth: 0
     - name: Set environment
       run: |
-           echo "LAUNCHPAD_PPA=plucky" >> ${GITHUB_ENV}
+           echo "LAUNCHPAD_PPA=dev-next" >> ${GITHUB_ENV}
            echo "DEBIAN_DISTRO=plucky" >> ${GITHUB_ENV}
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-18-dev libsystemd-dev liburing-dev python3-gi python3-yaml osc python3-m2crypto libcap-dev zlib1g-dev python3-build python3-setuptools-scm doxygen graphviz debhelper-compat debhelper libnvidia-ml-dev pkgconf dh-python python3-all dput elfutils python3-cffi libsqlite3-dev build-essential golang cargo libgrpc++-dev libgrpc-dev libgrpc++-dev libprotoc-dev libprotobuf-dev protobuf-compiler protobuf-compiler-grpc zstd python3-defusedxml libze1 libze-dev python3-sdnotify
