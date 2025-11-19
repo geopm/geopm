@@ -29,12 +29,6 @@ RUN mkdir -p rpmbuild/SOURCES && \
        rpmbuild/SPECS/libgeopm.spec && \
     curl -sL ${PACKAGING_URL}/python-geopmpy.spec > \
         rpmbuild/SPECS/python-geopmpy.spec && \
-    curl -sL ${PACKAGING_URL}/0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch > \
-        rpmbuild/SOURCES/0001-Avoid-Wnon-virtual-dtor-option-in-CFLAGS.patch && \
-    curl -sL ${PACKAGING_URL}/0002-Allow-numpy-2.0-and-higher.patch > \
-        rpmbuild/SOURCES/0002-Allow-numpy-2.0-and-higher.patch && \
-    curl -sL ${PACKAGING_URL}/0003-Define-macro-to-set-defaults-used-by-init-function.patch > \
-        rpmbuild/SOURCES/0003-Define-macro-to-set-defaults-used-by-init-function.patch && \
     tar xf rpmbuild/SOURCES/geopm-3.2.1.tar.gz && \
     rpmbuild -ba rpmbuild/SPECS/libgeopmd.spec
 
