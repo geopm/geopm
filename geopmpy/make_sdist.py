@@ -11,7 +11,15 @@ def setup():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     package_name = os.path.basename(script_dir)
     version = get_version(f'{script_dir}/..')
-    distro = os.environ.get('DEBIAN_DISTRO', 'noble')
+    try:
+        distro = os.environ['DEBIAN_DISTRO']
+    except KeyError:
+        try:
+            with open('/etc/lsb-release') as fid:
+                data = {line.split('=')[0]: line.split('=')[1].strip() for line in fid.readlines()}
+            distro = data['DISTRIB_CODENAME']
+        except:
+            distro = 'noble'
     with open(f'{script_dir}/{package_name}/VERSION', 'w') as fid:
         fid.write(version)
     date = datetime.today().astimezone().strftime('%a, %d %b %Y %H:%M:%S %z')

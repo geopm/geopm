@@ -20,6 +20,8 @@ AC_DEFINE_UNQUOTED([DATE], ["$DATE"], [Date string suitable for debian changelog
 
 [if ! test -z "$DEBIAN_DISTRO"; then
   DISTRO=$DEBIAN_DISTRO
+elif grep '^DISTRIB_CODENAME=' /etc/lsb-release >& /dev/null; then
+  DISTRO=`grep '^DISTRIB_CODENAME=' /etc/lsb-release | awk -F= '{print $2}'`
 else
   DISTRO=noble
 fi
