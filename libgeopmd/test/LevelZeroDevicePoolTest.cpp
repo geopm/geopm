@@ -85,7 +85,7 @@ TEST_F(LevelZeroDevicePoolTest, single_supported_frequency)
     const int num_gpu = 4;
     const int num_gpu_subdevice = 8;
     const int num_subdevice_per_device = num_gpu_subdevice/num_gpu;
-    std::vector<double> mock_freq_supported = {9};
+    static std::vector<double> mock_freq_supported = {9};
 
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));

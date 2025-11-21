@@ -19,10 +19,3 @@ override_dh_auto_configure:
 	    CONFIG_OPTION="--enable-levelzero $$CONFIG_OPTION"; \
 	fi; \
 	dh_auto_configure -- --with-bash-completion-dir=/etc/bash_completion.d --enable-grpc $$CONFIG_OPTION
-
-override_dh_auto_test:
-	if [ "$$(dpkg-parsechangelog -SDistribution)" = "plucky" ]; then \
-	    echo "Skipping dh_auto_test for plucky"; \
-	else \
-	    dh_auto_test; \
-	fi
