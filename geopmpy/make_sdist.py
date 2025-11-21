@@ -18,7 +18,7 @@ def setup():
             with open('/etc/lsb-release') as fid:
                 data = {line.split('=')[0]: line.split('=')[1].strip() for line in fid.readlines()}
             distro = data['DISTRIB_CODENAME']
-        except:
+        except (FileNotFoundError, KeyError, IndexError):
             distro = 'noble'
     with open(f'{script_dir}/{package_name}/VERSION', 'w') as fid:
         fid.write(version)
