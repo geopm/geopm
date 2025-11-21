@@ -112,8 +112,6 @@ class _MPISessionIO:
             from mpi4py import MPI
         except Exception as ex:
             raise RuntimeError('Using --enable-mpi requires the mpi4py module see: https://mpi4py.readthedocs.io/en/stable/install.html>') from ex
-        if trace_path == "-":
-            raise RuntimeError('Cannot write trace to standard output when specifying the --enable-mpi option')
         self._request_stream = request_stream
         self._trace_path = trace_path
         self._report_path = report_path
@@ -143,7 +141,7 @@ class _MPISessionIO:
         if not self.do_trace():
             return None
         else:
-            return open(f'{self._trace_path}-{gethostname()}', "w")
+            return open(self._trace_path, "w")
 
     def close_trace_stream(self, fid):
         if fid is not None:
@@ -616,7 +614,7 @@ class Session:
             do_stats = session_io.do_report()
         else:
             requests = ReadRequestQueue(request_stream)
-            do_stats = report_path is not None
+            do_stats = _check_valid_output(report_path)
         self.check_read_args(run_time, period, report_samples, pid, launch)
         self.check_requests(requests)
         signal_config = list(requests)
@@ -905,18 +903,21 @@ def get_parser():
                         help='Output summary statistics into a yaml file. Default: No summary statistics are generated.')
     parser.add_argument('-o', '--trace-out', dest='trace_out', default='-',
                         help='Output trace data into a CSV file. Default: trace data is printed to stdout.')
-    parser.add_argument('--enable-mpi', dest='enable_mpi', action='store_true',
-                        help='Gather reports over MPI and write to a single file. Append MPI rank to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
     parser.add_argument('-f', '--report-format', dest='report_format', default='yaml',
                         help='Format for report: "csv" or "yaml".  Default: %(default)s.')
     parser.add_argument('-s', '--report-samples', dest='report_samples', type=int, default=None,
                         help='Create reports each time the specified number of periods have elapsed')
     parser.add_argument('-i', '--signal-config', dest='config_path', default='-',
                         help='Input file containing GEOPM signal requests, specify "-" to use standard input which is also the default.')
+    parser.add_argument('-a', '--append-hostname', action='store_true',
+                        help='Append hostname to report and trace files, useful when using a shared file system without --enable-mpi')
+    launch_group = parser.add_mutually_exclusive_group()
+    launch_group.add_argument('--daemon', dest='daemon_pid_file', default=None,
+                              help='Run session as a daemon and write the daemon PID to the specified file.')
+    launch_group.add_argument('--enable-mpi', dest='enable_mpi', action='store_true',
+                              help='Gather reports over MPI and write to a single file. Append MPI rank to trace output file if specified (trace output to stdout not permitted). Requires mpi4py module.')
     parser.add_argument('launch', nargs=REMAINDER,
                         help='Launch a process based on command following -- and terminate session when it ends')
-    parser.add_argument('--daemon', dest='daemon_pid_file', default=None,
-                        help='Run session as a daemon and write the daemon PID to the specified file.')
     return parser
 
 def main(agent=None):
@@ -970,10 +971,14 @@ def main(agent=None):
         if args.report_samples is not None and args.trace_out == args.report_out:
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
         if args.enable_mpi and args.launch:
-            sys.stderr.write('Warning: Using --enable-mpi and launch option is not recommended. Each MPI rank will launch the subprocess and subprocess MPI usage may be in conflict.\n\n')
+            raise RuntimeError('Using --enable-mpi and launch option is incompatible, consider using --daemon and --append-hostname instead')
+        if args.daemon_pid_file and args.launch:
+            raise RuntimeError('Using --daemon and launch option is incompatible, launch application after daemon command returns (the daemon will be running in the background)')
         if args.launch and args.launch[0] == '--':
             args.launch = args.launch[1:]
         if args.config_path == '-':
+            if args.daemon_pid_file == True:
+                raise RuntimeError('Signal config must be specified with a file, not standard input, when using the --daemon option')
             override = agent.signal_config_override()
             if override is None:
                 config_stream = sys.stdin
@@ -982,10 +987,20 @@ def main(agent=None):
         else:
             _config_stream = open(args.config_path)
             config_stream = _config_stream
+        report_path = args.report_out
+        if args.append_hostname and _check_valid_output(report_path) and report_path != '-':
+            if report_path == '-':
+                raise ValueError('C')
+            report_path = f'{report_path}-{gethostname()}'
+        trace_path = args.trace_out
+        if args.enable_mpi and trace_path == "-":
+            raise RuntimeError('Cannot write trace to standard output when specifying the --enable-mpi option')
+        if (args.append_hostname or args.enable_mpi) and _check_valid_output(trace_path) and trace_path != '-':
+            trace_path = f'{trace_path}-{gethostname()}'
         if args.enable_mpi:
-            session_io = _MPISessionIO(request_stream=config_stream, trace_path=args.trace_out, report_path=args.report_out, report_format=args.report_format)
+            session_io = _MPISessionIO(request_stream=config_stream, trace_path=trace_path, report_path=report_path, report_format=args.report_format)
         else:
-            session_io = _SessionIO(request_stream=config_stream, trace_path=args.trace_out, report_path=args.report_out)
+            session_io = _SessionIO(request_stream=config_stream, trace_path=trace_path, report_path=report_path)
         trace_out = session_io.open_trace_stream()
         sess = Session(args.delimiter, agent)
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
