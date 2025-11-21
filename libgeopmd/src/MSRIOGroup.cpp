@@ -1222,7 +1222,9 @@ namespace geopm
                  cpu_id == MSRIOGroup::M_CPUID_GNRAP) {
             platform_msrs = spr_msr_json();
         }
-        else if (cpu_id == MSRIOGroup::M_CPUID_RPL) {
+        else if (cpu_id == MSRIOGroup::M_CPUID_RPL1 ||
+                 cpu_id == MSRIOGroup::M_CPUID_RPL2 ||
+                 cpu_id == MSRIOGroup::M_CPUID_RPL3) {
             platform_msrs = rpl_msr_json();
         }
         else {
