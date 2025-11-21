@@ -1,0 +1,512 @@
+{
+    "msrs": {
+        "PLATFORM_INFO": {
+            "offset": "0xCE",
+            "domain": "package",
+            "fields": {
+                "MAX_NON_TURBO_RATIO": {
+                    "begin_bit": 8,
+                    "end_bit": 15,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "The processor's maximum non-turbo frequency.",
+                    "aggregation": "expect_same"
+                },
+                "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
+                    "begin_bit": 28,
+                    "end_bit": 28,
+                    "function": "logic",
+                    "units": "none",
+                    "scalar": 1,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Indicates whether the MSR::TURBO_RATIO_LIMIT:* signals are also available as controls.",
+                    "aggregation": "expect_same"
+                },
+                "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
+                    "begin_bit": 29,
+                    "end_bit": 29,
+                    "function": "logic",
+                    "units": "none",
+                    "scalar": 1,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Indicates whether this platform supports programmable TDP limits for turbo mode.",
+                    "aggregation": "expect_same"
+                },
+                "PROGRAMMABLE_TCC_ACTIVATION_OFFSET": {
+                    "begin_bit": 30,
+                    "end_bit": 30,
+                    "function": "logic",
+                    "units": "none",
+                    "scalar": 1,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Indicates whether the platform permits writes to MSR::TEMPERATURE_TARGET:TCC_ACTIVE_OFFSET.",
+                    "aggregation": "expect_same"
+                },
+                "MAX_EFFICIENCY_RATIO": {
+                    "begin_bit": 40,
+                    "end_bit": 47,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "The minimum operating frequency of the processor.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "PERF_STATUS": {
+            "offset": "0x198",
+            "domain": "cpu",
+            "fields": {
+                "FREQ": {
+                    "begin_bit": 8,
+                    "end_bit": 15,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "variable",
+                    "writeable": false,
+                    "aggregation": "average",
+                    "description": "The current operating frequency of the CPU."
+                }
+            }
+        },
+        "PERF_CTL": {
+            "offset": "0x199",
+            "domain": "core",
+            "fields": {
+                "FREQ": {
+                    "begin_bit": 8,
+                    "end_bit": 15,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Target operating frequency of the CPU based on the control register.",
+                    "aggregation": "average"
+                }
+            }
+        },
+        "TEMPERATURE_TARGET": {
+            "offset": "0x1A2",
+            "domain": "core",
+            "fields": {
+                "PROCHOT_MIN": {
+                    "begin_bit": 16,
+                    "end_bit": 23,
+                    "function": "scale",
+                    "units": "celsius",
+                    "scalar": 1.0,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "aggregation": "expect_same",
+                    "description": "The lowest temperature considered a high temperature."
+                },
+                "TCC_ACTIVE_OFFSET": {
+                    "begin_bit": 24,
+                    "end_bit": 27,
+                    "function": "scale",
+                    "units": "celsius",
+                    "scalar": 1.0,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "An offset to subtract from PROCHOT_MIN as the cutoff to generate a PROCHOT event.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "TURBO_RATIO_LIMIT": {
+            "offset": "0x1AD",
+            "domain": "package",
+            "fields": {
+                "MAX_RATIO_LIMIT_0": {
+                    "begin_bit": 0,
+                    "end_bit": 7,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum turbo frequency for core group 0.", "aggregation": "expect_same"
+                },
+                "MAX_RATIO_LIMIT_1": {
+                    "begin_bit": 8,
+                    "end_bit": 15,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum turbo frequency for core group 1.",
+                    "aggregation": "expect_same"
+                },
+                "MAX_RATIO_LIMIT_2": {
+                    "begin_bit": 16,
+                    "end_bit": 23,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum turbo frequency for core group 2.",
+                    "aggregation": "expect_same" },
+                "MAX_RATIO_LIMIT_3": {
+                    "begin_bit": 24,
+                    "end_bit": 31,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant", "writeable": false, "description": "Maximum turbo frequency for core group 3.", "aggregation": "expect_same" }
+            }
+        },
+        "TURBO_RATIO_LIMIT_CORES": {
+            "offset": "0x1AE",
+            "domain": "package",
+            "fields": {
+                "NUMCORE_0": {
+                    "begin_bit": 0,
+                    "end_bit": 7,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Core count for turbo group 0.",
+                    "aggregation": "expect_same"
+                },
+                "NUMCORE_1": {
+                    "begin_bit": 8,
+                    "end_bit": 15,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Core count for turbo group 1.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "RAPL_POWER_UNIT": {
+            "offset": "0x606",
+            "domain": "package",
+            "fields": {
+                "POWER": {
+                    "begin_bit": 0,
+                    "end_bit": 3,
+                    "function": "log_half",
+                    "units": "watts",
+                    "scalar": 1.0,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Resolution of RAPL power interfaces.",
+                    "aggregation": "expect_same"
+                },
+                "ENERGY": {
+                    "begin_bit": 8,
+                    "end_bit": 12,
+                    "function": "log_half",
+                    "units": "joules",
+                    "scalar": 1.0,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Resolution of RAPL energy interfaces.",
+                    "aggregation": "expect_same"
+                },
+                "TIME": {
+                    "begin_bit": 16,
+                    "end_bit": 19,
+                    "function": "log_half",
+                    "units": "seconds",
+                    "scalar": 1.0,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Resolution of RAPL time interfaces.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "PKG_POWER_LIMIT": {
+            "offset": "0x610",
+            "domain": "package",
+            "fields": {
+                "PL1_POWER_LIMIT": {
+                    "begin_bit": 0,
+                    "end_bit": 14,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Average power limit over PL1 time window.",
+                    "aggregation": "sum"
+                },
+                "PL2_POWER_LIMIT": {
+                    "begin_bit": 32,
+                    "end_bit": 46,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Average power limit over PL2 time window.",
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "PKG_ENERGY_STATUS": {
+            "offset": "0x611",
+            "domain": "package",
+            "fields": {
+                "ENERGY": {
+                    "begin_bit": 0,
+                    "end_bit": 31,
+                    "function": "overflow",
+                    "units": "joules",
+                    "scalar": 6.103515625e-05,
+                    "behavior": "monotone",
+                    "writeable": false,
+                    "description": "Energy consumed by the package.",
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "PKG_POWER_INFO": {
+            "offset": "0x614",
+            "domain": "package",
+            "fields": {
+                "THERMAL_SPEC_POWER": {
+                    "begin_bit": 0,
+                    "end_bit": 14,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum power to stay within thermal limits.",
+                    "aggregation": "sum"
+                },
+                "MIN_POWER": {
+                    "begin_bit": 16,
+                    "end_bit": 30,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Minimum power limit based on electrical spec.",
+                    "aggregation": "sum"
+                },
+                "MAX_POWER": {
+                    "begin_bit": 32,
+                    "end_bit": 46,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum power limit based on electrical spec.",
+                    "aggregation": "sum"
+                },
+                "MAX_TIME_WINDOW": {
+                    "begin_bit": 48,
+                    "end_bit": 54,
+                    "function": "7_bit_float",
+                    "units": "seconds",
+                    "scalar": 0.0009765625,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum time accepted in PL1/PL2 windows.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "DRAM_POWER_LIMIT": {
+            "offset": "0x618",
+            "domain": "memory",
+            "fields": {
+                "POWER_LIMIT": {
+                    "begin_bit": 0,
+                    "end_bit": 14,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Average DRAM power usage limit.",
+                    "aggregation": "sum"
+                },
+                "ENABLE": {
+                    "begin_bit": 15,
+                    "end_bit": 15,
+                    "function": "logic",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Enable DRAM power limit.",
+                    "aggregation": "sum"
+                },
+                "TIME_WINDOW": {
+                    "begin_bit": 17,
+                    "end_bit": 23,
+                    "function": "7_bit_float",
+                    "units": "seconds",
+                    "scalar": 0.0009765625,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Time window for DRAM power limit.",
+                    "aggregation": "expect_same"
+                },
+                "LOCK": {
+                    "begin_bit": 31,
+                    "end_bit": 31,
+                    "function": "logic",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Lock DRAM power limit until reset.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "DRAM_ENERGY_STATUS": {
+            "offset": "0x619",
+            "domain": "package",
+            "fields": {
+                "ENERGY": {
+                    "begin_bit": 0,
+                    "end_bit": 31,
+                    "function": "overflow",
+                    "units": "joules",
+                    "scalar": 6.103515625e-05,
+                    "behavior": "monotone",
+                    "writeable": false,
+                    "description": "Energy consumed by DRAM over time.",
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "DRAM_PERF_STATUS": {
+            "offset": "0x61B",
+            "domain": "memory",
+            "fields": {
+                "THROTTLE_TIME": {
+                    "begin_bit": 0,
+                    "end_bit": 31,
+                    "function": "scale",
+                    "units": "seconds",
+                    "scalar": 0.0009765625,
+                    "behavior": "monotone",
+                    "writeable": false,
+                    "description": "Time DRAM was throttled below requested frequency.",
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "DRAM_POWER_INFO": {
+            "offset": "0x61C",
+            "domain": "memory",
+            "fields": {
+                "THERMAL_SPEC_POWER": {
+                    "begin_bit": 0,
+                    "end_bit": 14,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum DRAM power for thermal limits.",
+                    "aggregation": "sum"
+                },
+                "MIN_POWER": {
+                    "begin_bit": 16,
+                    "end_bit": 30,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Minimum DRAM power limit.",
+                    "aggregation": "sum"
+                },
+                "MAX_POWER": {
+                    "begin_bit": 32,
+                    "end_bit": 46,
+                    "function": "scale",
+                    "units": "watts",
+                    "scalar": 0.125,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum DRAM power limit.",
+                    "aggregation": "sum"
+                },
+                "MAX_TIME_WINDOW": {
+                    "begin_bit": 48,
+                    "end_bit": 54,
+                    "function": "7_bit_float",
+                    "units": "seconds",
+                    "scalar": 0.0009765625,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "Maximum DRAM time window.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "UNCORE_RATIO_LIMIT": {
+            "offset": "0x620",
+            "domain": "package",
+            "fields": {
+                "MAX_RATIO": {
+                    "begin_bit": 0,
+                    "end_bit": 6,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Upper limit for uncore frequency.",
+                    "aggregation": "expect_same"
+                },
+                "MIN_RATIO": {
+                    "begin_bit": 8,
+                    "end_bit": 14,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "variable",
+                    "writeable": true,
+                    "description": "Lower limit for uncore frequency.",
+                    "aggregation": "expect_same"
+                }
+            }
+        },
+        "UNCORE_PERF_STATUS": {
+            "offset": "0x621",
+            "domain": "package",
+            "fields": {
+                "FREQ": {
+                    "begin_bit": 0,
+                    "end_bit": 6,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "variable",
+                    "writeable": false,
+                    "description": "Current uncore frequency.",
+                    "aggregation": "average"
+                }
+            }
+        }
+    }
+}
