@@ -339,6 +339,27 @@ by OS and OS version.  Note: the commands in this table should be run with
                      # Man pages for C/C++ development
                      apt install libgeopmd-doc
 
+         .. group-tab:: 25.04 Plucky
+
+            .. tabs::
+
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add Launchpad PPA
+                     add-apt-repository ppa:geopm/dev-next
+                     apt update
+                     # GEOPM Access Service python module
+                     apt install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     apt install geopmd
+                     # C/C++ development files
+                     apt install libgeopmd-dev
+                     # Man pages for GEOPM Access Service
+                     apt install geopmd-doc
+                     # Man pages for C/C++ development
+                     apt install libgeopmd-doc
 
 
 GEOPM Runtime Service - Development
@@ -674,4 +695,25 @@ by OS and OS version.  Note: the commands in this table should be run with
                      # Man pages for C/C++ development
                      apt install libgeopm-doc
 
+         .. group-tab:: 25.04 Plucky
+
+            .. tabs::
+
+               .. group-tab:: Nvidia GPU support + Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add Launchpad PPA
+                     add-apt-repository ppa:geopm/dev-next
+                     apt update
+                     # GEOPM Runtime Command Line Interface
+                     apt install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     apt install libgeopm-dev
+                     # GEOPM Runtime post-processing scripts
+                     apt install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     apt install geopm-doc
+                     # Man pages for C/C++ development
+                     apt install libgeopm-doc
 
