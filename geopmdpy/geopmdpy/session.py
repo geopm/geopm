@@ -406,7 +406,7 @@ class Session:
 
         """
         num_period = 0
-        if pid is not None:
+        if any(x is not None for x in (pid, ready_fd, launch)):
             num_period = None
         elif period != 0:
             num_period = math.ceil(duration / period)
@@ -426,7 +426,6 @@ class Session:
         if launch:
             pid = subprocess.Popen(launch, preexec_fn=os.setsid)
             g_session_handler.set_subprocess(pid)
-            num_period = None
         if ready_fd is not None:
             os.write(ready_fd, b'1')
             os.close(ready_fd)
