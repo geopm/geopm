@@ -6,11 +6,13 @@ Synopsis
 
 .. code-block:: bash
 
-   usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
-                       [--print-header | -n] [-d DELIMITER] [-r REPORT_OUT]
-                       [-o TRACE_OUT] [--enable-mpi] [-f REPORT_FORMAT]
-                       [-s REPORT_SAMPLES] [-i CONFIG_PATH]
-                       [-- LAUNCH ...]
+
+  usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
+                      [--print-header | -n] [-d DELIMITER]
+                      [-r REPORT_OUT] [-o TRACE_OUT] [-f REPORT_FORMAT]
+                      [-s REPORT_SAMPLES] [-i CONFIG_PATH] [-a]
+                      [--daemon DAEMON_PID_FILE | --enable-mpi]
+                      [-- LAUNCH ...]
 
 Read a signal
 ~~~~~~~~~~~~~
@@ -63,6 +65,12 @@ measurements.
 
 Options
 -------
+usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
+                    [--print-header | -n] [-d DELIMITER]
+                    [-r REPORT_OUT] [-o TRACE_OUT] [-f REPORT_FORMAT]
+                    [-s REPORT_SAMPLES] [-i CONFIG_PATH] [-a]
+                    [--daemon DAEMON_PID_FILE | --enable-mpi]
+                    ...
 
 -h, --help  .. _help option:
 
@@ -115,12 +123,6 @@ Options
     trace output to stdout when specifying ``--enable-mpi``, this will result in
     an error.
 
---enable-mpi  .. _enablempi option:
-
-    Gather reports over MPI and write to a single file. Append hostname to trace
-    output file if specified (trace output to stdout not permitted). Requires
-    mpi4py module.
-
 -f, --report-format  .. _reporformat REPORT_FORMAT option:
 
     Generate reports in the specified format, either "csv" or "yaml".
@@ -137,6 +139,20 @@ Options
 
     Input file containing GEOPM signal requests, specify "-" to use
     standard input which is also the default.
+
+
+--daemon  .. _daemon DAEMON_PID_FILE option:
+
+
+
+-a, --append-hostname  .. __appendhostname option:
+
+
+--enable-mpi  .. _enablempi option:
+
+    Gather reports over MPI and write to a single file. Append hostname to trace
+    output file if specified (trace output to stdout not permitted). Requires
+    mpi4py module.
 
 
 Launch Option
