@@ -8,7 +8,7 @@ SCRIPT_DIR=$(dirname $(realpath $0))
 REPORT_FILE=$(mktemp)
 PID_FILE=$(mktemp)
 echo "TIME board 0" > session.conf
-geopmsession --daemon ${PID_FILE} -r ${REPORT_FILE} -o /dev/null -i session.conf -p 1e-4 -t 100000
+geopmsession --daemon ${PID_FILE} -r ${REPORT_FILE} -o /dev/null -i session.conf -p 1e-4
 sleep 10
 kill $(cat ${PID_FILE})
 wait
