@@ -140,13 +140,19 @@ usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
     Input file containing GEOPM signal requests, specify "-" to use
     standard input which is also the default.
 
-
 --daemon  .. _daemon DAEMON_PID_FILE option:
 
+    Run geopmsession as a background daemon. The daemon PID is written to the
+    specified file after startup and the invoking command returns immediately
+    once the session is ready. A signal configuration file must be provided
+    (standard input is not supported when using this option). Using
+    ``--enable-mpi`` is not allowed when specifying this option, consider
+    using ``--append-hostname`` instead.
 
+-a, --append-hostname  .. _appendhostname option:
 
--a, --append-hostname  .. __appendhostname option:
-
+    Append the local hostname to report and trace file paths when they are
+    regular files. This keeps per-host outputs unique on shared filesystems.
 
 --enable-mpi  .. _enablempi option:
 
