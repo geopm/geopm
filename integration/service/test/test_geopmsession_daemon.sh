@@ -8,10 +8,10 @@ SCRIPT_DIR=$(dirname $(realpath $0))
 REPORT_FILE=$(mktemp)
 PID_FILE=$(mktemp)
 echo "TIME board 0" > session.conf
-geopmsession --daemon ${PID_FILE} -r ${REPORT_FILE} -o /dev/null -i session.conf -p 1e-4
+geopmsession --append-hostname --daemon ${PID_FILE} -r ${REPORT_FILE} -o /dev/null -i session.conf -p 1e-4
 sleep 10
 kill $(cat ${PID_FILE})
 wait
-python3 -c 'from yaml import safe_load; fid=open("'${REPORT_FILE}'"); rr=safe_load(fid); assert(abs(rr["sample-time-total"] - 10) < 0.1)'
-rm -f ${REPORT_FILE}
+python3 -c 'from yaml import safe_load; fid=open("'${REPORT_FILE}-$(hostname)'"); rr=safe_load(fid); assert(abs(rr["sample-time-total"] - 10) < 0.1)'
+rm -f ${REPORT_FILE}-$(hostname)
 rm -f ${PID_FILE}
