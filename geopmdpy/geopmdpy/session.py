@@ -961,7 +961,6 @@ def main(agent=None):
                 return 0
             os.close(rfd)
             os.setsid()
-            os.umask(0)
         if args.version:
             print(__version_str__)
             return 0
@@ -971,12 +970,12 @@ def main(agent=None):
             raise RuntimeError('When using the --report-samples option the trace and report output must differ, use --report-out or --trace-out to specify a unique value')
         if args.enable_mpi and args.launch:
             raise RuntimeError('Using --enable-mpi and launch option is incompatible, consider using --daemon and --append-hostname instead')
-        if args.daemon_pid_file and args.launch:
+        if args.daemon_pid_file is not None and args.launch:
             raise RuntimeError('Using --daemon and launch option is incompatible, launch application after daemon command returns (the daemon will be running in the background)')
         if args.launch and args.launch[0] == '--':
             args.launch = args.launch[1:]
         if args.config_path == '-':
-            if args.daemon_pid_file == True:
+            if args.daemon_pid_file is not None:
                 raise RuntimeError('Signal config must be specified with a file, not standard input, when using the --daemon option')
             override = agent.signal_config_override()
             if override is None:
@@ -988,8 +987,6 @@ def main(agent=None):
             config_stream = _config_stream
         report_path = args.report_out
         if args.append_hostname and _check_valid_output(report_path) and report_path != '-':
-            if report_path == '-':
-                raise ValueError('C')
             report_path = f'{report_path}-{gethostname()}'
         trace_path = args.trace_out
         if args.enable_mpi and trace_path == "-":
