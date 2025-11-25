@@ -101,8 +101,9 @@ class ApplicationEvaluator:
             logger.debug(f"Launching application: {' '.join(self.launch_command)}")
             result = subprocess.run(
                 self.launch_command,
-                capture_output=True,
-                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
                 timeout=self.timeout
             )
 
