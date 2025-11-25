@@ -133,7 +133,7 @@ namespace geopm
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
-        parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
+        parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core, m_cpu_model);
         m_numa_map = parse_lscpu_numa(lscpu_map);
         m_gpu_info[GEOPM_DOMAIN_GPU] = parse_lscpu_gpu(lscpu_map, GEOPM_DOMAIN_GPU);
         m_gpu_info[GEOPM_DOMAIN_GPU_CHIP] = parse_lscpu_gpu(lscpu_map, GEOPM_DOMAIN_GPU_CHIP);
@@ -527,17 +527,26 @@ namespace geopm
             }
         }
     }
+    std::string PlatformTopoImp::model(int domain_type) const
+    {
+        if is_nested_domain(domain_type, GEOPM_DOMAIN_PACKAGE) {
+           return m_cpu_brand;
+        }
+        return "Unknown";
+    }
 
     void PlatformTopoImp::parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
                                       int &num_package,
                                       int &core_per_package,
-                                      int &thread_per_core)
+                                      int &thread_per_core,
+                                      std::string &cpu_model)
     {
         std::vector<std::string> keys = {"CPU(s)",
                                          "Thread(s) per core",
                                          "Core(s) per socket",
                                          "Socket(s)",
-                                         "On-line CPU(s) mask"};
+                                         "On-line CPU(s) mask",
+                                         "Model name"};
         std::vector<std::string> values(keys.size());
 
         for (size_t i = 0; i < values.size(); ++i) {
@@ -557,6 +566,7 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
+        cpu_model = values[5];
         try {
             num_package = std::stoi(values[3].c_str());
             core_per_package = std::stoi(values[2].c_str());

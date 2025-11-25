@@ -59,6 +59,7 @@ namespace geopm
             /// @return The set of domain indices for the inner domain that are
             ///         within the indexed outer domain.
             virtual std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const = 0;
+            virtual std::string model(int domain_type) const = 0;
             /// @brief Convert a domain type enum to a string.
             ///
             /// @details These strings are used by the geopmread and geopmwrite tools.
