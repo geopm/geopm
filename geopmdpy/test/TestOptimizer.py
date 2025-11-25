@@ -85,8 +85,9 @@ class TestApplicationEvaluator(unittest.TestCase):
         mock_grid.write_config.assert_called_once_with(coordinate)
         mock_run.assert_called_once_with(
             self.launch_command,
-            capture_output=True,
-            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
             timeout=300
         )
 
