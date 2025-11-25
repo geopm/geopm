@@ -37,20 +37,31 @@
                     "description": "Indicates whether this platform supports programmable TDP limits for turbo mode.",
                     "aggregation": "expect_same"
                 },
-                "PROGRAMMABLE_TCC_ACTIVATION_OFFSET": {
-                    "begin_bit": 30,
-                    "end_bit": 30,
-                    "function": "logic",
+                "NUM_CONFIGTDP": {
+                    "begin_bit": 33,
+                    "end_bit": 34,
+                    "function": "scale",
                     "units": "none",
                     "scalar": 1,
                     "behavior": "constant",
                     "writeable": false,
-                    "description": "Indicates whether the platform permits writes to MSR::TEMPERATURE_TARGET:TCC_ACTIVE_OFFSET.",
+                    "description": "The number of configurable TDP levels supported by the processor.",
                     "aggregation": "expect_same"
                 },
                 "MAX_EFFICIENCY_RATIO": {
                     "begin_bit": 40,
                     "end_bit": 47,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior": "constant",
+                    "writeable": false,
+                    "description": "The maximum efficiency frequency of the processor.",
+                    "aggregation": "expect_same"
+                },
+                "MIN_OPERATING_RATIO": {
+                    "begin_bit": 48,
+                    "end_bit": 55,
                     "function": "scale",
                     "units": "hertz",
                     "scalar": 1e8,
@@ -109,17 +120,6 @@
                     "writeable": false,
                     "aggregation": "expect_same",
                     "description": "The lowest temperature considered a high temperature."
-                },
-                "TCC_ACTIVE_OFFSET": {
-                    "begin_bit": 24,
-                    "end_bit": 27,
-                    "function": "scale",
-                    "units": "celsius",
-                    "scalar": 1.0,
-                    "behavior": "constant",
-                    "writeable": false,
-                    "description": "An offset to subtract from PROCHOT_MIN as the cutoff to generate a PROCHOT event.",
-                    "aggregation": "expect_same"
                 }
             }
         },
@@ -127,7 +127,7 @@
             "offset": "0x1AD",
             "domain": "package",
             "fields": {
-                "MAX_RATIO_LIMIT_0": {
+                "MAX_RATIO_LIMIT_1CORE": {
                     "begin_bit": 0,
                     "end_bit": 7,
                     "function": "scale",
@@ -135,9 +135,10 @@
                     "scalar": 1e8,
                     "behavior": "constant",
                     "writeable": false,
-                    "description": "Maximum turbo frequency for core group 0.", "aggregation": "expect_same"
+                    "description": "Maximum turbo frequency when 1 core is active.",
+                    "aggregation": "expect_same"
                 },
-                "MAX_RATIO_LIMIT_1": {
+                "MAX_RATIO_LIMIT_2CORES": {
                     "begin_bit": 8,
                     "end_bit": 15,
                     "function": "scale",
@@ -145,10 +146,10 @@
                     "scalar": 1e8,
                     "behavior": "constant",
                     "writeable": false,
-                    "description": "Maximum turbo frequency for core group 1.",
+                    "description": "Maximum turbo frequency when 2 cores are active.",
                     "aggregation": "expect_same"
                 },
-                "MAX_RATIO_LIMIT_2": {
+                "MAX_RATIO_LIMIT_3CORES": {
                     "begin_bit": 16,
                     "end_bit": 23,
                     "function": "scale",
@@ -156,41 +157,17 @@
                     "scalar": 1e8,
                     "behavior": "constant",
                     "writeable": false,
-                    "description": "Maximum turbo frequency for core group 2.",
+                    "description": "Maximum turbo frequency when 3 cores are active.",
                     "aggregation": "expect_same" },
-                "MAX_RATIO_LIMIT_3": {
+                "MAX_RATIO_LIMIT_4CORES": {
                     "begin_bit": 24,
                     "end_bit": 31,
                     "function": "scale",
                     "units": "hertz",
                     "scalar": 1e8,
-                    "behavior": "constant", "writeable": false, "description": "Maximum turbo frequency for core group 3.", "aggregation": "expect_same" }
-            }
-        },
-        "TURBO_RATIO_LIMIT_CORES": {
-            "offset": "0x1AE",
-            "domain": "package",
-            "fields": {
-                "NUMCORE_0": {
-                    "begin_bit": 0,
-                    "end_bit": 7,
-                    "function": "scale",
-                    "units": "none",
-                    "scalar": 1,
                     "behavior": "constant",
                     "writeable": false,
-                    "description": "Core count for turbo group 0.",
-                    "aggregation": "expect_same"
-                },
-                "NUMCORE_1": {
-                    "begin_bit": 8,
-                    "end_bit": 15,
-                    "function": "scale",
-                    "units": "none",
-                    "scalar": 1,
-                    "behavior": "constant",
-                    "writeable": false,
-                    "description": "Core count for turbo group 1.",
+                    "description": "Maximum turbo frequency when 4 cores are active.",
                     "aggregation": "expect_same"
                 }
             }
@@ -325,56 +302,6 @@
                     "behavior": "constant",
                     "writeable": false,
                     "description": "Maximum time accepted in PL1/PL2 windows.",
-                    "aggregation": "expect_same"
-                }
-            }
-        },
-        "DRAM_POWER_LIMIT": {
-            "offset": "0x618",
-            "domain": "memory",
-            "fields": {
-                "POWER_LIMIT": {
-                    "begin_bit": 0,
-                    "end_bit": 14,
-                    "function": "scale",
-                    "units": "watts",
-                    "scalar": 0.125,
-                    "behavior": "variable",
-                    "writeable": true,
-                    "description": "Average DRAM power usage limit.",
-                    "aggregation": "sum"
-                },
-                "ENABLE": {
-                    "begin_bit": 15,
-                    "end_bit": 15,
-                    "function": "logic",
-                    "units": "none",
-                    "scalar": 1.0,
-                    "behavior": "variable",
-                    "writeable": true,
-                    "description": "Enable DRAM power limit.",
-                    "aggregation": "sum"
-                },
-                "TIME_WINDOW": {
-                    "begin_bit": 17,
-                    "end_bit": 23,
-                    "function": "7_bit_float",
-                    "units": "seconds",
-                    "scalar": 0.0009765625,
-                    "behavior": "variable",
-                    "writeable": true,
-                    "description": "Time window for DRAM power limit.",
-                    "aggregation": "expect_same"
-                },
-                "LOCK": {
-                    "begin_bit": 31,
-                    "end_bit": 31,
-                    "function": "logic",
-                    "units": "none",
-                    "scalar": 1.0,
-                    "behavior": "constant",
-                    "writeable": false,
-                    "description": "Lock DRAM power limit until reset.",
                     "aggregation": "expect_same"
                 }
             }
