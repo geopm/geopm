@@ -65,12 +65,6 @@ measurements.
 
 Options
 -------
-usage: geopmsession [-h] [-v] [-t TIME] [-p PERIOD] [--pid PID]
-                    [--print-header | -n] [-d DELIMITER]
-                    [-r REPORT_OUT] [-o TRACE_OUT] [-f REPORT_FORMAT]
-                    [-s REPORT_SAMPLES] [-i CONFIG_PATH] [-a]
-                    [--daemon DAEMON_PID_FILE | --enable-mpi]
-                    ...
 
 -h, --help  .. _help option:
 
