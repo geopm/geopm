@@ -951,7 +951,10 @@ def main(agent=None):
         ready_fd = None
         if args.daemon_pid_file is not None:
             rfd, ready_fd = os.pipe()
-            daemon_pid = os.fork()
+            try:
+                daemon_pid = os.fork()
+            except OSError as ex:
+                raise RuntimeError('Failed to fork daemon process') from ex
             if daemon_pid > 0:
                 os.close(ready_fd)
                 with open(args.daemon_pid_file, 'w') as pidfile:
