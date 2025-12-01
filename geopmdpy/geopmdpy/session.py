@@ -23,6 +23,7 @@ from . import pio
 from . import loop
 from . import stats
 from . import __version_str__
+from . import write
 
 from contextlib import contextmanager
 @contextmanager
@@ -348,6 +349,7 @@ class Session:
         self._delimiter = delimiter
         self._agent = agent_factory(agent)
         self._num_agent_trace = 0
+        self._adjust_par = []
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -417,7 +419,11 @@ class Session:
             except Exception as e:
                 domain_name = topo.domain_name(dom)
                 raise RuntimeError(f'Unable to push "{name} {domain_name} {dom_idx}". Reason: {e}')
-
+        if self._write_config is not None:
+            for par in self._adjust_par:
+                pio.adjust(*par)
+            pio.save_control()
+            pio.write_batch()
         pio.read_batch()
         if any([math.isnan(pio.sample(handle)) for handle in signal_handles]):
             # Purge first sample for derivative based signals
@@ -626,6 +632,9 @@ class Session:
                 report_stream = _ReportStream(stats_collector, session_io, print_header, delimiter, report_format)
             try:
                 g_session_handler = _SessionHandler(out_stream, report_stream, self._agent)
+                if self._write_config:
+                    with open(self._write_config) as fid:
+                        self._adjust_par = write.parse_batch(fid)
                 self._agent.run_begin()
                 self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream, launch, ready_fd)
             finally:
@@ -676,6 +685,10 @@ class _SessionHandler:
         if self.report_stream is not None:
             self.report_stream.write()
         self.agent.run_end()
+        try:
+            pio.restore_control()
+        except RuntimeError:
+            pass
         self.kill_subp(signum)
 
     def subp_return(self):
@@ -908,6 +921,9 @@ def get_parser():
                         help='Create reports each time the specified number of periods have elapsed')
     parser.add_argument('-i', '--signal-config', dest='config_path', default='-',
                         help='Input file containing GEOPM signal requests, specify "-" to use standard input which is also the default.')
+    parser.add_argument('-c', '--control-config', dest='control_config', default=None,
+                        help='Control values to write at start of session')
+
     parser.add_argument('-a', '--append-hostname', action='store_true',
                         help='Append hostname to report and trace files, useful when using a shared file system without --enable-mpi')
     launch_group = parser.add_mutually_exclusive_group()
@@ -988,6 +1004,7 @@ def main(agent=None):
         else:
             _config_stream = open(args.config_path)
             config_stream = _config_stream
+        self._control_config = args.control_config
         report_path = args.report_out
         if args.append_hostname and _check_valid_output(report_path) and report_path != '-':
             report_path = f'{report_path}-{gethostname()}'
