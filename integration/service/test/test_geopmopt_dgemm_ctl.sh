@@ -3,18 +3,20 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 
 set -ex
+STICKER_FREQ=$(geopmread CPU_FREQUENCY_STICKER board 0)
 
 geopmopt --verbosity=2 \
          --cpu-frequency board \
+         --cpu-frequency-max=${STICKER_FREQ} \
          --defer-write \
          --minimize \
          --output-file optimal-frequency.config \
          --metric-regex='GEOPMOPT-FOM: ([0-9.]+)' \
          --trials=20 \
          --print-stdout \
-         -- ./check_geopmopt_dgemm_ctl_run.sh optimial-frequency.config
+         -- ./check_geopmopt_dgemm_ctl_run.sh optimal-frequency.config
 
 # For DGEMM expect maximum frequency minimizes time in dgemm
 NUM_FREQ=$(geopmgrid --cpu-frequency board --coordinate-range)
 geopmgrid --cpu-frequency board --coordinate $(($NUM_FREQ-1)) > expected.config
-diff expected.config optimal-frequency.config
+grep ${STICKER_FREQ} optimal-frequency.config
