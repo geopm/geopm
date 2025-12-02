@@ -7,12 +7,15 @@
 #define SYSFSIOGROUP_HPP_INCLUDE
 
 #include <functional>
+#include <memory>
 
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
 
 #include "SysfsDriver.hpp"
+#include "Signal.hpp"
 #include "UniqueFd.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -64,6 +67,16 @@ namespace geopm
                                       const std::string &control_name,
                                       int domain_type,
                                       int domain_idx) const;
+            int push_driver_signal(const std::string &signal_name, int domain_type, int domain_idx);
+            int push_derived_signal(const std::string &signal_name,
+                                    const SysfsDriver::derived_signal_info_s &info,
+                                    int domain_type,
+                                    int domain_idx);
+            double read_driver_signal(const std::string &canonical_name, int domain_idx) const;
+            double read_derived_signal(const SysfsDriver::derived_signal_info_s &info,
+                                       int domain_type,
+                                       int domain_idx);
+            double signal_value_by_index(int idx) const;
             bool write_batch_retry(bool isRetry);
             std::shared_ptr<SysfsDriver> m_driver;
             const geopm::PlatformTopo &m_platform_topo;
@@ -77,6 +90,12 @@ namespace geopm
             const std::map<std::string, SysfsDriver::properties_s> m_properties;
             std::map<std::string, std::reference_wrapper<const SysfsDriver::properties_s> > m_signals;
             std::map<std::string, std::reference_wrapper<const SysfsDriver::properties_s> > m_controls;
+            const std::map<std::string, SysfsDriver::derived_signal_info_s> m_derived_signals;
+            std::shared_ptr<geopm_time_s> m_time_zero;
+            std::shared_ptr<double> m_time_batch;
+            std::shared_ptr<Signal> m_time_signal;
+            int m_derivative_window;
+            double m_sleep_time;
 
             // Information about a single pushed signal or control
             struct m_pushed_info_s {
@@ -90,6 +109,10 @@ namespace geopm
                 std::array<char, SysfsDriver::M_IO_BUFFER_SIZE> buf;
                 std::function<double(const std::string&)> parse;
                 std::function<std::string(double)> gen;
+                bool is_driver_signal;
+                bool is_derived_signal;
+                int backing_signal_idx;
+                std::shared_ptr<Signal> signal;
             };
 
             // Pushed signals

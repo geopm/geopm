@@ -11,9 +11,11 @@
 #include <cmath>
 #include <cstring>
 #include <sstream>
+#include <vector>
 
 #include "DrmGpuTopo.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_topo.h"
 
@@ -118,28 +120,102 @@ namespace geopm
         , M_DRIVER_SIGNAL_PREFIX(driver_signal_prefix)
         , M_PROPERTIES{SysfsDriver::parse_properties_json(M_DRIVER_SIGNAL_PREFIX, drm_sysfs_json())}
         , M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN(map_geopm_index_to_hwmon_path(m_drm_topo))
+        , m_power_signal_derivative_map{}
     {
+        register_power_signals();
+    }
+
+    void DrmSysfsDriver::register_power_signals(void)
+    {
+        struct derived_signal_s {
+            std::string name;
+            std::string description;
+            std::string source_signal;
+        };
+        const std::vector<derived_signal_s> derived_signals{
+            {"GPU_POWER",
+             "Average GPU power over 40 ms or 8 control loop iterations.",
+             "DRM::HWMON::ENERGY1_INPUT::GPU"},
+            {"GPU_CHIP_POWER",
+             "Average GPU tile power over 40 ms or 8 control loop iterations.",
+             "DRM::HWMON::ENERGY1_INPUT::GPU_CHIP"},
+            {"GPU_CORE_POWER",
+             "Average GPU core power over 40 ms or 8 control loop iterations.",
+             "DRM::HWMON::ENERGY2_INPUT"}
+        };
+
+        for (const auto &cfg : derived_signals) {
+            auto source_it = M_PROPERTIES.find(cfg.source_signal);
+            if (source_it == M_PROPERTIES.end()) {
+                continue;
+            }
+
+            const std::string canonical_name = M_DRIVER_SIGNAL_PREFIX + "::" + cfg.name;
+            SysfsDriver::properties_s derived_prop{
+                canonical_name,
+                false,
+                "",
+                cfg.description + "  Derivative signal based on " + cfg.source_signal + ".",
+                1.0,
+                IOGroup::M_UNITS_WATTS,
+                source_it->second.aggregation_function,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                source_it->second.format_function,
+                cfg.name
+            };
+
+            SysfsDriver::derived_signal_info_s info{derived_prop, source_it->second.name, cfg.source_signal};
+            m_power_signal_derivative_map.emplace(canonical_name, info);
+			register_derived_signal_alias(cfg.name, canonical_name);
+        }
+    }
+
+    void DrmSysfsDriver::register_derived_signal_alias(const std::string &alias_name,
+                                                       const std::string &signal_name)
+    {
+        // This method should only be used to register aliases for derived signals.
+        // Regular signal aliases are handled in the "alias" field of the syfs_attributes_drm.json.
+        if (m_power_signal_derivative_map.find(alias_name) != m_power_signal_derivative_map.end()) {
+            throw Exception("DrmSysfsDriver::register_signal_alias(): alias " + alias_name +
+                            " was previously registered.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto source_it = m_power_signal_derivative_map.find(signal_name);
+        if (source_it != m_power_signal_derivative_map.end()) {
+            m_power_signal_derivative_map.emplace(alias_name, source_it->second);
+        }
+    }
+
+    std::string DrmSysfsDriver::lookup_source_signal(const std::string &name) const
+    {
+        std::string result = name;
+        const auto derived_it = m_power_signal_derivative_map.find(name);
+        if (derived_it != m_power_signal_derivative_map.end()) {
+            result = derived_it->second.source_signal;
+        }
+        return result;
     }
 
     int DrmSysfsDriver::domain_type(const std::string &name) const
     {
+        const std::string lookup_name = lookup_source_signal(name);
+        int result = GEOPM_DOMAIN_GPU_CHIP;
         // So far, all of the supported i915 DRM signals are tile-scoped and
         // most of the i915 hwmon signals are card-scoped.
-        if (signal_name_is_from_hwmon(name, M_DRIVER_SIGNAL_PREFIX) && !geopm::string_ends_with(name, TILE_SIGNAL_NAME_SUFFIX)) {
-            return GEOPM_DOMAIN_GPU;
+        if (signal_name_is_from_hwmon(lookup_name, M_DRIVER_SIGNAL_PREFIX) && !geopm::string_ends_with(lookup_name, TILE_SIGNAL_NAME_SUFFIX)) {
+            result = GEOPM_DOMAIN_GPU;
         }
-        else {
-            return GEOPM_DOMAIN_GPU_CHIP;
-        }
+        return result;
     }
 
     std::string DrmSysfsDriver::attribute_path(const std::string &name,
                                                int domain_idx)
     {
+        const std::string lookup_name = lookup_source_signal(name);
         std::string attribute_directory;
-        auto signal_domain_type = static_cast<geopm_domain_e>(domain_type(name));
+        auto signal_domain_type = static_cast<geopm_domain_e>(domain_type(lookup_name));
 
-        if (signal_name_is_from_hwmon(name, M_DRIVER_SIGNAL_PREFIX)) {
+        if (signal_name_is_from_hwmon(lookup_name, M_DRIVER_SIGNAL_PREFIX)) {
             auto resource_it = M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN.find(std::make_pair(signal_domain_type, domain_idx));
             if (resource_it == M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN.end()) {
                 throw Exception("DrmSysfsDriver::attribute_path(): domain " + std::to_string(signal_domain_type) + " domain_idx " + std::to_string(domain_idx) + " does not have a hwmon entry.",
@@ -151,7 +227,7 @@ namespace geopm
             attribute_directory = m_drm_topo.gt_path(domain_idx);
         }
 
-        auto property_it = M_PROPERTIES.find(name);
+        auto property_it = M_PROPERTIES.find(lookup_name);
         if (property_it == M_PROPERTIES.end()) {
             throw Exception("DrmSysfsDriver::attribute_path(): No such signal " + name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -165,7 +241,8 @@ namespace geopm
 
     std::function<double(const std::string &)> DrmSysfsDriver::signal_parse(const std::string &signal_name) const
     {
-        auto prop_it = M_PROPERTIES.find(signal_name);
+        const std::string lookup_name = lookup_source_signal(signal_name);
+        auto prop_it = M_PROPERTIES.find(lookup_name);
         if (prop_it == M_PROPERTIES.end()) {
             throw Exception("DrmSysfsDriver::signal_parse(): Unknown signal name: " + signal_name,
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -205,6 +282,11 @@ namespace geopm
     std::map<std::string, SysfsDriver::properties_s> DrmSysfsDriver::properties(void) const
     {
         return M_PROPERTIES;
+    }
+
+    std::map<std::string, SysfsDriver::derived_signal_info_s> DrmSysfsDriver::derived_signals(void) const
+    {
+        return m_power_signal_derivative_map;
     }
 
     std::string DrmSysfsDriver::plugin_name_drm(void)

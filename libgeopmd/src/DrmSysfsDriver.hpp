@@ -34,6 +34,7 @@ namespace geopm
             std::function<std::string(double)> control_gen(const std::string &control_name) const override;
             std::string driver(void) const override;
             std::map<std::string, SysfsDriver::properties_s> properties(void) const override;
+            std::map<std::string, SysfsDriver::derived_signal_info_s> derived_signals(void) const override;
 
             static std::string plugin_name_drm(void);
             static std::unique_ptr<IOGroup> make_plugin_drm(void);
@@ -41,6 +42,10 @@ namespace geopm
             static std::string plugin_name_accel(void);
             static std::unique_ptr<IOGroup> make_plugin_accel(void);
         private:
+            void register_power_signals(void);
+            void register_derived_signal_alias(const std::string &alias_name,
+                                               const std::string &signal_name);
+            std::string lookup_source_signal(const std::string &name) const;
             DrmGpuTopo m_drm_topo;
             // Prefix to use at the start of signal names exported by this SysfsDriver
             // E.g., "DRM" or "ACCEL"
@@ -49,6 +54,7 @@ namespace geopm
             const std::map<std::string, SysfsDriver::properties_s> M_PROPERTIES;
             // Map of (GEOPM signal domain, GEOPM signal index) pairs to hwmon sysfs directory paths symlinked via drm paths
             const std::map<std::pair<geopm_domain_e, int>, std::string> M_DRM_HWMON_DIR_BY_GEOPM_DOMAIN;
+            std::map<std::string, SysfsDriver::derived_signal_info_s> m_power_signal_derivative_map;
     };
 }
 

@@ -130,3 +130,50 @@ TEST_F(DrmSysfsDriverTest, control_gen)
     EXPECT_EQ("1100", m_driver->control_gen("TEST_DRIVER_PREFIX::RPS_MIN_FREQ")(1.1e9));
     EXPECT_EQ("1200", m_driver->control_gen("TEST_DRIVER_PREFIX::RPS_MAX_FREQ")(1.2e9));
 }
+
+TEST_F(DrmSysfsDriverTest, derived_signals)
+{
+    // Derived power signals are registered based on the presence of specific
+    // low-level backing signals. The current implementation uses fully-qualified
+    // DRM-prefixed HWMON signal names as the backing sources.
+    auto drm_driver = std::make_unique<DrmSysfsDriver>(m_dir_manager->get_driver_dir(), DrmSysfsDriver::plugin_name_drm());
+
+    const auto derived = drm_driver->derived_signals();
+    const std::string prefix = drm_driver->driver();
+    ASSERT_EQ(DrmSysfsDriver::plugin_name_drm(), prefix);
+
+    struct expected_s {
+        std::string alias;
+        std::string canonical;
+        std::string source;
+    };
+
+    const std::vector<expected_s> expected{
+        {"GPU_POWER", prefix + "::GPU_POWER", "DRM::HWMON::ENERGY1_INPUT::GPU"},
+        {"GPU_CHIP_POWER", prefix + "::GPU_CHIP_POWER", "DRM::HWMON::ENERGY1_INPUT::GPU_CHIP"},
+        {"GPU_CORE_POWER", prefix + "::GPU_CORE_POWER", "DRM::HWMON::ENERGY2_INPUT"},
+    };
+
+    for (const auto &entry : expected) {
+        const auto &alias = entry.alias;
+        const auto &canonical = entry.canonical;
+
+        auto canonical_it = derived.find(canonical);
+        auto alias_it = derived.find(alias);
+        ASSERT_NE(canonical_it, derived.end()) << "Missing derived signal: " << canonical;
+        ASSERT_NE(alias_it, derived.end()) << "Missing derived alias: " << alias;
+
+        const auto &canonical_info = canonical_it->second;
+        const auto &alias_info = alias_it->second;
+
+        EXPECT_EQ(canonical, canonical_info.properties.name);
+        EXPECT_EQ(alias, canonical_info.properties.alias);
+        EXPECT_EQ(canonical_info.properties.name, alias_info.properties.name);
+        EXPECT_EQ(canonical_info.properties.alias, alias_info.properties.alias);
+        EXPECT_EQ(canonical_info.source_signal, alias_info.source_signal);
+        EXPECT_EQ(canonical_info.source_alias, alias_info.source_alias);
+
+        EXPECT_EQ(entry.source, canonical_info.source_alias);
+        EXPECT_EQ(entry.source, canonical_info.source_signal);
+    }
+}

@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <set>
@@ -29,12 +30,36 @@
 #include "geopm/SaveControl.hpp"
 
 #include "IOUring.hpp"
+#include "TimeSignal.hpp"
+#include "DerivativeSignal.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;
 
 namespace geopm
 {
+    class LambdaSignal : public Signal
+    {
+        public:
+            LambdaSignal(std::function<double(void)> sample_fn,
+                         std::function<double(void)> read_fn)
+                : m_sample_fn(std::move(sample_fn))
+                , m_read_fn(std::move(read_fn))
+            {
+            }
+            void setup_batch(void) override {}
+            double sample(void) override
+            {
+                return m_sample_fn();
+            }
+            double read(void) const override
+            {
+                return m_read_fn();
+            }
+        private:
+            std::function<double(void)> m_sample_fn;
+            std::function<double(void)> m_read_fn;
+    };
     static const std::string CPUFREQ_DIRECTORY = "/sys/devices/system/cpu/cpufreq";
 
     // Open a cpufreq attribute file for a given cpufreq resource. Return the opened fd.
@@ -111,6 +136,12 @@ namespace geopm
         , m_is_batch_write(false)
         , m_control_value{}
         , m_properties(m_driver->properties())
+        , m_derived_signals(m_driver->derived_signals())
+        , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
+        , m_time_batch(std::make_shared<double>(NAN))
+        , m_time_signal(std::make_shared<TimeSignal>(m_time_zero, m_time_batch))
+        , m_derivative_window(8)
+        , m_sleep_time(0.005)
         , m_pushed_info_signal{}
         , m_pushed_info_control{}
         , m_control_saver(std::move(control_saver))
@@ -158,6 +189,11 @@ namespace geopm
                 result.insert(it.first);
             }
         }
+        for (const auto &it : m_derived_signals) {
+            if (is_valid_signal_domain(it.first, 0)) {
+                result.insert(it.first);
+            }
+        }
         return result;
     }
 
@@ -188,11 +224,26 @@ namespace geopm
     bool SysfsIOGroup::is_valid_signal_domain(const std::string &signal_name, int domain_idx) const
     {
         bool result = false;
-        auto it = m_signals.find(signal_name);
-        if (it != m_signals.end()) {
+        const SysfsDriver::properties_s *property = nullptr;
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            const auto &source_name = derived_it->second.source_signal;
+            auto source_it = m_signals.find(source_name);
+            if (source_it != m_signals.end()) {
+                property = &source_it->second.get();
+            }
+        }
+        else {
+            auto it = m_signals.find(signal_name);
+            if (it != m_signals.end()) {
+                property = &it->second.get();
+            }
+        }
+
+        if (property != nullptr) {
             // The IOGroup is aware of this signal. But is the signal readable right now?
             try {
-                 result = do_have_read_access(m_driver->attribute_path(it->second.get().name, domain_idx));
+                result = do_have_read_access(m_driver->attribute_path(property->name, domain_idx));
             }
             catch (const Exception &e) {
 
@@ -226,9 +277,16 @@ namespace geopm
     int SysfsIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = GEOPM_DOMAIN_INVALID;
-        const auto it = m_signals.find(signal_name);
-        if (it != m_signals.end()) {
-            result = m_driver->domain_type(it->second.get().name);
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            const auto &source_name = derived_it->second.source_signal;
+            result = m_driver->domain_type(source_name);
+        }
+        else {
+            const auto it = m_signals.find(signal_name);
+            if (it != m_signals.end()) {
+                result = m_driver->domain_type(it->second.get().name);
+            }
         }
         return result;
     }
@@ -244,22 +302,17 @@ namespace geopm
         return result;
     }
 
-    // Mark the given signal to be read by read_batch()
-    int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    int SysfsIOGroup::push_driver_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
-        if (m_is_batch_read) {
-            throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         std::string cname = check_request(__func__, signal_name, "", domain_type, domain_idx);
         auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
                                       m_pushed_info_signal.end(),
-        [signal_name, domain_idx] (const m_pushed_info_s &info) {
-            return info.name == signal_name &&
+        [signal_name, domain_idx](const m_pushed_info_s &info) {
+            return !info.is_derived_signal &&
+                   info.name == signal_name &&
                    info.domain_idx == domain_idx;
         });
         int signal_idx = -1;
-
         if (pushed_it != m_pushed_info_signal.end()) {
             // This has already been pushed. Return the same index as before.
             signal_idx = std::distance(m_pushed_info_signal.begin(), pushed_it);
@@ -268,7 +321,6 @@ namespace geopm
             auto path = m_driver->attribute_path(cname, domain_idx);
             UniqueFd fd = open_resource_attribute(path, false);
 
-            // This is a newly-pushed signal. Give it a new index.
             m_pushed_info_signal.push_back(m_pushed_info_s {
                     std::move(fd),
                     signal_name,
@@ -279,12 +331,102 @@ namespace geopm
                     std::make_shared<int>(0),
                     {},
                     m_driver->signal_parse(cname),
-                    m_driver->control_gen(cname)
+                    m_driver->control_gen(cname),
+                    true,
+                    false,
+                    -1,
+                    nullptr
                 });
+
+            m_do_batch_read = true;
             signal_idx = m_pushed_info_signal.size() - 1;
         }
 
-        m_do_batch_read = true;
+        return signal_idx;
+    }
+
+    int SysfsIOGroup::push_derived_signal(const std::string &signal_name,
+                                          const SysfsDriver::derived_signal_info_s &info,
+                                          int domain_type,
+                                          int domain_idx)
+    {
+        std::string source_request = info.source_alias.empty() ? info.source_signal
+                                                               : info.source_alias;
+        int source_idx = push_driver_signal(source_request, domain_type, domain_idx);
+        auto pushed_it = std::find_if(m_pushed_info_signal.begin(),
+                                      m_pushed_info_signal.end(),
+        [signal_name, domain_idx](const m_pushed_info_s &entry) {
+            return entry.is_derived_signal &&
+                   entry.name == signal_name &&
+                   entry.domain_idx == domain_idx;
+        });
+
+        int signal_idx = -1;
+        if (pushed_it != m_pushed_info_signal.end()) {
+            signal_idx = std::distance(m_pushed_info_signal.begin(), pushed_it);
+        }
+        else {
+            auto energy_sample_fn = [this, source_idx]() {
+                return signal_value_by_index(source_idx);
+            };
+            auto energy_read_fn = [this, info, domain_idx]() {
+                return read_driver_signal(info.source_signal, domain_idx);
+            };
+            auto energy_signal = std::make_shared<LambdaSignal>(energy_sample_fn, energy_read_fn);
+            m_time_signal->setup_batch();
+            auto derivative_signal =
+                std::make_shared<DerivativeSignal>(m_time_signal, energy_signal,
+                                                   m_derivative_window, m_sleep_time);
+            derivative_signal->setup_batch();
+
+            m_pushed_info_signal.push_back(m_pushed_info_s {
+                    UniqueFd(-1),
+                    signal_name,
+                    domain_type,
+                    domain_idx,
+                    NAN,
+                    false,
+                    std::make_shared<int>(0),
+                    {},
+                    nullptr,
+                    nullptr,
+                    false,
+                    true,
+                    source_idx,
+                    derivative_signal
+                });
+
+            signal_idx = m_pushed_info_signal.size() - 1;
+        }
+
+        return signal_idx;
+    }
+
+    double SysfsIOGroup::signal_value_by_index(int idx) const
+    {
+        if (idx < 0 || static_cast<size_t>(idx) >= m_pushed_info_signal.size()) {
+            throw Exception("SysfsIOGroup::signal_value_by_index(): index out of range.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_pushed_info_signal[idx].value;
+    }
+
+    // Mark the given signal to be read by read_batch()
+    int SysfsIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    {
+        if (m_is_batch_read) {
+            throw Exception("SysfsIOGroup::push_signal(): cannot push signal after call to read_batch().",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int signal_idx = -1;
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            signal_idx = push_derived_signal(signal_name, derived_it->second, domain_type, domain_idx);
+        }
+        else {
+            signal_idx = push_driver_signal(signal_name, domain_type, domain_idx);
+        }
+
         return signal_idx;
     }
 
@@ -323,7 +465,11 @@ namespace geopm
                     std::make_shared<int>(0),
                     {},
                     m_driver->signal_parse(cname),
-                    m_driver->control_gen(cname)
+                    m_driver->control_gen(cname),
+                    true,
+                    false,
+                    -1,
+                    nullptr
                 });
             control_idx = m_pushed_info_control.size() - 1;
         }
@@ -340,11 +486,17 @@ namespace geopm
                 m_batch_reader = IOUring::make_unique(m_pushed_info_signal.size());
             }
             for (auto &info : m_pushed_info_signal) {
+                if (!info.is_driver_signal) {
+                    continue;
+                }
                 m_batch_reader->prep_read(
                     info.last_io_return, info.fd.get(), info.buf.data(), info.buf.size(), 0);
             }
             m_batch_reader->submit();
             for (auto &info : m_pushed_info_signal) {
+                if (!info.is_driver_signal) {
+                    continue;
+                }
                 if (*info.last_io_return < 0) {
                     throw geopm::Exception("SysfsIOGroup failed to read signal",
                                            errno, __FILE__, __LINE__);
@@ -357,6 +509,12 @@ namespace geopm
                 info.buf[bytes_read] = '\0';
 
                 info.value = info.parse(std::string(info.buf.data()));
+            }
+        }
+        *m_time_batch = geopm_time_since(m_time_zero.get());
+        for (auto &info : m_pushed_info_signal) {
+            if (info.is_derived_signal && info.signal) {
+                info.value = info.signal->sample();
             }
         }
     }
@@ -446,9 +604,39 @@ namespace geopm
     double SysfsIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         std::string cname = check_request(__func__, signal_name, "", domain_type, domain_idx);
-        UniqueFd fd = open_resource_attribute(m_driver->attribute_path(cname, domain_idx), false);
-        double read_value = m_driver->signal_parse(cname)(read_resource_attribute_fd(fd.get()));
+        double result = NAN;
+        auto derived_it = m_derived_signals.find(cname);
+        if (derived_it != m_derived_signals.end()) {
+            result = read_derived_signal(derived_it->second, domain_type, domain_idx);
+        }
+        else {
+            result = read_driver_signal(cname, domain_idx);
+        }
+        return result;
+    }
+
+    double SysfsIOGroup::read_driver_signal(const std::string &canonical_name, int domain_idx) const
+    {
+        UniqueFd fd = open_resource_attribute(m_driver->attribute_path(canonical_name, domain_idx), false);
+        double read_value = m_driver->signal_parse(canonical_name)(read_resource_attribute_fd(fd.get()));
         return read_value;
+    }
+
+    double SysfsIOGroup::read_derived_signal(const SysfsDriver::derived_signal_info_s &info,
+                                             int domain_type,
+                                             int domain_idx)
+    {
+        (void)domain_type;
+        auto local_time_zero = std::make_shared<geopm_time_s>(time_zero());
+        auto local_time_batch = std::make_shared<double>(NAN);
+        auto time_signal = std::make_shared<TimeSignal>(local_time_zero, local_time_batch);
+        time_signal->setup_batch();
+        auto energy_fn = [this, info, domain_idx]() {
+            return read_driver_signal(info.source_signal, domain_idx);
+        };
+        auto energy_signal = std::make_shared<LambdaSignal>(energy_fn, energy_fn);
+        DerivativeSignal derivative(time_signal, energy_signal, m_derivative_window, m_sleep_time);
+        return derivative.read();
     }
 
     // Write to the control immediately, bypassing write_batch()
@@ -507,8 +695,17 @@ namespace geopm
                             "not valid for SysfsIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const auto &property = m_signals.at(signal_name);
-        return property.get().aggregation_function;
+        std::function<double(const std::vector<double> &)> result;
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            result = derived_it->second.properties.aggregation_function;
+        }
+        else {
+            const auto &property = m_signals.at(signal_name);
+            result = property.get().aggregation_function;
+        }
+
+        return result;
     }
 
     std::function<std::string(double)> SysfsIOGroup::format_function(const std::string &signal_name) const
@@ -518,8 +715,17 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const auto &property = m_signals.at(signal_name);
-        return property.get().format_function;
+        std::function<std::string(double)> result;
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            result = derived_it->second.properties.format_function;
+        }
+        else {
+            const auto &property = m_signals.at(signal_name);
+            result = property.get().format_function;
+        }
+
+        return result;
     }
 
     // A user-friendly description of each signal
@@ -530,12 +736,20 @@ namespace geopm
                             " not valid for SysfsIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const auto &property = m_signals.at(signal_name);
+        const SysfsDriver::properties_s *property = nullptr;
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            property = &derived_it->second.properties;
+        }
+        else {
+            property = &m_signals.at(signal_name).get();
+        }
         std::ostringstream result;
         std::string cname = canonical_name(signal_name);
-        result << "    description: " << property.get().description << "\n"
-               << "    units: " << IOGroup::units_to_string(property.get().units) << '\n'
-               << "    aggregation: " << geopm::Agg::function_to_name(property.get().aggregation_function) << '\n'
+        result << "    description: " << property->description << "\n"
+               << ((signal_name != cname) ? "    alias_for: " + cname + "\n" : "")
+               << "    units: " << IOGroup::units_to_string(property->units) << '\n'
+               << "    aggregation: " << geopm::Agg::function_to_name(property->aggregation_function) << '\n'
                << "    domain: " << m_platform_topo.domain_type_to_name(m_driver->domain_type(cname)) << '\n'
                << "    iogroup: " << m_driver->driver();
 
@@ -559,8 +773,17 @@ namespace geopm
                             " not valid for SysfsIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const auto &info = m_signals.at(signal_name);
-        return info.get().behavior;
+        int result;
+        auto derived_it = m_derived_signals.find(signal_name);
+        if (derived_it != m_derived_signals.end()) {
+            result = derived_it->second.properties.behavior;
+        }
+        else {
+            const auto &info = m_signals.at(signal_name);
+            result = info.get().behavior;
+        }
+
+        return result;
     }
 
     std::string SysfsIOGroup::name(void) const
@@ -571,7 +794,15 @@ namespace geopm
     std::string SysfsIOGroup::canonical_name(const std::string &name) const
     {
         /// Note: all controls are also signals
-        return m_signals.at(name).get().name;
+        auto derived_it = m_derived_signals.find(name);
+        std::string result;
+        if (derived_it != m_derived_signals.end()) {
+            result = derived_it->second.properties.name;
+        }
+        else {
+            result = m_signals.at(name).get().name;
+        }
+        return result;
     }
 
     std::string SysfsIOGroup::check_request(const std::string &method_name,

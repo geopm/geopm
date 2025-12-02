@@ -41,6 +41,11 @@ namespace geopm
                 std::function<std::string(double)> format_function;
                 std::string alias; // Either empty string or name of high level alias
             };
+            struct derived_signal_info_s {
+                properties_s properties;
+                std::string source_signal; // Canonical name of the backing signal
+                std::string source_alias; // Preferred alias to request backing signal
+            };
             SysfsDriver() = default;
             virtual ~SysfsDriver() = default;
             /// @brief Get the PlatformTopo domain type for an named attribute
@@ -87,6 +92,8 @@ namespace geopm
             virtual std::string driver(void) const = 0;
             /// Query the meta data about a signal or control
             virtual std::map<std::string, SysfsDriver::properties_s> properties(void) const = 0;
+            /// Query mapping of derived signal aliases to their metadata and sources
+            virtual std::map<std::string, derived_signal_info_s> derived_signals(void) const;
             static std::map<std::string, SysfsDriver::properties_s> parse_properties_json(const std::string &iogroup_name, const std::string &properties_json);
     };
 }
