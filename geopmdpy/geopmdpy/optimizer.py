@@ -95,7 +95,7 @@ class ApplicationEvaluator:
                 control_grid.write_config(coordinate)
             else:
                 with open(config_file, 'w') as fid:
-                    fid.write(control_grid.get_config_str(coordinate))
+                    fid.write(f'{control_grid.get_config_str(coordinate)}\n')
 
             # Launch application
             logger.debug(f"Launching application: {' '.join(self.launch_command)}")
@@ -559,7 +559,7 @@ def main():
 
         if args.output_file != '-':
             with open(args.output_file, 'w') as fid:
-                fid.write(result['best_config'])
+                fid.write(f"{result['best_config']}\n")
             logger.info(f"Best configuration written to {args.output_file}")
 
     except Exception as e:
