@@ -419,7 +419,7 @@ class Session:
             except Exception as e:
                 domain_name = topo.domain_name(dom)
                 raise RuntimeError(f'Unable to push "{name} {domain_name} {dom_idx}". Reason: {e}')
-        if self._write_config is not None:
+        if self._adjust_par:
             for par in self._adjust_par:
                 pio.adjust(*par)
             pio.save_control()
@@ -562,7 +562,7 @@ class Session:
     def run(self, run_time, period, pid, print_header,
             request_stream=sys.stdin, out_stream=sys.stdout,
             report_path=None, session_io=None, delimiter=',', report_format='yaml',
-            report_samples=None, launch=None, ready_fd=None):
+            report_samples=None, launch=None, ready_fd=None, control_config=None):
         """"Create a GEOPM session with values parsed from the command line
 
         The implementation for the geopmsession command line tool.
@@ -632,8 +632,8 @@ class Session:
                 report_stream = _ReportStream(stats_collector, session_io, print_header, delimiter, report_format)
             try:
                 g_session_handler = _SessionHandler(out_stream, report_stream, self._agent)
-                if self._write_config:
-                    with open(self._write_config) as fid:
+                if control_config is not None:
+                    with open(control_config) as fid:
                         self._adjust_par = write.parse_batch(fid)
                 self._agent.run_begin()
                 self.run_read(requests, run_time, period, pid, out_stream, stats_collector, report_samples, report_stream, launch, ready_fd)
@@ -1004,7 +1004,6 @@ def main(agent=None):
         else:
             _config_stream = open(args.config_path)
             config_stream = _config_stream
-        self._control_config = args.control_config
         report_path = args.report_out
         if args.append_hostname and _check_valid_output(report_path) and report_path != '-':
             report_path = f'{report_path}-{gethostname()}'
@@ -1022,7 +1021,7 @@ def main(agent=None):
         sess.run(run_time=args.time, period=args.period, pid=args.pid, print_header=not args.no_header,
                  request_stream=None, out_stream=trace_out, report_path=None, session_io=session_io,
                  report_format=args.report_format, delimiter=args.delimiter,
-                 report_samples=args.report_samples, launch=args.launch, ready_fd=ready_fd)
+                 report_samples=args.report_samples, launch=args.launch, ready_fd=ready_fd, control_config=args.control_config)
     except TerminationExit as term_err:
         if 'GEOPM_DEBUG' in os.environ:
             raise

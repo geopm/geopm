@@ -10,7 +10,7 @@ geopmopt --verbosity=2 \
          --minimize \
          --output-file optimal-frequency.config \
          --metric-regex='GEOPMOPT-FOM: ([0-9.]+)' \
-         -- ./check_geopmopt_dgemm_session_run.sh optimial-frequency.config
+         -- ./test_geopmopt_dgemm_session_run.sh optimial-frequency.config
 
 # For DGEMM expect maximum frequency minimizes time in dgemm
 NUM_FREQ=$(geopmgrid --cpu-frequency board --coordinate-range)
