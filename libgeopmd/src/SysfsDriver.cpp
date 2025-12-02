@@ -111,4 +111,9 @@ namespace geopm
         }
         return result;
     }
+
+    std::map<std::string, SysfsDriver::derived_signal_info_s> SysfsDriver::derived_signals(void) const
+    {
+        return {};
+    }
 }

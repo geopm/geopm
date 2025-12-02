@@ -453,15 +453,15 @@ namespace geopm
             std::string msr_name;
         };
         std::vector<power_data> power_signals {
-            {"CPU_POWER",
-                    "Average package power over 40 ms or 8 control loop iterations",
-                    "CPU_ENERGY"},
-            {"DRAM_POWER",
-                    "Average DRAM power over 40 ms or 8 control loop iterations",
-                    "DRAM_ENERGY"},
+            {"MSR::CPU_POWER",
+             "Average package power over 40 ms or 8 control loop iterations.",
+             "MSR::PKG_ENERGY_STATUS:ENERGY"},
+            {"MSR::DRAM_POWER",
+             "Average DRAM power over 40 ms or 8 control loop iterations.",
+             "MSR::DRAM_ENERGY_STATUS:ENERGY"},
             {"MSR::BOARD_POWER",
-                    "Average BOARD power over 40 ms or 8 control loop iterations",
-                    "MSR::PLATFORM_ENERGY_STATUS:ENERGY"}
+             "Average BOARD power over 40 ms or 8 control loop iterations.",
+             "MSR::PLATFORM_ENERGY_STATUS:ENERGY"}
         };
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.power_name;
@@ -486,7 +486,7 @@ namespace geopm
                                                    energy_domain,
                                                    IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
-                                                   ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
+                                                   ps.description + "  Derivative signal based on " + ps.msr_name + ".",
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                                    string_format_double};
             }
@@ -496,6 +496,9 @@ namespace geopm
         // If it loads after the MSRIOGroup the BOARD_POWER alias below will be
         // overwritten, so both MSR::BOARD_POWER & BOARD_POWER are provided
         register_signal_alias("BOARD_POWER", "MSR::BOARD_POWER");
+
+        register_signal_alias("CPU_POWER", "MSR::CPU_POWER");
+        register_signal_alias("DRAM_POWER", "MSR::DRAM_POWER");
     }
 
     void MSRIOGroup::register_pcnt_scalability_signals(void)
