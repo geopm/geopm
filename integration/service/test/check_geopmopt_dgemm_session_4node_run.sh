@@ -11,7 +11,7 @@ SIGNAL_CONFIG=test_geopm_dgemm_session_4node_signal.conf # Shared file
 REPORT_OUTPUT=test_geopm_dgemm_session_4node_report.yaml # Shared file with hostname appended
 MPI_EXEC='mpiexec'
 MPI_ARGS='-ppn 1 -n 4 --'
-REMOTE_TRAP='test -e "${DAEMON_PID_FILE}" && kill $(cat "{DAEMON_PID_FILE}") >&/dev/null || true; rm -f "${DAEMON_PID_FILE}"'
+REMOTE_TRAP='test -e "${DAEMON_PID_FILE}" && kill $(cat "${DAEMON_PID_FILE}") >&/dev/null || true; rm -f "${DAEMON_PID_FILE}"'
 #trap '"${MPI_EXEC}" bash -c "${REMOTE_TRAP}"; rm -f "${BENCH_CONF}" "${SIGNAL_CONFIG}" "${CONTROL_CONFIG}"' EXIT
 cat <<EOF > ${BENCH_CONF}
 {
@@ -46,7 +46,7 @@ from yaml import safe_load
 from glob import glob
 total = 0.0
 host_count = 0
-for rf in glob("$REPORT-OUTPUT" + "-*'):
+for rf in glob("$REPORT_OUTPUT" + "-*'):
     with open(rf) as fid:
         rpt = safe_load(fid)
         total += rpt['metrics']['TIME']['last'] - rpt['metrics']['TIME']['first']
