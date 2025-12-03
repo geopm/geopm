@@ -14,7 +14,7 @@ cat <<EOF > $BENCH_CONF
 }
 EOF
 echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" > init-control.config
-if [ $# -eq 2 ]; then
+if [ $# -eq 1 ]; then
     cat $1 >> init-control.config
 fi
 geopmlaunch pals -n 4 -ppn 2 \
