@@ -38,11 +38,8 @@ rm -f ${DAEMON_PID_FILE}
 
 python3 <<EOF
 from yaml import safe_load
-from glob import glob
-energy_total = 0.0
-host_count = 0
 with open("$REPORT_OUTPUT") as fid:
     rpt = safe_load(fid)
-energy_total += rpt['metrics']['TIME']['last'] - rpt['metrics']['TIME']['first']
-print(f'GEOPMOPT-FOM: {energy_total}')
+total = rpt['metrics']['TIME']['last'] - rpt['metrics']['TIME']['first']
+print(f'GEOPMOPT-FOM: {total}')
 EOF
