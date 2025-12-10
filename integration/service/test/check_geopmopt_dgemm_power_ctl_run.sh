@@ -34,12 +34,16 @@ from glob import glob
 
 fom = 0
 num_hosts = 0
-for path in glob("$REPORT_OUTPUT*"):
-    with open(path) as fid:
-        report = safe_load(fid)
-    hosts = list(report['Hosts'].keys())
-    fom += sum([report['Hosts'][hh]['Regions'][0]['runtime (s)'] for hh in hosts])
-    num_hosts += len(hosts)
+path = glob("$REPORT_OUTPUT*")[0]
+with open(path) as fid:
+    report = safe_load(fid)
+hosts = list(report['Hosts'].keys())
+fom += sum([report['Hosts'][hh]['Regions'][0]['runtime (s)'] *
+            report['Hosts'][hh]['Regions'][0]['power (W)'] for hh in hosts])
+num_hosts += len(hosts)
 fom /= num_hosts
 print(f'GEOPMOPT-FOM: {fom}')
 EOF
+
+# Give geopmctl and geopmd 2 seconds to clean up
+sleep 2

@@ -13,7 +13,7 @@ geopmopt --verbosity=2 \
          --output-file=optimal-power.config \
          --metric-regex='GEOPMOPT-FOM: ([0-9.]+)' \
          --trials=20 \
-         -- ./check_geopmopt_dgemm_ctl_run.sh optimal-power.config
+         -- ./check_geopmopt_dgemm_power_ctl_run.sh optimal-power.config
 
 # For DGEMM expect maximum power minimizes time in dgemm
 grep ${MAX_POWER} optimal-power.config
