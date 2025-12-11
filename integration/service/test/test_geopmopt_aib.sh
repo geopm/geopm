@@ -8,7 +8,7 @@ geopmopt --verbosity=2 \
          --cpu-uncore-frequency=board \
          --defer-write \
          --minimize \
-         --output-file=optimal-frequency.config \
+         --output-file=optimal-frequency-aib-${AIB_INTENSITY}.config \
          --metric-regex='GEOPMOPT-FOM: ([0-9.]+)' \
-         --trials=50 \
-         -- ./check_geopmopt_aib_run.sh optimal-frequency.config
+         --trials=40 \
+         -- ./check_geopmopt_aib_run.sh optimal-frequency-aib-${AIB_INTENSITY}.config
