@@ -41,47 +41,23 @@ for ll in content.splitlines():
         yy = []
         zz = []
 
-plt_idx = 1
-num_int = len(intensities)
-plt.figure(figsize=(8, 10.5))
-for aib_int in intensities:
-    xx, yy, zz = plot_data[aib_int]
-#    grid = ControlGrid(grid_argv)
-#    xx_update = []
-#    yy_update = []
-#    for x, y in zip(xx, yy):
-#        config = grid.get_config([x, y])
-#        xx_update.append(config[0][3])
-#        yy_update.append(config[1][3])
-#    x_label = config[0][0]
-#    y_label = config[1][0]
-#    xx = xx_update
-#    yy = yy_update
-    plt.subplot(num_int, 2, plt_idx)
-    plt.plot(xx, zz, 'x')
-    plt.title(f'AIB {aib_int} Core Freq')
-    plt.ylabel('Energy (J)')
-    plt_idx += 1
-    plt.subplot(num_int, 2, plt_idx)
-    plt.plot(yy, zz, 'x')
-    plt.title(f'AIB {aib_int} Uncore Freq')
-    plt.ylabel('Energy (J)')
-    plt_idx += 1
-
-plt.savefig('check_geopmopt_aib_plot.png')
-plt.close()
-
 plt.figure(figsize=(8, 10.5))
 plt_idx = 1
-for aib_int in intensities:
+extent = [0.8, 3.5, 0.8, 2.3]
+for aib_int in intensities[1:]:
     xx, yy, zz = plot_data[aib_int]
     max_x = max(xx) + 1
     max_y = max(yy) + 1
     data = np.full((max_y, max_x), np.nan)
     for x, y, z in zip(xx, yy, zz):
-        data[y][x] = z
-    plt.subplot(num_int, 1, plt_idx)
-    plt.imshow(data, aspect="auto", interpolation='nearest')
-    plt.colorbar()
+        data[max(yy) - y][x] = z / 1000
+    plt.subplot(3, 2, plt_idx)
+    plt.imshow(data, extent=extent, aspect="auto", interpolation='none')
+    if plt_idx > 4:
+        plt.xlabel('CPU Freq (GHz)')
+    if plt_idx % 2 == 1:
+        plt.ylabel('Uncore Freq (GHz)')
+    plt.colorbar(label='Energy (kJ)')
+    plt.title(f'AIB Intensity {aib_int}')
     plt_idx += 1
 plt.savefig('check_geopmopt_aib_map.png')
