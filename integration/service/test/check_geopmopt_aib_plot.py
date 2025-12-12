@@ -2,6 +2,7 @@
 from geopmdpy.grid import ControlGrid
 from parse import parse
 from matplotlib import pyplot as plt
+import numpy as np
 import sys
 
 if len(sys.argv) < 2:
@@ -68,3 +69,19 @@ for aib_int in intensities:
     plt_idx += 1
 
 plt.savefig('check_geopmopt_aib_plot.png')
+plt.close()
+
+plt.figure(figsize=(8, 10.5))
+plt_idx = 1
+for aib_int in intensities:
+    xx, yy, zz = plot_data[aib_int]
+    max_x = max(xx) + 1
+    max_y = max(yy) + 1
+    data = np.full((max_y, max_x), np.nan)
+    for x, y, z in zip(xx, yy, zz):
+        data[y][x] = z
+    plt.subplot(num_int, 1, plt_idx)
+    plt.imshow(data, aspect="auto", interpolation='nearest')
+    plt.colorbar()
+    plt_idx += 1
+plt.savefig('check_geopmopt_aib_map.png')
