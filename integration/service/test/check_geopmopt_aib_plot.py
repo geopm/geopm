@@ -52,7 +52,7 @@ for aib_int in intensities[1:]:
     for x, y, z in zip(xx, yy, zz):
         data[max(yy) - y][x] = z / 1000
     plt.subplot(3, 2, plt_idx)
-    plt.imshow(data, extent=extent, aspect="auto", interpolation='none')
+    plt.imshow(data, extent=extent, cmap='nipy_spectral', aspect='auto', interpolation='none')
     if plt_idx > 4:
         plt.xlabel('CPU Freq (GHz)')
     if plt_idx % 2 == 1:
