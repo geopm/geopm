@@ -2,33 +2,49 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
-set -ex
+set -euo pipefail
+set -x
 
-BENCH_CONF=bench.conf
-CONTROL_CONFIG=init-control.config
-REPORT_OUTPUT=test_geopmopt_dgemm_ctl_report.yaml
-trap 'rm -f "${BENCH_CONF}" "{CONTROL_CONFIG}" "${REPORT_OUTPUT}"' EXIT
-cat <<EOF > ${BENCH_CONF}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+UTIL_PY="${SCRIPT_DIR}/geopmopt_test_utils.py"
+
+bench_conf=$(mktemp -p "${PWD}" geopmopt_dgemm_ctl_bench.XXXXXX)
+control_config=$(mktemp -p "${PWD}" geopmopt_dgemm_ctl_control.XXXXXX)
+report_prefix=$(mktemp -p "${PWD}" geopmopt_dgemm_ctl_report.XXXXXX)
+rm -f "${report_prefix}"
+
+geopmctl_pid=""
+
+cleanup() {
+  if [[ -n "${geopmctl_pid}" ]] && kill -0 "${geopmctl_pid}" 2>/dev/null; then
+    kill "${geopmctl_pid}" 2>/dev/null || true
+    wait "${geopmctl_pid}" 2>/dev/null || true
+  fi
+  rm -f "${bench_conf}" "${control_config}" "${report_prefix}" "${report_prefix}"-*
+}
+trap cleanup EXIT
+
+cat <<EOF >"${bench_conf}"
 {
   "loop-count": 100,
   "region": ["dgemm"],
   "big-o": [0.2]
 }
 EOF
-echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" > ${CONTROL_CONFIG}
-if [ $# -eq 1 ]; then
-    cat $1 >> ${CONTROL_CONFIG}
+
+echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" >"${control_config}"
+if [[ $# -ge 1 ]]; then
+  cat "$1" >>"${control_config}"
 fi
-GEOPM_REPORT=${REPORT_OUTPUT} GEOPM_INIT_CONTROL=${CONTROL_CONFIG} GEOPM_PERIOD=1e-2 geopmctl &
-GEOPMCTL_PID=$!
-GEOPM_PROGRAM_FILTER=geopmbench geopmbench --verbose ${BENCH_CONF}
-wait
-python3 <<EOF
-from yaml import safe_load
-from socket import gethostname
-with open(f"$REPORT_OUTPUT-{gethostname()}") as fid:
-    report = safe_load(fid)
-hosts = list(report['Hosts'].keys())
-fom = sum([report['Hosts'][hh]['Epoch Totals']['runtime (s)'] for hh in hosts]) / len(hosts)
-print(f'GEOPMOPT-FOM: {fom}')
-EOF
+
+GEOPM_REPORT="${report_prefix}" \
+GEOPM_INIT_CONTROL="${control_config}" \
+GEOPM_PERIOD=1e-2 \
+geopmctl &
+geopmctl_pid=$!
+
+GEOPM_PROGRAM_FILTER=geopmbench geopmbench --verbose "${bench_conf}"
+
+wait "${geopmctl_pid}"
+
+python3 "${UTIL_PY}" epoch-runtime --report-pattern "${report_prefix}"'*'
