@@ -2,55 +2,70 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
-set -ex
+set -euo pipefail
+set -x
 
-BENCH_CONF=bench.conf # Shared file
-CONTROL_CONFIG=init-control.config # Shared file
-DAEMON_PID_FILE=$(mktemp /tmp/test_geopm_dgemm_session_4node_daemon.pid-XXXXXXXXXXXXXXX.pid) # node local file
-SIGNAL_CONFIG=test_geopm_dgemm_session_4node_signal.conf # Shared file
-REPORT_OUTPUT=$(mktemp test_geopm_dgemm_session_4node_report-XXXXXXXXXXXXXXX.yaml) # Shared file with hostname appended
-MPI_EXEC='mpiexec'
-MPI_ARGS='-ppn 1 -n 4 --'
-REMOTE_TRAP='test -e "'${DAEMON_PID_FILE}'" && kill $(cat "'${DAEMON_PID_FILE}'") >&/dev/null || true; rm -f "'${DAEMON_PID_FILE}'"'
-trap '"${MPI_EXEC}" bash -c "${REMOTE_TRAP}"; rm -f "${BENCH_CONF}" "${SIGNAL_CONFIG}" "${CONTROL_CONFIG}"' EXIT
-cat <<EOF > ${BENCH_CONF}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+UTIL_PY="${SCRIPT_DIR}/geopmopt_test_utils.py"
+
+bench_conf=$(mktemp -p "${PWD}" geopmopt_dgemm_session4_bench.XXXXXX)
+control_config=$(mktemp -p "${PWD}" geopmopt_dgemm_session4_control.XXXXXX)
+signal_config=$(mktemp -p "${PWD}" geopmopt_dgemm_session4_signal.XXXXXX)
+report_prefix=$(mktemp -p "${PWD}" geopmopt_dgemm_session4_report.XXXXXX)
+daemon_pid_file=$(mktemp -p "${PWD}" geopmopt_dgemm_session4_daemon.XXXXXX.pid)
+rm -f "${report_prefix}" "${daemon_pid_file}"
+
+MPI_EXEC=${MPI_EXEC:-mpiexec}
+MPI_ARGS=(-ppn 1 -n 4 --)
+
+mpi_run() {
+  "${MPI_EXEC}" "${MPI_ARGS[@]}" "$@"
+}
+
+remote_cleanup_daemon() {
+  mpi_run bash -c 'if [ -f "'"${daemon_pid_file}"'" ]; then \
+    pid=$(cat "'"${daemon_pid_file}"'"); \
+    if kill -0 "${pid}" 2>/dev/null; then \
+      kill "${pid}" 2>/dev/null || true; \
+      tail --pid="${pid}" -f /dev/null || true; \
+    fi; \
+    rm -f "'"${daemon_pid_file}"'"; \
+  fi' || true
+}
+
+cleanup() {
+  remote_cleanup_daemon
+  rm -f "${bench_conf}" "${control_config}" "${signal_config}" "${report_prefix}" "${report_prefix}"-*
+}
+trap cleanup EXIT
+
+cat <<EOF >"${bench_conf}"
 {
   "loop-count": 10,
   "region": ["dgemm"],
   "big-o": [0.2]
 }
 EOF
-echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" > ${CONTROL_CONFIG}
-if [ $# -eq 1 ]; then
-    cat $1 >> ${CONTROL_CONFIG}
+
+echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" >"${control_config}"
+if [[ $# -ge 1 ]]; then
+  cat "$1" >>"${control_config}"
 fi
-echo "TIME board 0" > ${SIGNAL_CONFIG}
-echo "CPU_ENERGY board 0" >> ${SIGNAL_CONFIG}
-${MPI_EXEC} ${MPI_ARGS} \
-geopmsession --daemon ${DAEMON_PID_FILE} \
-             --period 1e-2 \
-             --report-out ${REPORT_OUTPUT} \
-             --trace-out /dev/null \
-             --signal-config ${SIGNAL_CONFIG} \
-             --control-config ${CONTROL_CONFIG} \
-             --append-hostname
 
-${MPI_EXEC} ${MPI_ARGS} \
-geopmbench --verbose ${BENCH_CONF}
+echo "TIME board 0" >"${signal_config}"
+echo "CPU_ENERGY board 0" >>"${signal_config}"
 
-${MPI_EXEC} ${MPI_ARGS} \
-bash -c 'DAEMON_PID=$(cat '${DAEMON_PID_FILE}'); kill ${DAEMON_PID}; tail -f /dev/null --pid ${DAEMON_PID}; rm -f '${DAEMON_PID_FILE}
+mpi_run geopmsession \
+  --daemon "${daemon_pid_file}" \
+  --period 1e-2 \
+  --report-out "${report_prefix}" \
+  --trace-out /dev/null \
+  --signal-config "${signal_config}" \
+  --control-config "${control_config}" \
+  --append-hostname
 
-python3 <<EOF
-from yaml import safe_load
-from glob import glob
-total = 0.0
-host_count = 0
-for rf in glob("$REPORT_OUTPUT" + "-*"):
-    with open(rf) as fid:
-        rpt = safe_load(fid)
-        total += rpt['metrics']['TIME']['last'] - rpt['metrics']['TIME']['first']
-        host_count += 1
-fom = total / host_count
-print(f'GEOPMOPT-FOM: {fom}')
-EOF
+mpi_run geopmbench --verbose "${bench_conf}"
+
+remote_cleanup_daemon
+
+python3 "${UTIL_PY}" session-duration --report-pattern "${report_prefix}"'*'

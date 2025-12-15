@@ -2,48 +2,45 @@
 #  Copyright (c) 2015 - 2025 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
-set -ex
+set -euo pipefail
+set -x
 
-BENCH_CONF=bench.conf
-CONTROL_CONFIG=init-control.config
-REPORT_OUTPUT=$(mktemp test_geopmopt_dgemm_ctl_report-XXXXXXXX.yaml)
-trap 'rm -f "${BENCH_CONF}" "{CONTROL_CONFIG}" "${REPORT_OUTPUT}"' EXIT
-cat <<EOF > ${BENCH_CONF}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+UTIL_PY="${SCRIPT_DIR}/geopmopt_test_utils.py"
+
+bench_conf=$(mktemp -p "${PWD}" geopmopt_dgemm_power_bench.XXXXXX)
+control_config=$(mktemp -p "${PWD}" geopmopt_dgemm_power_control.XXXXXX)
+report_prefix=$(mktemp -p "${PWD}" geopmopt_dgemm_power_report.XXXXXX)
+rm -f "${report_prefix}"
+
+cleanup() {
+  rm -f "${bench_conf}" "${control_config}" "${report_prefix}" "${report_prefix}"-*
+}
+trap cleanup EXIT
+
+cat <<EOF >"${bench_conf}"
 {
   "loop-count": 100,
   "region": ["dgemm"],
   "big-o": [0.2]
 }
 EOF
-echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" > ${CONTROL_CONFIG}
-if [ $# -eq 1 ]; then
-    cat $1 >> ${CONTROL_CONFIG}
+
+echo "CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0" >"${control_config}"
+if [[ $# -ge 1 ]]; then
+  cat "$1" >>"${control_config}"
 fi
+
 OMP_NUM_THREADS=51 \
 geopmlaunch pals -n 2 --ppn 2 \
-                 --geopm-report=${REPORT_OUTPUT} \
-                 --geopm-init-control=${CONTROL_CONFIG} \
-                 --geopm-period=1 \
-                 --geopm-program-filter=geopmbench \
-                 --geopm-affinity-enable \
-                 -- geopmbench ${BENCH_CONF}
-wait
-python3 <<EOF
-from yaml import safe_load
-from glob import glob
+  --geopm-report="${report_prefix}" \
+  --geopm-init-control="${control_config}" \
+  --geopm-period=1 \
+  --geopm-program-filter=geopmbench \
+  --geopm-affinity-enable \
+  -- geopmbench "${bench_conf}"
 
-fom = 0
-num_hosts = 0
-path = glob("$REPORT_OUTPUT*")[0]
-with open(path) as fid:
-    report = safe_load(fid)
-hosts = list(report['Hosts'].keys())
-fom += sum([report['Hosts'][hh]['Regions'][0]['runtime (s)'] *
-            report['Hosts'][hh]['Regions'][0]['power (W)'] for hh in hosts])
-num_hosts += len(hosts)
-fom /= num_hosts
-print(f'GEOPMOPT-FOM: {fom}')
-EOF
+python3 "${UTIL_PY}" region-energy --report-pattern "${report_prefix}"'*'
 
 # Give geopmctl and geopmd 2 seconds to clean up
 sleep 2
