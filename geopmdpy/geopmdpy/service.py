@@ -504,7 +504,7 @@ class PlatformService(object):
             if batch_pid is not None:
                 ex = self._stop_batch_server(batch_pid)
                 if ex is not None:
-                    sys.stderr.write(f"Warning: <geopm-service> Failed to call pio.stop_batch_server({batch_pid}): {type(ex)} {ex}: sending SIGKILL\n)")
+                    sys.stderr.write(f"Warning: <geopm-service> Failed to call pio.stop_batch_server({batch_pid}): {type(ex)} {ex}: sending SIGKILL\n")
                     if psutil.pid_exists(batch_pid):
                         os.kill(batch_pid, signal.SIGKILL)
         try:
@@ -529,16 +529,16 @@ class PlatformService(object):
                 self._pio.restore_control_dir(save_dir)
                 is_restored = True
             except RuntimeError as ex:
-                sys.stderr.write(f'Warning: <geopm-service>: Failed to restore control settings for client {pid}: {ex}')
+                sys.stderr.write(f'Warning: <geopm-service>: Failed to restore control settings for client {pid}: {ex}\n')
             del_dir = f'{save_dir}-{pid}-{uuid.uuid4()}-del'
             os.rename(save_dir, del_dir)
             if is_restored:
                 shutil.rmtree(del_dir)
                 self._write_pid = None
             else:
-                sys.stderr.write(f'Warning: <geopm-service>: Failed to restore controls for PID {pid}, moved to {del_dir}')
+                sys.stderr.write(f'Warning: <geopm-service>: Failed to restore controls for PID {pid}, moved to {del_dir}\n')
         else:
-            sys.stderr.write(f'Warning: <geopm-service>: Failed to restore controls for PID {pid}, {save_dir} is not a directory')
+            sys.stderr.write(f'Warning: <geopm-service>: Failed to restore controls for PID {pid}, {save_dir} is not a directory\n')
         lock.unlock(pid)
 
     def start_batch(self, client_pid, signal_config, control_config):
@@ -660,7 +660,7 @@ class PlatformService(object):
             return
         actual_server_pid = self._active_sessions.get_batch_server(client_pid)
         if server_pid != actual_server_pid:
-            sys.stderr.write(f'Warning: <geopm-service>: Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
+            sys.stderr.write(f'Warning: <geopm-service>: Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}\n')
         else:
             ex = self._stop_batch_server(server_pid)
             if ex is not None:
@@ -680,7 +680,7 @@ class PlatformService(object):
         else:
             _, stderr_data = subp.communicate()
             if subp.returncode != 0:
-                sys.stderr.write(f'Warning: <geopm-service>: Batch server returned non-zero exit code: "{subp.returncode}" stderr: "{stderr_data}".')
+                sys.stderr.write(f'Warning: <geopm-service>: Batch server returned non-zero exit code: "{subp.returncode}" stderr: "{stderr_data}".\n')
         return result
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
