@@ -6,6 +6,7 @@
 
 #include "geopm/SaveControl.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 #include "geopm/json11.hpp"
@@ -128,14 +129,44 @@ namespace geopm
 
     void SaveControlImp::restore(IOGroup &io_group) const
     {
-        for (const auto &ss : settings()) {
-            if (std::isfinite(ss.setting)) {
-                io_group.write_control(ss.name,
-                                       ss.domain_type,
-                                       ss.domain_idx,
-                                       ss.setting);
+        const auto control_settings = settings();
+        std::vector<bool> is_restored(control_settings.size(), false);
+
+        const int max_restore_retries = 1;
+
+        std::set<std::string> unwritten_controls;
+
+        for (int restore_attempt = 0; restore_attempt <= max_restore_retries; restore_attempt++) {
+            for (size_t setting_idx = 0; setting_idx < control_settings.size(); ++setting_idx) {
+                if (is_restored[setting_idx]) {
+                    continue;
+                }
+                const auto &ss = control_settings[setting_idx];
+                if (!std::isfinite(ss.setting)) {
+                    is_restored[setting_idx] = true;
+                    continue;
+                }
+                try {
+                    io_group.write_control(ss.name,
+                                           ss.domain_type,
+                                           ss.domain_idx,
+                                           ss.setting);
+                    is_restored[setting_idx] = true;
+                }
+                catch (...) {
+                    if (restore_attempt == max_restore_retries) {
+                        unwritten_controls.insert(ss.name);
+                    }
+                }
             }
-         }
+        }
+        if (!unwritten_controls.empty()) {
+            std::string err_msg = "SaveControlImp::restore(): The following controls could not be restored: ";
+            for (const auto &name : unwritten_controls) {
+                err_msg += name + " ";
+            }
+            throw Exception(err_msg, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
     }
 
     std::set<std::string> SaveControlImp::unsaved_controls(const std::set<std::string> &all_controls) const
