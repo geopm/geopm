@@ -536,7 +536,7 @@ class ActiveSessions(object):
             self._sessions[client_pid] = session_data
             self._update_session_file(client_pid)
         except psutil.NoSuchProcess:
-            sys.stderr.write('Warning: <geopm-service>: Session cannot be created for PID {client_pid}, it is no longer active')
+            sys.stderr.write(f'Warning: <geopm-service>: Session cannot be created for PID {client_pid}, it is no longer active\n')
 
     def remove_client(self, client_pid):
         """Delete the record of an active session

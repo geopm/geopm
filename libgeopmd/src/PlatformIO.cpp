@@ -742,9 +742,23 @@ namespace geopm
 
     void PlatformIOImp::restore_control(const std::string &save_dir)
     {
+        std::string restore_errors;
         for (auto &it : m_iogroup_list) {
             std::string save_path = save_dir + '/' + it->name() + "-save-control.json";
-            it->restore_control(save_path);
+            try {
+                it->restore_control(save_path);
+            }
+            catch (const Exception &ex) {
+                if (!restore_errors.empty()) {
+                    restore_errors += "; ";
+                }
+                restore_errors += std::string(ex.what());
+            }
+        }
+        if (!restore_errors.empty()) {
+            throw Exception("PlatformIOImp::restore_control(): Errors occurred during restore: " +
+                            restore_errors,
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
