@@ -24,7 +24,7 @@ performance objectives.}
 %endif
 
 Name:           geopmd
-Version:	3.2.1
+Version:	3.2.2
 Release:	%autorelease
 Summary:	GEOPM daemon
 

@@ -13,7 +13,7 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		python-%{prj_name}
-Version:	3.2.1
+Version:	3.2.2
 Release:	%autorelease
 Summary:	Python bindings for libgeopm
 

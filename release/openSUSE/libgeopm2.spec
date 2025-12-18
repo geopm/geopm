@@ -14,7 +14,7 @@ performance objectives.}
 %endif
 
 Name:		libgeopm2
-Version:	3.2.1
+Version:	3.2.2
 Release:	%autorelease
 Summary:	C/C++ implementation of the GEOPM runtime service
 
