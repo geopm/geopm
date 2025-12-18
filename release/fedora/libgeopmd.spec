@@ -9,7 +9,7 @@ optimize system hardware settings to achieve energy efficiency and/or
 performance objectives.}
 
 Name:		libgeopmd
-Version:	3.2.1
+Version:	3.2.2
 Release:	%autorelease
 Summary:	C/C++ implementation of the GEOPM access service
 

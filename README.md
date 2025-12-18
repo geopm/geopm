@@ -9,7 +9,7 @@
 
 Fine-grained low-latency batch access to power metrics and control knobs on Linux
 
-[![Version](https://img.shields.io/badge/Version-3.1.0-blue)](https://github.com/geopm/geopm/releases)
+[![Version](https://img.shields.io/badge/Version-3.2.2-blue)](https://github.com/geopm/geopm/releases)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 [![CI Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
