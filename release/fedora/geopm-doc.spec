@@ -1,6 +1,6 @@
 Summary:	Global Extensible Open Power Manager Documentation
 Name:	geopm-doc
-Version:	3.2.1
+Version:	3.2.2
 Release:	%autorelease
 License:	BSD-3-Clause
 URL:	https://geopm.github.io
