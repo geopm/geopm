@@ -1,3 +1,46 @@
+- Thu Dec 18 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.2
+
+---
+### Official v3.2.2 release tag
+- Hot fix for version 3.2.1
+
+#### Bug Fix:
+- This hot fix targets a critical bug with the GEOPM Access service save/restore feature
+- Issue presents on systems where Intel GPUs are enabled when the default minimum GPU frequency is not the hardware minimum value
+- For more details see https://github.com/geopm/geopm/issues/4010
+
+---
+- Fri Sep 12 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.1
+
+---
+### Official v3.2.1 release tag
+- Hot fix for version 3.2.0
+
+#### Bug Fixes and Documentation Improvements
+- **Test Suite Updates**:
+  - Fixed test expectations in `test_pio_reset.py` and `TestIO.py` to match code changes.
+  - Improved error checking and input validation in `geopmwrite` and related tools.
+  - Enhanced integration test reliability and updated build instructions in `integration/README.md`.
+
+- **Robustness and Error Handling**:
+  - Fallback to JSON parsing if environment variable is not set allowing unsafe HDF5 usage.
+  - Avoid passing untrusted data to `std::to_string()`.
+  - Added more error checking for input files and improved error messages.
+  - Added unused attribute annotations where applicable.
+
+- **Documentation and Packaging**:
+  - Added EPEL and Gen AI blurbs to documentation.
+  - Fixed typos, formatting, and improved clarity in install and contribution guides.
+  - Updated packaging and systemd configuration for broader compatibility.
+
+- **Other Notable Changes**:
+  - Fix Granite Rapids CPU support; default fallback MSR definition set to SPR.
+  - Fix issues with cgroup cpuset restrictions and containerized environments.
+  - Added JavaScript to fix broken links with double colons in documentation.
+  - Fixed issues with SaveControl and driver expectations.
+  - Fixed rollover issues with activity counters from LevelZero.
+
+---
 ### Official v3.2.0 release tag
 - Mon Apr 28 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.0
 - ABI bump moving so-version from 2.1.0 -> 2.2.0 with backward compatibility for release v3.1
