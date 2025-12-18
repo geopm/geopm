@@ -1,3 +1,15 @@
+- Thu Dec 18 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.2
+
+---
+### Official v3.2.2 release tag
+- Hot fix for version 3.2.1
+
+#### Bug Fix:
+- This hot fix targets a critical bug with the GEOPM Access service save/restore feature
+- Issue presents on systems where Intel GPUs are enabled when the default minimum GPU frequency is not the hardware minimum value
+- For more details see https://github.com/geopm/geopm/issues/4010
+
+---
 - Fri Sep 12 2025 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v3.2.1
 
 ---
