@@ -31,6 +31,10 @@ Synopsis
                      [--board-power-min BOARD_POWER_MIN]
                      [--board-power-max BOARD_POWER_MAX]
                      [--board-power-step BOARD_POWER_STEP]
+                     [--prefetch-disable PREFETCH_DISABLE_DOMAIN]
+                     [--prefetch-disable-min PREFETCH_DISABLE_MIN]
+                     [--prefetch-disable-max PREFETCH_DISABLE_MAX]
+                     [--prefetch-disable-step PREFETCH_DISABLE_STEP]
                      [--coordinate COORDINATE [COORDINATE ...] |
                       --coordinate-file COORDINATE_FILE |
                       --coordinate-range]
@@ -221,6 +225,28 @@ Control Parameters
 --board-power-step BOARD_POWER_STEP  .. _board-power-step option:
 
     Override the step size used to enumerate board-level power settings.
+
+--prefetch-disable PREFETCH_DISABLE_DOMAIN  .. _prefetch-disable option:
+
+    Define a grid dimension over prefetch disable levels for the specified
+    domain. Higher grid values disable additional layers of platform
+    prefetchers. Supported domains depend on the platform; typically
+    ``board`` or ``package`` are available when the associated MSR controls
+    are exposed.
+
+--prefetch-disable-min PREFETCH_DISABLE_MIN  .. _prefetch-disable-min option:
+
+    Override the minimum prefetch disable level when constructing the grid.
+    The default value leaves all prefetchers enabled.
+
+--prefetch-disable-max PREFETCH_DISABLE_MAX  .. _prefetch-disable-max option:
+
+    Override the maximum prefetch disable level when constructing the grid.
+    The default value disables all supported prefetchers.
+
+--prefetch-disable-step PREFETCH_DISABLE_STEP  .. _prefetch-disable-step option:
+
+    Override the step size used to enumerate prefetch disable levels.
 
 Grid Navigation
 ~~~~~~~~~~~~~~~
