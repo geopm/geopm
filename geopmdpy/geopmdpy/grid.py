@@ -9,7 +9,7 @@ import math
 from . import pio
 from . import topo
 from argparse import ArgumentParser
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Tuple
 
 """ControlGrid class for managing geopmwrite configurations."""
 
@@ -17,6 +17,15 @@ from typing import Optional, Union, List
 _DEFAULT_POWER_MAX = 6000
 _DEFAULT_POWER_MIN = 200
 _DEFAULT_POWER_STEP = 1
+_PREFETCHER_CONTROL_SEQUENCE = (
+    "MSR::MISC_FEATURE_CONTROL:DCU_HW_PREFETCHER_DISABLE",
+    "MSR::MISC_FEATURE_CONTROL:L2_HW_PREFETCHER_DISABLE",
+    "MSR::MISC_FEATURE_CONTROL:DCU_IP_PREFETCHER_DISABLE",
+    "MSR::MISC_FEATURE_CONTROL:L2_ADJACENT_PREFETCHER_DISABLE",
+)
+# _MAX_PREFETCH_DISABLE_LEVEL represents the number of available prefetchers.
+#  Selecting the max value disables all prefetchers.
+_MAX_PREFETCH_DISABLE_LEVEL = len(_PREFETCHER_CONTROL_SEQUENCE)
 _CLI_FLAG_TO_CONTROL = {
     "cpu_frequency": (
         "CPU_FREQUENCY_MAX_CONTROL",
@@ -54,6 +63,12 @@ _CLI_FLAG_TO_CONTROL = {
         _DEFAULT_POWER_MAX,
         _DEFAULT_POWER_STEP,
     ),
+    "prefetch_disable": (
+        "prefetch_disable",
+        0,
+        _MAX_PREFETCH_DISABLE_LEVEL,
+        1,
+    ),
 }
 
 def add_grid_cli_arguments(parser: ArgumentParser) -> None:
@@ -87,6 +102,23 @@ def add_grid_cli_arguments(parser: ArgumentParser) -> None:
             dest=f'{flag}_step',
             help=f"Override the step size used when constructing the {control[0]} grid.",
         )
+
+def prefetch_settings(level: int) -> List[Tuple[str, int]]:
+    """Derive MSR disable values for a prefetch optimization level.
+
+    Args:
+        level: Desired prefetch disable level produced by the grid. Higher
+            values disable deeper layers of hardware prefetchers.
+
+    Returns:
+        List[Tuple[str, int]]: Ordered pairs mapping each prefetch MSR control
+        name to the disable value that should be written.
+    """
+    settings: List[Tuple[str, int]] = []
+    for idx, control_name in enumerate(_PREFETCHER_CONTROL_SEQUENCE):
+        disable = 1 if level > idx else 0
+        settings.append((control_name, disable))
+    return settings
 
 class ControlGrid:
     """
@@ -199,7 +231,10 @@ class ControlGrid:
         """
         domain = topo.domain_name(domain)
         num_domain = topo.num_domain(domain)
-        native_domain = pio.control_domain_type(_CLI_FLAG_TO_CONTROL[control_name][0])
+        control_key = _CLI_FLAG_TO_CONTROL[control_name][0]
+        if control_name == "prefetch_disable":
+            control_key = _PREFETCHER_CONTROL_SEQUENCE[0]
+        native_domain = pio.control_domain_type(control_key)
         try:
             topo.domain_nested(native_domain, domain, 0)
         except RuntimeError:
@@ -406,10 +441,17 @@ class ControlGrid:
             raise ValueError(f"Input coordinate not correctly sized, must be length {len(self.control_name)}")
         result = []
         for idx, dim in enumerate(self.get_grid_data()):
-            result.append((dim["control"], dim["domain"], dim["domain_idx"], dim["settings"][coordinate[idx]]))
+            value = dim["settings"][coordinate[idx]]
+            if dim["control"] == "prefetch_disable":
+                level = int(round(value))
+                level = max(0, min(_MAX_PREFETCH_DISABLE_LEVEL, level))
+                for control_name, setting in prefetch_settings(level):
+                    result.append((control_name, dim["domain"], dim["domain_idx"], setting))
+                continue
+            result.append((dim["control"], dim["domain"], dim["domain_idx"], value))
             min_control = dim["control"].replace("_MAX_", "_MIN_")
             if min_control != dim["control"] and min_control in pio.control_names() and min_control != "CPU_FREQUENCY_MIN_CONTROL":
-                result.append((min_control, dim["domain"], dim["domain_idx"], dim["settings"][coordinate[idx]]))
+                result.append((min_control, dim["domain"], dim["domain_idx"], value))
         return result
 
     def get_config_str(self, coordinate: Optional[List[int]] = None):

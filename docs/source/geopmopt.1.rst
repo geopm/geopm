@@ -31,6 +31,10 @@ Synopsis
                     [--board-power-min BOARD_POWER_MIN]
                     [--board-power-max BOARD_POWER_MAX]
                     [--board-power-step BOARD_POWER_STEP]
+                    [--prefetch-disable PREFETCH_DISABLE_DOMAIN]
+                    [--prefetch-disable-min PREFETCH_DISABLE_MIN]
+                    [--prefetch-disable-max PREFETCH_DISABLE_MAX]
+                    [--prefetch-disable-step PREFETCH_DISABLE_STEP]
                     [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
                     --metric-regex METRIC_REGEX [--minimize] [--random-seed RANDOM_SEED]
                     [--application-timeout APPLICATION_TIMEOUT]
@@ -231,6 +235,27 @@ Control Parameters
 --board-power-step BOARD_POWER_STEP  .. _board-power-step option:
 
     Override the step size used to enumerate board-level power settings.
+
+--prefetch-disable PREFETCH_DISABLE_DOMAIN  .. _prefetch-disable option:
+
+    Include hardware prefetch disable control in the optimization space. The
+    setting progressively disables platform prefetchers as the level increases.
+    Valid domains depend on the platform; typically ``board`` or ``package``
+    are supported when the underlying MSR controls are exposed.
+
+--prefetch-disable-min PREFETCH_DISABLE_MIN  .. _prefetch-disable-min option:
+
+    Override the minimum prefetch disable level before constructing the
+    optimization grid. The default value enables all prefetchers.
+
+--prefetch-disable-max PREFETCH_DISABLE_MAX  .. _prefetch-disable-max option:
+
+    Override the maximum prefetch disable level before constructing the
+    optimization grid. The default value disables all supported prefetchers.
+
+--prefetch-disable-step PREFETCH_DISABLE_STEP  .. _prefetch-disable-step option:
+
+    Override the step size used to enumerate prefetch disable levels.
 
 Optimization Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
