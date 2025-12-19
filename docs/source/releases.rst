@@ -1,10 +1,10 @@
 Releases
 ========
 
-v3.2.1
+v3.2.2
 ------
-- `Changes and Source Code <https://github.com/geopm/geopm/releases/tag/v3.2.1>`__
-- `Documentation <https://geopm.github.io/v3.2.1>`__
+- `Changes and Source Code <https://github.com/geopm/geopm/releases/tag/v3.2.2>`__
+- `Documentation <https://geopm.github.io/v3.2.2>`__
 
 v3.1.0
 ------
