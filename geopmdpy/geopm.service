@@ -16,11 +16,17 @@ Environment=ZES_ENABLE_SYSMAN=1
 Environment=GEOPM_VERBOSITY=0
 LimitNOFILE=16384
 RestartKillSignal=SIGINT
+Restart=always
 
 Type=dbus
 BusName=io.github.geopm
 ExecStart=/usr/bin/geopmd
-Restart=always
+
+# NOTE: Uncomment the lines below for gRPC usage
+# Type=notify
+# ExecStart=
+# ExecStart=/usr/bin/geopmd --grpc
+# TimeoutSec=5
 
 [Install]
 WantedBy=multi-user.target
