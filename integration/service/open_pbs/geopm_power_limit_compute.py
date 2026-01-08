@@ -375,8 +375,10 @@ def do_power_limit_prologue(event):
             pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
         vnode_names = [v.name for v in event.vnode_list.values()]
         use_uniform_limit = True
-        if hook_config is not None and 'node_profile_name' in hook_config:
-            job_type = hook_config['node_profile_name']
+        job_type = resource_dict.get("geopm-job-type")
+        if hook_config is not None and (job_type is not None or 'node_profile_name' in hook_config):
+            if job_type is None:
+                job_type = hook_config['node_profile_name']
             host_models = get_model_from_config(hook_config, job_type, per_host=True)
             if host_models is not None:
                 max_node_power = host_models['max_power']
