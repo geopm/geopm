@@ -16,7 +16,6 @@ for p in PYTHON_PATHS:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-import os
 import json
 import math
 
@@ -30,6 +29,7 @@ _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
 _DEFAULT_SLOWDOWN_RESOURCE = "geopm-default-slowdown"
 _JOB_TYPE_RESOURCE = "geopm-job-type"
 _DEFAULT_SLOWDOWN = 0.0
+_MODEL_PATH = "/etc/geopm/model.json"
 
 def reject_event(msg):
     e = pbs.event()
@@ -93,9 +93,13 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
     1 means twice the min time (100% slowdown).
     """
     hook_config = None
-    if pbs.hook_config_filename is not None:
-        with open(pbs.hook_config_filename) as f:
+    try:
+        with open(_MODEL_PATH) as f:
             hook_config = json.load(f)
+    except FileNotFoundError:
+        pass
+    except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
 
     model = get_model_from_config(hook_config, job_type)
     do_use_model = model is not None

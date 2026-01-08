@@ -37,6 +37,7 @@ _SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
+_MODEL_PATH = "/etc/geopm/model.json"
 
 _power_limit_control = {
         "name": "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT",
@@ -211,9 +212,13 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
     1 means twice the min time (100% slowdown).
     """
     hook_config = None
-    if pbs.hook_config_filename is not None:
-        with open(pbs.hook_config_filename) as f:
+    try:
+        with open(_MODEL_PATH) as f:
             hook_config = json.load(f)
+    except FileNotFoundError:
+        pass
+    except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
 
     model = get_model_from_config(hook_config, job_type)
     do_use_model = model is not None
@@ -361,9 +366,13 @@ def do_power_limit_prologue(event):
         # A job power limit has been requested without a specific node power limit.
         # Let's use the node power models to distribute the job power limit.
         hook_config = None
-        if pbs.hook_config_filename is not None:
-            with open(pbs.hook_config_filename) as f:
+        try:
+            with open(_MODEL_PATH) as f:
                 hook_config = json.load(f)
+        except FileNotFoundError:
+            pass
+        except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+            pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
         vnode_names = [v.name for v in event.vnode_list.values()]
         use_uniform_limit = True
         if hook_config is not None and 'node_profile_name' in hook_config:
