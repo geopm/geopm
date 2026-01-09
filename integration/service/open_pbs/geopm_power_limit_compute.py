@@ -37,6 +37,7 @@ _SAVED_CONTROLS_PATH = "/run/geopm/pbs-hooks/SAVE_FILES"
 _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
+_JOB_TYPE_RESOURCE = "geopm-job-type"
 _MODEL_PATH = "/etc/geopm/model.json"
 
 _power_limit_control = {
@@ -309,28 +310,40 @@ def parse_resource_file(event, path):
     result = {}
     if not path:
         return result
-    try:
-        with open(path) as f:
-            data = f.read()
-        for pair in data.split(';'):
-            pair = pair.strip()
-            if not pair:
-                continue
-            if '=' in pair:
-                k, v = pair.split('=', 1)
-                result[k.strip()] = v.strip()
-    except FileNotFoundError as e:
-        reject_event(event, f"logue resources file not found: {e}")
+    pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Opening {path}")
+    with open(path) as f:
+        data = f.read()
+    for pair in data.split(';'):
+        pair = pair.strip()
+        if not pair:
+            continue
+        if '=' in pair:
+            k, v = pair.split('=', 1)
+            result[k.strip()] = v.strip()
     return result
 
 
 def load_resources(event, job_id):
+    """Load PBS resources.
+
+    Preference order:
+      1) logues resources file (default: /var/tmp/<JOBID>.resources)
+      2) PBS server object
+    """
+    resource_dict = {}
     prefix = str(job_id)
     pattern = os.path.join(_RESOURCE_FILE_SEARCH_PATH, f"{prefix}*.resources")
     matches = glob.glob(pattern)
     name =  matches[0] if matches else None
-
-    return parse_resource_file(event, name)
+    if name is not None:
+        resource_dict = parse_resource_file(event, name)
+    else:
+        pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Using server object fallback for resources.")
+        resource_list = pbs.server().job(job_id).Resource_List
+        for key in resource_list.keys():
+            value = resource_list[key]
+            resource_dict[key] = value
+    return resource_dict
 
 
 def do_power_limit_prologue(event):
@@ -375,7 +388,7 @@ def do_power_limit_prologue(event):
             pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
         vnode_names = [v.name for v in event.vnode_list.values()]
         use_uniform_limit = True
-        job_type = resource_dict.get("geopm-job-type")
+        job_type = resource_dict.get(_JOB_TYPE_RESOURCE)
         if hook_config is not None and (job_type is not None or 'node_profile_name' in hook_config):
             if job_type is None:
                 job_type = hook_config['node_profile_name']
