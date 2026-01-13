@@ -156,21 +156,21 @@ def allocate_budget_to_nodes(budget, max_node_power, x0, A, B, C):
     return slowdown, power_by_node
 
 
-def get_model_from_config(hook_config, job_type, per_host=False):
+def get_model_from_config(event, hook_config, job_type, per_host=False):
     if hook_config is None or job_type is None:
         return None
 
     if 'profiles' not in hook_config:
-        pbs.logmsg(pbs.LOG_WARNING, 'Missing profiles section in the GEOPM PBS config')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing profiles section in the GEOPM PBS config')
         return None
 
     model_max_power = hook_config.get("max_power", None)
     if model_max_power is None:
-        pbs.logmsg(pbs.LOG_WARNING, 'Missing max_power in the GEOPM PBS config')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing max_power in the GEOPM PBS config')
         return None
 
     if job_type not in hook_config['profiles']:
-        pbs.logmsg(pbs.LOG_WARNING, f'Requested job type {job_type} has no performance model in the GEOPM PBS config')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Requested job type {job_type} has no performance model in the GEOPM PBS config')
         return None
 
     profile = hook_config['profiles'][job_type]
@@ -193,7 +193,7 @@ def get_model_from_config(hook_config, job_type, per_host=False):
             B = float(model_coefficients['B'])
             C = float(model_coefficients['C'])
         except:
-            pbs.logmsg(pbs.LOG_WARNING, f'Invalid coefficients for profile {job_type} in GEOPM PBS config')
+            pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in GEOPM PBS config')
             return None
 
         return {
@@ -329,9 +329,9 @@ def load_hook_config(event, model_path=_MODEL_PATH):
                     hook_config = json.load(f)
             except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
                 pbs.logmsg(pbs.LOG_WARNING,
-                           f'Unable to read model config at {pbs.hook_config_filename}: {e}')
+                           f'{event.hook_name}: Unable to read model config at {pbs.hook_config_filename}: {e}')
     except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
-        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {model_path}: {e}')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Unable to read model config at {model_path}: {e}')
     return hook_config
 
 
@@ -375,7 +375,7 @@ def do_power_limit_prologue(event):
         if hook_config is not None and (job_type is not None or 'node_profile_name' in hook_config):
             if job_type is None:
                 job_type = hook_config['node_profile_name']
-            host_models = get_model_from_config(hook_config, job_type, per_host=True)
+            host_models = get_model_from_config(event, hook_config, job_type, per_host=True)
             if host_models is not None:
                 max_node_power = host_models['max_power']
                 try:
@@ -384,7 +384,7 @@ def do_power_limit_prologue(event):
                     B = [host_models[host]['B'] for host in vnode_names]
                     C = [host_models[host]['C'] for host in vnode_names]
                 except (ValueError, KeyError):
-                    pbs.logmsg(pbs.LOG_WARNING, 'GEOPM PBS config has an incomplete set of host models. Using uniform power limits.')
+                    pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: GEOPM PBS config has an incomplete set of host models. Using uniform power limits.')
                 else:
                     use_uniform_limit = False
                     slowdown, power_by_node = allocate_budget_to_nodes(
