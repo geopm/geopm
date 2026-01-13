@@ -161,16 +161,16 @@ def get_model_from_config(event, hook_config, job_type, per_host=False):
         return None
 
     if 'profiles' not in hook_config:
-        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing profiles section in the GEOPM PBS config')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing profiles section in the model config')
         return None
 
     model_max_power = hook_config.get("max_power", None)
     if model_max_power is None:
-        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing max_power in the GEOPM PBS config')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing max_power in the model config')
         return None
 
     if job_type not in hook_config['profiles']:
-        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Requested job type {job_type} has no performance model in the GEOPM PBS config')
+        pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Requested job type {job_type} has no performance model in the model config')
         return None
 
     profile = hook_config['profiles'][job_type]
@@ -193,7 +193,7 @@ def get_model_from_config(event, hook_config, job_type, per_host=False):
             B = float(model_coefficients['B'])
             C = float(model_coefficients['C'])
         except:
-            pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in GEOPM PBS config')
+            pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in model config')
             return None
 
         return {
@@ -384,7 +384,7 @@ def do_power_limit_prologue(event):
                     B = [host_models[host]['B'] for host in vnode_names]
                     C = [host_models[host]['C'] for host in vnode_names]
                 except (ValueError, KeyError):
-                    pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: GEOPM PBS config has an incomplete set of host models. Using uniform power limits.')
+                    pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Incomplete model config for {host}. Using uniform power limits.')
                 else:
                     use_uniform_limit = False
                     slowdown, power_by_node = allocate_budget_to_nodes(
