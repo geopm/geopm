@@ -418,9 +418,9 @@ def hook_main():
     try:
         event = pbs.event()
         event_type = event.type
-        if event_type == pbs.EXECJOB_PROLOGUE:
+        if event_type == pbs.HOOK_EVENT_EXECJOB_PROLOGUE:
             do_power_limit_prologue(event)
-        elif event_type == pbs.EXECJOB_EPILOGUE:
+        elif event_type == pbs.HOOK_EVENT_EXECJOB_EPILOGUE:
             do_power_limit_epilogue(event)
         else:
             reject_event(event, "Power limit compute hook incorrectly configured!")

@@ -232,9 +232,9 @@ def do_power_limit_modifyjob():
 def hook_main():
     try:
         event_type = pbs.event().type
-        if event_type == pbs.QUEUEJOB:
+        if event_type == pbs.HOOK_EVENT_QUEUEJOB:
             do_power_limit_queuejob()
-        elif event_type == pbs.MODIFYJOB:
+        elif event_type == pbs.HOOK_EVENT_MODIFYJOB:
             do_power_limit_modifyjob()
         else:
             reject_event("Power limit server hook incorrectly configured!")
