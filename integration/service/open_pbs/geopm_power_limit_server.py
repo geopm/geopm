@@ -85,6 +85,30 @@ def get_model_from_config(hook_config, job_type, per_host=False):
         }
 
 
+def load_hook_config(model_path=_MODEL_PATH):
+    """Load GEOPM model config JSON.
+
+    Preference order:
+      1) model_path (default: /etc/geopm/model.json)
+      2) pbs.hook_config_filename (if model_path is missing)
+    """
+    hook_config = None
+    try:
+        with open(model_path) as f:
+            hook_config = json.load(f)
+    except FileNotFoundError:
+        if pbs.hook_config_filename is not None:
+            try:
+                with open(pbs.hook_config_filename) as f:
+                    hook_config = json.load(f)
+            except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+                pbs.logmsg(pbs.LOG_WARNING,
+                           f'Unable to read model config at {pbs.hook_config_filename}: {e}')
+    except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {model_path}: {e}')
+    return hook_config
+
+
 def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_node, max_power_per_node):
     """Predict the node power cap needed to achieve a target slowdown for a
     given job type. If job_type is None or is not configured, this function
@@ -92,14 +116,7 @@ def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_no
     results in half performance). Slowdown of 0 means min time, slowdown of
     1 means twice the min time (100% slowdown).
     """
-    hook_config = None
-    try:
-        with open(_MODEL_PATH) as f:
-            hook_config = json.load(f)
-    except FileNotFoundError:
-        pass
-    except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
-        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
+    hook_config = load_hook_config()
 
     model = get_model_from_config(hook_config, job_type)
     do_use_model = model is not None

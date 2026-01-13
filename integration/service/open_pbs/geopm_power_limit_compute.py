@@ -311,6 +311,30 @@ def load_resources(event, job_id):
     return resource_dict
 
 
+def load_hook_config(event, model_path=_MODEL_PATH):
+    """Load GEOPM model config JSON.
+
+    Preference order:
+      1) model_path (default: /etc/geopm/model.json)
+      2) pbs.hook_config_filename (if model_path is missing)
+    """
+    hook_config = None
+    try:
+        with open(model_path) as f:
+            hook_config = json.load(f)
+    except FileNotFoundError:
+        if pbs.hook_config_filename is not None:
+            try:
+                with open(pbs.hook_config_filename) as f:
+                    hook_config = json.load(f)
+            except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+                pbs.logmsg(pbs.LOG_WARNING,
+                           f'Unable to read model config at {pbs.hook_config_filename}: {e}')
+    except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
+        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {model_path}: {e}')
+    return hook_config
+
+
 def do_power_limit_prologue(event):
     job_id = event.job.id
 
@@ -343,14 +367,8 @@ def do_power_limit_prologue(event):
     elif job_power_limit_requested:
         # A job power limit has been requested without a specific node power limit.
         # Let's use the node power models to distribute the job power limit.
-        hook_config = None
-        try:
-            with open(_MODEL_PATH) as f:
-                hook_config = json.load(f)
-        except FileNotFoundError:
-            pass
-        except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
-            pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
+        hook_config = load_hook_config(event)
+
         vnode_names = [v.name for v in event.vnode_list.values()]
         use_uniform_limit = True
         job_type = resource_dict.get(_JOB_TYPE_RESOURCE)
