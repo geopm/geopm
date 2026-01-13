@@ -216,11 +216,38 @@ Example usage to generate compute-node performance model coefficients:
 
     ./generate_coefficients_from_reports.py <max power per node> --per-host --reports /path/to/power/sweep/*.report
 
-Import a configuration file into PBS via the following ``qmgr`` command:
+Provide the configuration to the hooks
+"""""""""""""""""""""""""""""""""""""
+The hooks can load the same JSON configuration data from either of the following
+locations:
 
-::
+1. **PBS hook imported configuration** (recommended when managing config via PBS)
+   Import a configuration file into PBS via the following ``qmgr`` command:
 
-    qmgr -c 'import hook geopm_power_limit application/x-config default geopm_pbs_config.json'
+   ::
+
+       qmgr -c 'import hook geopm_power_limit_server application/x-config default geopm_pbs_config.json'
+       qmgr -c 'import hook geopm_power_limit_compute application/x-config default geopm_pbs_config.json'
+
+   In this mode, PBS supplies the imported config to the hook as a file
+   referenced by ``pbs.hook_config_filename``.
+
+2. **Filesystem configuration** (recommended when managing config via OS image)
+   Place the JSON configuration at:
+
+   ::
+
+       /etc/geopm/model.json
+
+   Notes:
+
+   - The **server hook** reads this file on the **PBS server host**.
+   - The **compute hook** reads this file on **each compute node** where the
+     prologue/epilogue hook runs.
+
+If both sources are present, the hooks prefer ``/etc/geopm/model.json`` and will fall
+back to the imported PBS hook configuration only if the filesystem file is not
+present.
 
 Requirements
 ------------
