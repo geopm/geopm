@@ -60,7 +60,7 @@ a way to create a JSON policy configuration file that will be parsed
 by the GEOPM runtime for statically enforcing a job policy.
 
 All functions described in this man page return an error code on failure and
-zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
+zero upon success; see :ref:`Agent Errors <geopm_agent_errors>` section below for details.
 
 
 * 
@@ -151,8 +151,10 @@ follows this schema:
 .. literalinclude:: ../json_schemas/geopmagent_policy.schema.json
     :language: json
 
-Errors
-------
+.. _geopm_agent_errors:
+
+Agent Errors
+------------
 
 All functions described on this man page return an error code.  See
 :doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how

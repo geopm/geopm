@@ -131,7 +131,7 @@ Singleton Accessor
   There is only one ``PlatformIO`` object, and the only way to access
   this object is through this function.  The function returns a
   reference to the single ``PlatformIO`` object that gives access to
-  all of the `CLASS METHODS <INSPECTION CLASS METHODS_>`_ described below.  See `EXAMPLE <EXAMPLE_>`_ section
+  all of the :ref:`Inspection Class Methods <platformio_inspection_class_methods>` described below.  See :ref:`PlatformIO Example <platformio_example>` section
   below.
 
 Static Class Methods
@@ -143,6 +143,8 @@ Static Class Methods
   a valid value. It returns true if the *value* is valid, and false if the *value*
   is not valid.
 
+
+.. _platformio_inspection_class_methods:
 
 Inspection Class Methods
 ------------------------
@@ -334,8 +336,10 @@ Plugin Class Methods
   provides the mechanism for extending the ``PlatformIO`` interface at
   runtime.
 
-Example
--------
+.. _platformio_example:
+
+PlatformIO Example
+------------------
 
 .. code-block:: c++
 
@@ -368,6 +372,8 @@ Example
    }
 
 
+
+.. _platformio_errors:
 
 Errors
 ------
