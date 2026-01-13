@@ -205,41 +205,6 @@ def get_model_from_config(hook_config, job_type, per_host=False):
         }
 
 
-def predict_power_cap_at_performance_factor(job_type, slowdown, min_power_per_node, max_power_per_node):
-    """Predict the node power cap needed to achieve a target slowdown for a
-    given job type. If job_type is None or is not configured, this function
-    assumes a 1:1 linear mapping between power and performance (half power
-    results in half performance). Slowdown of 0 means min time, slowdown of
-    1 means twice the min time (100% slowdown).
-    """
-    hook_config = None
-    try:
-        with open(_MODEL_PATH) as f:
-            hook_config = json.load(f)
-    except FileNotFoundError:
-        pass
-    except (OSError, ValueError, json.decoder.JSONDecodeError) as e:
-        pbs.logmsg(pbs.LOG_WARNING, f'Unable to read model config at {_MODEL_PATH}: {e}')
-
-    model = get_model_from_config(hook_config, job_type)
-    do_use_model = model is not None
-
-    if do_use_model:
-        try:
-            # Using a quadratic model: slowdown = A * (x0 - percent_of_tdp)^2 + B * (x0 - percent_of_tdp) + C
-            # Solve for the positive root (less than 100% of max power) at '-slowdown' offset:
-            result = model['max_power'] * (model['x0'] - (-model['B'] + math.sqrt(model['B']**2 - 4 * model['A'] * (model['C'] - slowdown))) / (2 * model['A']))
-        except Exception as e:
-            pbs.logmsg(pbs.LOG_WARNING, f'Unable to estimate job power. {str(e)}')
-            do_use_model = False
-
-    if not do_use_model:
-        # Fallback case: Assume 1:1 linear mapping between power and performance
-        result = max_power_per_node / (slowdown + 1)
-
-    return min(max(min_power_per_node, result), max_power_per_node)
-
-
 def read_controls(event, controls):
     # Unblock SIGCHLD temporarily (hook env may have it blocked); restore after all reads.
     old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, [])  # Query current mask (no change)
