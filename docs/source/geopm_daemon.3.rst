@@ -38,7 +38,7 @@ refer to :doc:`geopm_endpoint(3) <geopm_endpoint.3>` and :doc:`geopm_policystore
 information.
 
 All functions described in this man page return an error code on failure and
-zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
+zero upon success; see :ref:`Daemon Errors <geopm_daemon_errors>` section below for details.
 
 
 *
@@ -80,8 +80,10 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   ``geopm_daemon_reset_wait_loop()``:
   resets the *daemon*\ 's endpoint to prepare for a future wait loop.
 
-Errors
-------
+.. _geopm_daemon_errors:
+
+Daemon Errors
+-------------
 
 All functions described on this man page return an error code.  See
 :doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how

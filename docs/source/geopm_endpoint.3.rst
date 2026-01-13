@@ -75,7 +75,7 @@ parameters provided by the agent and the number of policy values required by the
 agent.
 
 All functions described in this man page return an error code on failure and
-zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
+zero upon success; see :ref:`Endpoint Errors <geopm_endpoint_errors>` section below for details.
 
 
 *
@@ -189,8 +189,10 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   otherwise an error code is returned.  If no shmem region has been
   created with ``geopm_endpoint_open()``\ , an error code is returned.
 
-Errors
-------
+.. _geopm_endpoint_errors:
+
+Endpoint Errors
+---------------
 
 All functions described on this man page return an error code.  See
 :doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how
