@@ -151,6 +151,11 @@ are used to relate user-requested slowdown to job power caps. Models that have
 both a profile and a host are used to non-uniformly distribute a job power cap
 across nodes assigned to the job.
 
+The ``node_profile_name`` field specifies the name of the default profile in the
+model. Users may specify ``-l geopm-job-type=JOB_TYPE_NAME`` to select a profile
+other than the default if ``JOB_TYPE_NAME`` is present in the model JSON under
+``profiles``.
+
 Each host or profile model is defined in a *model* attribute that contains
 members for the model coefficients ``x0``, ``A``, ``B``, and ``C``. The root
 level of the configuration file also has a ``max_power`` value that maps to
