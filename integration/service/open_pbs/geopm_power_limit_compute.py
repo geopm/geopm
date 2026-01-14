@@ -303,11 +303,10 @@ def load_resources(event, job_id):
     if name is not None:
         resource_dict = parse_resource_file(event, name)
     else:
-        pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Using server object fallback for resources.")
+        pbs.logmsg(pbs.LOG_DEBUG, f"{event.hook_name}: Using server object fallback for resources")
         resource_list = pbs.server().job(job_id).Resource_List
         for key in resource_list.keys():
-            value = resource_list[key]
-            resource_dict[key] = value
+            resource_dict[key] = resource_list[key]
     return resource_dict
 
 
@@ -417,10 +416,9 @@ def do_power_limit_epilogue(event):
 def hook_main():
     try:
         event = pbs.event()
-        event_type = event.type
-        if event_type == pbs.HOOK_EVENT_EXECJOB_PROLOGUE:
+        if event.type == pbs.HOOK_EVENT_EXECJOB_PROLOGUE:
             do_power_limit_prologue(event)
-        elif event_type == pbs.HOOK_EVENT_EXECJOB_EPILOGUE:
+        elif event.type == pbs.HOOK_EVENT_EXECJOB_EPILOGUE:
             do_power_limit_epilogue(event)
         else:
             reject_event(event, "Power limit compute hook incorrectly configured!")
