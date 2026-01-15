@@ -158,6 +158,13 @@ namespace geopm
             register_plugin(ServiceIOGroup::plugin_name(),
                             ServiceIOGroup::make_plugin);
 #endif
+#ifdef GEOPM_ENABLE_LEVELZERO
+            // Allow non-root users to opt-in to LevelZeroIOGroup via env override
+            if (!geopm::get_env("GEOPM_LEVELZERO_OVERRIDE").empty()) {
+                register_plugin(LevelZeroIOGroup::plugin_name(),
+                                LevelZeroIOGroup::make_plugin);
+            }
+#endif
         }
         register_plugin(TimeIOGroup::plugin_name(),
                         TimeIOGroup::make_plugin);
