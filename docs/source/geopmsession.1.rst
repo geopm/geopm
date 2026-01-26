@@ -129,7 +129,7 @@ Options
     separated with the document separator string: ``"---"``.  When
     in CSV format, each report is one line of the CSV output.
 
--i, --signal-config  .. _configpath CONFIG_PATH option:
+-i, --signal-config  .. _signalconfig SIGNAL_CONFIG option:
 
     Input file containing GEOPM signal requests, specify "-" to use
     standard input which is also the default.
