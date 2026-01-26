@@ -29,7 +29,7 @@ _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
 _DEFAULT_SLOWDOWN_RESOURCE = "geopm-default-slowdown"
 _JOB_TYPE_RESOURCE = "geopm-job-type"
 _DEFAULT_SLOWDOWN = 0.0
-_MODEL_PATH = "/etc/geopm/model.json"
+_MODEL_PATH = "/soft/geopm/model.json"
 
 def reject_event(event, msg):
     event.reject(f"{event.hook_name}: {msg}")
@@ -231,10 +231,9 @@ def do_power_limit_modifyjob(event):
 def hook_main():
     try:
         event = pbs.event()
-        event_type = event.type
-        if event_type == pbs.HOOK_EVENT_QUEUEJOB:
+        if event.type == pbs.HOOK_EVENT_QUEUEJOB:
             do_power_limit_queuejob(event)
-        elif event_type == pbs.HOOK_EVENT_MODIFYJOB:
+        elif event.type == pbs.HOOK_EVENT_MODIFYJOB:
             do_power_limit_modifyjob(event)
         else:
             reject_event(event, "Power limit server hook incorrectly configured!")
