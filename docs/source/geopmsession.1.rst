@@ -134,6 +134,16 @@ Options
     Input file containing GEOPM signal requests, specify "-" to use
     standard input which is also the default.
 
+-c, --control-config  .. _controlconfig CONTROL_CONFIG option:
+
+    Apply control settings from the specified configuration file before
+    sampling begins. Each non-empty line must contain four whitespace
+    separated fields: ``CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE``. The
+    format matches the batch files accepted by :doc:`geopmwrite(1)
+    <geopmwrite.1>`. Controls are written once at startup and restored when
+    the session exits, making it possible to pin power caps or other knobs
+    for the duration of the run.
+
 --daemon  .. _daemon DAEMON_PID_FILE option:
 
     Run geopmsession as a background daemon. The daemon PID is written to the
