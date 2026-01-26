@@ -38,7 +38,7 @@ _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
 _JOB_TYPE_RESOURCE = "geopm-job-type"
-_MODEL_PATH = "/etc/geopm/model.json"
+_MODEL_PATH = "/soft/geopm/model.json"
 
 _power_limit_control = {
         "name": "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT",
