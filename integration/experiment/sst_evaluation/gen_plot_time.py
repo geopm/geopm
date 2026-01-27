@@ -267,11 +267,11 @@ if __name__ == '__main__':
     except OSError:
         # Write the preprocessed data to a cached file
         df, frequency_df, epoch_df, core_frequencies_by_time_df = reports_and_traces_to_dataframes(args.report_paths)
-        df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'), 'df', 'w')
-        frequency_df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'), 'frequency_df', 'a')
-        epoch_df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'), 'epoch_df', 'a')
+        df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'), key='df', mode='w')
+        frequency_df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'), key='frequency_df', mode='a')
+        epoch_df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'), key='epoch_df', mode='a')
         core_frequencies_by_time_df.to_hdf(os.path.join(args.analysis_dir, 'cache.hdf'),
-                                           'core_frequencies_by_time_df', 'a')
+                                           key='core_frequencies_by_time_df', mode='a')
 
     df['Application'] = df['Application'].str.rsplit('_', 1).str[-1]
     epoch_df['Application'] = epoch_df['Application'].str.rsplit('_', 1).str[-1]

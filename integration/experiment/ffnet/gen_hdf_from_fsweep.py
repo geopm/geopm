@@ -224,7 +224,7 @@ def main(output_prefix, frequency_sweep_dirs, region_ignore=None):
 
     pd \
     .concat(reports_dfs, ignore_index=True) \
-    .to_hdf(f"{output_prefix}_stats.h5", "stats", mode='w')
+    .to_hdf(f"{output_prefix}_stats.h5", key="stats", mode='w')
 
     #Creating trace hdf for training neural net, annotated with region hashes or
     #generated region names when hashes are not available
@@ -234,7 +234,7 @@ def main(output_prefix, frequency_sweep_dirs, region_ignore=None):
 
     pd \
     .concat(trace_dfs, ignore_index=True) \
-    .to_hdf(f"{output_prefix}_traces.h5", "traces", mode='w')
+    .to_hdf(f"{output_prefix}_traces.h5", key="traces", mode='w')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
