@@ -8,8 +8,19 @@
 
 import os
 import glob
-import distutils.dir_util
+import shutil
 from .. import apps
+
+
+def _copy_tree_contents(src_dir, dst_dir):
+    os.makedirs(dst_dir, exist_ok=True)
+    for entry in os.listdir(src_dir):
+        src_path = os.path.join(src_dir, entry)
+        dst_path = os.path.join(dst_dir, entry)
+        if os.path.isdir(src_path):
+            shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+        else:
+            shutil.copy2(src_path, dst_path)
 
 # Valid pool counts depend on how many k-points are in the input problem.
 # There must be at least enough pools to distribute the k-points across them.
@@ -90,9 +101,7 @@ class QuantumEspressoAppConf(apps.AppConf):
         return self._cpus_per_rank
 
     def trial_setup(self, run_id, output_dir):
-        # Unlike shutil, this copies the contents of the source dir, without
-        # the source dir itself
-        distutils.dir_util.copy_tree(self._input_dir, output_dir)
+        _copy_tree_contents(self._input_dir, output_dir)
         input_files = glob.glob(os.path.join(output_dir, '*.in'))
         if len(input_files) != 1:
             raise ValueError('Expected exactly 1 *.in file present in {}. '
