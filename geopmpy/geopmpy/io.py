@@ -29,7 +29,7 @@ else:
         if not os.path.exists(path):
             raise IOError(f'Trace HDF5 file {path} not detected')
         raise ImportWarning('Refusing to read HDF5 format files: file format could result in arbitrary code execution. To enable "export GEOPM_USE_UNSAFE_HDF5=1"')
-from distutils.spawn import find_executable
+import shutil
 from natsort import natsorted
 from . import __version__
 
@@ -680,7 +680,7 @@ imbalance : {imbalance}
         # Using libtool causes sporadic issues with the Intel
         # toolchain.
         result = 'geopmbench'
-        path = find_executable(result)
+        path = shutil.which(result)
         source_dir = os.path.dirname(
                      os.path.dirname(
                      os.path.dirname(
