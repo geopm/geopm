@@ -25,7 +25,7 @@ import hashlib
 if os.getenv('GEOPM_USE_UNSAFE_HDF5') is not None:
     from pandas import read_hdf
 else:
-    def read_hdf(path, name):
+    def read_hdf(path, key=None, **kwargs):
         if not os.path.exists(path):
             raise IOError(f'Trace HDF5 file {path} not detected')
         raise ImportWarning('Refusing to read HDF5 format files: file format could result in arbitrary code execution. To enable "export GEOPM_USE_UNSAFE_HDF5=1"')
@@ -111,7 +111,7 @@ class AppOutput(object):
 
                 do_load_raw = True
                 try:
-                    self._traces_df = read_hdf(trace_h5_name, 'trace')
+                    self._traces_df = read_hdf(trace_h5_name, key='trace')
                     do_load_raw = False
                     if verbose:
                         sys.stdout.write(f'Loaded traces from {trace_h5_name}.\n')
@@ -125,7 +125,7 @@ class AppOutput(object):
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                        self._traces_df.to_hdf(trace_h5_name, 'trace')
+                        self._traces_df.to_hdf(trace_h5_name, key='trace')
                     except ImportError as error:
                         sys.stderr.write(f'Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {error}\n')
 
@@ -878,16 +878,16 @@ class RawReportCollection(object):
                     sys.stdout.write('Attempting to read {}...\n'.format(self._report_h5_name))
                 # load dataframes from cache
                 try:
-                    self._reports_df = read_hdf(self._report_h5_name, 'report')
+                    self._reports_df = read_hdf(self._report_h5_name, key='report')
                 except KeyError:
                     pass # No regions in cached report
-                self._app_reports_df = read_hdf(self._report_h5_name, 'app_report')
+                self._app_reports_df = read_hdf(self._report_h5_name, key='app_report')
                 try:
-                    self._unmarked_reports_df = read_hdf(self._report_h5_name, 'unmarked_report')
+                    self._unmarked_reports_df = read_hdf(self._report_h5_name, key='unmarked_report')
                 except KeyError:
                     pass
                 try:
-                    self._epoch_reports_df = read_hdf(self._report_h5_name, 'epoch_report')
+                    self._epoch_reports_df = read_hdf(self._report_h5_name, key='epoch_report')
                 except KeyError:
                     pass
                 if verbose:
@@ -902,19 +902,23 @@ class RawReportCollection(object):
 
                 # Cache report dataframe
                 cache_created = False
+                did_fixup_metadata = False
                 while not cache_created:
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                        self._app_reports_df.to_hdf(self._report_h5_name, 'app_report', format='table')
+                        self._app_reports_df.to_hdf(self._report_h5_name, key='app_report', format='table')
                         if len(self._reports_df) > 0:
-                            self._reports_df.to_hdf(self._report_h5_name, 'report', format='table', append=True)
+                            self._reports_df.to_hdf(self._report_h5_name, key='report', format='table', append=True)
                         if len(self._unmarked_reports_df) > 0:
-                            self._unmarked_reports_df.to_hdf(self._report_h5_name, 'unmarked_report', format='table', append=True)
+                            self._unmarked_reports_df.to_hdf(self._report_h5_name, key='unmarked_report', format='table', append=True)
                         if len(self._epoch_reports_df) > 0:
-                            self._epoch_reports_df.to_hdf(self._report_h5_name, 'epoch_report', format='table', append=True)
+                            self._epoch_reports_df.to_hdf(self._report_h5_name, key='epoch_report', format='table', append=True)
                         cache_created = True
                     except TypeError as error:
+                        if did_fixup_metadata:
+                            raise
+                        did_fixup_metadata = True
                         fm = RawReportCollection.fixup_metadata
                         if verbose:
                             sys.stdout.write('Applying workaround for strings in HDF5 files... ')
