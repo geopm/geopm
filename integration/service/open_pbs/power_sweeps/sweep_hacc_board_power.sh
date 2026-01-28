@@ -3,7 +3,8 @@ set -e
 source ~/.geopmrc
 HACC_RUN_DIR="${HACC_RUN_DIR?-Set HACC_RUN_DIR to the location of run_mpiexec.sh}"
 GEOPM_SOURCE="${GEOPM_SOURCE?-Set GEOPM_SOURCE to the location of geopm source code}"
-source "${GEOPM_SOURCE}/integration/config/run_env.sh"
+# source "${GEOPM_SOURCE}/integration/config/run_env.sh"
+module load libgeopm py-geopmpy
 PROFILE_NAME='hacc'
 EXPERIMENT_NAME="${PROFILE_NAME}-geopm-power-sweep"
 TRIAL_COUNT="${TRIAL_COUNT:-5}"
