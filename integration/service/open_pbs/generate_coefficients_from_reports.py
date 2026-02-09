@@ -11,6 +11,8 @@ from scipy import optimize
 import json
 import sys
 import hashlib
+import os
+import glob
 from yaml import load
 try:
     from yaml import CSafeLoader as SafeLoader
@@ -28,7 +30,7 @@ parser.add_argument('--show-samples', action='store_true',
                     help='Show the source data samples as scatterplot points')
 parser.add_argument('--show-legend', action='store_true',
                     help='Show the legend in the plot')
-parser.add_argument('--reports', nargs='+')
+parser.add_argument('--report-dirs', nargs='+')
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Print additional information about coefficient selection.')
 parser.add_argument('--plot-path',
@@ -118,8 +120,29 @@ def loss_jac(params, slowdown, power):
 
 
 data_list = list()
+report_paths = list()
+if args.report_dirs is not None:
+    for report_path in args.report_dirs:
+        if glob.has_magic(report_path):
+            for match_path in glob.glob(report_path):
+                if os.path.isdir(match_path):
+                    for root, _, files in os.walk(match_path):
+                        report_paths.extend(
+                            os.path.join(root, filename)
+                            for filename in files
+                            if 'report' in filename
+                        )
+        elif os.path.isdir(report_path):
+            for root, _, files in os.walk(report_path):
+                report_paths.extend(
+                    os.path.join(root, filename)
+                    for filename in files
+                    if 'report' in filename
+                )
+
+report_paths = sorted(set(report_paths))
 report_hash_inputs = {
-    'reports': sorted(args.reports) if args.reports is not None else [],
+    'report_dirs': report_paths,
     'use_fom': bool(args.use_fom),
     'use_region': args.use_region,
 }
@@ -129,7 +152,7 @@ hdf5_path = f'{report_hash}.h5'
 try:
     df = pd.read_hdf(hdf5_path, key='reports')
 except (FileNotFoundError, KeyError, OSError):
-    for report_path in args.reports:
+    for report_path in report_paths:
         with open(report_path) as f:
             report = load(f, Loader=SafeLoader)
         if report is None:
