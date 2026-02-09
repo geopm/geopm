@@ -10,6 +10,7 @@ import sklearn.metrics
 from scipy import optimize
 import json
 import sys
+import hashlib
 from yaml import load
 try:
     from yaml import CSafeLoader as SafeLoader
@@ -117,39 +118,53 @@ def loss_jac(params, slowdown, power):
 
 
 data_list = list()
-for report_path in args.reports:
-    with open(report_path) as f:
-        report = load(f, Loader=SafeLoader)
-    if report is None:
-        if args.verbose:
-            print(f'Warning: Skipping empty report {report_path}', file=sys.stderr)
-        continue
-    if args.use_fom and 'Figure of Merit' not in report:
-        if args.verbose:
-            print(f'Warning: Skipping report since --use-fom was specified and report is missing Figure of Merit: {report_path}', file=sys.stderr)
-        continue
-    job_host_count = len(report['Hosts'])
-    for host, host_data in report['Hosts'].items():
-        if args.use_region is not None:
-            try:
-                report_data = next(r for r in host_data['Regions'] if r['region'] == args.use_region)
-            except StopIteration:
-                print(f'Error: report {report_path} does not contain region {args.use_region}', file=sys.stderr)
-                sys.exit(1)
-        else:
-            report_data = host_data['Application Totals']
-        report_data['report_path'] = report_path
-        report_data['host'] = host
-        report_data['job_host_count'] = job_host_count
-        report_data['agent'] = report['Agent']
-        report_data['profile'] = report['Profile']
-        if 'Figure of Merit' in report:
-            report_data['FOM'] = report['Figure of Merit']
+report_hash_inputs = {
+    'reports': sorted(args.reports) if args.reports is not None else [],
+    'use_fom': bool(args.use_fom),
+    'use_region': args.use_region,
+}
+report_hash = hashlib.sha256(json.dumps(report_hash_inputs, sort_keys=True).encode('utf-8')).hexdigest()
+hdf5_path = f'{report_hash}.h5'
 
-        report_data['slowdown metric'] = (1 / report_data['FOM']) if (args.use_fom and 'Figure of Merit' in report) else report_data['runtime (s)']
-        data_list.append(report_data)
+try:
+    df = pd.read_hdf(hdf5_path, key='reports')
+except (FileNotFoundError, KeyError, OSError):
+    for report_path in args.reports:
+        with open(report_path) as f:
+            report = load(f, Loader=SafeLoader)
+        if report is None:
+            if args.verbose:
+                print(f'Warning: Skipping empty report {report_path}', file=sys.stderr)
+            continue
+        if args.use_fom and 'Figure of Merit' not in report:
+            if args.verbose:
+                print(f'Warning: Skipping report since --use-fom was specified and report is missing Figure of Merit: {report_path}', file=sys.stderr)
+            continue
+        job_host_count = len(report['Hosts'])
+        for host, host_data in report['Hosts'].items():
+            if args.use_region is not None:
+                try:
+                    report_data = next(r for r in host_data['Regions'] if r['region'] == args.use_region)
+                except StopIteration:
+                    print(f'Error: report {report_path} does not contain region {args.use_region}', file=sys.stderr)
+                    sys.exit(1)
+            else:
+                report_data = host_data['Application Totals']
+            report_data['report_path'] = report_path
+            report_data['host'] = host
+            report_data['job_host_count'] = job_host_count
+            report_data['agent'] = report['Agent']
+            report_data['profile'] = report['Profile']
+            if 'Figure of Merit' in report:
+                report_data['FOM'] = report['Figure of Merit']
 
-df = pd.DataFrame(data_list)
+            report_data['slowdown metric'] = (1 / report_data['FOM']) if (args.use_fom and 'Figure of Merit' in report) else report_data['runtime (s)']
+            data_list.append(report_data)
+
+    df = pd.DataFrame(data_list)
+    df.to_hdf(hdf5_path, key='reports', mode='w')
+
+host = df['host'].iloc[-1] if 'host' in df.columns and not df['host'].empty else 'all'
 
 if 'BOARD_ENERGY' not in df.columns:
     print('Board energy is absent from reports. Summing package, gpu, and dram energy instead.', file=sys.stderr)
