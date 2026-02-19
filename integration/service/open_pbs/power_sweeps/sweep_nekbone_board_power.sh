@@ -37,11 +37,12 @@ for ((t=0; t<"$TRIAL_COUNT"; t++)); do
       -- ./run_mpiexec.sh -n=1 -rpn=12 --ranks_per_socket=6 -hosts=${HOSTNAME} 2>&1 \
       > "${SWEEP_OUTPUT_DIR}/${EXPERIMENT_NAME}_${p}_${t}.log-${HOSTNAME}"
 
-    sleep 5
-    # Extract the figure of merit from the app log into the GEOPM report
-    awk -e '/^Av MFlops = / {print "Figure of Merit: " $4}' \
-      "${SWEEP_OUTPUT_DIR}/${EXPERIMENT_NAME}_${p}_${t}.log-${HOSTNAME}" \
-      >> "${SWEEP_OUTPUT_DIR}/${EXPERIMENT_NAME}_${p}_${t}.report-${HOSTNAME}"
     sleep 45
   done
 done
+
+# Once the sweep is complete, run extract_fom_nekbone.sh on the output directory
+# to inject the figure of merit from each app log into its corresponding report:
+#
+#   ./extract_fom_nekbone.sh "${SWEEP_OUTPUT_DIR}"
+#
