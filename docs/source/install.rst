@@ -205,6 +205,46 @@ the ``root`` user.
                      # Man pages for C/C++ development
                      zypper install libgeopmd-doc
 
+         .. group-tab:: 15.7
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/release/15.7/home:geopm:release.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.7/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Access Service python module
+                     zypper install python3-geopmdpy
+                     # SystemD service configuration and geopmd executable
+                     zypper install geopmd
+                     # C/C++ development files
+                     zypper install libgeopmd-devel
+                     # Man pages for GEOPM Access Service
+                     zypper install geopmd-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopmd-doc
+
          .. group-tab:: Tumbleweed
 
             .. tabs::
@@ -565,6 +605,46 @@ the ``root`` user.
 
                      # Add zypper repo
                      zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.6/home:geopm:release:supplementary.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+         .. group-tab:: 15.7
+
+            .. tabs::
+
+               .. group-tab:: Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:/geopm:/release/15.7/home:geopm:release.repo
+                     zypper refresh
+                     # GEOPM Runtime Command Line Interface
+                     zypper install geopm-cli
+                     # GEOPM Runtime Agent development files
+                     zypper install libgeopm-devel
+                     # GEOPM Runtime post-processing scripts
+                     zypper install python3-geopmpy
+                     # Man pages for GEOPM Runtime Service
+                     zypper install geopm-doc
+                     # Man pages for C/C++ development
+                     zypper install libgeopm-doc
+
+               .. group-tab:: Expanded Intel GPU support
+
+                  .. code-block:: bash
+
+                     # Add zypper repo
+                     zypper addrepo https://download.opensuse.org/repositories/home:geopm:release:supplementary/15.7/home:geopm:release:supplementary.repo
                      zypper refresh
                      # GEOPM Runtime Command Line Interface
                      zypper install geopm-cli
