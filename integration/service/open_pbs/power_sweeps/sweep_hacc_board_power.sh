@@ -7,7 +7,6 @@ GEOPM_SOURCE="${GEOPM_SOURCE?-Set GEOPM_SOURCE to the location of geopm source c
 module load libgeopm py-geopmpy
 PROFILE_NAME='hacc'
 EXPERIMENT_NAME="${PROFILE_NAME}-geopm-power-sweep"
-TRIAL_COUNT="${TRIAL_COUNT:-5}"
 MIN_POWER="${MIN_POWER:-2400}"
 MAX_POWER="${MAX_POWER:-4000}"
 POWER_STEP="${POWER_STEP:-100}"
