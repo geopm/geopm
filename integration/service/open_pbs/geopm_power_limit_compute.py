@@ -378,10 +378,13 @@ def do_power_limit_prologue(event):
             if host_models is not None:
                 max_node_power = host_models['max_power']
                 try:
-                    x0 = [host_models[host]['x0'] for host in vnode_names]
-                    A = [host_models[host]['A'] for host in vnode_names]
-                    B = [host_models[host]['B'] for host in vnode_names]
-                    C = [host_models[host]['C'] for host in vnode_names]
+                    for host in vnode_names:
+                        if host not in host_models:
+                            raise KeyError(host)
+                    x0 = [host_models[h]['x0'] for h in vnode_names]
+                    A = [host_models[h]['A'] for h in vnode_names]
+                    B = [host_models[h]['B'] for h in vnode_names]
+                    C = [host_models[h]['C'] for h in vnode_names]
                 except (ValueError, KeyError):
                     pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Incomplete model config for {host}. Using uniform power limits.')
                 else:
