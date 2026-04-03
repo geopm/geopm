@@ -13,6 +13,7 @@ import sys
 import hashlib
 import os
 import glob
+from pathlib import Path
 from yaml import load
 try:
     from yaml import CSafeLoader as SafeLoader
@@ -35,6 +36,11 @@ parser.add_argument('-v', '--verbose', action='store_true',
                     help='Print additional information about coefficient selection.')
 parser.add_argument('--plot-path',
                     help='Path to save a plot of the power-performance data. Default: no plots are generated')
+parser.add_argument('--cache', nargs='?', const='.compare_cache', default=None,
+                    help='Load data directly from pre-built HDF5 cache files '
+                         '(cache_*.h5 from plot.py), skipping report parsing. '
+                         'Optionally accepts a path to the cache directory '
+                         '(default: .compare_cache).')
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--use-region', help='Use time spent in the given region.')
@@ -119,9 +125,84 @@ def loss_jac(params, slowdown, power):
     return J
 
 
+def load_cached_data(cache_path):
+    """Load pre-built HDF5 caches (cache_*.h5), skipping report parsing.
+
+    Reads every ``cache_*.h5`` file under *cache_path* (recursively) and
+    concatenates the ``app_report`` DataFrames.  Column names are
+    normalised to match what the rest of this script expects.
+    """
+    root = Path(cache_path).expanduser().resolve()
+    h5_files = sorted(root.rglob('cache_*.h5'))
+    if not h5_files:
+        raise FileNotFoundError(
+            f'No cache_*.h5 files found under {root}'
+        )
+
+    frames = []
+    for h5 in h5_files:
+        loaded = False
+        # Try io.py / RawReportCollection key first, then the hash-cache key
+        for key in ('app_report', 'reports'):
+            try:
+                app_df = pd.read_hdf(h5, key=key)
+                frames.append(app_df)
+                loaded = True
+                break
+            except KeyError:
+                continue
+        if not loaded and args.verbose:
+            print(f'Warning: No app_report or reports key in {h5}',
+                  file=sys.stderr)
+
+    if not frames:
+        raise RuntimeError(
+            f'No usable data found in cache files under {root}'
+        )
+
+    df = pd.concat(frames, ignore_index=True)
+
+    # --- Normalise column names to match what the script expects ----------
+    rename_map = {}
+    if 'Profile' in df.columns and 'profile' not in df.columns:
+        rename_map['Profile'] = 'profile'
+    if 'Agent' in df.columns and 'agent' not in df.columns:
+        rename_map['Agent'] = 'agent'
+    if rename_map:
+        df.rename(columns=rename_map, inplace=True)
+
+    # --- Derive job_host_count (unique hosts per report file) -------------
+    if 'job_host_count' not in df.columns:
+        if 'report_file' in df.columns and 'host' in df.columns:
+            jhc = df.groupby('report_file')['host'].transform('nunique')
+            df['job_host_count'] = jhc
+        elif 'host' in df.columns:
+            # Fallback: count all unique hosts
+            df['job_host_count'] = df['host'].nunique()
+        else:
+            df['job_host_count'] = 1
+
+    # --- Derive slowdown metric -------------------------------------------
+    if 'slowdown metric' not in df.columns:
+        if args.use_fom and 'FOM' in df.columns:
+            df['slowdown metric'] = 1.0 / df['FOM']
+        elif 'runtime (s)' in df.columns:
+            df['slowdown metric'] = df['runtime (s)']
+        else:
+            raise KeyError(
+                'Cannot compute slowdown metric: need FOM or runtime (s)'
+            )
+
+    print(f'Loaded {len(df)} rows from {len(h5_files)} cache file(s) '
+          f'under {root}', file=sys.stderr)
+    return df
+
+
 data_list = list()
 report_paths = list()
-if args.report_dirs is not None:
+if args.cache is not None:
+    df = load_cached_data(args.cache)
+elif args.report_dirs is not None:
     for report_path in args.report_dirs:
         if glob.has_magic(report_path):
             for match_path in glob.glob(report_path):
@@ -140,52 +221,54 @@ if args.report_dirs is not None:
                     if 'report' in filename
                 )
 
-report_paths = sorted(set(report_paths))
-report_hash_inputs = {
-    'report_dirs': report_paths,
-    'use_fom': bool(args.use_fom),
-    'use_region': args.use_region,
-}
-report_hash = hashlib.sha256(json.dumps(report_hash_inputs, sort_keys=True).encode('utf-8')).hexdigest()
-hdf5_path = f'{report_hash}.h5'
+    report_paths = sorted(set(report_paths))
+    report_hash_inputs = {
+        'report_dirs': report_paths,
+        'use_fom': bool(args.use_fom),
+        'use_region': args.use_region,
+    }
+    report_hash = hashlib.sha256(json.dumps(report_hash_inputs, sort_keys=True).encode('utf-8')).hexdigest()
+    hdf5_path = f'{report_hash}.h5'
 
-try:
-    df = pd.read_hdf(hdf5_path, key='reports')
-except (FileNotFoundError, KeyError, OSError):
-    for report_path in report_paths:
-        with open(report_path) as f:
-            report = load(f, Loader=SafeLoader)
-        if report is None:
-            if args.verbose:
-                print(f'Warning: Skipping empty report {report_path}', file=sys.stderr)
-            continue
-        if args.use_fom and 'Figure of Merit' not in report:
-            if args.verbose:
-                print(f'Warning: Skipping report since --use-fom was specified and report is missing Figure of Merit: {report_path}', file=sys.stderr)
-            continue
-        job_host_count = len(report['Hosts'])
-        for host, host_data in report['Hosts'].items():
-            if args.use_region is not None:
-                try:
-                    report_data = next(r for r in host_data['Regions'] if r['region'] == args.use_region)
-                except StopIteration:
-                    print(f'Error: report {report_path} does not contain region {args.use_region}', file=sys.stderr)
-                    sys.exit(1)
-            else:
-                report_data = host_data['Application Totals']
-            report_data['report_path'] = report_path
-            report_data['host'] = host
-            report_data['job_host_count'] = job_host_count
-            report_data['agent'] = report['Agent']
-            report_data['profile'] = report['Profile']
-            if 'Figure of Merit' in report:
-                report_data['FOM'] = report['Figure of Merit']
+    try:
+        df = pd.read_hdf(hdf5_path, key='reports')
+    except (FileNotFoundError, KeyError, OSError):
+        for report_path in report_paths:
+            with open(report_path) as f:
+                report = load(f, Loader=SafeLoader)
+            if report is None:
+                if args.verbose:
+                    print(f'Warning: Skipping empty report {report_path}', file=sys.stderr)
+                continue
+            if args.use_fom and 'Figure of Merit' not in report:
+                if args.verbose:
+                    print(f'Warning: Skipping report since --use-fom was specified and report is missing Figure of Merit: {report_path}', file=sys.stderr)
+                continue
+            job_host_count = len(report['Hosts'])
+            for host, host_data in report['Hosts'].items():
+                if args.use_region is not None:
+                    try:
+                        report_data = next(r for r in host_data['Regions'] if r['region'] == args.use_region)
+                    except StopIteration:
+                        print(f'Error: report {report_path} does not contain region {args.use_region}', file=sys.stderr)
+                        sys.exit(1)
+                else:
+                    report_data = host_data['Application Totals']
+                report_data['report_path'] = report_path
+                report_data['host'] = host
+                report_data['job_host_count'] = job_host_count
+                report_data['agent'] = report['Agent']
+                report_data['profile'] = report['Profile']
+                if 'Figure of Merit' in report:
+                    report_data['FOM'] = report['Figure of Merit']
 
-            report_data['slowdown metric'] = (1 / report_data['FOM']) if (args.use_fom and 'Figure of Merit' in report) else report_data['runtime (s)']
-            data_list.append(report_data)
+                report_data['slowdown metric'] = (1 / report_data['FOM']) if (args.use_fom and 'Figure of Merit' in report) else report_data['runtime (s)']
+                data_list.append(report_data)
 
-    df = pd.DataFrame(data_list)
-    df.to_hdf(hdf5_path, key='reports', mode='w')
+        df = pd.DataFrame(data_list)
+        df.to_hdf(hdf5_path, key='reports', mode='w')
+else:
+    parser.error('Either --cache or --report-dirs must be specified.')
 
 host = df['host'].iloc[-1] if 'host' in df.columns and not df['host'].empty else 'all'
 
