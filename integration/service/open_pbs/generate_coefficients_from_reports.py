@@ -196,6 +196,73 @@ def apply_outlier_filter(df, rules):
     return df
 
 
+def validate_dataset(df, min_trials=5):
+    """Filter out hosts with incomplete or insufficient data.
+
+    Removes hosts that:
+    1. Do not have data for every BOARD_POWER_LIMIT_CONTROL value in the dataset.
+    2. Have missing FOM at any power level (when --use-fom is set).
+    3. Have fewer than *min_trials* trials at any power level.
+
+    Returns the filtered DataFrame.
+    """
+    col = 'BOARD_POWER_LIMIT_CONTROL'
+    if 'host' not in df.columns or col not in df.columns:
+        return df
+
+    hosts_to_drop = set()
+    all_limits = set(df[col].dropna().unique())
+
+    for host, hdf in df.groupby('host'):
+        host_limits = set(hdf[col].dropna().unique())
+
+        # 1. Missing power budgets
+        if host_limits != all_limits:
+            missing = sorted(all_limits - host_limits)
+            print(f'Filtering {host}: missing power budgets {missing}',
+                  file=sys.stderr)
+            hosts_to_drop.add(host)
+            continue
+
+        # 2. Missing FOM at any power level
+        if args.use_fom and 'FOM' in hdf.columns:
+            fom_by_limit = hdf.groupby(col)['FOM'].apply(
+                lambda s: s.notna().any()
+            )
+            missing_fom = sorted(
+                fom_by_limit.index[~fom_by_limit].tolist()
+            )
+            if missing_fom:
+                print(f'Filtering {host}: missing FOM at power levels '
+                      f'{missing_fom}', file=sys.stderr)
+                hosts_to_drop.add(host)
+                continue
+
+        # 3. Fewer than min_trials at any power level
+        trials_per_limit = hdf.groupby(col).size()
+        under = trials_per_limit[trials_per_limit < min_trials]
+        if not under.empty:
+            detail = {int(k): int(v) for k, v in under.items()}
+            print(f'Filtering {host}: fewer than {min_trials} trials '
+                  f'at power levels {detail}', file=sys.stderr)
+            hosts_to_drop.add(host)
+            continue
+
+    if hosts_to_drop:
+        before_hosts = df['host'].nunique()
+        before_rows = len(df)
+        df = df[~df['host'].isin(hosts_to_drop)].reset_index(drop=True)
+        print(f'validate_dataset: removed {len(hosts_to_drop)} host(s) '
+              f'({before_rows - len(df)} rows), '
+              f'{df["host"].nunique()}/{before_hosts} hosts remain',
+              file=sys.stderr)
+    else:
+        print(f'validate_dataset: all {df["host"].nunique()} hosts passed '
+              f'validation', file=sys.stderr)
+
+    return df
+
+
 def load_cached_data(cache_path):
     """Load pre-built HDF5 caches (cache_*.h5), skipping report parsing.
 
@@ -348,6 +415,9 @@ if args.outliers:
               'filtering.', file=sys.stderr)
     else:
         df = apply_outlier_filter(df, args.outliers)
+
+# --- Data validation (runs after outlier filtering, before normalization) --
+df = validate_dataset(df)
 
 host = df['host'].iloc[-1] if 'host' in df.columns and not df['host'].empty else 'all'
 
