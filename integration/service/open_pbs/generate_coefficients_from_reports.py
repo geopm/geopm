@@ -41,6 +41,13 @@ parser.add_argument('--cache', nargs='?', const='.compare_cache', default=None,
                          '(cache_*.h5 from plot.py), skipping report parsing. '
                          'Optionally accepts a path to the cache directory '
                          '(default: .compare_cache).')
+parser.add_argument('--outliers', nargs='+', default=None,
+                    metavar='POWER,OP,THRESH',
+                    help='FOM outlier rules.  Each rule is '
+                         '"POWER,OPERATOR,THRESHOLD" where OPERATOR is '
+                         '"lt" or "gt".  Any host with a trial '
+                         'violating a rule is removed from the dataset.  '
+                         'Example: --outliers "3200,lt,4e6" "3200,gt,4.7e6"')
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--use-region', help='Use time spent in the given region.')
@@ -123,6 +130,70 @@ def loss_jac(params, slowdown, power):
     J[2] = np.sum(neg_two_resid*x0mP)
     J[3] = np.sum(neg_two_resid)
     return J
+
+
+def apply_outlier_filter(df, rules):
+    """Remove hosts whose FOM violates any outlier rule.
+
+    Each *rule* is a string ``"POWER,OPERATOR,THRESHOLD"`` where
+    OPERATOR is ``lt`` or ``gt``.  A single bad trial flags the entire
+    host for removal.
+
+    Returns the filtered DataFrame.
+    """
+    col = 'BOARD_POWER_LIMIT_CONTROL'
+    metric = 'FOM'
+    for required in ('host', col, metric):
+        if required not in df.columns:
+            raise KeyError(
+                f"Column '{required}' not found in DataFrame. "
+                f"Available columns: {list(df.columns)}"
+            )
+
+    outlier_hosts = set()
+    for rule_str in rules:
+        parts = rule_str.split(',')
+        if len(parts) != 3:
+            raise ValueError(
+                f"Outlier rule must be 'POWER,OPERATOR,THRESHOLD', got: {rule_str}"
+            )
+        power = int(parts[0].strip())
+        op = parts[1].strip().lower()
+        threshold = float(parts[2].strip())
+        if op not in ('lt', 'gt'):
+            raise ValueError(f"Operator must be 'lt' or 'gt', got: {op}")
+
+        subset = df[df[col].astype(int) == power]
+        if subset.empty:
+            print(f'Outlier rule {rule_str}: no data at {power} W — skipped',
+                  file=sys.stderr)
+            continue
+
+        if op == 'lt':
+            flagged = subset[subset[metric] < threshold]
+            desc = f'FOM < {threshold:g}'
+        else:
+            flagged = subset[subset[metric] > threshold]
+            desc = f'FOM > {threshold:g}'
+
+        hosts_in_rule = sorted(flagged['host'].unique())
+        if hosts_in_rule:
+            outlier_hosts.update(hosts_in_rule)
+            print(f'Outlier rule {power} W {desc}: {len(flagged)} trial(s) '
+                  f'from {len(hosts_in_rule)} host(s): {hosts_in_rule}',
+                  file=sys.stderr)
+        elif args.verbose:
+            print(f'Outlier rule {power} W {desc}: no outlier trials found',
+                  file=sys.stderr)
+
+    if outlier_hosts:
+        before = len(df)
+        df = df[~df['host'].isin(outlier_hosts)].reset_index(drop=True)
+        print(f'Removed {len(outlier_hosts)} outlier host(s) '
+              f'({before - len(df)} rows) from dataset: '
+              f'{sorted(outlier_hosts)}', file=sys.stderr)
+
+    return df
 
 
 def load_cached_data(cache_path):
@@ -269,6 +340,14 @@ elif args.report_dirs is not None:
         df.to_hdf(hdf5_path, key='reports', mode='w')
 else:
     parser.error('Either --cache or --report-dirs must be specified.')
+
+# --- Outlier filtering (runs before normalization) ------------------------
+if args.outliers:
+    if 'FOM' not in df.columns:
+        print('WARNING: --outliers requires FOM column; skipping outlier '
+              'filtering.', file=sys.stderr)
+    else:
+        df = apply_outlier_filter(df, args.outliers)
 
 host = df['host'].iloc[-1] if 'host' in df.columns and not df['host'].empty else 'all'
 
