@@ -1004,6 +1004,8 @@ class RawReportCollection(object):
                     _add_column('all', top_key)
                     header[top_key] = str(top_val)
 
+            _add_column('all', 'report_file')
+            header['report_file'] = os.path.basename(report)
             _add_column('all', 'host')
             figure_of_merit = rr.figure_of_merit()
             if figure_of_merit is not None:
