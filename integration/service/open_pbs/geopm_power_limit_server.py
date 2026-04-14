@@ -35,6 +35,79 @@ def reject_event(event, msg):
     event.reject(f"{event.hook_name}: {msg}")
 
 
+# ---------------------------------------------------------------------------
+# Piecewise-linear model helpers (pure Python, no numpy dependency)
+# ---------------------------------------------------------------------------
+
+def _interp(x, xp, fp):
+    """Scalar piecewise-linear interpolation (like numpy.interp).
+
+    *xp* must be sorted ascending.  Clamps to boundary values outside range.
+    """
+    if x <= xp[0]:
+        return fp[0]
+    if x >= xp[-1]:
+        return fp[-1]
+    for i in range(1, len(xp)):
+        if x <= xp[i]:
+            t = (x - xp[i - 1]) / (xp[i] - xp[i - 1])
+            return fp[i - 1] + t * (fp[i] - fp[i - 1])
+    return fp[-1]
+
+
+def _monotonize(values):
+    """Return a list where each element is >= all preceding elements."""
+    result = list(values)
+    for i in range(1, len(result)):
+        if result[i] < result[i - 1]:
+            result[i] = result[i - 1]
+    return result
+
+
+def _parse_piecewise_model(model_dict):
+    """Convert a ``{power_str: fom, …}`` dict to sorted ``(powers, foms)`` lists.
+
+    FOM values are monotonized (non-decreasing with power) to suppress
+    measurement noise.
+    """
+    pairs = sorted((float(k), float(v)) for k, v in model_dict.items())
+    powers = [p for p, _ in pairs]
+    foms = _monotonize([f for _, f in pairs])
+    return powers, foms
+
+
+def fom_at_power(power, curve):
+    """Piecewise-linear interpolation of FOM at a given power level.
+
+    *curve* is ``(power_list, fom_list)`` sorted ascending by power.
+    """
+    return _interp(power, curve[0], curve[1])
+
+
+def power_at_fom(target_fom, curve):
+    """Inverse piecewise-linear interpolation: minimum power to reach *target_fom*.
+
+    Assumes FOM is monotonically non-decreasing with power.
+    """
+    powers, foms = curve
+    if target_fom <= foms[0]:
+        return powers[0]
+    if target_fom >= foms[-1]:
+        return powers[-1]
+    for i in range(1, len(foms)):
+        if target_fom <= foms[i]:
+            f0, f1 = foms[i - 1], foms[i]
+            p0, p1 = powers[i - 1], powers[i]
+            if f1 == f0:
+                return p0  # saturated segment — minimum power
+            t = (target_fom - f0) / (f1 - f0)
+            return p0 + t * (p1 - p0)
+    return powers[-1]
+
+
+# ---------------------------------------------------------------------------
+
+
 def get_model_from_config(event, hook_config, job_type, per_host=False):
     if hook_config is None or job_type is None:
         return None
@@ -53,35 +126,59 @@ def get_model_from_config(event, hook_config, job_type, per_host=False):
         return None
 
     profile = hook_config['profiles'][job_type]
-    if per_host:
-        if 'hosts' in profile:
-            models = dict(max_power = model_max_power)
-            for host_name, host_data in profile['hosts'].items():
-                model = host_data['model']
-                model['x0'] = float(model['x0'])
-                model['A'] = float(model['A'])
-                model['B'] = float(model['B'])
-                model['C'] = float(model['C'])
-                models[host_name] = model
-            return models
-    else:
-        model_coefficients = profile.get('model', dict())
-        try:
-            x0 = float(model_coefficients['x0'])
-            A = float(model_coefficients['A'])
-            B = float(model_coefficients['B'])
-            C = float(model_coefficients['C'])
-        except:
-            pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in GEOPM PBS config')
-            return None
+    model_type = profile.get('model_type', 'original-quadratic')
 
-        return {
-            'max_power': model_max_power,
-            'x0': x0,
-            'A': A,
-            'B': B,
-            'C': C,
-        }
+    if model_type == 'piecewise-linear':
+        if per_host:
+            if 'hosts' in profile:
+                models = dict(max_power=model_max_power, model_type='piecewise-linear')
+                for host_name, host_data in profile['hosts'].items():
+                    powers, foms = _parse_piecewise_model(host_data['model'])
+                    models[host_name] = (powers, foms)
+                return models
+        else:
+            model_data = profile.get('model')
+            if model_data is None:
+                pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing model data for piecewise-linear profile {job_type}')
+                return None
+            powers, foms = _parse_piecewise_model(model_data)
+            return {
+                'max_power': model_max_power,
+                'model_type': 'piecewise-linear',
+                'curve': (powers, foms),
+            }
+    else:
+        # original-quadratic (default)
+        if per_host:
+            if 'hosts' in profile:
+                models = dict(max_power=model_max_power, model_type='original-quadratic')
+                for host_name, host_data in profile['hosts'].items():
+                    model = host_data['model']
+                    model['x0'] = float(model['x0'])
+                    model['A'] = float(model['A'])
+                    model['B'] = float(model['B'])
+                    model['C'] = float(model['C'])
+                    models[host_name] = model
+                return models
+        else:
+            model_coefficients = profile.get('model', dict())
+            try:
+                x0 = float(model_coefficients['x0'])
+                A = float(model_coefficients['A'])
+                B = float(model_coefficients['B'])
+                C = float(model_coefficients['C'])
+            except:
+                pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in GEOPM PBS config')
+                return None
+
+            return {
+                'max_power': model_max_power,
+                'model_type': 'original-quadratic',
+                'x0': x0,
+                'A': A,
+                'B': B,
+                'C': C,
+            }
 
 
 def load_hook_config(event, model_path=_MODEL_PATH):
@@ -121,10 +218,18 @@ def predict_power_cap_at_performance_factor(event, job_type, slowdown, min_power
     do_use_model = model is not None
 
     if do_use_model:
+        model_type = model.get('model_type', 'original-quadratic')
         try:
-            # Using a quadratic model: slowdown = A * (x0 - percent_of_tdp)^2 + B * (x0 - percent_of_tdp) + C
-            # Solve for the positive root (less than 100% of max power) at '-slowdown' offset:
-            result = model['max_power'] * (model['x0'] - (-model['B'] + math.sqrt(abs(model['B']**2 - 4 * model['A'] * (model['C'] - slowdown)))) / (2 * model['A']))
+            if model_type == 'piecewise-linear':
+                # Derive target FOM from slowdown: FOM = FOM_max / (1 + slowdown)
+                curve = model['curve']
+                fom_max = curve[1][-1]  # FOM at highest measured power
+                target_fom = fom_max / (1.0 + slowdown)
+                result = power_at_fom(target_fom, curve)
+            else:
+                # Using a quadratic model: slowdown = A * (x0 - percent_of_tdp)^2 + B * (x0 - percent_of_tdp) + C
+                # Solve for the positive root (less than 100% of max power) at '-slowdown' offset:
+                result = model['max_power'] * (model['x0'] - (-model['B'] + math.sqrt(abs(model['B']**2 - 4 * model['A'] * (model['C'] - slowdown)))) / (2 * model['A']))
         except Exception as e:
             pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Unable to estimate job power. {str(e)}')
             do_use_model = False

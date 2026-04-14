@@ -138,12 +138,27 @@ By default, the automatic power capper relates power caps to slowdown by
 assuming a direct mapping between power and slowdown (i.e., 50% of max power
 results in 50% slowdown).
 
-An administrator can also configure polynomial power-performance models for
-individual *job classes* or for *compute nodes*. In both cases, the models are
-configured in terms of coefficients in the following relationship between $S$
-slowdown and $P$ power cap:
+An administrator can configure power-performance models for individual *job
+classes* or for *compute nodes*.  Two model types are supported, selected by
+the ``model_type`` field in each profile.  When ``model_type`` is omitted, the
+``original-quadratic`` model is assumed for backward compatibility.
+
+Model Types
+"""""""""""
+
+**original-quadratic** — Polynomial model relating slowdown $S$ to power cap $P$:
 
 $S(P) = (A (x0 - P / P_{max})^2 + B (x0 - P / P_{max}) + C)$
+
+Each model is defined by four coefficients (``x0``, ``A``, ``B``, ``C``) and the
+root-level ``max_power`` value ($P_{max}$).
+
+**piecewise-linear** — Measured Figure-of-Merit (FOM) at discrete power levels.
+The ``model`` field is a dictionary mapping power limits (in watts, as string
+keys) to the average FOM observed at that power level.  Between measured
+points, FOM is determined by linear interpolation.  FOM values are monotonized
+(enforced non-decreasing with power) to suppress measurement noise.  Slowdown
+is derived from FOM as $S = FOM_{max} / FOM(P) - 1$.
 
 Each performance model maps to a *profile* name, optionally also to one or
 more *host* names within the profile. Models that have a profile but not a host
@@ -156,6 +171,9 @@ model. Users may specify ``-l geopm-job-type=JOB_TYPE_NAME`` to select a profile
 other than the default if ``JOB_TYPE_NAME`` is present in the model JSON under
 ``profiles``.
 
+Original-Quadratic Example
+""""""""""""""""""""""""""
+
 Each host or profile model is defined in a *model* attribute that contains
 members for the model coefficients ``x0``, ``A``, ``B``, and ``C``. The root
 level of the configuration file also has a ``max_power`` value that maps to
@@ -164,13 +182,14 @@ job classes named ``jobtype_a`` and ``jobtype_b``, and defines per-host models
 under a profile named ``node-characterization``:
 
 .. code-block::
-    :caption: Contents of an example configuration file, geopm_pbs_config.json
+    :caption: Contents of an example original-quadratic configuration file
 
     {
       "node_profile_name": "node-characterization",
       "max_power": 3700.0,
       "profiles": {
         "jobtype_a": {
+          "model_type": "original-quadratic",
           "model": {
             "x0": 1.0,
             "A": 8e-08,
@@ -201,25 +220,95 @@ under a profile named ``node-characterization``:
       }
     }
 
+Note: ``model_type`` may be omitted for ``original-quadratic`` profiles (the
+default).
+
+Piecewise-Linear Example
+""""""""""""""""""""""""
+
+The following example stores measured FOM data at discrete power levels.
+Each profile and host model maps power limits (watts) to the average FOM
+observed at that level.  A profile-level ``model`` provides an aggregate curve
+used by the server hook to estimate slowdown; per-host ``model`` entries are
+used by the compute hook to distribute power non-uniformly across nodes.
+
+.. code-block::
+    :caption: Contents of an example piecewise-linear configuration file
+
+    {
+      "node_profile_name": "nekbone",
+      "max_power": 4000.0,
+      "profiles": {
+        "nekbone": {
+          "model_type": "piecewise-linear",
+          "model": {
+            "2400": 3800000.0,
+            "2600": 4100000.0,
+            "2800": 4300000.0,
+            "3000": 4400000.0,
+            "3200": 4450000.0,
+            "3800": 4495000.0,
+            "4000": 4500000.0
+          },
+          "hosts": {
+            "host1": {
+              "model": {
+                "2400": 3850000.0,
+                "2600": 4120000.0,
+                "2800": 4310000.0,
+                "3000": 4410000.0,
+                "3200": 4460000.0,
+                "3800": 4498000.0,
+                "4000": 4505000.0
+              }
+            },
+            "host2": {
+              "model": {
+                "2400": 3750000.0,
+                "2600": 4080000.0,
+                "2800": 4290000.0,
+                "3000": 4390000.0,
+                "3200": 4440000.0,
+                "3800": 4492000.0,
+                "4000": 4495000.0
+              }
+            }
+          }
+        }
+      }
+    }
+
 Configuration files can be validated against the schema at
 ``geopm_pbs_hook_config.schema.json``.
 
 This directory contains a script (``generate_coefficients_from_reports.py``)
-that generates coefficients to include in the configuration file, given a
+that generates model data to include in the configuration file, given a
 collection of GEOPM reports from running profiled job types under varying node
 power caps.
 
-Example usage to generate job performance model coefficients:
+Example usage to generate original-quadratic job performance model coefficients:
 
 ::
 
-    ./generate_coefficients_from_reports.py <max power per node> --reports /path/to/power/sweep/*.report
+    ./generate_coefficients_from_reports.py <max power per node> --report-dirs /path/to/power/sweep/
 
-Example usage to generate compute-node performance model coefficients:
+Example usage to generate original-quadratic compute-node performance model coefficients:
 
 ::
 
-    ./generate_coefficients_from_reports.py <max power per node> --per-host --reports /path/to/power/sweep/*.report
+    ./generate_coefficients_from_reports.py <max power per node> --per-host --report-dirs /path/to/power/sweep/
+
+Example usage to generate piecewise-linear per-host model from FOM data:
+
+::
+
+    ./generate_coefficients_from_reports.py <max power per node> --use-fom --per-host --model-type piecewise-linear --report-dirs /path/to/power/sweep/
+
+Example usage to generate piecewise-linear model from pre-built HDF5 caches:
+
+::
+
+    ./generate_coefficients_from_reports.py <max power per node> --use-fom --per-host --model-type piecewise-linear --cache .compare_cache
 
 Provide the configuration to the hooks
 """"""""""""""""""""""""""""""""""""""
