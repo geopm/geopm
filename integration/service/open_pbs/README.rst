@@ -222,7 +222,7 @@ Example usage to generate compute-node performance model coefficients:
     ./generate_coefficients_from_reports.py <max power per node> --per-host --reports /path/to/power/sweep/*.report
 
 Provide the configuration to the hooks
-"""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""
 The hooks can load the same JSON configuration data from either of the following
 locations:
 
