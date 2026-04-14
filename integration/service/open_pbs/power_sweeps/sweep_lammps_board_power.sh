@@ -1,4 +1,7 @@
 #!/bin/bash
+#  Copyright (c) 2015 - 2025 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 set -e
 source ~/.geopmrc
 LAMMPS_RUN_DIR="${LAMMPS_RUN_DIR?-Set LAMMPS_RUN_DIR to the location of run_aurora_po_Nnode_2T.sh}"
