@@ -18,17 +18,27 @@
       "additionalProperties": {
         "anyOf": [
           {
-            "description": "An individual profile containing a node performance model",
+            "description": "An individual profile containing a quadratic node performance model",
             "type": "object",
             "properties": {
-              "model": { "$ref": "#/definitions/model_coefficients" }
+              "model_type": {
+                "description": "Type of performance model. Defaults to original-quadratic when omitted.",
+                "type": "string",
+                "enum": ["original-quadratic"]
+              },
+              "model": { "$ref": "#/definitions/quadratic_model_coefficients" }
             },
             "additionalProperties": false
           },
           {
-            "description": "An individual profile containing host performance models",
+            "description": "An individual profile containing quadratic host performance models",
             "type": "object",
             "properties": {
+              "model_type": {
+                "description": "Type of performance model. Defaults to original-quadratic when omitted.",
+                "type": "string",
+                "enum": ["original-quadratic"]
+              },
               "hosts": {
                 "description": "A map of host names to performance models",
                 "type": "object",
@@ -36,12 +46,50 @@
                   "description": "An individual host containing a host performance model",
                   "type": "object",
                   "properties": {
-                    "model": { "$ref": "#/definitions/model_coefficients" }
+                    "model": { "$ref": "#/definitions/quadratic_model_coefficients" }
                   },
                   "additionalProperties": false
                 }
               }
             },
+            "additionalProperties": false
+          },
+          {
+            "description": "An individual profile containing a piecewise-linear node performance model",
+            "type": "object",
+            "properties": {
+              "model_type": {
+                "type": "string",
+                "enum": ["piecewise-linear"]
+              },
+              "model": { "$ref": "#/definitions/piecewise_linear_model" }
+            },
+            "required": ["model_type", "model"],
+            "additionalProperties": false
+          },
+          {
+            "description": "An individual profile containing piecewise-linear host performance models",
+            "type": "object",
+            "properties": {
+              "model_type": {
+                "type": "string",
+                "enum": ["piecewise-linear"]
+              },
+              "model": { "$ref": "#/definitions/piecewise_linear_model" },
+              "hosts": {
+                "description": "A map of host names to piecewise-linear performance models",
+                "type": "object",
+                "additionalProperties": {
+                  "description": "An individual host containing a piecewise-linear performance model",
+                  "type": "object",
+                  "properties": {
+                    "model": { "$ref": "#/definitions/piecewise_linear_model" }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": ["model_type"],
             "additionalProperties": false
           }
         ]
@@ -49,7 +97,7 @@
     }
   },
   "definitions": {
-    "model_coefficients": {
+    "quadratic_model_coefficients": {
       "type": "object",
       "required": [ "x0", "A", "B", "C" ],
       "properties": {
@@ -59,6 +107,13 @@
         "C": { "description": "Dependent variable offset in the performance model", "type": "number" }
       },
       "additionalProperties": false
+    },
+    "piecewise_linear_model": {
+      "description": "A mapping of power limit (watts) to average FOM at that power level. Keys are power limits as strings, values are FOM numbers.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
     }
   },
   "additionalProperties": false

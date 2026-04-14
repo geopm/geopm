@@ -52,6 +52,12 @@ parser.add_argument('--outliers', nargs='+', default=None,
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--use-region', help='Use time spent in the given region.')
 group.add_argument('--use-fom', action='store_true', help='Use the Figure of Merit')
+parser.add_argument('--model-type', default='original-quadratic',
+                    choices=['original-quadratic', 'piecewise-linear'],
+                    help='Type of performance model to generate. '
+                         'original-quadratic fits A*(x0-x)^2+B*(x0-x)+C. '
+                         'piecewise-linear stores average FOM at each '
+                         'measured power level. (default: original-quadratic)')
 
 args = parser.parse_args()
 
@@ -434,14 +440,39 @@ output = dict(
     max_power=args.max_power,
     profiles=dict())
 for profile, df_profile in df.groupby('profile'):
-    if args.per_host:
-        output['profiles'][profile] = dict(hosts=dict())
-        for host, df_host in df_profile.groupby('host'):
-            output['profiles'][profile]['hosts'][host] = dict(
-                model=dict(zip(('x0', 'A', 'B', 'C'), get_coefficients(df_host))))
+    if args.model_type == 'piecewise-linear':
+        if not args.use_fom or 'FOM' not in df_profile.columns:
+            print('ERROR: --model-type piecewise-linear requires --use-fom and '
+                  'FOM data in the dataset.', file=sys.stderr)
+            sys.exit(1)
+        col = 'BOARD_POWER_LIMIT_CONTROL'
+        metric = 'FOM'
+        profile_entry = dict(model_type='piecewise-linear')
+        if args.per_host:
+            profile_entry['hosts'] = dict()
+            for host, df_host in df_profile.groupby('host'):
+                host_avg = df_host.groupby(col)[metric].mean()
+                profile_entry['hosts'][host] = dict(
+                    model={str(int(p)): float(v)
+                           for p, v in host_avg.items()})
+        else:
+            # Profile-level aggregate model: average FOM across all hosts per power level
+            profile_avg = df_profile.groupby(col)[metric].mean()
+            profile_entry['model'] = {str(int(p)): float(v)
+                                      for p, v in profile_avg.items()}
+        output['profiles'][profile] = profile_entry
     else:
-        output['profiles'][profile] = dict(
-            model=dict(zip(('x0', 'A', 'B', 'C'), get_coefficients(df_profile))))
+        # original-quadratic
+        profile_entry = dict(model_type='original-quadratic')
+        if args.per_host:
+            profile_entry['hosts'] = dict()
+            for host, df_host in df_profile.groupby('host'):
+                profile_entry['hosts'][host] = dict(
+                    model=dict(zip(('x0', 'A', 'B', 'C'), get_coefficients(df_host))))
+        else:
+            profile_entry['model'] = dict(
+                zip(('x0', 'A', 'B', 'C'), get_coefficients(df_profile)))
+        output['profiles'][profile] = profile_entry
 
 if args.per_host:
     # If multiple profiles are included here, default to using the first one.
@@ -457,10 +488,19 @@ if args.plot_path is not None:
         max_control = df['BOARD_POWER_LIMIT_CONTROL'].max()
         X = np.linspace(min_control, args.max_power, 100) / args.max_power
         for profile_name, profile_data in output['profiles'].items():
+            is_piecewise = profile_data.get('model_type') == 'piecewise-linear'
             if args.per_host:
                 for host_name, host_data in profile_data['hosts'].items():
-                    y = slowdown_at_power(X, host_data['model']['x0'], host_data['model']['A'], host_data['model']['B'], host_data['model']['C'])
-                    line, = ax.plot(X, y, label=f'{profile_name}@{host_name}')
+                    if is_piecewise:
+                        pw_pairs = sorted((float(k), float(v)) for k, v in host_data['model'].items())
+                        pw_powers = np.array([p for p, _ in pw_pairs])
+                        pw_foms = np.array([f for _, f in pw_pairs])
+                        fom_max = pw_foms.max()
+                        y_pw = fom_max / pw_foms - 1
+                        line, = ax.plot(pw_powers / args.max_power, y_pw, marker='.', label=f'{profile_name}@{host_name}')
+                    else:
+                        y = slowdown_at_power(X, host_data['model']['x0'], host_data['model']['A'], host_data['model']['B'], host_data['model']['C'])
+                        line, = ax.plot(X, y, label=f'{profile_name}@{host_name}')
                     if args.show_min_max_range:
                         slowdown_range = df.loc[
                             (df['profile'] == profile_name) & (df['host'] == host_name) & (df['BOARD_POWER_LIMIT_CONTROL'] != 0)
@@ -472,8 +512,16 @@ if args.plot_path is not None:
                         ax.scatter(plot_df['BOARD_POWER_LIMIT_CONTROL']/args.max_power, plot_df['slowdown'])
 
             else:
-                y = slowdown_at_power(X, profile_data['model']['x0'], profile_data['model']['A'], profile_data['model']['B'], profile_data['model']['C'])
-                line, = ax.plot(X, y, label=profile_name)
+                if is_piecewise:
+                    pw_pairs = sorted((float(k), float(v)) for k, v in profile_data['model'].items())
+                    pw_powers = np.array([p for p, _ in pw_pairs])
+                    pw_foms = np.array([f for _, f in pw_pairs])
+                    fom_max = pw_foms.max()
+                    y_pw = fom_max / pw_foms - 1
+                    line, = ax.plot(pw_powers / args.max_power, y_pw, marker='.', label=profile_name)
+                else:
+                    y = slowdown_at_power(X, profile_data['model']['x0'], profile_data['model']['A'], profile_data['model']['B'], profile_data['model']['C'])
+                    line, = ax.plot(X, y, label=profile_name)
                 if args.show_min_max_range:
                     slowdown_range = df.loc[(df['profile'] == profile_name) & (df['BOARD_POWER_LIMIT_CONTROL'] != 0)].groupby(
                             'BOARD_POWER_LIMIT_CONTROL')['slowdown'].quantile([0, 0.25, 0.75, 1]).unstack()

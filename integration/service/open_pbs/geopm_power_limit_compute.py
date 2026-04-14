@@ -69,6 +69,112 @@ def clip_list(list_to_clip, min_value, max_value):
     return [max(min_value, min(x, max_value)) for x in list_to_clip]
 
 
+# ---------------------------------------------------------------------------
+# Piecewise-linear model helpers (pure Python, no numpy dependency)
+# ---------------------------------------------------------------------------
+
+def _interp(x, xp, fp):
+    """Scalar piecewise-linear interpolation (like numpy.interp).
+
+    *xp* must be sorted ascending.  Clamps to boundary values outside range.
+    """
+    if x <= xp[0]:
+        return fp[0]
+    if x >= xp[-1]:
+        return fp[-1]
+    for i in range(1, len(xp)):
+        if x <= xp[i]:
+            t = (x - xp[i - 1]) / (xp[i] - xp[i - 1])
+            return fp[i - 1] + t * (fp[i] - fp[i - 1])
+    return fp[-1]
+
+
+def _monotonize(values):
+    """Return a list where each element is >= all preceding elements."""
+    result = list(values)
+    for i in range(1, len(result)):
+        if result[i] < result[i - 1]:
+            result[i] = result[i - 1]
+    return result
+
+
+def _parse_piecewise_model(model_dict):
+    """Convert a ``{power_str: fom, …}`` dict to sorted ``(powers, foms)`` lists.
+
+    FOM values are monotonized (non-decreasing with power) to suppress
+    measurement noise, matching the convention in simulate_nonuniform.py.
+    """
+    pairs = sorted((float(k), float(v)) for k, v in model_dict.items())
+    powers = [p for p, _ in pairs]
+    foms = _monotonize([f for _, f in pairs])
+    return powers, foms
+
+
+def fom_at_power(power, curve):
+    """Piecewise-linear interpolation of FOM at a given power level.
+
+    *curve* is ``(power_list, fom_list)`` sorted ascending by power.
+    """
+    return _interp(power, curve[0], curve[1])
+
+
+def power_at_fom(target_fom, curve):
+    """Inverse piecewise-linear interpolation: minimum power to reach *target_fom*.
+
+    Assumes FOM is monotonically non-decreasing with power.
+    """
+    powers, foms = curve
+    if target_fom <= foms[0]:
+        return powers[0]
+    if target_fom >= foms[-1]:
+        return powers[-1]
+    for i in range(1, len(foms)):
+        if target_fom <= foms[i]:
+            f0, f1 = foms[i - 1], foms[i]
+            p0, p1 = powers[i - 1], powers[i]
+            if f1 == f0:
+                return p0  # saturated segment — minimum power
+            t = (target_fom - f0) / (f1 - f0)
+            return p0 + t * (p1 - p0)
+    return powers[-1]
+
+
+def allocate_budget_to_nodes_piecewise(budget, max_node_power, host_curves, host_names):
+    """Distribute *budget* watts across nodes using piecewise-linear FOM curves.
+
+    Uses bisection to find a target FOM such that the sum of per-host power
+    allocations equals the budget.  Returns ``(target_fom, power_by_node)``.
+    """
+    curves = [host_curves[h] for h in host_names]
+
+    peak_fom = [c[1][-1] for c in curves]
+    min_fom = [c[1][0] for c in curves]
+
+    fom_upper = min(peak_fom)
+    fom_lower = min(min_fom)
+
+    for _ in range(60):
+        mid = (fom_lower + fom_upper) / 2.0
+        powers = [power_at_fom(mid, c) for c in curves]
+        total = sum(powers)
+        if total > budget + 0.1:
+            fom_upper = mid
+        elif total < budget - 0.1:
+            fom_lower = mid
+        else:
+            break
+
+    target_fom = (fom_lower + fom_upper) / 2.0
+    power_by_node = [power_at_fom(target_fom, c) for c in curves]
+    power_by_node = clip_list(power_by_node, 0, max_node_power)
+    return target_fom, power_by_node
+
+
+# ---------------------------------------------------------------------------
+# Original quadratic model helpers
+# ---------------------------------------------------------------------------
+
+
 def slowdown_at_power(power, x0, A, B, C):
     return [An * (x0n - power)**2 + Bn * (x0n - power) + Cn
             for x0n, An, Bn, Cn in zip(x0, A, B, C)]
@@ -174,35 +280,59 @@ def get_model_from_config(event, hook_config, job_type, per_host=False):
         return None
 
     profile = hook_config['profiles'][job_type]
-    if per_host:
-        if 'hosts' in profile:
-            models = dict(max_power = model_max_power)
-            for host_name, host_data in profile['hosts'].items():
-                model = host_data['model']
-                model['x0'] = float(model['x0'])
-                model['A'] = float(model['A'])
-                model['B'] = float(model['B'])
-                model['C'] = float(model['C'])
-                models[host_name] = model
-            return models
-    else:
-        model_coefficients = profile.get('model', dict())
-        try:
-            x0 = float(model_coefficients['x0'])
-            A = float(model_coefficients['A'])
-            B = float(model_coefficients['B'])
-            C = float(model_coefficients['C'])
-        except:
-            pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in model config')
-            return None
+    model_type = profile.get('model_type', 'original-quadratic')
 
-        return {
-            'max_power': model_max_power,
-            'x0': x0,
-            'A': A,
-            'B': B,
-            'C': C,
-        }
+    if model_type == 'piecewise-linear':
+        if per_host:
+            if 'hosts' in profile:
+                models = dict(max_power=model_max_power, model_type='piecewise-linear')
+                for host_name, host_data in profile['hosts'].items():
+                    powers, foms = _parse_piecewise_model(host_data['model'])
+                    models[host_name] = (powers, foms)
+                return models
+        else:
+            model_data = profile.get('model')
+            if model_data is None:
+                pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Missing model data for piecewise-linear profile {job_type}')
+                return None
+            powers, foms = _parse_piecewise_model(model_data)
+            return {
+                'max_power': model_max_power,
+                'model_type': 'piecewise-linear',
+                'curve': (powers, foms),
+            }
+    else:
+        # original-quadratic (default)
+        if per_host:
+            if 'hosts' in profile:
+                models = dict(max_power=model_max_power, model_type='original-quadratic')
+                for host_name, host_data in profile['hosts'].items():
+                    model = host_data['model']
+                    model['x0'] = float(model['x0'])
+                    model['A'] = float(model['A'])
+                    model['B'] = float(model['B'])
+                    model['C'] = float(model['C'])
+                    models[host_name] = model
+                return models
+        else:
+            model_coefficients = profile.get('model', dict())
+            try:
+                x0 = float(model_coefficients['x0'])
+                A = float(model_coefficients['A'])
+                B = float(model_coefficients['B'])
+                C = float(model_coefficients['C'])
+            except:
+                pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Invalid coefficients for profile {job_type} in model config')
+                return None
+
+            return {
+                'max_power': model_max_power,
+                'model_type': 'original-quadratic',
+                'x0': x0,
+                'A': A,
+                'B': B,
+                'C': C,
+            }
 
 
 def read_controls(event, controls):
@@ -377,21 +507,28 @@ def do_power_limit_prologue(event):
             host_models = get_model_from_config(event, hook_config, job_type, per_host=True)
             if host_models is not None:
                 max_node_power = host_models['max_power']
+                model_type = host_models.get('model_type', 'original-quadratic')
                 try:
                     for host in vnode_names:
                         if host not in host_models:
                             raise KeyError(host)
-                    x0 = [host_models[h]['x0'] for h in vnode_names]
-                    A = [host_models[h]['A'] for h in vnode_names]
-                    B = [host_models[h]['B'] for h in vnode_names]
-                    C = [host_models[h]['C'] for h in vnode_names]
+                    if model_type == 'piecewise-linear':
+                        host_curves = {h: host_models[h] for h in vnode_names}
+                        _target_fom, power_by_node = allocate_budget_to_nodes_piecewise(
+                            job_power_limit,
+                            max_node_power, host_curves, vnode_names)
+                    else:
+                        x0 = [host_models[h]['x0'] for h in vnode_names]
+                        A = [host_models[h]['A'] for h in vnode_names]
+                        B = [host_models[h]['B'] for h in vnode_names]
+                        C = [host_models[h]['C'] for h in vnode_names]
+                        _slowdown, power_by_node = allocate_budget_to_nodes(
+                            job_power_limit,
+                            max_node_power, x0, A, B, C)
                 except (ValueError, KeyError):
                     pbs.logmsg(pbs.LOG_WARNING, f'{event.hook_name}: Incomplete model config for {host}. Using uniform power limits.')
                 else:
                     use_uniform_limit = False
-                    slowdown, power_by_node = allocate_budget_to_nodes(
-                        job_power_limit,
-                        max_node_power, x0, A, B, C)
                     my_node_idx = vnode_names.index(pbs.get_local_nodename())
                     power_limit = power_by_node[my_node_idx]
         if use_uniform_limit:
