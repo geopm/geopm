@@ -1,4 +1,7 @@
 #!/bin/bash
+#  Copyright (c) 2015 - 2025 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 set -e
 source ~/.geopmrc
 HACC_RUN_DIR="${HACC_RUN_DIR?-Set HACC_RUN_DIR to the location of run_mpiexec.sh}"

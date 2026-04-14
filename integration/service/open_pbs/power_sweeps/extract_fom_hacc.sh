@@ -1,4 +1,6 @@
 #!/bin/bash
+#  Copyright (c) 2015 - 2025 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
 #
 # Extract the figure of merit (particles/steptime) from HACC application
 # logs and append to the corresponding GEOPM report files.
