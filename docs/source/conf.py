@@ -111,10 +111,10 @@ add_function_parentheses = True
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'dasbus': ('https://dasbus.readthedocs.io/en/stable', None),
-    'pygobject': ('https://pygobject.readthedocs.io/en/latest', None),
+    'pygobject': ('https://pygobject.gnome.org', None),
     'cffi': ('https://cffi.readthedocs.io/en/latest', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),
-    'psutil': ('https://psutil.readthedocs.io/en/latest', None),
+    'psutil': ('https://psutil.readthedocs.io/latest', None),
 }
 
 # List of patterns, relative to source directory, that match files and
