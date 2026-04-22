@@ -149,6 +149,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
                         "(e.g. '2800,3800').  Budgets outside this range are "
                         "still simulated but hidden from the plot.  "
                         "Applied in both normal and publication modes.")
+    p.add_argument("--load-sim", default=None,
+                   help="Path to a previously saved simulation CSV file.  "
+                        "Skips the Monte Carlo loop entirely and re-plots "
+                        "from the saved data.  Accepts a glob pattern to "
+                        "load both main and hybrid CSVs.")
     return p.parse_args(argv)
 
 
@@ -489,8 +494,10 @@ def simulate_one_hybrid(
 def main(argv: Optional[List[str]] = None) -> int:
     args = parse_args(argv)
 
-    if args.seed is not None:
-        random.seed(args.seed)
+    if args.seed is None:
+        args.seed = random.randint(0, 2**31 - 1)
+    random.seed(args.seed)
+    print(f"Random seed: {args.seed}")
 
     # -- Load model --------------------------------------------------------
     max_power, model_type, host_models, model_curves = load_model(
@@ -647,23 +654,35 @@ def main(argv: Optional[List[str]] = None) -> int:
     power_budgets = list(range(args.power_min,
                                args.power_max + 1,
                                args.power_step))
-    records: list = []
 
-    for power in power_budgets:
-        print(f"  {power} W ...", end="", flush=True)
-        for _ in range(args.iterations):
-            sample = random.sample(all_hosts, args.num_nodes)
-            improvement = simulate_one(
-                sample, host_models, max_power, power,
-                host_curves=host_curves,
-            )
-            records.append({
-                "power_budget": power,
-                "improvement": improvement,
-            })
-        print(" done")
+    if args.load_sim:
+        print(f"Loading simulation data from {args.load_sim}")
+        df = pd.read_csv(args.load_sim)
+        # Try to load a matching hybrid CSV
+        hybrid_csv = args.load_sim.replace("_sim.", "_sim_hybrid.")
+        df_hybrid_loaded = None
+        if Path(hybrid_csv).exists():
+            df_hybrid_loaded = pd.read_csv(hybrid_csv)
+            print(f"Loaded hybrid simulation data from {hybrid_csv}")
+    else:
+        records: list = []
 
-    df = pd.DataFrame(records)
+        for power in power_budgets:
+            print(f"  {power} W ...", end="", flush=True)
+            for _ in range(args.iterations):
+                sample = random.sample(all_hosts, args.num_nodes)
+                improvement = simulate_one(
+                    sample, host_models, max_power, power,
+                    host_curves=host_curves,
+                )
+                records.append({
+                    "power_budget": power,
+                    "improvement": improvement,
+                })
+            print(" done")
+
+        df = pd.DataFrame(records)
+        df_hybrid_loaded = None
 
     # -- Plot --------------------------------------------------------------
     if args.publication:
@@ -718,8 +737,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     fig.savefig(output_path, dpi=150)
     print(f"\nSaved figure to {output_path}")
 
+    # Save simulation data for later re-plotting
+    if not args.load_sim:
+        sim_csv = f"{base}_{args.num_nodes}_{args.job_type}_seed{args.seed}_sim.csv"
+        df.to_csv(sim_csv, index=False)
+        print(f"Saved simulation data to {sim_csv}")
+
     # -- Hybrid plot: quadratic allocation, real-data evaluation -----------
-    if host_curves is not None and host_models:
+    if args.load_sim and df_hybrid_loaded is not None:
+        df_hybrid = df_hybrid_loaded
+    elif not args.load_sim and host_curves is not None and host_models:
         print("\n--- Hybrid: Quadratic Allocation + Linear Evaluation ---")
         hybrid_records: list = []
         for power in power_budgets:
@@ -739,6 +766,14 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         df_hybrid = pd.DataFrame(hybrid_records)
 
+        # Save hybrid simulation data
+        hybrid_csv = f"{base}_{args.num_nodes}_{args.job_type}_seed{args.seed}_sim_hybrid.csv"
+        df_hybrid.to_csv(hybrid_csv, index=False)
+        print(f"Saved hybrid simulation data to {hybrid_csv}")
+    else:
+        df_hybrid = None
+
+    if df_hybrid is not None:
         fig_h, ax_h = plt.subplots(figsize=(12, 6))
         # Use same pruned order as the main plot
         df_hybrid = df_hybrid[df_hybrid["power_budget"].isin(plot_budgets)]
