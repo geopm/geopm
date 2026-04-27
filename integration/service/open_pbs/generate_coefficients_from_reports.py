@@ -41,6 +41,12 @@ parser.add_argument('--cache', nargs='?', const='.compare_cache', default=None,
                          '(cache_*.h5 from plot.py), skipping report parsing. '
                          'Optionally accepts a path to the cache directory '
                          '(default: .compare_cache).')
+parser.add_argument('--filter-hosts', metavar='FILE', default=None,
+                    help='Path to a file containing hostnames (one per line) '
+                         'to exclude from the dataset. Lines starting with '
+                         '"#" and blank lines are ignored. Useful when nodes '
+                         'have been replaced since the source data was '
+                         'collected.')
 parser.add_argument('--outliers', nargs='+', default=None,
                     metavar='POWER,OP,THRESH',
                     help='FOM outlier rules.  Each rule is '
@@ -136,6 +142,21 @@ def loss_jac(params, slowdown, power):
     J[2] = np.sum(neg_two_resid*x0mP)
     J[3] = np.sum(neg_two_resid)
     return J
+
+
+def load_host_filter(path):
+    """Read a hostname filter file and return a set of hostnames to exclude.
+
+    Blank lines and lines starting with ``#`` are ignored. Inline comments
+    after a ``#`` are stripped.
+    """
+    hosts = set()
+    with open(path) as f:
+        for raw in f:
+            line = raw.split('#', 1)[0].strip()
+            if line:
+                hosts.add(line)
+    return hosts
 
 
 def apply_outlier_filter(df, rules):
@@ -413,6 +434,29 @@ elif args.report_dirs is not None:
         df.to_hdf(hdf5_path, key='reports', mode='w')
 else:
     parser.error('Either --cache or --report-dirs must be specified.')
+
+# --- Hostname filter (runs before outlier filtering and validation) -------
+if args.filter_hosts:
+    excluded_hosts = load_host_filter(args.filter_hosts)
+    if not excluded_hosts:
+        print(f'WARNING: --filter-hosts file {args.filter_hosts} contained '
+              f'no hostnames.', file=sys.stderr)
+    elif 'host' not in df.columns:
+        print('WARNING: --filter-hosts specified but DataFrame has no '
+              '"host" column; skipping.', file=sys.stderr)
+    else:
+        present = set(df['host'].unique())
+        matched = excluded_hosts & present
+        missing = excluded_hosts - present
+        if matched:
+            before = len(df)
+            df = df[~df['host'].isin(matched)].reset_index(drop=True)
+            print(f'Filtered {len(matched)} host(s) listed in '
+                  f'{args.filter_hosts} ({before - len(df)} rows removed): '
+                  f'{sorted(matched)}', file=sys.stderr)
+        if missing and args.verbose:
+            print(f'Note: {len(missing)} host(s) in {args.filter_hosts} not '
+                  f'present in dataset: {sorted(missing)}', file=sys.stderr)
 
 # --- Outlier filtering (runs before normalization) ------------------------
 if args.outliers:
