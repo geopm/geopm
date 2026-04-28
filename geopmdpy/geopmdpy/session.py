@@ -408,7 +408,7 @@ class Session:
 
         """
         num_period = 0
-        if any(x is not None for x in (pid, ready_fd, launch)):
+        if pid is not None or ready_fd is not None or launch:
             num_period = None
         elif period != 0:
             num_period = math.ceil(duration / period)
