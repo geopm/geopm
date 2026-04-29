@@ -480,10 +480,16 @@ profile_reference_slowdown = df.groupby(['profile', 'job_host_count']).apply(
     lambda x: x.loc[x['BOARD_POWER_LIMIT_CONTROL'] == x['BOARD_POWER_LIMIT_CONTROL'].max(), 'slowdown metric'].mean())
 df['slowdown'] = df['slowdown metric'] / pd.MultiIndex.from_frame(df[['profile', 'job_host_count']]).map(profile_reference_slowdown) - 1
 
+MODEL_TYPE_SUFFIX = {
+    'piecewise-linear': '-piecewise',
+    'original-quadratic': '-quadratic',
+}
+
 output = dict(
     max_power=args.max_power,
     profiles=dict())
 for profile, df_profile in df.groupby('profile'):
+    profile_key = profile + MODEL_TYPE_SUFFIX.get(args.model_type, '')
     if args.model_type == 'piecewise-linear':
         if not args.use_fom or 'FOM' not in df_profile.columns:
             print('ERROR: --model-type piecewise-linear requires --use-fom and '
@@ -504,7 +510,7 @@ for profile, df_profile in df.groupby('profile'):
             profile_avg = df_profile.groupby(col)[metric].mean()
             profile_entry['model'] = {str(int(p)): float(v)
                                       for p, v in profile_avg.items()}
-        output['profiles'][profile] = profile_entry
+        output['profiles'][profile_key] = profile_entry
     else:
         # original-quadratic
         profile_entry = dict(model_type='original-quadratic')
@@ -516,7 +522,7 @@ for profile, df_profile in df.groupby('profile'):
         else:
             profile_entry['model'] = dict(
                 zip(('x0', 'A', 'B', 'C'), get_coefficients(df_profile)))
-        output['profiles'][profile] = profile_entry
+        output['profiles'][profile_key] = profile_entry
 
 if args.per_host:
     # If multiple profiles are included here, default to using the first one.
