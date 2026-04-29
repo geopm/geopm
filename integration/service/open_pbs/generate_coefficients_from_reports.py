@@ -526,7 +526,7 @@ if args.per_host:
 if args.plot_path is not None:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as mtick
-    with plt.style.context('seaborn-darkgrid'):
+    with plt.style.context('seaborn-v0_8-darkgrid'):
         fig, ax = plt.subplots(figsize=(4, 3))
         min_control = df.loc[df['BOARD_POWER_LIMIT_CONTROL'] != 0, 'BOARD_POWER_LIMIT_CONTROL'].min()
         max_control = df['BOARD_POWER_LIMIT_CONTROL'].max()
