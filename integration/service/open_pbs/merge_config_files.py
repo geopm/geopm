@@ -62,6 +62,7 @@ for config_file_path in args.config_files:
         for profile_name, profile_data in config['profiles'].items():
             if profile_name not in merged_config['profiles']:
                 merged_config['profiles'][profile_name] = {}
+            merge_field_if_absent_or_equal('model_type', merged_config['profiles'][profile_name], config['profiles'][profile_name])
             merge_field_if_absent_or_equal('hosts', merged_config['profiles'][profile_name], config['profiles'][profile_name])
             merge_field_if_absent_or_equal('model', merged_config['profiles'][profile_name], config['profiles'][profile_name])
     except Exception as e:
