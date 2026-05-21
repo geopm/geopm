@@ -762,7 +762,7 @@ namespace geopm
 
     // TODO don't pass metric_streamer
     void LevelZeroImp::metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
-                                   size_t data_size, std::vector<uint8_t> data)
+                                   size_t data_size, const std::vector<uint8_t> &data)
     {
 
         GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) == true,

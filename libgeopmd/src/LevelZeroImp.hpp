@@ -260,7 +260,7 @@ namespace geopm
 
             void metric_group_init(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
-                             size_t data_size, std::vector<uint8_t> data);
+                             size_t data_size, const std::vector<uint8_t> &data);
 
             void metric_execute(unsigned int l0_device_idx,
                                 unsigned int l0_domain_idx);
