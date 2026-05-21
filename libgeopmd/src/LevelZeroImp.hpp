@@ -191,6 +191,11 @@ namespace geopm
                 std::vector<size_t> zet_data_size;
                 std::vector<std::vector<uint8_t>> zet_data;
 
+                // Cached metric name -> index within a report. Chip indexed.
+                // Populated once during metric_group_init, used in metric_calc
+                // to avoid repeated zetMetricGet/zetMetricGetProperties calls.
+                std::vector<std::map<std::string, size_t>> metric_name_idx;
+
                 // required for L0 metric result tracking.  Chip indexed
                 mutable std::vector<std::map<std::string, std::vector<double>>> metric_data;
                 mutable std::vector<bool> metrics_initialized;
