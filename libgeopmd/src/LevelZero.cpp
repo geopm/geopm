@@ -646,7 +646,8 @@ namespace geopm
                                    ": LevelZero Metric handle acquisition failed",
                                    __LINE__);
 
-                   //Build metric map
+                   //Build metric map and name-to-index cache
+                   std::map<std::string, size_t> name_idx;
                    for (unsigned int metric_idx = 0; metric_idx < num_metric; ++metric_idx)
                    {
                        zet_metric_properties_t metric_properties;
@@ -670,7 +671,14 @@ namespace geopm
                        }
                        m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)[metric_name] = {};
                        m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)["NUM_REPORTS"] = {};
+
+                       // Cache index for metrics we process in metric_calc
+                       if (metric_name == "XVE_ACTIVE" ||
+                           metric_name == "XVE_STALL") {
+                           name_idx[metric_name] = metric_idx;
+                       }
                    }
+                   m_devices.at(device_idx).subdevice.metric_name_idx.push_back(std::move(name_idx));
                    // Break out of the metric group for loop once we've found the group of interest (ComputeBasic, time based sampling).
                    break;
                 }
@@ -798,51 +806,25 @@ namespace geopm
                          "that is not evenly divisible by the number of metrics.  This "
                          "may indicate a ZET report erroor, skipping data processing." << std::endl;
 #endif
-            num_metric = 0;
+            return;
         }
 
-        for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
-        {
-            //TODO: It is possible that simply parsing all the metrics is
-            //      faster than the additional API calls to check the metric
-            //      name.  This should be studied
-            std::vector<zet_metric_handle_t> metric_handle(num_metric);
-            ze_result = zetMetricGet(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx),
-                                     &num_metric, metric_handle.data());
-            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                            "LevelZero::" + std::string(__func__) +
-                            ": LevelZero Metric handle acquisition failed",
-                            __LINE__);
+        // Use the cached name→index map to avoid calling zetMetricGet and
+        // zetMetricGetProperties on every sample iteration.
+        const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
+        for (const auto &kv : name_idx) {
+            const std::string &metric_name = kv.first;
+            size_t metric_idx = kv.second;
 
-            // process metrics
-            zet_metric_properties_t metric_properties;
-            ze_result = zetMetricGetProperties(metric_handle.at(metric_idx), &metric_properties);
-            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                            "LevelZero::" + std::string(__func__) +
-                            ": LevelZero Metric property acquisition failed",
-                            __LINE__);
+            // Clear cached values and update num_reports on first metric
+            m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name) = {};
+            m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"] = {};
+            m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"].push_back(num_reports);
 
-            std::string metric_name (metric_properties.name);
-
-            //TODO: check timing impact of only processing metrics supported by IOGroup
-            if (metric_name == "XVE_ACTIVE" ||
-                metric_name == "XVE_STALL") {
-                for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++) {
-                    // Each report contains num_metric entries of data.  We need to access
-                    // this metric (metric_idx) from each report ( report_idx * num_metric)
-                    zet_typed_value_t data = metric_values.at(report_idx * num_metric + metric_idx);
-                    double data_double = metric_data_convert(data);
-
-                    if (report_idx == 0) {
-                        // Clear cached values
-                        m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name) = {};
-                        m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"] = {};
-
-                        // Update num_reports
-                        m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"].push_back(num_reports);
-                    }
-                    m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name).push_back(data_double);
-                }
+            for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++) {
+                zet_typed_value_t data = metric_values.at(report_idx * num_metric + metric_idx);
+                double data_double = metric_data_convert(data);
+                m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name).push_back(data_double);
             }
         }
     }
