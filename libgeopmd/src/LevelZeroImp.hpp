@@ -255,7 +255,6 @@ namespace geopm
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
 
-            static constexpr uint32_t NOTIFY_EVERY_N_REPORTS = 1;
             static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
             static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
             static constexpr uint32_t DEFAULT_MAX_REPORTS_PER_READ = 30;
