@@ -729,7 +729,7 @@ namespace geopm
         zet_metric_streamer_desc_t metric_streamer_desc = {
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
-            NOTIFY_EVERY_N_REPORTS, // number of reports to notify on.
+            0, // notifyEveryNReports: unused (no event handle registered)
             m_devices.at(l0_device_idx).metric_sampling_period_ns};
         zet_metric_streamer_handle_t metric_streamer = nullptr;
 
