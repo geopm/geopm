@@ -190,6 +190,7 @@ namespace geopm
                 std::vector<zet_metric_group_handle_t> metric_group_handle; //ComputeBasic only
                 std::vector<size_t> zet_data_size;
                 std::vector<std::vector<uint8_t>> zet_data;
+                std::vector<size_t> report_byte_size;  // Learned per-report byte size (0 until first read)
 
                 // Cached metric name -> index within a report. Chip indexed.
                 // Populated once during metric_group_init, used in metric_calc
@@ -257,10 +258,11 @@ namespace geopm
             static constexpr uint32_t NOTIFY_EVERY_N_REPORTS = 1;
             static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
             static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
+            static constexpr uint32_t DEFAULT_MAX_REPORTS_PER_READ = 30;
 
             void metric_group_init(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
-                             size_t data_size, const std::vector<uint8_t> &data);
+                             size_t data_size, const uint8_t *data);
 
             void metric_execute(unsigned int l0_device_idx,
                                 unsigned int l0_domain_idx);

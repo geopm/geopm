@@ -758,11 +758,12 @@ namespace geopm
         std::vector<uint8_t> data(data_size);
         m_devices.at(l0_device_idx).subdevice.zet_data_size.push_back(data_size);
         m_devices.at(l0_device_idx).subdevice.zet_data.push_back(data);
+        m_devices.at(l0_device_idx).subdevice.report_byte_size.push_back(0);
     }
 
     // TODO don't pass metric_streamer
     void LevelZeroImp::metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
-                                   size_t data_size, const std::vector<uint8_t> &data)
+                                   size_t data_size, const uint8_t *data)
     {
 
         GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) == true,
@@ -781,14 +782,14 @@ namespace geopm
         /////////////////////////////////////
         uint32_t num_metric_values = 0;
         zet_metric_group_calculation_type_t calculation_type = ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES;
-        ze_result = zetMetricGroupCalculateMetricValues(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data.data(), &num_metric_values, nullptr);
+        ze_result = zetMetricGroupCalculateMetricValues(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data, &num_metric_values, nullptr);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Metric group calculate metric values to find num metrics failed",
                         __LINE__);
 
         std::vector<zet_typed_value_t> metric_values(num_metric_values);
-        ze_result = zetMetricGroupCalculateMetricValues(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data.data(), &num_metric_values, metric_values.data());
+        ze_result = zetMetricGroupCalculateMetricValues(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data, &num_metric_values, metric_values.data());
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Metric group calculate metric values to calculate data failed",
@@ -869,19 +870,46 @@ namespace geopm
             ///////////////////
             // Read Raw Data //
             ///////////////////
+            // Always read with full buffer to drain the FIFO completely
+            size_t read_size = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).size();
             ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req,
-                                                  &m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
+                                                  &read_size,
                                                   m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
-// Skip when no data is available
-            if (ze_result != ZE_RESULT_NOT_READY &&
-                m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx) > 0) {
+
+            // Skip when no data is available
+            if (ze_result != ZE_RESULT_NOT_READY && read_size > 0) {
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                                 "LevelZero::" + std::string(__func__) +
                                 ": LevelZero Read Data failed",
                                 __LINE__);
-                metric_calc(l0_device_idx, l0_domain_idx,
-                            m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx),
-                            m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx));
+
+                // Learn per-report byte size from first successful read
+                size_t &report_byte_size = m_devices.at(l0_device_idx).subdevice.report_byte_size.at(l0_domain_idx);
+                if (report_byte_size == 0) {
+                    uint32_t tmp_num_values = 0;
+                    zet_metric_group_calculation_type_t tmp_calc_type = ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES;
+                    zetMetricGroupCalculateMetricValues(
+                        m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx),
+                        tmp_calc_type, read_size,
+                        m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data(),
+                        &tmp_num_values, nullptr);
+                    uint32_t num_metric = m_devices.at(l0_device_idx).subdevice.num_metric.at(l0_domain_idx);
+                    size_t first_num_reports = (num_metric > 0) ? tmp_num_values / num_metric : 1;
+                    if (first_num_reports > 0) {
+                        report_byte_size = read_size / first_num_reports;
+                    }
+                }
+
+                // Only process the most recent DEFAULT_MAX_REPORTS_PER_READ reports
+                size_t process_size = read_size;
+                const uint8_t *process_data = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data();
+                if (report_byte_size > 0 && read_size > report_byte_size * DEFAULT_MAX_REPORTS_PER_READ) {
+                    process_size = report_byte_size * DEFAULT_MAX_REPORTS_PER_READ;
+                    process_data = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data()
+                                   + (read_size - process_size);
+                }
+
+                metric_calc(l0_device_idx, l0_domain_idx, process_size, process_data);
             }
         }
     }
