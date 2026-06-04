@@ -8,7 +8,7 @@ MAX_POWER_LIMIT_RESOURCE="geopm-max-node-power-limit"
 MIN_POWER_LIMIT_RESOURCE="geopm-min-node-power-limit"
 JOB_POWER_LIMIT_RESOURCE="geopm-job-power-limit"
 JOB_TYPE_RESOURCE="geopm-job-type"
-DEFAULT_SLOWDOWN_RESOURCE="geopm-default-slowdown"
+MAX_SLOWDOWN_RESOURCE="geopm-max-slowdown"
 SERVER_HOOK="geopm_power_limit_server"
 REMOVE_OPT="--remove"
 
@@ -33,7 +33,7 @@ print_usage() {
 
 install() {
     # Create all resources needed for the server side
-    for resource in $POWER_LIMIT_RESOURCE $MAX_POWER_LIMIT_RESOURCE $MIN_POWER_LIMIT_RESOURCE $JOB_POWER_LIMIT_RESOURCE $DEFAULT_SLOWDOWN_RESOURCE
+    for resource in $POWER_LIMIT_RESOURCE $MAX_POWER_LIMIT_RESOURCE $MIN_POWER_LIMIT_RESOURCE $JOB_POWER_LIMIT_RESOURCE $MAX_SLOWDOWN_RESOURCE
     do
         out=`qmgr -c "list resource" | grep "$resource"`
         if [ -z "$out" ]; then
@@ -88,7 +88,7 @@ remove() {
     fi
 
     # Remove resources
-    for resource in $POWER_LIMIT_RESOURCE $MAX_POWER_LIMIT_RESOURCE $MIN_POWER_LIMIT_RESOURCE $JOB_POWER_LIMIT_RESOURCE $DEFAULT_SLOWDOWN_RESOURCE $JOB_TYPE_RESOURCE
+    for resource in $POWER_LIMIT_RESOURCE $MAX_POWER_LIMIT_RESOURCE $MIN_POWER_LIMIT_RESOURCE $JOB_POWER_LIMIT_RESOURCE $MAX_SLOWDOWN_RESOURCE $JOB_TYPE_RESOURCE
     do
         out=`qmgr -c "list resource" | grep "$resource"`
         if [ -z "$out" ]; then
@@ -119,7 +119,7 @@ if [ $# -eq 0 ]; then
     echo "To set a power limit across jobs, set resources_available for $JOB_POWER_LIMIT_RESOURCE"
     echo "To set a minimum node power limit, use $MIN_POWER_LIMIT_RESOURCE"
     echo "To set a maximum node power limit, use $MAX_POWER_LIMIT_RESOURCE"
-    echo "To set a default job slowdown target, use $DEFAULT_SLOWDOWN_RESOURCE"
+    echo "To set a maximum job slowdown tolerance, use $MAX_SLOWDOWN_RESOURCE"
     echo "Example to set a power limit: qmgr -c 'set server resources_available.${JOB_POWER_LIMIT_RESOURCE}=<max sum of node power (W)>'"
 elif [ $# -eq 1 ]; then
     if [ "$1" == "$REMOVE_OPT" ]; then

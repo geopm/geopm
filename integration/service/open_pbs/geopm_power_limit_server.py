@@ -26,7 +26,7 @@ _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 _MAX_POWER_LIMIT_RESOURCE = "geopm-max-node-power-limit"
 _MIN_POWER_LIMIT_RESOURCE = "geopm-min-node-power-limit"
 _JOB_POWER_LIMIT_RESOURCE = "geopm-job-power-limit"
-_DEFAULT_SLOWDOWN_RESOURCE = "geopm-default-slowdown"
+_MAX_SLOWDOWN_RESOURCE = "geopm-max-slowdown"
 _JOB_TYPE_RESOURCE = "geopm-job-type"
 _DEFAULT_SLOWDOWN = 0.0
 _MODEL_PATH = "/soft/geopm/model.json"
@@ -306,9 +306,9 @@ def do_power_limit_queuejob(event):
         # the allowed slowdown.
 
         job_type = requested_resources[_JOB_TYPE_RESOURCE]
-        slowdown = float(requested_resources[_DEFAULT_SLOWDOWN_RESOURCE]) if requested_resources[_DEFAULT_SLOWDOWN_RESOURCE] is not None else _DEFAULT_SLOWDOWN
+        slowdown = float(requested_resources[_MAX_SLOWDOWN_RESOURCE]) if requested_resources[_MAX_SLOWDOWN_RESOURCE] is not None else _DEFAULT_SLOWDOWN
         if slowdown < 0:
-            reject_event(event, f'{_DEFAULT_SLOWDOWN_RESOURCE} must be at least 0. Requested value: {slowdown}')
+            reject_event(event, f'{_MAX_SLOWDOWN_RESOURCE} must be at least 0. Requested value: {slowdown}')
             return
 
         job_min_limit = predict_power_cap_at_performance_factor(
