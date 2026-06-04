@@ -241,6 +241,28 @@ def predict_power_cap_at_performance_factor(event, job_type, slowdown, min_power
     return min(max(min_power_per_node, result), max_power_per_node)
 
 
+def _get_resource(event, resource_name):
+    """Look up a resource_available value: queue first, then server.
+
+    This allows power resources to be set at either the queue level (for
+    isolated testing) or the server level (for production).  Queue-level
+    settings take precedence.
+    """
+    # Try the job's destination queue first
+    job_queue = event.job.queue
+    if job_queue:
+        try:
+            queue_name = job_queue.name if hasattr(job_queue, 'name') else str(job_queue)
+            queue = pbs.server().queue(queue_name)
+            val = queue.resources_available[resource_name]
+            if val is not None:
+                return val
+        except Exception as e:
+            pbs.logmsg(pbs.LOG_DEBUG, f'{event.hook_name}: _get_resource({resource_name}) queue lookup failed: {e}')
+    # Fall back to server level
+    return pbs.server().resources_available[resource_name]
+
+
 def do_power_limit_queuejob(event):
     """GEOPM handler for queuejob PBS events. This handler sets a preliminary
     job power resource request on a queued job so that the scheduler knows
@@ -251,17 +273,17 @@ def do_power_limit_queuejob(event):
     requested_resources = event.job.Resource_List
     submitted_node_limit = requested_resources[_POWER_LIMIT_RESOURCE]
     submitted_job_limit = requested_resources[_JOB_POWER_LIMIT_RESOURCE]
-    max_power_in_pbs_server = server.resources_available[_JOB_POWER_LIMIT_RESOURCE]
+    max_power_in_pbs_server = _get_resource(event, _JOB_POWER_LIMIT_RESOURCE)
     if max_power_in_pbs_server is None:
         # No high-level power limit is set. Nothing to do here.
         event.accept()
         return
 
-    min_power_per_node = server.resources_available[_MIN_POWER_LIMIT_RESOURCE]
+    min_power_per_node = _get_resource(event, _MIN_POWER_LIMIT_RESOURCE)
     if min_power_per_node is None:
         reject_event(event, f'{_MIN_POWER_LIMIT_RESOURCE} must be configured.')
 
-    max_power_per_node = server.resources_available[_MAX_POWER_LIMIT_RESOURCE]
+    max_power_per_node = _get_resource(event, _MAX_POWER_LIMIT_RESOURCE)
     if max_power_per_node is None:
         reject_event(event, f'{_MAX_POWER_LIMIT_RESOURCE} must be configured.')
 
