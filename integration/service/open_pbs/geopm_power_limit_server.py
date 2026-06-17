@@ -337,6 +337,21 @@ def do_power_limit_queuejob(event):
                 event, job_type, slowdown, min_power_per_node, max_power_per_node) * node_count
         pbs.logmsg(pbs.LOG_DEBUG, f'{event.hook_name}: job_min_limit = {job_min_limit}')
         job_power_limit = max(job_power_limit, job_min_limit)
+    elif requested_resources[_MAX_SLOWDOWN_RESOURCE] is not None and submitted_node_limit is None:
+        # The user requested a slowdown tolerance alongside a job power limit
+        # (possibly from resources_default).  Use the most restrictive
+        # (lowest) of the two resulting power limits.
+        job_type = requested_resources[_JOB_TYPE_RESOURCE]
+        slowdown = float(requested_resources[_MAX_SLOWDOWN_RESOURCE])
+        if slowdown < 0:
+            reject_event(event, f'{_MAX_SLOWDOWN_RESOURCE} must be at least 0. Requested value: {slowdown}')
+            return
+
+        slowdown_limit = predict_power_cap_at_performance_factor(
+                event, job_type, slowdown, min_power_per_node, max_power_per_node) * node_count
+        slowdown_limit = max(slowdown_limit, min_power_per_node * node_count)
+        pbs.logmsg(pbs.LOG_DEBUG, f'{event.hook_name}: slowdown_limit = {slowdown_limit}, job_power_limit = {job_power_limit}')
+        job_power_limit = min(job_power_limit, slowdown_limit)
 
     job_power_limit = min(job_power_limit,
                           max_power_per_node * node_count)
