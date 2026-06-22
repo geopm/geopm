@@ -36,6 +36,7 @@ Depends: python3 (>= 3.6~),
  python3-protobuf (>=3.12.4),
  python3-prometheus-client (>= 0.9.0),
  python3-sdnotify (>= 0.3.1),
+ geopmd-cli (= ${binary:Version}),
  python3:any
 Recommends: libgeopmd2 (= ${binary:Version}),
             geopmd-doc (= ${binary:Version}),
