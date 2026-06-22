@@ -154,7 +154,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": "GPU_CORE_FREQUENCY_STATUS"
+            "alias": ""
         },
         "RPS_ACT_FREQ": {
             "attribute": "rps_act_freq_mhz",
@@ -166,7 +166,7 @@
             "format": "double",
             "units": "hertz",
             "writeable": false,
-            "alias": ""
+            "alias": "GPU_CORE_FREQUENCY_STATUS"
         },
         "RPS_BOOST_FREQ": {
             "attribute": "rps_boost_freq_mhz",
