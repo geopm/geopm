@@ -44,6 +44,7 @@ namespace geopm
         , M_NUM_CHIP_PER_GPU(M_NUM_GPU == 0 ? 0 : M_NUM_GPU_CHIP / M_NUM_GPU)
         , m_do_write_batch(false)
         , m_do_send_policy(true)
+        , m_has_freq_min_control(false)
         , m_agent_domain_count(0)
         , m_agent_domain(0)
         , m_gpu_frequency_requests(0.0)
@@ -80,9 +81,17 @@ namespace geopm
     void GPUActivityAgent::init_platform_io(void)
     {
 
+        const auto ALL_CTRL_NAMES = m_platform_io.control_names();
+        m_has_freq_min_control =
+            ALL_CTRL_NAMES.count("GPU_CORE_FREQUENCY_MIN_CONTROL") != 0;
+
         std::vector<int> control_domains;
-        control_domains.push_back(m_platform_io.control_domain_type("GPU_CORE_FREQUENCY_MIN_CONTROL"));
-        control_domains.push_back(m_platform_io.control_domain_type("GPU_CORE_FREQUENCY_MAX_CONTROL"));
+        if (m_has_freq_min_control) {
+            control_domains.push_back(
+                m_platform_io.control_domain_type("GPU_CORE_FREQUENCY_MIN_CONTROL"));
+        }
+        control_domains.push_back(
+            m_platform_io.control_domain_type("GPU_CORE_FREQUENCY_MAX_CONTROL"));
 
         std::vector<int> signal_domains;
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_CORE_FREQUENCY_STATUS"));
@@ -126,9 +135,12 @@ namespace geopm
                                          domain_idx), NAN});
 
             // Controls
-            m_gpu_freq_min_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
-                                                       m_agent_domain,
-                                                       domain_idx), NAN});
+            if (m_has_freq_min_control) {
+                m_gpu_freq_min_control.push_back(
+                    m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
+                                                         m_agent_domain,
+                                                         domain_idx), NAN});
+            }
             m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
                                                        m_agent_domain,
                                                        domain_idx), NAN});
@@ -328,16 +340,21 @@ namespace geopm
 
         // set frequency control per gpu
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
-            if (gpu_freq_request.at(domain_idx) !=
-                m_gpu_freq_min_control.at(domain_idx).last_setting ||
+            bool needs_update =
                 gpu_freq_request.at(domain_idx) !=
-                m_gpu_freq_max_control.at(domain_idx).last_setting) {
-
-                m_platform_io.adjust(m_gpu_freq_min_control.at(domain_idx).batch_idx,
-                                     gpu_freq_request.at(domain_idx));
-                m_gpu_freq_min_control.at(domain_idx).last_setting =
-                                     gpu_freq_request.at(domain_idx);
-
+                m_gpu_freq_max_control.at(domain_idx).last_setting;
+            if (m_has_freq_min_control) {
+                needs_update = needs_update ||
+                    gpu_freq_request.at(domain_idx) !=
+                    m_gpu_freq_min_control.at(domain_idx).last_setting;
+            }
+            if (needs_update) {
+                if (m_has_freq_min_control) {
+                    m_platform_io.adjust(m_gpu_freq_min_control.at(domain_idx).batch_idx,
+                                         gpu_freq_request.at(domain_idx));
+                    m_gpu_freq_min_control.at(domain_idx).last_setting =
+                                         gpu_freq_request.at(domain_idx);
+                }
                 m_platform_io.adjust(m_gpu_freq_max_control.at(domain_idx).batch_idx,
                                      gpu_freq_request.at(domain_idx));
                 m_gpu_freq_max_control.at(domain_idx).last_setting =

@@ -138,6 +138,12 @@ void GPUActivityAgentTest::SetUp()
 
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
 
+    std::set<std::string> ctrl_name_set = {
+        "GPU_CORE_FREQUENCY_MIN_CONTROL",
+        "GPU_CORE_FREQUENCY_MAX_CONTROL"
+    };
+    ON_CALL(*m_platform_io, control_names()).WillByDefault(Return(ctrl_name_set));
+
     m_agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo, m_waiter);
     m_num_policy = m_agent->policy_names().size();
 
@@ -288,6 +294,39 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_low)
     double mock_util = 1.0;
     test_adjust_platform(policy, mock_active, mock_util, M_FREQ_EFFICIENT);
 
+}
+
+TEST_F(GPUActivityAgentTest, adjust_platform_no_min_control)
+{
+    // Simulate a GPU (e.g. Battlemage) that exposes only a max frequency control.
+    std::set<std::string> ctrl_names_no_min = {"GPU_CORE_FREQUENCY_MAX_CONTROL"};
+    ON_CALL(*m_platform_io, control_names()).WillByDefault(Return(ctrl_names_no_min));
+
+    auto agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo, m_waiter);
+    agent->init(0, {}, false);
+
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(agent->validate_policy(policy));
+
+    std::vector<double> tmp;
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
+                .WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                .WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
+                .WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                .Times(1);
+    agent->sample_platform(tmp);
+
+    // Min control must not be written; only max control is set.
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, _)).Times(0);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_MAX))
+                .Times(M_NUM_GPU_CHIP);
+
+    agent->adjust_platform(policy);
+    EXPECT_TRUE(agent->do_write_batch());
 }
 
 TEST_F(GPUActivityAgentTest, invalid_fe)
