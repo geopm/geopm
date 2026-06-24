@@ -23,17 +23,17 @@ A single ``--phi`` knob (0.0 - 1.0) biases the selection toward
 performance (phi < 0.5) or energy savings (phi > 0.5).
 
 Example usage:
-    python -m geopmpy.gpu_activity -t 30 -p 0.02
-    python -m geopmpy.gpu_activity -t 30 -p 0.02 --phi 0.8
+    python -m geopmdpy.gpu_activity_agent -t 30 -p 0.02
+    python -m geopmdpy.gpu_activity_agent -t 30 -p 0.02 --phi 0.8
 """
 
 import math
 import sys
 
-from geopmdpy import pio
-from geopmdpy import topo
-from geopmdpy.session import main
-from geopmdpy.session import Agent
+from . import pio
+from . import topo
+from .session import main
+from .session import Agent
 
 _POLICY_PHI_DEFAULT = 0.5
 
@@ -60,7 +60,7 @@ class GPUActivityAgent(Agent):
               energy savings.  Default 0.5.
 
     Example:
-        python -m geopmpy.gpu_activity -t 30 -p 0.02 --phi 0.5
+        python -m geopmdpy.gpu_activity_agent -t 30 -p 0.02 --phi 0.5
     """
 
     def __init__(self):
