@@ -261,9 +261,21 @@ namespace geopm
         , m_do_restore(false)
     {
         if (m_num_send_down > 0 && !(m_do_policy || m_do_endpoint)) {
-            throw Exception("Controller(): at least one of policy or endpoint path"
-                            " must be provided.", GEOPM_ERROR_INVALID,
-                            __FILE__, __LINE__);
+            // Allow proceeding without a policy file if validate_policy() can
+            // fill every NaN entry with a default value.
+            std::vector<double> trial(m_num_send_down, NAN);
+            bool has_all_defaults = false;
+            try {
+                m_agent[0]->validate_policy(trial);
+                has_all_defaults = std::none_of(trial.begin(), trial.end(),
+                                                [](double v) { return std::isnan(v); });
+            }
+            catch (...) {}
+            if (!has_all_defaults) {
+                throw Exception("Controller(): at least one of policy or endpoint path"
+                                " must be provided.", GEOPM_ERROR_INVALID,
+                                __FILE__, __LINE__);
+            }
         }
         // Three dimensional vector over levels, children, and message
         // index.  These are used as temporary storage when passing

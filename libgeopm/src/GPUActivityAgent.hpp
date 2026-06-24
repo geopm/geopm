@@ -59,6 +59,7 @@ namespace geopm
             const int M_NUM_CHIP_PER_GPU;
             bool m_do_write_batch;
             bool m_do_send_policy;
+            bool m_has_freq_min_control;
 
             int m_agent_domain_count;
             int m_agent_domain;
