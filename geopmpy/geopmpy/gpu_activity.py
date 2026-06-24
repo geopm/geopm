@@ -16,8 +16,11 @@ or DBus profile registration).
 The agent selects a per-GPU-domain core frequency by interpolating
 between an efficient frequency and the maximum available frequency.
 The interpolation is driven by the ``GPU_CORE_ACTIVITY`` signal scaled
-by ``GPU_UTILIZATION``.  A single ``--phi`` knob (0.0 - 1.0) biases the
-selection toward performance (phi < 0.5) or energy savings (phi > 0.5).
+by ``GPU_UTILIZATION``.  When the Level Zero ``GPU_CORE_ACTIVITY`` signal
+is unavailable (e.g. on the DRM ``xe`` driver), the agent instead derives
+a GPU busy fraction from the monotonic ``DRM::IDLE_RESIDENCY`` counter.
+A single ``--phi`` knob (0.0 - 1.0) biases the selection toward
+performance (phi < 0.5) or energy savings (phi > 0.5).
 
 Example usage:
     python -m geopmpy.gpu_activity -t 30 -p 0.02
@@ -75,6 +78,16 @@ class GPUActivityAgent(Agent):
         # last value written to each control, used for change detection
         self._freq_min_last = []
         self._freq_max_last = []
+
+        # Activity source: 'levelzero' samples GPU_CORE_ACTIVITY and
+        # GPU_UTILIZATION directly; 'drm_idle' derives a GPU busy fraction
+        # from the monotonic DRM::IDLE_RESIDENCY counter (used when the
+        # Level Zero activity signal is unavailable, e.g. on the xe driver).
+        self._activity_source = None
+        self._idle_idx = []
+        self._time_idx = None
+        self._idle_last = []
+        self._time_last = math.nan
 
         self._freq_gpu_min = 0.0
         self._freq_gpu_max = 0.0
@@ -142,9 +155,15 @@ class GPUActivityAgent(Agent):
         Returns:
             str: Signal configuration string for the session.
         """
-        return ('TIME board 0\n'
-                'GPU_CORE_ACTIVITY board 0\n'
-                'GPU_UTILIZATION board 0\n')
+        names = pio.signal_names()
+        lines = ['TIME board 0']
+        if 'GPU_CORE_ACTIVITY' in names:
+            lines.append('GPU_CORE_ACTIVITY board 0')
+        if 'GPU_UTILIZATION' in names:
+            lines.append('GPU_UTILIZATION board 0')
+        if 'DRM::IDLE_RESIDENCY' in names:
+            lines.append('DRM::IDLE_RESIDENCY board 0')
+        return '\n'.join(lines) + '\n'
 
     def run_begin(self):
         """Resolve the agent domain and push signals and controls.
@@ -163,15 +182,30 @@ class GPUActivityAgent(Agent):
         if num_gpu == 0:
             raise RuntimeError('GPUActivityAgent requires at least one GPU')
 
+        # Prefer the Level Zero compute-activity signal; fall back to a
+        # busy fraction derived from the DRM idle-residency counter.
+        all_signals = pio.signal_names()
+        if 'GPU_CORE_ACTIVITY' in all_signals:
+            self._activity_source = 'levelzero'
+        elif 'DRM::IDLE_RESIDENCY' in all_signals:
+            self._activity_source = 'drm_idle'
+        else:
+            raise RuntimeError(
+                'GPUActivityAgent: no GPU activity signal available; expected '
+                'GPU_CORE_ACTIVITY (Level Zero) or DRM::IDLE_RESIDENCY')
+
         # Use the coarsest granularity supported by any of the controls
         # or signals used by the control algorithm.
         domains = [
             pio.control_domain_type('GPU_CORE_FREQUENCY_MIN_CONTROL'),
             pio.control_domain_type('GPU_CORE_FREQUENCY_MAX_CONTROL'),
             pio.signal_domain_type('GPU_CORE_FREQUENCY_STATUS'),
-            pio.signal_domain_type('GPU_CORE_ACTIVITY'),
-            pio.signal_domain_type('GPU_UTILIZATION'),
         ]
+        if self._activity_source == 'levelzero':
+            domains.append(pio.signal_domain_type('GPU_CORE_ACTIVITY'))
+            domains.append(pio.signal_domain_type('GPU_UTILIZATION'))
+        else:
+            domains.append(pio.signal_domain_type('DRM::IDLE_RESIDENCY'))
         # In GEOPM the coarsest domain has the smallest domain-type value.
         self._agent_domain = min(domains)
 
@@ -184,17 +218,28 @@ class GPUActivityAgent(Agent):
 
         self._activity_idx = []
         self._utilization_idx = []
+        self._idle_idx = []
         self._freq_min_idx = []
         self._freq_max_idx = []
         for domain_idx in range(self._agent_domain_count):
-            self._activity_idx.append(
-                pio.push_signal('GPU_CORE_ACTIVITY', self._agent_domain, domain_idx))
-            self._utilization_idx.append(
-                pio.push_signal('GPU_UTILIZATION', self._agent_domain, domain_idx))
+            if self._activity_source == 'levelzero':
+                self._activity_idx.append(
+                    pio.push_signal('GPU_CORE_ACTIVITY', self._agent_domain, domain_idx))
+                self._utilization_idx.append(
+                    pio.push_signal('GPU_UTILIZATION', self._agent_domain, domain_idx))
+            else:
+                self._idle_idx.append(
+                    pio.push_signal('DRM::IDLE_RESIDENCY', self._agent_domain, domain_idx))
             self._freq_min_idx.append(
                 pio.push_control('GPU_CORE_FREQUENCY_MIN_CONTROL', self._agent_domain, domain_idx))
             self._freq_max_idx.append(
                 pio.push_control('GPU_CORE_FREQUENCY_MAX_CONTROL', self._agent_domain, domain_idx))
+        if self._activity_source == 'drm_idle':
+            # TIME is shared across domains; used to convert the idle-residency
+            # counter into a busy fraction over each sample interval.
+            self._time_idx = pio.push_signal('TIME', topo.DOMAIN_BOARD, 0)
+            self._idle_last = [math.nan] * self._agent_domain_count
+            self._time_last = math.nan
         self._freq_min_last = [math.nan] * self._agent_domain_count
         self._freq_max_last = [math.nan] * self._agent_domain_count
 
@@ -248,10 +293,35 @@ class GPUActivityAgent(Agent):
 
         self._f_range = self._resolved_f_gpu_max - self._resolved_f_gpu_efficient
 
+        # For the DRM idle-residency path, compute the elapsed time once;
+        # the busy fraction is derived per domain from the idle counter.
+        time_delta = math.nan
+        if self._activity_source == 'drm_idle':
+            time_now = pio.sample(self._time_idx)
+            if not math.isnan(self._time_last):
+                time_delta = time_now - self._time_last
+
         do_write_batch = False
         for domain_idx in range(self._agent_domain_count):
-            activity = pio.sample(self._activity_idx[domain_idx])
-            utilization = pio.sample(self._utilization_idx[domain_idx])
+            if self._activity_source == 'levelzero':
+                activity = pio.sample(self._activity_idx[domain_idx])
+                utilization = pio.sample(self._utilization_idx[domain_idx])
+            else:
+                # Derive a busy fraction from the monotonic idle-residency
+                # counter: busy = 1 - delta_idle / delta_time, clamped to
+                # [0, 1].  GPU_UTILIZATION is unavailable, so treat the busy
+                # fraction as fully utilized (utilization = 1.0).
+                idle_now = pio.sample(self._idle_idx[domain_idx])
+                idle_prev = self._idle_last[domain_idx]
+                if (not math.isnan(time_delta) and time_delta > 0
+                        and not math.isnan(idle_prev)):
+                    busy = 1.0 - (idle_now - idle_prev) / time_delta
+                    activity = min(max(busy, 0.0), 1.0)
+                else:
+                    # First sample (no interval yet): fall back to F_max.
+                    activity = math.nan
+                self._idle_last[domain_idx] = idle_now
+                utilization = 1.0
 
             # Default to F_max.
             f_request = self._resolved_f_gpu_max
@@ -285,6 +355,9 @@ class GPUActivityAgent(Agent):
                 self._freq_max_last[domain_idx] = f_request
                 self._frequency_requests += 1
                 do_write_batch = True
+
+        if self._activity_source == 'drm_idle':
+            self._time_last = time_now
 
         if do_write_batch:
             pio.write_batch()
