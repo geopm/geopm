@@ -196,6 +196,18 @@ class TestGPUActivityAgent(unittest.TestCase):
         self.assertEqual({'GPU_CORE_FREQUENCY_MIN_CONTROL',
                           'GPU_CORE_FREQUENCY_MAX_CONTROL'}, controls)
 
+    def test_run_begin_levelzero_no_utilization(self):
+        # DCGM exposes GPU_CORE_ACTIVITY without GPU_UTILIZATION.
+        self._signal_names = {'GPU_CORE_ACTIVITY', 'GPU_CORE_FREQUENCY_STATUS',
+                              'TIME', _FE_CONSTCONFIG}
+        agent = GPUActivityAgent()
+        agent.run_begin()
+        self.assertEqual('levelzero', agent._activity_source)
+        self.assertFalse(agent._has_utilization)
+        pushed = {call.args[0] for call in self._push_signal.call_args_list}
+        self.assertIn('GPU_CORE_ACTIVITY', pushed)
+        self.assertNotIn('GPU_UTILIZATION', pushed)
+
     def test_run_begin_drm_idle(self):
         self._signal_names = {'DRM::IDLE_RESIDENCY', 'GPU_CORE_FREQUENCY_STATUS',
                               'TIME', _FE_CONSTCONFIG}
@@ -280,6 +292,19 @@ class TestGPUActivityAgent(unittest.TestCase):
         agent = self._begin_levelzero(0.5, activity=0.5, utilization=0.0)
         agent.update_loop()
         # utilization <= 0: request = eff + range * activity
+        self.assertAlmostEqual(1.25e9, self._adjusted_value(), delta=1.0)
+
+    def test_update_loop_no_utilization_uses_activity(self):
+        # DCGM path: no GPU_UTILIZATION signal, utilization defaults to 1.0.
+        self._signal_names = {'GPU_CORE_ACTIVITY', 'GPU_CORE_FREQUENCY_STATUS',
+                              'TIME', _FE_CONSTCONFIG}
+        agent = GPUActivityAgent()
+        agent.update_args(Namespace(phi=0.5))
+        agent.run_begin()
+        self.assertFalse(agent._has_utilization)
+        self._sample_values = {'GPU_CORE_ACTIVITY:0': 0.5}
+        agent.update_loop()
+        # request = eff + range * activity = 1.0e9 + 0.5e9 * 0.5
         self.assertAlmostEqual(1.25e9, self._adjusted_value(), delta=1.0)
 
     def test_update_loop_clamps_and_counts_clip(self):
