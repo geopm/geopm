@@ -38,6 +38,7 @@ class TestCPUActivityAgent(unittest.TestCase):
         self._signal_names = {
             'MSR::CPU_SCALABILITY_RATIO',
             'MSR::QM_CTR_SCALED_RATE',
+            'CPU_FREQUENCY_STATUS',
             'CPU_UNCORE_FREQUENCY_STATUS',
             'TIME',
         }
@@ -107,13 +108,15 @@ class TestCPUActivityAgent(unittest.TestCase):
         return self._domain_counts.get(domain, 1)
 
     def _make_agent(self, phi=0.5, cpu_freq_efficient=None,
-                    cpu_uncore_freq_efficient=None, cpu_uncore_bandwidth=None):
+                    cpu_uncore_freq_efficient=None, cpu_uncore_bandwidth=None,
+                    hi_res=False):
         agent = CPUActivityAgent()
         agent.update_args(Namespace(
             phi=phi,
             cpu_freq_efficient=cpu_freq_efficient,
             cpu_uncore_freq_efficient=cpu_uncore_freq_efficient,
-            cpu_uncore_bandwidth=cpu_uncore_bandwidth))
+            cpu_uncore_bandwidth=cpu_uncore_bandwidth,
+            hi_res=hi_res))
         return agent
 
     def _adjust_values(self):
@@ -144,6 +147,12 @@ class TestCPUActivityAgent(unittest.TestCase):
         self.assertIsNone(args.cpu_freq_efficient)
         self.assertIsNone(args.cpu_uncore_freq_efficient)
         self.assertIsNone(args.cpu_uncore_bandwidth)
+
+    def test_update_parser_hi_res(self):
+        agent = CPUActivityAgent()
+        parser = agent.update_parser(ArgumentParser())
+        self.assertFalse(parser.parse_args([]).hi_res)
+        self.assertTrue(parser.parse_args(['--hi-res']).hi_res)
 
     def test_update_args_valid_phi(self):
         for phi in (0.0, 0.25, 0.5, 0.75, 1.0):
@@ -198,8 +207,19 @@ class TestCPUActivityAgent(unittest.TestCase):
         self.assertIn('TIME board 0', override)
         self.assertIn('MSR::CPU_SCALABILITY_RATIO board 0', override)
         self.assertIn('MSR::QM_CTR_SCALED_RATE board 0', override)
+        self.assertIn('CPU_FREQUENCY_STATUS board 0', override)
         self.assertIn('CPU_UNCORE_FREQUENCY_STATUS board 0', override)
         self.assertTrue(override.endswith('\n'))
+
+    def test_signal_config_override_hi_res(self):
+        agent = self._make_agent(hi_res=True)
+        override = agent.signal_config_override()
+        # TIME stays board-level; other signals use the wildcard domain/index.
+        self.assertIn('TIME board 0', override)
+        self.assertIn('MSR::CPU_SCALABILITY_RATIO * *', override)
+        self.assertIn('MSR::QM_CTR_SCALED_RATE * *', override)
+        self.assertIn('CPU_FREQUENCY_STATUS * *', override)
+        self.assertIn('CPU_UNCORE_FREQUENCY_STATUS * *', override)
 
     def test_signal_config_override_subset(self):
         self._signal_names = {'MSR::CPU_SCALABILITY_RATIO', 'TIME'}

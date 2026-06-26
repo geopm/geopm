@@ -84,6 +84,7 @@ class CPUActivityAgent(Agent):
     def __init__(self):
         """Initialize the CPUActivityAgent."""
         self._phi = _POLICY_PHI_DEFAULT
+        self._hi_res = False
 
         # CLI-supplied characterization; None means "resolve from platform".
         self._cpu_freq_efficient_arg = None
@@ -175,6 +176,8 @@ class CPUActivityAgent(Agent):
                                  'bandwidth in bytes/s achievable at that '
                                  'frequency. May be given multiple times. When '
                                  'omitted the agent runs in core-only mode.')
+        parser.add_argument('--hi-res', action='store_true',
+                            help='Measure signals at finest granularity (all domains/indices)')
         return parser
 
     def update_args(self, args):
@@ -204,6 +207,7 @@ class CPUActivityAgent(Agent):
             args.cpu_uncore_bandwidth)
         self._uncore_bandwidth_freqs = sorted(self._uncore_bandwidth_map)
         self._uncore_enabled = bool(self._uncore_bandwidth_map)
+        self._hi_res = getattr(args, 'hi_res', False)
         return args
 
     @staticmethod
@@ -261,13 +265,16 @@ class CPUActivityAgent(Agent):
             str: Signal configuration string for the session.
         """
         names = pio.signal_names()
+        suffix = ' * *' if self._hi_res else ' board 0'
         lines = ['TIME board 0']
         if 'MSR::CPU_SCALABILITY_RATIO' in names:
-            lines.append('MSR::CPU_SCALABILITY_RATIO board 0')
+            lines.append('MSR::CPU_SCALABILITY_RATIO' + suffix)
         if 'MSR::QM_CTR_SCALED_RATE' in names:
-            lines.append('MSR::QM_CTR_SCALED_RATE board 0')
+            lines.append('MSR::QM_CTR_SCALED_RATE' + suffix)
+        if 'CPU_FREQUENCY_STATUS' in names:
+            lines.append('CPU_FREQUENCY_STATUS' + suffix)
         if 'CPU_UNCORE_FREQUENCY_STATUS' in names:
-            lines.append('CPU_UNCORE_FREQUENCY_STATUS board 0')
+            lines.append('CPU_UNCORE_FREQUENCY_STATUS' + suffix)
         return '\n'.join(lines) + '\n'
 
     def run_begin(self):
