@@ -37,6 +37,12 @@ from .session import Agent
 
 _POLICY_PHI_DEFAULT = 0.5
 
+# The C++ gpu_activity agent (plugin 'gpu_activity') samples GPU activity
+# every 20 ms.  The geopmdpy session defaults to a 100 ms sampling period;
+# override the default to match the C++ agent (an explicit '-p/--period'
+# on the command line still takes precedence).
+_PERIOD_DEFAULT = 0.02
+
 # Frequencies are interpolated between an efficient frequency and the
 # maximum available frequency.  Source signals for the efficient
 # frequency, in order of preference.
@@ -131,6 +137,10 @@ class GPUActivityAgent(Agent):
                                  'favor energy savings. Default %(default)s.')
         parser.add_argument('--hi-res', action='store_true',
                             help='Measure signals at finest granularity (all domains/indices)')
+        # Override the session's 100 ms default sampling period with the
+        # 20 ms period used by the C++ gpu_activity agent.  An explicit
+        # '-p/--period' on the command line still takes precedence.
+        parser.set_defaults(period=_PERIOD_DEFAULT)
         return parser
 
     def update_args(self, args):

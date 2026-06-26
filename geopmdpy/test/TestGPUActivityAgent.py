@@ -13,6 +13,7 @@ from argparse import Namespace
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy import gpu_activity_agent
     from geopmdpy.gpu_activity_agent import GPUActivityAgent
+    from geopmdpy.session import get_parser
 
 # Domain type values used by the mocked topo module.  The exact numbers
 # do not matter as long as the GPU/GPU_CHIP domains are coarser-numbered
@@ -147,6 +148,21 @@ class TestGPUActivityAgent(unittest.TestCase):
         agent = GPUActivityAgent()
         with self.assertRaisesRegex(RuntimeError, 'out of range'):
             agent.update_args(Namespace(phi=float('nan')))
+
+    def test_update_parser_overrides_default_period(self):
+        # The session default of 100 ms is replaced with the 20 ms period
+        # used by the C++ gpu_activity agent.
+        agent = GPUActivityAgent()
+        parser = agent.update_parser(get_parser())
+        self.assertAlmostEqual(0.02, parser.parse_args([]).period)
+
+    def test_update_parser_preserves_explicit_period(self):
+        # An explicit -p value is left untouched, even when it equals the
+        # session's original 100 ms default.
+        agent = GPUActivityAgent()
+        parser = agent.update_parser(get_parser())
+        self.assertAlmostEqual(0.1, parser.parse_args(['-p', '0.1']).period)
+        self.assertAlmostEqual(0.05, parser.parse_args(['--period', '0.05']).period)
 
     def test_help_nonempty(self):
         self.assertIn('gpu_activity', GPUActivityAgent().help())
