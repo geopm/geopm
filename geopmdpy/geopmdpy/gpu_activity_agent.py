@@ -140,7 +140,7 @@ class GPUActivityAgent(Agent):
         """
         if math.isnan(args.phi) or args.phi < 0.0 or args.phi > 1.0:
             raise RuntimeError(
-                f'GPU_PHI value out of range: {args.phi}. '
+                f'--phi value out of range: {args.phi}. '
                 'Acceptable values are in the range [0.0, 1.0].')
         self._phi = args.phi
         return args
@@ -246,10 +246,9 @@ class GPUActivityAgent(Agent):
         self._freq_gpu_min = pio.read_signal('GPU_CORE_FREQUENCY_MIN_AVAIL', topo.DOMAIN_BOARD, 0)
         self._freq_gpu_max = pio.read_signal('GPU_CORE_FREQUENCY_MAX_AVAIL', topo.DOMAIN_BOARD, 0)
 
-        all_names = pio.signal_names()
-        if _FE_CONSTCONFIG in all_names:
+        if _FE_CONSTCONFIG in all_signals:
             self._freq_gpu_efficient = pio.read_signal(_FE_CONSTCONFIG, topo.DOMAIN_BOARD, 0)
-        elif _FE_SIG_NAME in all_names:
+        elif _FE_SIG_NAME in all_signals:
             self._freq_gpu_efficient = pio.read_signal(_FE_SIG_NAME, topo.DOMAIN_BOARD, 0)
         else:
             self._freq_gpu_efficient = (self._freq_gpu_max + self._freq_gpu_min) / 2

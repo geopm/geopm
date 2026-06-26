@@ -8,12 +8,47 @@
 import unittest
 import sys
 import time
+from unittest import mock
 from geopmdpy import topo
 from geopmdpy import pio
 from geopmdpy import gffi
 
+
+class _NoServiceLib:
+    """Proxy around the real libgeopmd shared object.
+
+    All symbols are forwarded to the real library so that the pio
+    module itself is exercised unmodified.  The control save, restore,
+    and write entry points are the only ones stubbed out: those are the
+    calls that contact the geopm systemd service over SDBus, which
+    would otherwise fail when the service is active and already holds a
+    write-mode client (e.g. another running session).  Stubbing them
+    here mocks the systemd interaction without mocking the pio module.
+
+    """
+    _STUBBED = frozenset((
+        'geopm_pio_save_control',
+        'geopm_pio_restore_control',
+        'geopm_pio_write_control',
+    ))
+
+    def __init__(self, real_lib):
+        object.__setattr__(self, '_real_lib', real_lib)
+
+    def __getattr__(self, name):
+        if name in _NoServiceLib._STUBBED:
+            return lambda *args, **kwargs: 0
+        return getattr(self._real_lib, name)
+
+
 class TestPIO(unittest.TestCase):
     def setUp(self):
+        # Mock the systemd-backed control operations so the tests do not
+        # contend with an active geopm service for the write lock.
+        patcher = mock.patch.object(gffi, 'dl_geopmd',
+                                    _NoServiceLib(gffi.dl_geopmd))
+        patcher.start()
+        self.addCleanup(patcher.stop)
         pio.save_control()
 
     def tearDown(self):
