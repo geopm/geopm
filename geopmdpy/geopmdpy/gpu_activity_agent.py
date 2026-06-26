@@ -79,11 +79,15 @@ class GPUActivityAgent(Agent):
         self._freq_min_last = []
         self._freq_max_last = []
 
-        # Activity source: 'levelzero' samples GPU_CORE_ACTIVITY and
-        # GPU_UTILIZATION directly; 'drm_idle' derives a GPU busy fraction
-        # from the monotonic DRM::IDLE_RESIDENCY counter (used when the
-        # Level Zero activity signal is unavailable, e.g. on the xe driver).
+        # Activity source: 'levelzero' samples GPU_CORE_ACTIVITY directly
+        # (and GPU_UTILIZATION when available); 'drm_idle' derives a GPU busy
+        # fraction from the monotonic DRM::IDLE_RESIDENCY counter (used when
+        # the Level Zero activity signal is unavailable, e.g. on the xe
+        # driver).  GPU_UTILIZATION is not exposed by every activity source
+        # (e.g. the DCGM IOGroup provides GPU_CORE_ACTIVITY but not
+        # GPU_UTILIZATION), so it is treated as optional.
         self._activity_source = None
+        self._has_utilization = False
         self._idle_idx = []
         self._time_idx = None
         self._idle_last = []
@@ -194,6 +198,13 @@ class GPUActivityAgent(Agent):
                 'GPUActivityAgent: no GPU activity signal available; expected '
                 'GPU_CORE_ACTIVITY (Level Zero) or DRM::IDLE_RESIDENCY')
 
+        # GPU_UTILIZATION scales the compute activity but is not provided by
+        # every activity source (e.g. the DCGM IOGroup exposes
+        # GPU_CORE_ACTIVITY without GPU_UTILIZATION).  When it is absent the
+        # activity is used directly (utilization treated as 1.0).
+        self._has_utilization = (self._activity_source == 'levelzero' and
+                                 'GPU_UTILIZATION' in all_signals)
+
         # Use the coarsest granularity supported by any of the controls
         # or signals used by the control algorithm.
         domains = [
@@ -203,7 +214,8 @@ class GPUActivityAgent(Agent):
         ]
         if self._activity_source == 'levelzero':
             domains.append(pio.signal_domain_type('GPU_CORE_ACTIVITY'))
-            domains.append(pio.signal_domain_type('GPU_UTILIZATION'))
+            if self._has_utilization:
+                domains.append(pio.signal_domain_type('GPU_UTILIZATION'))
         else:
             domains.append(pio.signal_domain_type('DRM::IDLE_RESIDENCY'))
         # In GEOPM the coarsest domain has the smallest domain-type value.
@@ -225,8 +237,9 @@ class GPUActivityAgent(Agent):
             if self._activity_source == 'levelzero':
                 self._activity_idx.append(
                     pio.push_signal('GPU_CORE_ACTIVITY', self._agent_domain, domain_idx))
-                self._utilization_idx.append(
-                    pio.push_signal('GPU_UTILIZATION', self._agent_domain, domain_idx))
+                if self._has_utilization:
+                    self._utilization_idx.append(
+                        pio.push_signal('GPU_UTILIZATION', self._agent_domain, domain_idx))
             else:
                 self._idle_idx.append(
                     pio.push_signal('DRM::IDLE_RESIDENCY', self._agent_domain, domain_idx))
@@ -304,7 +317,12 @@ class GPUActivityAgent(Agent):
         for domain_idx in range(self._agent_domain_count):
             if self._activity_source == 'levelzero':
                 activity = pio.sample(self._activity_idx[domain_idx])
-                utilization = pio.sample(self._utilization_idx[domain_idx])
+                if self._has_utilization:
+                    utilization = pio.sample(self._utilization_idx[domain_idx])
+                else:
+                    # No GPU_UTILIZATION signal (e.g. DCGM): use the compute
+                    # activity directly by treating utilization as 1.0.
+                    utilization = 1.0
             else:
                 # Derive a busy fraction from the monotonic idle-residency
                 # counter: busy = 1 - delta_idle / delta_time, clamped to
