@@ -121,6 +121,12 @@ class TestGPUActivityAgent(unittest.TestCase):
         args = parser.parse_args([])
         self.assertAlmostEqual(0.5, args.phi)
 
+    def test_update_parser_hi_res(self):
+        agent = GPUActivityAgent()
+        parser = agent.update_parser(ArgumentParser())
+        self.assertFalse(parser.parse_args([]).hi_res)
+        self.assertTrue(parser.parse_args(['--hi-res']).hi_res)
+
     def test_update_args_valid(self):
         agent = GPUActivityAgent()
         for phi in (0.0, 0.25, 0.5, 0.75, 1.0):
@@ -159,6 +165,18 @@ class TestGPUActivityAgent(unittest.TestCase):
         override = GPUActivityAgent().signal_config_override()
         self.assertEqual('TIME board 0\n'
                          'DRM::IDLE_RESIDENCY board 0\n', override)
+
+    def test_signal_config_override_hi_res(self):
+        self._signal_names = {'GPU_CORE_FREQUENCY_STATUS', 'GPU_CORE_ACTIVITY',
+                              'GPU_UTILIZATION', 'TIME'}
+        agent = GPUActivityAgent()
+        agent.update_args(Namespace(phi=0.5, hi_res=True))
+        override = agent.signal_config_override()
+        # TIME stays at board 0; other signals use the wildcard domain/index.
+        self.assertEqual('TIME board 0\n'
+                         'GPU_CORE_FREQUENCY_STATUS * *\n'
+                         'GPU_CORE_ACTIVITY * *\n'
+                         'GPU_UTILIZATION * *\n', override)
 
     # ---- run_begin --------------------------------------------------------
 

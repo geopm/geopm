@@ -66,6 +66,7 @@ class GPUActivityAgent(Agent):
     def __init__(self):
         """Initialize the GPUActivityAgent."""
         self._phi = _POLICY_PHI_DEFAULT
+        self._hi_res = False
 
         self._agent_domain = None
         self._agent_domain_count = 0
@@ -128,6 +129,8 @@ class GPUActivityAgent(Agent):
                             help='GPU frequency bias in the range [0.0, 1.0]. '
                                  'Lower values favor performance, higher values '
                                  'favor energy savings. Default %(default)s.')
+        parser.add_argument('--hi-res', action='store_true',
+                            help='Measure signals at finest granularity (all domains/indices)')
         return parser
 
     def update_args(self, args):
@@ -147,6 +150,7 @@ class GPUActivityAgent(Agent):
                 f'--phi value out of range: {args.phi}. '
                 'Acceptable values are in the range [0.0, 1.0].')
         self._phi = args.phi
+        self._hi_res = getattr(args, 'hi_res', False)
         return args
 
     def signal_config_override(self):
@@ -160,13 +164,19 @@ class GPUActivityAgent(Agent):
             str: Signal configuration string for the session.
         """
         names = pio.signal_names()
+        if self._hi_res:
+            suffix = ' * *'
+        else:
+            suffix = ' board 0'
         lines = ['TIME board 0']
+        if 'GPU_CORE_FREQUENCY_STATUS' in names:
+            lines.append('GPU_CORE_FREQUENCY_STATUS' + suffix)
         if 'GPU_CORE_ACTIVITY' in names:
-            lines.append('GPU_CORE_ACTIVITY board 0')
+            lines.append('GPU_CORE_ACTIVITY' + suffix)
         if 'GPU_UTILIZATION' in names:
-            lines.append('GPU_UTILIZATION board 0')
+            lines.append('GPU_UTILIZATION' + suffix)
         if 'DRM::IDLE_RESIDENCY' in names:
-            lines.append('DRM::IDLE_RESIDENCY board 0')
+            lines.append('DRM::IDLE_RESIDENCY' + suffix)
         return '\n'.join(lines) + '\n'
 
     def run_begin(self):
