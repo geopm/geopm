@@ -141,6 +141,18 @@ class GPUActivityAgent(Agent):
         # 20 ms period used by the C++ gpu_activity agent.  An explicit
         # '-p/--period' on the command line still takes precedence.
         parser.set_defaults(period=_PERIOD_DEFAULT)
+        # The session's default '-' would read signal requests from standard
+        # input, but this agent supplies its own default signal set via
+        # signal_config_override(); correct the option's documentation.
+        for action in parser._actions:
+            if action.dest == 'config_path':
+                action.help = (
+                    'Input file containing GEOPM signal requests. The default '
+                    '"-" uses the gpu_activity agent\'s built-in signal set '
+                    '(TIME, GPU core frequency, activity, utilization, and/or '
+                    'DRM idle residency, depending on availability). Specify a '
+                    'file path to trace a custom set of signal requests instead.')
+                break
         return parser
 
     def update_args(self, args):
