@@ -13,6 +13,7 @@ from argparse import Namespace
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy import monitor_agent
     from geopmdpy.monitor_agent import MonitorAgent
+    from geopmdpy.session import get_parser
 
 
 class TestMonitorAgent(unittest.TestCase):
@@ -28,6 +29,16 @@ class TestMonitorAgent(unittest.TestCase):
         parser = agent.update_parser(ArgumentParser())
         self.assertTrue(parser.parse_args(['--hi-res']).hi_res)
         self.assertFalse(parser.parse_args([]).hi_res)
+
+    def test_update_parser_corrects_signal_config_help(self):
+        # The agent supplies a default signal set, so the -i/--signal-config
+        # help must not claim standard input is the default.
+        agent = MonitorAgent()
+        parser = agent.update_parser(get_parser())
+        help_text = next(action.help for action in parser._actions
+                         if action.dest == 'config_path')
+        self.assertNotIn('standard input', help_text)
+        self.assertIn("built-in signal set", help_text)
 
     def test_update_args_sets_hi_res(self):
         agent = MonitorAgent()

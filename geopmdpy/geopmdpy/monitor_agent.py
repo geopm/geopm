@@ -59,6 +59,18 @@ class MonitorAgent(Agent):
         """
         parser.add_argument('--hi-res', action='store_true',
                             help='Measure signals at finest granularity (all domains/indices)')
+        # The session's default '-' would read signal requests from standard
+        # input, but this agent supplies its own default signal set via
+        # signal_config_override(); correct the option's documentation.
+        for action in parser._actions:
+            if action.dest == 'config_path':
+                action.help = (
+                    'Input file containing GEOPM signal requests. The default '
+                    '"-" uses the monitor agent\'s built-in signal set of '
+                    'available power, energy, frequency, and temperature '
+                    'metrics. Specify a file path to trace a custom set of '
+                    'signal requests instead.')
+                break
         return parser
 
     def update_args(self, args):
