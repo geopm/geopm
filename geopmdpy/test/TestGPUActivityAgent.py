@@ -164,6 +164,16 @@ class TestGPUActivityAgent(unittest.TestCase):
         self.assertAlmostEqual(0.1, parser.parse_args(['-p', '0.1']).period)
         self.assertAlmostEqual(0.05, parser.parse_args(['--period', '0.05']).period)
 
+    def test_update_parser_corrects_signal_config_help(self):
+        # The agent supplies a default signal set, so the -i/--signal-config
+        # help must not claim standard input is the default.
+        agent = GPUActivityAgent()
+        parser = agent.update_parser(get_parser())
+        help_text = next(action.help for action in parser._actions
+                         if action.dest == 'config_path')
+        self.assertNotIn('standard input', help_text)
+        self.assertIn("built-in signal set", help_text)
+
     def test_help_nonempty(self):
         self.assertIn('gpu_activity', GPUActivityAgent().help())
 
