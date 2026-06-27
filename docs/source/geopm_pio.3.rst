@@ -369,7 +369,10 @@ Batch Functions
 
 ``geopm_pio_write_batch()``
   Write all pushed controls so that values provided to
-  ``geopm_pio_adjust()`` are written to the platform.
+  ``geopm_pio_adjust()`` are written to the platform.  Any control that
+  was pushed via ``geopm_pio_push_control()`` but never adjusted is left
+  unchanged: its current value on the platform is preserved (the write is
+  a no-op for that control).
 
 ``geopm_pio_start_batch_server()``
   Creates a batch server with the following signals and controls.

@@ -275,7 +275,13 @@ namespace geopm
         double *shmem_buffer = (double *)m_control_shmem->pointer();
         int buffer_idx = 0;
         for (const auto &handle : m_control_handle) {
-            m_pio.adjust(handle, shmem_buffer[buffer_idx]);
+            // An invalid (NAN) slot is a control that the client pushed but
+            // never adjusted.  Skip it so it is preserved at its current
+            // platform value rather than rejected; the IOGroup write_batch()
+            // treats an unadjusted control as a no-op.
+            if (PlatformIO::is_valid_value(shmem_buffer[buffer_idx])) {
+                m_pio.adjust(handle, shmem_buffer[buffer_idx]);
+            }
             ++buffer_idx;
         }
         m_pio.write_batch();

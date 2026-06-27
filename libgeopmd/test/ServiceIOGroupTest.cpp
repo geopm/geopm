@@ -268,6 +268,29 @@ TEST_F(ServiceIOGroupTest, push_control)
     m_batch_client.reset();
 }
 
+TEST_F(ServiceIOGroupTest, write_batch_unadjusted_control)
+{
+    // A control that is pushed but never adjusted is no longer an error: the
+    // batch write still proceeds (the unadjusted slot is sent as an invalid
+    // value so the server preserves the current platform value as a no-op).
+    EXPECT_CALL(*m_proxy, platform_start_batch(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<2>(1234),
+                        SetArgReferee<3>("1234")));
+    std::vector<double> captured;
+    EXPECT_CALL(*m_batch_client, write_batch(_))
+        .WillOnce([&captured](std::vector<double> settings) { captured = settings; });
+    int control_handle_0 = m_serviceio_group->push_control("control1", GEOPM_DOMAIN_BOARD, 0);
+    m_serviceio_group->push_control("control2", GEOPM_DOMAIN_PACKAGE, 0);
+    m_serviceio_group->adjust(control_handle_0, 4.5);
+    EXPECT_NO_THROW(m_serviceio_group->write_batch());
+    ASSERT_EQ(2u, captured.size());
+    EXPECT_EQ(4.5, captured[0]);
+    EXPECT_FALSE(geopm::PlatformIO::is_valid_value(captured[1]));
+    EXPECT_CALL(*m_batch_client, stop_batch())
+        .Times(1);
+    m_batch_client.reset();
+}
+
 TEST_F(ServiceIOGroupTest, read_batch)
 {
     // For now this should be a noop
