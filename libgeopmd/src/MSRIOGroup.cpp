@@ -830,7 +830,6 @@ namespace geopm
             result = m_control_pushed.size();
             m_control_pushed.push_back(control);
             control->setup_batch();
-            m_is_adjusted.push_back(false);
 
             if (control_name == "CPU_POWER_LIMIT_CONTROL" || control_name == "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT") {
                 int enable_idx = push_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx);
@@ -859,10 +858,10 @@ namespace geopm
     void MSRIOGroup::write_batch(void)
     {
         if (m_control_pushed.size() != 0) {
-            if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it) {return !it;})) {
-                throw Exception("MSRIOGroup::write_batch() called before all controls were adjusted",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
+            // A control that was pushed but never adjusted is preserved at its
+            // current platform value: the per-field write mask remains zero, so
+            // MSRIO::write_batch() leaves those bits untouched.  This silent
+            // no-op matches the behavior of the other IOGroups.
             m_msrio->write_batch();
         }
         m_is_active = true;
@@ -895,11 +894,9 @@ namespace geopm
             // If setting power limit to 0, disable the limit-enable bit, otherwise enable the bit
             double enable_val = (setting != 0.0) ? 1.0 : 0.0;
             m_control_pushed[it->second]->adjust(enable_val);
-            m_is_adjusted[it->second] = true;
         }
 
         m_control_pushed[control_idx]->adjust(setting);
-        m_is_adjusted[control_idx] = true;
     }
 
     double MSRIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)

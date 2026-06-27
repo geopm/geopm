@@ -4,6 +4,7 @@
  */
 
 #include <unistd.h>
+#include <cmath>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "BatchServer.hpp"
@@ -155,6 +156,21 @@ TEST_F(BatchServerTest, update_and_write)
     EXPECT_CALL(*m_control_shmem, pointer())
         .WillOnce(Return(buffer));
     EXPECT_CALL(*m_pio, adjust(_, 1.0));
+    EXPECT_CALL(*m_pio, write_batch());
+
+    m_batch_server->update_and_write();
+}
+
+TEST_F(BatchServerTest, update_and_write_skips_nan)
+{
+    check_push_requests();
+    // A NAN slot is a control that was pushed but never adjusted; it must be
+    // skipped (not passed to adjust()) so it is preserved at its current value,
+    // while the batch write still proceeds.
+    double buffer[1] = {NAN};
+    EXPECT_CALL(*m_control_shmem, pointer())
+        .WillOnce(Return(buffer));
+    EXPECT_CALL(*m_pio, adjust(_, _)).Times(0);
     EXPECT_CALL(*m_pio, write_batch());
 
     m_batch_server->update_and_write();

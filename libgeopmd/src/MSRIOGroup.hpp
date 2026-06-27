@@ -212,7 +212,6 @@ namespace geopm
             std::shared_ptr<Cpuid> m_cpuid;
             bool m_is_active;
             bool m_is_read;
-            std::vector<bool> m_is_adjusted;
 
             // time for derivative signals
             std::shared_ptr<geopm_time_s> m_time_zero;

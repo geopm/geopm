@@ -910,8 +910,11 @@ TEST_F(MSRIOGroupTest, adjust)
     //EXPECT_CALL(*m_msrio, read_msr(0, pl1_limit_offset));  // cpu 0 for pkg 0
     //EXPECT_CALL(*m_msrio, read_msr(2, pl1_limit_offset));  // cpu 2 for pkg 1
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
-                               "called before all controls were adjusted");
+    // Pushing controls without adjusting them is no longer an error:
+    // write_batch() silently preserves the current platform value (no-op) for
+    // any control that was pushed but never adjusted.
+    EXPECT_CALL(*m_msrio, write_batch());
+    EXPECT_NO_THROW(m_msrio_group->write_batch());
 
     uint64_t perf_ctl_mask = 0xFF00;
     uint64_t pl1_limit_mask = 0x7FFF;
