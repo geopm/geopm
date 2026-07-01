@@ -179,8 +179,10 @@ class GPUActivityAgent(Agent):
         """Provide a default trace configuration.
 
         Provided so the agent can be run with ``--signal-config -`` and
-        an empty stdin.  Users may pipe their own request list to
-        override this default.
+        an empty stdin.  ``geopmdpy.session.main()`` always uses this
+        agent-provided configuration when ``--signal-config`` is ``-``
+        (standard input is ignored), so a custom request list must be
+        supplied via a file path (``--signal-config FILE``) instead.
 
         Returns:
             str: Signal configuration string for the session.
@@ -242,8 +244,12 @@ class GPUActivityAgent(Agent):
         domains = [
             pio.control_domain_type('GPU_CORE_FREQUENCY_MIN_CONTROL'),
             pio.control_domain_type('GPU_CORE_FREQUENCY_MAX_CONTROL'),
-            pio.signal_domain_type('GPU_CORE_FREQUENCY_STATUS'),
         ]
+        # GPU_CORE_FREQUENCY_STATUS is optional and only used for the
+        # default trace configuration; include it in the domain
+        # resolution only when the platform provides it.
+        if 'GPU_CORE_FREQUENCY_STATUS' in all_signals:
+            domains.append(pio.signal_domain_type('GPU_CORE_FREQUENCY_STATUS'))
         if self._activity_source == 'levelzero':
             domains.append(pio.signal_domain_type('GPU_CORE_ACTIVITY'))
             if self._has_utilization:
