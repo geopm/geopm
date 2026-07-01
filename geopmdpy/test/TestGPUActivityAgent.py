@@ -252,6 +252,20 @@ class TestGPUActivityAgent(unittest.TestCase):
         self.assertIn('GPU_CORE_ACTIVITY', pushed)
         self.assertNotIn('GPU_UTILIZATION', pushed)
 
+    def test_run_begin_no_frequency_status(self):
+        # GPU_CORE_FREQUENCY_STATUS is optional; run_begin must not require
+        # it (it is only used for the default trace configuration).
+        self._signal_names = {'GPU_CORE_ACTIVITY', 'GPU_UTILIZATION',
+                              'TIME', _FE_CONSTCONFIG}
+        agent = GPUActivityAgent()
+        agent.run_begin()
+        self.assertEqual('levelzero', agent._activity_source)
+        self.assertEqual(_DOMAIN_GPU, agent._agent_domain)
+        status_queried = any(
+            call.args[0] == 'GPU_CORE_FREQUENCY_STATUS'
+            for call in self._signal_domain_type.call_args_list)
+        self.assertFalse(status_queried)
+
     def test_run_begin_drm_idle(self):
         self._signal_names = {'DRM::IDLE_RESIDENCY', 'GPU_CORE_FREQUENCY_STATUS',
                               'TIME', _FE_CONSTCONFIG}

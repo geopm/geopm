@@ -30,6 +30,7 @@ class _NoServiceLib:
         'geopm_pio_save_control',
         'geopm_pio_restore_control',
         'geopm_pio_write_control',
+        'geopm_pio_write_batch',
     ))
 
     def __init__(self, real_lib):
