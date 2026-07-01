@@ -201,6 +201,7 @@ rst_files = [
     "geopmexporter.1",
     "geopm_field.3",
     "geopm_fortran.3",
+    "geopm_heatmap_agent.1",
     "geopmgrid.1",
     "geopm_hash.3",
     "geopm_imbalancer.3",
