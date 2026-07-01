@@ -73,6 +73,12 @@ optimize = [
     "scikit-optimize>=0.9.0",
 ]
 
+heatmap = [
+    "matplotlib>=3.3.0",
+    "numpy>=1.19.0",
+    "pandas>=1.1.0",
+]
+
 [project.scripts]
 geopmd = "geopmdpy.__main__:main"
 geopmaccess = "geopmdpy.access:main"
