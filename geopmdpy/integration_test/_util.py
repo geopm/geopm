@@ -26,6 +26,10 @@ import unittest
 # live-hardware test even if it is somehow collected.
 ENV_FLAG = 'GEOPM_RUN_GPU_INTEGRATION'
 
+# Workload driver file names (run through run_workload.sh).
+RESNET_DRIVER = 'ipex_resnet50_infer.py'
+DECODE_DRIVER = 'torch_decode_infer.py'
+
 
 def _opted_in():
     return os.environ.get(ENV_FLAG) == '1'
@@ -58,16 +62,21 @@ def skip_unless_gpu():
 
 
 def skip_unless_levelzero():
-    """Class/method decorator: skip when the LevelZero activity signal is
-    unavailable (the agent's primary Intel-GPU path)."""
+    """Class/method decorator: skip when the GPU activity signal the agent
+    samples is unavailable (its primary Intel/LevelZero path).
+
+    The agent reads the high-level ``GPU_CORE_ACTIVITY`` signal (see
+    ``gpu_activity_agent.py``); this is the LevelZero-backed alias, not a
+    ``LEVELZERO::``-prefixed name, so probe the alias the agent actually uses.
+    """
     if not _opted_in():
         return lambda obj: obj
     try:
         from geopmdpy import pio
-        if 'LEVELZERO::GPU_CORE_ACTIVITY' not in pio.signal_names():
+        if 'GPU_CORE_ACTIVITY' not in pio.signal_names():
             return unittest.skip(
-                'LEVELZERO::GPU_CORE_ACTIVITY unavailable; not an Intel/'
-                'LevelZero GPU platform')
+                'GPU_CORE_ACTIVITY unavailable; the GPU activity agent has no '
+                'LevelZero activity signal on this platform')
     except Exception:
         return unittest.skip('unable to query signal names from GEOPM service')
     return lambda obj: obj
@@ -82,7 +91,7 @@ def skip_unless_workload():
     """
     if not _opted_in():
         return lambda obj: obj
-    script = workload_script()
+    script = workload_wrapper()
     if not os.path.exists(script):
         return unittest.skip(f'workload wrapper not found: {script}')
     if os.environ.get('GEOPM_GPU_WORKLOAD_NATIVE') == '1':
@@ -103,8 +112,14 @@ def apps_dir():
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'apps')
 
 
-def workload_script():
-    return os.path.join(apps_dir(), 'run_resnet50.sh')
+def workload_wrapper():
+    return os.path.join(apps_dir(), 'run_workload.sh')
+
+
+def workload_command(driver, extra_args):
+    """Build the command that runs ``driver`` (a file name under ``apps/``)
+    through the container/native wrapper, forwarding ``extra_args``."""
+    return [workload_wrapper(), driver] + [str(a) for a in extra_args]
 
 
 def build_monitor_config(path):
@@ -197,11 +212,12 @@ def max_freq_std_hz(rows):
 
 
 def parse_fom(text):
-    """Extract ``FOM (images/sec): <float>`` printed by the workload."""
-    match = re.search(r'FOM \(images/sec\):\s*([0-9.]+)', text)
+    """Extract the ``FOM (<unit>): <float>`` figure of merit from workload
+    output (e.g. ``FOM (images/sec):`` or ``FOM (tokens/sec):``)."""
+    match = re.search(r'FOM \([^)]*\):\s*([0-9.]+)', text)
     if match is None:
         raise RuntimeError(
-            'Could not parse "FOM (images/sec): <n>" from workload output:\n'
+            'Could not parse "FOM (<unit>): <n>" from workload output:\n'
             + text)
     return float(match.group(1))
 

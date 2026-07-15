@@ -7,9 +7,12 @@
 """Explicit runner for the geopmdpy session-agent integration tests.
 
 Discovers ``Test*`` modules in this directory only, so the hermetic unit
-suite under ``geopmdpy/test`` is never pulled in.  Run with::
+suite under ``geopmdpy/test`` is never pulled in.  ``integration_test`` is a
+top-level package that sits *beside* the installed ``geopmdpy`` module (not
+inside it), so run it from the ``geopm/geopmdpy`` source directory::
 
-    GEOPM_RUN_GPU_INTEGRATION=1 python -m geopmdpy.integration_test
+    cd geopm/geopmdpy
+    GEOPM_RUN_GPU_INTEGRATION=1 python -m integration_test
 """
 import os
 import sys
