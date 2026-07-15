@@ -4,19 +4,36 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-"""Steady-state ResNet-50 FP16 inference benchmark.
+"""ResNet-50 FP16 inference benchmark with two load profiles.
 
-Runs a batched inference loop on an Intel GPU (XPU, via Intel Extension
-for PyTorch) or an NVIDIA GPU (CUDA), producing a sustained, compute-bound
-GPU load near TDP.  Prints a single machine-parseable figure-of-merit line
-to stdout so the GEOPM integration test can capture throughput regardless
-of whether a control agent is active:
+Runs batched inference on an Intel GPU (XPU, via Intel Extension for
+PyTorch) or an NVIDIA GPU (CUDA) and prints a single machine-parseable
+figure-of-merit line to stdout so the GEOPM integration test can capture
+throughput regardless of whether a control agent is active:
 
     FOM (images/sec): <float>
 
+Two modes are provided:
+
+``steady`` (default)
+    A back-to-back inference loop that saturates the GPU compute engine
+    near TDP.  Compute activity stays pinned near 1.0, so the GPU activity
+    agent keeps the frequency at F_max and does little dynamic work.  This
+    is the *control* case: it exercises the no-harm guarantee, not energy
+    savings.
+
+``serving``
+    An over-provisioned online-serving profile (MLPerf-Server style): each
+    request runs one inference, then the driver idles so that the GPU is
+    active only a target ``--duty-cycle`` fraction of the time.  The idle
+    gaps make GPU compute activity oscillate between ~1 and ~0, which is
+    the scenario the activity agent is designed to exploit -- it drops the
+    frequency during the gaps and saves energy without lengthening the
+    served requests.  The duty cycle is enforced relative to the measured
+    per-request latency, so the idle fraction is independent of GPU speed.
+
 The model load, ``ipex.optimize``, and warmup iterations are excluded from
-the timed region, so the reported throughput reflects steady-state
-inference only.
+the timed region.
 """
 
 import argparse
@@ -59,16 +76,26 @@ def _synchronize(device):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--mode', default='steady',
+                        choices=('steady', 'serving'),
+                        help='Load profile. Default: %(default)s.')
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--duration', type=float, default=60.0,
                         help='Timed run length in seconds.')
     parser.add_argument('--warmup', type=int, default=20,
                         help='Warmup iterations excluded from timing.')
+    parser.add_argument('--duty-cycle', type=float, default=0.5,
+                        help='serving mode: target GPU-active fraction in '
+                             '(0, 1]. Default: %(default)s.')
     parser.add_argument('--device', default='auto',
                         choices=('auto', 'xpu', 'cuda', 'cpu'),
                         help='Compute device. Default: %(default)s.')
     args = parser.parse_args(argv)
+    if not 0.0 < args.duty_cycle <= 1.0:
+        parser.error('--duty-cycle must be in (0, 1]')
 
     import torch
     import torchvision.models as models
@@ -92,10 +119,24 @@ def main(argv=None):
         _synchronize(device)
 
         start = time.time()
-        while time.time() - start < args.duration:
-            model(data)
-            count += 1
-        _synchronize(device)
+        if args.mode == 'serving':
+            # Enforce the target duty cycle relative to each request's
+            # measured latency, so the GPU idles (1 - duty)/duty as long as
+            # it computes, regardless of how fast the GPU is.
+            idle_ratio = (1.0 - args.duty_cycle) / args.duty_cycle
+            while time.time() - start < args.duration:
+                req_start = time.time()
+                model(data)
+                _synchronize(device)
+                latency = time.time() - req_start
+                count += 1
+                if idle_ratio > 0.0:
+                    time.sleep(latency * idle_ratio)
+        else:
+            while time.time() - start < args.duration:
+                model(data)
+                count += 1
+            _synchronize(device)
         elapsed = time.time() - start
 
     fom = (count * args.batch_size) / elapsed

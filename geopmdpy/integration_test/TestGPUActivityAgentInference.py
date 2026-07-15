@@ -4,20 +4,40 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-"""GPU activity agent effectiveness integration test (AI inference workload).
+"""GPU activity agent effectiveness integration test (AI inference workloads).
 
-Drives a real, GPU-bound ResNet-50 inference workload while running the
-Python ``geopmdpy.gpu_activity_agent`` at several ``--phi`` policy values,
-and asserts that the agent is effective:
+Drives real GPU inference workloads while running the Python
+``geopmdpy.gpu_activity_agent`` at several ``--phi`` policy values, and
+asserts that the agent is effective.  The GPU activity agent sets frequency
+proportional to compute activity::
 
-  * ``phi = 0`` (performance biased, frequency pinned at F_max) does no harm
-    to performance relative to a read-only ``geopmsession`` monitor.
-  * ``phi = 0.5`` (full dynamic range) saves GPU energy relative to the
-    monitor baseline.
-  * ``phi = 0.5`` dynamically changes the GPU frequency (multiple control
-    writes and observable variation in ``GPU_CORE_FREQUENCY_STATUS``).
-  * ``phi = 1`` (energy biased, frequency pinned at F_efficient) saves energy
-    at the expected cost of performance.
+    f_request = f_efficient + (f_max - f_efficient) * (activity / utilization)
+
+so it can only save energy or move the frequency dynamically when the
+workload's compute activity actually drops below saturation (i.e. when the
+GPU *stalls*).  Three workload profiles are therefore exercised:
+
+``SteadyState`` (control)
+    A back-to-back, compute-saturated ResNet-50 loop.  Activity stays pinned
+    near 1.0, so the agent keeps the frequency at F_max.  This case validates
+    only that the agent does **no harm** to a saturated workload (at phi=0
+    and phi=0.5) and that the phi=1 static clamp still saves energy.  It does
+    NOT assert dynamic control or phi=0.5 energy savings, because a saturated
+    workload gives the agent nothing to exploit.
+
+``Serving`` (regime 1: idle gaps)
+    An over-provisioned online-serving ResNet-50 profile that idles between
+    requests to a target duty cycle.  Compute activity oscillates, so the
+    agent drops the frequency during the gaps: dynamic control and energy
+    savings at phi=0.5 are asserted.
+
+``Decode`` (regime 2: frequency-insensitive but busy)
+    A batch-1, memory-bandwidth-bound autoregressive decode loop (the LLM
+    decode archetype).  The GPU looks busy but the compute engine is only
+    partially active, so the agent lowers the frequency with negligible
+    performance loss -- the scenario where it is most differentiated from
+    the GPU's own hardware DVFS.  Dynamic control and energy savings at
+    phi=0.5 are asserted.
 
 This is NOT a unit test: it requires a live GEOPM service, a GPU, and the
 inference workload.  It is opt-in via ``GEOPM_RUN_GPU_INTEGRATION=1`` and is
@@ -25,7 +45,8 @@ skipped otherwise.  See ``README.md`` in this directory.
 
 Environment overrides (all optional):
   GEOPM_GPU_WORKLOAD_SEC     Workload timed duration, seconds (default 30).
-  GEOPM_GPU_BATCH_SIZE       Inference batch size (default 64).
+  GEOPM_GPU_BATCH_SIZE       ResNet inference batch size (default 64).
+  GEOPM_GPU_DUTY_CYCLE       Serving-mode GPU-active fraction (default 0.5).
   GEOPM_GPU_PERIOD           Agent/monitor sample period, seconds (default 0.02).
   GEOPM_GPU_FOM_TOL          Allowed fractional FoM drop at phi=0 (default 0.05).
   GEOPM_GPU_ENERGY_MARGIN    energy(phi) must be < margin*baseline (default 1.0).
@@ -36,9 +57,10 @@ import os
 import signal
 import subprocess
 import tempfile
+import time
 import unittest
 
-from geopmdpy.integration_test import _util
+from . import _util
 
 # Agent run window is the workload duration plus this margin so the agent is
 # controlling frequency for the entire measured window; it is terminated early
@@ -52,14 +74,26 @@ _AGENT_STOP_TIMEOUT_SEC = 30.0
 _PHI_PERF = 0.0
 _PHI_DYNAMIC = 0.5
 _PHI_ENERGY = 1.0
-_PHI_VALUES = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
 
 
-@_util.skip_unless_opted_in()
-@_util.skip_unless_gpu()
-@_util.skip_unless_levelzero()
-@_util.skip_unless_workload()
-class TestGPUActivityAgentInference(unittest.TestCase):
+class _ScenarioHarness(unittest.TestCase):
+    """Shared orchestration for a single workload profile.
+
+    Subclasses set ``DRIVER``, ``PHIS`` and implement ``workload_args`` and are
+    decorated with the opt-in / hardware / workload skip guards.  This base
+    defines no ``test_*`` methods, so unittest collects nothing from it.
+    """
+
+    #: Workload driver file name under ``apps/`` (set by subclasses).
+    DRIVER = None
+    #: phi values to measure in addition to the monitor-only baseline.
+    PHIS = ()
+
+    @classmethod
+    def workload_args(cls):
+        """Return the driver arguments for this scenario (override)."""
+        raise NotImplementedError
+
     @classmethod
     def setUpClass(cls):
         from geopmdpy import pio
@@ -67,6 +101,7 @@ class TestGPUActivityAgentInference(unittest.TestCase):
 
         cls._workload_sec = float(os.environ.get('GEOPM_GPU_WORKLOAD_SEC', 30))
         cls._batch_size = int(os.environ.get('GEOPM_GPU_BATCH_SIZE', 64))
+        cls._duty_cycle = float(os.environ.get('GEOPM_GPU_DUTY_CYCLE', 0.5))
         cls._period = float(os.environ.get('GEOPM_GPU_PERIOD', 0.02))
         cls._fom_tol = float(os.environ.get('GEOPM_GPU_FOM_TOL', 0.05))
         cls._energy_margin = float(os.environ.get('GEOPM_GPU_ENERGY_MARGIN', 1.0))
@@ -79,20 +114,17 @@ class TestGPUActivityAgentInference(unittest.TestCase):
         cls._f_max = pio.read_signal(
             'GPU_CORE_FREQUENCY_MAX_AVAIL', topo.DOMAIN_BOARD, 0)
 
-        cls._tmpdir = tempfile.mkdtemp(prefix='geopm-gpu-activity-inference-')
+        cls._tmpdir = tempfile.mkdtemp(
+            prefix=f'geopm-gpu-activity-{cls.__name__}-')
         cls._config_path = os.path.join(cls._tmpdir, 'gpu_monitor.config')
         _util.build_monitor_config(cls._config_path)
 
-        cls._workload_cmd = [
-            _util.workload_script(),
-            '--duration', str(cls._workload_sec),
-            '--batch-size', str(cls._batch_size),
-        ]
+        cls._workload_cmd = _util.workload_command(
+            cls.DRIVER, cls.workload_args())
 
         # Baseline (monitor only) first, then each controlled phi.
-        cls._results = {}
-        cls._results[None] = cls._run_config(None)
-        for phi in _PHI_VALUES:
+        cls._results = {None: cls._run_config(None)}
+        for phi in cls.PHIS:
             cls._results[phi] = cls._run_config(phi)
 
     @classmethod
@@ -123,7 +155,7 @@ class TestGPUActivityAgentInference(unittest.TestCase):
                 start_new_session=True)
             agent_err.close()
             # Let the agent establish control before the workload begins.
-            _sleep(_AGENT_WARMUP_SEC)
+            time.sleep(_AGENT_WARMUP_SEC)
 
         try:
             monitor_cmd = _util.geopmsession_command(
@@ -148,65 +180,147 @@ class TestGPUActivityAgentInference(unittest.TestCase):
 
         if monitor.returncode != 0:
             raise RuntimeError(
-                f'geopmsession monitor failed ({tag}) with code '
+                f'geopmsession monitor failed ({cls.__name__}/{tag}) with code '
                 f'{monitor.returncode}:\n{monitor.stderr}')
 
-        fom = _util.parse_fom(monitor.stdout)
         rows = _util.read_trace(monitor_trace)
         return {
-            'fom': fom,
+            'fom': _util.parse_fom(monitor.stdout),
             'energy': _util.energy_joules(rows),
             'freq_std_hz': _util.max_freq_std_hz(rows),
             'freq_requests': freq_requests,
         }
 
-    def test_phi0_no_performance_harm(self):
-        """phi=0 (frequency pinned at F_max) must not reduce throughput."""
-        base = self._results[None]['fom']
-        perf = self._results[_PHI_PERF]['fom']
-        self.assertGreaterEqual(
-            perf, base * (1.0 - self._fom_tol),
-            msg=(f'phi=0 FoM {perf:.1f} img/s dropped more than '
-                 f'{self._fom_tol:.0%} below baseline {base:.1f} img/s'))
+    # -- shared assertions -------------------------------------------------
 
-    def test_phi05_energy_benefit_vs_monitor(self):
-        """phi=0.5 must consume less GPU energy than the monitor baseline."""
+    def _assert_no_harm(self, phi):
+        base = self._results[None]['fom']
+        got = self._results[phi]['fom']
+        self.assertGreaterEqual(
+            got, base * (1.0 - self._fom_tol),
+            msg=(f'phi={phi} FoM {got:.3f} dropped more than '
+                 f'{self._fom_tol:.0%} below baseline {base:.3f}'))
+
+    def _assert_energy_benefit(self, phi):
         base = self._results[None]['energy']
-        dyn = self._results[_PHI_DYNAMIC]['energy']
+        got = self._results[phi]['energy']
         self.assertLess(
-            dyn, base * self._energy_margin,
-            msg=(f'phi=0.5 energy {dyn:.1f} J not below baseline '
+            got, base * self._energy_margin,
+            msg=(f'phi={phi} energy {got:.1f} J not below baseline '
                  f'{base:.1f} J (margin {self._energy_margin})'))
 
-    def test_phi05_dynamic_frequency(self):
-        """phi=0.5 must dynamically re-tune the GPU frequency."""
-        result = self._results[_PHI_DYNAMIC]
+    def _assert_dynamic_frequency(self, phi):
+        result = self._results[phi]
         self.assertGreater(
             result['freq_requests'], 1,
-            msg=('phi=0.5 issued <= 1 frequency control write '
+            msg=(f'phi={phi} issued <= 1 frequency control write '
                  f'({result["freq_requests"]}); no dynamic control observed'))
         self.assertGreater(
             result['freq_std_hz'], self._freq_std_min_hz,
-            msg=(f'phi=0.5 GPU_CORE_FREQUENCY_STATUS std-dev '
+            msg=(f'phi={phi} GPU_CORE_FREQUENCY_STATUS std-dev '
                  f'{result["freq_std_hz"]:.3e} Hz below threshold '
                  f'{self._freq_std_min_hz:.3e} Hz; frequency did not move'))
 
-    def test_phi1_energy_saving_extreme(self):
-        """phi=1 (frequency pinned at F_efficient) must save energy.
 
-        Performance harm is expected at this extreme and is not asserted.
+@_util.skip_unless_opted_in()
+@_util.skip_unless_gpu()
+@_util.skip_unless_levelzero()
+@_util.skip_unless_workload()
+class TestGPUActivityAgentSteadyState(_ScenarioHarness):
+    """Control case: a compute-saturated workload the agent cannot exploit."""
+
+    DRIVER = _util.RESNET_DRIVER
+    PHIS = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
+
+    @classmethod
+    def workload_args(cls):
+        return ['--mode', 'steady',
+                '--duration', cls._workload_sec,
+                '--batch-size', cls._batch_size]
+
+    def test_phi0_no_performance_harm(self):
+        """phi=0 (pinned F_max) must not reduce saturated throughput."""
+        self._assert_no_harm(_PHI_PERF)
+
+    def test_phi05_no_harm_when_saturated(self):
+        """phi=0.5 must not reduce throughput of a saturated workload.
+
+        With activity pinned near 1.0 the agent should hold the frequency at
+        F_max; this documents that phi=0.5 is safe even when it cannot help.
         """
-        base = self._results[None]['energy']
-        energy = self._results[_PHI_ENERGY]['energy']
-        self.assertLess(
-            energy, base * self._energy_margin,
-            msg=(f'phi=1 energy {energy:.1f} J not below baseline '
-                 f'{base:.1f} J (margin {self._energy_margin})'))
+        self._assert_no_harm(_PHI_DYNAMIC)
+
+    def test_phi1_energy_saving_extreme(self):
+        """phi=1 (pinned F_efficient) must save energy (performance cost not
+        asserted)."""
+        self._assert_energy_benefit(_PHI_ENERGY)
 
 
-def _sleep(seconds):
-    import time
-    time.sleep(seconds)
+@_util.skip_unless_opted_in()
+@_util.skip_unless_gpu()
+@_util.skip_unless_levelzero()
+@_util.skip_unless_workload()
+class TestGPUActivityAgentServing(_ScenarioHarness):
+    """Regime 1: an over-provisioned server that idles between requests."""
+
+    DRIVER = _util.RESNET_DRIVER
+    PHIS = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
+
+    @classmethod
+    def workload_args(cls):
+        return ['--mode', 'serving',
+                '--duration', cls._workload_sec,
+                '--batch-size', cls._batch_size,
+                '--duty-cycle', cls._duty_cycle]
+
+    def test_phi0_no_performance_harm(self):
+        """phi=0 (pinned F_max) must not reduce served throughput."""
+        self._assert_no_harm(_PHI_PERF)
+
+    def test_phi05_dynamic_frequency(self):
+        """phi=0.5 must dynamically re-tune frequency across the idle gaps."""
+        self._assert_dynamic_frequency(_PHI_DYNAMIC)
+
+    def test_phi05_energy_benefit_vs_monitor(self):
+        """phi=0.5 must save GPU energy versus the monitor baseline."""
+        self._assert_energy_benefit(_PHI_DYNAMIC)
+
+    def test_phi1_energy_saving_extreme(self):
+        """phi=1 must save energy (performance cost not asserted)."""
+        self._assert_energy_benefit(_PHI_ENERGY)
+
+
+@_util.skip_unless_opted_in()
+@_util.skip_unless_gpu()
+@_util.skip_unless_levelzero()
+@_util.skip_unless_workload()
+class TestGPUActivityAgentDecode(_ScenarioHarness):
+    """Regime 2: a memory-bound, batch-1 decode loop (frequency-insensitive)."""
+
+    DRIVER = _util.DECODE_DRIVER
+    PHIS = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
+
+    @classmethod
+    def workload_args(cls):
+        return ['--duration', cls._workload_sec]
+
+    def test_phi0_no_performance_harm(self):
+        """phi=0 (pinned F_max) must not reduce decode throughput."""
+        self._assert_no_harm(_PHI_PERF)
+
+    def test_phi05_dynamic_frequency(self):
+        """phi=0.5 must dynamically re-tune frequency for the busy-but-idle
+        compute engine."""
+        self._assert_dynamic_frequency(_PHI_DYNAMIC)
+
+    def test_phi05_energy_benefit_vs_monitor(self):
+        """phi=0.5 must save GPU energy versus the monitor baseline -- the
+        agent's strongest, most differentiated case."""
+        self._assert_energy_benefit(_PHI_DYNAMIC)
+
+    def test_phi1_energy_saving_extreme(self):
+        """phi=1 must save energy (performance cost not asserted)."""
+        self._assert_energy_benefit(_PHI_ENERGY)
 
 
 if __name__ == '__main__':
