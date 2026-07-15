@@ -109,7 +109,7 @@ namespace geopm
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_CORE_FREQUENCY_STATUS"));
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_CORE_ACTIVITY"));
         const auto ALL_NAMES = m_platform_io.signal_names();
-        if (ALL_NAMES.count("LEVELZERO::METRIC::XVE_STALL") != 0) {
+        if (ALL_NAMES.count("LEVELZERO::METRIC:XVE_STALL") != 0) {
             signal_domains.push_back(m_platform_io.signal_domain_type("LEVELZERO::METRIC:XVE_STALL"));
         }
         signal_domains.push_back(m_platform_io.signal_domain_type("GPU_UTILIZATION"));
