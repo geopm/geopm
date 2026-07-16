@@ -22,36 +22,15 @@ import sys
 
 import unittest
 
-# Opt-in switch so plain discovery / ``make check`` never runs the heavy,
-# live-hardware test even if it is somehow collected.
-ENV_FLAG = 'GEOPM_RUN_GPU_INTEGRATION'
-
 # Workload driver names (run through run_workload.sh).
 LOCAL_DRIVER = 'gpu_activity_benchmark'
 RESNET_DRIVER = 'ipex_resnet50_infer.py'
 DECODE_DRIVER = 'torch_decode_infer.py'
 
 
-def _opted_in():
-    return os.environ.get(ENV_FLAG) == '1'
-
-
-def skip_unless_opted_in():
-    """Class/method decorator: skip unless ``GEOPM_RUN_GPU_INTEGRATION=1``."""
-    if not _opted_in():
-        return unittest.skip(
-            f'set {ENV_FLAG}=1 to run the GPU effectiveness integration test')
-    return lambda obj: obj
-
-
 def skip_unless_gpu():
     """Class/method decorator: skip when no GPU/GEOPM service is available.
-
-    Only probes hardware when opted in, so an opted-out run never loads the
-    GEOPM library or contacts the service.
     """
-    if not _opted_in():
-        return lambda obj: obj
     try:
         from geopmdpy import pio
         from geopmdpy import topo
@@ -70,8 +49,6 @@ def skip_unless_levelzero():
     ``gpu_activity_agent.py``); this is the LevelZero-backed alias, not a
     ``LEVELZERO::``-prefixed name, so probe the alias the agent actually uses.
     """
-    if not _opted_in():
-        return lambda obj: obj
     try:
         from geopmdpy import pio
         if 'GPU_CORE_ACTIVITY' not in pio.signal_names():
@@ -91,8 +68,6 @@ def skip_unless_workload():
     ``GEOPM_GPU_BENCH_CXX``).  The optional Python/container drivers still use
     the old ``GEOPM_GPU_WORKLOAD_NATIVE`` / container-engine checks.
     """
-    if not _opted_in():
-        return lambda obj: obj
     script = workload_wrapper()
     if not os.path.exists(script):
         return unittest.skip(f'workload wrapper not found: {script}')

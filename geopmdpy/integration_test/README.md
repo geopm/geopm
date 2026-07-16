@@ -94,15 +94,13 @@ exists):
 
 ```bash
 cd geopm/geopmdpy
-GEOPM_RUN_GPU_INTEGRATION=1 python -m integration_test
+python -m integration_test
 # or a single scenario:
-GEOPM_RUN_GPU_INTEGRATION=1 \
-    python -m unittest \
+python -m unittest \
     integration_test.TestGPUActivityAgentInference.TestGPUActivityAgentServing -v
 ```
 
-Without `GEOPM_RUN_GPU_INTEGRATION=1`, or without a GPU/service/workload, the
-test skips cleanly.
+Without a GPU/service/workload, the test skips cleanly.
 
 ## Configuration (environment variables)
 
