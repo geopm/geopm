@@ -3,19 +3,19 @@
 #  Copyright (c) 2015 - 2026 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-# Run one of the GPU inference workload drivers in this directory, either
-# inside the prebuilt Intel Extension for PyTorch container (default) or
-# natively on the host.  The first argument is the driver's file name (e.g.
-# ipex_resnet50_infer.py); all remaining arguments are forwarded to it.  Each
+# Run one of the GPU inference workload drivers in this directory.  The default
+# driver is a local SYCL/oneAPI benchmark that is built on demand and requires
+# no container or network access.  Python drivers are still supported for
+# optional container/native experiments.  The first argument is the driver's
+# file name or binary name; all remaining arguments are forwarded to it.  Each
 # driver prints a single "FOM (<unit>): <n>" line to stdout, which the GEOPM
 # integration test captures.
 #
-# GEOPM controls GPU frequency on the host at the hardware level, so a
-# containerized workload is transparently affected by the agent; no GEOPM
-# components are needed inside the container.
-#
 # Environment variables:
-#   GEOPM_GPU_WORKLOAD_NATIVE   1 => run natively instead of in a container.
+#   GEOPM_GPU_WORKLOAD_NATIVE   1 => run Python drivers natively instead of in a
+#                               container.
+#   GEOPM_GPU_BENCH_CXX         SYCL compiler for the local benchmark.
+#   GEOPM_GPU_BENCH_BUILD_DIR   Local benchmark build directory.
 #   GEOPM_GPU_CONTAINER_ENGINE  Container engine to use. Default: docker.
 #   GEOPM_GPU_WORKLOAD_IMAGE    Container image. Default: pinned IPEX xpu tag.
 #   GEOPM_GPU_SELINUX_DISABLE   Non-empty => add --security-opt label=disable
@@ -33,6 +33,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # container path.
 DRIVER="$(basename "$1")"
 shift
+
+if [[ "${DRIVER}" == "gpu_activity_benchmark" ]]; then
+    if [[ -z "${ONEAPI_DEVICE_SELECTOR:-}" ]]; then
+        export ONEAPI_DEVICE_SELECTOR="level_zero:gpu"
+    fi
+    if [[ -z "${SYCL_DEVICE_FILTER:-}" ]]; then
+        export SYCL_DEVICE_FILTER="level_zero:gpu"
+    fi
+    BENCHMARK="$(${SCRIPT_DIR}/build_gpu_activity_benchmark.sh)"
+    exec "${BENCHMARK}" "$@"
+fi
 
 IMAGE="${GEOPM_GPU_WORKLOAD_IMAGE:-intel/intel-extension-for-pytorch:2.8.10-xpu}"
 ENGINE="${GEOPM_GPU_CONTAINER_ENGINE:-docker}"
