@@ -40,8 +40,8 @@ GPU *stalls*).  Three workload profiles are therefore exercised:
     phi=0.5 are asserted.
 
 This is NOT a unit test: it requires a live GEOPM service, a GPU, and the
-inference workload.  It is opt-in via ``GEOPM_RUN_GPU_INTEGRATION=1`` and is
-skipped otherwise.  See ``README.md`` in this directory.
+inference workload.  It lives in the independent ``integration_test`` directory
+and is run explicitly.  See ``README.md`` in this directory.
 
 Environment overrides (all optional):
   GEOPM_GPU_WORKLOAD_SEC     Workload timed duration, seconds (default 30).
@@ -231,7 +231,6 @@ class _ScenarioHarness(unittest.TestCase):
                  f'{self._freq_std_min_hz:.3e} Hz; frequency did not move'))
 
 
-@_util.skip_unless_opted_in()
 @_util.skip_unless_gpu()
 @_util.skip_unless_levelzero()
 @_util.skip_unless_workload()
@@ -265,7 +264,6 @@ class TestGPUActivityAgentSteadyState(_ScenarioHarness):
         self._assert_energy_benefit(_PHI_ENERGY)
 
 
-@_util.skip_unless_opted_in()
 @_util.skip_unless_gpu()
 @_util.skip_unless_levelzero()
 @_util.skip_unless_workload()
@@ -299,7 +297,6 @@ class TestGPUActivityAgentServing(_ScenarioHarness):
         self._assert_energy_benefit(_PHI_ENERGY)
 
 
-@_util.skip_unless_opted_in()
 @_util.skip_unless_gpu()
 @_util.skip_unless_levelzero()
 @_util.skip_unless_workload()

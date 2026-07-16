@@ -12,7 +12,7 @@ top-level package that sits *beside* the installed ``geopmdpy`` module (not
 inside it), so run it from the ``geopm/geopmdpy`` source directory::
 
     cd geopm/geopmdpy
-    GEOPM_RUN_GPU_INTEGRATION=1 python -m integration_test
+    python -m integration_test
 """
 import os
 import sys
