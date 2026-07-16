@@ -26,7 +26,8 @@ import unittest
 # live-hardware test even if it is somehow collected.
 ENV_FLAG = 'GEOPM_RUN_GPU_INTEGRATION'
 
-# Workload driver file names (run through run_workload.sh).
+# Workload driver names (run through run_workload.sh).
+LOCAL_DRIVER = 'gpu_activity_benchmark'
 RESNET_DRIVER = 'ipex_resnet50_infer.py'
 DECODE_DRIVER = 'torch_decode_infer.py'
 
@@ -85,15 +86,32 @@ def skip_unless_levelzero():
 def skip_unless_workload():
     """Class/method decorator: skip when the inference workload cannot run.
 
-    In container mode (default) this requires the configured container
-    engine on ``PATH``; in native mode (``GEOPM_GPU_WORKLOAD_NATIVE=1``) it
-    requires ``torch`` and ``intel_extension_for_pytorch`` to be importable.
+    The default workload is a locally built SYCL/oneAPI benchmark.  It requires
+    either an existing benchmark binary or a SYCL compiler on ``PATH`` (or in
+    ``GEOPM_GPU_BENCH_CXX``).  The optional Python/container drivers still use
+    the old ``GEOPM_GPU_WORKLOAD_NATIVE`` / container-engine checks.
     """
     if not _opted_in():
         return lambda obj: obj
     script = workload_wrapper()
     if not os.path.exists(script):
         return unittest.skip(f'workload wrapper not found: {script}')
+    build_script = os.path.join(apps_dir(), 'build_gpu_activity_benchmark.sh')
+    build_dir = os.environ.get(
+        'GEOPM_GPU_BENCH_BUILD_DIR', os.path.join(apps_dir(), 'build'))
+    benchmark = os.path.join(build_dir, LOCAL_DRIVER)
+    compiler = os.environ.get('GEOPM_GPU_BENCH_CXX')
+    compiler_ok = bool(compiler and shutil.which(compiler)) or any(
+        shutil.which(candidate) for candidate in ('icpx', 'dpcpp'))
+    if os.environ.get('GEOPM_GPU_WORKLOAD_BACKEND', 'local') == 'local':
+        if not os.path.exists(build_script):
+            return unittest.skip(
+                f'local benchmark build script not found: {build_script}')
+        if not os.path.exists(benchmark) and not compiler_ok:
+            return unittest.skip(
+                'local SYCL benchmark requires an existing binary or a SYCL '
+                'compiler (icpx, dpcpp, or GEOPM_GPU_BENCH_CXX)')
+        return lambda obj: obj
     if os.environ.get('GEOPM_GPU_WORKLOAD_NATIVE') == '1':
         import importlib.util
         for mod in ('torch', 'intel_extension_for_pytorch'):

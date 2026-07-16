@@ -7,8 +7,9 @@ requires:
 
 - a running **GEOPM service** with GPU signals/controls available,
 - a **GPU** (primary path: Intel Data Center GPU via LevelZero), and
-- an **AI inference workload** — by default run from a prebuilt Intel
-  container, so the host only needs a container engine and the GPU driver.
+- a local **SYCL/oneAPI compiler toolchain** (for example `icpx`) or a
+  previously built local benchmark binary.  No network access or container
+  image is required for the default path.
 
 It is **opt-in** and is *not* collected by `make check`.
 
@@ -28,9 +29,9 @@ Three profiles are therefore exercised:
 
 | Class | Profile | What the agent can do |
 |---|---|---|
-| `TestGPUActivityAgentSteadyState` | back-to-back ResNet-50 (saturated) | nothing — **control** for no-harm only |
-| `TestGPUActivityAgentServing` | over-provisioned serving with idle gaps (regime 1) | drop frequency during gaps |
-| `TestGPUActivityAgentDecode` | batch-1, memory-bound decode (regime 2) | lower frequency of busy-but-idle compute — agent's strongest case |
+| `TestGPUActivityAgentSteadyState` | back-to-back compute-saturated SYCL inference proxy | nothing — **control** for no-harm only |
+| `TestGPUActivityAgentServing` | over-provisioned serving proxy with idle gaps (regime 1) | drop frequency during gaps |
+| `TestGPUActivityAgentDecode` | batch-1, memory-bound decode proxy (regime 2) | lower frequency of busy-but-idle compute — agent's strongest case |
 
 ## What it checks
 
@@ -64,23 +65,24 @@ because a saturated workload gives the agent no stalls to exploit.
 
 ## Prerequisites (one-time)
 
-Ensure the host has the Intel GPU kernel driver (`i915`/`xe`) and a container
-engine, then pull the pinned image:
+Ensure the host has the Intel GPU kernel driver (`i915`/`xe`), Level Zero, and
+the oneAPI compiler environment loaded so `icpx` (or `dpcpp`) is on `PATH`.
+The default benchmark is built locally on first use:
 
 ```bash
-docker pull intel/intel-extension-for-pytorch:2.8.10-xpu
-# or: podman pull docker.io/intel/intel-extension-for-pytorch:2.8.10-xpu
+cd geopm/geopmdpy/integration_test/apps
+./build_gpu_activity_benchmark.sh
+./build/gpu_activity_benchmark --profile steady --duration 2
+# expect: FOM (images/sec): <n>
 ```
 
-Optional smoke check that the container can see the GPU:
+If the compiler is not on `PATH`, set `GEOPM_GPU_BENCH_CXX` to the compiler
+path.  The resulting binary is cached under `integration_test/apps/build/` by
+default; set `GEOPM_GPU_BENCH_BUILD_DIR` to place it elsewhere.
 
-```bash
-docker run --rm --device /dev/dri \
-    --group-add "$(getent group render | cut -d: -f3)" \
-    intel/intel-extension-for-pytorch:2.8.10-xpu \
-    python -c "import torch, intel_extension_for_pytorch; print(torch.xpu.is_available(), torch.xpu.device_count())"
-# expect: True <n>
-```
+The older PyTorch/container drivers are still present for optional experiments,
+but they are not used by the integration tests by default and require a local
+image cache or native PyTorch/IPEX install.
 
 ## Running
 
@@ -108,20 +110,26 @@ Workload / deployment:
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `GEOPM_GPU_WORKLOAD_NATIVE` | `0` | `1` runs the driver natively instead of in a container (host needs `torch` + `intel_extension_for_pytorch`) |
-| `GEOPM_GPU_CONTAINER_ENGINE` | `docker` | Container engine (`docker` or rootless `podman`) |
-| `GEOPM_GPU_WORKLOAD_IMAGE` | `intel/intel-extension-for-pytorch:2.8.10-xpu` | Container image (pin a version tag) |
-| `GEOPM_GPU_SELINUX_DISABLE` | unset | Non-empty adds `--security-opt label=disable` (rootless podman on SELinux) |
+| `GEOPM_GPU_WORKLOAD_BACKEND` | `local` | `local` uses the self-built SYCL benchmark (default). Other values fall through to the optional Python/container path. |
+| `GEOPM_GPU_BENCH_CXX` | auto (`icpx`, `dpcpp`, `clang++`) | SYCL compiler used by `build_gpu_activity_benchmark.sh` |
+| `GEOPM_GPU_BENCH_BUILD_DIR` | `integration_test/apps/build` | Build/cache directory for the local benchmark binary |
+| `GEOPM_GPU_WORKLOAD_NATIVE` | `0` | Optional Python-driver path only: `1` runs Python drivers natively instead of in a container (host needs `torch` + `intel_extension_for_pytorch`) |
+| `GEOPM_GPU_CONTAINER_ENGINE` | `docker` | Optional Python-driver path only: container engine (`docker` or rootless `podman`) |
+| `GEOPM_GPU_WORKLOAD_IMAGE` | `intel/intel-extension-for-pytorch:2.8.10-xpu` | Optional Python-driver path only: container image (pin a version tag) |
+| `GEOPM_GPU_SELINUX_DISABLE` | unset | Optional Python-driver path only: non-empty adds `--security-opt label=disable` |
 
 Measurement / tolerances:
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `GEOPM_GPU_WORKLOAD_SEC` | `30` | Workload timed duration (s) |
-| `GEOPM_GPU_BATCH_SIZE` | `64` | ResNet inference batch size |
+| `GEOPM_GPU_BATCH_SIZE` | `64` | Image-profile FoM scaling factor |
 | `GEOPM_GPU_DUTY_CYCLE` | `0.5` | Serving-mode GPU-active fraction (idle gap = `1 - duty`) |
 | `GEOPM_GPU_DECODE_HIDDEN` | `8192` | Decode model hidden dimension (larger = more memory-bound) |
 | `GEOPM_GPU_DECODE_LAYERS` | `8` | Decode projection-layer count |
+| `GEOPM_GPU_BENCH_ELEMENTS` | `1048576` | Steady/serving local benchmark vector length |
+| `GEOPM_GPU_COMPUTE_INTENSITY` | `2048` | FMAs per element for steady/serving profiles |
+| `GEOPM_GPU_DECODE_INTENSITY` | `1` | Memory passes per decode token |
 | `GEOPM_GPU_PERIOD` | `0.02` | Agent/monitor sample period (s) |
 | `GEOPM_GPU_FOM_TOL` | `0.05` | Allowed fractional throughput drop at phi=0 |
 | `GEOPM_GPU_ENERGY_MARGIN` | `1.0` | `energy(phi) < margin * baseline` (use e.g. `0.98` to require a minimum drop) |
@@ -132,9 +140,10 @@ Measurement / tolerances:
 - A read-only `geopmsession` monitor is the measurement instrument for **every**
   run: it launches the workload (`-- run_workload.sh <driver> ...`), traces
   `GPU_ENERGY`, `GPU_CORE_FREQUENCY_STATUS`, and `GPU_CORE_ACTIVITY` across
-  **all** GPU domains, and exits when the workload finishes. The workload prints
-  `FOM (<unit>): <n>` to stdout, which the monitor forwards and the harness
-  parses.
+  **all** GPU domains, and exits when the workload finishes. For the default
+  path, `run_workload.sh gpu_activity_benchmark ...` builds the local SYCL
+  benchmark on demand, runs it on a Level Zero GPU, and prints `FOM (<unit>):
+  <n>` to stdout for the harness to parse.
 - For a controlled run, the agent (`python -m geopmdpy.gpu_activity_agent`) runs
   concurrently as the single frequency **writer** while the monitor reads
   (GEOPM permits one writer + many readers). The agent is stopped with `SIGINT`
@@ -149,6 +158,8 @@ Measurement / tolerances:
 |---|---|
 | `TestGPUActivityAgentInference.py` | Shared harness + the three scenario test classes |
 | `_util.py` | geopmdpy-native skip guards + trace/FoM parsing helpers |
+| `apps/gpu_activity_benchmark.cpp` | Local SYCL/oneAPI benchmark with `steady`, `serving`, and `decode` profiles |
+| `apps/build_gpu_activity_benchmark.sh` | Builds/caches the local benchmark binary |
 | `apps/ipex_resnet50_infer.py` | ResNet-50 FP16 benchmark: `steady` and `serving` modes |
 | `apps/torch_decode_infer.py` | Batch-1, memory-bound autoregressive decode benchmark |
 | `apps/run_workload.sh` | Container/native wrapper the harness invokes (driver = arg 1) |

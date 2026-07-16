@@ -18,7 +18,7 @@ workload's compute activity actually drops below saturation (i.e. when the
 GPU *stalls*).  Three workload profiles are therefore exercised:
 
 ``SteadyState`` (control)
-    A back-to-back, compute-saturated ResNet-50 loop.  Activity stays pinned
+    A back-to-back, compute-saturated SYCL inference proxy.  Activity stays pinned
     near 1.0, so the agent keeps the frequency at F_max.  This case validates
     only that the agent does **no harm** to a saturated workload (at phi=0
     and phi=0.5) and that the phi=1 static clamp still saves energy.  It does
@@ -26,13 +26,13 @@ GPU *stalls*).  Three workload profiles are therefore exercised:
     workload gives the agent nothing to exploit.
 
 ``Serving`` (regime 1: idle gaps)
-    An over-provisioned online-serving ResNet-50 profile that idles between
+    An over-provisioned online-serving profile that idles between
     requests to a target duty cycle.  Compute activity oscillates, so the
     agent drops the frequency during the gaps: dynamic control and energy
     savings at phi=0.5 are asserted.
 
 ``Decode`` (regime 2: frequency-insensitive but busy)
-    A batch-1, memory-bandwidth-bound autoregressive decode loop (the LLM
+    A batch-1, memory-bandwidth-bound autoregressive decode proxy (the LLM
     decode archetype).  The GPU looks busy but the compute engine is only
     partially active, so the agent lowers the frequency with negligible
     performance loss -- the scenario where it is most differentiated from
@@ -45,7 +45,7 @@ skipped otherwise.  See ``README.md`` in this directory.
 
 Environment overrides (all optional):
   GEOPM_GPU_WORKLOAD_SEC     Workload timed duration, seconds (default 30).
-  GEOPM_GPU_BATCH_SIZE       ResNet inference batch size (default 64).
+    GEOPM_GPU_BATCH_SIZE       Image-profile FoM scaling factor (default 64).
   GEOPM_GPU_DUTY_CYCLE       Serving-mode GPU-active fraction (default 0.5).
   GEOPM_GPU_PERIOD           Agent/monitor sample period, seconds (default 0.02).
   GEOPM_GPU_FOM_TOL          Allowed fractional FoM drop at phi=0 (default 0.05).
@@ -184,8 +184,17 @@ class _ScenarioHarness(unittest.TestCase):
                 f'{monitor.returncode}:\n{monitor.stderr}')
 
         rows = _util.read_trace(monitor_trace)
+        try:
+            fom = _util.parse_fom(monitor.stdout)
+        except RuntimeError as ex:
+            raise RuntimeError(
+                f'workload failed to report a FOM ({cls.__name__}/{tag})\n'
+                f'command: {" ".join(monitor_cmd)}\n'
+                f'geopmsession return code: {monitor.returncode}\n'
+                f'stdout:\n{monitor.stdout}\n'
+                f'stderr:\n{monitor.stderr}') from ex
         return {
-            'fom': _util.parse_fom(monitor.stdout),
+            'fom': fom,
             'energy': _util.energy_joules(rows),
             'freq_std_hz': _util.max_freq_std_hz(rows),
             'freq_requests': freq_requests,
@@ -229,12 +238,12 @@ class _ScenarioHarness(unittest.TestCase):
 class TestGPUActivityAgentSteadyState(_ScenarioHarness):
     """Control case: a compute-saturated workload the agent cannot exploit."""
 
-    DRIVER = _util.RESNET_DRIVER
+    DRIVER = _util.LOCAL_DRIVER
     PHIS = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
 
     @classmethod
     def workload_args(cls):
-        return ['--mode', 'steady',
+        return ['--profile', 'steady',
                 '--duration', cls._workload_sec,
                 '--batch-size', cls._batch_size]
 
@@ -263,12 +272,12 @@ class TestGPUActivityAgentSteadyState(_ScenarioHarness):
 class TestGPUActivityAgentServing(_ScenarioHarness):
     """Regime 1: an over-provisioned server that idles between requests."""
 
-    DRIVER = _util.RESNET_DRIVER
+    DRIVER = _util.LOCAL_DRIVER
     PHIS = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
 
     @classmethod
     def workload_args(cls):
-        return ['--mode', 'serving',
+        return ['--profile', 'serving',
                 '--duration', cls._workload_sec,
                 '--batch-size', cls._batch_size,
                 '--duty-cycle', cls._duty_cycle]
@@ -297,12 +306,13 @@ class TestGPUActivityAgentServing(_ScenarioHarness):
 class TestGPUActivityAgentDecode(_ScenarioHarness):
     """Regime 2: a memory-bound, batch-1 decode loop (frequency-insensitive)."""
 
-    DRIVER = _util.DECODE_DRIVER
+    DRIVER = _util.LOCAL_DRIVER
     PHIS = (_PHI_PERF, _PHI_DYNAMIC, _PHI_ENERGY)
 
     @classmethod
     def workload_args(cls):
-        return ['--duration', cls._workload_sec]
+        return ['--profile', 'decode',
+            '--duration', cls._workload_sec]
 
     def test_phi0_no_performance_harm(self):
         """phi=0 (pinned F_max) must not reduce decode throughput."""
