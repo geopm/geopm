@@ -54,7 +54,7 @@ because a saturated workload gives the agent no stalls to exploit.
 | Test | phi | Assertion |
 |---|---|---|
 | `test_phi0_no_performance_harm` | 0.0 | throughput within tolerance of baseline |
-| `test_phi05_dynamic_frequency` | 0.5 | agent issues > 1 frequency write **and** `GPU_CORE_FREQUENCY_STATUS` varies |
+| `test_phi05_dynamic_frequency` | 0.5 | agent issues more frequency writes than the initial one-write-per-control-domain pass **and** `GPU_CORE_FREQUENCY_STATUS` varies |
 | `test_phi05_energy_benefit_vs_monitor` | 0.5 | GPU energy below the monitor baseline |
 | `test_phi1_energy_saving_extreme` | 1.0 | GPU energy below baseline (perf harm not asserted) |
 
@@ -146,7 +146,10 @@ Measurement / tolerances:
   concurrently as the single frequency **writer** while the monitor reads
   (GEOPM permits one writer + many readers). The agent is stopped with `SIGINT`
   after the workload finishes, which reverts its controls and prints the
-  `GPU Frequency Requests` summary used by the dynamic-frequency assertion.
+  `GPU Frequency Requests` and `Agent Domain` summary used by the
+  dynamic-frequency assertion.  The assertion requires more writes than the
+  number of controlled domains, because the agent always performs one initial
+  write per GPU/GPU-chip control domain before any dynamic re-tuning occurs.
 - Energy is the sum of per-domain `GPU_ENERGY` deltas over the trace window;
   frequency dynamism is the max per-domain std-dev of `GPU_CORE_FREQUENCY_STATUS`.
 

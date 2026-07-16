@@ -134,7 +134,8 @@ class _ScenarioHarness(unittest.TestCase):
         A read-only ``geopmsession`` monitor launches the workload and records
         the whole-board energy and per-domain frequency trace.  When ``phi`` is
         not None, the GPU activity agent runs concurrently as the frequency
-        writer.  Returns a dict with fom, energy, freq_std_hz, freq_requests.
+        writer.  Returns a dict with fom, energy, freq_std_hz, freq_requests,
+        and agent control-domain metadata.
         """
         tag = 'baseline' if phi is None else f'phi{phi}'
         monitor_trace = os.path.join(cls._tmpdir, f'{tag}_monitor.csv')
@@ -142,6 +143,8 @@ class _ScenarioHarness(unittest.TestCase):
 
         agent_proc = None
         agent_stderr_path = None
+        agent_domain = None
+        control_domain_count = 0
         if phi is not None:
             agent_trace = os.path.join(cls._tmpdir, f'{tag}_agent.csv')
             agent_report = os.path.join(cls._tmpdir, f'{tag}_agent.yaml')
@@ -176,7 +179,11 @@ class _ScenarioHarness(unittest.TestCase):
                     agent_proc.kill()
                     agent_proc.wait()
                 with open(agent_stderr_path) as fid:
-                    freq_requests = _util.parse_frequency_requests(fid.read())
+                    agent_summary = fid.read()
+                    freq_requests = _util.parse_frequency_requests(agent_summary)
+                    agent_domain = _util.parse_agent_domain(agent_summary)
+                    if agent_domain is not None:
+                        control_domain_count = _util.domain_count(agent_domain)
 
         if monitor.returncode != 0:
             raise RuntimeError(
@@ -198,6 +205,8 @@ class _ScenarioHarness(unittest.TestCase):
             'energy': _util.energy_joules(rows),
             'freq_std_hz': _util.max_freq_std_hz(rows),
             'freq_requests': freq_requests,
+            'agent_domain': agent_domain,
+            'control_domain_count': control_domain_count,
         }
 
     # -- shared assertions -------------------------------------------------
@@ -220,10 +229,17 @@ class _ScenarioHarness(unittest.TestCase):
 
     def _assert_dynamic_frequency(self, phi):
         result = self._results[phi]
+        control_domain_count = result['control_domain_count']
         self.assertGreater(
-            result['freq_requests'], 1,
-            msg=(f'phi={phi} issued <= 1 frequency control write '
-                 f'({result["freq_requests"]}); no dynamic control observed'))
+            control_domain_count, 0,
+            msg=(f'phi={phi} did not report a valid agent control domain '
+                 f'({result["agent_domain"]})'))
+        self.assertGreater(
+            result['freq_requests'], control_domain_count,
+            msg=(f'phi={phi} issued only {result["freq_requests"]} frequency '
+                 f'control writes for {control_domain_count} '
+                 f'{result["agent_domain"]} domains; this is no more than '
+                 'the initial one-write-per-domain request'))
         self.assertGreater(
             result['freq_std_hz'], self._freq_std_min_hz,
             msg=(f'phi={phi} GPU_CORE_FREQUENCY_STATUS std-dev '

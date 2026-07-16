@@ -221,6 +221,19 @@ def parse_frequency_requests(text):
     return int(match.group(1)) if match else 0
 
 
+def parse_agent_domain(text):
+    """Extract the agent's controlled domain name from its summary."""
+    match = re.search(r'Agent Domain:\s*([^\n]+)', text)
+    return match.group(1).strip() if match else None
+
+
+def domain_count(domain_name):
+    """Return the platform count for a GEOPM domain name."""
+    from geopmdpy import topo
+
+    return topo.num_domain(topo.domain_type(domain_name))
+
+
 def agent_command(phi, run_time, period, trace_path, report_path):
     """Command to run the Python GPU activity agent (frequency writer)."""
     return [sys.executable, '-m', 'geopmdpy.gpu_activity_agent',
