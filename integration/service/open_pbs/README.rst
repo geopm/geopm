@@ -331,17 +331,23 @@ locations:
 
    ::
 
-       /etc/geopm/model.json
+       /soft/geopm/model.json
 
    Notes:
 
    - The **server hook** reads this file on the **PBS server host**.
    - The **compute hook** reads this file on **each compute node** where the
      prologue/epilogue hook runs.
+   - This path is defined by the ``_MODEL_PATH`` constant near the top of both
+     ``geopm_power_limit_server.py`` and ``geopm_power_limit_compute.py``. If the
+     model is installed somewhere other than ``/soft/geopm/model.json``, edit
+     ``_MODEL_PATH`` in each hook to point to the actual install location before
+     importing the hooks. Keep the value consistent between the two hooks so the
+     server and compute nodes read the same model.
 
-If both sources are present, the hooks prefer ``/etc/geopm/model.json`` and will fall
-back to the imported PBS hook configuration only if the filesystem file is not
-present.
+If both sources are present, the hooks prefer the filesystem configuration
+(``_MODEL_PATH``, ``/soft/geopm/model.json`` by default) and will fall back to
+the imported PBS hook configuration only if the filesystem file is not present.
 
 Requirements
 ------------

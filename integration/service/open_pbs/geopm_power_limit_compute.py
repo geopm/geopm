@@ -444,7 +444,7 @@ def load_hook_config(event, model_path=_MODEL_PATH):
     """Load GEOPM model config JSON.
 
     Preference order:
-      1) model_path (default: /etc/geopm/model.json)
+      1) model_path (default: /soft/geopm/model.json, set via _MODEL_PATH)
       2) pbs.hook_config_filename (if model_path is missing)
     """
     hook_config = None
