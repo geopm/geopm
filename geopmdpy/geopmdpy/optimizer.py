@@ -18,7 +18,8 @@ import subprocess
 import re
 import logging
 from argparse import ArgumentParser, REMAINDER
-from typing import List
+from dataclasses import dataclass
+from typing import List, Optional
 
 try:
     from skopt import gp_minimize
@@ -40,6 +41,32 @@ logger = logging.getLogger(__name__)
 class OptimizationError(Exception):
     """Exception raised when optimization fails."""
     pass
+
+
+@dataclass
+class TrialResult:
+    """Raw measurements produced by evaluating a single control configuration.
+
+    Fields are populated incrementally by the evaluation strategies. ``fom`` is
+    the figure of merit scraped from application stdout; ``energy``,
+    ``runtime``, and ``average_power`` are filled in when an efficiency
+    objective is active. ``failed`` / ``failure_reason`` are reserved for later
+    recoverable-failure handling and are unused today.
+
+    Attributes:
+        fom: Figure of merit extracted from application output.
+        energy: Energy consumed during the run (Joules).
+        runtime: Wall-clock or reported runtime of the run (seconds).
+        average_power: Mean power over the run (Watts).
+        failed: Whether the trial failed in a recoverable way.
+        failure_reason: Human-readable description of a recoverable failure.
+    """
+    fom: Optional[float] = None
+    energy: Optional[float] = None
+    runtime: Optional[float] = None
+    average_power: Optional[float] = None
+    failed: bool = False
+    failure_reason: Optional[str] = None
 
 
 class ApplicationEvaluator:
@@ -85,7 +112,8 @@ class ApplicationEvaluator:
             config_file: A file path to populate with the geopmwrite configuration file.
 
         Returns:
-            float: Figure of merit extracted from application output.
+            TrialResult: Container holding the raw figure of merit extracted
+                from application output in its ``fom`` field.
 
         Raises:
             OptimizationError: If evaluation fails.
@@ -124,11 +152,7 @@ class ApplicationEvaluator:
             metric = self._extract_metric(result.stdout)
             logger.debug(f"Extracted metric: {metric}")
 
-            # Convert to minimization problem if needed
-            if self.maximize:
-                return -metric  # Negate for maximization
-            else:
-                return metric
+            return TrialResult(fom=metric)
 
         except subprocess.TimeoutExpired:
             raise OptimizationError(f"Application evaluation timed out after {self.timeout} seconds")
@@ -261,6 +285,100 @@ class BayesianOptimizer:
             ))
         return space
 
+    def _evaluate_coordinate(self, coordinate: List[int], use_efficiency: int,
+                             efficiency_domain: str) -> TrialResult:
+        """Execute a single trial and return its raw measurements.
+
+        Validates the coordinate, launches the application through the
+        evaluator, and (when an efficiency objective is active) samples energy
+        and time around the run.
+
+        Args:
+            coordinate: Grid coordinate to evaluate.
+            use_efficiency: Efficiency mode (0 disabled, 1 maximize, -1 minimize).
+            efficiency_domain: Domain used to measure energy.
+
+        Returns:
+            TrialResult: Raw figure of merit, plus energy/runtime/average power
+                when an efficiency objective is active.
+        """
+        # Validate coordinate length matches expected dimensions
+        expected_dims = len(self.control_grid.control_name)
+        if len(coordinate) != expected_dims:
+            raise ValueError(
+                       f"Coordinate length mismatch: got {len(coordinate)}, "
+                       f"expected {expected_dims}. "
+                       f"Space: {len(self.space)}, "
+                       f"Grid data: {len(self.control_grid.get_grid_data())}")
+
+        # Validate coordinate values are within bounds
+        grid_data = self.control_grid.get_grid_data()
+        for idx, coord_val in enumerate(coordinate):
+            if idx >= len(grid_data):
+                raise ValueError(f"Coordinate index {idx} out of range for grid data (size {len(grid_data)})")
+
+            settings_count = len(grid_data[idx]["settings"])
+            if coord_val < 0 or coord_val >= settings_count:
+                raise ValueError(f"Coordinate value {coord_val} at index {idx} out of range [0, {settings_count-1}]")
+
+        # Evaluate application
+        if use_efficiency:
+            start_time = pio.read_signal("TIME", 0, 0)
+            start_energy = get_energy(efficiency_domain)
+        trial = self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
+        if use_efficiency:
+            end_energy = get_energy(efficiency_domain)
+            end_time = pio.read_signal("TIME", 0, 0)
+            trial.energy = end_energy - start_energy
+            trial.runtime = end_time - start_time
+            trial.average_power = trial.energy / trial.runtime
+        return trial
+
+    def _score_result(self, trial: TrialResult, use_efficiency: int) -> float:
+        """Reduce a TrialResult to the scalar objective value to minimize.
+
+        Applies the maximize/minimize sign convention and, when an efficiency
+        objective is active, folds average power into the score.
+
+        Args:
+            trial: Raw measurements from :meth:`_evaluate_coordinate`.
+            use_efficiency: Efficiency mode (0 disabled, 1 maximize, -1 minimize).
+
+        Returns:
+            float: Scalar objective value in minimization space.
+        """
+        # Convert to minimization problem if needed
+        if self.evaluator.maximize:
+            metric = -trial.fom  # Negate for maximization
+        else:
+            metric = trial.fom
+        if use_efficiency:
+            average_power = trial.average_power
+            logger.info(f"Average power consumed: {average_power} W")
+            if average_power <= 0:
+                raise OptimizationError("Average power consumed is non-positive")
+            if use_efficiency == 1:
+                metric /= average_power
+            elif use_efficiency == -1:
+                metric *= average_power
+        return metric
+
+    def _record_history(self, coordinate: List[int], metric: float) -> None:
+        """Append a completed trial to the evaluation history and log it.
+
+        Args:
+            coordinate: Grid coordinate that was evaluated.
+            metric: Scalar objective value produced by :meth:`_score_result`.
+        """
+        self.evaluation_history.append({
+            'coordinate': coordinate.copy(),
+            'metric': metric,
+            'config_commands': self.control_grid.get_config_str(coordinate)
+        })
+
+        logger.info(f"Evaluation {len(self.evaluation_history)}: "
+                   f"coordinate={coordinate}, metric={metric}")
+
     def optimize(self, trials: int = 50, n_initial_points: int = 10,
                  random_state: int = 42, use_efficiency: int = 0,
                  efficiency_domain: str = None) -> dict:
@@ -284,56 +402,10 @@ class BayesianOptimizer:
         def objective(**params):
             """Objective function for optimization."""
             # Convert parameter indices to actual coordinate values
-            # The coordinate should match the number of dimensions in the grid
             coordinate = [int(params[dim.name]) for dim in self.space]  # Convert numpy types to int
-
-            # Validate coordinate length matches expected dimensions
-            expected_dims = len(self.control_grid.control_name)
-            if len(coordinate) != expected_dims:
-                raise ValueError(
-                           f"Coordinate length mismatch: got {len(coordinate)}, "
-                           f"expected {expected_dims}. "
-                           f"Space: {len(self.space)}, "
-                           f"Grid data: {len(self.control_grid.get_grid_data())}")
-
-            # Validate coordinate values are within bounds
-            grid_data = self.control_grid.get_grid_data()
-            for idx, coord_val in enumerate(coordinate):
-                if idx >= len(grid_data):
-                    raise ValueError(f"Coordinate index {idx} out of range for grid data (size {len(grid_data)})")
-
-                settings_count = len(grid_data[idx]["settings"])
-                if coord_val < 0 or coord_val >= settings_count:
-                    raise ValueError(f"Coordinate value {coord_val} at index {idx} out of range [0, {settings_count-1}]")
-
-            # Evaluate application
-            if use_efficiency:
-                start_time = pio.read_signal("TIME", 0, 0)
-                start_energy = get_energy(efficiency_domain)
-            metric = self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
-            if use_efficiency:
-                end_energy = get_energy(efficiency_domain)
-                end_time = pio.read_signal("TIME", 0, 0)
-                average_power = (end_energy - start_energy) / (end_time - start_time)
-                logger.info(f"Average power consumed: {average_power} W")
-                if average_power <= 0:
-                    raise OptimizationError("Average power consumed is non-positive")
-                if use_efficiency == 1:
-                    metric /= average_power
-                elif use_efficiency == -1:
-                    metric *= average_power
-
-
-            # Store evaluation history
-            self.evaluation_history.append({
-                'coordinate': coordinate.copy(),
-                'metric': metric,
-                'config_commands': self.control_grid.get_config_str(coordinate)
-            })
-
-            logger.info(f"Evaluation {len(self.evaluation_history)}: "
-                       f"coordinate={coordinate}, metric={metric}")
-
+            trial = self._evaluate_coordinate(coordinate, use_efficiency, efficiency_domain)
+            metric = self._score_result(trial, use_efficiency)
+            self._record_history(coordinate, metric)
             return metric
 
 
