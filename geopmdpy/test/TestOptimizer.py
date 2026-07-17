@@ -80,8 +80,8 @@ class TestApplicationEvaluator(unittest.TestCase):
         coordinate = [2]
         result = self.evaluator.evaluate(mock_grid, coordinate)
 
-        # Should return negative value for maximization
-        self.assertEqual(result, -123.45)
+        # Raw figure of merit is returned; sign convention is applied at scoring
+        self.assertEqual(result.fom, 123.45)
         mock_grid.write_config.assert_called_once_with(coordinate)
         mock_run.assert_called_once_with(
             self.launch_command,
@@ -107,8 +107,8 @@ class TestApplicationEvaluator(unittest.TestCase):
         coordinate = [1]
         result = evaluator.evaluate(mock_grid, coordinate)
 
-        # Should return positive value for minimization
-        self.assertEqual(result, 456.78)
+        # Raw figure of merit is returned regardless of maximize/minimize
+        self.assertEqual(result.fom, 456.78)
 
     @patch('subprocess.run')
     def test_evaluate_with_config_file(self, mock_run):
@@ -126,7 +126,7 @@ class TestApplicationEvaluator(unittest.TestCase):
             config_file = "/tmp/test_config.conf"
             result = self.evaluator.evaluate(mock_grid, coordinate, config_file)
 
-            self.assertEqual(result, -789.01)
+            self.assertEqual(result.fom, 789.01)
             mock_file.assert_called_once_with(config_file, 'w')
             mock_grid.get_config_str.assert_called_once_with(coordinate)
 
@@ -289,6 +289,28 @@ class TestGetEnergy(unittest.TestCase):
 
 
 @unittest.skipIf(skip_test, skip_msg)
+class TestTrialResult(unittest.TestCase):
+    def test_defaults(self):
+        """A TrialResult defaults to empty measurements and not-failed."""
+        trial = optimizer.TrialResult()
+        self.assertIsNone(trial.fom)
+        self.assertIsNone(trial.energy)
+        self.assertIsNone(trial.runtime)
+        self.assertIsNone(trial.average_power)
+        self.assertFalse(trial.failed)
+        self.assertIsNone(trial.failure_reason)
+
+    def test_fields(self):
+        """Fields are populated positionally/by keyword as expected."""
+        trial = optimizer.TrialResult(fom=1.0, energy=2.0, runtime=4.0,
+                                      average_power=0.5)
+        self.assertEqual(trial.fom, 1.0)
+        self.assertEqual(trial.energy, 2.0)
+        self.assertEqual(trial.runtime, 4.0)
+        self.assertEqual(trial.average_power, 0.5)
+
+
+@unittest.skipIf(skip_test, skip_msg)
 class TestBayesianOptimizer(unittest.TestCase):
     def setUp(self):
         # Mock the control grid without using spec
@@ -380,6 +402,70 @@ class TestBayesianOptimizer(unittest.TestCase):
             optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
 
         self.assertIn("Grid data dimensions", str(context.exception))
+
+    def test_score_result_maximize(self):
+        """Maximize converts the raw FoM to its negation (minimization space)."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(fom=123.45)
+        self.assertEqual(opt._score_result(trial, 0), -123.45)
+
+    def test_score_result_minimize(self):
+        """Minimize keeps the raw FoM sign."""
+        self.mock_evaluator.maximize = False
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(fom=123.45)
+        self.assertEqual(opt._score_result(trial, 0), 123.45)
+
+    def test_score_result_efficiency_maximize(self):
+        """Maximizing efficiency divides the negated FoM by average power."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(fom=1000.0, average_power=100.0)
+        self.assertEqual(opt._score_result(trial, 1), -10.0)
+
+    def test_score_result_efficiency_minimize(self):
+        """Minimizing efficiency multiplies the FoM by average power."""
+        self.mock_evaluator.maximize = False
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(fom=10.0, average_power=5.0)
+        self.assertEqual(opt._score_result(trial, -1), 50.0)
+
+    def test_score_result_nonpositive_power_raises(self):
+        """Non-positive average power raises OptimizationError."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(fom=1.0, average_power=0.0)
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            opt._score_result(trial, 1)
+        self.assertIn("non-positive", str(context.exception))
+
+    def test_record_history(self):
+        """History records the coordinate, metric, and config commands."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._record_history([1], 42.0)
+        self.assertEqual(len(opt.evaluation_history), 1)
+        self.assertEqual(opt.evaluation_history[0]['coordinate'], [1])
+        self.assertEqual(opt.evaluation_history[0]['metric'], 42.0)
+
+    def test_evaluate_coordinate_no_efficiency(self):
+        """Without efficiency the evaluator result is returned unchanged."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=7.0)
+        trial = opt._evaluate_coordinate([1], 0, None)
+        self.assertEqual(trial.fom, 7.0)
+        self.assertIsNone(trial.average_power)
+        self.mock_evaluator.evaluate.assert_called_once()
+
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.get_energy')
+    def test_evaluate_coordinate_efficiency(self, mock_get_energy, mock_pio):
+        """With efficiency, energy/runtime/power deltas are computed."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=7.0)
+        mock_pio.read_signal.side_effect = [1000.0, 1010.0]  # start/end time
+        mock_get_energy.side_effect = [500.0, 600.0]  # start/end energy
+        trial = opt._evaluate_coordinate([1], 1, 'cpu')
+        self.assertEqual(trial.energy, 100.0)
+        self.assertEqual(trial.runtime, 10.0)
+        self.assertEqual(trial.average_power, 10.0)
 
     @patch('geopmdpy.optimizer.gp_minimize')
     def test_optimize_basic(self, mock_gp_minimize):
