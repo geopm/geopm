@@ -48,6 +48,12 @@ except ImportError:
 # what makes the report energy delta rollover-safe (issue #4043).
 _DEFAULT_SAMPLE_PERIOD = 0.01
 
+# Default weight applied to the bound-violation penalty of the ENERGY_BOUNDED
+# objective. The penalty is scaled by the observed energy magnitude so that a
+# fully violated bound is at least as costly as a representative trial's energy;
+# the weight lets that penalty be tuned relative to energy differences.
+_DEFAULT_BOUND_PENALTY_WEIGHT = 1.0
+
 # Module-level logger
 logger = logging.getLogger(__name__)
 
@@ -496,6 +502,11 @@ class BayesianOptimizer:
         self.evaluation_history = []
         self.config_file = config_file
 
+        # ENERGY_BOUNDED state, (re)initialized at the start of optimize().
+        self._metric_bound = None
+        self._penalty_weight = _DEFAULT_BOUND_PENALTY_WEIGHT
+        self._energy_scale = None
+
         logger.debug(f"Initialized optimizer with {len(self.space)} dimensions")
 
     def _create_search_space(self) -> List[Integer]:
@@ -569,13 +580,36 @@ class BayesianOptimizer:
 
         return self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
 
+    def _bound_violation(self, fom: float) -> float:
+        """Return the normalized amount by which a FoM misses the bound.
+
+        The violation is expressed as a fraction of the bound magnitude so it
+        is dimensionless and comparable across problems. It is zero for a
+        feasible trial and positive for an infeasible one. When maximizing the
+        figure of merit the bound is a floor (feasible when ``fom >= bound``);
+        when minimizing it is a ceiling (feasible when ``fom <= bound``).
+
+        Args:
+            fom: Figure of merit scraped from the trial.
+
+        Returns:
+            float: Non-negative normalized bound violation.
+        """
+        bound = self._metric_bound
+        scale = abs(bound) if bound != 0 else 1.0
+        if self.evaluator.maximize:
+            return max(0.0, bound - fom) / scale
+        return max(0.0, fom - bound) / scale
+
     def _score_result(self, trial: TrialResult,
                       objective_mode: ObjectiveMode) -> float:
         """Reduce a TrialResult to the scalar objective value to minimize.
 
         Runtime and energy objectives are minimized directly. For the figure
         of merit objectives the maximize/minimize sign convention is applied
-        and, for the efficiency objective, average power is folded in.
+        and, for the efficiency objective, average power is folded in. The
+        energy-bounded objective minimizes energy with a soft penalty applied
+        when the figure-of-merit bound is violated.
 
         Args:
             trial: Raw measurements from :meth:`_evaluate_coordinate`.
@@ -589,8 +623,7 @@ class BayesianOptimizer:
         if objective_mode == ObjectiveMode.ENERGY:
             return trial.energy
         if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
-            raise NotImplementedError(
-                "The ENERGY_BOUNDED objective is implemented in a later phase")
+            return self._score_energy_bounded(trial)
 
         # RAW_METRIC and EFFICIENCY optimize the figure of merit.
         if self.evaluator.maximize:
@@ -608,25 +641,62 @@ class BayesianOptimizer:
                 metric *= average_power
         return metric
 
-    def _record_history(self, coordinate: List[int], metric: float) -> None:
+    def _score_energy_bounded(self, trial: TrialResult) -> float:
+        """Score an energy-bounded trial as energy plus a bound-violation penalty.
+
+        Feasible trials score their plain energy. Infeasible trials score
+        strictly higher: ``energy + penalty_weight * energy_scale * violation``,
+        where ``energy_scale`` tracks the largest energy magnitude observed so
+        far so the penalty stays commensurate with energy differences.
+
+        Args:
+            trial: Raw measurements, with ``fom`` and ``energy`` populated.
+
+        Returns:
+            float: The penalized energy objective to minimize.
+        """
+        energy = trial.energy
+        magnitude = abs(energy)
+        if self._energy_scale is None:
+            self._energy_scale = magnitude
+        else:
+            self._energy_scale = max(self._energy_scale, magnitude)
+
+        violation = self._bound_violation(trial.fom)
+        if violation <= 0.0:
+            return energy
+        return energy + self._penalty_weight * self._energy_scale * violation
+
+    def _record_history(self, coordinate: List[int], metric: float,
+                        trial: 'TrialResult' = None,
+                        objective_mode: ObjectiveMode = None) -> None:
         """Append a completed trial to the evaluation history and log it.
 
         Args:
             coordinate: Grid coordinate that was evaluated.
             metric: Scalar objective value produced by :meth:`_score_result`.
+            trial: Raw measurements, used to record energy-bounded feasibility.
+            objective_mode: The active objective, used to decide what to record.
         """
-        self.evaluation_history.append({
+        entry = {
             'coordinate': coordinate.copy(),
             'metric': metric,
             'config_commands': self.control_grid.get_config_str(coordinate)
-        })
+        }
+        if objective_mode == ObjectiveMode.ENERGY_BOUNDED and trial is not None:
+            entry['fom'] = trial.fom
+            entry['energy'] = trial.energy
+            entry['feasible'] = self._bound_violation(trial.fom) <= 0.0
+        self.evaluation_history.append(entry)
 
         logger.info(f"Evaluation {len(self.evaluation_history)}: "
                    f"coordinate={coordinate}, metric={metric}")
 
     def optimize(self, trials: int = 50, n_initial_points: int = 10,
                  random_state: int = 42,
-                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC) -> dict:
+                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
+                 metric_bound: float = None,
+                 penalty_weight: float = _DEFAULT_BOUND_PENALTY_WEIGHT) -> dict:
         """Run Bayesian optimization.
 
         Args:
@@ -634,10 +704,18 @@ class BayesianOptimizer:
             n_initial_points: Number of random initial evaluations
             random_state: Random seed for reproducibility
             objective_mode: The resolved optimization objective.
+            metric_bound: Figure-of-merit bound for the ENERGY_BOUNDED
+                objective. Trials whose FoM violates the bound are penalized.
+            penalty_weight: Weight of the bound-violation penalty for the
+                ENERGY_BOUNDED objective.
 
         Returns:
             dict: Optimization results including best configuration and value
         """
+        # (Re)initialize the energy-bounded penalty state for this run.
+        self._metric_bound = metric_bound
+        self._penalty_weight = penalty_weight
+        self._energy_scale = None
 
         @use_named_args(self.space)
         def objective(**params):
@@ -646,7 +724,7 @@ class BayesianOptimizer:
             coordinate = [int(params[dim.name]) for dim in self.space]  # Convert numpy types to int
             trial = self._evaluate_coordinate(coordinate)
             metric = self._score_result(trial, objective_mode)
-            self._record_history(coordinate, metric)
+            self._record_history(coordinate, metric, trial, objective_mode)
             return metric
 
 
@@ -664,6 +742,9 @@ class BayesianOptimizer:
 
         # Store best result
         self.best_result = result
+
+        if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
+            return self._build_bounded_result(result)
 
         # Convert best coordinate to actual configuration
         best_coordinate = [int(x) for x in result.x]
@@ -683,6 +764,61 @@ class BayesianOptimizer:
             'n_evaluations': len(result.func_vals),
             'optimization_result': result
         }
+
+    def _build_bounded_result(self, result) -> dict:
+        """Assemble the result for the ENERGY_BOUNDED objective.
+
+        Prefers the feasible trial with the lowest energy. When no trial
+        satisfied the bound, falls back to the point that minimized the
+        penalized objective (the least-infeasible trial) and marks the result
+        as not satisfying the bound.
+
+        Args:
+            result: The scikit-optimize result from ``gp_minimize``.
+
+        Returns:
+            dict: Result including ``bound_satisfied`` and ``best_fom``.
+        """
+        feasible = [h for h in self.evaluation_history if h.get('feasible')]
+        if feasible:
+            best = min(feasible, key=lambda h: h['energy'])
+            bound_satisfied = True
+        else:
+            best = min(self.evaluation_history, key=lambda h: h['metric'])
+            bound_satisfied = False
+
+        best_coordinate = list(best['coordinate'])
+        best_config = self.control_grid.get_config_str(best_coordinate)
+        return {
+            'best_coordinate': best_coordinate,
+            'best_metric': best['energy'],
+            'best_config': best_config,
+            'best_fom': best['fom'],
+            'bound_satisfied': bound_satisfied,
+            'n_evaluations': len(result.func_vals),
+            'optimization_result': result
+        }
+
+    def summarize(self, result: dict, objective_mode: ObjectiveMode) -> str:
+        """Build a human-readable summary of an optimization result.
+
+        Args:
+            result: The dictionary returned by :meth:`optimize`.
+            objective_mode: The objective the run used.
+
+        Returns:
+            str: A multi-line summary suitable for printing to the user.
+        """
+        lines = [f"Best configuration:\n{result['best_config']}"]
+        if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
+            status = ('satisfied' if result.get('bound_satisfied')
+                      else 'NOT satisfied')
+            bound = self._metric_bound
+            lines.append(
+                f"Figure-of-merit bound {bound} was {status} "
+                f"(best figure of merit: {result.get('best_fom')})")
+            lines.append(f"Energy at best configuration: {result['best_metric']}")
+        return '\n'.join(lines)
 
 
 def get_parser():
@@ -768,6 +904,16 @@ def get_parser():
         help='Optimize for efficiency by dividing the metric by the average power consumed over the specified domain',
     )
     parser.add_argument(
+        '--metric-bound',
+        type=float,
+        default=None,
+        dest='metric_bound',
+        help='Minimize energy over the --efficiency domain subject to keeping '
+             'the --metric-regex figure of merit at or above this bound (at or '
+             'below when --minimize is set); requires --metric-regex and '
+             '--efficiency',
+    )
+    parser.add_argument(
         '--sample-period',
         type=float,
         default=_DEFAULT_SAMPLE_PERIOD,
@@ -848,11 +994,8 @@ def main():
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
 
-        # The --metric-bound argument is introduced in a later phase; until
-        # then it is always absent.
-        metric_bound = getattr(args, 'metric_bound', None)
         objective_mode = resolve_objective_mode(
-            args.metric_regex, args.efficiency_domain, metric_bound,
+            args.metric_regex, args.efficiency_domain, args.metric_bound,
             args.minimize)
 
         # Create application evaluator
@@ -876,7 +1019,8 @@ def main():
             trials=args.trials,
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
-            objective_mode=objective_mode
+            objective_mode=objective_mode,
+            metric_bound=args.metric_bound
         )
 
         # Print results
@@ -886,7 +1030,7 @@ def main():
         logger.info(f"Number of evaluations: {result['n_evaluations']}")
 
         # Always print the best configuration to stdout for user visibility
-        print(f"Best configuration:\n{result['best_config']}")
+        print(optimizer.summarize(result, objective_mode))
 
         if args.output_file != '-':
             with open(args.output_file, 'w') as fid:
