@@ -17,6 +17,8 @@ import os
 import subprocess
 import re
 import time
+import shutil
+import tempfile
 import logging
 from argparse import ArgumentParser, REMAINDER
 from dataclasses import dataclass
@@ -35,6 +37,16 @@ except ImportError:
 
 from . import pio
 from .grid import ControlGrid, _CLI_FLAG_TO_CONTROL, add_grid_cli_arguments
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+# Default geopmsession sampling period in seconds. It is small enough that the
+# RAPL energy counter is sampled several times before it can wrap, which is
+# what makes the report energy delta rollover-safe (issue #4043).
+_DEFAULT_SAMPLE_PERIOD = 0.01
 
 # Module-level logger
 logger = logging.getLogger(__name__)
@@ -144,9 +156,16 @@ class ApplicationEvaluator:
         maximize (bool): Whether to maximize or minimize the extracted metric.
         timeout (int): Timeout in seconds for the application's execution.
         print_stdout (bool): Whether to log the application's stdout to the info level.
+        objective_mode (ObjectiveMode): The resolved optimization objective.
+        efficiency_domain (str): Domain used to measure energy, or None.
+        sample_period (float): geopmsession sampling period for energy objectives.
+        needs_session (bool): Whether trials run under geopmsession for energy.
     """
     def __init__(self, launch_command: List[str], metric_regex: str = None, maximize: bool = True,
-                 timeout: int = 300, print_stdout: bool = False):
+                 timeout: int = 300, print_stdout: bool = False,
+                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
+                 efficiency_domain: str = None,
+                 sample_period: float = _DEFAULT_SAMPLE_PERIOD):
         """Initialize the application evaluator.
 
         Args:
@@ -157,6 +176,12 @@ class ApplicationEvaluator:
             maximize: Whether to maximize (True) or minimize (False) the metric
             timeout: Timeout in seconds for application execution
             print_stdout: Whether to log application stdout to info level
+            objective_mode: The resolved optimization objective. Energy
+                objectives launch the application under geopmsession so that
+                energy and time are sampled with rollover accounting.
+            efficiency_domain: Domain used to measure energy for energy
+                objectives (``board``/``cpu``/``gpu``).
+            sample_period: geopmsession sampling period in seconds.
         """
         self.launch_command = launch_command
         self.metric_regex = metric_regex
@@ -164,8 +189,23 @@ class ApplicationEvaluator:
         self.timeout = timeout
         self.regex = re.compile(self.metric_regex) if self.metric_regex is not None else None
         self.print_stdout = print_stdout
+        self.objective_mode = objective_mode
+        self.efficiency_domain = efficiency_domain
+        self.sample_period = sample_period
+        self.needs_session = objective_mode in _ENERGY_MODES
+        self._energy_signals = None
+        if self.needs_session:
+            if yaml is None:
+                raise OptimizationError(
+                    "The pyyaml module is required for energy objectives; "
+                    "install with: python3 -m pip install pyyaml")
+            if shutil.which('geopmsession') is None:
+                raise OptimizationError(
+                    "geopmsession was not found on PATH; it is required for "
+                    "energy-based objectives (--efficiency)")
+            self._energy_signals = energy_signal_names(self.efficiency_domain)
 
-    def evaluate(self, control_grid: ControlGrid, coordinate: List[int], config_file: str = None) -> float:
+    def evaluate(self, control_grid: ControlGrid, coordinate: List[int], config_file: str = None) -> 'TrialResult':
         """Evaluate application with given control configuration.
 
         Args:
@@ -174,9 +214,10 @@ class ApplicationEvaluator:
             config_file: A file path to populate with the geopmwrite configuration file.
 
         Returns:
-            TrialResult: Container holding the application's wall-clock runtime
-                in its ``runtime`` field and, when a metric regex is configured,
-                the raw figure of merit in its ``fom`` field.
+            TrialResult: Container holding the trial's measurements. Runtime
+                objectives populate ``runtime``; figure-of-merit objectives
+                populate ``fom``; energy objectives populate ``energy``,
+                ``runtime``, and ``average_power`` from the session report.
 
         Raises:
             OptimizationError: If evaluation fails.
@@ -188,43 +229,12 @@ class ApplicationEvaluator:
                 with open(config_file, 'w') as fid:
                     fid.write(f'{control_grid.get_config_str(coordinate)}\n')
 
-            # Launch application
-            logger.debug(f"Launching application: {' '.join(self.launch_command)}")
-            start = time.monotonic()
-            result = subprocess.run(
-                self.launch_command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                universal_newlines=True,
-                timeout=self.timeout
-            )
-            runtime = time.monotonic() - start
+            if self.needs_session:
+                return self._evaluate_session()
+            return self._evaluate_direct()
 
-            if result.returncode != 0:
-                if self.print_stdout:
-                    logger.info(f"Application stdout: \n{result.stdout}\n")
-                logger.debug(f"Application stderr: \n{result.stderr}\n")
-                raise OptimizationError(
-                    f"Application failed with return code {result.returncode}: {result.stderr}"
-                )
-
-            logger.debug(f"Application stdout length: {len(result.stdout)} characters")
-            if self.print_stdout:
-                logger.info(f"Application stdout: \n{result.stdout}\n")
-
-            # Without a metric regex the objective is runtime-based; only the
-            # measured wall-clock time is required.
-            if self.regex is None:
-                return TrialResult(runtime=runtime)
-
-            # Extract metric from stdout
-            if not result.stdout:
-                raise OptimizationError("Application produced no output")
-            metric = self._extract_metric(result.stdout)
-            logger.debug(f"Extracted metric: {metric}")
-
-            return TrialResult(fom=metric, runtime=runtime)
-
+        except OptimizationError:
+            raise
         except subprocess.TimeoutExpired:
             raise OptimizationError(f"Application evaluation timed out after {self.timeout} seconds")
         except FileNotFoundError as e:
@@ -233,6 +243,148 @@ class ApplicationEvaluator:
             raise OptimizationError(f"Permission denied: {e}")
         except Exception as e:
             raise OptimizationError(f"Evaluation failed: {e}")
+
+    def _check_returncode(self, result) -> None:
+        """Raise OptimizationError when the launched application exits non-zero."""
+        if result.returncode != 0:
+            if self.print_stdout:
+                logger.info(f"Application stdout: \n{result.stdout}\n")
+            logger.debug(f"Application stderr: \n{result.stderr}\n")
+            raise OptimizationError(
+                f"Application failed with return code {result.returncode}: {result.stderr}"
+            )
+
+    def _evaluate_direct(self) -> 'TrialResult':
+        """Run the application directly and measure wall-clock runtime.
+
+        Used for the RAW_METRIC and RUNTIME objectives, which do not need
+        energy measurement.
+        """
+        logger.debug(f"Launching application: {' '.join(self.launch_command)}")
+        start = time.monotonic()
+        result = subprocess.run(
+            self.launch_command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            timeout=self.timeout
+        )
+        runtime = time.monotonic() - start
+
+        self._check_returncode(result)
+
+        logger.debug(f"Application stdout length: {len(result.stdout)} characters")
+        if self.print_stdout:
+            logger.info(f"Application stdout: \n{result.stdout}\n")
+
+        # Without a metric regex the objective is runtime-based; only the
+        # measured wall-clock time is required.
+        if self.regex is None:
+            return TrialResult(runtime=runtime)
+
+        if not result.stdout:
+            raise OptimizationError("Application produced no output")
+        metric = self._extract_metric(result.stdout)
+        logger.debug(f"Extracted metric: {metric}")
+        return TrialResult(fom=metric, runtime=runtime)
+
+    def _signal_config_str(self) -> str:
+        """Build the geopmsession signal-config for the efficiency domain."""
+        lines = ['TIME board 0']
+        lines.extend(f'{name} board 0' for name in self._energy_signals)
+        return '\n'.join(lines) + '\n'
+
+    def _session_argv(self, signal_path: str, report_path: str) -> List[str]:
+        """Build the geopmsession command line that wraps the application."""
+        return [
+            'geopmsession',
+            '--period', repr(self.sample_period),
+            '--report-out', report_path,
+            '--trace-out', '/dev/null',
+            '--signal-config', signal_path,
+            '--', *self.launch_command,
+        ]
+
+    def _load_report(self, report_path: str) -> dict:
+        """Load and minimally validate the geopmsession YAML report."""
+        try:
+            with open(report_path) as fid:
+                report = yaml.safe_load(fid)
+        except FileNotFoundError:
+            raise OptimizationError("geopmsession did not produce a report")
+        if not isinstance(report, dict):
+            raise OptimizationError("geopmsession produced a malformed report")
+        return report
+
+    def _compute_energy_metrics(self, report: dict):
+        """Derive (energy, runtime, average_power) from a session report.
+
+        The energy and runtime are computed from the ``last - first`` deltas of
+        the report metrics, which are rollover-corrected by geopmsession, so a
+        RAPL wrap during the run does not corrupt the result.
+        """
+        metrics = report.get('metrics')
+        if not metrics:
+            raise OptimizationError("Session report is missing metrics")
+        if 'TIME' not in metrics:
+            raise OptimizationError("Session report is missing the TIME metric")
+        runtime = metrics['TIME']['last'] - metrics['TIME']['first']
+        energy = 0.0
+        for name in self._energy_signals:
+            if name not in metrics:
+                raise OptimizationError(f"Session report is missing the {name} metric")
+            energy += metrics[name]['last'] - metrics[name]['first']
+        if runtime <= 0:
+            raise OptimizationError("Session reported non-positive runtime")
+        average_power = energy / runtime
+        return energy, runtime, average_power
+
+    def _evaluate_session(self) -> 'TrialResult':
+        """Run the application under geopmsession and read energy from the report.
+
+        Used for the energy objectives (EFFICIENCY / ENERGY / ENERGY_BOUNDED).
+        """
+        signal_fd, signal_path = tempfile.mkstemp(prefix='geopmopt_signal_', suffix='.conf')
+        report_fd, report_path = tempfile.mkstemp(prefix='geopmopt_report_', suffix='.yaml')
+        try:
+            os.close(signal_fd)
+            os.close(report_fd)
+            with open(signal_path, 'w') as fid:
+                fid.write(self._signal_config_str())
+
+            argv = self._session_argv(signal_path, report_path)
+            logger.debug(f"Launching application under geopmsession: {' '.join(argv)}")
+            result = subprocess.run(
+                argv,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                timeout=self.timeout
+            )
+
+            self._check_returncode(result)
+
+            if self.print_stdout:
+                logger.info(f"Application stdout: \n{result.stdout}\n")
+
+            report = self._load_report(report_path)
+            energy, runtime, average_power = self._compute_energy_metrics(report)
+
+            fom = None
+            if self.regex is not None:
+                if not result.stdout:
+                    raise OptimizationError("Application produced no output")
+                fom = self._extract_metric(result.stdout)
+
+            return TrialResult(fom=fom, energy=energy, runtime=runtime,
+                               average_power=average_power)
+        finally:
+            for path in (signal_path, report_path):
+                try:
+                    os.unlink(path)
+                except FileNotFoundError:
+                    pass
+
 
     def _extract_metric(self, stdout: str) -> float:
         """Extract figure of merit from application stdout.
@@ -269,33 +421,59 @@ class ApplicationEvaluator:
                 f"Could not convert extracted value to float: {metric_str}"
             )
 
-def get_energy(domain: str):
+def energy_signal_names(domain: str) -> List[str]:
+    """Return the energy signal names used to measure the given domain.
+
+    This is the single source of truth for the domain-to-signal mapping. It is
+    used both to read energy in-process (:func:`get_energy`) and to build the
+    geopmsession signal-config for the energy objectives.
+
+    Args:
+        domain: One of ``board``, ``cpu``, or ``gpu``.
+
+    Returns:
+        List[str]: Available energy signal names whose deltas sum to the
+            domain energy. ``board`` prefers a single ``BOARD_ENERGY`` signal
+            and otherwise sums the available component signals.
+
+    Raises:
+        ValueError: If the domain is not supported.
+        OptimizationError: If no energy signals are available for the domain.
+    """
     all_signals = pio.signal_names()
-    result = 0  # Initialize result to 0 for all domains
+    names: List[str] = []
     if domain == 'board':
         if "BOARD_ENERGY" in all_signals:
-            return pio.read_signal("BOARD_ENERGY", 0, 0)
+            return ["BOARD_ENERGY"]
         # If we don't have board energy sum all components
         if "GPU_ENERGY" in all_signals:
-            result += pio.read_signal("GPU_ENERGY", 0, 0)
+            names.append("GPU_ENERGY")
         # Prefer powercap for energy measurements over default
         if "POWERCAP::CPU_ENERGY_CONSUMED" in all_signals:
-            result += pio.read_signal("POWERCAP::CPU_ENERGY_CONSUMED", 0, 0)
+            names.append("POWERCAP::CPU_ENERGY_CONSUMED")
         elif "CPU_ENERGY" in all_signals:
-            result += pio.read_signal("CPU_ENERGY", 0, 0)
+            names.append("CPU_ENERGY")
         if "DRAM_ENERGY" in all_signals:
-            result += pio.read_signal("DRAM_ENERGY", 0, 0)
+            names.append("DRAM_ENERGY")
     elif domain == 'cpu':
         # Prefer powercap for energy measurements over default
         if "POWERCAP::CPU_ENERGY_CONSUMED" in all_signals:
-            result += pio.read_signal("POWERCAP::CPU_ENERGY_CONSUMED", 0, 0)
+            names.append("POWERCAP::CPU_ENERGY_CONSUMED")
         elif "CPU_ENERGY" in all_signals:
-            result = pio.read_signal("CPU_ENERGY", 0, 0)
+            names.append("CPU_ENERGY")
     elif domain == 'gpu':
         if "GPU_ENERGY" in all_signals:
-            result = pio.read_signal("GPU_ENERGY", 0, 0)
+            names.append("GPU_ENERGY")
     else:
         raise ValueError(f'Unsupported domain {domain}, must be one of "board", "gpu", or "cpu"')
+    if not names:
+        raise OptimizationError("No energy signals available to compute efficiency")
+    return names
+
+
+def get_energy(domain: str):
+    result = sum(pio.read_signal(name, 0, 0)
+                 for name in energy_signal_names(domain))
     if result == 0:
         raise OptimizationError("No energy signals available to compute efficiency")
     return result
@@ -356,19 +534,15 @@ class BayesianOptimizer:
             ))
         return space
 
-    def _evaluate_coordinate(self, coordinate: List[int],
-                             objective_mode: ObjectiveMode,
-                             efficiency_domain: str) -> TrialResult:
+    def _evaluate_coordinate(self, coordinate: List[int]) -> TrialResult:
         """Execute a single trial and return its raw measurements.
 
-        Validates the coordinate, launches the application through the
-        evaluator, and (when an energy objective is active) samples energy
-        and time around the run.
+        Validates the coordinate and launches the application through the
+        evaluator. The evaluator selects the direct or geopmsession execution
+        strategy and populates the energy fields for energy objectives.
 
         Args:
             coordinate: Grid coordinate to evaluate.
-            objective_mode: The resolved optimization objective.
-            efficiency_domain: Domain used to measure energy.
 
         Returns:
             TrialResult: Figure of merit and/or wall-clock runtime, plus
@@ -393,19 +567,7 @@ class BayesianOptimizer:
             if coord_val < 0 or coord_val >= settings_count:
                 raise ValueError(f"Coordinate value {coord_val} at index {idx} out of range [0, {settings_count-1}]")
 
-        # Evaluate application
-        needs_energy = objective_mode in _ENERGY_MODES
-        if needs_energy:
-            start_time = pio.read_signal("TIME", 0, 0)
-            start_energy = get_energy(efficiency_domain)
-        trial = self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
-        if needs_energy:
-            end_energy = get_energy(efficiency_domain)
-            end_time = pio.read_signal("TIME", 0, 0)
-            trial.energy = end_energy - start_energy
-            trial.runtime = end_time - start_time
-            trial.average_power = trial.energy / trial.runtime
-        return trial
+        return self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
 
     def _score_result(self, trial: TrialResult,
                       objective_mode: ObjectiveMode) -> float:
@@ -464,8 +626,7 @@ class BayesianOptimizer:
 
     def optimize(self, trials: int = 50, n_initial_points: int = 10,
                  random_state: int = 42,
-                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
-                 efficiency_domain: str = None) -> dict:
+                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC) -> dict:
         """Run Bayesian optimization.
 
         Args:
@@ -473,7 +634,6 @@ class BayesianOptimizer:
             n_initial_points: Number of random initial evaluations
             random_state: Random seed for reproducibility
             objective_mode: The resolved optimization objective.
-            efficiency_domain: Domain to measure energy for energy objectives.
 
         Returns:
             dict: Optimization results including best configuration and value
@@ -484,7 +644,7 @@ class BayesianOptimizer:
             """Objective function for optimization."""
             # Convert parameter indices to actual coordinate values
             coordinate = [int(params[dim.name]) for dim in self.space]  # Convert numpy types to int
-            trial = self._evaluate_coordinate(coordinate, objective_mode, efficiency_domain)
+            trial = self._evaluate_coordinate(coordinate)
             metric = self._score_result(trial, objective_mode)
             self._record_history(coordinate, metric)
             return metric
@@ -607,6 +767,14 @@ def get_parser():
         dest='efficiency_domain',
         help='Optimize for efficiency by dividing the metric by the average power consumed over the specified domain',
     )
+    parser.add_argument(
+        '--sample-period',
+        type=float,
+        default=_DEFAULT_SAMPLE_PERIOD,
+        dest='sample_period',
+        help='geopmsession sampling period in seconds for energy-based '
+             'objectives; shorter periods add overhead (default: %(default)s)',
+    )
 
     # Application launch command
     parser.add_argument(
@@ -675,19 +843,7 @@ def main():
             if len(settings) == 0:
                 raise RuntimeError(f"Error: Control '{dim['control']}' on domain '{dim['domain']}' "
                                    f"index {dim['domain_idx']} has no available settings.")
-        # Create application evaluator
-        evaluator = ApplicationEvaluator(
-            launch_command=launch_command,
-            metric_regex=args.metric_regex,
-            maximize=not args.minimize,
-            timeout=args.application_timeout,
-            print_stdout=args.print_stdout
-        )
-        # Create and run optimizer
-        config_file = None
-        if args.defer_write:
-            config_file = args.output_file
-        optimizer = BayesianOptimizer(control_grid, evaluator, config_file)
+
         if (args.efficiency_domain is not None and
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
@@ -699,12 +855,28 @@ def main():
             args.metric_regex, args.efficiency_domain, metric_bound,
             args.minimize)
 
+        # Create application evaluator
+        evaluator = ApplicationEvaluator(
+            launch_command=launch_command,
+            metric_regex=args.metric_regex,
+            maximize=not args.minimize,
+            timeout=args.application_timeout,
+            print_stdout=args.print_stdout,
+            objective_mode=objective_mode,
+            efficiency_domain=args.efficiency_domain,
+            sample_period=args.sample_period
+        )
+        # Create and run optimizer
+        config_file = None
+        if args.defer_write:
+            config_file = args.output_file
+        optimizer = BayesianOptimizer(control_grid, evaluator, config_file)
+
         result = optimizer.optimize(
             trials=args.trials,
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
-            objective_mode=objective_mode,
-            efficiency_domain=args.efficiency_domain
+            objective_mode=objective_mode
         )
 
         # Print results

@@ -507,39 +507,13 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(opt.evaluation_history[0]['coordinate'], [1])
         self.assertEqual(opt.evaluation_history[0]['metric'], 42.0)
 
-    def test_evaluate_coordinate_no_efficiency(self):
-        """Without an energy objective the evaluator result is unchanged."""
+    def test_evaluate_coordinate_delegates(self):
+        """_evaluate_coordinate validates and returns the evaluator's result."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=7.0)
-        trial = opt._evaluate_coordinate([1], optimizer.ObjectiveMode.RAW_METRIC, None)
+        trial = opt._evaluate_coordinate([1])
         self.assertEqual(trial.fom, 7.0)
-        self.assertIsNone(trial.average_power)
         self.mock_evaluator.evaluate.assert_called_once()
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.get_energy')
-    def test_evaluate_coordinate_efficiency(self, mock_get_energy, mock_pio):
-        """With an energy objective, energy/runtime/power deltas are computed."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=7.0)
-        mock_pio.read_signal.side_effect = [1000.0, 1010.0]  # start/end time
-        mock_get_energy.side_effect = [500.0, 600.0]  # start/end energy
-        trial = opt._evaluate_coordinate([1], optimizer.ObjectiveMode.EFFICIENCY, 'cpu')
-        self.assertEqual(trial.energy, 100.0)
-        self.assertEqual(trial.runtime, 10.0)
-        self.assertEqual(trial.average_power, 10.0)
-
-    @patch('geopmdpy.optimizer.pio')
-    @patch('geopmdpy.optimizer.get_energy')
-    def test_evaluate_coordinate_runtime_skips_energy(self, mock_get_energy, mock_pio):
-        """The runtime objective does not sample energy or time signals."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(runtime=4.0)
-        trial = opt._evaluate_coordinate([1], optimizer.ObjectiveMode.RUNTIME, None)
-        self.assertEqual(trial.runtime, 4.0)
-        self.assertIsNone(trial.energy)
-        mock_get_energy.assert_not_called()
-        mock_pio.read_signal.assert_not_called()
 
     @patch('geopmdpy.optimizer.gp_minimize')
     def test_optimize_basic(self, mock_gp_minimize):
@@ -570,10 +544,9 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(call_args[1]['n_initial_points'], 2)
         self.assertEqual(call_args[1]['random_state'], 42)
 
-    @patch('geopmdpy.optimizer.pio')
     @patch('geopmdpy.optimizer.gp_minimize')
-    def test_optimize_with_efficiency(self, mock_gp_minimize, mock_pio):
-        """Test optimization with efficiency calculation."""
+    def test_optimize_with_efficiency(self, mock_gp_minimize):
+        """Test optimization in the efficiency objective mode."""
         # Mock optimization result
         mock_result = MagicMock()
         mock_result.x = [1]
@@ -581,29 +554,278 @@ class TestBayesianOptimizer(unittest.TestCase):
         mock_result.func_vals = [-50.0]
         mock_gp_minimize.return_value = mock_result
 
-        # Mock time and energy readings
-        mock_pio.read_signal.side_effect = [1000.0, 1010.0]  # 10 second runtime
-        mock_pio.signal_names.return_value = ["CPU_ENERGY", "TIME"]
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
 
-        # Mock get_energy function
-        with patch('geopmdpy.optimizer.get_energy') as mock_get_energy:
-            mock_get_energy.side_effect = [500.0, 600.0]  # Start and end energy
+        result = opt.optimize(
+            trials=1,
+            n_initial_points=1,
+            objective_mode=optimizer.ObjectiveMode.EFFICIENCY
+        )
 
-            # Mock evaluator to return metric
-            self.mock_evaluator.evaluate.return_value = 1000.0  # Base metric
+        # Just verify the optimize method was called without errors
+        self.assertIsNotNone(result)
+        self.assertIn('best_coordinate', result)
 
-            opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
 
-            result = opt.optimize(
-                trials=1,
-                n_initial_points=1,
-                objective_mode=optimizer.ObjectiveMode.EFFICIENCY,
-                efficiency_domain='cpu'
-            )
+@unittest.skipIf(skip_test, skip_msg)
+class TestSessionStrategy(unittest.TestCase):
+    """Tests for the geopmsession-wrapped energy evaluation strategy."""
 
-            # Just verify the optimize method was called without errors
-            self.assertIsNotNone(result)
-            self.assertIn('best_coordinate', result)
+    def _make_energy_evaluator(self, domain='cpu', signals=('CPU_ENERGY',),
+                               mode=None, sample_period=0.01, metric_regex=None):
+        """Construct an energy-objective evaluator with preflight mocked out."""
+        if mode is None:
+            mode = optimizer.ObjectiveMode.EFFICIENCY
+        with patch('geopmdpy.optimizer.shutil.which',
+                   return_value='/usr/bin/geopmsession'), \
+             patch('geopmdpy.optimizer.pio') as mock_pio:
+            mock_pio.signal_names.return_value = list(signals)
+            evaluator = optimizer.ApplicationEvaluator(
+                ["app"], metric_regex=metric_regex, maximize=True,
+                objective_mode=mode, efficiency_domain=domain,
+                sample_period=sample_period)
+        return evaluator
+
+    def test_needs_session_for_energy_modes(self):
+        """Energy objectives route through geopmsession; others stay direct."""
+        for mode in (optimizer.ObjectiveMode.EFFICIENCY,
+                     optimizer.ObjectiveMode.ENERGY,
+                     optimizer.ObjectiveMode.ENERGY_BOUNDED):
+            evaluator = self._make_energy_evaluator(mode=mode)
+            self.assertTrue(evaluator.needs_session)
+        for mode in (optimizer.ObjectiveMode.RAW_METRIC,
+                     optimizer.ObjectiveMode.RUNTIME):
+            evaluator = optimizer.ApplicationEvaluator(
+                ["app"], objective_mode=mode)
+            self.assertFalse(evaluator.needs_session)
+
+    def test_init_missing_geopmsession_raises(self):
+        """A missing geopmsession is caught at construction time."""
+        with patch('geopmdpy.optimizer.shutil.which', return_value=None), \
+             patch('geopmdpy.optimizer.pio'):
+            with self.assertRaises(optimizer.OptimizationError) as ctx:
+                optimizer.ApplicationEvaluator(
+                    ["app"], objective_mode=optimizer.ObjectiveMode.EFFICIENCY,
+                    efficiency_domain='cpu')
+            self.assertIn("geopmsession", str(ctx.exception))
+
+    def test_init_missing_yaml_raises(self):
+        """A missing pyyaml module is caught at construction time."""
+        with patch('geopmdpy.optimizer.yaml', None), \
+             patch('geopmdpy.optimizer.shutil.which',
+                   return_value='/usr/bin/geopmsession'), \
+             patch('geopmdpy.optimizer.pio'):
+            with self.assertRaises(optimizer.OptimizationError) as ctx:
+                optimizer.ApplicationEvaluator(
+                    ["app"], objective_mode=optimizer.ObjectiveMode.EFFICIENCY,
+                    efficiency_domain='cpu')
+            self.assertIn("pyyaml", str(ctx.exception))
+
+    def test_init_non_energy_mode_skips_preflight(self):
+        """Non-energy objectives do not require geopmsession or pyyaml."""
+        with patch('geopmdpy.optimizer.shutil.which', return_value=None):
+            evaluator = optimizer.ApplicationEvaluator(
+                ["app"], objective_mode=optimizer.ObjectiveMode.RUNTIME)
+        self.assertFalse(evaluator.needs_session)
+        self.assertIsNone(evaluator._energy_signals)
+
+    def test_signal_config_cpu(self):
+        """CPU domain emits TIME plus the CPU energy signal."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        self.assertEqual(evaluator._signal_config_str(),
+                         'TIME board 0\nCPU_ENERGY board 0\n')
+
+    def test_signal_config_gpu(self):
+        """GPU domain emits TIME plus the GPU energy signal."""
+        evaluator = self._make_energy_evaluator(domain='gpu',
+                                                signals=('GPU_ENERGY',))
+        self.assertEqual(evaluator._signal_config_str(),
+                         'TIME board 0\nGPU_ENERGY board 0\n')
+
+    def test_signal_config_board_component_sum(self):
+        """Without BOARD_ENERGY the board domain sums component signals."""
+        evaluator = self._make_energy_evaluator(
+            domain='board',
+            signals=('GPU_ENERGY', 'POWERCAP::CPU_ENERGY_CONSUMED',
+                     'DRAM_ENERGY'))
+        self.assertEqual(
+            evaluator._signal_config_str(),
+            'TIME board 0\nGPU_ENERGY board 0\n'
+            'POWERCAP::CPU_ENERGY_CONSUMED board 0\nDRAM_ENERGY board 0\n')
+
+    def test_session_argv(self):
+        """The geopmsession command line wraps the launch command exactly."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',),
+                                                sample_period=0.05)
+        evaluator.launch_command = ["mybin", "--flag", "1"]
+        argv = evaluator._session_argv('/tmp/sig.conf', '/tmp/rep.yaml')
+        self.assertEqual(argv, [
+            'geopmsession',
+            '--period', repr(0.05),
+            '--report-out', '/tmp/rep.yaml',
+            '--trace-out', '/dev/null',
+            '--signal-config', '/tmp/sig.conf',
+            '--', 'mybin', '--flag', '1',
+        ])
+
+    def test_compute_energy_metrics(self):
+        """Energy and runtime come from the last-first metric deltas."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        report = {'metrics': {
+            'TIME': {'first': 1000.0, 'last': 1010.0},
+            'CPU_ENERGY': {'first': 500.0, 'last': 600.0},
+        }}
+        energy, runtime, average_power = evaluator._compute_energy_metrics(report)
+        self.assertEqual(energy, 100.0)
+        self.assertEqual(runtime, 10.0)
+        self.assertEqual(average_power, 10.0)
+
+    def test_compute_energy_metrics_rollover(self):
+        """A RAPL rollover corrected by the report yields positive energy.
+
+        A naive two-point read of the raw counter would go negative when the
+        counter wraps, but the report's ``last`` value is rollover-corrected so
+        ``last - first`` stays positive.
+        """
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        report = {'metrics': {
+            'TIME': {'first': 0.0, 'last': 5.0},
+            # Raw counter wrapped from 90 back to 10, but report corrects to 130
+            'CPU_ENERGY': {'first': 90.0, 'last': 130.0},
+        }}
+        energy, runtime, average_power = evaluator._compute_energy_metrics(report)
+        self.assertEqual(energy, 40.0)
+        self.assertEqual(runtime, 5.0)
+        self.assertEqual(average_power, 8.0)
+
+    def test_compute_energy_metrics_missing_time(self):
+        """A report without TIME is rejected."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        report = {'metrics': {'CPU_ENERGY': {'first': 0.0, 'last': 1.0}}}
+        with self.assertRaises(optimizer.OptimizationError):
+            evaluator._compute_energy_metrics(report)
+
+    def test_compute_energy_metrics_missing_signal(self):
+        """A report missing an energy signal is rejected."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        report = {'metrics': {'TIME': {'first': 0.0, 'last': 1.0}}}
+        with self.assertRaises(optimizer.OptimizationError):
+            evaluator._compute_energy_metrics(report)
+
+    def test_compute_energy_metrics_non_positive_runtime(self):
+        """A non-positive runtime is rejected."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        report = {'metrics': {
+            'TIME': {'first': 5.0, 'last': 5.0},
+            'CPU_ENERGY': {'first': 0.0, 'last': 1.0},
+        }}
+        with self.assertRaises(optimizer.OptimizationError):
+            evaluator._compute_energy_metrics(report)
+
+    def test_load_report_missing_file(self):
+        """A missing report file raises a clear error."""
+        evaluator = self._make_energy_evaluator()
+        with self.assertRaises(optimizer.OptimizationError):
+            evaluator._load_report('/nonexistent/geopmopt_report.yaml')
+
+    def test_load_report_malformed(self):
+        """A non-mapping report is rejected."""
+        evaluator = self._make_energy_evaluator()
+        with patch('geopmdpy.optimizer.yaml') as mock_yaml, \
+             patch('builtins.open', mock_open(read_data='- a\n- b\n')):
+            mock_yaml.safe_load.return_value = ['a', 'b']
+            with self.assertRaises(optimizer.OptimizationError):
+                evaluator._load_report('/tmp/report.yaml')
+
+    def test_evaluate_session_success_and_cleanup(self):
+        """A successful session run returns metrics and cleans up temp files."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        report = {'metrics': {
+            'TIME': {'first': 0.0, 'last': 10.0},
+            'CPU_ENERGY': {'first': 0.0, 'last': 200.0},
+        }}
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = ""
+        created = []
+        real_mkstemp = tempfile.mkstemp
+
+        def tracking_mkstemp(*args, **kwargs):
+            fd, path = real_mkstemp(*args, **kwargs)
+            created.append(path)
+            return fd, path
+
+        with patch('geopmdpy.optimizer.subprocess.run',
+                   return_value=mock_result) as mock_run, \
+             patch('geopmdpy.optimizer.tempfile.mkstemp',
+                   side_effect=tracking_mkstemp), \
+             patch.object(evaluator, '_load_report', return_value=report):
+            trial = evaluator._evaluate_session()
+
+        self.assertEqual(trial.energy, 200.0)
+        self.assertEqual(trial.runtime, 10.0)
+        self.assertEqual(trial.average_power, 20.0)
+        self.assertIsNone(trial.fom)
+        mock_run.assert_called_once()
+        self.assertEqual(len(created), 2)
+        for path in created:
+            self.assertFalse(os.path.exists(path))
+
+    def test_evaluate_session_cleanup_on_error(self):
+        """Temp files are removed even when the session fails."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stdout = ""
+        mock_result.stderr = "boom"
+        created = []
+        real_mkstemp = tempfile.mkstemp
+
+        def tracking_mkstemp(*args, **kwargs):
+            fd, path = real_mkstemp(*args, **kwargs)
+            created.append(path)
+            return fd, path
+
+        with patch('geopmdpy.optimizer.subprocess.run',
+                   return_value=mock_result), \
+             patch('geopmdpy.optimizer.tempfile.mkstemp',
+                   side_effect=tracking_mkstemp):
+            with self.assertRaises(optimizer.OptimizationError):
+                evaluator._evaluate_session()
+
+        self.assertEqual(len(created), 2)
+        for path in created:
+            self.assertFalse(os.path.exists(path))
+
+    def test_evaluate_session_extracts_fom(self):
+        """When a regex is provided the session run also scrapes the FOM."""
+        evaluator = self._make_energy_evaluator(
+            domain='cpu', signals=('CPU_ENERGY',),
+            metric_regex=r'FOM: ([0-9.]+)')
+        report = {'metrics': {
+            'TIME': {'first': 0.0, 'last': 2.0},
+            'CPU_ENERGY': {'first': 0.0, 'last': 10.0},
+        }}
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "FOM: 42.0\n"
+        with patch('geopmdpy.optimizer.subprocess.run',
+                   return_value=mock_result), \
+             patch('geopmdpy.optimizer.tempfile.mkstemp',
+                   side_effect=tempfile.mkstemp), \
+             patch.object(evaluator, '_load_report', return_value=report):
+            trial = evaluator._evaluate_session()
+        self.assertEqual(trial.fom, 42.0)
+        self.assertEqual(trial.energy, 10.0)
 
 
 @unittest.skipIf(skip_test, skip_msg)
@@ -864,6 +1086,7 @@ class TestGetParser(unittest.TestCase):
             '--print-stdout',
             '--defer-write',
             '--efficiency', 'cpu',
+            '--sample-period', '0.25',
             'echo', 'test'
         ])
 
@@ -880,6 +1103,7 @@ class TestGetParser(unittest.TestCase):
         self.assertTrue(args.print_stdout)
         self.assertTrue(args.defer_write)
         self.assertEqual(args.efficiency_domain, 'cpu')
+        self.assertEqual(args.sample_period, 0.25)
         self.assertEqual(args.launch, ['echo', 'test'])
 
     def test_parser_defaults(self):
@@ -902,6 +1126,7 @@ class TestGetParser(unittest.TestCase):
         self.assertFalse(args.print_stdout)
         self.assertFalse(args.defer_write)
         self.assertIsNone(args.efficiency_domain)
+        self.assertEqual(args.sample_period, optimizer._DEFAULT_SAMPLE_PERIOD)
 
     def test_parser_metric_regex_optional(self):
         """--metric-regex is optional and defaults to None."""
