@@ -36,10 +36,13 @@ Synopsis
                     [--prefetch-disable-max PREFETCH_DISABLE_MAX]
                     [--prefetch-disable-step PREFETCH_DISABLE_STEP]
                     [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
-                    --metric-regex METRIC_REGEX [--minimize] [--random-seed RANDOM_SEED]
+                    [--metric-regex METRIC_REGEX] [--minimize]
+                    [--random-seed RANDOM_SEED]
                     [--application-timeout APPLICATION_TIMEOUT]
                     [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
                     [--print-stdout] [--defer-write] [--efficiency EFFICIENCY_DOMAIN]
+                    [--metric-bound METRIC_BOUND] [--sample-period SAMPLE_PERIOD]
+                    [--penalty PENALTY]
                     [-- LAUNCH ...]
 
 Optimize CPU frequency for performance
@@ -106,8 +109,11 @@ The optimizer works by:
    functions to intelligently explore the parameter space, focusing on
    promising regions.
 
-4. **Metric Extraction**: Parses application output using Python regular
-   expressions to extract numeric performance metrics.
+4. **Metric Extraction**: Optionally parses application output using Python
+   regular expressions to extract a numeric performance metric. When no
+   ``--metric-regex`` is supplied the objective defaults to total wall-clock
+   runtime, or to total energy over the ``--efficiency`` domain when that option
+   is also given.
 
 The tool requires the ``scikit-optimize`` package for Bayesian optimization
 functionality: ``python3 -m pip install scikit-optimize``
@@ -272,14 +278,18 @@ Optimization Configuration
 
 --metric-regex METRIC_REGEX  .. _metric-regex option:
 
-    Python-style regular expression to extract the performance metric from
-    application output. The regex must capture the numeric value in a group.
-    Required option.
+    Python-style regular expression to extract the figure of merit from the
+    application's standard output. The regex must capture the numeric value in a
+    group. Optional: when omitted, the objective defaults to total wall-clock
+    runtime, or to total energy over the ``--efficiency`` domain when that option
+    is also provided.
 
 --minimize  .. _minimize option:
 
     Minimize the extracted metric instead of maximizing it. Useful for
-    optimizing energy consumption, execution time, or error rates.
+    optimizing energy consumption, execution time, or error rates. When
+    ``--metric-regex`` is omitted the objective (runtime or energy) is always
+    minimized regardless of this flag.
 
 --random-seed RANDOM_SEED  .. _random-seed option:
 
@@ -292,13 +302,51 @@ Optimization Configuration
 
 --efficiency EFFICIENCY_DOMAIN  .. _efficiency option:
 
-    Optimize for efficiency by dividing the extracted metric by average power
-    consumption. This finds configurations that maximize performance per watt.
-    When the ``--minimize`` option is provided, the average power consumption is
-    multiplied rather than divided.  This will minimize energy to completion if
-    the metric is time to completion.  The EFFICIENCY_DOMAIN determines the
-    components included in the power calculation and valid values are 'board',
-    'cpu', or 'gpu'.
+    Optimize for efficiency using the average power consumed over the specified
+    domain. When ``--metric-regex`` is provided, the extracted metric is divided
+    by average power (multiplied instead when ``--minimize`` is set, which
+    minimizes energy to completion if the metric is time to completion). When
+    ``--metric-regex`` is omitted, the objective becomes total energy over this
+    domain, measured directly from a ``geopmsession`` energy trace. The
+    EFFICIENCY_DOMAIN determines the components included in the power calculation
+    and valid values are ``board``, ``cpu``, or ``gpu``.
+
+--metric-bound METRIC_BOUND  .. _metric-bound option:
+
+    Minimize energy over the ``--efficiency`` domain subject to keeping the
+    ``--metric-regex`` figure of merit at or above this bound (at or below when
+    ``--minimize`` is set). This turns the run into a constrained optimization:
+    configurations that violate the bound are treated as infeasible and only the
+    feasible configuration with the lowest energy is reported. Requires both
+    ``--metric-regex`` and ``--efficiency``.
+
+--sample-period SAMPLE_PERIOD  .. _sample-period option:
+
+    ``geopmsession`` sampling period in seconds used when collecting the energy
+    trace for energy-based objectives (``--efficiency`` without a metric regex,
+    or ``--metric-bound``). Shorter periods improve energy-integration accuracy
+    at the cost of additional sampling overhead. Default: 0.01.
+
+--penalty PENALTY  .. _penalty option:
+
+    How to handle a *recoverable* trial failure (an application timeout, a
+    non-zero exit code, a missing or unparsable figure of merit, or a
+    non-positive power/runtime report). The value is one of:
+
+    ``auto`` (default)
+        Assign the failed trial an objective value strictly worse than every
+        successful trial observed so far, so the optimizer learns to avoid that
+        region and the run continues. If a failure occurs before any success,
+        a finite bootstrap penalty is used and a warning is logged.
+
+    ``none``
+        Abort the whole run on the first failed trial (the legacy behavior).
+
+    ``<number>``
+        Use this fixed numeric objective value for every failed trial.
+
+    Fatal errors (command not found, permission denied, configuration or report
+    parsing errors) always abort the run regardless of this setting.
 
 Output and Logging
 ~~~~~~~~~~~~~~~~~~
@@ -420,7 +468,8 @@ The resulting configuration file can be applied with:
 Minimization optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Minimize execution time or energy consumption:
+Minimize a metric scraped from application output, such as an execution time it
+prints itself:
 
 .. code-block:: shell-session
 
@@ -429,6 +478,51 @@ Minimize execution time or energy consumption:
               --minimize \
               --trials 40 \
               -- ./timed_benchmark
+
+Minimize runtime without a metric regex
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the application does not print a figure of merit, omit ``--metric-regex``
+and ``geopmopt`` minimizes the total wall-clock runtime of the launch command
+directly:
+
+.. code-block:: shell-session
+
+   $ geopmopt --cpu-frequency package \
+              --cpu-uncore-frequency package \
+              --trials 40 \
+              -- ./timed_benchmark
+
+Minimize energy without a metric regex
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Combine ``--efficiency`` with no ``--metric-regex`` to minimize total energy
+over a domain, measured from a ``geopmsession`` energy trace rather than scraped
+from stdout:
+
+.. code-block:: shell-session
+
+   $ geopmopt --cpu-frequency package \
+              --cpu-uncore-frequency package \
+              --efficiency cpu \
+              --sample-period 0.01 \
+              --trials 40 \
+              -- ./compute_kernel
+
+Bounded-energy optimization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Minimize energy while holding a performance figure of merit at or above a bound.
+Configurations that drop below the bound are treated as infeasible:
+
+.. code-block:: shell-session
+
+   $ geopmopt --cpu-frequency package \
+              --metric-regex 'Throughput: ([0-9.]+)' \
+              --efficiency cpu \
+              --metric-bound 1200.0 \
+              --trials 40 \
+              -- ./throughput_app
 
 Energy efficiency optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -502,9 +596,11 @@ Optimize across all available control dimensions:
 Metric Extraction
 -----------------
 
-The ``--metric-regex`` option uses Python regular expressions to extract
-performance metrics from application output. The regex must capture the
-numeric value in a parenthesized group.
+The optional ``--metric-regex`` option uses Python regular expressions to
+extract performance metrics from application output. When supplied, the regex
+must capture the numeric value in a parenthesized group. When omitted, no
+scraping is performed and the objective defaults to runtime (or energy with
+``--efficiency``).
 
 Valid regex examples:
 
@@ -543,22 +639,40 @@ especially for expensive function evaluations.
 Error Handling
 --------------
 
-The optimizer handles various failure scenarios:
+The optimizer sorts evaluation failures into two categories.
 
-**Application Timeouts:** Applications exceeding ``--application-timeout`` are
-terminated and receive a penalty score.
+**Recoverable failures** do not abort the run. By default (``--penalty auto``)
+the failed trial is assigned an objective worse than every success, is logged at
+warning level, and is excluded from best-configuration selection, so a single
+flaky trial no longer discards the measurements already collected. The
+recoverable set is:
 
-**Configuration Errors:** Invalid control parameters are detected early using
-the GEOPM PIO interface.
+- **Application Timeouts:** Applications exceeding ``--application-timeout`` are
+  terminated and the trial is penalized.
+- **Application Failures:** Non-zero exit codes (with captured stderr) penalize
+  the trial.
+- **Metric Scrape Misses:** A ``--metric-regex`` that does not match, or a
+  matched value that cannot be parsed as a number, penalizes the trial.
+- **No Output:** A trial that produces no stdout when a metric is expected is
+  penalized.
+- **Bad Energy Report:** A ``geopmsession`` energy trace with non-positive
+  runtime or non-positive power penalizes the trial.
 
-**Regex Failures:** Missing or invalid metric patterns are reported with
-suggestions for debugging.
+Use ``--penalty none`` to restore the legacy behavior of aborting on the first
+recoverable failure, or ``--penalty <number>`` to assign a fixed penalty value.
 
-**Application Failures:** Non-zero exit codes and stderr output are captured
-and logged.
+**Fatal errors** always abort the run regardless of ``--penalty``:
 
-**Optimization Failures:** Issues with the Bayesian optimization algorithm
-are reported with diagnostic information.
+- **Missing Command / Permissions:** A launch command that cannot be found or
+  executed.
+- **Configuration Errors:** Invalid control parameters, detected early using the
+  GEOPM PIO interface.
+- **Report Parsing Errors:** A missing or malformed ``geopmsession`` report.
+- **Optimization Failures:** Issues with the Bayesian optimization algorithm
+  are reported with diagnostic information.
+
+If *every* trial fails, the run stops with a clear "All trials failed" error
+rather than emitting a meaningless configuration.
 
 
 Best Practices
