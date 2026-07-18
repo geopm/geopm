@@ -492,12 +492,114 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(
             opt._score_result(trial, optimizer.ObjectiveMode.ENERGY), 987.0)
 
-    def test_score_result_energy_bounded_not_implemented(self):
-        """The energy-bounded objective is not implemented in this phase."""
+    def test_score_result_energy_bounded_feasible(self):
+        """A feasible energy-bounded trial scores its plain energy."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        trial = optimizer.TrialResult(fom=1.0, energy=1.0)
-        with self.assertRaises(NotImplementedError):
-            opt._score_result(trial, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        opt._metric_bound = 100.0
+        opt._penalty_weight = 1.0
+        # maximize (default): feasible when fom >= bound
+        trial = optimizer.TrialResult(fom=120.0, energy=500.0)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.ENERGY_BOUNDED),
+            500.0)
+
+    def test_score_result_energy_bounded_infeasible(self):
+        """An infeasible energy-bounded trial scores strictly above its energy."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        opt._penalty_weight = 1.0
+        # violation = (100 - 50) / 100 = 0.5; energy_scale = 500;
+        # penalty = 1.0 * 500 * 0.5 = 250
+        trial = optimizer.TrialResult(fom=50.0, energy=500.0)
+        score = opt._score_result(trial, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        self.assertGreater(score, 500.0)
+        self.assertEqual(score, 750.0)
+
+    def test_score_result_energy_bounded_minimize(self):
+        """When minimizing the FoM the bound is a ceiling."""
+        self.mock_evaluator.maximize = False
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        opt._penalty_weight = 1.0
+        # feasible when fom <= bound
+        feasible = optimizer.TrialResult(fom=80.0, energy=500.0)
+        self.assertEqual(
+            opt._score_result(feasible, optimizer.ObjectiveMode.ENERGY_BOUNDED),
+            500.0)
+        # infeasible when fom > bound: violation = (150 - 100) / 100 = 0.5
+        infeasible = optimizer.TrialResult(fom=150.0, energy=500.0)
+        score = opt._score_result(
+            infeasible, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        self.assertEqual(score, 750.0)
+
+    def test_build_bounded_result_prefers_feasible(self):
+        """The best feasible point is chosen even if infeasible energy is lower."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 100.0, 'energy': 100.0,
+             'fom': 50.0, 'feasible': False},
+            {'coordinate': [1], 'metric': 300.0, 'energy': 300.0,
+             'fom': 120.0, 'feasible': True},
+            {'coordinate': [2], 'metric': 250.0, 'energy': 250.0,
+             'fom': 110.0, 'feasible': True},
+        ]
+        mock_result = MagicMock()
+        mock_result.func_vals = [1, 2, 3]
+        out = opt._build_bounded_result(mock_result)
+        self.assertTrue(out['bound_satisfied'])
+        self.assertEqual(out['best_coordinate'], [2])
+        self.assertEqual(out['best_metric'], 250.0)
+        self.assertEqual(out['best_fom'], 110.0)
+
+    def test_build_bounded_result_all_infeasible(self):
+        """With no feasible point the least-penalized trial is reported."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 900.0, 'energy': 400.0,
+             'fom': 50.0, 'feasible': False},
+            {'coordinate': [1], 'metric': 600.0, 'energy': 500.0,
+             'fom': 80.0, 'feasible': False},
+        ]
+        mock_result = MagicMock()
+        mock_result.func_vals = [1, 2]
+        out = opt._build_bounded_result(mock_result)
+        self.assertFalse(out['bound_satisfied'])
+        # The trial with the lowest penalized metric (600.0) is reported.
+        self.assertEqual(out['best_coordinate'], [1])
+        self.assertEqual(out['best_fom'], 80.0)
+
+    def test_summarize_energy_bounded_satisfied(self):
+        """The summary reports bound feasibility and the best figure of merit."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        result = {
+            'best_config': 'CONFIG', 'best_metric': 250.0,
+            'best_fom': 110.0, 'bound_satisfied': True,
+        }
+        summary = opt.summarize(result, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        self.assertIn('satisfied', summary)
+        self.assertIn('110.0', summary)
+        self.assertNotIn('NOT satisfied', summary)
+
+    def test_summarize_energy_bounded_violated(self):
+        """The summary flags a violated bound."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        result = {
+            'best_config': 'CONFIG', 'best_metric': 250.0,
+            'best_fom': 80.0, 'bound_satisfied': False,
+        }
+        summary = opt.summarize(result, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        self.assertIn('NOT satisfied', summary)
+
+    def test_summarize_non_bounded(self):
+        """Non-bounded objectives summarize just the best configuration."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        result = {'best_config': 'CONFIG', 'best_metric': 1.0}
+        summary = opt.summarize(result, optimizer.ObjectiveMode.RUNTIME)
+        self.assertEqual(summary, 'Best configuration:\nCONFIG')
 
     def test_record_history(self):
         """History records the coordinate, metric, and config commands."""
@@ -506,6 +608,21 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(len(opt.evaluation_history), 1)
         self.assertEqual(opt.evaluation_history[0]['coordinate'], [1])
         self.assertEqual(opt.evaluation_history[0]['metric'], 42.0)
+
+    def test_record_history_energy_bounded_feasibility(self):
+        """Energy-bounded history entries record feasibility, fom, and energy."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        feasible = optimizer.TrialResult(fom=120.0, energy=500.0)
+        opt._record_history([0], 500.0, feasible,
+                            optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        infeasible = optimizer.TrialResult(fom=50.0, energy=400.0)
+        opt._record_history([1], 700.0, infeasible,
+                            optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        self.assertTrue(opt.evaluation_history[0]['feasible'])
+        self.assertEqual(opt.evaluation_history[0]['fom'], 120.0)
+        self.assertEqual(opt.evaluation_history[0]['energy'], 500.0)
+        self.assertFalse(opt.evaluation_history[1]['feasible'])
 
     def test_evaluate_coordinate_delegates(self):
         """_evaluate_coordinate validates and returns the evaluator's result."""
@@ -860,6 +977,8 @@ class TestOptimizerMain(unittest.TestCase):
             'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
             'n_evaluations': 10
         }
+        mock_optimizer.summarize.return_value = (
+            "Best configuration:\nCPU_FREQUENCY_MAX_CONTROL package 0 2000000")
         mock_optimizer_class.return_value = mock_optimizer
 
         with patch('builtins.print') as mock_print:
@@ -1086,6 +1205,7 @@ class TestGetParser(unittest.TestCase):
             '--print-stdout',
             '--defer-write',
             '--efficiency', 'cpu',
+            '--metric-bound', '100.0',
             '--sample-period', '0.25',
             'echo', 'test'
         ])
@@ -1103,6 +1223,7 @@ class TestGetParser(unittest.TestCase):
         self.assertTrue(args.print_stdout)
         self.assertTrue(args.defer_write)
         self.assertEqual(args.efficiency_domain, 'cpu')
+        self.assertEqual(args.metric_bound, 100.0)
         self.assertEqual(args.sample_period, 0.25)
         self.assertEqual(args.launch, ['echo', 'test'])
 
@@ -1126,6 +1247,7 @@ class TestGetParser(unittest.TestCase):
         self.assertFalse(args.print_stdout)
         self.assertFalse(args.defer_write)
         self.assertIsNone(args.efficiency_domain)
+        self.assertIsNone(args.metric_bound)
         self.assertEqual(args.sample_period, optimizer._DEFAULT_SAMPLE_PERIOD)
 
     def test_parser_metric_regex_optional(self):
