@@ -16,9 +16,11 @@ import sys
 import os
 import subprocess
 import re
+import time
 import logging
 from argparse import ArgumentParser, REMAINDER
 from dataclasses import dataclass
+from enum import Enum
 from typing import List, Optional
 
 try:
@@ -41,6 +43,64 @@ logger = logging.getLogger(__name__)
 class OptimizationError(Exception):
     """Exception raised when optimization fails."""
     pass
+
+
+class ObjectiveMode(Enum):
+    """The optimization objective resolved from the command-line inputs.
+
+    The mode is a function of whether ``--metric-regex``, ``--efficiency``,
+    and ``--metric-bound`` are supplied; see :func:`resolve_objective_mode`
+    and the objective matrix in the geopmopt documentation.
+    """
+    #: Optimize the figure of merit scraped from stdout (``--minimize`` toggles).
+    RAW_METRIC = 'raw_metric'
+    #: Optimize figure of merit per average power over the efficiency domain.
+    EFFICIENCY = 'efficiency'
+    #: Minimize total wall-clock runtime (no figure of merit required).
+    RUNTIME = 'runtime'
+    #: Minimize total energy over the efficiency domain (no FoM required).
+    ENERGY = 'energy'
+    #: Minimize energy subject to a bound on the figure of merit.
+    ENERGY_BOUNDED = 'energy_bounded'
+
+
+#: Objective modes that require sampling energy around each trial.
+_ENERGY_MODES = frozenset(
+    {ObjectiveMode.EFFICIENCY, ObjectiveMode.ENERGY, ObjectiveMode.ENERGY_BOUNDED})
+
+
+def resolve_objective_mode(metric_regex, efficiency_domain, metric_bound,
+                           minimize):
+    """Resolve the optimization objective from the command-line inputs.
+
+    Args:
+        metric_regex: The ``--metric-regex`` value, or None when omitted.
+        efficiency_domain: The ``--efficiency`` domain, or None when omitted.
+        metric_bound: The ``--metric-bound`` value, or None when omitted.
+        minimize: Whether ``--minimize`` was requested. The optimization
+            direction does not change which objective is selected; it is
+            accepted here so this function is the single place that consumes
+            all objective-determining inputs.
+
+    Returns:
+        ObjectiveMode: The resolved objective.
+
+    Raises:
+        ValueError: If the combination of inputs is invalid.
+    """
+    if metric_bound is not None:
+        if metric_regex is None:
+            raise ValueError('--metric-bound requires --metric-regex')
+        if efficiency_domain is None:
+            raise ValueError('--metric-bound requires --efficiency')
+        return ObjectiveMode.ENERGY_BOUNDED
+    if metric_regex is not None:
+        if efficiency_domain is not None:
+            return ObjectiveMode.EFFICIENCY
+        return ObjectiveMode.RAW_METRIC
+    if efficiency_domain is not None:
+        return ObjectiveMode.ENERGY
+    return ObjectiveMode.RUNTIME
 
 
 @dataclass
@@ -85,13 +145,15 @@ class ApplicationEvaluator:
         timeout (int): Timeout in seconds for the application's execution.
         print_stdout (bool): Whether to log the application's stdout to the info level.
     """
-    def __init__(self, launch_command: List[str], metric_regex: str, maximize: bool = True,
+    def __init__(self, launch_command: List[str], metric_regex: str = None, maximize: bool = True,
                  timeout: int = 300, print_stdout: bool = False):
         """Initialize the application evaluator.
 
         Args:
             launch_command: Command and arguments to launch the application
-            metric_regex: Python-style regex to extract figure of merit from stdout
+            metric_regex: Python-style regex to extract figure of merit from
+                stdout. When None, no figure of merit is scraped and only the
+                application's wall-clock runtime is measured.
             maximize: Whether to maximize (True) or minimize (False) the metric
             timeout: Timeout in seconds for application execution
             print_stdout: Whether to log application stdout to info level
@@ -100,7 +162,7 @@ class ApplicationEvaluator:
         self.metric_regex = metric_regex
         self.maximize = maximize
         self.timeout = timeout
-        self.regex = re.compile(self.metric_regex)
+        self.regex = re.compile(self.metric_regex) if self.metric_regex is not None else None
         self.print_stdout = print_stdout
 
     def evaluate(self, control_grid: ControlGrid, coordinate: List[int], config_file: str = None) -> float:
@@ -112,8 +174,9 @@ class ApplicationEvaluator:
             config_file: A file path to populate with the geopmwrite configuration file.
 
         Returns:
-            TrialResult: Container holding the raw figure of merit extracted
-                from application output in its ``fom`` field.
+            TrialResult: Container holding the application's wall-clock runtime
+                in its ``runtime`` field and, when a metric regex is configured,
+                the raw figure of merit in its ``fom`` field.
 
         Raises:
             OptimizationError: If evaluation fails.
@@ -127,6 +190,7 @@ class ApplicationEvaluator:
 
             # Launch application
             logger.debug(f"Launching application: {' '.join(self.launch_command)}")
+            start = time.monotonic()
             result = subprocess.run(
                 self.launch_command,
                 stdout=subprocess.PIPE,
@@ -134,6 +198,7 @@ class ApplicationEvaluator:
                 universal_newlines=True,
                 timeout=self.timeout
             )
+            runtime = time.monotonic() - start
 
             if result.returncode != 0:
                 if self.print_stdout:
@@ -143,16 +208,22 @@ class ApplicationEvaluator:
                     f"Application failed with return code {result.returncode}: {result.stderr}"
                 )
 
-            # Extract metric from stdout
             logger.debug(f"Application stdout length: {len(result.stdout)} characters")
             if self.print_stdout:
                 logger.info(f"Application stdout: \n{result.stdout}\n")
+
+            # Without a metric regex the objective is runtime-based; only the
+            # measured wall-clock time is required.
+            if self.regex is None:
+                return TrialResult(runtime=runtime)
+
+            # Extract metric from stdout
             if not result.stdout:
                 raise OptimizationError("Application produced no output")
             metric = self._extract_metric(result.stdout)
             logger.debug(f"Extracted metric: {metric}")
 
-            return TrialResult(fom=metric)
+            return TrialResult(fom=metric, runtime=runtime)
 
         except subprocess.TimeoutExpired:
             raise OptimizationError(f"Application evaluation timed out after {self.timeout} seconds")
@@ -285,22 +356,23 @@ class BayesianOptimizer:
             ))
         return space
 
-    def _evaluate_coordinate(self, coordinate: List[int], use_efficiency: int,
+    def _evaluate_coordinate(self, coordinate: List[int],
+                             objective_mode: ObjectiveMode,
                              efficiency_domain: str) -> TrialResult:
         """Execute a single trial and return its raw measurements.
 
         Validates the coordinate, launches the application through the
-        evaluator, and (when an efficiency objective is active) samples energy
+        evaluator, and (when an energy objective is active) samples energy
         and time around the run.
 
         Args:
             coordinate: Grid coordinate to evaluate.
-            use_efficiency: Efficiency mode (0 disabled, 1 maximize, -1 minimize).
+            objective_mode: The resolved optimization objective.
             efficiency_domain: Domain used to measure energy.
 
         Returns:
-            TrialResult: Raw figure of merit, plus energy/runtime/average power
-                when an efficiency objective is active.
+            TrialResult: Figure of merit and/or wall-clock runtime, plus
+                energy/runtime/average power when an energy objective is active.
         """
         # Validate coordinate length matches expected dimensions
         expected_dims = len(self.control_grid.control_name)
@@ -322,11 +394,12 @@ class BayesianOptimizer:
                 raise ValueError(f"Coordinate value {coord_val} at index {idx} out of range [0, {settings_count-1}]")
 
         # Evaluate application
-        if use_efficiency:
+        needs_energy = objective_mode in _ENERGY_MODES
+        if needs_energy:
             start_time = pio.read_signal("TIME", 0, 0)
             start_energy = get_energy(efficiency_domain)
         trial = self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
-        if use_efficiency:
+        if needs_energy:
             end_energy = get_energy(efficiency_domain)
             end_time = pio.read_signal("TIME", 0, 0)
             trial.energy = end_energy - start_energy
@@ -334,32 +407,42 @@ class BayesianOptimizer:
             trial.average_power = trial.energy / trial.runtime
         return trial
 
-    def _score_result(self, trial: TrialResult, use_efficiency: int) -> float:
+    def _score_result(self, trial: TrialResult,
+                      objective_mode: ObjectiveMode) -> float:
         """Reduce a TrialResult to the scalar objective value to minimize.
 
-        Applies the maximize/minimize sign convention and, when an efficiency
-        objective is active, folds average power into the score.
+        Runtime and energy objectives are minimized directly. For the figure
+        of merit objectives the maximize/minimize sign convention is applied
+        and, for the efficiency objective, average power is folded in.
 
         Args:
             trial: Raw measurements from :meth:`_evaluate_coordinate`.
-            use_efficiency: Efficiency mode (0 disabled, 1 maximize, -1 minimize).
+            objective_mode: The resolved optimization objective.
 
         Returns:
             float: Scalar objective value in minimization space.
         """
-        # Convert to minimization problem if needed
+        if objective_mode == ObjectiveMode.RUNTIME:
+            return trial.runtime
+        if objective_mode == ObjectiveMode.ENERGY:
+            return trial.energy
+        if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
+            raise NotImplementedError(
+                "The ENERGY_BOUNDED objective is implemented in a later phase")
+
+        # RAW_METRIC and EFFICIENCY optimize the figure of merit.
         if self.evaluator.maximize:
             metric = -trial.fom  # Negate for maximization
         else:
             metric = trial.fom
-        if use_efficiency:
+        if objective_mode == ObjectiveMode.EFFICIENCY:
             average_power = trial.average_power
             logger.info(f"Average power consumed: {average_power} W")
             if average_power <= 0:
                 raise OptimizationError("Average power consumed is non-positive")
-            if use_efficiency == 1:
+            if self.evaluator.maximize:
                 metric /= average_power
-            elif use_efficiency == -1:
+            else:
                 metric *= average_power
         return metric
 
@@ -380,7 +463,8 @@ class BayesianOptimizer:
                    f"coordinate={coordinate}, metric={metric}")
 
     def optimize(self, trials: int = 50, n_initial_points: int = 10,
-                 random_state: int = 42, use_efficiency: int = 0,
+                 random_state: int = 42,
+                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
                  efficiency_domain: str = None) -> dict:
         """Run Bayesian optimization.
 
@@ -388,11 +472,8 @@ class BayesianOptimizer:
             trials: Number of optimization iterations
             n_initial_points: Number of random initial evaluations
             random_state: Random seed for reproducibility
-            use_efficiency: Whether to optimize for efficiency
-                0: use metric directly
-                1: maximizing, divide by average power
-                -1: minimizing, multiply by average power
-            efficiency_domain: Domain to measure energy
+            objective_mode: The resolved optimization objective.
+            efficiency_domain: Domain to measure energy for energy objectives.
 
         Returns:
             dict: Optimization results including best configuration and value
@@ -403,8 +484,8 @@ class BayesianOptimizer:
             """Objective function for optimization."""
             # Convert parameter indices to actual coordinate values
             coordinate = [int(params[dim.name]) for dim in self.space]  # Convert numpy types to int
-            trial = self._evaluate_coordinate(coordinate, use_efficiency, efficiency_domain)
-            metric = self._score_result(trial, use_efficiency)
+            trial = self._evaluate_coordinate(coordinate, objective_mode, efficiency_domain)
+            metric = self._score_result(trial, objective_mode)
             self._record_history(coordinate, metric)
             return metric
 
@@ -428,9 +509,11 @@ class BayesianOptimizer:
         best_coordinate = [int(x) for x in result.x]
         best_config = self.control_grid.get_config_str(best_coordinate)
 
-        # Convert metric back if maximizing
+        # Convert metric back if maximizing. Runtime and energy objectives are
+        # already reported in their natural (minimized) units.
         best_metric = result.fun
-        if self.evaluator.maximize:
+        if (objective_mode in (ObjectiveMode.RAW_METRIC, ObjectiveMode.EFFICIENCY)
+                and self.evaluator.maximize):
             best_metric = -best_metric
 
         return {
@@ -466,8 +549,11 @@ def get_parser():
 
     parser.add_argument(
         '--metric-regex',
-        required=True,
-        help='Python-style regex to extract figure of merit from application stdout'
+        default=None,
+        help='Python-style regex to extract the figure of merit from '
+             'application stdout. When omitted, the objective defaults to '
+             'total wall-clock runtime, or total energy when --efficiency is '
+             'also provided.'
     )
 
     parser.add_argument(
@@ -602,21 +688,22 @@ def main():
         if args.defer_write:
             config_file = args.output_file
         optimizer = BayesianOptimizer(control_grid, evaluator, config_file)
-        if args.efficiency_domain is None:
-            efficiency = 0
-        elif args.minimize:
-            efficiency = -1
-        else:
-            efficiency = 1
         if (args.efficiency_domain is not None and
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
+
+        # The --metric-bound argument is introduced in a later phase; until
+        # then it is always absent.
+        metric_bound = getattr(args, 'metric_bound', None)
+        objective_mode = resolve_objective_mode(
+            args.metric_regex, args.efficiency_domain, metric_bound,
+            args.minimize)
 
         result = optimizer.optimize(
             trials=args.trials,
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
-            use_efficiency=efficiency,
+            objective_mode=objective_mode,
             efficiency_domain=args.efficiency_domain
         )
 
