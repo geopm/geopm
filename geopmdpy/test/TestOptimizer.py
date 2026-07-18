@@ -190,6 +190,43 @@ class TestApplicationEvaluator(unittest.TestCase):
 
         self.assertIn("produced no output", str(context.exception))
 
+    @patch('subprocess.run')
+    def test_evaluate_no_regex_returns_runtime(self, mock_run):
+        """Without a metric regex, evaluate measures runtime and skips the FoM."""
+        evaluator = optimizer.ApplicationEvaluator(
+            self.launch_command, metric_regex=None
+        )
+        self.assertIsNone(evaluator.regex)
+
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = ""  # No output is fine when no metric is scraped
+        mock_run.return_value = mock_result
+
+        mock_grid = MagicMock()
+        result = evaluator.evaluate(mock_grid, [0])
+
+        self.assertIsNone(result.fom)
+        self.assertIsNotNone(result.runtime)
+        self.assertGreaterEqual(result.runtime, 0.0)
+
+    @patch('subprocess.run')
+    def test_evaluate_no_regex_failed_process(self, mock_run):
+        """A non-zero return code still raises even without a metric regex."""
+        evaluator = optimizer.ApplicationEvaluator(
+            self.launch_command, metric_regex=None
+        )
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stderr = "boom"
+        mock_result.stdout = ""
+        mock_run.return_value = mock_result
+
+        mock_grid = MagicMock()
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            evaluator.evaluate(mock_grid, [0])
+        self.assertIn("Application failed", str(context.exception))
+
     def test_extract_metric_success(self):
         """Test successful metric extraction."""
         stdout = "Application output\nPerformance: 456.78 GFLOPS\nMore output"
@@ -407,35 +444,60 @@ class TestBayesianOptimizer(unittest.TestCase):
         """Maximize converts the raw FoM to its negation (minimization space)."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         trial = optimizer.TrialResult(fom=123.45)
-        self.assertEqual(opt._score_result(trial, 0), -123.45)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.RAW_METRIC), -123.45)
 
     def test_score_result_minimize(self):
         """Minimize keeps the raw FoM sign."""
         self.mock_evaluator.maximize = False
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         trial = optimizer.TrialResult(fom=123.45)
-        self.assertEqual(opt._score_result(trial, 0), 123.45)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.RAW_METRIC), 123.45)
 
     def test_score_result_efficiency_maximize(self):
         """Maximizing efficiency divides the negated FoM by average power."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         trial = optimizer.TrialResult(fom=1000.0, average_power=100.0)
-        self.assertEqual(opt._score_result(trial, 1), -10.0)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.EFFICIENCY), -10.0)
 
     def test_score_result_efficiency_minimize(self):
         """Minimizing efficiency multiplies the FoM by average power."""
         self.mock_evaluator.maximize = False
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         trial = optimizer.TrialResult(fom=10.0, average_power=5.0)
-        self.assertEqual(opt._score_result(trial, -1), 50.0)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.EFFICIENCY), 50.0)
 
     def test_score_result_nonpositive_power_raises(self):
         """Non-positive average power raises OptimizationError."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         trial = optimizer.TrialResult(fom=1.0, average_power=0.0)
         with self.assertRaises(optimizer.OptimizationError) as context:
-            opt._score_result(trial, 1)
+            opt._score_result(trial, optimizer.ObjectiveMode.EFFICIENCY)
         self.assertIn("non-positive", str(context.exception))
+
+    def test_score_result_runtime(self):
+        """The runtime objective minimizes wall-clock time directly."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(runtime=12.5)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.RUNTIME), 12.5)
+
+    def test_score_result_energy(self):
+        """The energy objective minimizes measured energy directly."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(energy=987.0)
+        self.assertEqual(
+            opt._score_result(trial, optimizer.ObjectiveMode.ENERGY), 987.0)
+
+    def test_score_result_energy_bounded_not_implemented(self):
+        """The energy-bounded objective is not implemented in this phase."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(fom=1.0, energy=1.0)
+        with self.assertRaises(NotImplementedError):
+            opt._score_result(trial, optimizer.ObjectiveMode.ENERGY_BOUNDED)
 
     def test_record_history(self):
         """History records the coordinate, metric, and config commands."""
@@ -446,10 +508,10 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(opt.evaluation_history[0]['metric'], 42.0)
 
     def test_evaluate_coordinate_no_efficiency(self):
-        """Without efficiency the evaluator result is returned unchanged."""
+        """Without an energy objective the evaluator result is unchanged."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=7.0)
-        trial = opt._evaluate_coordinate([1], 0, None)
+        trial = opt._evaluate_coordinate([1], optimizer.ObjectiveMode.RAW_METRIC, None)
         self.assertEqual(trial.fom, 7.0)
         self.assertIsNone(trial.average_power)
         self.mock_evaluator.evaluate.assert_called_once()
@@ -457,15 +519,27 @@ class TestBayesianOptimizer(unittest.TestCase):
     @patch('geopmdpy.optimizer.pio')
     @patch('geopmdpy.optimizer.get_energy')
     def test_evaluate_coordinate_efficiency(self, mock_get_energy, mock_pio):
-        """With efficiency, energy/runtime/power deltas are computed."""
+        """With an energy objective, energy/runtime/power deltas are computed."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=7.0)
         mock_pio.read_signal.side_effect = [1000.0, 1010.0]  # start/end time
         mock_get_energy.side_effect = [500.0, 600.0]  # start/end energy
-        trial = opt._evaluate_coordinate([1], 1, 'cpu')
+        trial = opt._evaluate_coordinate([1], optimizer.ObjectiveMode.EFFICIENCY, 'cpu')
         self.assertEqual(trial.energy, 100.0)
         self.assertEqual(trial.runtime, 10.0)
         self.assertEqual(trial.average_power, 10.0)
+
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.get_energy')
+    def test_evaluate_coordinate_runtime_skips_energy(self, mock_get_energy, mock_pio):
+        """The runtime objective does not sample energy or time signals."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(runtime=4.0)
+        trial = opt._evaluate_coordinate([1], optimizer.ObjectiveMode.RUNTIME, None)
+        self.assertEqual(trial.runtime, 4.0)
+        self.assertIsNone(trial.energy)
+        mock_get_energy.assert_not_called()
+        mock_pio.read_signal.assert_not_called()
 
     @patch('geopmdpy.optimizer.gp_minimize')
     def test_optimize_basic(self, mock_gp_minimize):
@@ -523,7 +597,7 @@ class TestBayesianOptimizer(unittest.TestCase):
             result = opt.optimize(
                 trials=1,
                 n_initial_points=1,
-                use_efficiency=1,  # Maximizing efficiency
+                objective_mode=optimizer.ObjectiveMode.EFFICIENCY,
                 efficiency_domain='cpu'
             )
 
@@ -720,6 +794,42 @@ class TestOptimizerMain(unittest.TestCase):
         evaluator = args[1]
         self.assertFalse(evaluator.maximize)
 
+    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+                       'echo', 'hello'])
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
+    def test_main_runtime_default(self, mock_optimizer_class, mock_grid_class, mock_pio):
+        """With no metric regex and no efficiency, main uses the runtime objective."""
+        mock_pio.save_control = MagicMock()
+        mock_pio.restore_control = MagicMock()
+        mock_grid = MagicMock()
+        mock_grid.control_name = ['cpu_frequency']
+        mock_grid.get_grid_data.return_value = [
+            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
+             "domain_idx": 0, "settings": [1000000, 2000000]}
+        ]
+        mock_grid_class.return_value = mock_grid
+        mock_optimizer = MagicMock()
+        mock_optimizer.optimize.return_value = {
+            'best_metric': 1.5,
+            'best_coordinate': [1],
+            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
+            'n_evaluations': 10
+        }
+        mock_optimizer_class.return_value = mock_optimizer
+
+        with patch('builtins.print'):
+            result = optimizer.main()
+        self.assertEqual(result, 0)
+        # The evaluator has no metric regex and optimize gets the runtime mode.
+        args, kwargs = mock_optimizer_class.call_args
+        evaluator = args[1]
+        self.assertIsNone(evaluator.metric_regex)
+        _, optimize_kwargs = mock_optimizer.optimize.call_args
+        self.assertEqual(optimize_kwargs['objective_mode'],
+                         optimizer.ObjectiveMode.RUNTIME)
+
 
 @unittest.skipIf(skip_test, skip_msg)
 class TestGetParser(unittest.TestCase):
@@ -793,13 +903,67 @@ class TestGetParser(unittest.TestCase):
         self.assertFalse(args.defer_write)
         self.assertIsNone(args.efficiency_domain)
 
-    def test_parser_required_arguments(self):
-        """Test parser with missing required arguments."""
+    def test_parser_metric_regex_optional(self):
+        """--metric-regex is optional and defaults to None."""
         parser = optimizer.get_parser()
 
-        # Missing metric-regex should raise SystemExit
-        with self.assertRaises(SystemExit):
-            parser.parse_args(['--cpu-frequency', 'package', 'echo', 'test'])
+        # Omitting --metric-regex is allowed; it defaults to None.
+        args = parser.parse_args(['--cpu-frequency', 'package', 'echo', 'test'])
+        self.assertIsNone(args.metric_regex)
+        self.assertEqual(args.launch, ['echo', 'test'])
+
+
+@unittest.skipIf(skip_test, skip_msg)
+class TestResolveObjectiveMode(unittest.TestCase):
+    def test_raw_metric(self):
+        """Regex without efficiency selects the raw figure of merit."""
+        mode = optimizer.resolve_objective_mode(
+            'FOM: ([0-9.]+)', None, None, False)
+        self.assertEqual(mode, optimizer.ObjectiveMode.RAW_METRIC)
+
+    def test_efficiency(self):
+        """Regex with efficiency selects the efficiency objective."""
+        mode = optimizer.resolve_objective_mode(
+            'FOM: ([0-9.]+)', 'cpu', None, False)
+        self.assertEqual(mode, optimizer.ObjectiveMode.EFFICIENCY)
+
+    def test_runtime(self):
+        """No regex and no efficiency selects the runtime objective."""
+        mode = optimizer.resolve_objective_mode(None, None, None, False)
+        self.assertEqual(mode, optimizer.ObjectiveMode.RUNTIME)
+
+    def test_energy(self):
+        """Efficiency without a regex selects the energy objective."""
+        mode = optimizer.resolve_objective_mode(None, 'cpu', None, False)
+        self.assertEqual(mode, optimizer.ObjectiveMode.ENERGY)
+
+    def test_energy_bounded(self):
+        """A metric bound with regex and efficiency selects energy-bounded."""
+        mode = optimizer.resolve_objective_mode(
+            'FOM: ([0-9.]+)', 'cpu', 100.0, False)
+        self.assertEqual(mode, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+
+    def test_direction_does_not_change_mode(self):
+        """The minimize flag does not change the resolved mode."""
+        for minimize in (True, False):
+            self.assertEqual(
+                optimizer.resolve_objective_mode('FOM: ([0-9.]+)', None, None, minimize),
+                optimizer.ObjectiveMode.RAW_METRIC)
+            self.assertEqual(
+                optimizer.resolve_objective_mode(None, None, None, minimize),
+                optimizer.ObjectiveMode.RUNTIME)
+
+    def test_metric_bound_without_regex_raises(self):
+        """A metric bound requires a metric regex."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.resolve_objective_mode(None, 'cpu', 100.0, False)
+        self.assertIn('--metric-regex', str(context.exception))
+
+    def test_metric_bound_without_efficiency_raises(self):
+        """A metric bound requires an efficiency domain."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.resolve_objective_mode('FOM: ([0-9.]+)', None, 100.0, False)
+        self.assertIn('--efficiency', str(context.exception))
 
 
 @unittest.skipIf(skip_test, skip_msg)
