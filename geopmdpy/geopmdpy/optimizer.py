@@ -17,10 +17,11 @@ import os
 import subprocess
 import re
 import time
+import math
 import shutil
 import tempfile
 import logging
-from argparse import ArgumentParser, REMAINDER
+from argparse import ArgumentParser, ArgumentTypeError, REMAINDER
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional
@@ -54,12 +55,28 @@ _DEFAULT_SAMPLE_PERIOD = 0.01
 # the weight lets that penalty be tuned relative to energy differences.
 _DEFAULT_BOUND_PENALTY_WEIGHT = 1.0
 
+# Objective value assigned to a recoverable failure that occurs before any
+# trial has succeeded, when the automatic penalty cannot yet be derived from
+# observed successes. It is finite so it never corrupts the surrogate model.
+_BOOTSTRAP_PENALTY = 1e9
+
 # Module-level logger
 logger = logging.getLogger(__name__)
 
 
 class OptimizationError(Exception):
-    """Exception raised when optimization fails."""
+    """Exception raised when optimization fails fatally and must abort the run."""
+    pass
+
+
+class RecoverableEvaluationError(Exception):
+    """A trial-level failure that can be penalized instead of aborting the run.
+
+    Raised internally by the evaluation strategies for the recoverable failure
+    set (timeout, non-zero exit, figure-of-merit scrape miss, non-positive
+    power/runtime). :meth:`ApplicationEvaluator.evaluate` converts it into a
+    failed :class:`TrialResult` rather than propagating it.
+    """
     pass
 
 
@@ -239,10 +256,15 @@ class ApplicationEvaluator:
                 return self._evaluate_session()
             return self._evaluate_direct()
 
+        except RecoverableEvaluationError as e:
+            logger.warning(f"Trial failed (recoverable): {e}")
+            return TrialResult(failed=True, failure_reason=str(e))
+        except subprocess.TimeoutExpired:
+            reason = f"Application evaluation timed out after {self.timeout} seconds"
+            logger.warning(f"Trial failed (recoverable): {reason}")
+            return TrialResult(failed=True, failure_reason=reason)
         except OptimizationError:
             raise
-        except subprocess.TimeoutExpired:
-            raise OptimizationError(f"Application evaluation timed out after {self.timeout} seconds")
         except FileNotFoundError as e:
             raise OptimizationError(f"Command not found: {e}")
         except PermissionError as e:
@@ -251,12 +273,12 @@ class ApplicationEvaluator:
             raise OptimizationError(f"Evaluation failed: {e}")
 
     def _check_returncode(self, result) -> None:
-        """Raise OptimizationError when the launched application exits non-zero."""
+        """Flag a non-zero application exit as a recoverable trial failure."""
         if result.returncode != 0:
             if self.print_stdout:
                 logger.info(f"Application stdout: \n{result.stdout}\n")
             logger.debug(f"Application stderr: \n{result.stderr}\n")
-            raise OptimizationError(
+            raise RecoverableEvaluationError(
                 f"Application failed with return code {result.returncode}: {result.stderr}"
             )
 
@@ -289,7 +311,7 @@ class ApplicationEvaluator:
             return TrialResult(runtime=runtime)
 
         if not result.stdout:
-            raise OptimizationError("Application produced no output")
+            raise RecoverableEvaluationError("Application produced no output")
         metric = self._extract_metric(result.stdout)
         logger.debug(f"Extracted metric: {metric}")
         return TrialResult(fom=metric, runtime=runtime)
@@ -341,8 +363,10 @@ class ApplicationEvaluator:
                 raise OptimizationError(f"Session report is missing the {name} metric")
             energy += metrics[name]['last'] - metrics[name]['first']
         if runtime <= 0:
-            raise OptimizationError("Session reported non-positive runtime")
+            raise RecoverableEvaluationError("Session reported non-positive runtime")
         average_power = energy / runtime
+        if average_power <= 0:
+            raise RecoverableEvaluationError("Session reported non-positive power")
         return energy, runtime, average_power
 
     def _evaluate_session(self) -> 'TrialResult':
@@ -379,7 +403,7 @@ class ApplicationEvaluator:
             fom = None
             if self.regex is not None:
                 if not result.stdout:
-                    raise OptimizationError("Application produced no output")
+                    raise RecoverableEvaluationError("Application produced no output")
                 fom = self._extract_metric(result.stdout)
 
             return TrialResult(fom=fom, energy=energy, runtime=runtime,
@@ -402,12 +426,13 @@ class ApplicationEvaluator:
             float: Extracted metric value
 
         Raises:
-            OptimizationError: If metric cannot be extracted
+            RecoverableEvaluationError: If the metric cannot be scraped or
+                parsed; the trial is penalized rather than aborting the run.
         """
         match = self.regex.search(stdout)
         if not match:
             logger.debug(f"Failed to match regex '{self.metric_regex}' in stdout (first 200 chars): {stdout[:200]}")
-            raise OptimizationError(
+            raise RecoverableEvaluationError(
                 f"Could not extract metric from output using pattern: {self.metric_regex}"
             )
 
@@ -423,7 +448,7 @@ class ApplicationEvaluator:
             logger.debug(f"Extracted metric string: '{metric_str}'")
             return float(metric_str)
         except ValueError:
-            raise OptimizationError(
+            raise RecoverableEvaluationError(
                 f"Could not convert extracted value to float: {metric_str}"
             )
 
@@ -506,6 +531,9 @@ class BayesianOptimizer:
         self._metric_bound = None
         self._penalty_weight = _DEFAULT_BOUND_PENALTY_WEIGHT
         self._energy_scale = None
+
+        # Recoverable-failure penalty policy, set at the start of optimize().
+        self._penalty = 'auto'
 
         logger.debug(f"Initialized optimizer with {len(self.space)} dimensions")
 
@@ -667,6 +695,62 @@ class BayesianOptimizer:
             return energy
         return energy + self._penalty_weight * self._energy_scale * violation
 
+    def _penalty_value(self) -> float:
+        """Return the objective value assigned to a recoverable failure.
+
+        For the ``auto`` policy the penalty is derived to be strictly worse
+        (larger, since the objective is minimized) than every successful trial
+        observed so far, so the surrogate model learns to avoid the failing
+        region without an infinite objective. The value is always finite. When
+        a failure precedes any success the automatic value cannot be derived,
+        so a finite bootstrap penalty is used and a warning is emitted.
+
+        Returns:
+            float: The finite penalty objective for a failed trial.
+        """
+        if isinstance(self._penalty, (int, float)):
+            return float(self._penalty)
+
+        successes = [h['metric'] for h in self.evaluation_history
+                     if not h.get('failed')]
+        if not successes:
+            logger.warning(
+                "A trial failed before any trial succeeded; using a bootstrap "
+                f"penalty of {_BOOTSTRAP_PENALTY}")
+            return float(_BOOTSTRAP_PENALTY)
+
+        worst = max(successes)
+        spread = worst - min(successes)
+        # Keep the penalty strictly worse than the worst success even when all
+        # successes tie (spread == 0).
+        margin = spread if spread > 0 else (abs(worst) if worst != 0 else 1.0)
+        penalty = worst + margin
+        if not math.isfinite(penalty):
+            penalty = sys.float_info.max
+        return penalty
+
+    def _handle_failed_trial(self, trial: TrialResult) -> float:
+        """Turn a failed trial into an objective value per the penalty policy.
+
+        Args:
+            trial: The failed :class:`TrialResult`.
+
+        Returns:
+            float: The penalty objective to report to the optimizer.
+
+        Raises:
+            OptimizationError: When the penalty policy is ``none``, restoring
+                the legacy behavior of aborting the run on any failure.
+        """
+        if self._penalty == 'none':
+            raise OptimizationError(
+                f"Trial failed and --penalty is 'none': {trial.failure_reason}")
+        penalty = self._penalty_value()
+        logger.warning(
+            f"Penalizing failed trial ({trial.failure_reason}) "
+            f"with objective {penalty}")
+        return penalty
+
     def _record_history(self, coordinate: List[int], metric: float,
                         trial: 'TrialResult' = None,
                         objective_mode: ObjectiveMode = None) -> None:
@@ -683,7 +767,13 @@ class BayesianOptimizer:
             'metric': metric,
             'config_commands': self.control_grid.get_config_str(coordinate)
         }
-        if objective_mode == ObjectiveMode.ENERGY_BOUNDED and trial is not None:
+        if trial is not None and trial.failed:
+            entry['failed'] = True
+            entry['failure_reason'] = trial.failure_reason
+            # A failed trial can never satisfy a figure-of-merit bound.
+            if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
+                entry['feasible'] = False
+        elif objective_mode == ObjectiveMode.ENERGY_BOUNDED and trial is not None:
             entry['fom'] = trial.fom
             entry['energy'] = trial.energy
             entry['feasible'] = self._bound_violation(trial.fom) <= 0.0
@@ -696,7 +786,8 @@ class BayesianOptimizer:
                  random_state: int = 42,
                  objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
                  metric_bound: float = None,
-                 penalty_weight: float = _DEFAULT_BOUND_PENALTY_WEIGHT) -> dict:
+                 penalty_weight: float = _DEFAULT_BOUND_PENALTY_WEIGHT,
+                 penalty='auto') -> dict:
         """Run Bayesian optimization.
 
         Args:
@@ -708,6 +799,9 @@ class BayesianOptimizer:
                 objective. Trials whose FoM violates the bound are penalized.
             penalty_weight: Weight of the bound-violation penalty for the
                 ENERGY_BOUNDED objective.
+            penalty: Recoverable-failure policy: ``'auto'`` derives a finite
+                penalty worse than every success, ``'none'`` re-raises on any
+                failure (legacy behavior), or a float sets a fixed penalty.
 
         Returns:
             dict: Optimization results including best configuration and value
@@ -716,6 +810,7 @@ class BayesianOptimizer:
         self._metric_bound = metric_bound
         self._penalty_weight = penalty_weight
         self._energy_scale = None
+        self._penalty = penalty
 
         @use_named_args(self.space)
         def objective(**params):
@@ -723,7 +818,10 @@ class BayesianOptimizer:
             # Convert parameter indices to actual coordinate values
             coordinate = [int(params[dim.name]) for dim in self.space]  # Convert numpy types to int
             trial = self._evaluate_coordinate(coordinate)
-            metric = self._score_result(trial, objective_mode)
+            if trial.failed:
+                metric = self._handle_failed_trial(trial)
+            else:
+                metric = self._score_result(trial, objective_mode)
             self._record_history(coordinate, metric, trial, objective_mode)
             return metric
 
@@ -746,13 +844,12 @@ class BayesianOptimizer:
         if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
             return self._build_bounded_result(result)
 
-        # Convert best coordinate to actual configuration
-        best_coordinate = [int(x) for x in result.x]
+        # Select the best successful trial, excluding penalized failures.
+        best_coordinate, best_metric = self._select_best(result)
         best_config = self.control_grid.get_config_str(best_coordinate)
 
         # Convert metric back if maximizing. Runtime and energy objectives are
         # already reported in their natural (minimized) units.
-        best_metric = result.fun
         if (objective_mode in (ObjectiveMode.RAW_METRIC, ObjectiveMode.EFFICIENCY)
                 and self.evaluator.maximize):
             best_metric = -best_metric
@@ -765,26 +862,62 @@ class BayesianOptimizer:
             'optimization_result': result
         }
 
+    def _select_best(self, result):
+        """Return the best successful coordinate and its minimization metric.
+
+        Failed trials are excluded from selection. When the evaluation history
+        is available it is the source of truth; a run in which every trial
+        failed raises a clear error. When the history is empty (for example
+        under a mocked optimizer) the scikit-optimize result is used directly.
+
+        Args:
+            result: The scikit-optimize result from ``gp_minimize``.
+
+        Returns:
+            tuple: ``(best_coordinate, best_metric)`` in minimization space.
+
+        Raises:
+            OptimizationError: If every recorded trial failed.
+        """
+        successes = [h for h in self.evaluation_history if not h.get('failed')]
+        if self.evaluation_history and not successes:
+            raise OptimizationError(
+                "All trials failed; no successful configuration was found")
+        if successes:
+            best = min(successes, key=lambda h: h['metric'])
+            return list(best['coordinate']), best['metric']
+        # Fallback for callers that do not populate history (mocked runs).
+        return [int(x) for x in result.x], result.fun
+
     def _build_bounded_result(self, result) -> dict:
         """Assemble the result for the ENERGY_BOUNDED objective.
 
         Prefers the feasible trial with the lowest energy. When no trial
-        satisfied the bound, falls back to the point that minimized the
-        penalized objective (the least-infeasible trial) and marks the result
-        as not satisfying the bound.
+        satisfied the bound, falls back to the successful trial that minimized
+        the penalized objective (the least-infeasible trial) and marks the
+        result as not satisfying the bound. Failed trials are never selected,
+        and a run in which every trial failed raises a clear error.
 
         Args:
             result: The scikit-optimize result from ``gp_minimize``.
 
         Returns:
             dict: Result including ``bound_satisfied`` and ``best_fom``.
+
+        Raises:
+            OptimizationError: If every recorded trial failed.
         """
-        feasible = [h for h in self.evaluation_history if h.get('feasible')]
+        non_failed = [h for h in self.evaluation_history if not h.get('failed')]
+        if self.evaluation_history and not non_failed:
+            raise OptimizationError(
+                "All trials failed; no successful configuration was found")
+
+        feasible = [h for h in non_failed if h.get('feasible')]
         if feasible:
             best = min(feasible, key=lambda h: h['energy'])
             bound_satisfied = True
         else:
-            best = min(self.evaluation_history, key=lambda h: h['metric'])
+            best = min(non_failed, key=lambda h: h['metric'])
             bound_satisfied = False
 
         best_coordinate = list(best['coordinate'])
@@ -819,6 +952,27 @@ class BayesianOptimizer:
                 f"(best figure of merit: {result.get('best_fom')})")
             lines.append(f"Energy at best configuration: {result['best_metric']}")
         return '\n'.join(lines)
+
+
+def _penalty_arg(value):
+    """Parse the ``--penalty`` argument into ``'auto'``, ``'none'``, or a float.
+
+    Args:
+        value: The raw command-line string.
+
+    Returns:
+        The literal ``'auto'`` / ``'none'`` or the parsed float value.
+
+    Raises:
+        ArgumentTypeError: If the value is neither keyword nor a valid float.
+    """
+    if value in ('auto', 'none'):
+        return value
+    try:
+        return float(value)
+    except ValueError:
+        raise ArgumentTypeError(
+            f"--penalty must be 'auto', 'none', or a number, not {value!r}")
 
 
 def get_parser():
@@ -921,6 +1075,16 @@ def get_parser():
         help='geopmsession sampling period in seconds for energy-based '
              'objectives; shorter periods add overhead (default: %(default)s)',
     )
+    parser.add_argument(
+        '--penalty',
+        type=_penalty_arg,
+        default='auto',
+        help="How to handle a recoverable trial failure (timeout, non-zero "
+             "exit, figure-of-merit scrape miss, non-positive power/runtime): "
+             "'auto' penalizes the trial with a value worse than every success, "
+             "'none' aborts the run on any failure, or a number sets a fixed "
+             "penalty (default: %(default)s)",
+    )
 
     # Application launch command
     parser.add_argument(
@@ -1020,7 +1184,8 @@ def main():
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
             objective_mode=objective_mode,
-            metric_bound=args.metric_bound
+            metric_bound=args.metric_bound,
+            penalty=args.penalty
         )
 
         # Print results
