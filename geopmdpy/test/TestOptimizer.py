@@ -13,6 +13,8 @@ import tempfile
 import os
 import sys
 import re
+import math
+from argparse import ArgumentTypeError
 
 # Skip test if skopt not available
 skip_test = False
@@ -132,7 +134,7 @@ class TestApplicationEvaluator(unittest.TestCase):
 
     @patch('subprocess.run')
     def test_evaluate_failed_process(self, mock_run):
-        """Test evaluation with failed subprocess."""
+        """A non-zero exit is a recoverable failure surfaced as trial data."""
         mock_result = MagicMock()
         mock_result.returncode = 1
         mock_result.stderr = "Error occurred"
@@ -142,27 +144,27 @@ class TestApplicationEvaluator(unittest.TestCase):
         mock_grid = MagicMock()
         coordinate = [0]
 
-        with self.assertRaises(optimizer.OptimizationError) as context:
-            self.evaluator.evaluate(mock_grid, coordinate)
+        result = self.evaluator.evaluate(mock_grid, coordinate)
 
-        self.assertIn("Application failed", str(context.exception))
+        self.assertTrue(result.failed)
+        self.assertIn("Application failed", result.failure_reason)
 
     @patch('subprocess.run')
     def test_evaluate_timeout(self, mock_run):
-        """Test evaluation with subprocess timeout."""
+        """A timeout is a recoverable failure surfaced as trial data."""
         mock_run.side_effect = subprocess.TimeoutExpired("cmd", 300)
 
         mock_grid = MagicMock()
         coordinate = [0]
 
-        with self.assertRaises(optimizer.OptimizationError) as context:
-            self.evaluator.evaluate(mock_grid, coordinate)
+        result = self.evaluator.evaluate(mock_grid, coordinate)
 
-        self.assertIn("timed out after 300 seconds", str(context.exception))
+        self.assertTrue(result.failed)
+        self.assertIn("timed out after 300 seconds", result.failure_reason)
 
     @patch('subprocess.run')
     def test_evaluate_custom_timeout(self, mock_run):
-        """Test evaluation with custom timeout."""
+        """A custom timeout is reported in the recoverable failure reason."""
         evaluator = optimizer.ApplicationEvaluator(
             self.launch_command, self.metric_regex, timeout=600
         )
@@ -170,14 +172,14 @@ class TestApplicationEvaluator(unittest.TestCase):
         mock_run.side_effect = subprocess.TimeoutExpired("cmd", 600)
         mock_grid = MagicMock()
 
-        with self.assertRaises(optimizer.OptimizationError) as context:
-            evaluator.evaluate(mock_grid, [0])
+        result = evaluator.evaluate(mock_grid, [0])
 
-        self.assertIn("timed out after 600 seconds", str(context.exception))
+        self.assertTrue(result.failed)
+        self.assertIn("timed out after 600 seconds", result.failure_reason)
 
     @patch('subprocess.run')
     def test_evaluate_no_output(self, mock_run):
-        """Test evaluation with no stdout."""
+        """Missing output when a metric is expected is a recoverable failure."""
         mock_result = MagicMock()
         mock_result.returncode = 0
         mock_result.stdout = ""
@@ -185,10 +187,10 @@ class TestApplicationEvaluator(unittest.TestCase):
 
         mock_grid = MagicMock()
 
-        with self.assertRaises(optimizer.OptimizationError) as context:
-            self.evaluator.evaluate(mock_grid, [0])
+        result = self.evaluator.evaluate(mock_grid, [0])
 
-        self.assertIn("produced no output", str(context.exception))
+        self.assertTrue(result.failed)
+        self.assertIn("produced no output", result.failure_reason)
 
     @patch('subprocess.run')
     def test_evaluate_no_regex_returns_runtime(self, mock_run):
@@ -212,7 +214,7 @@ class TestApplicationEvaluator(unittest.TestCase):
 
     @patch('subprocess.run')
     def test_evaluate_no_regex_failed_process(self, mock_run):
-        """A non-zero return code still raises even without a metric regex."""
+        """A non-zero exit is recoverable even without a metric regex."""
         evaluator = optimizer.ApplicationEvaluator(
             self.launch_command, metric_regex=None
         )
@@ -223,9 +225,27 @@ class TestApplicationEvaluator(unittest.TestCase):
         mock_run.return_value = mock_result
 
         mock_grid = MagicMock()
+        result = evaluator.evaluate(mock_grid, [0])
+        self.assertTrue(result.failed)
+        self.assertIn("Application failed", result.failure_reason)
+
+    @patch('subprocess.run')
+    def test_evaluate_command_not_found_is_fatal(self, mock_run):
+        """A missing command is a fatal error, not a recoverable failure."""
+        mock_run.side_effect = FileNotFoundError("no such file")
+        mock_grid = MagicMock()
         with self.assertRaises(optimizer.OptimizationError) as context:
-            evaluator.evaluate(mock_grid, [0])
-        self.assertIn("Application failed", str(context.exception))
+            self.evaluator.evaluate(mock_grid, [0])
+        self.assertIn("Command not found", str(context.exception))
+
+    @patch('subprocess.run')
+    def test_evaluate_permission_denied_is_fatal(self, mock_run):
+        """A permission error is a fatal error, not a recoverable failure."""
+        mock_run.side_effect = PermissionError("denied")
+        mock_grid = MagicMock()
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            self.evaluator.evaluate(mock_grid, [0])
+        self.assertIn("Permission denied", str(context.exception))
 
     def test_extract_metric_success(self):
         """Test successful metric extraction."""
@@ -243,22 +263,22 @@ class TestApplicationEvaluator(unittest.TestCase):
         self.assertEqual(metric, 123.45)
 
     def test_extract_metric_no_match(self):
-        """Test metric extraction with no match."""
+        """A regex miss is a recoverable failure."""
         stdout = "Application output without metric"
 
-        with self.assertRaises(optimizer.OptimizationError) as context:
+        with self.assertRaises(optimizer.RecoverableEvaluationError) as context:
             self.evaluator._extract_metric(stdout)
 
         self.assertIn("Could not extract metric", str(context.exception))
 
     def test_extract_metric_invalid_value(self):
-        """Test metric extraction with invalid numeric value."""
+        """An unparsable matched value is a recoverable failure."""
         evaluator = optimizer.ApplicationEvaluator(
             ["echo", "test"], "Performance: ([a-z]+)", maximize=True
         )
         stdout = "Performance: invalid"
 
-        with self.assertRaises(optimizer.OptimizationError) as context:
+        with self.assertRaises(optimizer.RecoverableEvaluationError) as context:
             evaluator._extract_metric(stdout)
 
         self.assertIn("Could not convert", str(context.exception))
@@ -601,6 +621,134 @@ class TestBayesianOptimizer(unittest.TestCase):
         summary = opt.summarize(result, optimizer.ObjectiveMode.RUNTIME)
         self.assertEqual(summary, 'Best configuration:\nCONFIG')
 
+    def test_penalty_value_auto_worse_than_successes(self):
+        """The auto penalty is strictly worse than every observed success."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 'auto'
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 10.0},
+            {'coordinate': [1], 'metric': 30.0},
+            {'coordinate': [2], 'metric': 20.0},
+        ]
+        penalty = opt._penalty_value()
+        # worst = 30, spread = 20, penalty = 50
+        self.assertEqual(penalty, 50.0)
+        self.assertGreater(penalty, 30.0)
+        self.assertTrue(math.isfinite(penalty))
+
+    def test_penalty_value_auto_tie(self):
+        """When all successes tie, the auto penalty still exceeds them."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 'auto'
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 10.0},
+            {'coordinate': [1], 'metric': 10.0},
+        ]
+        penalty = opt._penalty_value()
+        self.assertGreater(penalty, 10.0)
+        self.assertTrue(math.isfinite(penalty))
+
+    def test_penalty_value_auto_excludes_failed(self):
+        """Prior failed trials do not inflate the auto penalty."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 'auto'
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 10.0},
+            {'coordinate': [1], 'metric': 999.0, 'failed': True},
+        ]
+        # Only the success (10.0) is considered: worst=10, spread=0 -> +10 -> 20
+        self.assertEqual(opt._penalty_value(), 20.0)
+
+    def test_penalty_value_auto_bootstrap_warns(self):
+        """A failure before any success uses a finite bootstrap penalty."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 'auto'
+        opt.evaluation_history = []
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
+            penalty = opt._penalty_value()
+        self.assertEqual(penalty, float(optimizer._BOOTSTRAP_PENALTY))
+        self.assertTrue(math.isfinite(penalty))
+
+    def test_penalty_value_fixed(self):
+        """A fixed numeric penalty policy returns that value verbatim."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 123.5
+        opt.evaluation_history = [{'coordinate': [0], 'metric': 10.0}]
+        self.assertEqual(opt._penalty_value(), 123.5)
+
+    def test_handle_failed_trial_none_raises(self):
+        """The 'none' policy re-raises, aborting the run on any failure."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 'none'
+        trial = optimizer.TrialResult(failed=True, failure_reason='boom')
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            opt._handle_failed_trial(trial)
+        self.assertIn('boom', str(context.exception))
+
+    def test_handle_failed_trial_auto_warns(self):
+        """The 'auto' policy penalizes and logs the failure at WARNING."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 'auto'
+        opt.evaluation_history = [{'coordinate': [0], 'metric': 10.0}]
+        trial = optimizer.TrialResult(failed=True, failure_reason='boom')
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
+            penalty = opt._handle_failed_trial(trial)
+        self.assertEqual(penalty, 20.0)
+
+    def test_handle_failed_trial_fixed(self):
+        """A fixed penalty policy returns the configured value."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._penalty = 5.0
+        trial = optimizer.TrialResult(failed=True, failure_reason='boom')
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
+            self.assertEqual(opt._handle_failed_trial(trial), 5.0)
+
+    def test_record_history_failed_trial(self):
+        """A failed trial is marked failed and infeasible for energy-bounded."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        trial = optimizer.TrialResult(failed=True, failure_reason='boom')
+        opt._record_history([0], 999.0, trial,
+                            optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        entry = opt.evaluation_history[0]
+        self.assertTrue(entry['failed'])
+        self.assertEqual(entry['failure_reason'], 'boom')
+        self.assertFalse(entry['feasible'])
+
+    def test_select_best_excludes_failed(self):
+        """Best selection ignores penalized failed trials."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 10.0},
+            {'coordinate': [1], 'metric': 5.0, 'failed': True},
+            {'coordinate': [2], 'metric': 20.0},
+        ]
+        coordinate, metric = opt._select_best(MagicMock())
+        self.assertEqual(coordinate, [0])
+        self.assertEqual(metric, 10.0)
+
+    def test_select_best_all_failed_raises(self):
+        """A run where every trial failed raises a clear summary error."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 999.0, 'failed': True},
+            {'coordinate': [1], 'metric': 999.0, 'failed': True},
+        ]
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            opt._select_best(MagicMock())
+        self.assertIn('All trials failed', str(context.exception))
+
+    def test_build_bounded_result_all_failed_raises(self):
+        """An all-failed energy-bounded run raises a clear summary error."""
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        opt._metric_bound = 100.0
+        opt.evaluation_history = [
+            {'coordinate': [0], 'metric': 999.0, 'failed': True,
+             'feasible': False},
+        ]
+        with self.assertRaises(optimizer.OptimizationError) as context:
+            opt._build_bounded_result(MagicMock())
+        self.assertIn('All trials failed', str(context.exception))
+
     def test_record_history(self):
         """History records the coordinate, metric, and config commands."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
@@ -836,14 +984,14 @@ class TestSessionStrategy(unittest.TestCase):
             evaluator._compute_energy_metrics(report)
 
     def test_compute_energy_metrics_non_positive_runtime(self):
-        """A non-positive runtime is rejected."""
+        """A non-positive runtime is a recoverable failure."""
         evaluator = self._make_energy_evaluator(domain='cpu',
                                                 signals=('CPU_ENERGY',))
         report = {'metrics': {
             'TIME': {'first': 5.0, 'last': 5.0},
             'CPU_ENERGY': {'first': 0.0, 'last': 1.0},
         }}
-        with self.assertRaises(optimizer.OptimizationError):
+        with self.assertRaises(optimizer.RecoverableEvaluationError):
             evaluator._compute_energy_metrics(report)
 
     def test_load_report_missing_file(self):
@@ -916,7 +1064,7 @@ class TestSessionStrategy(unittest.TestCase):
                    return_value=mock_result), \
              patch('geopmdpy.optimizer.tempfile.mkstemp',
                    side_effect=tracking_mkstemp):
-            with self.assertRaises(optimizer.OptimizationError):
+            with self.assertRaises(optimizer.RecoverableEvaluationError):
                 evaluator._evaluate_session()
 
         self.assertEqual(len(created), 2)
@@ -943,6 +1091,23 @@ class TestSessionStrategy(unittest.TestCase):
             trial = evaluator._evaluate_session()
         self.assertEqual(trial.fom, 42.0)
         self.assertEqual(trial.energy, 10.0)
+
+    def test_evaluate_wraps_recoverable_session_failure(self):
+        """evaluate() turns a recoverable session failure into trial data."""
+        evaluator = self._make_energy_evaluator(domain='cpu',
+                                                signals=('CPU_ENERGY',))
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stdout = ""
+        mock_result.stderr = "boom"
+        mock_grid = MagicMock()
+        with patch('geopmdpy.optimizer.subprocess.run',
+                   return_value=mock_result), \
+             patch('geopmdpy.optimizer.tempfile.mkstemp',
+                   side_effect=tempfile.mkstemp):
+            trial = evaluator.evaluate(mock_grid, [0])
+        self.assertTrue(trial.failed)
+        self.assertIn("Application failed", trial.failure_reason)
 
 
 @unittest.skipIf(skip_test, skip_msg)
@@ -1207,6 +1372,7 @@ class TestGetParser(unittest.TestCase):
             '--efficiency', 'cpu',
             '--metric-bound', '100.0',
             '--sample-period', '0.25',
+            '--penalty', '250.0',
             'echo', 'test'
         ])
 
@@ -1225,6 +1391,7 @@ class TestGetParser(unittest.TestCase):
         self.assertEqual(args.efficiency_domain, 'cpu')
         self.assertEqual(args.metric_bound, 100.0)
         self.assertEqual(args.sample_period, 0.25)
+        self.assertEqual(args.penalty, 250.0)
         self.assertEqual(args.launch, ['echo', 'test'])
 
     def test_parser_defaults(self):
@@ -1249,6 +1416,42 @@ class TestGetParser(unittest.TestCase):
         self.assertIsNone(args.efficiency_domain)
         self.assertIsNone(args.metric_bound)
         self.assertEqual(args.sample_period, optimizer._DEFAULT_SAMPLE_PERIOD)
+        self.assertEqual(args.penalty, 'auto')
+
+    def test_parser_penalty_none(self):
+        """--penalty accepts the 'none' policy."""
+        parser = optimizer.get_parser()
+        args = parser.parse_args([
+            '--cpu-frequency', 'package', '--metric-regex', 'test',
+            '--penalty', 'none', 'echo', 'hello'
+        ])
+        self.assertEqual(args.penalty, 'none')
+
+    def test_parser_penalty_numeric(self):
+        """--penalty accepts a numeric policy parsed as a float."""
+        parser = optimizer.get_parser()
+        args = parser.parse_args([
+            '--cpu-frequency', 'package', '--metric-regex', 'test',
+            '--penalty', '42.5', 'echo', 'hello'
+        ])
+        self.assertEqual(args.penalty, 42.5)
+
+    def test_parser_penalty_invalid(self):
+        """--penalty rejects a value that is neither a policy nor a number."""
+        parser = optimizer.get_parser()
+        with self.assertRaises(SystemExit):
+            parser.parse_args([
+                '--cpu-frequency', 'package', '--metric-regex', 'test',
+                '--penalty', 'bogus', 'echo', 'hello'
+            ])
+
+    def test_penalty_arg_helper(self):
+        """_penalty_arg normalizes policies and numbers, rejecting garbage."""
+        self.assertEqual(optimizer._penalty_arg('auto'), 'auto')
+        self.assertEqual(optimizer._penalty_arg('none'), 'none')
+        self.assertEqual(optimizer._penalty_arg('3.5'), 3.5)
+        with self.assertRaises(ArgumentTypeError):
+            optimizer._penalty_arg('bogus')
 
     def test_parser_metric_regex_optional(self):
         """--metric-regex is optional and defaults to None."""
