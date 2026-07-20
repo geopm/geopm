@@ -1112,7 +1112,7 @@ class TestSessionStrategy(unittest.TestCase):
 
 @unittest.skipIf(skip_test, skip_msg)
 class TestOptimizerMain(unittest.TestCase):
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+    @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--trials', '10',
                        'echo', 'Performance: 123.45'])
@@ -1175,7 +1175,7 @@ class TestOptimizerMain(unittest.TestCase):
         result = optimizer.main()
         self.assertEqual(result, 1)
 
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+    @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--application-timeout', '600',
                        '--print-stdout',
@@ -1212,7 +1212,7 @@ class TestOptimizerMain(unittest.TestCase):
             result = optimizer.main()
         self.assertEqual(result, 0)
 
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+    @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--defer-write',
                        '--output-file', 'valid_file.conf',
@@ -1254,7 +1254,7 @@ class TestOptimizerMain(unittest.TestCase):
         mock_pio.restore_control.assert_not_called()
         
 
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+    @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        '--metric-regex', '[invalid', 'echo', 'Performance: 123.45'])
     @patch('geopmdpy.optimizer.pio')
     def test_main_invalid_metric_regex(self, mock_pio):
@@ -1265,7 +1265,7 @@ class TestOptimizerMain(unittest.TestCase):
         self.assertEqual(result, 1)
         mock_pio.restore_control.assert_called_once()
 
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+    @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--minimize',
                        'echo', 'Performance: 123.45'])
@@ -1300,7 +1300,7 @@ class TestOptimizerMain(unittest.TestCase):
         evaluator = args[1]
         self.assertFalse(evaluator.maximize)
 
-    @patch('sys.argv', ['optimizer.py', '--cpu-frequency', 'package',
+    @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        'echo', 'hello'])
     @patch('geopmdpy.optimizer.pio')
     @patch('geopmdpy.optimizer.ControlGrid')
@@ -1345,10 +1345,10 @@ class TestGetParser(unittest.TestCase):
         self.assertIsNotNone(parser)
 
         # Test that basic arguments are present
-        args = parser.parse_args(['--cpu-frequency', 'package',
+        args = parser.parse_args(['--sweep', 'cpu-freq@package',
                                  '--metric-regex', 'test',
                                  'echo', 'hello'])
-        self.assertEqual(args.cpu_frequency_domain, 'package')
+        self.assertEqual(args.sweep, ['cpu-freq@package'])
         self.assertEqual(args.metric_regex, 'test')
         self.assertEqual(args.launch, ['echo', 'hello'])
 
@@ -1357,8 +1357,8 @@ class TestGetParser(unittest.TestCase):
         parser = optimizer.get_parser()
 
         args = parser.parse_args([
-            '--cpu-frequency', 'package',
-            '--cpu-power', 'board',
+            '--sweep', 'cpu-freq@package',
+            '--sweep', 'cpu-power@board',
             '--metric-regex', 'Performance: ([0-9.]+)',
             '--minimize',
             '--trials', '100',
@@ -1376,8 +1376,7 @@ class TestGetParser(unittest.TestCase):
             'echo', 'test'
         ])
 
-        self.assertEqual(args.cpu_frequency_domain, 'package')
-        self.assertEqual(args.cpu_power_domain, 'board')
+        self.assertEqual(args.sweep, ['cpu-freq@package', 'cpu-power@board'])
         self.assertEqual(args.metric_regex, 'Performance: ([0-9.]+)')
         self.assertTrue(args.minimize)
         self.assertEqual(args.trials, 100)
@@ -1399,7 +1398,7 @@ class TestGetParser(unittest.TestCase):
         parser = optimizer.get_parser()
 
         args = parser.parse_args([
-            '--cpu-frequency', 'package',
+            '--sweep', 'cpu-freq@package',
             '--metric-regex', 'test',
             'echo', 'hello'
         ])
@@ -1422,7 +1421,7 @@ class TestGetParser(unittest.TestCase):
         """--penalty accepts the 'none' policy."""
         parser = optimizer.get_parser()
         args = parser.parse_args([
-            '--cpu-frequency', 'package', '--metric-regex', 'test',
+            '--sweep', 'cpu-freq@package', '--metric-regex', 'test',
             '--penalty', 'none', 'echo', 'hello'
         ])
         self.assertEqual(args.penalty, 'none')
@@ -1431,7 +1430,7 @@ class TestGetParser(unittest.TestCase):
         """--penalty accepts a numeric policy parsed as a float."""
         parser = optimizer.get_parser()
         args = parser.parse_args([
-            '--cpu-frequency', 'package', '--metric-regex', 'test',
+            '--sweep', 'cpu-freq@package', '--metric-regex', 'test',
             '--penalty', '42.5', 'echo', 'hello'
         ])
         self.assertEqual(args.penalty, 42.5)
@@ -1441,7 +1440,7 @@ class TestGetParser(unittest.TestCase):
         parser = optimizer.get_parser()
         with self.assertRaises(SystemExit):
             parser.parse_args([
-                '--cpu-frequency', 'package', '--metric-regex', 'test',
+                '--sweep', 'cpu-freq@package', '--metric-regex', 'test',
                 '--penalty', 'bogus', 'echo', 'hello'
             ])
 
@@ -1458,7 +1457,7 @@ class TestGetParser(unittest.TestCase):
         parser = optimizer.get_parser()
 
         # Omitting --metric-regex is allowed; it defaults to None.
-        args = parser.parse_args(['--cpu-frequency', 'package', 'echo', 'test'])
+        args = parser.parse_args(['--sweep', 'cpu-freq@package', 'echo', 'test'])
         self.assertIsNone(args.metric_regex)
         self.assertEqual(args.launch, ['echo', 'test'])
 

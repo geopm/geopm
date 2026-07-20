@@ -285,36 +285,26 @@ def _format_range_value(getter) -> str:
 
 
 def add_grid_cli_arguments(parser: ArgumentParser) -> None:
-    """Register control-domain and override arguments on a parser."""
-    for flag, control in _CLI_FLAG_TO_CONTROL.items():
-        flag_dash = flag.replace('_', '-')
-        parser.add_argument(
-            f"--{flag_dash}",
-            default=None,
-            dest=f'{flag}_domain',
-            help=f"Provide a grid over {control[0]} for the given domain.",
-        )
-        parser.add_argument(
-            f"--{flag_dash}-min",
-            type=float,
-            default=None,
-            dest=f'{flag}_min',
-            help=f"Override the minimum value used when constructing the {control[0]} grid.",
-        )
-        parser.add_argument(
-            f"--{flag_dash}-max",
-            type=float,
-            default=None,
-            dest=f'{flag}_max',
-            help=f"Override the maximum value used when constructing the {control[0]} grid.",
-        )
-        parser.add_argument(
-            f"--{flag_dash}-step",
-            type=float,
-            default=None,
-            dest=f'{flag}_step',
-            help=f"Override the step size used when constructing the {control[0]} grid.",
-        )
+    """Register the compact sweep and discovery arguments on a parser."""
+    parser.add_argument(
+        "--sweep",
+        action="append",
+        default=None,
+        metavar="DIM",
+        dest="sweep",
+        help="Add a control dimension to sweep (repeatable). "
+             "DIM = CONTROL[@DOMAIN][=MIN:MAX:STEP]. Domain defaults to the "
+             "control's native domain and bounds default to auto-detected "
+             "values. See --list-controls for names, domains, and units.",
+    )
+    parser.add_argument(
+        "--list-controls",
+        action="store_true",
+        default=False,
+        dest="list_controls",
+        help="Print available control names, native domain, units, and "
+             "detected min/max/step, then exit.",
+    )
 
 def prefetch_settings(level: int) -> List[Tuple[str, int]]:
     """Derive MSR disable values for a prefetch optimization level.
@@ -356,17 +346,26 @@ class ControlGrid:
         self.domain_idx = []
         self.coordinate = None
         self.coordinate_range = False
+        self.list_controls = False
         self.parser = self._create_parser()
         self.do_write = False
 
         args = self.parser.parse_args(argv)
-        self.range_overrides = self._collect_range_overrides(args)
+        self.range_overrides = {}
 
-        # Process all control type arguments dynamically
-        for control_key in _CLI_FLAG_TO_CONTROL.keys():
-            domain = getattr(args, f'{control_key}_domain', None)
-            if domain is not None:
-                self.add_dimension(control_key, domain)
+        if args.list_controls:
+            self.list_controls = True
+            self.grid_data = []
+            return
+
+        # Build each requested dimension from its --sweep specification.
+        for spec in (args.sweep or []):
+            control_key, domain, overrides = parse_sweep_dim(spec)
+            if domain is None:
+                domain = native_domain(control_key)
+            self.add_dimension(control_key, domain)
+            if overrides:
+                self.range_overrides.setdefault(control_key, {}).update(overrides)
 
         self.grid_data = self._get_grid_data()
         if args.coordinate is not None:
@@ -413,25 +412,6 @@ class ControlGrid:
             help="Write configuration to the platform"
         )
         return parser
-
-    def _collect_range_overrides(self, args) -> dict:
-        overrides = {}
-        for control_key in _CLI_FLAG_TO_CONTROL.keys():
-            min_override = getattr(args, f'{control_key}_min', None)
-            max_override = getattr(args, f'{control_key}_max', None)
-            step_override = getattr(args, f'{control_key}_step', None)
-            control_overrides = {}
-            if min_override is not None:
-                control_overrides['min'] = float(min_override)
-            if max_override is not None:
-                control_overrides['max'] = float(max_override)
-            if step_override is not None:
-                if step_override <= 0:
-                    raise ValueError(f"Step override for {control_key} must be positive")
-                control_overrides['step'] = float(step_override)
-            if control_overrides:
-                overrides[control_key] = control_overrides
-        return overrides
 
     def add_dimension(self, control_name: str, domain: Union[int, str]) -> int:
         """Add a dimension to the control grid.
@@ -655,6 +635,8 @@ class ControlGrid:
         Returns:
             str: Output suitable for the command line arguments provided.
         """
+        if self.list_controls:
+            return self.list_controls_str()
         if self.coordinate_range:
             return ' '.join([str(len(dim["settings"])) for dim in self.get_grid_data()])
         elif self.coordinate is None:
