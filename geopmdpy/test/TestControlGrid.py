@@ -413,5 +413,197 @@ class TestControlGrid(TestCase):
         self.assertEqual(len(config), 2)
 
 
+class TestSweepParsing(TestCase):
+    """Unit tests for the --sweep grammar parsers (no pio/topo needed)."""
+
+    def test_parse_quantity_frequency_units(self):
+        """Frequency suffixes convert to Hz"""
+        self.assertEqual(grid.parse_quantity('2.8GHz', 'frequency'), 2.8e9)
+        self.assertEqual(grid.parse_quantity('100MHz', 'frequency'), 1e8)
+        self.assertEqual(grid.parse_quantity('500kHz', 'frequency'), 5e5)
+        self.assertEqual(grid.parse_quantity('50Hz', 'frequency'), 50.0)
+
+    def test_parse_quantity_power_units(self):
+        """Power suffixes convert to Watts"""
+        self.assertEqual(grid.parse_quantity('250W', 'power'), 250.0)
+        self.assertEqual(grid.parse_quantity('1kW', 'power'), 1000.0)
+
+    def test_parse_quantity_bare_number_raw_units(self):
+        """A bare number keeps the control's raw units"""
+        self.assertEqual(grid.parse_quantity('2800000000', 'frequency'), 2.8e9)
+        self.assertEqual(grid.parse_quantity('250', 'power'), 250.0)
+
+    def test_parse_quantity_case_insensitive(self):
+        """Unit suffixes are case-insensitive"""
+        self.assertEqual(grid.parse_quantity('2.8ghz', 'frequency'), 2.8e9)
+        self.assertEqual(grid.parse_quantity('2.8GHZ', 'frequency'), 2.8e9)
+        self.assertEqual(grid.parse_quantity('1KW', 'power'), 1000.0)
+
+    def test_parse_quantity_scientific_notation(self):
+        """Scientific notation is accepted for bare numbers"""
+        self.assertEqual(grid.parse_quantity('2.8e9', 'frequency'), 2.8e9)
+
+    def test_parse_quantity_unknown_unit(self):
+        """An unrecognized unit raises with the canonical list"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_quantity('2.8GhZz', 'frequency')
+        self.assertIn('unrecognized unit', str(context.exception))
+        self.assertIn('GHz', str(context.exception))
+
+    def test_parse_quantity_power_unit_on_frequency(self):
+        """A power unit on a frequency control is rejected"""
+        with self.assertRaises(ValueError):
+            grid.parse_quantity('250W', 'frequency')
+
+    def test_parse_quantity_negative(self):
+        """Negative values are rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_quantity('-1GHz', 'frequency')
+        self.assertIn('must not be negative', str(context.exception))
+
+    def test_parse_quantity_malformed(self):
+        """A non-numeric token is rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_quantity('abc', 'frequency')
+        self.assertIn('invalid numeric value', str(context.exception))
+
+    def test_parse_quantity_level_integer(self):
+        """A level control accepts a bare integer"""
+        self.assertEqual(grid.parse_quantity('4', 'level'), 4.0)
+
+    def test_parse_quantity_level_rejects_unit(self):
+        """A level control rejects any unit suffix"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_quantity('4GHz', 'level')
+        self.assertIn('not allowed for a level control', str(context.exception))
+
+    def test_parse_quantity_level_rejects_fraction(self):
+        """A level control rejects a non-integer value"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_quantity('1.5', 'level')
+        self.assertIn('must be an integer', str(context.exception))
+
+    def test_parse_triple_full(self):
+        """A full MIN:MAX:STEP triple parses all three fields"""
+        result = grid.parse_triple('1.2GHz:3GHz:100MHz', 'frequency')
+        self.assertEqual(result, {'min': 1.2e9, 'max': 3e9, 'step': 1e8})
+
+    def test_parse_triple_bounds_only(self):
+        """MIN:MAX sets only the bounds"""
+        result = grid.parse_triple('1.2GHz:3GHz', 'frequency')
+        self.assertEqual(result, {'min': 1.2e9, 'max': 3e9})
+
+    def test_parse_triple_step_only(self):
+        """::STEP sets only the step"""
+        result = grid.parse_triple('::100MHz', 'frequency')
+        self.assertEqual(result, {'step': 1e8})
+
+    def test_parse_triple_min_only(self):
+        """MIN:: sets only the minimum"""
+        result = grid.parse_triple('1.2GHz::', 'frequency')
+        self.assertEqual(result, {'min': 1.2e9})
+
+    def test_parse_triple_max_only(self):
+        """:MAX: sets only the maximum"""
+        result = grid.parse_triple(':3GHz:', 'frequency')
+        self.assertEqual(result, {'max': 3e9})
+
+    def test_parse_triple_missing_separator(self):
+        """A lone value with no ':' is ambiguous and rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_triple('2GHz', 'frequency')
+        self.assertIn('invalid range', str(context.exception))
+
+    def test_parse_triple_too_many_fields(self):
+        """More than three fields is rejected"""
+        with self.assertRaises(ValueError):
+            grid.parse_triple('1:2:3:4', 'frequency')
+
+    def test_parse_triple_non_positive_step(self):
+        """A zero or negative step is rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_triple('1GHz:3GHz:0', 'frequency')
+        self.assertIn('must be positive', str(context.exception))
+
+    def test_parse_triple_min_exceeds_max(self):
+        """A minimum greater than the maximum is rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_triple('3GHz:1GHz', 'frequency')
+        self.assertIn('min exceeds max', str(context.exception))
+
+    def test_parse_sweep_dim_control_only(self):
+        """A bare control resolves with no domain and no overrides"""
+        self.assertEqual(
+            grid.parse_sweep_dim('cpu-freq'),
+            ('cpu_frequency', None, {}),
+        )
+
+    def test_parse_sweep_dim_with_domain(self):
+        """An @DOMAIN clause is captured"""
+        self.assertEqual(
+            grid.parse_sweep_dim('cpu-freq@board'),
+            ('cpu_frequency', 'board', {}),
+        )
+
+    def test_parse_sweep_dim_full(self):
+        """A full CONTROL@DOMAIN=TRIPLE spec parses all parts"""
+        self.assertEqual(
+            grid.parse_sweep_dim('cpu-freq@board=1.2GHz:3GHz:100MHz'),
+            ('cpu_frequency', 'board', {'min': 1.2e9, 'max': 3e9, 'step': 1e8}),
+        )
+
+    def test_parse_sweep_dim_canonical_name(self):
+        """The canonical dashed control name is also accepted"""
+        self.assertEqual(
+            grid.parse_sweep_dim('cpu-frequency@package'),
+            ('cpu_frequency', 'package', {}),
+        )
+
+    def test_parse_sweep_dim_all_aliases(self):
+        """Every documented alias resolves to a control key"""
+        expected = {
+            'cpu-freq': 'cpu_frequency',
+            'uncore-freq': 'cpu_uncore_frequency',
+            'cpu-power': 'cpu_power',
+            'gpu-freq': 'gpu_frequency',
+            'gpu-power': 'gpu_power',
+            'board-power': 'board_power',
+            'prefetch': 'prefetch_disable',
+        }
+        for alias, control_key in expected.items():
+            self.assertEqual(grid.parse_sweep_dim(alias)[0], control_key)
+
+    def test_parse_sweep_dim_case_insensitive_control(self):
+        """Control names are matched case-insensitively"""
+        self.assertEqual(grid.parse_sweep_dim('CPU-Freq')[0], 'cpu_frequency')
+
+    def test_parse_sweep_dim_prefetch_level_override(self):
+        """A level control override parses as an integer with no units"""
+        self.assertEqual(
+            grid.parse_sweep_dim('prefetch=0:4:1'),
+            ('prefetch_disable', None, {'min': 0.0, 'max': 4.0, 'step': 1.0}),
+        )
+
+    def test_parse_sweep_dim_unknown_control(self):
+        """An unknown control names --list-controls in the error"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_sweep_dim('cpu-frq')
+        self.assertIn("unknown control 'cpu-frq'", str(context.exception))
+        self.assertIn('--list-controls', str(context.exception))
+
+    def test_parse_sweep_dim_empty(self):
+        """An empty spec is rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_sweep_dim('   ')
+        self.assertIn('empty --sweep specification', str(context.exception))
+
+    def test_parse_sweep_dim_empty_domain(self):
+        """An empty @DOMAIN clause is rejected"""
+        with self.assertRaises(ValueError) as context:
+            grid.parse_sweep_dim('cpu-freq@')
+        self.assertIn('empty domain', str(context.exception))
+
+
 if __name__ == '__main__':
     main()
+
