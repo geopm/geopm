@@ -22,8 +22,7 @@ import shutil
 import tempfile
 import logging
 from argparse import ArgumentParser, ArgumentTypeError, REMAINDER
-from dataclasses import dataclass
-from enum import Enum
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 try:
@@ -37,6 +36,7 @@ except ImportError:
     )
 
 from . import pio
+from . import metrics
 from .grid import ControlGrid, add_grid_cli_arguments
 
 try:
@@ -80,62 +80,95 @@ class RecoverableEvaluationError(Exception):
     pass
 
 
-class ObjectiveMode(Enum):
-    """The optimization objective resolved from the command-line inputs.
+@dataclass
+class ObjectiveSpec:
+    """Canonical description of an optimization objective.
 
-    The mode is a function of whether ``--metric-regex``, ``--efficiency``,
-    and ``--metric-bound`` are supplied; see :func:`resolve_objective_mode`
-    and the objective matrix in the geopmopt documentation.
+    Produced by :func:`expand_objective` from the command-line inputs and
+    consumed by the evaluator and optimizer. The objective is expressed as an
+    arithmetic expression over the base per-trial metric names ``fom``,
+    ``energy``, ``runtime``/``time``, and ``power``; it is evaluated in *raw*
+    (natural, unsigned) units and the optimization direction is applied
+    separately via :attr:`minimize`.
+
+    Attributes:
+        objective_expr: Arithmetic expression over base metric names giving the
+            quantity to optimize (e.g. ``'fom'``, ``'fom / power'``,
+            ``'energy'``, ``'runtime'``).
+        minimize: Whether the objective is minimized (True) or maximized.
+        label: Human-readable name of the objective for summaries.
+        needs_session: Whether trials must run under geopmsession to sample
+            energy/power signals.
+        requires_fom: Whether a figure of merit is scraped from stdout.
+        efficiency_domain: Energy domain (``board``/``cpu``/``gpu``) for
+            session objectives, or None.
+        constraints: Feasibility constraints applied to base metric names.
+        penalty_weight: Weight of the constraint-violation penalty folded into
+            the scalarized objective.
     """
-    #: Optimize the figure of merit scraped from stdout (``--minimize`` toggles).
-    RAW_METRIC = 'raw_metric'
-    #: Optimize figure of merit per average power over the efficiency domain.
-    EFFICIENCY = 'efficiency'
-    #: Minimize total wall-clock runtime (no figure of merit required).
-    RUNTIME = 'runtime'
-    #: Minimize total energy over the efficiency domain (no FoM required).
-    ENERGY = 'energy'
-    #: Minimize energy subject to a bound on the figure of merit.
-    ENERGY_BOUNDED = 'energy_bounded'
+    objective_expr: str
+    minimize: bool
+    label: str
+    needs_session: bool = False
+    requires_fom: bool = False
+    efficiency_domain: Optional[str] = None
+    constraints: List[metrics.Constraint] = field(default_factory=list)
+    penalty_weight: float = _DEFAULT_BOUND_PENALTY_WEIGHT
 
 
-#: Objective modes that require sampling energy around each trial.
-_ENERGY_MODES = frozenset(
-    {ObjectiveMode.EFFICIENCY, ObjectiveMode.ENERGY, ObjectiveMode.ENERGY_BOUNDED})
+def expand_objective(metric_regex, efficiency_domain, metric_bound, minimize,
+                     penalty_weight=_DEFAULT_BOUND_PENALTY_WEIGHT):
+    """Expand the command-line inputs into a canonical :class:`ObjectiveSpec`.
 
-
-def resolve_objective_mode(metric_regex, efficiency_domain, metric_bound,
-                           minimize):
-    """Resolve the optimization objective from the command-line inputs.
+    This is the single place that interprets the ``--metric-regex`` /
+    ``--efficiency`` / ``--metric-bound`` / ``--minimize`` combination; the rest
+    of the optimizer is driven purely by the resulting spec and the shared
+    ``metrics`` scalarizer.
 
     Args:
         metric_regex: The ``--metric-regex`` value, or None when omitted.
         efficiency_domain: The ``--efficiency`` domain, or None when omitted.
         metric_bound: The ``--metric-bound`` value, or None when omitted.
-        minimize: Whether ``--minimize`` was requested. The optimization
-            direction does not change which objective is selected; it is
-            accepted here so this function is the single place that consumes
-            all objective-determining inputs.
+        minimize: Whether ``--minimize`` was requested.
+        penalty_weight: Weight for the constraint-violation penalty.
 
     Returns:
-        ObjectiveMode: The resolved objective.
+        ObjectiveSpec: The canonical objective.
 
     Raises:
         ValueError: If the combination of inputs is invalid.
     """
+    maximize = not minimize
     if metric_bound is not None:
         if metric_regex is None:
             raise ValueError('--metric-bound requires --metric-regex')
         if efficiency_domain is None:
             raise ValueError('--metric-bound requires --efficiency')
-        return ObjectiveMode.ENERGY_BOUNDED
+        # Maximizing the figure of merit makes the bound a floor; minimizing
+        # makes it a ceiling.
+        op = '>=' if maximize else '<='
+        constraint = metrics.Constraint(name='fom', op=op,
+                                        value=float(metric_bound))
+        return ObjectiveSpec(
+            objective_expr='energy', minimize=True, label='energy',
+            needs_session=True, requires_fom=True,
+            efficiency_domain=efficiency_domain, constraints=[constraint],
+            penalty_weight=penalty_weight)
     if metric_regex is not None:
         if efficiency_domain is not None:
-            return ObjectiveMode.EFFICIENCY
-        return ObjectiveMode.RAW_METRIC
+            return ObjectiveSpec(
+                objective_expr='fom / power', minimize=minimize,
+                label='efficiency', needs_session=True, requires_fom=True,
+                efficiency_domain=efficiency_domain)
+        return ObjectiveSpec(
+            objective_expr='fom', minimize=minimize, label='figure of merit',
+            requires_fom=True)
     if efficiency_domain is not None:
-        return ObjectiveMode.ENERGY
-    return ObjectiveMode.RUNTIME
+        return ObjectiveSpec(
+            objective_expr='energy', minimize=True, label='energy',
+            needs_session=True, efficiency_domain=efficiency_domain)
+    return ObjectiveSpec(objective_expr='runtime', minimize=True,
+                         label='runtime')
 
 
 @dataclass
@@ -176,17 +209,15 @@ class ApplicationEvaluator:
     Attributes:
         launch_command (List[str]): Command and arguments to launch the application.
         metric_regex (str): Python-style regex to extract the performance metric.
-        maximize (bool): Whether to maximize or minimize the extracted metric.
         timeout (int): Timeout in seconds for the application's execution.
         print_stdout (bool): Whether to log the application's stdout to the info level.
-        objective_mode (ObjectiveMode): The resolved optimization objective.
         efficiency_domain (str): Domain used to measure energy, or None.
-        sample_period (float): geopmsession sampling period for energy objectives.
+        sample_period (float): geopmsession sampling period for session objectives.
         needs_session (bool): Whether trials run under geopmsession for energy.
     """
-    def __init__(self, launch_command: List[str], metric_regex: str = None, maximize: bool = True,
+    def __init__(self, launch_command: List[str], metric_regex: str = None,
                  timeout: int = 300, print_stdout: bool = False,
-                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
+                 needs_session: bool = False,
                  efficiency_domain: str = None,
                  sample_period: float = _DEFAULT_SAMPLE_PERIOD):
         """Initialize the application evaluator.
@@ -196,26 +227,23 @@ class ApplicationEvaluator:
             metric_regex: Python-style regex to extract figure of merit from
                 stdout. When None, no figure of merit is scraped and only the
                 application's wall-clock runtime is measured.
-            maximize: Whether to maximize (True) or minimize (False) the metric
             timeout: Timeout in seconds for application execution
             print_stdout: Whether to log application stdout to info level
-            objective_mode: The resolved optimization objective. Energy
-                objectives launch the application under geopmsession so that
-                energy and time are sampled with rollover accounting.
-            efficiency_domain: Domain used to measure energy for energy
+            needs_session: Whether trials run under geopmsession so that energy
+                and time are sampled with rollover accounting. Set by the
+                objective spec from the selected metric kinds.
+            efficiency_domain: Domain used to measure energy for session
                 objectives (``board``/``cpu``/``gpu``).
             sample_period: geopmsession sampling period in seconds.
         """
         self.launch_command = launch_command
         self.metric_regex = metric_regex
-        self.maximize = maximize
         self.timeout = timeout
         self.regex = re.compile(self.metric_regex) if self.metric_regex is not None else None
         self.print_stdout = print_stdout
-        self.objective_mode = objective_mode
         self.efficiency_domain = efficiency_domain
         self.sample_period = sample_period
-        self.needs_session = objective_mode in _ENERGY_MODES
+        self.needs_session = needs_session
         self._energy_signals = None
         if self.needs_session:
             if yaml is None:
@@ -527,10 +555,9 @@ class BayesianOptimizer:
         self.evaluation_history = []
         self.config_file = config_file
 
-        # ENERGY_BOUNDED state, (re)initialized at the start of optimize().
-        self._metric_bound = None
-        self._penalty_weight = _DEFAULT_BOUND_PENALTY_WEIGHT
-        self._energy_scale = None
+        # Objective spec and scoring state, (re)initialized in optimize().
+        self._spec = None
+        self._objective_scale = None
 
         # Recoverable-failure penalty policy, set at the start of optimize().
         self._penalty = 'auto'
@@ -608,92 +635,80 @@ class BayesianOptimizer:
 
         return self.evaluator.evaluate(self.control_grid, coordinate, self.config_file)
 
-    def _bound_violation(self, fom: float) -> float:
-        """Return the normalized amount by which a FoM misses the bound.
+    def _trial_values(self, trial: TrialResult) -> dict:
+        """Map a trial's raw measurements to canonical base metric names.
 
-        The violation is expressed as a fraction of the bound magnitude so it
-        is dimensionless and comparable across problems. It is zero for a
-        feasible trial and positive for an infeasible one. When maximizing the
-        figure of merit the bound is a floor (feasible when ``fom >= bound``);
-        when minimizing it is a ceiling (feasible when ``fom <= bound``).
-
-        Args:
-            fom: Figure of merit scraped from the trial.
-
-        Returns:
-            float: Non-negative normalized bound violation.
-        """
-        bound = self._metric_bound
-        scale = abs(bound) if bound != 0 else 1.0
-        if self.evaluator.maximize:
-            return max(0.0, bound - fom) / scale
-        return max(0.0, fom - bound) / scale
-
-    def _score_result(self, trial: TrialResult,
-                      objective_mode: ObjectiveMode) -> float:
-        """Reduce a TrialResult to the scalar objective value to minimize.
-
-        Runtime and energy objectives are minimized directly. For the figure
-        of merit objectives the maximize/minimize sign convention is applied
-        and, for the efficiency objective, average power is folded in. The
-        energy-bounded objective minimizes energy with a soft penalty applied
-        when the figure-of-merit bound is violated.
+        The returned mapping is the evaluation context for the objective
+        expression and constraints: ``fom``, ``energy``, ``runtime``/``time``,
+        and ``power`` are populated when the corresponding measurement is
+        available.
 
         Args:
             trial: Raw measurements from :meth:`_evaluate_coordinate`.
-            objective_mode: The resolved optimization objective.
 
         Returns:
-            float: Scalar objective value in minimization space.
+            dict: Base metric name to measured value.
         """
-        if objective_mode == ObjectiveMode.RUNTIME:
-            return trial.runtime
-        if objective_mode == ObjectiveMode.ENERGY:
-            return trial.energy
-        if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
-            return self._score_energy_bounded(trial)
+        values = {}
+        if trial.fom is not None:
+            values['fom'] = trial.fom
+        if trial.energy is not None:
+            values['energy'] = trial.energy
+        if trial.runtime is not None:
+            values['runtime'] = trial.runtime
+            values['time'] = trial.runtime
+        if trial.average_power is not None:
+            values['power'] = trial.average_power
+        return values
 
-        # RAW_METRIC and EFFICIENCY optimize the figure of merit.
-        if self.evaluator.maximize:
-            metric = -trial.fom  # Negate for maximization
-        else:
-            metric = trial.fom
-        if objective_mode == ObjectiveMode.EFFICIENCY:
-            average_power = trial.average_power
-            logger.info(f"Average power consumed: {average_power} W")
-            if average_power <= 0:
-                raise OptimizationError("Average power consumed is non-positive")
-            if self.evaluator.maximize:
-                metric /= average_power
-            else:
-                metric *= average_power
-        return metric
+    def _score_trial(self, trial: TrialResult):
+        """Scalarize a successful trial through the shared metrics scalarizer.
 
-    def _score_energy_bounded(self, trial: TrialResult) -> float:
-        """Score an energy-bounded trial as energy plus a bound-violation penalty.
-
-        Feasible trials score their plain energy. Infeasible trials score
-        strictly higher: ``energy + penalty_weight * energy_scale * violation``,
-        where ``energy_scale`` tracks the largest energy magnitude observed so
-        far so the penalty stays commensurate with energy differences.
+        The objective expression is evaluated in raw units, the optimization
+        direction is applied (negating a maximized objective), and each
+        constraint contributes a violation penalty normalized by the running
+        objective magnitude so the penalty stays commensurate with objective
+        differences.
 
         Args:
-            trial: Raw measurements, with ``fom`` and ``energy`` populated.
+            trial: Raw measurements, with the fields the spec needs populated.
 
         Returns:
-            float: The penalized energy objective to minimize.
+            tuple: ``(score, objective_raw, feasible, total_violation)`` where
+            ``score`` is the value to minimize, ``objective_raw`` is the
+            objective in natural units, ``feasible`` is True when no constraint
+            is violated, and ``total_violation`` is the summed violation
+            magnitude.
         """
-        energy = trial.energy
-        magnitude = abs(energy)
-        if self._energy_scale is None:
-            self._energy_scale = magnitude
-        else:
-            self._energy_scale = max(self._energy_scale, magnitude)
+        spec = self._spec
+        values = self._trial_values(trial)
+        objective_raw = metrics.safe_eval(spec.objective_expr, values)
 
-        violation = self._bound_violation(trial.fom)
-        if violation <= 0.0:
-            return energy
-        return energy + self._penalty_weight * self._energy_scale * violation
+        magnitude = abs(objective_raw)
+        if self._objective_scale is None:
+            self._objective_scale = magnitude
+        else:
+            self._objective_scale = max(self._objective_scale, magnitude)
+
+        objective = objective_raw if spec.minimize else -objective_raw
+
+        violations = []
+        total_violation = 0.0
+        for constraint in spec.constraints:
+            measured = values[constraint.name]
+            amount = constraint.violation(measured)
+            if amount > 0.0:
+                total_violation += amount
+            # Scale the penalty by the observed objective magnitude so it is
+            # commensurate with objective differences, and by the constraint's
+            # characteristic scale so a fully violated bound is order-one.
+            violations.append(metrics.Violation(
+                amount=amount,
+                scale=self._objective_scale * constraint.scale,
+                weight=spec.penalty_weight))
+
+        score = metrics.score(objective, violations)
+        return score, objective_raw, total_violation == 0.0, total_violation
 
     def _penalty_value(self) -> float:
         """Return the objective value assigned to a recoverable failure.
@@ -711,7 +726,7 @@ class BayesianOptimizer:
         if isinstance(self._penalty, (int, float)):
             return float(self._penalty)
 
-        successes = [h['metric'] for h in self.evaluation_history
+        successes = [h['score'] for h in self.evaluation_history
                      if not h.get('failed')]
         if not successes:
             logger.warning(
@@ -751,82 +766,77 @@ class BayesianOptimizer:
             f"with objective {penalty}")
         return penalty
 
-    def _record_history(self, coordinate: List[int], metric: float,
+    def _record_history(self, coordinate: List[int], score: float,
+                        objective_raw: float = None,
                         trial: 'TrialResult' = None,
-                        objective_mode: ObjectiveMode = None) -> None:
+                        feasible: bool = True) -> None:
         """Append a completed trial to the evaluation history and log it.
 
         Args:
             coordinate: Grid coordinate that was evaluated.
-            metric: Scalar objective value produced by :meth:`_score_result`.
-            trial: Raw measurements, used to record energy-bounded feasibility.
-            objective_mode: The active objective, used to decide what to record.
+            score: Scalar objective value produced by :meth:`_score_trial`
+                (or the penalty for a failed trial).
+            objective_raw: The objective in natural units, for reporting.
+            trial: Raw measurements, used to record feasibility and the FoM.
+            feasible: Whether every constraint was satisfied.
         """
         entry = {
             'coordinate': coordinate.copy(),
-            'metric': metric,
+            'score': score,
             'config_commands': self.control_grid.get_config_str(coordinate)
         }
         if trial is not None and trial.failed:
             entry['failed'] = True
             entry['failure_reason'] = trial.failure_reason
-            # A failed trial can never satisfy a figure-of-merit bound.
-            if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
-                entry['feasible'] = False
-        elif objective_mode == ObjectiveMode.ENERGY_BOUNDED and trial is not None:
-            entry['fom'] = trial.fom
-            entry['energy'] = trial.energy
-            entry['feasible'] = self._bound_violation(trial.fom) <= 0.0
+            # A failed trial can never satisfy a constraint.
+            entry['feasible'] = False
+        else:
+            entry['objective_raw'] = objective_raw
+            entry['feasible'] = feasible
+            if trial is not None:
+                entry['fom'] = trial.fom
         self.evaluation_history.append(entry)
 
         logger.info(f"Evaluation {len(self.evaluation_history)}: "
-                   f"coordinate={coordinate}, metric={metric}")
+                   f"coordinate={coordinate}, score={score}")
 
-    def optimize(self, trials: int = 50, n_initial_points: int = 10,
-                 random_state: int = 42,
-                 objective_mode: ObjectiveMode = ObjectiveMode.RAW_METRIC,
-                 metric_bound: float = None,
-                 penalty_weight: float = _DEFAULT_BOUND_PENALTY_WEIGHT,
+    def optimize(self, spec: ObjectiveSpec, trials: int = 50,
+                 n_initial_points: int = 10, random_state: int = 42,
                  penalty='auto') -> dict:
-        """Run Bayesian optimization.
+        """Run Bayesian optimization for the given objective spec.
 
         Args:
-            trials: Number of optimization iterations
-            n_initial_points: Number of random initial evaluations
-            random_state: Random seed for reproducibility
-            objective_mode: The resolved optimization objective.
-            metric_bound: Figure-of-merit bound for the ENERGY_BOUNDED
-                objective. Trials whose FoM violates the bound are penalized.
-            penalty_weight: Weight of the bound-violation penalty for the
-                ENERGY_BOUNDED objective.
+            spec: The canonical objective produced by :func:`expand_objective`.
+            trials: Number of optimization iterations.
+            n_initial_points: Number of random initial evaluations.
+            random_state: Random seed for reproducibility.
             penalty: Recoverable-failure policy: ``'auto'`` derives a finite
                 penalty worse than every success, ``'none'`` re-raises on any
-                failure (legacy behavior), or a float sets a fixed penalty.
+                failure, or a float sets a fixed penalty.
 
         Returns:
-            dict: Optimization results including best configuration and value
+            dict: Optimization results including the best configuration and its
+                objective value.
         """
-        # (Re)initialize the energy-bounded penalty state for this run.
-        self._metric_bound = metric_bound
-        self._penalty_weight = penalty_weight
-        self._energy_scale = None
+        # (Re)initialize scoring state for this run.
+        self._spec = spec
+        self._objective_scale = None
         self._penalty = penalty
 
         @use_named_args(self.space)
         def objective(**params):
             """Objective function for optimization."""
-            # Convert parameter indices to actual coordinate values
-            coordinate = [int(params[dim.name]) for dim in self.space]  # Convert numpy types to int
+            coordinate = [int(params[dim.name]) for dim in self.space]
             trial = self._evaluate_coordinate(coordinate)
             if trial.failed:
-                metric = self._handle_failed_trial(trial)
-            else:
-                metric = self._score_result(trial, objective_mode)
-            self._record_history(coordinate, metric, trial, objective_mode)
-            return metric
+                score = self._handle_failed_trial(trial)
+                self._record_history(coordinate, score, trial=trial)
+                return score
+            score, objective_raw, feasible, _ = self._score_trial(trial)
+            self._record_history(coordinate, score, objective_raw=objective_raw,
+                                 trial=trial, feasible=feasible)
+            return score
 
-
-        # Run optimization
         logger.info(f"Starting Bayesian optimization with {trials} evaluations...")
 
         result = gp_minimize(
@@ -838,71 +848,46 @@ class BayesianOptimizer:
             acq_func='EI'  # Expected Improvement
         )
 
-        # Store best result
         self.best_result = result
 
-        if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
-            return self._build_bounded_result(result)
-
-        # Select the best successful trial, excluding penalized failures.
-        best_coordinate, best_metric = self._select_best(result)
+        best = self._select_best_entry(result)
+        best_coordinate = list(best['coordinate'])
         best_config = self.control_grid.get_config_str(best_coordinate)
 
-        # Convert metric back if maximizing. Runtime and energy objectives are
-        # already reported in their natural (minimized) units.
-        if (objective_mode in (ObjectiveMode.RAW_METRIC, ObjectiveMode.EFFICIENCY)
-                and self.evaluator.maximize):
-            best_metric = -best_metric
+        objective_raw = best.get('objective_raw')
+        if objective_raw is None:
+            # Empty-history fallback (mocked runs): recover natural units from
+            # the signed score.
+            objective_raw = (best['score'] if spec.minimize
+                             else -best['score'])
 
-        return {
+        result_dict = {
             'best_coordinate': best_coordinate,
-            'best_metric': best_metric,
+            'best_metric': objective_raw,
             'best_config': best_config,
             'n_evaluations': len(result.func_vals),
-            'optimization_result': result
+            'optimization_result': result,
+            'label': spec.label,
         }
+        if spec.constraints:
+            result_dict['best_fom'] = best.get('fom')
+            result_dict['constraints_satisfied'] = best.get('feasible', False)
+        return result_dict
 
-    def _select_best(self, result):
-        """Return the best successful coordinate and its minimization metric.
+    def _select_best_entry(self, result) -> dict:
+        """Return the best trial's history entry.
 
-        Failed trials are excluded from selection. When the evaluation history
-        is available it is the source of truth; a run in which every trial
-        failed raises a clear error. When the history is empty (for example
-        under a mocked optimizer) the scikit-optimize result is used directly.
-
-        Args:
-            result: The scikit-optimize result from ``gp_minimize``.
-
-        Returns:
-            tuple: ``(best_coordinate, best_metric)`` in minimization space.
-
-        Raises:
-            OptimizationError: If every recorded trial failed.
-        """
-        successes = [h for h in self.evaluation_history if not h.get('failed')]
-        if self.evaluation_history and not successes:
-            raise OptimizationError(
-                "All trials failed; no successful configuration was found")
-        if successes:
-            best = min(successes, key=lambda h: h['metric'])
-            return list(best['coordinate']), best['metric']
-        # Fallback for callers that do not populate history (mocked runs).
-        return [int(x) for x in result.x], result.fun
-
-    def _build_bounded_result(self, result) -> dict:
-        """Assemble the result for the ENERGY_BOUNDED objective.
-
-        Prefers the feasible trial with the lowest energy. When no trial
-        satisfied the bound, falls back to the successful trial that minimized
-        the penalized objective (the least-infeasible trial) and marks the
-        result as not satisfying the bound. Failed trials are never selected,
-        and a run in which every trial failed raises a clear error.
+        A fully-feasible successful trial with the lowest score wins; when no
+        feasible trial exists the least-penalized successful trial is used.
+        Failed trials are never selected, and a run in which every trial failed
+        raises a clear error. When the history is empty (mocked runs) an entry
+        is synthesized from the scikit-optimize result.
 
         Args:
             result: The scikit-optimize result from ``gp_minimize``.
 
         Returns:
-            dict: Result including ``bound_satisfied`` and ``best_fom``.
+            dict: The selected history entry.
 
         Raises:
             OptimizationError: If every recorded trial failed.
@@ -911,46 +896,38 @@ class BayesianOptimizer:
         if self.evaluation_history and not non_failed:
             raise OptimizationError(
                 "All trials failed; no successful configuration was found")
-
-        feasible = [h for h in non_failed if h.get('feasible')]
-        if feasible:
-            best = min(feasible, key=lambda h: h['energy'])
-            bound_satisfied = True
-        else:
-            best = min(non_failed, key=lambda h: h['metric'])
-            bound_satisfied = False
-
-        best_coordinate = list(best['coordinate'])
-        best_config = self.control_grid.get_config_str(best_coordinate)
+        if non_failed:
+            feasible = [h for h in non_failed if h.get('feasible')]
+            pool = feasible if feasible else non_failed
+            return min(pool, key=lambda h: h['score'])
+        # Fallback for callers that do not populate history (mocked runs).
         return {
-            'best_coordinate': best_coordinate,
-            'best_metric': best['energy'],
-            'best_config': best_config,
-            'best_fom': best['fom'],
-            'bound_satisfied': bound_satisfied,
-            'n_evaluations': len(result.func_vals),
-            'optimization_result': result
+            'coordinate': [int(x) for x in result.x],
+            'score': result.fun,
+            'objective_raw': None,
+            'feasible': True,
+            'fom': None,
         }
 
-    def summarize(self, result: dict, objective_mode: ObjectiveMode) -> str:
+    def summarize(self, result: dict, spec: ObjectiveSpec) -> str:
         """Build a human-readable summary of an optimization result.
 
         Args:
             result: The dictionary returned by :meth:`optimize`.
-            objective_mode: The objective the run used.
+            spec: The objective the run used.
 
         Returns:
             str: A multi-line summary suitable for printing to the user.
         """
         lines = [f"Best configuration:\n{result['best_config']}"]
-        if objective_mode == ObjectiveMode.ENERGY_BOUNDED:
-            status = ('satisfied' if result.get('bound_satisfied')
+        if spec.constraints:
+            status = ('satisfied' if result.get('constraints_satisfied')
                       else 'NOT satisfied')
-            bound = self._metric_bound
             lines.append(
-                f"Figure-of-merit bound {bound} was {status} "
+                f"Constraints were {status} "
                 f"(best figure of merit: {result.get('best_fom')})")
-            lines.append(f"Energy at best configuration: {result['best_metric']}")
+            lines.append(
+                f"{spec.label} at best configuration: {result['best_metric']}")
         return '\n'.join(lines)
 
 
@@ -1152,7 +1129,7 @@ def main():
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
 
-        objective_mode = resolve_objective_mode(
+        spec = expand_objective(
             args.metric_regex, args.efficiency_domain, args.metric_bound,
             args.minimize)
 
@@ -1160,11 +1137,10 @@ def main():
         evaluator = ApplicationEvaluator(
             launch_command=launch_command,
             metric_regex=args.metric_regex,
-            maximize=not args.minimize,
             timeout=args.application_timeout,
             print_stdout=args.print_stdout,
-            objective_mode=objective_mode,
-            efficiency_domain=args.efficiency_domain,
+            needs_session=spec.needs_session,
+            efficiency_domain=spec.efficiency_domain,
             sample_period=args.sample_period
         )
         # Create and run optimizer
@@ -1174,11 +1150,10 @@ def main():
         optimizer = BayesianOptimizer(control_grid, evaluator, config_file)
 
         result = optimizer.optimize(
+            spec=spec,
             trials=args.trials,
             n_initial_points=args.n_initial_points,
             random_state=args.random_seed,
-            objective_mode=objective_mode,
-            metric_bound=args.metric_bound,
             penalty=args.penalty
         )
 
@@ -1189,7 +1164,7 @@ def main():
         logger.info(f"Number of evaluations: {result['n_evaluations']}")
 
         # Always print the best configuration to stdout for user visibility
-        print(optimizer.summarize(result, objective_mode))
+        print(optimizer.summarize(result, spec))
 
         if args.output_file != '-':
             with open(args.output_file, 'w') as fid:

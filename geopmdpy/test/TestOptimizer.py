@@ -22,6 +22,7 @@ skip_msg = 'The skopt module is required to test optimizer'
 try:
     import skopt
     from geopmdpy import optimizer
+    from geopmdpy import metrics
 except ImportError:
     skip_test = True
 
@@ -31,24 +32,22 @@ class TestApplicationEvaluator(unittest.TestCase):
         self.launch_command = ["echo", "Performance: 123.45"]
         self.metric_regex = "Performance: ([0-9.]+)"
         self.evaluator = optimizer.ApplicationEvaluator(
-            self.launch_command, self.metric_regex, maximize=True, timeout=300
+            self.launch_command, self.metric_regex, timeout=300
         )
 
     def test_init(self):
         """Test ApplicationEvaluator initialization."""
         self.assertEqual(self.evaluator.launch_command, self.launch_command)
         self.assertEqual(self.evaluator.metric_regex, self.metric_regex)
-        self.assertTrue(self.evaluator.maximize)
         self.assertEqual(self.evaluator.timeout, 300)
         self.assertFalse(self.evaluator.print_stdout)
 
     def test_init_with_print_stdout(self):
         """Test ApplicationEvaluator initialization with print_stdout enabled."""
         evaluator = optimizer.ApplicationEvaluator(
-            self.launch_command, self.metric_regex, maximize=False,
+            self.launch_command, self.metric_regex,
             timeout=600, print_stdout=True
         )
-        self.assertFalse(evaluator.maximize)
         self.assertEqual(evaluator.timeout, 600)
         self.assertTrue(evaluator.print_stdout)
 
@@ -56,13 +55,13 @@ class TestApplicationEvaluator(unittest.TestCase):
         """Test regex compilation."""
         # Test direct regex
         evaluator = optimizer.ApplicationEvaluator(
-            ["echo", "test"], "Performance: ([0-9.]+)", maximize=True
+            ["echo", "test"], "Performance: ([0-9.]+)"
         )
         self.assertIsNotNone(evaluator.regex)
 
         # Test regex with special characters
         evaluator = optimizer.ApplicationEvaluator(
-            ["echo", "test"], r"Score:\s+([0-9]*\.?[0-9]+)", maximize=True
+            ["echo", "test"], r"Score:\s+([0-9]*\.?[0-9]+)"
         )
         self.assertIsNotNone(evaluator.regex)
 
@@ -97,7 +96,7 @@ class TestApplicationEvaluator(unittest.TestCase):
     def test_evaluate_minimization(self, mock_run):
         """Test evaluation for minimization problem."""
         evaluator = optimizer.ApplicationEvaluator(
-            self.launch_command, self.metric_regex, maximize=False
+            self.launch_command, self.metric_regex
         )
 
         mock_result = MagicMock()
@@ -256,7 +255,7 @@ class TestApplicationEvaluator(unittest.TestCase):
     def test_extract_metric_no_capture_group(self):
         """Test metric extraction without capture group."""
         evaluator = optimizer.ApplicationEvaluator(
-            ["echo", "test"], r"[0-9]+\.[0-9]+", maximize=True
+            ["echo", "test"], r"[0-9]+\.[0-9]+"
         )
         stdout = "Score is 123.45 points"
         metric = evaluator._extract_metric(stdout)
@@ -274,7 +273,7 @@ class TestApplicationEvaluator(unittest.TestCase):
     def test_extract_metric_invalid_value(self):
         """An unparsable matched value is a recoverable failure."""
         evaluator = optimizer.ApplicationEvaluator(
-            ["echo", "test"], "Performance: ([a-z]+)", maximize=True
+            ["echo", "test"], "Performance: ([a-z]+)"
         )
         stdout = "Performance: invalid"
 
@@ -385,7 +384,6 @@ class TestBayesianOptimizer(unittest.TestCase):
 
         # Mock the evaluator
         self.mock_evaluator = MagicMock()
-        self.mock_evaluator.maximize = True
 
     def test_init_with_skopt(self):
         """Test initialization when scikit-optimize is available."""
@@ -460,165 +458,185 @@ class TestBayesianOptimizer(unittest.TestCase):
 
         self.assertIn("Grid data dimensions", str(context.exception))
 
-    def test_score_result_maximize(self):
-        """Maximize converts the raw FoM to its negation (minimization space)."""
+    def _opt_with_spec(self, spec):
+        """Return a BayesianOptimizer primed with a scoring spec."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        trial = optimizer.TrialResult(fom=123.45)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.RAW_METRIC), -123.45)
+        opt._spec = spec
+        opt._objective_scale = None
+        return opt
 
-    def test_score_result_minimize(self):
-        """Minimize keeps the raw FoM sign."""
-        self.mock_evaluator.maximize = False
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+    def test_score_trial_raw_metric_maximize(self):
+        """Maximizing the figure of merit minimizes its negation."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+        opt = self._opt_with_spec(spec)
         trial = optimizer.TrialResult(fom=123.45)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.RAW_METRIC), 123.45)
+        score, raw, feasible, violation = opt._score_trial(trial)
+        self.assertEqual(score, -123.45)
+        self.assertEqual(raw, 123.45)
+        self.assertTrue(feasible)
+        self.assertEqual(violation, 0.0)
 
-    def test_score_result_efficiency_maximize(self):
-        """Maximizing efficiency divides the negated FoM by average power."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+    def test_score_trial_raw_metric_minimize(self):
+        """Minimizing the figure of merit keeps its sign."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, True)
+        opt = self._opt_with_spec(spec)
+        trial = optimizer.TrialResult(fom=123.45)
+        score, raw, _, _ = opt._score_trial(trial)
+        self.assertEqual(score, 123.45)
+        self.assertEqual(raw, 123.45)
+
+    def test_score_trial_efficiency_maximize(self):
+        """Maximizing efficiency minimizes the negated FoM per watt."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', None, False)
+        opt = self._opt_with_spec(spec)
         trial = optimizer.TrialResult(fom=1000.0, average_power=100.0)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.EFFICIENCY), -10.0)
+        score, raw, _, _ = opt._score_trial(trial)
+        self.assertEqual(score, -10.0)
+        self.assertEqual(raw, 10.0)
 
-    def test_score_result_efficiency_minimize(self):
-        """Minimizing efficiency multiplies the FoM by average power."""
-        self.mock_evaluator.maximize = False
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        trial = optimizer.TrialResult(fom=10.0, average_power=5.0)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.EFFICIENCY), 50.0)
+    def test_score_trial_efficiency_minimize(self):
+        """Minimizing efficiency keeps the FoM-per-watt sign."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', None, True)
+        opt = self._opt_with_spec(spec)
+        trial = optimizer.TrialResult(fom=50.0, average_power=5.0)
+        score, raw, _, _ = opt._score_trial(trial)
+        self.assertEqual(score, 10.0)
+        self.assertEqual(raw, 10.0)
 
-    def test_score_result_nonpositive_power_raises(self):
-        """Non-positive average power raises OptimizationError."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        trial = optimizer.TrialResult(fom=1.0, average_power=0.0)
-        with self.assertRaises(optimizer.OptimizationError) as context:
-            opt._score_result(trial, optimizer.ObjectiveMode.EFFICIENCY)
-        self.assertIn("non-positive", str(context.exception))
-
-    def test_score_result_runtime(self):
+    def test_score_trial_runtime(self):
         """The runtime objective minimizes wall-clock time directly."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        spec = optimizer.expand_objective(None, None, None, False)
+        opt = self._opt_with_spec(spec)
         trial = optimizer.TrialResult(runtime=12.5)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.RUNTIME), 12.5)
+        score, raw, _, _ = opt._score_trial(trial)
+        self.assertEqual(score, 12.5)
+        self.assertEqual(raw, 12.5)
 
-    def test_score_result_energy(self):
+    def test_score_trial_energy(self):
         """The energy objective minimizes measured energy directly."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        trial = optimizer.TrialResult(energy=987.0)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.ENERGY), 987.0)
+        spec = optimizer.expand_objective(None, 'cpu', None, False)
+        opt = self._opt_with_spec(spec)
+        trial = optimizer.TrialResult(energy=987.0, runtime=1.0,
+                                      average_power=987.0)
+        score, raw, _, _ = opt._score_trial(trial)
+        self.assertEqual(score, 987.0)
+        self.assertEqual(raw, 987.0)
 
-    def test_score_result_energy_bounded_feasible(self):
+    def test_score_trial_energy_bounded_feasible(self):
         """A feasible energy-bounded trial scores its plain energy."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
-        opt._penalty_weight = 1.0
-        # maximize (default): feasible when fom >= bound
-        trial = optimizer.TrialResult(fom=120.0, energy=500.0)
-        self.assertEqual(
-            opt._score_result(trial, optimizer.ObjectiveMode.ENERGY_BOUNDED),
-            500.0)
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, False)
+        opt = self._opt_with_spec(spec)
+        # maximize form: feasible when fom >= bound
+        trial = optimizer.TrialResult(fom=120.0, energy=500.0, runtime=1.0,
+                                      average_power=500.0)
+        score, raw, feasible, violation = opt._score_trial(trial)
+        self.assertEqual(score, 500.0)
+        self.assertEqual(raw, 500.0)
+        self.assertTrue(feasible)
+        self.assertEqual(violation, 0.0)
 
-    def test_score_result_energy_bounded_infeasible(self):
+    def test_score_trial_energy_bounded_infeasible(self):
         """An infeasible energy-bounded trial scores strictly above its energy."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
-        opt._penalty_weight = 1.0
-        # violation = (100 - 50) / 100 = 0.5; energy_scale = 500;
-        # penalty = 1.0 * 500 * 0.5 = 250
-        trial = optimizer.TrialResult(fom=50.0, energy=500.0)
-        score = opt._score_result(trial, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, False)
+        opt = self._opt_with_spec(spec)
+        # deficit = 100 - 50 = 50; scale = |energy|(500) * (1/100) = 5;
+        # penalty = weight(1) * 5 * 50 = 250; score = 500 + 250 = 750
+        trial = optimizer.TrialResult(fom=50.0, energy=500.0, runtime=1.0,
+                                      average_power=500.0)
+        score, _, feasible, violation = opt._score_trial(trial)
         self.assertGreater(score, 500.0)
         self.assertEqual(score, 750.0)
+        self.assertFalse(feasible)
+        self.assertEqual(violation, 50.0)
 
-    def test_score_result_energy_bounded_minimize(self):
+    def test_score_trial_energy_bounded_minimize(self):
         """When minimizing the FoM the bound is a ceiling."""
-        self.mock_evaluator.maximize = False
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
-        opt._penalty_weight = 1.0
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, True)
+        opt = self._opt_with_spec(spec)
         # feasible when fom <= bound
-        feasible = optimizer.TrialResult(fom=80.0, energy=500.0)
-        self.assertEqual(
-            opt._score_result(feasible, optimizer.ObjectiveMode.ENERGY_BOUNDED),
-            500.0)
-        # infeasible when fom > bound: violation = (150 - 100) / 100 = 0.5
-        infeasible = optimizer.TrialResult(fom=150.0, energy=500.0)
-        score = opt._score_result(
-            infeasible, optimizer.ObjectiveMode.ENERGY_BOUNDED)
-        self.assertEqual(score, 750.0)
+        feasible = optimizer.TrialResult(fom=80.0, energy=500.0, runtime=1.0,
+                                         average_power=500.0)
+        score, _, is_feasible, _ = opt._score_trial(feasible)
+        self.assertEqual(score, 500.0)
+        self.assertTrue(is_feasible)
+        # infeasible when fom > bound: excess = 150 - 100 = 50
+        opt2 = self._opt_with_spec(spec)
+        infeasible = optimizer.TrialResult(fom=150.0, energy=500.0, runtime=1.0,
+                                           average_power=500.0)
+        score2, _, is_feasible2, _ = opt2._score_trial(infeasible)
+        self.assertEqual(score2, 750.0)
+        self.assertFalse(is_feasible2)
 
-    def test_build_bounded_result_prefers_feasible(self):
-        """The best feasible point is chosen even if infeasible energy is lower."""
+    def test_score_trial_missing_value_raises(self):
+        """A metric that the trial did not measure raises an evaluation error."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', None, False)
+        opt = self._opt_with_spec(spec)
+        # No average_power measured, so 'power' is unavailable.
+        trial = optimizer.TrialResult(fom=1.0)
+        with self.assertRaises(metrics.MetricEvaluationError):
+            opt._score_trial(trial)
+
+    def test_select_best_entry_prefers_feasible(self):
+        """The best feasible point wins even if an infeasible score is lower."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 100.0, 'energy': 100.0,
+            {'coordinate': [0], 'score': 100.0, 'objective_raw': 100.0,
              'fom': 50.0, 'feasible': False},
-            {'coordinate': [1], 'metric': 300.0, 'energy': 300.0,
+            {'coordinate': [1], 'score': 300.0, 'objective_raw': 300.0,
              'fom': 120.0, 'feasible': True},
-            {'coordinate': [2], 'metric': 250.0, 'energy': 250.0,
+            {'coordinate': [2], 'score': 250.0, 'objective_raw': 250.0,
              'fom': 110.0, 'feasible': True},
         ]
         mock_result = MagicMock()
-        mock_result.func_vals = [1, 2, 3]
-        out = opt._build_bounded_result(mock_result)
-        self.assertTrue(out['bound_satisfied'])
-        self.assertEqual(out['best_coordinate'], [2])
-        self.assertEqual(out['best_metric'], 250.0)
-        self.assertEqual(out['best_fom'], 110.0)
+        best = opt._select_best_entry(mock_result)
+        self.assertEqual(best['coordinate'], [2])
+        self.assertEqual(best['objective_raw'], 250.0)
+        self.assertEqual(best['fom'], 110.0)
 
-    def test_build_bounded_result_all_infeasible(self):
+    def test_select_best_entry_all_infeasible(self):
         """With no feasible point the least-penalized trial is reported."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 900.0, 'energy': 400.0,
+            {'coordinate': [0], 'score': 900.0, 'objective_raw': 400.0,
              'fom': 50.0, 'feasible': False},
-            {'coordinate': [1], 'metric': 600.0, 'energy': 500.0,
+            {'coordinate': [1], 'score': 600.0, 'objective_raw': 500.0,
              'fom': 80.0, 'feasible': False},
         ]
         mock_result = MagicMock()
-        mock_result.func_vals = [1, 2]
-        out = opt._build_bounded_result(mock_result)
-        self.assertFalse(out['bound_satisfied'])
-        # The trial with the lowest penalized metric (600.0) is reported.
-        self.assertEqual(out['best_coordinate'], [1])
-        self.assertEqual(out['best_fom'], 80.0)
+        best = opt._select_best_entry(mock_result)
+        self.assertEqual(best['coordinate'], [1])
+        self.assertEqual(best['fom'], 80.0)
 
-    def test_summarize_energy_bounded_satisfied(self):
-        """The summary reports bound feasibility and the best figure of merit."""
+    def test_summarize_constraint_satisfied(self):
+        """The summary reports constraint feasibility and the best figure of merit."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, False)
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
         result = {
             'best_config': 'CONFIG', 'best_metric': 250.0,
-            'best_fom': 110.0, 'bound_satisfied': True,
+            'best_fom': 110.0, 'constraints_satisfied': True,
         }
-        summary = opt.summarize(result, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        summary = opt.summarize(result, spec)
         self.assertIn('satisfied', summary)
         self.assertIn('110.0', summary)
         self.assertNotIn('NOT satisfied', summary)
 
-    def test_summarize_energy_bounded_violated(self):
-        """The summary flags a violated bound."""
+    def test_summarize_constraint_violated(self):
+        """The summary flags a violated constraint."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, False)
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
         result = {
             'best_config': 'CONFIG', 'best_metric': 250.0,
-            'best_fom': 80.0, 'bound_satisfied': False,
+            'best_fom': 80.0, 'constraints_satisfied': False,
         }
-        summary = opt.summarize(result, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        summary = opt.summarize(result, spec)
         self.assertIn('NOT satisfied', summary)
 
-    def test_summarize_non_bounded(self):
-        """Non-bounded objectives summarize just the best configuration."""
+    def test_summarize_unconstrained(self):
+        """Unconstrained objectives summarize just the best configuration."""
+        spec = optimizer.expand_objective(None, None, None, False)
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         result = {'best_config': 'CONFIG', 'best_metric': 1.0}
-        summary = opt.summarize(result, optimizer.ObjectiveMode.RUNTIME)
+        summary = opt.summarize(result, spec)
         self.assertEqual(summary, 'Best configuration:\nCONFIG')
 
     def test_penalty_value_auto_worse_than_successes(self):
@@ -626,9 +644,9 @@ class TestBayesianOptimizer(unittest.TestCase):
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt._penalty = 'auto'
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 10.0},
-            {'coordinate': [1], 'metric': 30.0},
-            {'coordinate': [2], 'metric': 20.0},
+            {'coordinate': [0], 'score': 10.0},
+            {'coordinate': [1], 'score': 30.0},
+            {'coordinate': [2], 'score': 20.0},
         ]
         penalty = opt._penalty_value()
         # worst = 30, spread = 20, penalty = 50
@@ -641,8 +659,8 @@ class TestBayesianOptimizer(unittest.TestCase):
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt._penalty = 'auto'
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 10.0},
-            {'coordinate': [1], 'metric': 10.0},
+            {'coordinate': [0], 'score': 10.0},
+            {'coordinate': [1], 'score': 10.0},
         ]
         penalty = opt._penalty_value()
         self.assertGreater(penalty, 10.0)
@@ -653,8 +671,8 @@ class TestBayesianOptimizer(unittest.TestCase):
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt._penalty = 'auto'
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 10.0},
-            {'coordinate': [1], 'metric': 999.0, 'failed': True},
+            {'coordinate': [0], 'score': 10.0},
+            {'coordinate': [1], 'score': 999.0, 'failed': True},
         ]
         # Only the success (10.0) is considered: worst=10, spread=0 -> +10 -> 20
         self.assertEqual(opt._penalty_value(), 20.0)
@@ -673,7 +691,7 @@ class TestBayesianOptimizer(unittest.TestCase):
         """A fixed numeric penalty policy returns that value verbatim."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt._penalty = 123.5
-        opt.evaluation_history = [{'coordinate': [0], 'metric': 10.0}]
+        opt.evaluation_history = [{'coordinate': [0], 'score': 10.0}]
         self.assertEqual(opt._penalty_value(), 123.5)
 
     def test_handle_failed_trial_none_raises(self):
@@ -689,7 +707,7 @@ class TestBayesianOptimizer(unittest.TestCase):
         """The 'auto' policy penalizes and logs the failure at WARNING."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt._penalty = 'auto'
-        opt.evaluation_history = [{'coordinate': [0], 'metric': 10.0}]
+        opt.evaluation_history = [{'coordinate': [0], 'score': 10.0}]
         trial = optimizer.TrialResult(failed=True, failure_reason='boom')
         with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
             penalty = opt._handle_failed_trial(trial)
@@ -704,72 +722,58 @@ class TestBayesianOptimizer(unittest.TestCase):
             self.assertEqual(opt._handle_failed_trial(trial), 5.0)
 
     def test_record_history_failed_trial(self):
-        """A failed trial is marked failed and infeasible for energy-bounded."""
+        """A failed trial is marked failed and infeasible."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         trial = optimizer.TrialResult(failed=True, failure_reason='boom')
-        opt._record_history([0], 999.0, trial,
-                            optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        opt._record_history([0], 999.0, trial=trial)
         entry = opt.evaluation_history[0]
         self.assertTrue(entry['failed'])
         self.assertEqual(entry['failure_reason'], 'boom')
         self.assertFalse(entry['feasible'])
 
-    def test_select_best_excludes_failed(self):
+    def test_select_best_entry_excludes_failed(self):
         """Best selection ignores penalized failed trials."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 10.0},
-            {'coordinate': [1], 'metric': 5.0, 'failed': True},
-            {'coordinate': [2], 'metric': 20.0},
+            {'coordinate': [0], 'score': 10.0, 'feasible': True},
+            {'coordinate': [1], 'score': 5.0, 'failed': True},
+            {'coordinate': [2], 'score': 20.0, 'feasible': True},
         ]
-        coordinate, metric = opt._select_best(MagicMock())
-        self.assertEqual(coordinate, [0])
-        self.assertEqual(metric, 10.0)
+        best = opt._select_best_entry(MagicMock())
+        self.assertEqual(best['coordinate'], [0])
+        self.assertEqual(best['score'], 10.0)
 
-    def test_select_best_all_failed_raises(self):
+    def test_select_best_entry_all_failed_raises(self):
         """A run where every trial failed raises a clear summary error."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 999.0, 'failed': True},
-            {'coordinate': [1], 'metric': 999.0, 'failed': True},
+            {'coordinate': [0], 'score': 999.0, 'failed': True},
+            {'coordinate': [1], 'score': 999.0, 'failed': True},
         ]
         with self.assertRaises(optimizer.OptimizationError) as context:
-            opt._select_best(MagicMock())
-        self.assertIn('All trials failed', str(context.exception))
-
-    def test_build_bounded_result_all_failed_raises(self):
-        """An all-failed energy-bounded run raises a clear summary error."""
-        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
-        opt.evaluation_history = [
-            {'coordinate': [0], 'metric': 999.0, 'failed': True,
-             'feasible': False},
-        ]
-        with self.assertRaises(optimizer.OptimizationError) as context:
-            opt._build_bounded_result(MagicMock())
+            opt._select_best_entry(MagicMock())
         self.assertIn('All trials failed', str(context.exception))
 
     def test_record_history(self):
-        """History records the coordinate, metric, and config commands."""
+        """History records the coordinate, score, and config commands."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
         opt._record_history([1], 42.0)
         self.assertEqual(len(opt.evaluation_history), 1)
         self.assertEqual(opt.evaluation_history[0]['coordinate'], [1])
-        self.assertEqual(opt.evaluation_history[0]['metric'], 42.0)
+        self.assertEqual(opt.evaluation_history[0]['score'], 42.0)
 
-    def test_record_history_energy_bounded_feasibility(self):
-        """Energy-bounded history entries record feasibility, fom, and energy."""
+    def test_record_history_success_feasibility(self):
+        """Successful history entries record feasibility, fom, and objective."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        opt._metric_bound = 100.0
         feasible = optimizer.TrialResult(fom=120.0, energy=500.0)
-        opt._record_history([0], 500.0, feasible,
-                            optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        opt._record_history([0], 500.0, objective_raw=500.0, trial=feasible,
+                            feasible=True)
         infeasible = optimizer.TrialResult(fom=50.0, energy=400.0)
-        opt._record_history([1], 700.0, infeasible,
-                            optimizer.ObjectiveMode.ENERGY_BOUNDED)
+        opt._record_history([1], 700.0, objective_raw=400.0, trial=infeasible,
+                            feasible=False)
         self.assertTrue(opt.evaluation_history[0]['feasible'])
         self.assertEqual(opt.evaluation_history[0]['fom'], 120.0)
-        self.assertEqual(opt.evaluation_history[0]['energy'], 500.0)
+        self.assertEqual(opt.evaluation_history[0]['objective_raw'], 500.0)
         self.assertFalse(opt.evaluation_history[1]['feasible'])
 
     def test_evaluate_coordinate_delegates(self):
@@ -793,12 +797,14 @@ class TestBayesianOptimizer(unittest.TestCase):
         # Mock evaluator to return some values
         self.mock_evaluator.evaluate.side_effect = [-100, -110, -123.45, -120]
 
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
-        result = opt.optimize(trials=4, n_initial_points=2, random_state=42)
+        result = opt.optimize(spec=spec, trials=4, n_initial_points=2,
+                              random_state=42)
 
         # Check results
         self.assertEqual(result['best_coordinate'], [2])
-        self.assertEqual(result['best_metric'], 123.45)  # Should be positive for maximization
+        self.assertEqual(result['best_metric'], 123.45)  # Positive for maximization
         self.assertEqual(result['n_evaluations'], 4)
         self.assertIn('best_config', result)
 
@@ -819,13 +825,10 @@ class TestBayesianOptimizer(unittest.TestCase):
         mock_result.func_vals = [-50.0]
         mock_gp_minimize.return_value = mock_result
 
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', None, False)
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
 
-        result = opt.optimize(
-            trials=1,
-            n_initial_points=1,
-            objective_mode=optimizer.ObjectiveMode.EFFICIENCY
-        )
+        result = opt.optimize(spec=spec, trials=1, n_initial_points=1)
 
         # Just verify the optimize method was called without errors
         self.assertIsNotNone(result)
@@ -837,32 +840,28 @@ class TestSessionStrategy(unittest.TestCase):
     """Tests for the geopmsession-wrapped energy evaluation strategy."""
 
     def _make_energy_evaluator(self, domain='cpu', signals=('CPU_ENERGY',),
-                               mode=None, sample_period=0.01, metric_regex=None):
-        """Construct an energy-objective evaluator with preflight mocked out."""
-        if mode is None:
-            mode = optimizer.ObjectiveMode.EFFICIENCY
+                               sample_period=0.01, metric_regex=None):
+        """Construct a session-wrapped evaluator with preflight mocked out."""
         with patch('geopmdpy.optimizer.shutil.which',
                    return_value='/usr/bin/geopmsession'), \
              patch('geopmdpy.optimizer.pio') as mock_pio:
             mock_pio.signal_names.return_value = list(signals)
             evaluator = optimizer.ApplicationEvaluator(
-                ["app"], metric_regex=metric_regex, maximize=True,
-                objective_mode=mode, efficiency_domain=domain,
-                sample_period=sample_period)
+                ["app"], metric_regex=metric_regex, needs_session=True,
+                efficiency_domain=domain, sample_period=sample_period)
         return evaluator
 
-    def test_needs_session_for_energy_modes(self):
-        """Energy objectives route through geopmsession; others stay direct."""
-        for mode in (optimizer.ObjectiveMode.EFFICIENCY,
-                     optimizer.ObjectiveMode.ENERGY,
-                     optimizer.ObjectiveMode.ENERGY_BOUNDED):
-            evaluator = self._make_energy_evaluator(mode=mode)
-            self.assertTrue(evaluator.needs_session)
-        for mode in (optimizer.ObjectiveMode.RAW_METRIC,
-                     optimizer.ObjectiveMode.RUNTIME):
+    def test_needs_session_flag_controls_preflight(self):
+        """The needs_session flag drives session wrapping; default is direct."""
+        with patch('geopmdpy.optimizer.shutil.which',
+                   return_value='/usr/bin/geopmsession'), \
+             patch('geopmdpy.optimizer.pio') as mock_pio:
+            mock_pio.signal_names.return_value = ['CPU_ENERGY']
             evaluator = optimizer.ApplicationEvaluator(
-                ["app"], objective_mode=mode)
-            self.assertFalse(evaluator.needs_session)
+                ["app"], needs_session=True, efficiency_domain='cpu')
+        self.assertTrue(evaluator.needs_session)
+        evaluator = optimizer.ApplicationEvaluator(["app"])
+        self.assertFalse(evaluator.needs_session)
 
     def test_init_missing_geopmsession_raises(self):
         """A missing geopmsession is caught at construction time."""
@@ -870,8 +869,7 @@ class TestSessionStrategy(unittest.TestCase):
              patch('geopmdpy.optimizer.pio'):
             with self.assertRaises(optimizer.OptimizationError) as ctx:
                 optimizer.ApplicationEvaluator(
-                    ["app"], objective_mode=optimizer.ObjectiveMode.EFFICIENCY,
-                    efficiency_domain='cpu')
+                    ["app"], needs_session=True, efficiency_domain='cpu')
             self.assertIn("geopmsession", str(ctx.exception))
 
     def test_init_missing_yaml_raises(self):
@@ -882,15 +880,14 @@ class TestSessionStrategy(unittest.TestCase):
              patch('geopmdpy.optimizer.pio'):
             with self.assertRaises(optimizer.OptimizationError) as ctx:
                 optimizer.ApplicationEvaluator(
-                    ["app"], objective_mode=optimizer.ObjectiveMode.EFFICIENCY,
-                    efficiency_domain='cpu')
+                    ["app"], needs_session=True, efficiency_domain='cpu')
             self.assertIn("pyyaml", str(ctx.exception))
 
-    def test_init_non_energy_mode_skips_preflight(self):
-        """Non-energy objectives do not require geopmsession or pyyaml."""
+    def test_init_no_session_skips_preflight(self):
+        """A direct evaluator does not require geopmsession or pyyaml."""
         with patch('geopmdpy.optimizer.shutil.which', return_value=None):
             evaluator = optimizer.ApplicationEvaluator(
-                ["app"], objective_mode=optimizer.ObjectiveMode.RUNTIME)
+                ["app"], needs_session=False)
         self.assertFalse(evaluator.needs_session)
         self.assertIsNone(evaluator._energy_signals)
 
@@ -1295,10 +1292,9 @@ class TestOptimizerMain(unittest.TestCase):
         with patch('builtins.print'):
             result = optimizer.main()
         self.assertEqual(result, 0)
-        # Check that maximize is False in evaluator
-        args, kwargs = mock_optimizer_class.call_args
-        evaluator = args[1]
-        self.assertFalse(evaluator.maximize)
+        # The spec passed to optimize carries the minimize direction.
+        _, optimize_kwargs = mock_optimizer.optimize.call_args
+        self.assertTrue(optimize_kwargs['spec'].minimize)
 
     @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        'echo', 'hello'])
@@ -1328,13 +1324,13 @@ class TestOptimizerMain(unittest.TestCase):
         with patch('builtins.print'):
             result = optimizer.main()
         self.assertEqual(result, 0)
-        # The evaluator has no metric regex and optimize gets the runtime mode.
+        # The evaluator has no metric regex and optimize gets the runtime spec.
         args, kwargs = mock_optimizer_class.call_args
         evaluator = args[1]
         self.assertIsNone(evaluator.metric_regex)
         _, optimize_kwargs = mock_optimizer.optimize.call_args
-        self.assertEqual(optimize_kwargs['objective_mode'],
-                         optimizer.ObjectiveMode.RUNTIME)
+        self.assertEqual(optimize_kwargs['spec'].objective_expr, 'runtime')
+        self.assertEqual(optimize_kwargs['spec'].label, 'runtime')
 
 
 @unittest.skipIf(skip_test, skip_msg)
@@ -1463,55 +1459,87 @@ class TestGetParser(unittest.TestCase):
 
 
 @unittest.skipIf(skip_test, skip_msg)
-class TestResolveObjectiveMode(unittest.TestCase):
+class TestExpandObjective(unittest.TestCase):
     def test_raw_metric(self):
-        """Regex without efficiency selects the raw figure of merit."""
-        mode = optimizer.resolve_objective_mode(
-            'FOM: ([0-9.]+)', None, None, False)
-        self.assertEqual(mode, optimizer.ObjectiveMode.RAW_METRIC)
+        """Regex without efficiency selects the figure-of-merit objective."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+        self.assertEqual(spec.objective_expr, 'fom')
+        self.assertEqual(spec.label, 'figure of merit')
+        self.assertFalse(spec.minimize)
+        self.assertFalse(spec.needs_session)
+        self.assertTrue(spec.requires_fom)
+        self.assertEqual(spec.constraints, [])
 
     def test_efficiency(self):
-        """Regex with efficiency selects the efficiency objective."""
-        mode = optimizer.resolve_objective_mode(
-            'FOM: ([0-9.]+)', 'cpu', None, False)
-        self.assertEqual(mode, optimizer.ObjectiveMode.EFFICIENCY)
+        """Regex with efficiency selects the FoM-per-watt objective."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', None, False)
+        self.assertEqual(spec.objective_expr, 'fom / power')
+        self.assertEqual(spec.label, 'efficiency')
+        self.assertTrue(spec.needs_session)
+        self.assertTrue(spec.requires_fom)
+        self.assertEqual(spec.efficiency_domain, 'cpu')
 
     def test_runtime(self):
         """No regex and no efficiency selects the runtime objective."""
-        mode = optimizer.resolve_objective_mode(None, None, None, False)
-        self.assertEqual(mode, optimizer.ObjectiveMode.RUNTIME)
+        spec = optimizer.expand_objective(None, None, None, False)
+        self.assertEqual(spec.objective_expr, 'runtime')
+        self.assertEqual(spec.label, 'runtime')
+        self.assertTrue(spec.minimize)
+        self.assertFalse(spec.needs_session)
+        self.assertFalse(spec.requires_fom)
 
     def test_energy(self):
         """Efficiency without a regex selects the energy objective."""
-        mode = optimizer.resolve_objective_mode(None, 'cpu', None, False)
-        self.assertEqual(mode, optimizer.ObjectiveMode.ENERGY)
+        spec = optimizer.expand_objective(None, 'cpu', None, False)
+        self.assertEqual(spec.objective_expr, 'energy')
+        self.assertEqual(spec.label, 'energy')
+        self.assertTrue(spec.minimize)
+        self.assertTrue(spec.needs_session)
+        self.assertEqual(spec.efficiency_domain, 'cpu')
 
-    def test_energy_bounded(self):
-        """A metric bound with regex and efficiency selects energy-bounded."""
-        mode = optimizer.resolve_objective_mode(
-            'FOM: ([0-9.]+)', 'cpu', 100.0, False)
-        self.assertEqual(mode, optimizer.ObjectiveMode.ENERGY_BOUNDED)
+    def test_energy_bounded_maximize(self):
+        """A metric bound with maximize adds a lower-bound FoM constraint."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, False)
+        self.assertEqual(spec.objective_expr, 'energy')
+        self.assertEqual(spec.label, 'energy')
+        self.assertTrue(spec.minimize)
+        self.assertTrue(spec.needs_session)
+        self.assertTrue(spec.requires_fom)
+        self.assertEqual(len(spec.constraints), 1)
+        constraint = spec.constraints[0]
+        self.assertEqual(constraint.name, 'fom')
+        self.assertEqual(constraint.op, '>=')
+        self.assertEqual(constraint.value, 100.0)
 
-    def test_direction_does_not_change_mode(self):
-        """The minimize flag does not change the resolved mode."""
+    def test_energy_bounded_minimize_flips_operator(self):
+        """A metric bound with minimize makes the FoM constraint an upper bound."""
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', 'cpu', 100.0, True)
+        constraint = spec.constraints[0]
+        self.assertEqual(constraint.op, '<=')
+        self.assertEqual(constraint.value, 100.0)
+
+    def test_direction_does_not_change_expression(self):
+        """The minimize flag does not change the objective expression."""
         for minimize in (True, False):
             self.assertEqual(
-                optimizer.resolve_objective_mode('FOM: ([0-9.]+)', None, None, minimize),
-                optimizer.ObjectiveMode.RAW_METRIC)
+                optimizer.expand_objective(
+                    'FOM: ([0-9.]+)', None, None, minimize).objective_expr,
+                'fom')
             self.assertEqual(
-                optimizer.resolve_objective_mode(None, None, None, minimize),
-                optimizer.ObjectiveMode.RUNTIME)
+                optimizer.expand_objective(
+                    None, None, None, minimize).objective_expr,
+                'runtime')
 
     def test_metric_bound_without_regex_raises(self):
         """A metric bound requires a metric regex."""
         with self.assertRaises(ValueError) as context:
-            optimizer.resolve_objective_mode(None, 'cpu', 100.0, False)
+            optimizer.expand_objective(None, 'cpu', 100.0, False)
         self.assertIn('--metric-regex', str(context.exception))
 
     def test_metric_bound_without_efficiency_raises(self):
         """A metric bound requires an efficiency domain."""
         with self.assertRaises(ValueError) as context:
-            optimizer.resolve_objective_mode('FOM: ([0-9.]+)', None, 100.0, False)
+            optimizer.expand_objective('FOM: ([0-9.]+)', None, 100.0, False)
         self.assertIn('--efficiency', str(context.exception))
 
 
