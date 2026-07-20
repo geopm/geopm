@@ -25,7 +25,7 @@ import os
 import sys
 import unittest
 
-# CPU core-frequency control that ``geopmopt --cpu-frequency`` writes.
+# CPU core-frequency control that ``geopmopt --sweep cpu-freq`` writes.
 _CPU_FREQUENCY_CONTROL = 'CPU_FREQUENCY_MAX_CONTROL'
 # Spread (Hz) between the low and high grid frequencies.  Wide enough that a
 # single-threaded CPU-bound loop is measurably faster at the high setting.
@@ -126,10 +126,7 @@ def geopmopt_command(output_file, metric_regex, freq_low, freq_high,
     """
     step = freq_high - freq_low
     cmd = [sys.executable, '-m', 'geopmdpy.optimizer',
-           '--cpu-frequency', 'board',
-           '--cpu-frequency-min', str(freq_low),
-           '--cpu-frequency-max', str(freq_high),
-           '--cpu-frequency-step', str(step),
+           '--sweep', f'cpu-freq@board={freq_low}:{freq_high}:{step}',
            '--trials', str(trials),
            '--n-initial-points', str(n_initial_points),
            '--application-timeout', str(application_timeout),
