@@ -101,11 +101,15 @@ _CONTROL_CATEGORY = {
 _UNIT_TABLE = {
     "frequency": {"hz": 1.0, "khz": 1e3, "mhz": 1e6, "ghz": 1e9},
     "power": {"w": 1.0, "kw": 1e3},
+    "energy": {"j": 1.0, "kj": 1e3, "mj": 1e6},
+    "time": {"s": 1.0, "ms": 1e-3, "us": 1e-6},
 }
 # Canonical unit spellings for each category, used in error messages.
 _UNIT_CANONICAL = {
     "frequency": ("Hz", "kHz", "MHz", "GHz"),
     "power": ("W", "kW"),
+    "energy": ("J", "kJ", "MJ"),
+    "time": ("s", "ms", "us"),
 }
 # Preferred short alias for each canonical control key, used by --list-controls.
 _PREFERRED_ALIAS = {
