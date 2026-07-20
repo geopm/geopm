@@ -7,52 +7,33 @@ Synopsis
 .. code-block:: bash
 
     usage: geopmgrid [-h]
-                     [--cpu-frequency CPU_FREQUENCY_DOMAIN]
-                     [--cpu-frequency-min CPU_FREQUENCY_MIN]
-                     [--cpu-frequency-max CPU_FREQUENCY_MAX]
-                     [--cpu-frequency-step CPU_FREQUENCY_STEP]
-                     [--cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN]
-                     [--cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN]
-                     [--cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX]
-                     [--cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP]
-                     [--cpu-power CPU_POWER_DOMAIN]
-                     [--cpu-power-min CPU_POWER_MIN]
-                     [--cpu-power-max CPU_POWER_MAX]
-                     [--cpu-power-step CPU_POWER_STEP]
-                     [--gpu-frequency GPU_FREQUENCY_DOMAIN]
-                     [--gpu-frequency-min GPU_FREQUENCY_MIN]
-                     [--gpu-frequency-max GPU_FREQUENCY_MAX]
-                     [--gpu-frequency-step GPU_FREQUENCY_STEP]
-                     [--gpu-power GPU_POWER_DOMAIN]
-                     [--gpu-power-min GPU_POWER_MIN]
-                     [--gpu-power-max GPU_POWER_MAX]
-                     [--gpu-power-step GPU_POWER_STEP]
-                     [--board-power BOARD_POWER_DOMAIN]
-                     [--board-power-min BOARD_POWER_MIN]
-                     [--board-power-max BOARD_POWER_MAX]
-                     [--board-power-step BOARD_POWER_STEP]
-                     [--prefetch-disable PREFETCH_DISABLE_DOMAIN]
-                     [--prefetch-disable-min PREFETCH_DISABLE_MIN]
-                     [--prefetch-disable-max PREFETCH_DISABLE_MAX]
-                     [--prefetch-disable-step PREFETCH_DISABLE_STEP]
+                     [--sweep DIM]
+                     [--list-controls]
                      [--coordinate COORDINATE [COORDINATE ...] |
                       --coordinate-file COORDINATE_FILE |
                       --coordinate-range]
                      [--write]
+
+List available controls
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    geopmgrid --list-controls
 
 Display grid dimensions
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    geopmgrid --cpu-frequency package --coordinate-range
+    geopmgrid --sweep cpu-freq@package --coordinate-range
 
 Generate configuration for a grid point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    geopmgrid --cpu-frequency package --coordinate 3 5
+    geopmgrid --sweep cpu-freq@package --coordinate 3 5
 
 Generate configuration from file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,14 +41,14 @@ Generate configuration from file
 .. code-block:: bash
 
     echo "13 8" > coordinate.txt
-    geopmgrid --cpu-frequency board --cpu-power board --coordinate-file coordinate.txt
+    geopmgrid --sweep cpu-freq@board --sweep cpu-power@board --coordinate-file coordinate.txt
 
 Apply configuration to platform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    geopmgrid --cpu-frequency package --coordinate 3 5 --write
+    geopmgrid --sweep cpu-freq@package --coordinate 3 5 --write
 
 Get Help
 ~~~~~~~~
@@ -108,145 +89,40 @@ Options
 Control Parameters
 ~~~~~~~~~~~~~~~~~~
 
---cpu-frequency CPU_FREQUENCY_DOMAIN  .. _cpu-frequency option:
+--sweep DIM  .. _sweep option:
 
-    Define a grid dimension over CPU_FREQUENCY_MAX_CONTROL for the specified
-    domain. Valid domains include 'board', 'package', 'core', and on some
-    platforms 'cpu' depending on capabilities.
+    Add a control dimension to the grid. May be given multiple times to build
+    a multi-dimensional grid. Each ``DIM`` uses the grammar
+    ``CONTROL[@DOMAIN][=MIN:MAX:STEP]``:
 
---cpu-frequency-min CPU_FREQUENCY_MIN  .. _cpu-frequency-min option:
+    - ``CONTROL`` is a control name or alias (see ``--list-controls`` for the
+      full catalog). Recognized names include
+      ``cpu-freq`` (alias ``cpu-frequency``), ``uncore-freq`` (alias
+      ``cpu-uncore-frequency``), ``cpu-power``, ``gpu-freq`` (alias
+      ``gpu-frequency``), ``gpu-power``, ``board-power``, and ``prefetch``
+      (alias ``prefetch-disable``).
 
-    Override the automatically detected minimum CPU frequency when constructing
-    the grid. The supplied value is used for all selected domains.
+    - ``@DOMAIN`` optionally pins the control to a platform domain such as
+      ``board``, ``package``, ``core``, ``cpu``, ``gpu``, or ``gpu_chip``. When
+      omitted, the control's native domain is used.
 
---cpu-frequency-max CPU_FREQUENCY_MAX  .. _cpu-frequency-max option:
+    - ``=MIN:MAX:STEP`` optionally overrides the auto-detected range. Each of
+      the three fields is independent and may be left empty to keep its
+      auto-detected value, for example ``=1.2GHz:3GHz:100MHz`` (all three),
+      ``=::100MHz`` (step only), ``=1.2GHz:3GHz`` (bounds only), or
+      ``=1.2GHz::`` (minimum only).
 
-    Override the automatically detected maximum CPU frequency when constructing
-    the grid. The supplied value is used for all selected domains.
+    Frequency values accept the unit suffixes ``Hz``, ``kHz``, ``MHz``, and
+    ``GHz``; power values accept ``W`` and ``kW``. A bare number is interpreted
+    in the control's canonical unit (Hz for frequency, W for power). The
+    ``prefetch`` control takes non-negative integer levels and rejects unit
+    suffixes.
 
---cpu-frequency-step CPU_FREQUENCY_STEP  .. _cpu-frequency-step option:
+--list-controls  .. _list-controls option:
 
-    Override the step size used to enumerate CPU frequency settings when
-    constructing the grid.
-
---cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN  .. _cpu-uncore-frequency option:
-
-    Define a grid dimension over CPU_UNCORE_FREQUENCY_MAX_CONTROL for the
-    specified domain. The uncore frequency can be controlled on the 'board' or
-    'package' domain.
-
---cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN  .. _cpu-uncore-frequency-min option:
-
-    Override the automatically detected minimum CPU uncore frequency when
-    constructing the grid.
-
---cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX  .. _cpu-uncore-frequency-max option:
-
-    Override the automatically detected maximum CPU uncore frequency when
-    constructing the grid.
-
---cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP  .. _cpu-uncore-frequency-step option:
-
-    Override the step size used to enumerate CPU uncore frequency settings.
-
---cpu-power CPU_POWER_DOMAIN  .. _cpu-power option:
-
-    Define a grid dimension over CPU_POWER_LIMIT_CONTROL for the specified
-    domain. Commonly used with 'board', or 'package' domains.
-
---cpu-power-min CPU_POWER_MIN  .. _cpu-power-min option:
-
-    Override the automatically detected minimum CPU power limit when
-    constructing the grid.
-
---cpu-power-max CPU_POWER_MAX  .. _cpu-power-max option:
-
-    Override the automatically detected maximum CPU power limit when
-    constructing the grid.
-
---cpu-power-step CPU_POWER_STEP  .. _cpu-power-step option:
-
-    Override the step size used to enumerate CPU power limit settings.
-
---gpu-frequency GPU_FREQUENCY_DOMAIN  .. _gpu-frequency option:
-
-    Define a grid dimension over GPU_CORE_FREQUENCY_MAX_CONTROL for the
-    specified domain. Valid domains include 'board', 'gpu', and on some
-    platforms 'gpu_chip'.
-
---gpu-frequency-min GPU_FREQUENCY_MIN  .. _gpu-frequency-min option:
-
-    Override the automatically detected minimum GPU frequency when constructing
-    the grid.
-
---gpu-frequency-max GPU_FREQUENCY_MAX  .. _gpu-frequency-max option:
-
-    Override the automatically detected maximum GPU frequency when constructing
-    the grid.
-
---gpu-frequency-step GPU_FREQUENCY_STEP  .. _gpu-frequency-step option:
-
-    Override the step size used to enumerate GPU frequency settings.
-
---gpu-power GPU_POWER_DOMAIN  .. _gpu-power option:
-
-    Define a grid dimension over GPU_POWER_LIMIT_CONTROL for the specified
-    domain. Typically applied at the 'board', or 'gpu' domain.
-
---gpu-power-min GPU_POWER_MIN  .. _gpu-power-min option:
-
-    Override the automatically detected minimum GPU power limit when
-    constructing the grid.
-
---gpu-power-max GPU_POWER_MAX  .. _gpu-power-max option:
-
-    Override the automatically detected maximum GPU power limit when
-    constructing the grid.
-
---gpu-power-step GPU_POWER_STEP  .. _gpu-power-step option:
-
-    Override the step size used to enumerate GPU power limit settings.
-
---board-power BOARD_POWER_DOMAIN  .. _board-power option:
-
-    Define a grid dimension over BOARD_POWER_LIMIT_CONTROL for the specified
-    domain. Only valid with 'board' domain.
-
---board-power-min BOARD_POWER_MIN  .. _board-power-min option:
-
-    Override the automatically detected minimum board-level power limit when
-    constructing the grid.
-
---board-power-max BOARD_POWER_MAX  .. _board-power-max option:
-
-    Override the automatically detected maximum board-level power limit when
-    constructing the grid.
-
---board-power-step BOARD_POWER_STEP  .. _board-power-step option:
-
-    Override the step size used to enumerate board-level power settings.
-
---prefetch-disable PREFETCH_DISABLE_DOMAIN  .. _prefetch-disable option:
-
-    Define a grid dimension over prefetch disable levels for the specified
-    domain. Higher grid values disable additional layers of platform
-    prefetchers. Supported domains depend on the platform; typically
-    ``board`` or ``package`` are available when the associated MSR controls
-    are exposed.
-
---prefetch-disable-min PREFETCH_DISABLE_MIN  .. _prefetch-disable-min option:
-
-    Override the minimum prefetch disable level when constructing the grid.
-    The default value leaves all prefetchers enabled.
-
---prefetch-disable-max PREFETCH_DISABLE_MAX  .. _prefetch-disable-max option:
-
-    Override the maximum prefetch disable level when constructing the grid.
-    The default value disables all supported prefetchers.
-
---prefetch-disable-step PREFETCH_DISABLE_STEP  .. _prefetch-disable-step option:
-
-    Override the step size used to enumerate prefetch disable levels.
+    Print a table of the available control names, their native domain, units,
+    and the detected minimum, maximum, and step values, then exit. Controls
+    whose range cannot be read on the current platform are shown as ``n/a``.
 
 Grid Navigation
 ~~~~~~~~~~~~~~~
@@ -294,7 +170,7 @@ Define a grid over CPU frequency for all packages and display its dimensions:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --coordinate-range
+   $ geopmgrid --sweep cpu-freq@package --coordinate-range
    28 28
 
 This shows that the CPU frequency grid has 28 available frequency settings
@@ -308,7 +184,7 @@ Generate geopmwrite commands for a specific grid point:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --coordinate 10 15
+   $ geopmgrid --sweep cpu-freq@package --coordinate 10 15
    CPU_FREQUENCY_MAX_CONTROL package 0 2000000000.0
    CPU_FREQUENCY_MAX_CONTROL package 1 2500000000.0
 
@@ -322,10 +198,10 @@ Define a 2D grid over CPU frequency and power limit:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --cpu-power package --coordinate-range
+   $ geopmgrid --sweep cpu-freq@package --sweep cpu-power@package --coordinate-range
    28 28 155 155
 
-   $ geopmgrid --cpu-frequency package --cpu-power package --coordinate 12 17 125 101
+   $ geopmgrid --sweep cpu-freq@package --sweep cpu-power@package --coordinate 12 17 125 101
    CPU_FREQUENCY_MAX_CONTROL package 0 2200000000.0
    CPU_FREQUENCY_MAX_CONTROL package 1 2700000000.0
    CPU_POWER_LIMIT_CONTROL package 0 271.0
@@ -342,7 +218,7 @@ Store coordinates in a file for repeated use:
 .. code-block:: shell-session
 
    $ echo 18 14 122 96 > my_config.coord
-   $ geopmgrid --cpu-frequency package --cpu-power package --coordinate-file my_config.coord
+   $ geopmgrid --sweep cpu-freq@package --sweep cpu-power@package --coordinate-file my_config.coord
    CPU_FREQUENCY_MAX_CONTROL package 0 2800000000.0
    CPU_FREQUENCY_MAX_CONTROL package 1 2400000000.0
    CPU_POWER_LIMIT_CONTROL package 0 268.0
@@ -357,7 +233,7 @@ Apply a configuration directly to the platform:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency package --coordinate 15 19 --write
+   $ geopmgrid --sweep cpu-freq@package --coordinate 15 19 --write
 
 This immediately applies the configuration to the platform hardware without
 printing the intermediate geopmwrite commands.
@@ -369,9 +245,9 @@ Define grids for GPU controls:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --gpu-frequency gpu --gpu-power gpu --coordinate-range
+   $ geopmgrid --sweep gpu-freq@gpu --sweep gpu-power@gpu --coordinate-range
    187 187 187 187 101 101 101 101
-   $ geopmgrid --gpu-frequency gpu --gpu-power gpu --coordinate 111 122 133 144 80 90 100 70
+   $ geopmgrid --sweep gpu-freq@gpu --sweep gpu-power@gpu --coordinate 111 122 133 144 80 90 100 70
    GPU_CORE_FREQUENCY_MAX_CONTROL gpu 0 967500000.0
    GPU_CORE_FREQUENCY_MIN_CONTROL gpu 0 967500000.0
    GPU_CORE_FREQUENCY_MAX_CONTROL gpu 1 1050000000.0
@@ -392,11 +268,11 @@ Define a comprehensive grid covering multiple subsystems:
 
 .. code-block:: shell-session
 
-   $ geopmgrid --cpu-frequency board \
-               --cpu-uncore-frequency board \
-               --cpu-power board \
-               --gpu-frequency board \
-               --gpu-power board \
+   $ geopmgrid --sweep cpu-freq@board \
+               --sweep uncore-freq@board \
+               --sweep cpu-power@board \
+               --sweep gpu-freq@board \
+               --sweep gpu-power@board \
                --coordinate-range
    28 15 155 187 1001
 
