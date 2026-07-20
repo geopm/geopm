@@ -39,7 +39,7 @@ class TestControlGrid(TestCase):
         self.mock_pio.write_batch.return_value = None
 
         # Create test instances
-        self.grid = grid.ControlGrid(['--cpu-frequency', 'package'])
+        self.grid = grid.ControlGrid(['--sweep', 'cpu-freq@package'])
         self.empty_grid = grid.ControlGrid([])
 
     def tearDown(self):
@@ -49,7 +49,7 @@ class TestControlGrid(TestCase):
     def test_init_default_argv(self):
         """Test initialization with default argv"""
         # Test that argv defaults correctly
-        with mock.patch('sys.argv', ['script.py', '--cpu-frequency', 'package']):
+        with mock.patch('sys.argv', ['script.py', '--sweep', 'cpu-freq@package']):
             test_grid = grid.ControlGrid()
             self.assertEqual(len(test_grid.control_name), 2)
 
@@ -62,7 +62,7 @@ class TestControlGrid(TestCase):
 
     def test_init_with_coordinate(self):
         """Test initialization with coordinate argument"""
-        test_grid = grid.ControlGrid(['--cpu-frequency', 'package', '--coordinate', '1', '2'])
+        test_grid = grid.ControlGrid(['--sweep', 'cpu-freq@package', '--coordinate', '1', '2'])
         self.assertEqual(test_grid.coordinate, [1, 2])
 
     def test_init_with_coordinate_file(self):
@@ -72,26 +72,26 @@ class TestControlGrid(TestCase):
             temp_filename = f.name
 
         try:
-            test_grid = grid.ControlGrid(['--cpu-frequency', 'package', '--coordinate-file', temp_filename])
+            test_grid = grid.ControlGrid(['--sweep', 'cpu-freq@package', '--coordinate-file', temp_filename])
             self.assertEqual(test_grid.coordinate, [1, 2, 3])
         finally:
             os.unlink(temp_filename)
 
     def test_init_with_coordinate_range(self):
         """Test initialization with coordinate range flag"""
-        test_grid = grid.ControlGrid(['--cpu-frequency', 'package', '--coordinate-range'])
+        test_grid = grid.ControlGrid(['--sweep', 'cpu-freq@package', '--coordinate-range'])
         self.assertTrue(test_grid.coordinate_range)
 
     def test_init_with_write_flag(self):
         """Test initialization with write flag"""
-        test_grid = grid.ControlGrid(['--cpu-frequency', 'package', '--coordinate', '1', '2', '--write'])
+        test_grid = grid.ControlGrid(['--sweep', 'cpu-freq@package', '--coordinate', '1', '2', '--write'])
         self.assertTrue(test_grid.do_write)
         self.assertEqual(test_grid.coordinate, [1, 2])
 
     def test_init_with_write_flag_no_coordinate(self):
         """Test initialization with write flag but no coordinate raises error"""
         with self.assertRaises(ValueError) as context:
-            grid.ControlGrid(['--cpu-frequency', 'package', '--write'])
+            grid.ControlGrid(['--sweep', 'cpu-freq@package', '--write'])
         self.assertIn('Either --coordinate or --coordinate-file must also be provided', str(context.exception))
 
     def test_add_dimension(self):
@@ -289,8 +289,8 @@ class TestControlGrid(TestCase):
         """Test adding multiple different control types"""
         # Now all control types should be processed
         test_grid = grid.ControlGrid([
-            '--cpu-frequency', 'package',
-            '--cpu-power', 'board'
+            '--sweep', 'cpu-freq@package',
+            '--sweep', 'cpu-power@board'
         ])
 
         # Should have added dimensions for both control types
@@ -304,14 +304,14 @@ class TestControlGrid(TestCase):
         # This should work without error since argparse handles mutual exclusion
         with self.assertRaises(SystemExit):
             grid.ControlGrid([
-                '--cpu-frequency', 'package',
+                '--sweep', 'cpu-freq@package',
                 '--coordinate', '1', '2',
                 '--coordinate-file', 'nonexistent.txt'
             ])
 
     def test_main_function_success(self):
         """Test main function with successful execution"""
-        with mock.patch('sys.argv', ['grid.py', '--cpu-frequency', 'package']):
+        with mock.patch('sys.argv', ['grid.py', '--sweep', 'cpu-freq@package']):
             with mock.patch('builtins.print') as mock_print:
                 with mock.patch('geopmdpy.grid.topo') as mock_topo:
                     with mock.patch('geopmdpy.grid.pio') as mock_pio:
@@ -348,7 +348,7 @@ class TestControlGrid(TestCase):
 
     def test_main_function_exception_handling(self):
         """Test main function handling of actual exceptions (not SystemExit)"""
-        with mock.patch('sys.argv', ['grid.py', '--cpu-frequency', 'package']):
+        with mock.patch('sys.argv', ['grid.py', '--sweep', 'cpu-freq@package']):
             with mock.patch('builtins.print') as mock_print:
                 with mock.patch('geopmdpy.grid.ControlGrid') as mock_grid_class:
                     # Mock ControlGrid to raise an exception
@@ -381,8 +381,8 @@ class TestControlGrid(TestCase):
         # Test that the parser accepts all defined arguments and processes them
         # Use a simpler test that doesn't trigger the uneven division error
         test_grid = grid.ControlGrid([
-            '--cpu-frequency', 'package',
-            '--cpu-power', 'board'
+            '--sweep', 'cpu-freq@package',
+            '--sweep', 'cpu-power@board'
         ])
 
         # All control types should be processed now
@@ -398,8 +398,8 @@ class TestControlGrid(TestCase):
 
         # Test that expected arguments are present
         action_dests = [action.dest for action in parser._actions]
-        self.assertIn('cpu_frequency_domain', action_dests)
-        self.assertIn('cpu_power_domain', action_dests)
+        self.assertIn('sweep', action_dests)
+        self.assertIn('list_controls', action_dests)
         self.assertIn('coordinate', action_dests)
         self.assertIn('coordinate_file', action_dests)
         self.assertIn('coordinate_range', action_dests)
@@ -447,6 +447,57 @@ class TestControlGrid(TestCase):
         # The listing still contains every control
         self.assertEqual(len(output.splitlines()),
                          1 + len(grid._CLI_FLAG_TO_CONTROL))
+
+    def test_sweep_override_flows_to_range(self):
+        """A --sweep triple populates range_overrides and get_minimum/max/step"""
+        test_grid = grid.ControlGrid(
+            ['--sweep', 'cpu-freq@package=1200000:1800000:100000'])
+        self.assertEqual(
+            test_grid.range_overrides['cpu_frequency'],
+            {'min': 1200000.0, 'max': 1800000.0, 'step': 100000.0})
+        self.assertEqual(test_grid.get_minimum('cpu_frequency', 'package'), 1200000.0)
+        self.assertEqual(test_grid.get_maximum('cpu_frequency', 'package'), 1800000.0)
+        self.assertEqual(test_grid.get_step('cpu_frequency'), 100000.0)
+
+    def test_sweep_partial_override(self):
+        """An omitted field falls back to the auto-detected value"""
+        test_grid = grid.ControlGrid(['--sweep', 'cpu-freq@package=::100000'])
+        self.assertEqual(test_grid.range_overrides['cpu_frequency'], {'step': 100000.0})
+        # min/max still come from the mocked signals
+        self.assertEqual(test_grid.get_minimum('cpu_frequency', 'package'), 1000000.0)
+        self.assertEqual(test_grid.get_step('cpu_frequency'), 100000.0)
+
+    def test_sweep_auto_domain(self):
+        """Omitting @DOMAIN resolves the control's native domain"""
+        self.mock_pio.control_domain_type.return_value = 3
+        self.mock_topo.domain_name.side_effect = lambda d: 'package' if d == 3 else d
+        test_grid = grid.ControlGrid(['--sweep', 'cpu-freq'])
+        self.mock_pio.control_domain_type.assert_any_call('CPU_FREQUENCY_MAX_CONTROL')
+        self.assertIn('package', test_grid.domain_type)
+
+    def test_sweep_merge_repeated_control(self):
+        """Repeating a control merges its override fields"""
+        test_grid = grid.ControlGrid([
+            '--sweep', 'cpu-freq@package=1200000::',
+            '--sweep', 'cpu-freq@package=:1800000:100000',
+        ])
+        self.assertEqual(
+            test_grid.range_overrides['cpu_frequency'],
+            {'min': 1200000.0, 'max': 1800000.0, 'step': 100000.0})
+
+    def test_list_controls_flag_sets_mode(self):
+        """--list-controls sets the flag and does not require --sweep"""
+        test_grid = grid.ControlGrid(['--list-controls'])
+        self.assertTrue(test_grid.list_controls)
+        output = test_grid.run()
+        self.assertIn('CONTROL', output)
+        self.assertIn('cpu-freq', output)
+
+    def test_unknown_control_raises(self):
+        """An unknown --sweep control raises a clear error"""
+        with self.assertRaises(ValueError) as context:
+            grid.ControlGrid(['--sweep', 'cpu-frq@package'])
+        self.assertIn('--list-controls', str(context.exception))
 
 
 class TestSweepParsing(TestCase):

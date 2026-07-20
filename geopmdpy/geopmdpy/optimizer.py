@@ -37,7 +37,7 @@ except ImportError:
     )
 
 from . import pio
-from .grid import ControlGrid, _CLI_FLAG_TO_CONTROL, add_grid_cli_arguments
+from .grid import ControlGrid, add_grid_cli_arguments
 
 try:
     import yaml
@@ -1113,6 +1113,10 @@ def main():
     )
     print_exception = args.verbosity >= 3 or "GEOPM_DEBUG" in os.environ
 
+    if args.list_controls:
+        print(ControlGrid(['--list-controls']).list_controls_str())
+        return 0
+
     if not args.defer_write:
         pio.save_control()
     try:
@@ -1124,23 +1128,13 @@ def main():
         if not launch_command:
             raise ValueError("Error: No launch command specified")
 
-        # Create control grid from arguments
+        # Create control grid from the --sweep specifications
+        if not args.sweep:
+            raise ValueError("Error: No control parameters specified (use --sweep)")
+
         grid_args = []
-        dimension_specified = False
-        for control_flag in _CLI_FLAG_TO_CONTROL.keys():
-            flag_dash = control_flag.replace('_', '-')
-            domain = getattr(args, f'{control_flag}_domain', None)
-            if domain is not None:
-                dimension_specified = True
-                grid_args.extend([f'--{flag_dash}', domain])
-            for suffix in ('min', 'max', 'step'):
-                value = getattr(args, f'{control_flag}_{suffix}', None)
-                if value is not None:
-                    grid_args.extend([f'--{flag_dash}-{suffix}', str(value)])
-
-        if not dimension_specified:
-            raise ValueError("Error: No control parameters specified")
-
+        for spec in args.sweep:
+            grid_args.extend(['--sweep', spec])
         control_grid = ControlGrid(grid_args)
 
         if len(control_grid.control_name) == 0:
