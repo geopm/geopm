@@ -412,6 +412,42 @@ class TestControlGrid(TestCase):
         config = self.grid.get_config()  # No coordinate argument
         self.assertEqual(len(config), 2)
 
+    def test_native_domain_resolves_domain(self):
+        """native_domain maps the control signal to its native domain name"""
+        self.mock_pio.control_domain_type.return_value = 7
+        self.mock_topo.domain_name.return_value = 'core'
+        result = grid.native_domain('cpu_frequency')
+        self.mock_pio.control_domain_type.assert_called_with('CPU_FREQUENCY_MAX_CONTROL')
+        self.mock_topo.domain_name.assert_called_with(7)
+        self.assertEqual(result, 'core')
+
+    def test_native_domain_prefetch_uses_first_sequence(self):
+        """native_domain uses the first prefetch MSR for the prefetch control"""
+        grid.native_domain('prefetch_disable')
+        self.mock_pio.control_domain_type.assert_called_with(
+            grid._PREFETCHER_CONTROL_SEQUENCE[0])
+
+    def test_list_controls_str_lists_all_controls(self):
+        """list_controls_str renders a header plus one row per control"""
+        output = self.grid.list_controls_str()
+        self.assertIn('CONTROL', output)
+        self.assertIn('DOMAIN', output)
+        self.assertIn('UNITS', output)
+        for alias in grid._PREFERRED_ALIAS.values():
+            self.assertIn(alias, output)
+        # One header line plus one line per control
+        self.assertEqual(len(output.splitlines()),
+                         1 + len(grid._CLI_FLAG_TO_CONTROL))
+
+    def test_list_controls_str_marks_unavailable(self):
+        """A control whose range cannot be read is shown as 'n/a'"""
+        self.mock_pio.read_signal.side_effect = RuntimeError("unavailable")
+        output = self.grid.list_controls_str()
+        self.assertIn('n/a', output)
+        # The listing still contains every control
+        self.assertEqual(len(output.splitlines()),
+                         1 + len(grid._CLI_FLAG_TO_CONTROL))
+
 
 class TestSweepParsing(TestCase):
     """Unit tests for the --sweep grammar parsers (no pio/topo needed)."""
