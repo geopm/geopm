@@ -7,34 +7,8 @@ Synopsis
 .. code-block:: bash
 
     usage: geopmopt [-h]
-                    [--cpu-frequency CPU_FREQUENCY_DOMAIN]
-                    [--cpu-frequency-min CPU_FREQUENCY_MIN]
-                    [--cpu-frequency-max CPU_FREQUENCY_MAX]
-                    [--cpu-frequency-step CPU_FREQUENCY_STEP]
-                    [--cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN]
-                    [--cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN]
-                    [--cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX]
-                    [--cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP]
-                    [--cpu-power CPU_POWER_DOMAIN]
-                    [--cpu-power-min CPU_POWER_MIN]
-                    [--cpu-power-max CPU_POWER_MAX]
-                    [--cpu-power-step CPU_POWER_STEP]
-                    [--gpu-frequency GPU_FREQUENCY_DOMAIN]
-                    [--gpu-frequency-min GPU_FREQUENCY_MIN]
-                    [--gpu-frequency-max GPU_FREQUENCY_MAX]
-                    [--gpu-frequency-step GPU_FREQUENCY_STEP]
-                    [--gpu-power GPU_POWER_DOMAIN]
-                    [--gpu-power-min GPU_POWER_MIN]
-                    [--gpu-power-max GPU_POWER_MAX]
-                    [--gpu-power-step GPU_POWER_STEP]
-                    [--board-power BOARD_POWER_DOMAIN]
-                    [--board-power-min BOARD_POWER_MIN]
-                    [--board-power-max BOARD_POWER_MAX]
-                    [--board-power-step BOARD_POWER_STEP]
-                    [--prefetch-disable PREFETCH_DISABLE_DOMAIN]
-                    [--prefetch-disable-min PREFETCH_DISABLE_MIN]
-                    [--prefetch-disable-max PREFETCH_DISABLE_MAX]
-                    [--prefetch-disable-step PREFETCH_DISABLE_STEP]
+                    [--sweep DIM]
+                    [--list-controls]
                     [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
                     [--metric-regex METRIC_REGEX] [--minimize]
                     [--random-seed RANDOM_SEED]
@@ -45,14 +19,21 @@ Synopsis
                     [--penalty PENALTY]
                     [-- LAUNCH ...]
 
+List available controls
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    geopmopt --list-controls
+
 Optimize CPU frequency for performance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     geopmopt --verbosity=2 \
-             --cpu-frequency board \
-             --cpu-uncore-frequency board \
+             --sweep cpu-freq@board \
+             --sweep uncore-freq@board \
              --metric-regex 'Performance: ([0-9.]+)' \
              --trials 30 \
              -- ./dgemm_bench.sh
@@ -62,8 +43,8 @@ Optimize multiple CPU parameters with efficiency focus
 
 .. code-block:: bash
 
-    geopmopt --cpu-frequency board \
-             --cpu-power board \
+    geopmopt --sweep cpu-freq@board \
+             --sweep cpu-power@board \
              --metric-regex 'Elapsed time: ([0-9.]+)' \
              --minimize \
              --efficiency cpu \
@@ -75,7 +56,7 @@ Minimize energy consumption and tune each CPU package independently
 
 .. code-block:: bash
 
-    geopmopt --cpu-frequency package \
+    geopmopt --sweep cpu-freq@package \
              --metric-regex "Energy: ([0-9.]+)" \
              --minimize \
              --trials 30 \
@@ -125,143 +106,39 @@ Options
 Control Parameters
 ~~~~~~~~~~~~~~~~~~
 
---cpu-frequency CPU_FREQUENCY_DOMAIN  .. _cpu-frequency option:
+--sweep DIM  .. _sweep option:
 
-    Include CPU frequency control in the optimization space for the specified
-    domain. The optimizer will explore different CPU frequency settings to
-    find optimal performance.
+    Add a control dimension to the optimization search space. May be given
+    multiple times to optimize over several controls at once. Each ``DIM`` uses
+    the grammar ``CONTROL[@DOMAIN][=MIN:MAX:STEP]``:
 
---cpu-frequency-min CPU_FREQUENCY_MIN  .. _cpu-frequency-min option:
+    - ``CONTROL`` is a control name or alias (see ``--list-controls`` for the
+      full catalog). Recognized names include ``cpu-freq`` (alias
+      ``cpu-frequency``), ``uncore-freq`` (alias ``cpu-uncore-frequency``),
+      ``cpu-power``, ``gpu-freq`` (alias ``gpu-frequency``), ``gpu-power``,
+      ``board-power``, and ``prefetch`` (alias ``prefetch-disable``).
 
-    Override the automatically detected CPU frequency minimum before creating the
-    optimization grid. This narrows the candidate settings explored by the optimizer.
+    - ``@DOMAIN`` optionally pins the control to a platform domain such as
+      ``board``, ``package``, ``core``, ``cpu``, ``gpu``, or ``gpu_chip``. When
+      omitted, the control's native domain is used.
 
---cpu-frequency-max CPU_FREQUENCY_MAX  .. _cpu-frequency-max option:
+    - ``=MIN:MAX:STEP`` optionally overrides the auto-detected range to narrow
+      the candidate settings the optimizer explores. Each field is independent
+      and may be left empty to keep its auto-detected value, for example
+      ``=1.2GHz:3GHz:100MHz`` (all three), ``=::100MHz`` (step only),
+      ``=1.2GHz:3GHz`` (bounds only), or ``=1.2GHz::`` (minimum only).
 
-    Override the automatically detected CPU frequency maximum before creating the
-    optimization grid. This narrows the candidate settings explored by the optimizer.
+    Frequency values accept the unit suffixes ``Hz``, ``kHz``, ``MHz``, and
+    ``GHz``; power values accept ``W`` and ``kW``. A bare number is interpreted
+    in the control's canonical unit (Hz for frequency, W for power). The
+    ``prefetch`` control takes non-negative integer levels and rejects unit
+    suffixes.
 
---cpu-frequency-step CPU_FREQUENCY_STEP  .. _cpu-frequency-step option:
+--list-controls  .. _list-controls option:
 
-    Override the step size used to enumerate CPU frequency settings. This controls
-    the resolution of the optimization grid.
-
---cpu-uncore-frequency CPU_UNCORE_FREQUENCY_DOMAIN  .. _cpu-uncore-frequency option:
-
-    Include CPU uncore frequency control in the optimization space. Useful
-    for memory-intensive applications where uncore frequency affects performance.
-
---cpu-uncore-frequency-min CPU_UNCORE_FREQUENCY_MIN  .. _cpu-uncore-frequency-min option:
-
-    Override the automatically detected minimum for CPU uncore frequency when
-    constructing the optimization grid.
-
---cpu-uncore-frequency-max CPU_UNCORE_FREQUENCY_MAX  .. _cpu-uncore-frequency-max option:
-
-    Override the automatically detected maximum for CPU uncore frequency when
-    constructing the optimization grid.
-
---cpu-uncore-frequency-step CPU_UNCORE_FREQUENCY_STEP  .. _cpu-uncore-frequency-step option:
-
-    Override the step size used to enumerate CPU uncore frequency settings.
-
---cpu-power CPU_POWER_DOMAIN  .. _cpu-power option:
-
-    Include CPU power limit control in the optimization space. Allows the
-    optimizer to find optimal power-performance trade-offs.
-
---cpu-power-min CPU_POWER_MIN  .. _cpu-power-min option:
-
-    Override the automatically detected minimum CPU power limit before the
-    optimization grid is created.
-
---cpu-power-max CPU_POWER_MAX  .. _cpu-power-max option:
-
-    Override the automatically detected maximum CPU power limit before the
-    optimization grid is created.
-
---cpu-power-step CPU_POWER_STEP  .. _cpu-power-step option:
-
-    Override the step size used to enumerate CPU power limit settings.
-
---gpu-frequency GPU_FREQUENCY_DOMAIN  .. _gpu-frequency option:
-
-    Include GPU frequency control in the optimization space for GPU-accelerated
-    applications.
-
---gpu-frequency-min GPU_FREQUENCY_MIN  .. _gpu-frequency-min option:
-
-    Override the automatically detected minimum GPU frequency prior to building
-    the optimization grid.
-
---gpu-frequency-max GPU_FREQUENCY_MAX  .. _gpu-frequency-max option:
-
-    Override the automatically detected maximum GPU frequency prior to building
-    the optimization grid.
-
---gpu-frequency-step GPU_FREQUENCY_STEP  .. _gpu-frequency-step option:
-
-    Override the step size used to enumerate GPU frequency settings.
-
---gpu-power GPU_POWER_DOMAIN  .. _gpu-power option:
-
-    Include GPU power limit control in the optimization space.
-
---gpu-power-min GPU_POWER_MIN  .. _gpu-power-min option:
-
-    Override the automatically detected minimum GPU power limit before the
-    optimization grid is created.
-
---gpu-power-max GPU_POWER_MAX  .. _gpu-power-max option:
-
-    Override the automatically detected maximum GPU power limit before the
-    optimization grid is created.
-
---gpu-power-step GPU_POWER_STEP  .. _gpu-power-step option:
-
-    Override the step size used to enumerate GPU power limit settings.
-
---board-power board  .. _board-power option:
-
-    Include system-level power limit control in the optimization space for
-    comprehensive power management. The only valid domain for this option is
-    ``board`` and this option is only available on some platforms that support
-    the ``BOARD_POWER_LIMIT_CONTROL`` PlatformIO control.
-
---board-power-min BOARD_POWER_MIN  .. _board-power-min option:
-
-    Override the automatically detected minimum board-level power limit before
-    the optimization grid is created.
-
---board-power-max BOARD_POWER_MAX  .. _board-power-max option:
-
-    Override the automatically detected maximum board-level power limit before
-    the optimization grid is created.
-
---board-power-step BOARD_POWER_STEP  .. _board-power-step option:
-
-    Override the step size used to enumerate board-level power settings.
-
---prefetch-disable PREFETCH_DISABLE_DOMAIN  .. _prefetch-disable option:
-
-    Include hardware prefetch disable control in the optimization space. The
-    setting progressively disables platform prefetchers as the level increases.
-    Valid domains depend on the platform; typically ``board`` or ``package``
-    are supported when the underlying MSR controls are exposed.
-
---prefetch-disable-min PREFETCH_DISABLE_MIN  .. _prefetch-disable-min option:
-
-    Override the minimum prefetch disable level before constructing the
-    optimization grid. The default value enables all prefetchers.
-
---prefetch-disable-max PREFETCH_DISABLE_MAX  .. _prefetch-disable-max option:
-
-    Override the maximum prefetch disable level before constructing the
-    optimization grid. The default value disables all supported prefetchers.
-
---prefetch-disable-step PREFETCH_DISABLE_STEP  .. _prefetch-disable-step option:
-
-    Override the step size used to enumerate prefetch disable levels.
+    Print a table of the available control names, their native domain, units,
+    and the detected minimum, maximum, and step values, then exit. Controls
+    whose range cannot be read on the current platform are shown as ``n/a``.
 
 Optimization Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -404,8 +281,8 @@ Optimize CPU frequency for a compute-intensive benchmark:
 
    $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
    $ geopmopt --verbosity=2 \
-              --cpu-frequency board \
-              --cpu-uncore-frequency board \
+              --sweep cpu-freq@board \
+              --sweep uncore-freq@board \
               --metric-regex 'Elapsed time: ([0-9.]+)' \
               --minimize \
               --trials 30 \
@@ -435,9 +312,9 @@ Optimize both CPU frequency and power for maximum performance:
 
    $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
    $ geopmopt --verbosity=2 \
-              --cpu-frequency board \
-              --cpu-uncore-frequency board \
-              --cpu-power board \
+              --sweep cpu-freq@board \
+              --sweep uncore-freq@board \
+              --sweep cpu-power@board \
               --metric-regex 'Elapsed time: ([0-9.]+)' \
               --minimize \
               --trials 30 \
@@ -473,7 +350,7 @@ prints itself:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package \
+   $ geopmopt --sweep cpu-freq@package \
               --metric-regex "Runtime: ([0-9.]+) seconds" \
               --minimize \
               --trials 40 \
@@ -488,8 +365,8 @@ directly:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package \
-              --cpu-uncore-frequency package \
+   $ geopmopt --sweep cpu-freq@package \
+              --sweep uncore-freq@package \
               --trials 40 \
               -- ./timed_benchmark
 
@@ -502,8 +379,8 @@ from stdout:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package \
-              --cpu-uncore-frequency package \
+   $ geopmopt --sweep cpu-freq@package \
+              --sweep uncore-freq@package \
               --efficiency cpu \
               --sample-period 0.01 \
               --trials 40 \
@@ -517,7 +394,7 @@ Configurations that drop below the bound are treated as infeasible:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package \
+   $ geopmopt --sweep cpu-freq@package \
               --metric-regex 'Throughput: ([0-9.]+)' \
               --efficiency cpu \
               --metric-bound 1200.0 \
@@ -533,9 +410,9 @@ Find the most energy-efficient configuration:
 
    $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
    $ geopmopt --verbosity=2 \
-              --cpu-frequency board \
-              --cpu-uncore-frequency board \
-              --cpu-power board \
+              --sweep cpu-freq@board \
+              --sweep uncore-freq@board \
+              --sweep cpu-power@board \
               --metric-regex 'Elapsed time: ([0-9.]+)' \
               --minimize \
               --efficiency cpu \
@@ -554,7 +431,7 @@ Use high verbosity and stdout logging for troubleshooting:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package \
+   $ geopmopt --sweep cpu-freq@package \
              --metric-regex "Performance: ([0-9.]+)" \
              --verbosity 3 \
              --print-stdout \
@@ -571,7 +448,7 @@ Optimize GPU parameters for machine learning workloads:
 
 .. code-block:: shell-session
 
-   $ geopmopt --gpu-frequency gpu --gpu-power gpu \
+   $ geopmopt --sweep gpu-freq@gpu --sweep gpu-power@gpu \
               --metric-regex "Training speed: ([0-9.]+) samples/sec" \
               --trials 60 \
               --application-timeout 600 \
@@ -584,8 +461,8 @@ Optimize across all available control dimensions:
 
 .. code-block:: shell-session
 
-   $ geopmopt --cpu-frequency package --cpu-power package \
-              --gpu-frequency gpu --board-power board \
+   $ geopmopt --sweep cpu-freq@package --sweep cpu-power@package \
+              --sweep gpu-freq@gpu --sweep board-power@board \
               --metric-regex "Overall score: ([0-9.]+)" \
               --trials 200 \
               --n-initial-points 20 \
