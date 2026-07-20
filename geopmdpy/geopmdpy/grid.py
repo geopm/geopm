@@ -244,6 +244,46 @@ def parse_sweep_dim(spec: str) -> Tuple[str, Optional[str], dict]:
     return control_key, domain, overrides
 
 
+# Human-readable unit label per category for the --list-controls table.
+_CATEGORY_DISPLAY_UNIT = {
+    "frequency": "Hz",
+    "power": "W",
+    "level": "level",
+}
+
+
+def native_domain(control_key: str) -> str:
+    """Resolve the native domain name for a control.
+
+    Args:
+        control_key: A key from _CLI_FLAG_TO_CONTROL.
+
+    Returns:
+        str: The name of the domain on which the control natively applies,
+        used when a --sweep specification omits an explicit '@DOMAIN'.
+    """
+    signal_key = _CLI_FLAG_TO_CONTROL[control_key][0]
+    if control_key == "prefetch_disable":
+        signal_key = _PREFETCHER_CONTROL_SEQUENCE[0]
+    return topo.domain_name(pio.control_domain_type(signal_key))
+
+
+def _format_range_value(getter) -> str:
+    """Format a range value for display, substituting 'n/a' on failure.
+
+    Args:
+        getter: A zero-argument callable returning a numeric range value.
+
+    Returns:
+        str: The value formatted with '%g', or 'n/a' if the getter raised
+        (for example when the underlying signal is unavailable).
+    """
+    try:
+        return f"{getter():g}"
+    except Exception:
+        return "n/a"
+
+
 def add_grid_cli_arguments(parser: ArgumentParser) -> None:
     """Register control-domain and override arguments on a parser."""
     for flag, control in _CLI_FLAG_TO_CONTROL.items():
@@ -578,6 +618,37 @@ class ControlGrid:
         """
         grid_data = self.get_grid_data()
         return json.dumps(grid_data, indent=4)
+
+    def list_controls_str(self) -> str:
+        """Render the catalog of available controls as a fixed-width table.
+
+        For each control the table lists its preferred --sweep alias, native
+        domain, display units, and the auto-detected minimum, maximum, and step.
+        Values that cannot be resolved (for example an unavailable signal) are
+        shown as 'n/a' so a single missing control does not abort the listing.
+
+        Returns:
+            str: A multi-line, fixed-width table suitable for printing.
+        """
+        header = (f"{'CONTROL':<14}{'DOMAIN':<10}{'UNITS':<8}"
+                  f"{'MIN':<14}{'MAX':<14}{'STEP':<14}")
+        lines = [header]
+        for control_key in _CLI_FLAG_TO_CONTROL:
+            alias = _PREFERRED_ALIAS[control_key]
+            units = _CATEGORY_DISPLAY_UNIT[_CONTROL_CATEGORY[control_key]]
+            try:
+                domain = native_domain(control_key)
+            except Exception:
+                domain = "n/a"
+            minimum = _format_range_value(
+                lambda ck=control_key, dm=domain: self.get_minimum(ck, dm))
+            maximum = _format_range_value(
+                lambda ck=control_key, dm=domain: self.get_maximum(ck, dm))
+            step = _format_range_value(
+                lambda ck=control_key: self.get_step(ck))
+            lines.append(f"{alias:<14}{domain:<10}{units:<8}"
+                         f"{minimum:<14}{maximum:<14}{step:<14}")
+        return "\n".join(lines)
 
     def run(self) -> str:
         """Get the standard output for the command line tool.
