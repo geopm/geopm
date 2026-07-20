@@ -6,6 +6,7 @@ import sys
 import json
 import os
 import math
+import re
 from . import pio
 from . import topo
 from argparse import ArgumentParser
@@ -70,6 +71,178 @@ _CLI_FLAG_TO_CONTROL = {
         1,
     ),
 }
+
+# Mapping of user-facing --sweep control names (short aliases and the canonical
+# dashed spellings) to the _CLI_FLAG_TO_CONTROL keys.
+_CONTROL_ALIASES = {
+    "cpu-freq": "cpu_frequency",
+    "cpu-frequency": "cpu_frequency",
+    "uncore-freq": "cpu_uncore_frequency",
+    "cpu-uncore-frequency": "cpu_uncore_frequency",
+    "cpu-power": "cpu_power",
+    "gpu-freq": "gpu_frequency",
+    "gpu-frequency": "gpu_frequency",
+    "gpu-power": "gpu_power",
+    "board-power": "board_power",
+    "prefetch": "prefetch_disable",
+    "prefetch-disable": "prefetch_disable",
+}
+# Category of each control, which selects the allowed unit suffixes.
+_CONTROL_CATEGORY = {
+    "cpu_frequency": "frequency",
+    "cpu_uncore_frequency": "frequency",
+    "cpu_power": "power",
+    "gpu_frequency": "frequency",
+    "gpu_power": "power",
+    "board_power": "power",
+    "prefetch_disable": "level",
+}
+# Unit suffix (lower-cased) to raw-unit multiplier for each category.
+_UNIT_TABLE = {
+    "frequency": {"hz": 1.0, "khz": 1e3, "mhz": 1e6, "ghz": 1e9},
+    "power": {"w": 1.0, "kw": 1e3},
+}
+# Canonical unit spellings for each category, used in error messages.
+_UNIT_CANONICAL = {
+    "frequency": ("Hz", "kHz", "MHz", "GHz"),
+    "power": ("W", "kW"),
+}
+# Preferred short alias for each canonical control key, used by --list-controls.
+_PREFERRED_ALIAS = {
+    "cpu_frequency": "cpu-freq",
+    "cpu_uncore_frequency": "uncore-freq",
+    "cpu_power": "cpu-power",
+    "gpu_frequency": "gpu-freq",
+    "gpu_power": "gpu-power",
+    "board_power": "board-power",
+    "prefetch_disable": "prefetch",
+}
+
+# Matches a numeric value with an optional sign and alphabetic unit suffix.
+_QUANTITY_RE = re.compile(
+    r"^\s*([-+]?[0-9]*\.?[0-9]+(?:[eE][+-]?[0-9]+)?)\s*([A-Za-z]*)\s*$"
+)
+
+
+def parse_quantity(text: str, category: str) -> float:
+    """Parse a numeric grid value with an optional unit suffix.
+
+    Args:
+        text: The value token, for example "2.8GHz", "250W", or "4".
+        category: The control category ("frequency", "power", or "level")
+            that determines which unit suffixes are accepted.
+
+    Returns:
+        float: The value converted to the control's raw unit (Hz for
+        frequency, Watts for power, and an integer level for "level").
+
+    Raises:
+        ValueError: If the token is malformed, negative, or carries an
+            unrecognized or disallowed unit suffix.
+    """
+    match = _QUANTITY_RE.match(text)
+    if match is None:
+        raise ValueError(f"invalid numeric value '{text}'")
+    number, suffix = match.group(1), match.group(2)
+    value = float(number)
+    if value < 0:
+        raise ValueError(f"value '{text}' must not be negative")
+    if category == "level":
+        if suffix:
+            raise ValueError(
+                f"unit '{suffix}' is not allowed for a level control"
+            )
+        if not value.is_integer():
+            raise ValueError(f"level value '{text}' must be an integer")
+        return value
+    units = _UNIT_TABLE.get(category)
+    if units is None:
+        raise ValueError(f"no units defined for category '{category}'")
+    if not suffix:
+        return value
+    multiplier = units.get(suffix.lower())
+    if multiplier is None:
+        canonical = ", ".join(_UNIT_CANONICAL[category])
+        raise ValueError(
+            f"unrecognized unit '{suffix}'; use one of {canonical}"
+        )
+    return value * multiplier
+
+
+def parse_triple(text: str, category: str) -> dict:
+    """Parse a MIN:MAX:STEP override triple using slice semantics.
+
+    Any field may be omitted: "1.2GHz:3GHz" sets only the bounds, "::100MHz"
+    sets only the step, and "1.2GHz::" sets only the minimum. At least one ':'
+    separator must be present so a lone value is rejected as ambiguous.
+
+    Args:
+        text: The triple token following '=' in a --sweep specification.
+        category: The control category used to parse each field's units.
+
+    Returns:
+        dict: A dictionary containing only the supplied 'min', 'max', and
+        'step' keys mapped to their parsed float values.
+
+    Raises:
+        ValueError: If the triple has the wrong number of fields, a
+            non-positive step, or a minimum that exceeds the maximum.
+    """
+    parts = text.split(":")
+    if len(parts) < 2 or len(parts) > 3:
+        raise ValueError(
+            f"invalid range '{text}'; expected MIN:MAX[:STEP] with ':' separators"
+        )
+    overrides = {}
+    for key, part in zip(("min", "max", "step"), parts):
+        part = part.strip()
+        if part:
+            overrides[key] = parse_quantity(part, category)
+    if "step" in overrides and overrides["step"] <= 0:
+        raise ValueError(f"step in '{text}' must be positive")
+    if "min" in overrides and "max" in overrides and overrides["min"] > overrides["max"]:
+        raise ValueError(f"min exceeds max in '{text}'")
+    return overrides
+
+
+def parse_sweep_dim(spec: str) -> Tuple[str, Optional[str], dict]:
+    """Parse a --sweep specification: CONTROL[@DOMAIN][=MIN:MAX:STEP].
+
+    Args:
+        spec: A single --sweep token, for example "cpu-freq",
+            "cpu-freq@board", or "cpu-freq@board=1.2GHz:3GHz:100MHz".
+
+    Returns:
+        Tuple[str, Optional[str], dict]: The resolved _CLI_FLAG_TO_CONTROL
+        key, the domain string (or None when '@DOMAIN' was omitted), and a
+        dictionary of any 'min'/'max'/'step' overrides.
+
+    Raises:
+        ValueError: If the specification is empty, names an unknown control,
+            or has an empty domain.
+    """
+    text = spec.strip()
+    if not text:
+        raise ValueError("empty --sweep specification")
+    control_part = text
+    triple = None
+    if "=" in control_part:
+        control_part, triple = control_part.split("=", 1)
+    domain = None
+    if "@" in control_part:
+        control_part, domain = control_part.split("@", 1)
+        domain = domain.strip()
+        if not domain:
+            raise ValueError(f"empty domain in --sweep '{spec}'")
+    alias = control_part.strip()
+    control_key = _CONTROL_ALIASES.get(alias.lower())
+    if control_key is None:
+        raise ValueError(f"unknown control '{alias}'; see --list-controls")
+    overrides = {}
+    if triple is not None:
+        overrides = parse_triple(triple, _CONTROL_CATEGORY[control_key])
+    return control_key, domain, overrides
+
 
 def add_grid_cli_arguments(parser: ArgumentParser) -> None:
     """Register control-domain and override arguments on a parser."""
