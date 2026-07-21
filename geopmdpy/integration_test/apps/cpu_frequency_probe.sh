@@ -15,11 +15,27 @@
 # therefore prefer the highest frequency in the search grid.  geopmopt applies
 # the candidate frequency cap live before launching this script, so the
 # workload itself performs no control writes.  The iteration count is tunable
-# through GEOPMOPT_PROBE_ITERS for slower or faster hosts.
+# through GEOPMOPT_PROBE_ITERS for slower or faster hosts.  GEOPMOPT_PROBE_COOLDOWN_S
+# (default 0) idle-sleeps before the timed loop so consecutive trials start from
+# a comparable package temperature; the sleep is outside the timed region and
+# does not affect the reported throughput.  GEOPMOPT_PROBE_CPU (default unset)
+# pins the loop to a single CPU so scheduler migration between cores does not
+# perturb the timing.
 
 set -euo pipefail
 
 iterations="${GEOPMOPT_PROBE_ITERS:-3000000}"
+cooldown_s="${GEOPMOPT_PROBE_COOLDOWN_S:-0}"
+probe_cpu="${GEOPMOPT_PROBE_CPU:-}"
+
+if [[ -n "${probe_cpu}" ]] && command -v taskset >/dev/null 2>&1; then
+    # Restrict this shell (and thus the busy loop below) to one CPU.
+    taskset -cp "${probe_cpu}" $$ >/dev/null 2>&1 || true
+fi
+
+if [[ "${cooldown_s}" != "0" ]]; then
+    sleep "${cooldown_s}"
+fi
 
 start_ns=$(date +%s%N)
 sum=0
