@@ -26,12 +26,14 @@ test skips cleanly.  It lives in the independent ``integration_test``
 directory and is run explicitly.
 
 Environment overrides (optional):
-  GEOPMOPT_PROBE_ITERS   Busy-loop iteration count in the probe (default 3e6).
+  GEOPMOPT_PROBE_ITERS       Busy-loop iteration count in the probe (default 3e6).
+  GEOPMOPT_PROBE_COOLDOWN_S  Idle seconds before each timed loop (default 0).
 """
 
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -56,16 +58,28 @@ class _GeopmoptHarness(unittest.TestCase):
     MINIMIZE = False
 
     @classmethod
+    def _make_command(cls):
+        """Return the geopmopt argv to run in ``setUpClass``.
+
+        The base builds the legacy raw-metric / ``--efficiency`` command.
+        General-interface subclasses override this hook to emit
+        ``--metric``/``--maximize``/``--minimize``/``--constraint`` flags via
+        :func:`_geopmopt_util.geopmopt_general_command`.  It is called once,
+        after ``cls._freq_low``/``cls._freq_high``/``cls._config_path`` are set.
+        """
+        return gu.geopmopt_command(
+            cls._config_path, _METRIC_REGEX, cls._freq_low, cls._freq_high,
+            minimize=cls.MINIMIZE, efficiency_domain=cls.EFFICIENCY_DOMAIN)
+
+    @classmethod
     def setUpClass(cls):
         cls._freq_low, cls._freq_high = gu.cpu_frequency_bounds()
         cls._tmpdir = tempfile.mkdtemp(prefix=f'geopmopt-{cls.__name__}-')
         cls._config_path = os.path.join(cls._tmpdir, 'best.config')
-        cls._command = gu.geopmopt_command(
-            cls._config_path, _METRIC_REGEX, cls._freq_low, cls._freq_high,
-            minimize=cls.MINIMIZE, efficiency_domain=cls.EFFICIENCY_DOMAIN)
+        cls._command = cls._make_command()
         proc = subprocess.run(
             cls._command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            universal_newlines=True)
+            universal_newlines=True, env=gu.probe_env())
         if proc.returncode != 0:
             raise RuntimeError(
                 f'geopmopt failed ({cls.__name__}) with return code '
@@ -102,10 +116,12 @@ class TestGeopmoptRawMetric(_GeopmoptHarness):
 
         The grid's high endpoint is capped 200 MHz below the sticker frequency
         (see ``cpu_frequency_bounds``), keeping every trial out of the
-        turbo/boundary region.  In that stable range higher CPU core frequency
-        shortens the single-threaded busy loop, so the throughput FoM is
-        monotonically increasing in frequency and the optimizer must choose the
-        maximum allowed frequency in the grid.
+        turbo/boundary region.  The probe runs a short busy loop
+        (``gu.PROBE_ITERS``) with a per-trial cooldown (``gu.PROBE_COOLDOWN_S``)
+        so every trial starts from a comparable package temperature and the high
+        grid frequency is not throttled below the low one by accumulated heat.
+        Higher CPU core frequency then reliably yields higher throughput, so the
+        optimizer must choose the maximum allowed frequency in the grid.
         """
         self.assertEqual(
             self._best_frequency(), float(self._freq_high),
@@ -134,6 +150,103 @@ class TestGeopmoptEfficiency(_GeopmoptHarness):
             freq, (float(self._freq_low), float(self._freq_high)),
             msg=(f'selected frequency {freq} is not one of the grid endpoints '
                  f'{self._freq_low}/{self._freq_high}'))
+
+
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+class TestGeopmoptGeneralRawMetric(_GeopmoptHarness):
+    """Raw-metric maximize through the general ``--metric``/``--maximize``
+    interface.
+
+    This is the general-interface analogue of :class:`TestGeopmoptRawMetric`:
+    ``--metric fom=regex:'GEOPMOPT-FOM: ...' --maximize fom`` must select the
+    same maximum grid frequency the legacy ``--metric-regex`` path does.
+    """
+
+    @classmethod
+    def _make_command(cls):
+        return gu.geopmopt_general_command(
+            cls._config_path, cls._freq_low, cls._freq_high,
+            metrics=[f'fom=regex:{_METRIC_REGEX}'], maximize='fom')
+
+    def test_selects_max_frequency(self):
+        """``--metric``/``--maximize`` matches the legacy raw-metric result."""
+        self.assertEqual(
+            self._best_frequency(), float(self._freq_high),
+            msg=('the general interface did not select the maximum allowed '
+                 f'grid frequency {self._freq_high}'))
+
+
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+class TestGeopmoptConstraint(_GeopmoptHarness):
+    """A binding ``--constraint`` prunes the infeasible endpoint.
+
+    :class:`TestGeopmoptGeneralRawMetric` shows the unconstrained objective
+    selects ``freq_high``.  Here an identical objective plus a figure-of-merit
+    ceiling placed between the two endpoints' throughput makes the high
+    endpoint infeasible, so the optimizer must fall back to the feasible
+    ``freq_low``.  Throughput is monotonic in the applied frequency, so one
+    calibration run at ``freq_high`` anchors the scale and the ceiling is
+    scaled to the midpoint frequency (``fom`` is ~linear in frequency).
+    """
+
+    @classmethod
+    def _make_command(cls):
+        cls._fom_high = gu.probe_fom_at_frequency(cls._freq_high)
+        freq_mid = (cls._freq_low + cls._freq_high) / 2.0
+        cls._fom_ceiling = cls._fom_high * freq_mid / cls._freq_high
+        return gu.geopmopt_general_command(
+            cls._config_path, cls._freq_low, cls._freq_high,
+            metrics=[f'fom=regex:{_METRIC_REGEX}'],
+            maximize='fom',
+            constraints=[f'fom <= {cls._fom_ceiling:.3f}'])
+
+    def test_binding_constraint_selects_feasible_endpoint(self):
+        """With ``fom <= midpoint-throughput`` the high-frequency endpoint is
+        infeasible, so the feasible low-frequency endpoint is selected."""
+        self.assertEqual(
+            self._best_frequency(), float(self._freq_low),
+            msg=('the binding figure-of-merit constraint '
+                 f'(fom <= {self._fom_ceiling:.3f}) did not prune the '
+                 'infeasible high-frequency endpoint'))
+
+
+@gu.skip_unless_skopt()
+class TestGeopmoptListMetrics(unittest.TestCase):
+    """``--list-metrics`` enumerates reserved metrics and referenced signals.
+
+    This needs no live control (rows for unreadable signals render ``n/a``), so
+    it only guards on skopt.  It asserts the reserved metric names always
+    appear and, where the signals resolve, that the behavior-to-aggregation
+    mapping is reported (``CPU_ENERGY`` is monotone -> ``delta``).
+    """
+
+    def test_lists_reserved_and_referenced_signals(self):
+        cmd = [sys.executable, '-m', 'geopmdpy.optimizer', '--list-metrics',
+               '--metric', 'power=signal:CPU_POWER@board:mean',
+               '--metric', 'energy=signal:CPU_ENERGY@board']
+        proc = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            universal_newlines=True)
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        out = proc.stdout
+        for name in ('time', 'energy', 'power', 'fom'):
+            self.assertIn(
+                name, out,
+                msg=f'reserved metric {name!r} missing from --list-metrics '
+                    f'output:\n{out}')
+        self.assertIn('CPU_POWER', out)
+        self.assertIn('CPU_ENERGY', out)
+        # Where the signal resolves, CPU_ENERGY is monotone -> delta; where it
+        # does not, the row renders n/a.  Accept either so the assertion is
+        # node independent while still checking the mapping when present.
+        energy_row = next(
+            (line for line in out.splitlines()
+             if line.startswith('CPU_ENERGY')), '')
+        self.assertTrue(
+            'delta' in energy_row or 'n/a' in energy_row,
+            msg=f'unexpected CPU_ENERGY row: {energy_row!r}')
 
 
 if __name__ == '__main__':
