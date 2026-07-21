@@ -217,6 +217,39 @@ frequencies) safely and securely. See the section below for examples and the
 
 ----
 
+|:dart:| Optimize Control Settings
+==================================
+
+Rather than tuning controls by hand, GEOPM can search for the best settings for
+your application automatically. The :doc:`geopmopt <geopmopt.1>` tool uses
+Bayesian optimization to sweep a grid of controls (CPU/uncore/GPU frequency,
+power limits, and more), applies each candidate to a scoped session, runs your
+application, and reports the configuration that best optimizes your objective —
+runtime, energy, a scraped figure of merit, or a custom objective with
+feasibility constraints.
+
+**Example: Minimize an application's runtime over CPU frequency**
+
+.. code-block:: bash
+
+    # Requires scikit-optimize: python3 -m pip install scikit-optimize
+    geopmopt --sweep cpu-freq@board \
+             --trials 30 \
+             --output-file best_config.txt \
+             -- ./my_workload.sh
+
+    # Apply the winning configuration to the current session
+    geopmwrite -f best_config.txt
+
+.. note::
+
+   For more information, see:
+
+     - :doc:`geopmopt <geopmopt.1>`
+     - See the :ref:`Optimize Control Settings section of the Tutorial <tutorial:optimize-control-settings>` for a step-by-step walkthrough.
+
+----
+
 |:straight_ruler:| Measure Performance
 ======================================
 
