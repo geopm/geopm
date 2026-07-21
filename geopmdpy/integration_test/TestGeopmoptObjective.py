@@ -100,14 +100,17 @@ class TestGeopmoptRawMetric(_GeopmoptHarness):
     def test_selects_max_frequency(self):
         """Maximizing CPU-bound throughput selects the highest grid frequency.
 
-        Higher CPU core frequency shortens the single-threaded busy loop, so
-        the throughput FoM is monotonically increasing in frequency and the
-        optimizer must choose the grid's high endpoint.
+        The grid's high endpoint is capped 200 MHz below the sticker frequency
+        (see ``cpu_frequency_bounds``), keeping every trial out of the
+        turbo/boundary region.  In that stable range higher CPU core frequency
+        shortens the single-threaded busy loop, so the throughput FoM is
+        monotonically increasing in frequency and the optimizer must choose the
+        maximum allowed frequency in the grid.
         """
         self.assertEqual(
             self._best_frequency(), float(self._freq_high),
-            msg=('maximizing throughput did not select the highest grid '
-                 f'frequency {self._freq_high}'))
+            msg=('maximizing throughput did not select the maximum allowed '
+                 f'grid frequency {self._freq_high}'))
 
 
 @gu.skip_unless_skopt()
