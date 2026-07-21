@@ -293,6 +293,83 @@ def _objective_fom_regex(spec):
     return None
 
 
+#: Human-readable name for each signal behavior enum, used by --list-metrics.
+_BEHAVIOR_NAMES = {
+    metrics.BEHAVIOR_CONSTANT: 'constant',
+    metrics.BEHAVIOR_MONOTONE: 'monotone',
+    metrics.BEHAVIOR_VARIABLE: 'variable',
+    metrics.BEHAVIOR_LABEL: 'label',
+}
+
+
+def _signal_behavior_aggregation(provider):
+    """Resolve the behavior name and default aggregation for a signal metric.
+
+    Args:
+        provider: A :class:`metrics.SignalProvider`.
+
+    Returns:
+        tuple: ``(behavior_name, aggregation)``. Both are ``'n/a'`` when the
+        signal is unavailable on the platform (for example a GPU signal on a
+        GPU-less node); the aggregation is ``'n/a'`` when the behavior carries
+        no per-trial quantity.
+    """
+    try:
+        behavior = metrics.signal_behavior(provider.signal)
+    except Exception:
+        return 'n/a', 'n/a'
+    behavior_name = _BEHAVIOR_NAMES.get(behavior, 'n/a')
+    if provider.aggregation is not None:
+        return behavior_name, provider.aggregation
+    try:
+        aggregation = metrics.default_aggregation(behavior, provider.signal)
+    except metrics.MetricSpecError:
+        aggregation = 'n/a'
+    return behavior_name, aggregation
+
+
+def list_metrics_str(metric_specs=None):
+    """Render the reserved metrics and referenced signals for ``--list-metrics``.
+
+    The listing is the objective-side analogue of ``--list-controls``: it names
+    the reserved canonical metrics (with units) that any objective or constraint
+    may reference, followed by each ``signal:`` metric defined via ``--metric``
+    with its native behavior and default aggregation. Signals that cannot be
+    resolved on the platform render as ``n/a`` so a single missing signal does
+    not abort the listing.
+
+    Args:
+        metric_specs: The list of ``--metric`` ``NAME=SOURCE`` strings, or None.
+
+    Returns:
+        str: A multi-line, fixed-width listing suitable for printing.
+    """
+    lines = [f"{'METRIC':<12}{'UNIT':<6}"]
+    for name, unit in metrics.RESERVED_UNITS.items():
+        lines.append(f"{name:<12}{unit:<6}")
+
+    signal_metrics = []
+    for spec_text in (metric_specs or []):
+        try:
+            metric = metrics.parse_metric_spec(spec_text)
+        except metrics.MetricSpecError:
+            continue
+        if isinstance(metric.provider, metrics.SignalProvider):
+            signal_metrics.append(metric)
+
+    if signal_metrics:
+        lines.append("")
+        lines.append(f"{'SIGNAL':<24}{'DOMAIN':<10}{'BEHAVIOR':<12}"
+                     f"{'AGGREGATION':<12}")
+        for metric in signal_metrics:
+            provider = metric.provider
+            behavior_name, aggregation = _signal_behavior_aggregation(provider)
+            lines.append(f"{provider.signal:<24}{provider.domain:<10}"
+                         f"{behavior_name:<12}{aggregation:<12}")
+
+    return "\n".join(lines)
+
+
 @dataclass
 class TrialResult:
     """Raw measurements produced by evaluating a single control configuration.
@@ -1149,6 +1226,15 @@ def get_parser():
     )
 
     parser.add_argument(
+        '--list-metrics',
+        action='store_true',
+        dest='list_metrics',
+        help='List the reserved canonical metrics and the signals referenced '
+             'by --metric (with each signal behavior and default aggregation), '
+             'then exit.'
+    )
+
+    parser.add_argument(
         '--random-seed',
         type=int,
         default=42,
@@ -1251,6 +1337,10 @@ def main():
 
     if args.list_controls:
         print(ControlGrid(['--list-controls']).list_controls_str())
+        return 0
+
+    if args.list_metrics:
+        print(list_metrics_str(args.metric))
         return 0
 
     if not args.defer_write:

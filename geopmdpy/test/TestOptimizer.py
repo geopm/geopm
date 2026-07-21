@@ -1757,5 +1757,67 @@ class TestMainGeneralInterface(unittest.TestCase):
         self.assertEqual(eval_kwargs['metric_regex'], 'FOM: ([0-9.]+)')
 
 
+@unittest.skipIf(skip_test, skip_msg)
+class TestListMetrics(unittest.TestCase):
+    """D1/D2: the --list-metrics discovery mode and formatter."""
+
+    def test_flag_defaults_false(self):
+        """--list-metrics defaults off and sets its mode when present."""
+        parser = optimizer.get_parser()
+        off = parser.parse_args(['--sweep', 'cpu-freq@board', 'echo', 'hi'])
+        self.assertFalse(off.list_metrics)
+        on = parser.parse_args(['--list-metrics'])
+        self.assertTrue(on.list_metrics)
+
+    def test_lists_reserved_metrics_with_units(self):
+        """The listing header names each reserved canonical metric and unit."""
+        text = optimizer.list_metrics_str()
+        self.assertIn('METRIC', text)
+        self.assertIn('UNIT', text)
+        for name, unit in metrics.RESERVED_UNITS.items():
+            self.assertRegex(text, rf'{name}\s+{re.escape(unit)}')
+
+    @patch('geopmdpy.optimizer.metrics.signal_behavior')
+    def test_monotone_signal_shows_delta(self, mock_behavior):
+        """A referenced monotone signal defaults to the delta aggregation."""
+        mock_behavior.return_value = metrics.BEHAVIOR_MONOTONE
+        text = optimizer.list_metrics_str(['energy=signal:CPU_ENERGY@board'])
+        self.assertRegex(text, r'CPU_ENERGY\b.*monotone.*delta')
+
+    @patch('geopmdpy.optimizer.metrics.signal_behavior')
+    def test_variable_signal_shows_mean(self, mock_behavior):
+        """A referenced variable signal defaults to the mean aggregation."""
+        mock_behavior.return_value = metrics.BEHAVIOR_VARIABLE
+        text = optimizer.list_metrics_str(['power=signal:CPU_POWER@board'])
+        self.assertRegex(text, r'CPU_POWER\b.*variable.*mean')
+
+    @patch('geopmdpy.optimizer.metrics.signal_behavior')
+    def test_unavailable_signal_renders_na(self, mock_behavior):
+        """A signal unavailable on the platform renders as n/a."""
+        mock_behavior.side_effect = RuntimeError('signal unavailable')
+        text = optimizer.list_metrics_str(['gpu=signal:GPU_ENERGY@gpu'])
+        self.assertRegex(text, r'GPU_ENERGY\b.*n/a')
+
+    @patch('geopmdpy.optimizer.metrics.signal_behavior')
+    def test_explicit_aggregation_is_preserved(self, mock_behavior):
+        """An explicit aggregation overrides the behavior-derived default."""
+        mock_behavior.return_value = metrics.BEHAVIOR_MONOTONE
+        text = optimizer.list_metrics_str(['power=signal:CPU_POWER@board:mean'])
+        self.assertRegex(text, r'CPU_POWER\b.*monotone.*mean')
+
+    @patch('sys.argv', ['optimizer.py', '--list-metrics'])
+    @patch('geopmdpy.optimizer.pio')
+    def test_main_list_metrics_early_return(self, mock_pio):
+        """--list-metrics prints and exits without touching controls."""
+        mock_pio.save_control = MagicMock()
+        mock_pio.restore_control = MagicMock()
+        with patch('builtins.print') as mock_print:
+            result = optimizer.main()
+        self.assertEqual(result, 0)
+        mock_pio.save_control.assert_not_called()
+        mock_pio.restore_control.assert_not_called()
+        mock_print.assert_called()
+
+
 if __name__ == '__main__':
     unittest.main()
