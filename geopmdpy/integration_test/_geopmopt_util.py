@@ -30,6 +30,11 @@ _CPU_FREQUENCY_CONTROL = 'CPU_FREQUENCY_MAX_CONTROL'
 # Spread (Hz) between the low and high grid frequencies.  Wide enough that a
 # single-threaded CPU-bound loop is measurably faster at the high setting.
 _FREQUENCY_SPREAD_HZ = 500000000
+# Margin (Hz) by which the grid's high endpoint sits below the sticker
+# frequency.  Capping below sticker keeps every trial out of the turbo/boundary
+# region, where frequency-vs-throughput noise can make the top grid point run
+# no faster (or slower) than a lower one and select the wrong endpoint.
+_STICKER_MARGIN_HZ = 200000000
 
 
 def skip_unless_skopt():
@@ -94,15 +99,18 @@ def probe_command():
 def cpu_frequency_bounds():
     """Return two valid CPU core-frequency settings ``(low, high)`` in Hz.
 
-    ``high`` is the platform sticker frequency; ``low`` is
-    ``_FREQUENCY_SPREAD_HZ`` below it, clamped to the minimum available
+    ``high`` is the sticker frequency less ``_STICKER_MARGIN_HZ``, keeping the
+    grid's top endpoint safely below the turbo/boundary region where
+    frequency-vs-throughput noise makes the probe flaky; ``low`` is
+    ``_FREQUENCY_SPREAD_HZ`` below ``high``, clamped to the minimum available
     frequency.  The spread is wide enough that the CPU-bound probe is
     measurably faster at ``high`` than at ``low``, giving the optimizer an
     unambiguous, monotonic signal.
     """
     from geopmdpy import pio
     from geopmdpy import topo
-    high = pio.read_signal('CPU_FREQUENCY_STICKER', topo.DOMAIN_BOARD, 0)
+    sticker = pio.read_signal('CPU_FREQUENCY_STICKER', topo.DOMAIN_BOARD, 0)
+    high = sticker - _STICKER_MARGIN_HZ
     try:
         floor = pio.read_signal(
             'CPU_FREQUENCY_MIN_AVAIL', topo.DOMAIN_BOARD, 0)
