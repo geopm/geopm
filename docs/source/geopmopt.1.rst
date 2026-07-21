@@ -36,8 +36,17 @@ List available metrics
     geopmopt --list-metrics \
              --metric power=signal:CPU_POWER@board:mean
 
-Optimize CPU frequency for performance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Minimize runtime
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    geopmopt --sweep cpu-freq@board \
+             --trials 30 \
+             -- ./workload.sh
+
+Maximize a figure of merit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -48,28 +57,28 @@ Optimize CPU frequency for performance
              --trials 30 \
              -- ./dgemm_bench.sh
 
-Optimize multiple CPU parameters with efficiency focus
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optimize energy efficiency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     geopmopt --sweep cpu-freq@board \
              --sweep cpu-power@board \
-
              --efficiency cpu \
              --trials 30 \
              -- ./mixed_workload.sh
 
-Minimize energy consumption and tune each CPU package independently
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compose an objective with constraints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    geopmopt --sweep cpu-freq@package \
-             --metric-regex "Energy: ([0-9.]+)" \
-             --minimize \
-             --trials 30 \
-             -- energy_app
+    geopmopt --sweep cpu-freq@board \
+             --metric fom=regex:'GFLOPS: ([0-9.]+)' \
+             --metric power=signal:CPU_POWER@board:mean \
+             --maximize fom \
+             --constraint 'power <= 250W' \
+             -- ./app
 
 Get Help
 ~~~~~~~~
@@ -333,60 +342,55 @@ LAUNCH ...  .. _launch option:
 Examples
 --------
 
-Basic CPU frequency optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The examples below progress from the simplest single-control run to the general
+multi-metric objective interface.  Each assumes ``scikit-optimize`` is installed
+and that a live GEOPM service grants write access to the swept controls.
 
-Optimize CPU frequency for a compute-intensive benchmark. With no
-``--metric-regex``, ``geopmopt`` minimizes the launch command's wall-clock
-runtime directly, so the benchmark can be run without wrapping it to print a
-figure of merit:
+Minimize wall-clock runtime
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The simplest run sweeps a single control and, with no ``--metric-regex``,
+minimizes the launch command's wall-clock runtime directly -- the application
+need not print a figure of merit:
 
 .. code-block:: shell-session
 
    $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
    $ geopmopt --verbosity=2 \
               --sweep cpu-freq@board \
-              --sweep uncore-freq@board \
               --trials 30 \
               -- geopmbench geopmbench.conf
    INFO: Starting Bayesian optimization with 30 evaluations...
-   INFO: Evaluation 1: coordinate=[22, 1], metric=54.33
-   INFO: Evaluation 2: coordinate=[21, 4], metric=49.52
-   INFO: Evaluation 3: coordinate=[12, 1], metric=54.35
-   INFO: Evaluation 4: coordinate=[12, 2], metric=50.78
+   INFO: Evaluation 1: coordinate=[22], metric=54.33
+   INFO: Evaluation 2: coordinate=[21], metric=49.52
    ...
-   INFO: Evaluation 30: coordinate=[4, 3], metric=51.66
+   INFO: Evaluation 30: coordinate=[18], metric=45.81
    INFO: Optimization completed!
    INFO: Best metric: 45.81
-   INFO: Best coordinate: [18, 6]
+   INFO: Best coordinate: [18]
    INFO: Number of evaluations: 30
    Best configuration:
    CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
-   CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 1600000000.0
-   CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1600000000.0
 
-Multi-parameter optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tune several controls together
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Optimize CPU frequency, uncore frequency, and power together to minimize
-runtime:
+Pass ``--sweep`` more than once to optimize several controls jointly.  Here CPU
+frequency, uncore frequency, and the CPU power limit are tuned together, still
+minimizing runtime, and the best configuration is written to a file for reuse:
 
 .. code-block:: shell-session
 
-   $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
    $ geopmopt --verbosity=2 \
               --sweep cpu-freq@board \
               --sweep uncore-freq@board \
               --sweep cpu-power@board \
               --trials 30 \
+              --output-file best_config.txt \
               -- geopmbench geopmbench.conf
    INFO: Starting Bayesian optimization with 30 evaluations...
    INFO: Evaluation 1: coordinate=[22, 3, 120], metric=51.0
-   INFO: Evaluation 2: coordinate=[16, 6, 15], metric=81.11
-   INFO: Evaluation 3: coordinate=[12, 5, 22], metric=77.08
-   INFO: Evaluation 4: coordinate=[18, 1, 111], metric=55.49
    ...
-   INFO: Evaluation 30: coordinate=[21, 10, 9], metric=85.8
    INFO: Optimization completed!
    INFO: Best metric: 45.05
    INFO: Best coordinate: [27, 14, 154]
@@ -397,143 +401,78 @@ runtime:
    CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 2400000000.0
    CPU_POWER_LIMIT_CONTROL board 0 300.0
 
-The resulting configuration file can be applied with:
+Apply the saved configuration to the current session at any time with:
 
 .. code-block:: shell-session
 
    $ geopmwrite -f best_config.txt
 
-Minimization optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Maximize an application figure of merit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Minimize a metric scraped from application output, such as an execution time it
-prints itself:
+When the application prints a figure of merit, scrape it with
+``--metric-regex``; the captured value is maximized by default:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep cpu-freq@board \
+              --sweep uncore-freq@board \
+              --metric-regex 'GFLOPS: ([0-9.]+)' \
+              --trials 30 \
+              -- ./dgemm_bench.sh
+
+Minimize a value the application prints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add ``--minimize`` to minimize the scraped value instead, for a quantity such as
+an execution time the application reports itself:
 
 .. code-block:: shell-session
 
    $ geopmopt --sweep cpu-freq@package \
-              --metric-regex "Runtime: ([0-9.]+) seconds" \
+              --metric-regex 'Runtime: ([0-9.]+) seconds' \
               --minimize \
               --trials 40 \
               -- ./timed_benchmark
 
-Minimize runtime without a metric regex
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optimize for energy efficiency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the application does not print a figure of merit, omit ``--metric-regex``
-and ``geopmopt`` minimizes the total wall-clock runtime of the launch command
-directly:
+Add ``--efficiency`` to fold measured power into the objective.  With a
+``--metric-regex`` the objective becomes the figure of merit per watt
+(performance per watt), measured from a ``geopmsession`` energy trace:
 
 .. code-block:: shell-session
 
-   $ geopmopt --sweep cpu-freq@package \
-              --sweep uncore-freq@package \
-              --trials 40 \
-              -- ./timed_benchmark
+   $ geopmopt --sweep cpu-freq@board \
+              --sweep uncore-freq@board \
+              --metric-regex 'Throughput: ([0-9.]+)' \
+              --efficiency cpu \
+              --trials 30 \
+              -- ./throughput_app
 
-Minimize energy without a metric regex
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Minimize total energy
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Combine ``--efficiency`` with no ``--metric-regex`` to minimize total energy
-over a domain, measured from a ``geopmsession`` energy trace rather than scraped
-from stdout:
+With ``--efficiency`` and no ``--metric-regex`` the objective is the total
+energy consumed over the domain, so ``geopmopt`` finds the lowest-energy
+configuration:
 
 .. code-block:: shell-session
 
    $ geopmopt --sweep cpu-freq@package \
               --sweep uncore-freq@package \
               --efficiency cpu \
-              --sample-period 0.01 \
               --trials 40 \
               -- ./compute_kernel
 
-Bounded-energy optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compose an objective from named metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Minimize energy while holding a performance figure of merit at or above a bound.
-Configurations that drop below the bound are treated as infeasible:
-
-.. code-block:: shell-session
-
-   $ geopmopt --sweep cpu-freq@package \
-              --metric-regex 'Throughput: ([0-9.]+)' \
-              --efficiency cpu \
-              --metric-bound 1200.0 \
-              --trials 40 \
-              -- ./throughput_app
-
-Energy efficiency optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Find the most energy-efficient configuration:
-
-.. code-block:: shell-session
-
-   $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
-   $ geopmopt --verbosity=2 \
-              --sweep cpu-freq@board \
-              --sweep uncore-freq@board \
-              --sweep cpu-power@board \
-              --efficiency cpu \
-              --trials 30 \
-              -- geopmbench geopmbench.conf
-
-The ``--efficiency`` flag automatically measures power consumption from a
-``geopmsession`` energy trace.  With no ``--metric-regex`` the objective is the
-total energy consumed over the ``cpu`` domain, so this finds the configuration
-that minimizes total energy.
-
-Debug mode with application output
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use high verbosity and stdout logging for troubleshooting:
-
-.. code-block:: shell-session
-
-   $ geopmopt --sweep cpu-freq@package \
-             --metric-regex "Performance: ([0-9.]+)" \
-             --verbosity 3 \
-             --print-stdout \
-             --trials 20 \
-             -- ./debug_app
-
-This shows detailed optimization progress and application output to help
-debug metric extraction issues.
-
-GPU optimization
-~~~~~~~~~~~~~~~~
-
-Optimize GPU parameters for machine learning workloads:
-
-.. code-block:: shell-session
-
-   $ geopmopt --sweep gpu-freq@gpu --sweep gpu-power@gpu \
-              --metric-regex "Training speed: ([0-9.]+) samples/sec" \
-              --trials 60 \
-              --application-timeout 600 \
-              -- python train_model.py
-
-Complex multi-dimensional optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Optimize across all available control dimensions:
-
-.. code-block:: shell-session
-
-   $ geopmopt --sweep cpu-freq@package --sweep cpu-power@package \
-              --sweep gpu-freq@gpu --sweep board-power@board \
-              --metric-regex "Overall score: ([0-9.]+)" \
-              --trials 200 \
-              --n-initial-points 20 \
-              --random-seed 123 \
-              -- ./comprehensive_benchmark
-
-Metric and constraint optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use the general objective interface to maximize a scraped figure of merit while
-holding measured power and energy within bounds. Define named metrics, pick one
-to maximize, and add one ``--constraint`` per bound:
+The general objective interface names any number of metrics, selects one to
+optimize, and adds feasibility constraints.  Here the scraped figure of merit is
+maximized while measured CPU power and energy are held within bounds; each
+``signal:`` metric is sampled with ``geopmsession`` around every trial:
 
 .. code-block:: shell-session
 
@@ -542,20 +481,38 @@ to maximize, and add one ``--constraint`` per bound:
               --metric power=signal:CPU_POWER@board:mean \
               --metric energy=signal:CPU_ENERGY@board:delta \
               --maximize fom \
-              --constraint 'power <= 250' \
-              --constraint 'energy <= 5000' \
+              --constraint 'power <= 250W' \
+              --constraint 'energy <= 5000J' \
               -- ./app
 
-The ``signal:`` metrics are sampled with ``geopmsession`` around each trial, so
-the run automatically uses the session-wrapped execution path. Configurations
-that exceed 250 W or 5000 J are treated as infeasible, and the reported best
-configuration is the feasible one with the largest ``fom``.
+Configurations that exceed 250 W or 5000 J are treated as infeasible, and the
+reported best configuration is the feasible one with the largest ``fom``.  See
+`Objective and Constraint Grammar`_ for the full provider and constraint syntax.
 
-Discover available metrics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optimize a derived metric
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Print the reserved canonical metrics and the signals referenced by ``--metric``,
-each with its behavior and default aggregation, then exit:
+An ``expr:`` metric combines previously defined metrics with restricted
+arithmetic, so a custom objective can be expressed directly instead of through
+the ``--efficiency`` shorthand:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep cpu-freq@board \
+              --metric fom=regex:'GFLOPS: ([0-9.]+)' \
+              --metric power=signal:CPU_POWER@board:mean \
+              --metric eff=expr:'fom / power' \
+              --maximize eff \
+              -- ./app
+
+Preview reserved and referenced metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``--list-metrics`` prints the reserved canonical metrics and every ``signal:``
+metric referenced by ``--metric`` -- each with its behavior and default
+aggregation -- then exits without running the application.  Use it to confirm a
+signal is available and how it will be aggregated before launching a long run
+(the objective-side analogue of ``--list-controls``):
 
 .. code-block:: shell-session
 
@@ -571,6 +528,52 @@ each with its behavior and default aggregation, then exit:
    SIGNAL                  DOMAIN    BEHAVIOR    AGGREGATION
    CPU_POWER               board     variable    mean
    CPU_ENERGY              board     monotone    delta
+
+Optimize GPU parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sweep GPU controls the same way as CPU controls; a longer
+``--application-timeout`` accommodates slower launches:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep gpu-freq@gpu --sweep gpu-power@gpu \
+              --metric-regex 'Training speed: ([0-9.]+) samples/sec' \
+              --trials 60 \
+              --application-timeout 600 \
+              -- python train_model.py
+
+Defer applying the configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With ``--defer-write`` ``geopmopt`` does not apply candidate controls itself;
+instead it writes each candidate to ``--output-file`` before its trial so
+another tool applies it.  This suits distributed runs and integration with
+``geopmlaunch --geopm-init-control``:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep cpu-freq@board \
+              --metric-regex 'GFLOPS: ([0-9.]+)' \
+              --defer-write \
+              --output-file candidate.txt \
+              --trials 30 \
+              -- ./app
+
+Troubleshoot metric extraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Raise the verbosity and echo application stdout to debug a regex that is not
+matching:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep cpu-freq@package \
+              --metric-regex 'Performance: ([0-9.]+)' \
+              --verbosity 3 \
+              --print-stdout \
+              --trials 20 \
+              -- ./debug_app
 
 
 Metric Extraction
