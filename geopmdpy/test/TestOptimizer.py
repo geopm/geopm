@@ -1265,7 +1265,7 @@ class TestOptimizerMain(unittest.TestCase):
     @patch('sys.argv', ['optimizer.py', '--sweep', 'cpu-freq@package',
                        '--metric-regex', 'Performance: ([0-9.]+)',
                        '--minimize',
-                       'echo', 'Performance: 123.45'])
+                       '--', 'echo', 'Performance: 123.45'])
     @patch('geopmdpy.optimizer.pio')
     @patch('geopmdpy.optimizer.ControlGrid')
     @patch('geopmdpy.optimizer.BayesianOptimizer')
@@ -1550,6 +1550,211 @@ class TestOptimizationError(unittest.TestCase):
         error = optimizer.OptimizationError("Test error message")
         self.assertEqual(str(error), "Test error message")
         self.assertIsInstance(error, Exception)
+
+
+# --- Section 4 illustrative command (shared by parser and builder tests) -----
+_SECTION4_METRICS = [
+    "fom=regex:GFLOPS: ([0-9.]+)",
+    "power=signal:CPU_POWER@board:mean",
+    "energy=signal:CPU_ENERGY@board:delta",
+]
+_SECTION4_CONSTRAINTS = ['power <= 250', 'energy <= 5000']
+
+
+@unittest.skipIf(skip_test, skip_msg)
+class TestPhaseCParser(unittest.TestCase):
+    """C1: the general --metric/--maximize/--minimize/--constraint flags."""
+
+    def test_general_flags_present(self):
+        """The §4 argument vector parses into the general-interface dests."""
+        parser = optimizer.get_parser()
+        argv = ['--sweep', 'cpu-freq@board', '--sweep', 'cpu-power@board']
+        for metric in _SECTION4_METRICS:
+            argv += ['--metric', metric]
+        argv += ['--maximize', 'fom']
+        for constraint in _SECTION4_CONSTRAINTS:
+            argv += ['--constraint', constraint]
+        argv += ['--', './app']
+
+        args = parser.parse_args(argv)
+        self.assertEqual(args.metric, _SECTION4_METRICS)
+        self.assertEqual(args.maximize, 'fom')
+        self.assertEqual(args.constraint, _SECTION4_CONSTRAINTS)
+        self.assertIsNone(args.minimize)
+        self.assertEqual(args.launch, ['--', './app'])
+
+    def test_general_flag_defaults_are_none(self):
+        """The general flags default to None when omitted."""
+        parser = optimizer.get_parser()
+        args = parser.parse_args(['--sweep', 'cpu-freq@board', 'echo', 'hi'])
+        self.assertIsNone(args.metric)
+        self.assertIsNone(args.maximize)
+        self.assertIsNone(args.constraint)
+        self.assertIsNone(args.minimize)
+
+    def test_minimize_name_is_captured(self):
+        """--minimize NAME captures the metric name as the objective."""
+        parser = optimizer.get_parser()
+        args = parser.parse_args([
+            '--sweep', 'cpu-freq@board', '--metric', 'energy=signal:CPU_ENERGY@board',
+            '--minimize', 'energy', '--', './app'])
+        self.assertEqual(args.minimize, 'energy')
+
+    def test_minimize_bare_is_true(self):
+        """A bare --minimize retains the legacy global-minimize sentinel."""
+        parser = optimizer.get_parser()
+        args = parser.parse_args([
+            '--sweep', 'cpu-freq@board', '--metric-regex', 'FOM: ([0-9.]+)',
+            '--minimize', '--', './app'])
+        self.assertIs(args.minimize, True)
+
+
+@unittest.skipIf(skip_test, skip_msg)
+class TestBuildObjective(unittest.TestCase):
+    """C2/C3: build_objective validation and canonical-model construction."""
+
+    def test_section4_builds_canonical_model(self):
+        """The §4 flags build three metrics, maximize fom, two constraints."""
+        spec = optimizer.build_objective(
+            _SECTION4_METRICS, 'fom', None, _SECTION4_CONSTRAINTS)
+
+        self.assertEqual(set(spec.metric_map), {'fom', 'power', 'energy'})
+        self.assertEqual(spec.objective_expr, 'fom')
+        self.assertEqual(spec.label, 'fom')
+        self.assertFalse(spec.minimize)
+        self.assertTrue(spec.requires_fom)
+        self.assertTrue(spec.needs_session)
+
+        by_name = {c.name: c for c in spec.constraints}
+        self.assertEqual(set(by_name), {'power', 'energy'})
+        self.assertEqual(by_name['power'].op, '<=')
+        self.assertEqual(by_name['power'].value, 250.0)
+        self.assertEqual(by_name['energy'].op, '<=')
+        self.assertEqual(by_name['energy'].value, 5000.0)
+
+    def test_constraint_unit_suffix_is_normalized(self):
+        """A unit-suffixed constraint value is normalized to canonical units."""
+        spec = optimizer.build_objective(
+            ['power=signal:CPU_POWER@board:mean'], None, None,
+            ['power <= 0.25kW'])
+        self.assertEqual(spec.constraints[0].value, 250.0)
+
+    def test_default_objective_minimizes_time(self):
+        """With no objective flags the default is to minimize wall-clock time."""
+        spec = optimizer.build_objective([], None, None, None)
+        self.assertEqual(spec.objective_expr, 'time')
+        self.assertEqual(spec.label, 'time')
+        self.assertTrue(spec.minimize)
+
+    def test_minimize_name_selects_objective(self):
+        """--minimize NAME selects that metric as the minimized objective."""
+        spec = optimizer.build_objective(
+            ['energy=signal:CPU_ENERGY@board:delta'], None, 'energy', None)
+        self.assertEqual(spec.objective_expr, 'energy')
+        self.assertTrue(spec.minimize)
+
+    def test_expr_objective_expands_to_expression(self):
+        """A derived objective metric expands to its expression."""
+        spec = optimizer.build_objective(
+            ["fom=regex:GFLOPS: ([0-9.]+)", "eff=expr:fom / power"],
+            'eff', None, None)
+        self.assertEqual(spec.objective_expr, 'fom / power')
+
+    def test_both_directions_raises(self):
+        """Specifying both --maximize and --minimize NAME is an error."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["fom=regex:GFLOPS: ([0-9.]+)"], 'fom', 'fom', None)
+        self.assertIn('mutually exclusive', str(context.exception))
+
+    def test_undefined_objective_raises(self):
+        """Selecting an undefined objective metric is an error."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["fom=regex:GFLOPS: ([0-9.]+)"], 'missing', None, None)
+        self.assertIn('missing', str(context.exception))
+
+    def test_expr_undefined_reference_raises(self):
+        """A derived metric referencing an undefined metric is an error."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["bad=expr:undefined_name + 1"], 'bad', None, None)
+        self.assertIn('undefined', str(context.exception))
+
+    def test_duplicate_metric_raises(self):
+        """Defining the same metric name twice is an error."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["fom=regex:A: ([0-9.]+)", "fom=regex:B: ([0-9.]+)"],
+                'fom', None, None)
+        self.assertIn('more than once', str(context.exception))
+
+    def test_constraint_undefined_metric_raises(self):
+        """A constraint on an undefined metric is an error."""
+        with self.assertRaises(metrics.MetricSpecError):
+            optimizer.build_objective(
+                ["fom=regex:GFLOPS: ([0-9.]+)"], 'fom', None, ['bogus <= 5'])
+
+
+@unittest.skipIf(skip_test, skip_msg)
+class TestMainGeneralInterface(unittest.TestCase):
+    """C2: main() dispatch between the legacy and general interfaces."""
+
+    def test_legacy_and_general_flags_are_mutually_exclusive(self):
+        """Mixing --metric-regex with --metric aborts with an error."""
+        argv = ['optimizer.py', '--sweep', 'cpu-freq@package',
+                '--metric-regex', 'FOM: ([0-9.]+)',
+                '--metric', 'fom=regex:FOM: ([0-9.]+)', '--maximize', 'fom',
+                '--', 'echo', 'hi']
+        with patch('sys.argv', argv), \
+                patch('geopmdpy.optimizer.pio') as mock_pio:
+            mock_pio.save_control = MagicMock()
+            mock_pio.restore_control = MagicMock()
+            result = optimizer.main()
+        self.assertEqual(result, 1)
+        mock_pio.restore_control.assert_called_once()
+
+    @patch('geopmdpy.optimizer.pio')
+    @patch('geopmdpy.optimizer.ControlGrid')
+    @patch('geopmdpy.optimizer.BayesianOptimizer')
+    @patch('geopmdpy.optimizer.ApplicationEvaluator')
+    def test_general_interface_drives_optimizer(self, mock_eval_class,
+                                                mock_optimizer_class,
+                                                mock_grid_class, mock_pio):
+        """A --metric/--maximize invocation builds and runs the general spec."""
+        mock_pio.save_control = MagicMock()
+        mock_pio.restore_control = MagicMock()
+        mock_grid = MagicMock()
+        mock_grid.control_name = ['cpu_frequency']
+        mock_grid.get_grid_data.return_value = [
+            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "package",
+             "domain_idx": 0, "settings": [1000000, 2000000]}
+        ]
+        mock_grid_class.return_value = mock_grid
+        mock_optimizer = MagicMock()
+        mock_optimizer.optimize.return_value = {
+            'best_metric': 1.0, 'best_coordinate': [1],
+            'best_config': 'CPU_FREQUENCY_MAX_CONTROL package 0 2000000',
+            'n_evaluations': 10,
+        }
+        mock_optimizer_class.return_value = mock_optimizer
+
+        argv = ['optimizer.py', '--sweep', 'cpu-freq@package',
+                '--metric', 'fom=regex:FOM: ([0-9.]+)', '--maximize', 'fom',
+                '--', 'echo', 'FOM: 1.0']
+        with patch('sys.argv', argv), patch('builtins.print'):
+            result = optimizer.main()
+
+        self.assertEqual(result, 0)
+        # The general spec, not the legacy one, drives the optimizer.
+        _, optimize_kwargs = mock_optimizer.optimize.call_args
+        spec = optimize_kwargs['spec']
+        self.assertEqual(spec.objective_expr, 'fom')
+        self.assertFalse(spec.minimize)
+        self.assertEqual(set(spec.metric_map), {'fom'})
+        # The regex metric's pattern is wired into the evaluator.
+        _, eval_kwargs = mock_eval_class.call_args
+        self.assertEqual(eval_kwargs['metric_regex'], 'FOM: ([0-9.]+)')
 
 
 if __name__ == '__main__':

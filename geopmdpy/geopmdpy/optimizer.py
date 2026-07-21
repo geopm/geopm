@@ -23,7 +23,7 @@ import tempfile
 import logging
 from argparse import ArgumentParser, ArgumentTypeError, REMAINDER
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 try:
     from skopt import gp_minimize
@@ -105,6 +105,8 @@ class ObjectiveSpec:
         constraints: Feasibility constraints applied to base metric names.
         penalty_weight: Weight of the constraint-violation penalty folded into
             the scalarized objective.
+        metric_map: Named metrics defined by the general ``--metric`` flags,
+            keyed by name. Empty for the legacy flag path.
     """
     objective_expr: str
     minimize: bool
@@ -114,6 +116,7 @@ class ObjectiveSpec:
     efficiency_domain: Optional[str] = None
     constraints: List[metrics.Constraint] = field(default_factory=list)
     penalty_weight: float = _DEFAULT_BOUND_PENALTY_WEIGHT
+    metric_map: Dict[str, metrics.Metric] = field(default_factory=dict)
 
 
 def expand_objective(metric_regex, efficiency_domain, metric_bound, minimize,
@@ -169,6 +172,125 @@ def expand_objective(metric_regex, efficiency_domain, metric_bound, minimize,
             needs_session=True, efficiency_domain=efficiency_domain)
     return ObjectiveSpec(objective_expr='runtime', minimize=True,
                          label='runtime')
+
+
+def build_objective(metric_specs, maximize, minimize,
+                    constraint_specs=None,
+                    penalty_weight=_DEFAULT_BOUND_PENALTY_WEIGHT):
+    """Build a canonical :class:`ObjectiveSpec` from the general metric flags.
+
+    This is the counterpart to :func:`expand_objective` for the general
+    ``--metric`` / ``--maximize`` / ``--minimize NAME`` / ``--constraint``
+    interface. Metric definitions are parsed and validated with the shared
+    ``metrics`` module, a single objective and direction are resolved, and
+    constraint values are unit-normalized against the referenced metric.
+
+    Args:
+        metric_specs: List of ``NAME=SOURCE`` metric definitions, or None.
+        maximize: Name of the metric to maximize, or None.
+        minimize: Name of the metric to minimize, or None.
+        constraint_specs: List of ``'NAME OP VALUE'`` constraints, or None.
+        penalty_weight: Weight for the constraint-violation penalty.
+
+    Returns:
+        ObjectiveSpec: The canonical objective, with :attr:`metric_map`
+        populated by the parsed metrics.
+
+    Raises:
+        ValueError: If no objective, more than one objective, a duplicate
+            metric, or a reference to an undefined metric is detected.
+        metrics.MetricSpecError: If a metric or constraint spelling is invalid.
+    """
+    metric_specs = metric_specs or []
+    constraint_specs = constraint_specs or []
+
+    # Parse metric definitions into a name -> Metric map.
+    metric_map = {}
+    for spec_text in metric_specs:
+        metric = metrics.parse_metric_spec(spec_text)
+        if metric.name in metric_map:
+            raise ValueError(
+                f"metric '{metric.name}' is defined more than once")
+        metric_map[metric.name] = metric
+
+    # Names that may be referenced: user metrics plus reserved/immutable names.
+    known_names = (set(metric_map) | set(metrics.RESERVED_UNITS)
+                   | set(metrics.IMMUTABLE_METRICS))
+
+    # Validate derived-metric references now that all names are known.
+    for metric in metric_map.values():
+        for ref in metric.references():
+            if ref not in known_names:
+                raise ValueError(
+                    f"metric '{metric.name}' references undefined metric "
+                    f"'{ref}'")
+
+    # Resolve exactly one objective and its direction.
+    if maximize is not None and minimize is not None:
+        raise ValueError(
+            '--maximize and --minimize NAME are mutually exclusive')
+    if maximize is not None:
+        objective_name, minimize_flag = maximize, False
+    elif minimize is not None:
+        objective_name, minimize_flag = minimize, True
+    else:
+        # No objective given: default to minimizing wall-clock runtime.
+        objective_name, minimize_flag = 'time', True
+    if objective_name not in known_names:
+        raise ValueError(
+            f"objective metric '{objective_name}' is not defined")
+
+    # Unit table for constraint parsing: reserved canonical units overlaid with
+    # the units of any user-defined metrics of the same name.
+    metric_units = dict(metrics.RESERVED_UNITS)
+    for name, metric in metric_map.items():
+        metric_units[name] = metric.unit
+
+    constraints = [metrics.parse_constraint_spec(text, metric_units)
+                   for text in constraint_specs]
+
+    # The scalarized objective expression: a derived metric expands to its
+    # expression, any other metric evaluates to its own name.
+    objective_metric = metric_map.get(objective_name)
+    if isinstance(getattr(objective_metric, 'provider', None),
+                  metrics.ExprProvider):
+        objective_expr = objective_metric.provider.expression
+    else:
+        objective_expr = objective_name
+
+    needs_session = any(m.needs_session for m in metric_map.values())
+    requires_fom = any(isinstance(m.provider, metrics.RegexProvider)
+                       for m in metric_map.values())
+
+    return ObjectiveSpec(
+        objective_expr=objective_expr,
+        minimize=minimize_flag,
+        label=objective_name,
+        needs_session=needs_session,
+        requires_fom=requires_fom,
+        constraints=constraints,
+        penalty_weight=penalty_weight,
+        metric_map=metric_map,
+    )
+
+
+def _objective_fom_regex(spec):
+    """Return the regex pattern that supplies the scraped figure of merit.
+
+    The current evaluator scrapes a single figure of merit from stdout. When
+    the general ``--metric`` flags define a regex-backed metric, its pattern
+    drives that scrape.
+
+    Args:
+        spec: The :class:`ObjectiveSpec` produced by :func:`build_objective`.
+
+    Returns:
+        The regex pattern string, or None when no regex metric is defined.
+    """
+    for metric in spec.metric_map.values():
+        if isinstance(metric.provider, metrics.RegexProvider):
+            return metric.provider.pattern
+    return None
 
 
 @dataclass
@@ -985,8 +1107,45 @@ def get_parser():
 
     parser.add_argument(
         '--minimize',
-        action='store_true',
-        help='Minimize the metric (default is to maximize)'
+        nargs='?',
+        const=True,
+        default=None,
+        metavar='NAME',
+        help='Without an argument, minimize the legacy --metric-regex figure '
+             'of merit (default is to maximize). With a metric NAME, select '
+             'that --metric as the objective to minimize (mutually exclusive '
+             'with --maximize).'
+    )
+
+    parser.add_argument(
+        '--metric',
+        action='append',
+        default=None,
+        dest='metric',
+        metavar='NAME=SOURCE',
+        help="Define a named metric NAME=SOURCE, where SOURCE is one of "
+             "regex:'PATTERN', signal:SIGNAL@DOMAIN[:AGG], or "
+             "expr:'EXPRESSION'. Repeatable; use with --maximize/--minimize "
+             "NAME and --constraint."
+    )
+
+    parser.add_argument(
+        '--maximize',
+        default=None,
+        metavar='NAME',
+        help='Name of the --metric to maximize as the objective (mutually '
+             'exclusive with --minimize NAME).'
+    )
+
+    parser.add_argument(
+        '--constraint',
+        action='append',
+        default=None,
+        dest='constraint',
+        metavar='NAME OP VALUE',
+        help="Add a feasibility constraint 'NAME OP VALUE', with OP one of "
+             "<=, >=, <, >, ==; VALUE may carry a unit suffix (e.g. 250W, "
+             "5000J). Repeatable."
     )
 
     parser.add_argument(
@@ -1129,14 +1288,36 @@ def main():
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
 
-        spec = expand_objective(
-            args.metric_regex, args.efficiency_domain, args.metric_bound,
-            args.minimize)
+        # The general --metric interface and the legacy --metric-regex
+        # interface are mutually exclusive on a single invocation.
+        minimize_name = args.minimize if isinstance(args.minimize, str) else None
+        legacy_minimize = args.minimize is True
+        uses_general = bool(args.metric or args.maximize is not None
+                            or args.constraint or minimize_name is not None)
+        uses_legacy = bool(args.metric_regex is not None
+                           or args.efficiency_domain is not None
+                           or args.metric_bound is not None
+                           or legacy_minimize)
+        if uses_general and uses_legacy:
+            raise ValueError(
+                'the general --metric/--maximize/--minimize NAME/--constraint '
+                'flags cannot be combined with the legacy --metric-regex/'
+                '--efficiency/--metric-bound/--minimize flags')
+
+        if uses_general:
+            spec = build_objective(
+                args.metric, args.maximize, minimize_name, args.constraint)
+            metric_regex = _objective_fom_regex(spec)
+        else:
+            spec = expand_objective(
+                args.metric_regex, args.efficiency_domain, args.metric_bound,
+                legacy_minimize)
+            metric_regex = args.metric_regex
 
         # Create application evaluator
         evaluator = ApplicationEvaluator(
             launch_command=launch_command,
-            metric_regex=args.metric_regex,
+            metric_regex=metric_regex,
             timeout=args.application_timeout,
             print_stdout=args.print_stdout,
             needs_session=spec.needs_session,
