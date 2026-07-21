@@ -10,7 +10,9 @@ Synopsis
                     [--sweep DIM]
                     [--list-controls]
                     [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
-                    [--metric-regex METRIC_REGEX] [--minimize]
+                    [--metric-regex METRIC_REGEX] [--minimize [NAME]]
+                    [--metric NAME=SOURCE] [--maximize NAME]
+                    [--constraint 'NAME OP VALUE'] [--list-metrics]
                     [--random-seed RANDOM_SEED]
                     [--application-timeout APPLICATION_TIMEOUT]
                     [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
@@ -25,6 +27,14 @@ List available controls
 .. code-block:: bash
 
     geopmopt --list-controls
+
+List available metrics
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    geopmopt --list-metrics \
+             --metric power=signal:CPU_POWER@board:mean
 
 Optimize CPU frequency for performance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +106,11 @@ The optimizer works by:
    runtime, or to total energy over the ``--efficiency`` domain when that option
    is also given.
 
+Beyond the single-metric ``--metric-regex`` workflow, the general objective
+interface (``--metric``, ``--maximize``/``--minimize NAME``, and
+``--constraint``) composes an objective from several named metrics and adds
+feasibility constraints; see `Objective and Constraint Grammar`_.
+
 The tool requires the ``scikit-optimize`` package for Bayesian optimization
 functionality: ``python3 -m pip install scikit-optimize``
 
@@ -161,12 +176,16 @@ Optimization Configuration
     runtime, or to total energy over the ``--efficiency`` domain when that option
     is also provided.
 
---minimize  .. _minimize option:
+--minimize [NAME]  .. _minimize option:
 
-    Minimize the extracted metric instead of maximizing it. Useful for
-    optimizing energy consumption, execution time, or error rates. When
+    Without an argument, minimize the legacy ``--metric-regex`` figure of merit
+    instead of maximizing it (useful for execution time or error rates). When
     ``--metric-regex`` is omitted the objective (runtime or energy) is always
     minimized regardless of this flag.
+
+    With a metric ``NAME`` (part of the general objective interface described
+    below), select that ``--metric`` as the objective to minimize. This form is
+    mutually exclusive with ``--maximize`` and with the bare legacy usage.
 
 --random-seed RANDOM_SEED  .. _random-seed option:
 
@@ -224,6 +243,49 @@ Optimization Configuration
 
     Fatal errors (command not found, permission denied, configuration or report
     parsing errors) always abort the run regardless of this setting.
+
+General Objective Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These options provide a composable alternative to the legacy
+``--metric-regex``/``--efficiency``/``--metric-bound`` flags: name any number of
+metrics, pick one to optimize, and add feasibility constraints. The legacy flags
+remain supported as documented aliases (see `Objective and Constraint
+Grammar`_), but may not be combined with the general flags on a single
+invocation.
+
+--metric NAME=SOURCE  .. _metric option:
+
+    Define a named metric. ``NAME`` is an identifier matching
+    ``[A-Za-z_][A-Za-z0-9_]*``, referenced verbatim by
+    ``--maximize``/``--minimize``/``--constraint``. ``SOURCE`` is one of the
+    providers ``regex:'PATTERN'``, ``signal:SIGNAL@DOMAIN[:AGG]``, or
+    ``expr:'EXPRESSION'``. Repeatable. See `Objective and Constraint Grammar`_
+    for the provider grammar, the reserved metric names, and the
+    behavior-derived default aggregation.
+
+--maximize NAME  .. _maximize option:
+
+    Select the ``--metric`` named ``NAME`` as the objective to maximize.
+    Mutually exclusive with ``--minimize NAME``. Naming an undefined metric is
+    an error.
+
+--constraint 'NAME OP VALUE'  .. _constraint option:
+
+    Add a feasibility constraint. ``OP`` is one of ``<=``, ``>=``, ``<``,
+    ``>``, ``==``. ``VALUE`` may carry a unit suffix that is normalized to the
+    metric's canonical unit (for example ``250W`` or ``0.25kW`` for power,
+    ``5000J`` for energy); a bare number is taken to already be in canonical
+    units. ``NAME`` must be a defined or reserved metric. Repeatable;
+    infeasible configurations are excluded from best-configuration selection.
+
+--list-metrics  .. _list-metrics option:
+
+    Print the reserved canonical metrics with their units, followed by each
+    ``signal:`` metric defined via ``--metric`` with its behavior and default
+    aggregation, then exit. Signals unavailable on the current platform (for
+    example GPU signals on a GPU-less node) are shown as ``n/a``. This is the
+    objective-side analogue of ``--list-controls``.
 
 Output and Logging
 ~~~~~~~~~~~~~~~~~~
@@ -469,6 +531,50 @@ Optimize across all available control dimensions:
               --random-seed 123 \
               -- ./comprehensive_benchmark
 
+Metric and constraint optimization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the general objective interface to maximize a scraped figure of merit while
+holding measured power and energy within bounds. Define named metrics, pick one
+to maximize, and add one ``--constraint`` per bound:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep cpu-freq@board --sweep cpu-power@board \
+              --metric fom=regex:'GFLOPS: ([0-9.]+)' \
+              --metric power=signal:CPU_POWER@board:mean \
+              --metric energy=signal:CPU_ENERGY@board:delta \
+              --maximize fom \
+              --constraint 'power <= 250' \
+              --constraint 'energy <= 5000' \
+              -- ./app
+
+The ``signal:`` metrics are sampled with ``geopmsession`` around each trial, so
+the run automatically uses the session-wrapped execution path. Configurations
+that exceed 250 W or 5000 J are treated as infeasible, and the reported best
+configuration is the feasible one with the largest ``fom``.
+
+Discover available metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Print the reserved canonical metrics and the signals referenced by ``--metric``,
+each with its behavior and default aggregation, then exit:
+
+.. code-block:: shell-session
+
+   $ geopmopt --list-metrics \
+              --metric power=signal:CPU_POWER@board:mean \
+              --metric energy=signal:CPU_ENERGY@board
+   METRIC      UNIT
+   time        s
+   energy      J
+   power       W
+   fom         arb
+
+   SIGNAL                  DOMAIN    BEHAVIOR    AGGREGATION
+   CPU_POWER               board     variable    mean
+   CPU_ENERGY              board     monotone    delta
+
 
 Metric Extraction
 -----------------
@@ -491,6 +597,145 @@ Valid regex examples:
 
 The extracted value is automatically converted to a floating-point number
 for optimization.
+
+
+Objective and Constraint Grammar
+--------------------------------
+
+The general objective interface (``--metric``, ``--maximize``,
+``--minimize NAME``, ``--constraint``, and ``--list-metrics``) composes a single
+scalar objective from named metrics and optional feasibility constraints. It is
+the objective-side analogue of the ``--sweep`` search-space grammar, and it
+subsumes the legacy ``--metric-regex``/``--efficiency``/``--metric-bound`` flags,
+which are retained as documented aliases (see `Legacy flag aliases`_). The two
+interfaces may not be combined on a single invocation.
+
+Named metrics
+~~~~~~~~~~~~~~
+
+Each ``--metric NAME=SOURCE`` defines one metric. ``NAME`` is an identifier
+matching ``[A-Za-z_][A-Za-z0-9_]*`` and is referenced verbatim by
+``--maximize``/``--minimize``/``--constraint``. ``SOURCE`` is one of three
+providers:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 15 30 55
+
+   * - Provider
+     - Grammar
+     - Meaning
+   * - ``regex:``
+     - ``regex:'PATTERN'``
+     - Float scraped from application stdout (capture group 1, or the whole
+       match). The same scraper as ``--metric-regex``.
+   * - ``signal:``
+     - ``signal:SIGNAL@DOMAIN[:AGG]``
+     - A GEOPM signal sampled around the run via ``geopmsession`` and reduced by
+       ``AGG`` (one of ``delta``, ``mean``, ``max``, ``min``). ``AGG`` defaults
+       from the signal behavior (see below).
+   * - ``expr:``
+     - ``expr:'EXPRESSION'``
+     - A derived metric over previously defined metric names, e.g.
+       ``expr:'energy / fom'``. Evaluated by a restricted arithmetic AST
+       evaluator, never ``eval()``.
+
+Reserved metric names
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A small set of canonical names carry a known unit so a constraint spelling is
+unambiguous. They may be referenced by ``--constraint`` and selected as the
+objective without a ``--metric`` definition:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 15 65
+
+   * - Metric
+     - Unit
+     - Meaning
+   * - ``time``
+     - ``s``
+     - Wall-clock/report runtime. Always available; may not be redefined by
+       ``--metric``.
+   * - ``energy``
+     - ``J``
+     - Energy consumed during the run.
+   * - ``power``
+     - ``W``
+     - Average power over the run.
+   * - ``fom``
+     - ``arb``
+     - Figure of merit scraped from stdout (dimensionless).
+
+Default aggregation from signal behavior
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a ``signal:`` metric omits ``:AGG``, the aggregation is derived from the
+signal's reported behavior rather than hard-coded per name. An explicit ``:AGG``
+always overrides this default. Constant and label signals carry no per-trial
+quantity and are rejected.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 20 55
+
+   * - Signal behavior
+     - Default ``AGG``
+     - Example signals
+   * - Monotone (counter that only increases)
+     - ``delta``
+     - ``CPU_ENERGY``, ``TIME``, instruction/clock counters
+   * - Variable (fluctuates up and down)
+     - ``mean``
+     - ``CPU_POWER``, ``CPU_FREQUENCY_STATUS``, temperature
+
+Selecting the objective
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``--maximize NAME`` and ``--minimize NAME`` select exactly one objective metric
+and its direction. Providing both, or naming an undefined metric, is an error.
+When neither is given, the objective defaults to ``minimize time`` (the
+wall-clock fallback).
+
+Constraints
+~~~~~~~~~~~
+
+``--constraint 'NAME OP VALUE'`` (repeatable) adds a feasibility bound. ``OP`` is
+one of ``<=``, ``>=``, ``<``, ``>``, ``==``. ``VALUE`` may carry a unit suffix
+that is normalized to the metric's canonical unit (for example ``250W`` or
+``0.25kW`` for a power metric, ``5000J`` for energy); a bare number is taken to
+already be in canonical units. ``NAME`` must be a defined or reserved metric.
+Constraints are folded into the single scalar objective through a normalized
+penalty so heterogeneous units remain commensurable, and the reported best
+configuration is the feasible one that best optimizes the objective.
+
+Legacy flag aliases
+~~~~~~~~~~~~~~~~~~~~~
+
+The v1 objective flags remain supported and are expanded internally into the
+canonical grammar above; they are mutually exclusive with the general flags on
+one invocation. The canonical spellings below are illustrative (``<power>`` and
+``<energy>`` stand for the domain's power/energy signals):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 45 55
+
+   * - Legacy invocation
+     - Canonical equivalent
+   * - ``--metric-regex P``
+     - ``--metric fom=regex:P --maximize fom``
+   * - ``--metric-regex P --minimize``
+     - ``--metric fom=regex:P --minimize fom``
+   * - (no ``--metric-regex``)
+     - ``--minimize time``
+   * - ``--efficiency D`` (with regex ``P``)
+     - ``--metric fom=regex:P --metric power=signal:<power>@D:mean --metric eff=expr:'fom / power' --maximize eff``
+   * - ``--efficiency D --minimize`` (no regex)
+     - ``--metric energy=signal:<energy>@D:delta --minimize energy``
+   * - ``--metric-bound B`` (+ regex + efficiency)
+     - ``--minimize energy --constraint 'fom >= B'`` (``<=`` when ``--minimize``)
 
 
 Optimization Algorithm
