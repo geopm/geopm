@@ -55,8 +55,7 @@ Optimize multiple CPU parameters with efficiency focus
 
     geopmopt --sweep cpu-freq@board \
              --sweep cpu-power@board \
-             --metric-regex 'Elapsed time: ([0-9.]+)' \
-             --minimize \
+
              --efficiency cpu \
              --trials 30 \
              -- ./mixed_workload.sh
@@ -335,9 +334,12 @@ Examples
 --------
 
 Basic CPU frequency optimization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Optimize CPU frequency for a compute-intensive benchmark:
+Optimize CPU frequency for a compute-intensive benchmark. With no
+``--metric-regex``, ``geopmopt`` minimizes the launch command's wall-clock
+runtime directly, so the benchmark can be run without wrapping it to print a
+figure of merit:
 
 .. code-block:: shell-session
 
@@ -345,10 +347,8 @@ Optimize CPU frequency for a compute-intensive benchmark:
    $ geopmopt --verbosity=2 \
               --sweep cpu-freq@board \
               --sweep uncore-freq@board \
-              --metric-regex 'Elapsed time: ([0-9.]+)' \
-              --minimize \
               --trials 30 \
-              -- bash -c "/usr/bin/time -f'Elapsed time: %e' geopmbench geopmbench.conf |& cat"
+              -- geopmbench geopmbench.conf
    INFO: Starting Bayesian optimization with 30 evaluations...
    INFO: Evaluation 1: coordinate=[22, 1], metric=54.33
    INFO: Evaluation 2: coordinate=[21, 4], metric=49.52
@@ -368,7 +368,8 @@ Optimize CPU frequency for a compute-intensive benchmark:
 Multi-parameter optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Optimize both CPU frequency and power for maximum performance:
+Optimize CPU frequency, uncore frequency, and power together to minimize
+runtime:
 
 .. code-block:: shell-session
 
@@ -377,10 +378,8 @@ Optimize both CPU frequency and power for maximum performance:
               --sweep cpu-freq@board \
               --sweep uncore-freq@board \
               --sweep cpu-power@board \
-              --metric-regex 'Elapsed time: ([0-9.]+)' \
-              --minimize \
               --trials 30 \
-              -- bash -c "/usr/bin/time -f'Elapsed time: %e' geopmbench geopmbench.conf |& cat"
+              -- geopmbench geopmbench.conf
    INFO: Starting Bayesian optimization with 30 evaluations...
    INFO: Evaluation 1: coordinate=[22, 3, 120], metric=51.0
    INFO: Evaluation 2: coordinate=[16, 6, 15], metric=81.11
@@ -475,16 +474,14 @@ Find the most energy-efficient configuration:
               --sweep cpu-freq@board \
               --sweep uncore-freq@board \
               --sweep cpu-power@board \
-              --metric-regex 'Elapsed time: ([0-9.]+)' \
-              --minimize \
               --efficiency cpu \
               --trials 30 \
-              -- bash -c "/usr/bin/time -f'Elapsed time: %e' geopmbench geopmbench.conf |& cat"
+              -- geopmbench geopmbench.conf
 
-The ``--efficiency`` flag automatically measures power consumption and optimizes
-for operations per watt rather than raw performance.  In the above example the
-`--minimize` option is also provided and the reported metric is
-time-to-completion, so this will minimize total energy consumed.
+The ``--efficiency`` flag automatically measures power consumption from a
+``geopmsession`` energy trace.  With no ``--metric-regex`` the objective is the
+total energy consumed over the ``cpu`` domain, so this finds the configuration
+that minimizes total energy.
 
 Debug mode with application output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
