@@ -1003,6 +1003,165 @@ Video Demo: Using ``geopmwrite``
 
 ----
 
+.. _tutorial:optimize-control-settings:
+
+|:dart:| Optimize Control Settings
+----------------------------------
+
+Reading telemetry and writing controls by hand answers the question "what does
+this setting do?"  The :doc:`geopmopt <geopmopt.1>` tool answers the follow-up
+question "which settings are best for *my* application?" automatically.  It uses
+Bayesian optimization to search a grid of GEOPM controls: for each trial it
+applies a candidate configuration to a scoped session (auto-reverted like every
+other control change), runs your application, scores an objective derived from
+the application's output or from measured hardware signals, and uses the result
+to choose the next configuration to try.  When the search finishes it prints the
+best configuration in ``geopmwrite`` format so you can apply or save it.
+
+``geopmopt`` builds on ``scikit-optimize``, so install it first:
+
+.. code-block:: bash
+
+    $ python3 -m pip install scikit-optimize
+
+Inspecting the Search Space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before optimizing, list the controls that can be swept and, for signal-based
+objectives, the metrics that can be measured:
+
+.. code-block:: bash
+
+    # Controls available as --sweep dimensions, with their detected ranges
+    $ geopmopt --list-controls
+
+    # Reserved metrics plus any signals referenced by --metric
+    $ geopmopt --list-metrics --metric power=signal:CPU_POWER@board:mean
+
+Each ``--sweep`` dimension uses the ``CONTROL[@DOMAIN][=MIN:MAX:STEP]`` grammar
+shared with :doc:`geopmgrid <geopmgrid.1>`, so ``cpu-freq@board`` sweeps the CPU
+frequency cap over the whole board and ``cpu-freq@board=1.2GHz:3GHz:100MHz``
+narrows the range explored.
+
+Minimizing Runtime
+~~~~~~~~~~~~~~~~~~~
+
+The simplest run sweeps a single control and optimizes wall-clock runtime.  With
+no ``--metric-regex`` the objective is the launch command's total runtime, so
+the application does not need to print anything:
+
+.. code-block:: bash
+
+    $ echo '{"loop-count": 300,"region": ["dgemm"],"big-o": [0.1]}' > geopmbench.conf
+    $ geopmopt --verbosity=2 \
+               --sweep cpu-freq@board \
+               --trials 30 \
+               -- geopmbench geopmbench.conf
+    ...
+    INFO: Optimization completed!
+    INFO: Best metric: 45.81
+    Best configuration:
+    CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
+
+Higher ``--trials`` counts explore more configurations at the cost of more
+application runs; start with 20-30 to validate the setup.
+
+Tuning Several Controls and Saving the Result
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pass ``--sweep`` more than once to tune several controls jointly, and use
+``--output-file`` to save the winning configuration for reuse:
+
+.. code-block:: bash
+
+    $ geopmopt --sweep cpu-freq@board \
+               --sweep uncore-freq@board \
+               --sweep cpu-power@board \
+               --trials 30 \
+               --output-file best_config.txt \
+               -- geopmbench geopmbench.conf
+
+    # Apply the saved configuration to the current session later
+    $ geopmwrite -f best_config.txt
+
+Because the configuration is plain ``geopmwrite`` text, it can also be applied
+through ``geopmlaunch --geopm-init-control`` for a whole job.
+
+Optimizing an Application Figure of Merit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the application prints a figure of merit, scrape it with a capturing
+regular expression.  The scraped value is maximized by default; add
+``--minimize`` for a quantity that should be smaller, such as a reported time:
+
+.. code-block:: bash
+
+    # Maximize a throughput the application prints
+    $ geopmopt --sweep cpu-freq@board --sweep uncore-freq@board \
+               --metric-regex 'GFLOPS: ([0-9.]+)' \
+               --trials 30 \
+               -- ./dgemm_bench.sh
+
+    # Minimize a runtime the application prints
+    $ geopmopt --sweep cpu-freq@package \
+               --metric-regex 'Runtime: ([0-9.]+) seconds' \
+               --minimize \
+               --trials 40 \
+               -- ./timed_benchmark
+
+Optimizing for Energy and Efficiency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add ``--efficiency DOMAIN`` to bring measured power into the objective from a
+``geopmsession`` energy trace.  With a ``--metric-regex`` the objective becomes
+the figure of merit per watt; with no regex it becomes total energy over the
+domain:
+
+.. code-block:: bash
+
+    # Maximize performance per watt over the cpu domain
+    $ geopmopt --sweep cpu-freq@board --sweep uncore-freq@board \
+               --metric-regex 'Throughput: ([0-9.]+)' \
+               --efficiency cpu \
+               --trials 30 \
+               -- ./throughput_app
+
+    # Minimize total cpu energy (no figure of merit needed)
+    $ geopmopt --sweep cpu-freq@package --sweep uncore-freq@package \
+               --efficiency cpu \
+               --trials 40 \
+               -- ./compute_kernel
+
+Composing Objectives with Constraints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For finer control, the general objective interface names any number of metrics,
+selects one to optimize with ``--maximize``/``--minimize NAME``, and adds
+feasibility ``--constraint`` bounds.  Metrics come from three providers:
+``regex:`` (scraped from stdout), ``signal:`` (a GEOPM signal sampled with
+``geopmsession``), and ``expr:`` (arithmetic over previously named metrics).
+This maximizes a scraped figure of merit while holding measured CPU power and
+energy within bounds:
+
+.. code-block:: bash
+
+    $ geopmopt --sweep cpu-freq@board --sweep cpu-power@board \
+               --metric fom=regex:'GFLOPS: ([0-9.]+)' \
+               --metric power=signal:CPU_POWER@board:mean \
+               --metric energy=signal:CPU_ENERGY@board:delta \
+               --maximize fom \
+               --constraint 'power <= 250W' \
+               --constraint 'energy <= 5000J' \
+               -- ./app
+
+Configurations that violate a constraint are treated as infeasible, and the best
+*feasible* configuration is reported.  Use ``--list-metrics`` to confirm a signal
+is available and how it will be aggregated before committing to a long run.  The
+full option list, provider grammar, and legacy-flag equivalences are documented
+in :doc:`geopmopt(1) <geopmopt.1>`.
+
+----
+
 .. _tutorial:measure-performance:
 
 |:straight_ruler:| Measure Performance
