@@ -175,7 +175,7 @@ def expand_objective(metric_regex, efficiency_domain, metric_bound, minimize,
 
 
 def build_objective(metric_specs, maximize, minimize,
-                    constraint_specs=None,
+                    constraint_specs=None, energy_domain=None,
                     penalty_weight=_DEFAULT_BOUND_PENALTY_WEIGHT):
     """Build a canonical :class:`ObjectiveSpec` from the general metric flags.
 
@@ -190,6 +190,9 @@ def build_objective(metric_specs, maximize, minimize,
         maximize: Name of the metric to maximize, or None.
         minimize: Name of the metric to minimize, or None.
         constraint_specs: List of ``'NAME OP VALUE'`` constraints, or None.
+        energy_domain: Domain (``board``/``cpu``/``gpu``) over which to sample
+            energy/power so the reserved ``power``/``energy`` metrics are
+            available on the general interface, or None.
         penalty_weight: Weight for the constraint-violation penalty.
 
     Returns:
@@ -217,28 +220,35 @@ def build_objective(metric_specs, maximize, minimize,
     requires_fom = any(isinstance(m.provider, metrics.RegexProvider)
                        for m in metric_map.values())
 
+    # An explicit --energy-domain enables session energy sampling on the
+    # general interface, which populates the reserved ``power`` and ``energy``
+    # metrics from the run's report (mirroring the legacy --efficiency path).
+    if energy_domain is not None:
+        needs_session = True
+
     # Names that will actually be populated in the per-trial evaluation
     # context. Validating references against this set lets an unsatisfiable
     # reference fail here, at parse time, instead of surfacing late as an
     # "undefined metric" during evaluation. Every user metric is evaluated;
     # wall-clock ``time`` is always measured; the legacy ``fom`` alias is
     # populated only when a regex: metric supplies it. Reserved
-    # ``power``/``energy`` are not sampled on the general --metric interface,
-    # so they are referenceable only when the user defines them (in which case
-    # they already appear in ``metric_map``).
+    # ``power``/``energy`` are sampled only when --energy-domain is given;
+    # otherwise they are referenceable only when the user defines them (in
+    # which case they already appear in ``metric_map``).
     available_names = set(metric_map) | set(metrics.IMMUTABLE_METRICS)
     if requires_fom:
         available_names.add('fom')
+    if energy_domain is not None:
+        available_names.update(('power', 'energy'))
 
     def _unavailable(ref):
         """Explain why a reserved name is not measurable here, or None."""
         if ref == 'fom':
             return "'fom' is populated only when a regex: metric is defined"
         if ref in ('power', 'energy'):
-            return (f"'{ref}' is not sampled on the general --metric "
-                    f"interface; define it explicitly, e.g. "
-                    f"{ref}=signal:<SIGNAL>@board:mean, or use the legacy "
-                    f"--efficiency flag")
+            return (f"'{ref}' is not sampled here; pass "
+                    f"--energy-domain <board|cpu|gpu> to measure it, or define "
+                    f"it explicitly, e.g. {ref}=signal:<SIGNAL>@board:mean")
         return None
 
     # Validate derived-metric references against what will be measured.
@@ -307,6 +317,7 @@ def build_objective(metric_specs, maximize, minimize,
         label=objective_name,
         needs_session=needs_session,
         requires_fom=requires_fom,
+        efficiency_domain=energy_domain,
         constraints=constraints,
         penalty_weight=penalty_weight,
         metric_map=metric_map,
@@ -605,8 +616,12 @@ class ApplicationEvaluator:
             logger.debug(f"Extracted metric: {fom}")
 
         # Scrape and evaluate every general --metric (regex/expr) so user names
-        # resolve; there are no session signals on the direct path.
-        metric_values = self._evaluate_metric_map(result.stdout, {})
+        # resolve; there are no session signals on the direct path. Seed the
+        # reserved base metrics available here (fom/time) so derived expr:
+        # metrics can reference them, consistent with objective scoring.
+        base_values = {'fom': fom, 'time': runtime, 'runtime': runtime}
+        metric_values = self._evaluate_metric_map(
+            result.stdout, {}, base_values)
         return TrialResult(fom=fom, runtime=runtime,
                            metric_values=metric_values)
 
@@ -643,7 +658,8 @@ class ApplicationEvaluator:
             raise RecoverableEvaluationError("Session reported non-positive runtime")
         return runtime
 
-    def _evaluate_metric_map(self, stdout: str, signals: dict) -> dict:
+    def _evaluate_metric_map(self, stdout: str, signals: dict,
+                             base_values: dict = None) -> dict:
         """Evaluate the general ``--metric`` definitions for one trial.
 
         Providers are evaluated in dependency order so a derived ``expr:``
@@ -655,14 +671,23 @@ class ApplicationEvaluator:
         Args:
             stdout: Application standard output (for regex providers).
             signals: Mapping of ``(signal, domain)`` to the report stats block.
+            base_values: Reserved base metrics measured for this trial
+                (``fom``/``power``/``energy``/``time``/``runtime``) seeded into
+                the expression context so derived ``expr:`` metrics can
+                reference them, consistent with the objective/constraint
+                context. ``None`` values are ignored.
 
         Returns:
-            dict: Metric name to evaluated value.
+            dict: Metric name to evaluated value, for the user metrics only.
         """
         if not self.metric_map:
             return {}
         context = {'stdout': stdout, 'signals': signals, 'metrics': {}}
         values = context['metrics']
+        if base_values:
+            for name, val in base_values.items():
+                if val is not None:
+                    values[name] = val
         pending = list(self.metric_map.items())
         made_progress = True
         while pending and made_progress:
@@ -687,7 +712,8 @@ class ApplicationEvaluator:
                 values[name] = metric.evaluate(context)
             except metrics.MetricEvaluationError as ex:
                 raise RecoverableEvaluationError(str(ex))
-        return values
+        # Return only the user metrics; reserved base names came from the trial.
+        return {name: values[name] for name in self.metric_map}
 
     def _session_argv(self, signal_path: str, report_path: str) -> List[str]:
         """Build the geopmsession command line that wraps the application."""
@@ -782,13 +808,19 @@ class ApplicationEvaluator:
                         f"session report is missing signal {signal}@{domain}")
                 signals_context[(signal, domain)] = stats
 
-            metric_values = self._evaluate_metric_map(result.stdout, signals_context)
-
             fom = None
             if self.regex is not None:
                 if not result.stdout:
                     raise RecoverableEvaluationError("Application produced no output")
                 fom = self._extract_metric(result.stdout)
+
+            # Seed reserved base metrics so derived expr: metrics can reference
+            # fom/power/energy/time just as the objective and constraints do.
+            base_values = {'fom': fom, 'power': average_power,
+                           'energy': energy, 'time': runtime,
+                           'runtime': runtime}
+            metric_values = self._evaluate_metric_map(
+                result.stdout, signals_context, base_values)
 
             return TrialResult(fom=fom, energy=energy, runtime=runtime,
                                average_power=average_power,
@@ -1389,6 +1421,17 @@ def get_parser():
     )
 
     parser.add_argument(
+        '--energy-domain',
+        default=None,
+        dest='energy_domain',
+        metavar='DOMAIN',
+        help="Sample energy/power over DOMAIN (board, cpu, or gpu) on the "
+             "general --metric interface so the reserved 'power' and 'energy' "
+             "metrics can be used in --maximize/--minimize/--constraint or an "
+             "expr: metric (e.g. --metric eff=expr:'fom / power')."
+    )
+
+    parser.add_argument(
         '--list-metrics',
         action='store_true',
         dest='list_metrics',
@@ -1540,13 +1583,17 @@ def main():
         if (args.efficiency_domain is not None and
             args.efficiency_domain not in ('board', 'gpu', 'cpu')):
             raise ValueError(f'Unsupported domain {args.efficiency_domain}, must be one of "board", "gpu", or "cpu"')
+        if (args.energy_domain is not None and
+            args.energy_domain not in ('board', 'gpu', 'cpu')):
+            raise ValueError(f'Unsupported domain {args.energy_domain}, must be one of "board", "gpu", or "cpu"')
 
         # The general --metric interface and the legacy --metric-regex
         # interface are mutually exclusive on a single invocation.
         minimize_name = args.minimize if isinstance(args.minimize, str) else None
         legacy_minimize = args.minimize is True
         uses_general = bool(args.metric or args.maximize is not None
-                            or args.constraint or minimize_name is not None)
+                            or args.constraint or minimize_name is not None
+                            or args.energy_domain is not None)
         uses_legacy = bool(args.metric_regex is not None
                            or args.efficiency_domain is not None
                            or args.metric_bound is not None
@@ -1559,7 +1606,8 @@ def main():
 
         if uses_general:
             spec = build_objective(
-                args.metric, args.maximize, minimize_name, args.constraint)
+                args.metric, args.maximize, minimize_name, args.constraint,
+                energy_domain=args.energy_domain)
             metric_regex = _objective_fom_regex(spec)
         else:
             spec = expand_objective(
