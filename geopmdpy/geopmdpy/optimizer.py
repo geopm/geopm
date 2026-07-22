@@ -385,6 +385,8 @@ class TrialResult:
         energy: Energy consumed during the run (Joules).
         runtime: Wall-clock or reported runtime of the run (seconds).
         average_power: Mean power over the run (Watts).
+        metric_values: Values of the general ``--metric`` definitions evaluated
+            for this trial, keyed by metric name (empty for the legacy path).
         failed: Whether the trial failed in a recoverable way.
         failure_reason: Human-readable description of a recoverable failure.
     """
@@ -392,6 +394,7 @@ class TrialResult:
     energy: Optional[float] = None
     runtime: Optional[float] = None
     average_power: Optional[float] = None
+    metric_values: Optional[dict] = None
     failed: bool = False
     failure_reason: Optional[str] = None
 
@@ -418,7 +421,8 @@ class ApplicationEvaluator:
                  timeout: int = 300, print_stdout: bool = False,
                  needs_session: bool = False,
                  efficiency_domain: str = None,
-                 sample_period: float = _DEFAULT_SAMPLE_PERIOD):
+                 sample_period: float = _DEFAULT_SAMPLE_PERIOD,
+                 metric_map: dict = None):
         """Initialize the application evaluator.
 
         Args:
@@ -434,6 +438,9 @@ class ApplicationEvaluator:
             efficiency_domain: Domain used to measure energy for session
                 objectives (``board``/``cpu``/``gpu``).
             sample_period: geopmsession sampling period in seconds.
+            metric_map: General ``--metric`` definitions keyed by name. Any
+                ``signal:`` metrics are sampled under geopmsession and their
+                values are returned per trial. Empty for the legacy path.
         """
         self.launch_command = launch_command
         self.metric_regex = metric_regex
@@ -443,7 +450,18 @@ class ApplicationEvaluator:
         self.efficiency_domain = efficiency_domain
         self.sample_period = sample_period
         self.needs_session = needs_session
-        self._energy_signals = None
+        self.metric_map = metric_map or {}
+        # The distinct (signal, domain) pairs any signal: metric requests.
+        self._signal_specs = []
+        seen = set()
+        for metric in self.metric_map.values():
+            provider = metric.provider
+            if isinstance(provider, metrics.SignalProvider):
+                key = (provider.signal, provider.domain)
+                if key not in seen:
+                    seen.add(key)
+                    self._signal_specs.append(key)
+        self._energy_signals = []
         if self.needs_session:
             if yaml is None:
                 raise OptimizationError(
@@ -453,7 +471,10 @@ class ApplicationEvaluator:
                 raise OptimizationError(
                     "geopmsession was not found on PATH; it is required for "
                     "energy-based objectives (--efficiency)")
-            self._energy_signals = energy_signal_names(self.efficiency_domain)
+            # An efficiency objective samples domain energy; a session that is
+            # needed only for user signal: metrics has no efficiency domain.
+            if self.efficiency_domain is not None:
+                self._energy_signals = energy_signal_names(self.efficiency_domain)
 
     def evaluate(self, control_grid: ControlGrid, coordinate: List[int], config_file: str = None) -> 'TrialResult':
         """Evaluate application with given control configuration.
@@ -544,10 +565,83 @@ class ApplicationEvaluator:
         return TrialResult(fom=metric, runtime=runtime)
 
     def _signal_config_str(self) -> str:
-        """Build the geopmsession signal-config for the efficiency domain."""
+        """Build the geopmsession signal-config for the trial.
+
+        Always samples ``TIME``; adds the efficiency-domain energy signals when
+        an efficiency objective is active, and one line per distinct user
+        ``signal:`` metric so each appears under ``report['metrics']``.
+        """
         lines = ['TIME board 0']
-        lines.extend(f'{name} board 0' for name in self._energy_signals)
+        seen = {('TIME', 'board')}
+        for name in self._energy_signals:
+            key = (name, 'board')
+            if key not in seen:
+                seen.add(key)
+                lines.append(f'{name} board 0')
+        for signal, domain in self._signal_specs:
+            key = (signal, domain)
+            if key not in seen:
+                seen.add(key)
+                lines.append(f'{signal} {domain} 0')
         return '\n'.join(lines) + '\n'
+
+    def _report_runtime(self, report: dict) -> float:
+        """Return the run's wall-clock runtime from the session report TIME."""
+        report_metrics = report.get('metrics')
+        if not report_metrics:
+            raise OptimizationError("Session report is missing metrics")
+        if 'TIME' not in report_metrics:
+            raise OptimizationError("Session report is missing the TIME metric")
+        runtime = report_metrics['TIME']['last'] - report_metrics['TIME']['first']
+        if runtime <= 0:
+            raise RecoverableEvaluationError("Session reported non-positive runtime")
+        return runtime
+
+    def _evaluate_metric_map(self, stdout: str, signals: dict) -> dict:
+        """Evaluate the general ``--metric`` definitions for one trial.
+
+        Providers are evaluated in dependency order so a derived ``expr:``
+        metric sees the metrics it references. Regex and signal providers have
+        no metric-map references and are evaluated first; derived metrics follow
+        once their referents are available. A missing metric surfaces as a
+        recoverable trial failure rather than aborting the run.
+
+        Args:
+            stdout: Application standard output (for regex providers).
+            signals: Mapping of ``(signal, domain)`` to the report stats block.
+
+        Returns:
+            dict: Metric name to evaluated value.
+        """
+        if not self.metric_map:
+            return {}
+        context = {'stdout': stdout, 'signals': signals, 'metrics': {}}
+        values = context['metrics']
+        pending = list(self.metric_map.items())
+        made_progress = True
+        while pending and made_progress:
+            made_progress = False
+            still_pending = []
+            for name, metric in pending:
+                unmet = [r for r in metric.references()
+                         if r in self.metric_map and r not in values]
+                if unmet:
+                    still_pending.append((name, metric))
+                    continue
+                try:
+                    values[name] = metric.evaluate(context)
+                except metrics.MetricEvaluationError as ex:
+                    raise RecoverableEvaluationError(str(ex))
+                made_progress = True
+            pending = still_pending
+        # Any metric still pending references an unavailable name; evaluate it to
+        # surface the precise error as a recoverable failure.
+        for name, metric in pending:
+            try:
+                values[name] = metric.evaluate(context)
+            except metrics.MetricEvaluationError as ex:
+                raise RecoverableEvaluationError(str(ex))
+        return values
 
     def _session_argv(self, signal_path: str, report_path: str) -> List[str]:
         """Build the geopmsession command line that wraps the application."""
@@ -625,7 +719,24 @@ class ApplicationEvaluator:
                 logger.info(f"Application stdout: \n{result.stdout}\n")
 
             report = self._load_report(report_path)
-            energy, runtime, average_power = self._compute_energy_metrics(report)
+            if self._energy_signals:
+                energy, runtime, average_power = self._compute_energy_metrics(report)
+            else:
+                runtime = self._report_runtime(report)
+                energy = None
+                average_power = None
+
+            # Sample any user signal: metrics from the report stats blocks.
+            signals_context = {}
+            report_metrics = report.get('metrics') or {}
+            for signal, domain in self._signal_specs:
+                stats = report_metrics.get(signal)
+                if stats is None:
+                    raise RecoverableEvaluationError(
+                        f"session report is missing signal {signal}@{domain}")
+                signals_context[(signal, domain)] = stats
+
+            metric_values = self._evaluate_metric_map(result.stdout, signals_context)
 
             fom = None
             if self.regex is not None:
@@ -634,7 +745,8 @@ class ApplicationEvaluator:
                 fom = self._extract_metric(result.stdout)
 
             return TrialResult(fom=fom, energy=energy, runtime=runtime,
-                               average_power=average_power)
+                               average_power=average_power,
+                               metric_values=metric_values)
         finally:
             for path in (signal_path, report_path):
                 try:
@@ -858,6 +970,11 @@ class BayesianOptimizer:
             values['time'] = trial.runtime
         if trial.average_power is not None:
             values['power'] = trial.average_power
+        # General --metric definitions (regex/signal/expr) evaluate to their own
+        # names; overlay them so the objective and constraints can reference
+        # them. A user metric may intentionally shadow a reserved name.
+        if trial.metric_values:
+            values.update(trial.metric_values)
         return values
 
     def _score_trial(self, trial: TrialResult):
@@ -1412,7 +1529,8 @@ def main():
             print_stdout=args.print_stdout,
             needs_session=spec.needs_session,
             efficiency_domain=spec.efficiency_domain,
-            sample_period=args.sample_period
+            sample_period=args.sample_period,
+            metric_map=spec.metric_map
         )
         # Create and run optimizer
         config_file = None
