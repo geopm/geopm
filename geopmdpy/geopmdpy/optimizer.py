@@ -352,6 +352,16 @@ _BEHAVIOR_NAMES = {
 }
 
 
+#: Availability note for each reserved metric, shown by --list-metrics so a
+#: reader knows the mode in which a reference actually resolves.
+_RESERVED_AVAILABILITY = {
+    'time': 'always measured',
+    'energy': 'needs --energy-domain (or --efficiency), or a signal: metric',
+    'power': 'needs --energy-domain (or --efficiency), or a signal: metric',
+    'fom': 'needs a regex: metric (or --metric-regex)',
+}
+
+
 def _signal_behavior_aggregation(provider):
     """Resolve the behavior name and default aggregation for a signal metric.
 
@@ -382,8 +392,8 @@ def list_metrics_str(metric_specs=None):
     """Render the reserved metrics and referenced signals for ``--list-metrics``.
 
     The listing is the objective-side analogue of ``--list-controls``: it names
-    the reserved canonical metrics (with units) that any objective or constraint
-    may reference, followed by each ``signal:`` metric defined via ``--metric``
+    the reserved canonical metrics (with units and the mode in which each
+    resolves), followed by each ``signal:`` metric defined via ``--metric``
     with its native behavior and default aggregation. Signals that cannot be
     resolved on the platform render as ``n/a`` so a single missing signal does
     not abort the listing.
@@ -394,9 +404,10 @@ def list_metrics_str(metric_specs=None):
     Returns:
         str: A multi-line, fixed-width listing suitable for printing.
     """
-    lines = [f"{'METRIC':<12}{'UNIT':<6}"]
+    lines = [f"{'METRIC':<12}{'UNIT':<6}{'AVAILABILITY'}"]
     for name, unit in metrics.RESERVED_UNITS.items():
-        lines.append(f"{name:<12}{unit:<6}")
+        note = _RESERVED_AVAILABILITY.get(name, '')
+        lines.append(f"{name:<12}{unit:<6}{note}")
 
     signal_metrics = []
     for spec_text in (metric_specs or []):
@@ -1415,9 +1426,10 @@ def get_parser():
         default=None,
         dest='constraint',
         metavar='NAME OP VALUE',
-        help="Add a feasibility constraint 'NAME OP VALUE', with OP one of "
-             "<=, >=, <, >, ==; VALUE may carry a unit suffix (e.g. 250W, "
-             "5000J). Repeatable."
+        help="Add a feasibility constraint as a single quoted argument "
+             "'NAME OP VALUE', with OP one of <=, >=, <, >, ==; VALUE may "
+             "carry a unit suffix (e.g. --constraint 'power <= 250W' or "
+             "--constraint 'energy <= 5000J'). Repeatable."
     )
 
     parser.add_argument(

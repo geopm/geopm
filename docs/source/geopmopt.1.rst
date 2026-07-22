@@ -12,7 +12,8 @@ Synopsis
                     [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
                     [--metric-regex METRIC_REGEX] [--minimize [NAME]]
                     [--metric NAME=SOURCE] [--maximize NAME]
-                    [--constraint 'NAME OP VALUE'] [--list-metrics]
+                    [--constraint 'NAME OP VALUE'] [--energy-domain DOMAIN]
+                    [--list-metrics]
                     [--random-seed RANDOM_SEED]
                     [--application-timeout APPLICATION_TIMEOUT]
                     [--output-file OUTPUT_FILE] [--verbosity {0,1,2,3}]
@@ -287,13 +288,27 @@ invocation.
     units. ``NAME`` must be a defined or reserved metric. Repeatable;
     infeasible configurations are excluded from best-configuration selection.
 
+--energy-domain DOMAIN  .. _energy-domain option:
+
+    Sample energy and average power over ``DOMAIN`` (``board``, ``cpu``, or
+    ``gpu``) with ``geopmsession`` so the reserved ``power`` and ``energy``
+    metrics are populated on the general interface. This is the general-flag
+    counterpart to the legacy ``--efficiency`` and is required before ``power``
+    or ``energy`` may be named by ``--maximize``/``--minimize``/``--constraint``
+    or referenced by an ``expr:`` metric (for example ``eff=expr:'fom /
+    power'``); otherwise those references fail at parse time with a message
+    naming the metric. Alternatively, define the quantity explicitly as a
+    ``signal:`` metric (for example ``power=signal:CPU_POWER@board:mean``) and
+    omit this flag.
+
 --list-metrics  .. _list-metrics option:
 
-    Print the reserved canonical metrics with their units, followed by each
-    ``signal:`` metric defined via ``--metric`` with its behavior and default
-    aggregation, then exit. Signals unavailable on the current platform (for
-    example GPU signals on a GPU-less node) are shown as ``n/a``. This is the
-    objective-side analogue of ``--list-controls``.
+    Print the reserved canonical metrics with their units and the mode in which
+    each becomes available, followed by each ``signal:`` metric defined via
+    ``--metric`` with its behavior and default aggregation, then exit. Signals
+    unavailable on the current platform (for example GPU signals on a GPU-less
+    node) are shown as ``n/a``. This is the objective-side analogue of
+    ``--list-controls``.
 
 Output and Logging
 ~~~~~~~~~~~~~~~~~~
@@ -505,25 +520,50 @@ the ``--efficiency`` shorthand:
               --maximize eff \
               -- ./app
 
+Optimize tokens per watt with an SLA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Selecting a sampling domain with ``--energy-domain`` populates the reserved
+``power`` metric, so no separate ``signal:`` definition is needed. Here
+throughput per watt is maximized while a tail-latency service-level objective is
+enforced directly by the optimizer, so no client-side latency filtering is
+required:
+
+.. code-block:: shell-session
+
+   $ geopmopt --sweep gpu-freq@gpu \
+              --energy-domain board \
+              --metric tps=regex:'tokens_per_second: ([0-9.]+)' \
+              --metric p99=regex:'p99_latency_ms: ([0-9.]+)' \
+              --metric tpw=expr:'tps / power' \
+              --maximize tpw \
+              --constraint 'p99 <= 2000' \
+              -- ./serve_bench.sh
+
+Because ``--energy-domain board`` is set, ``power`` is measured from the
+``geopmsession`` report and ``tpw`` resolves to ``tps / power`` per trial;
+configurations whose ``p99`` exceeds the bound are treated as infeasible.
+
 Preview reserved and referenced metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``--list-metrics`` prints the reserved canonical metrics and every ``signal:``
-metric referenced by ``--metric`` -- each with its behavior and default
-aggregation -- then exits without running the application.  Use it to confirm a
-signal is available and how it will be aggregated before launching a long run
-(the objective-side analogue of ``--list-controls``):
+``--list-metrics`` prints the reserved canonical metrics (each annotated with
+the mode in which it becomes available) and every ``signal:`` metric referenced
+by ``--metric`` -- each with its behavior and default aggregation -- then exits
+without running the application.  Use it to confirm a signal is available and
+how it will be aggregated before launching a long run (the objective-side
+analogue of ``--list-controls``):
 
 .. code-block:: shell-session
 
    $ geopmopt --list-metrics \
               --metric power=signal:CPU_POWER@board:mean \
               --metric energy=signal:CPU_ENERGY@board
-   METRIC      UNIT
-   time        s
-   energy      J
-   power       W
-   fom         arb
+   METRIC      UNIT  AVAILABILITY
+   time        s     always measured
+   energy      J     needs --energy-domain (or --efficiency), or a signal: metric
+   power       W     needs --energy-domain (or --efficiency), or a signal: metric
+   fom         arb   needs a regex: metric (or --metric-regex)
 
    SIGNAL                  DOMAIN    BEHAVIOR    AGGREGATION
    CPU_POWER               board     variable    mean
@@ -640,12 +680,25 @@ providers:
        ``expr:'energy / fom'``. Evaluated by a restricted arithmetic AST
        evaluator, never ``eval()``.
 
+.. note::
+
+   The ``@DOMAIN`` of a ``signal:`` metric and the ``--energy-domain`` value are
+   *sampling* domains -- ``board``, ``cpu``, or ``gpu`` -- over which a signal is
+   read and reduced. They are distinct from the *control* (write) domains
+   attached to ``--sweep`` (``package``, ``core``, ``cpu``, ``gpu``,
+   ``gpu_chip``, ...), which select where a control setting is applied; a single
+   invocation may sweep a control on one domain while sampling a metric on
+   another.
+
 Reserved metric names
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 A small set of canonical names carry a known unit so a constraint spelling is
 unambiguous. They may be referenced by ``--constraint`` and selected as the
-objective without a ``--metric`` definition:
+objective without a ``--metric`` definition. Each is populated only in the mode
+noted below; referencing one the current invocation does not measure fails at
+parse time with a message naming the metric and how to enable it (see
+``--energy-domain`` and ``--list-metrics``):
 
 .. list-table::
    :header-rows: 1
@@ -660,13 +713,17 @@ objective without a ``--metric`` definition:
        ``--metric``.
    * - ``energy``
      - ``J``
-     - Energy consumed during the run.
+     - Energy consumed during the run. Populated only with ``--energy-domain``
+       (or legacy ``--efficiency``); otherwise define it as a ``signal:``
+       metric.
    * - ``power``
      - ``W``
-     - Average power over the run.
+     - Average power over the run. Populated only with ``--energy-domain`` (or
+       legacy ``--efficiency``); otherwise define it as a ``signal:`` metric.
    * - ``fom``
      - ``arb``
-     - Figure of merit scraped from stdout (dimensionless).
+     - Figure of merit scraped from stdout (dimensionless). Populated only when
+       a ``regex:`` metric (or legacy ``--metric-regex``) supplies it.
 
 Default aggregation from signal behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

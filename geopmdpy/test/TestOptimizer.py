@@ -1850,6 +1850,15 @@ class TestListMetrics(unittest.TestCase):
         for name, unit in metrics.RESERVED_UNITS.items():
             self.assertRegex(text, rf'{name}\s+{re.escape(unit)}')
 
+    def test_reserved_metrics_annotate_availability(self):
+        """Each reserved metric is annotated with how it becomes available."""
+        text = optimizer.list_metrics_str()
+        self.assertIn('AVAILABILITY', text)
+        self.assertRegex(text, r'time\s+s\s+always')
+        self.assertRegex(text, r'power\s+W\s+.*--energy-domain')
+        self.assertRegex(text, r'energy\s+J\s+.*--energy-domain')
+        self.assertRegex(text, r'fom\s+arb\s+.*regex:')
+
     @patch('geopmdpy.optimizer.metrics.signal_behavior')
     def test_monotone_signal_shows_delta(self, mock_behavior):
         """A referenced monotone signal defaults to the delta aggregation."""
