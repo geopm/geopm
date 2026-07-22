@@ -134,6 +134,57 @@ def skip_unless_cpu_energy():
     return lambda obj: obj
 
 
+def skip_unless_energy_domain(domain):
+    """Class/method decorator: skip when the given ``--energy-domain`` cannot be
+    measured on the platform.
+
+    The general reserved ``power``/``energy`` metrics are sampled through the
+    same domain-to-signal mapping as the legacy ``--efficiency`` path, so a
+    readable :func:`geopmdpy.optimizer.get_energy` for ``domain`` is the
+    precondition for using them.
+    """
+    try:
+        from geopmdpy.optimizer import get_energy
+        get_energy(domain)
+    except Exception:
+        return unittest.skip(
+            f'energy for domain {domain!r} is unreadable; the reserved '
+            'power/energy metrics cannot be measured')
+    return lambda obj: obj
+
+
+def skip_unless_signal_readable(signal_name, domain_name='DOMAIN_BOARD'):
+    """Class/method decorator: skip when ``signal_name`` is unreadable, which a
+    ``signal:`` metric over it requires.
+    """
+    try:
+        from geopmdpy import pio
+        from geopmdpy import topo
+        if signal_name not in pio.signal_names():
+            return unittest.skip(
+                f'{signal_name} is not available from the GEOPM service')
+        pio.read_signal(signal_name, getattr(topo, domain_name), 0)
+    except Exception:
+        return unittest.skip(
+            f'{signal_name} is unreadable; a signal: metric over it cannot be '
+            'measured')
+    return lambda obj: obj
+
+
+def run_optimizer(*args, env=None):
+    """Run ``python -m geopmdpy.optimizer`` with ``args`` and return the
+    :class:`subprocess.CompletedProcess`.
+
+    Unlike the :class:`_GeopmoptHarness` orchestration, this does not raise on a
+    non-zero exit, so it suits the negative tests that assert a parse-time
+    rejection or a quoting error.
+    """
+    cmd = [sys.executable, '-m', 'geopmdpy.optimizer', *args]
+    return subprocess.run(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        universal_newlines=True, env=env)
+
+
 def apps_dir():
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'apps')
 
@@ -222,7 +273,7 @@ def best_cpu_frequency(config_text):
 
 def geopmopt_general_command(output_file, freq_low, freq_high, *, metrics,
                              maximize=None, minimize=None, constraints=None,
-                             trials=6, n_initial_points=3,
+                             energy_domain=None, trials=6, n_initial_points=3,
                              application_timeout=120):
     """Build the ``python -m geopmdpy.optimizer`` argv for the general
     objective interface over the same two-point CPU frequency sweep as
@@ -231,8 +282,10 @@ def geopmopt_general_command(output_file, freq_low, freq_high, *, metrics,
     ``metrics`` is a list of ``NAME=SOURCE`` strings emitted as repeated
     ``--metric`` flags; ``maximize``/``minimize`` name the single objective
     metric; ``constraints`` is a list of ``'NAME OP VALUE'`` strings emitted as
-    repeated ``--constraint`` flags. ``--defer-write`` is omitted so each
-    candidate frequency is applied live with save/restore auto-revert.
+    repeated ``--constraint`` flags; ``energy_domain`` (when set) emits
+    ``--energy-domain`` so the reserved ``power``/``energy`` metrics are
+    sampled. ``--defer-write`` is omitted so each candidate frequency is applied
+    live with save/restore auto-revert.
     """
     step = freq_high - freq_low
     cmd = [sys.executable, '-m', 'geopmdpy.optimizer',
@@ -250,6 +303,8 @@ def geopmopt_general_command(output_file, freq_low, freq_high, *, metrics,
         cmd += ['--minimize', minimize]
     for constraint in (constraints or []):
         cmd += ['--constraint', constraint]
+    if energy_domain is not None:
+        cmd += ['--energy-domain', energy_domain]
     cmd += ['--', probe_command()]
     return cmd
 
