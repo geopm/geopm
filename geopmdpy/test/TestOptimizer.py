@@ -51,6 +51,20 @@ class TestApplicationEvaluator(unittest.TestCase):
         self.assertEqual(evaluator.timeout, 600)
         self.assertTrue(evaluator.print_stdout)
 
+    def test_metric_map_expr_references_seeded_base(self):
+        """A derived expr: metric resolves against the seeded reserved base."""
+        metric_map = {
+            m.name: m for m in (
+                metrics.parse_metric_spec("eff=expr:fom / power"),
+            )
+        }
+        evaluator = optimizer.ApplicationEvaluator(
+            ["app"], needs_session=False, metric_map=metric_map)
+        values = evaluator._evaluate_metric_map(
+            "", {}, {'fom': 100.0, 'power': 50.0})
+        # Only the user metric is returned; the seeded base names are not.
+        self.assertEqual(values, {'eff': 2.0})
+
     def test_compile_regex(self):
         """Test regex compilation."""
         # Test direct regex
@@ -1700,6 +1714,24 @@ class TestBuildObjective(unittest.TestCase):
         message = str(context.exception)
         self.assertIn('eff', message)
         self.assertIn('fom', message)
+
+    def test_energy_domain_enables_power_objective(self):
+        """--energy-domain makes the reserved power/energy metrics measurable."""
+        spec = optimizer.build_objective(
+            ["fom=regex:GFLOPS: ([0-9.]+)", "eff=expr:fom / power"],
+            'eff', None, None, energy_domain='board')
+        self.assertEqual(spec.objective_expr, 'fom / power')
+        self.assertEqual(spec.efficiency_domain, 'board')
+        self.assertTrue(spec.needs_session)
+
+    def test_energy_domain_allows_power_constraint(self):
+        """A power constraint is accepted when --energy-domain is set."""
+        spec = optimizer.build_objective(
+            ["fom=regex:GFLOPS: ([0-9.]+)"], 'fom', None, ['power <= 250'],
+            energy_domain='board')
+        self.assertEqual(spec.constraints[0].name, 'power')
+        self.assertEqual(spec.constraints[0].value, 250.0)
+        self.assertTrue(spec.needs_session)
 
     def test_both_directions_raises(self):
         """Specifying both --maximize and --minimize NAME is an error."""
