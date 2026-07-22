@@ -533,8 +533,11 @@ class ApplicationEvaluator:
     def _evaluate_direct(self) -> 'TrialResult':
         """Run the application directly and measure wall-clock runtime.
 
-        Used for the RAW_METRIC and RUNTIME objectives, which do not need
-        energy measurement.
+        Used for the RAW_METRIC and RUNTIME objectives and for general
+        ``--metric`` objectives that need no session (``regex:``/``expr:``
+        only). Every general metric is evaluated per trial so its user name is
+        available to the objective expression and constraints; the legacy
+        figure of merit remains exposed as ``fom``.
         """
         logger.debug(f"Launching application: {' '.join(self.launch_command)}")
         start = time.monotonic()
@@ -553,16 +556,20 @@ class ApplicationEvaluator:
         if self.print_stdout:
             logger.info(f"Application stdout: \n{result.stdout}\n")
 
-        # Without a metric regex the objective is runtime-based; only the
-        # measured wall-clock time is required.
-        if self.regex is None:
-            return TrialResult(runtime=runtime)
+        # Without a metric regex the objective is runtime-based; the figure of
+        # merit stays unset.
+        fom = None
+        if self.regex is not None:
+            if not result.stdout:
+                raise RecoverableEvaluationError("Application produced no output")
+            fom = self._extract_metric(result.stdout)
+            logger.debug(f"Extracted metric: {fom}")
 
-        if not result.stdout:
-            raise RecoverableEvaluationError("Application produced no output")
-        metric = self._extract_metric(result.stdout)
-        logger.debug(f"Extracted metric: {metric}")
-        return TrialResult(fom=metric, runtime=runtime)
+        # Scrape and evaluate every general --metric (regex/expr) so user names
+        # resolve; there are no session signals on the direct path.
+        metric_values = self._evaluate_metric_map(result.stdout, {})
+        return TrialResult(fom=fom, runtime=runtime,
+                           metric_values=metric_values)
 
     def _signal_config_str(self) -> str:
         """Build the geopmsession signal-config for the trial.
