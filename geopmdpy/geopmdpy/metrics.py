@@ -88,6 +88,11 @@ class MetricEvaluationError(MetricError):
 #: Supported signal aggregations.
 AGGREGATIONS = ('delta', 'mean', 'max', 'min')
 
+#: Sampling domains a ``signal:`` metric may target. These are the coarse
+#: domains the optimizer's geopmsession sampler understands; a signal is read at
+#: index 0 of the named domain and keyed by signal name in the report.
+SIGNAL_DOMAINS = frozenset({'board', 'gpu', 'cpu'})
+
 #: Constraint comparison operators mapped to their boolean implementation.
 OPERATORS: Dict[str, Callable[[float, float], bool]] = {
     '<=': operator.le,
@@ -404,10 +409,37 @@ class SignalProvider(MetricProvider):
     def evaluate(self, context: dict) -> float:
         signals = context.get('signals') or {}
         key = (self.signal, self.domain)
-        if key not in signals:
+        stats = signals.get(key)
+        if stats is None:
             raise MetricEvaluationError(
                 f"no samples for signal {self.signal}@{self.domain}")
-        return reduce_series(self.resolved_aggregation, signals[key])
+        return self._reduce_stats(stats)
+
+    def _reduce_stats(self, stats: dict) -> float:
+        """Map the resolved aggregation onto a geopmsession report stats block.
+
+        The report exposes ``count/first/last/min/max/mean/std`` per signal, so
+        each supported aggregation is a direct field read: ``delta`` is the
+        rollover-corrected ``last - first``, and ``mean``/``max``/``min`` are
+        the corresponding statistics. No raw series is retained.
+        """
+        aggregation = self.resolved_aggregation
+        try:
+            if aggregation == 'delta':
+                return float(stats['last']) - float(stats['first'])
+            if aggregation == 'mean':
+                return float(stats['mean'])
+            if aggregation == 'max':
+                return float(stats['max'])
+            if aggregation == 'min':
+                return float(stats['min'])
+        except (KeyError, TypeError):
+            raise MetricEvaluationError(
+                f"report for signal {self.signal}@{self.domain} is missing the "
+                f"statistic needed for aggregation '{aggregation}'")
+        raise MetricSpecError(
+            f"unknown aggregation '{aggregation}'; use one of "
+            f"{', '.join(AGGREGATIONS)}")
 
 
 class ExprProvider(MetricProvider):
@@ -535,6 +567,12 @@ def parse_metric_spec(spec: str) -> Metric:
     if not source:
         raise MetricSpecError(f"metric '{name}' is missing a source")
     provider, natural_unit = _build_provider(source)
+    if isinstance(provider, SignalProvider) and \
+            provider.domain not in SIGNAL_DOMAINS:
+        raise MetricSpecError(
+            f"metric '{name}' uses unsupported signal domain "
+            f"'{provider.domain}'; use one of "
+            f"{', '.join(sorted(SIGNAL_DOMAINS))}")
     unit = RESERVED_UNITS.get(name, natural_unit)
     return Metric(name=name, provider=provider, unit=unit)
 
