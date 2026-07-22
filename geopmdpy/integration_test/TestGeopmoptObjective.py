@@ -249,5 +249,165 @@ class TestGeopmoptListMetrics(unittest.TestCase):
             msg=f'unexpected CPU_ENERGY row: {energy_row!r}')
 
 
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+@gu.skip_unless_signal_readable('CPU_POWER')
+class TestGeopmoptSignalMetric(_GeopmoptHarness):
+    """A general ``signal:`` metric is sampled and reduced end to end (P0-1).
+
+    Before Phase 1 a ``signal:`` metric on the general interface aborted with
+    ``Unsupported domain None`` because the ``(signal, domain)`` sampling union
+    was never wired to the session sampler.  Here a ``CPU_POWER`` signal metric
+    is combined with the throughput figure of merit into an efficiency
+    expression (``fom / pw``): the run must sample the signal, reduce it,
+    evaluate the derived objective, and select a grid-endpoint frequency.  The
+    efficiency winner is hardware dependent, so this is a completion/selection
+    smoke check.
+    """
+
+    @classmethod
+    def _make_command(cls):
+        return gu.geopmopt_general_command(
+            cls._config_path, cls._freq_low, cls._freq_high,
+            metrics=[f'fom=regex:{_METRIC_REGEX}',
+                     'pw=signal:CPU_POWER@board:mean',
+                     'eff=expr:fom / pw'],
+            maximize='eff')
+
+    def test_completes_and_selects_grid_frequency(self):
+        """The signal-metric efficiency objective completes and selects a grid
+        endpoint, proving the signal was sampled and reduced."""
+        freq = self._best_frequency()
+        self.assertIn(
+            freq, (float(self._freq_low), float(self._freq_high)),
+            msg=(f'the signal-metric efficiency objective selected {freq}, '
+                 f'not a grid endpoint {self._freq_low}/{self._freq_high}'))
+
+
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+@gu.skip_unless_energy_domain('board')
+class TestGeopmoptReservedPowerExpr(_GeopmoptHarness):
+    """``expr:'fom / power'`` resolves once ``--energy-domain`` samples power
+    (P0-2).
+
+    The reserved ``power`` metric is populated only when ``--energy-domain``
+    (or legacy ``--efficiency``) selects a sampling domain.  With
+    ``--energy-domain board`` the derived tokens-per-watt objective must
+    evaluate per trial and the run must select a grid-endpoint frequency.
+    """
+
+    @classmethod
+    def _make_command(cls):
+        return gu.geopmopt_general_command(
+            cls._config_path, cls._freq_low, cls._freq_high,
+            metrics=[f'fom=regex:{_METRIC_REGEX}',
+                     'tpw=expr:fom / power'],
+            maximize='tpw', energy_domain='board')
+
+    def test_completes_and_selects_grid_frequency(self):
+        """The reserved-power efficiency objective completes and selects a grid
+        endpoint, proving ``--energy-domain`` populated ``power``."""
+        freq = self._best_frequency()
+        self.assertIn(
+            freq, (float(self._freq_low), float(self._freq_high)),
+            msg=(f'the reserved-power efficiency objective selected {freq}, '
+                 f'not a grid endpoint {self._freq_low}/{self._freq_high}'))
+
+
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+class TestGeopmoptTwoRegex(_GeopmoptHarness):
+    """Two ``regex:`` metrics round-trip with a ``regex:``-based constraint
+    (P0-3).
+
+    Before the fix only a single regex figure of merit was honored and
+    user-named regex metrics were absent from the evaluation context.  Here two
+    distinct markers are scraped (``fom`` and ``aux``): ``fom`` is maximized
+    while a non-binding ``aux`` constraint is enforced.  Both values must
+    populate, the constraint must be satisfied, and the throughput objective
+    must still select the high-frequency endpoint.
+    """
+
+    @classmethod
+    def _make_command(cls):
+        return gu.geopmopt_general_command(
+            cls._config_path, cls._freq_low, cls._freq_high,
+            metrics=[f'fom=regex:{_METRIC_REGEX}',
+                     r'aux=regex:GEOPMOPT-AUX: ([0-9.]+)'],
+            maximize='fom', constraints=['aux <= 2.0'])
+
+    def test_selects_max_frequency_with_both_metrics(self):
+        """Both regex metrics populate, the aux constraint holds, and the
+        throughput objective selects the maximum grid frequency."""
+        self.assertEqual(
+            self._best_frequency(), float(self._freq_high),
+            msg=('the two-regex objective did not select the maximum grid '
+                 f'frequency {self._freq_high}; both metrics must populate and '
+                 'the aux constraint (aux <= 2.0) must be satisfied'))
+
+
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+class TestGeopmoptParseRejection(unittest.TestCase):
+    """An unmeasured metric reference is rejected before any trial runs (P0-4).
+
+    ``expr:'fom / power'`` without ``--energy-domain`` names ``power``, which is
+    not sampled on the general interface.  geopmopt must fail during objective
+    construction -- before launching a single trial -- with a message that
+    names the offending metric, rather than failing late during evaluation.
+    """
+
+    def test_unmeasured_power_reference_fails_fast(self):
+        proc = gu.run_optimizer(
+            '--sweep', 'cpu-freq@board',
+            '--metric', 'fom=regex:GEOPMOPT-FOM: ([0-9.]+)',
+            '--metric', 'tpw=expr:fom / power',
+            '--maximize', 'tpw',
+            '--trials', '1', '--n-initial-points', '1',
+            '--', gu.probe_command())
+        combined = proc.stdout + proc.stderr
+        self.assertNotEqual(
+            proc.returncode, 0,
+            msg=f'geopmopt accepted an unmeasured power reference:\n{combined}')
+        self.assertIn(
+            'power', combined,
+            msg=f'the error did not name the offending metric:\n{combined}')
+        # A parse/setup-time rejection: no trial ran and no best config emitted.
+        self.assertNotIn(
+            'Best configuration', combined,
+            msg=f'expected a fail-fast rejection, not a completed run:\n{combined}')
+
+
+@gu.skip_unless_skopt()
+@gu.skip_unless_cpu_frequency_control()
+class TestGeopmoptConstraintQuoting(unittest.TestCase):
+    """``--constraint`` requires the single quoted ``'NAME OP VALUE'`` form
+    (P1-1).
+
+    Splitting the constraint across three argv tokens (``--constraint p99 <=
+    2.0``) makes ``--constraint`` capture only ``p99``; the run must error with
+    a message that names the expected ``'NAME OP VALUE'`` form so the quoting
+    requirement is discoverable.
+    """
+
+    def test_three_token_form_errors_with_quoting_hint(self):
+        proc = gu.run_optimizer(
+            '--sweep', 'cpu-freq@board',
+            '--metric', 'fom=regex:GEOPMOPT-FOM: ([0-9.]+)',
+            '--maximize', 'fom',
+            '--constraint', 'p99', '<=', '2.0',
+            '--trials', '1', '--n-initial-points', '1',
+            '--', gu.probe_command())
+        combined = proc.stdout + proc.stderr
+        self.assertNotEqual(
+            proc.returncode, 0,
+            msg=f'the three-token --constraint form was accepted:\n{combined}')
+        self.assertIn(
+            'NAME OP VALUE', combined,
+            msg=('the error did not point at the quoted constraint form:\n'
+                 f'{combined}'))
+
+
 if __name__ == '__main__':
     unittest.main()

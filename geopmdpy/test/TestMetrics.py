@@ -168,8 +168,38 @@ class TestSignalProvider(TestCase):
     def test_evaluate_from_context(self):
         provider = SignalProvider('CPU_ENERGY', 'board',
                                   behavior=BEHAVIOR_MONOTONE)
-        context = {'signals': {('CPU_ENERGY', 'board'): [100.0, 250.0]}}
+        context = {'signals': {('CPU_ENERGY', 'board'):
+                               {'first': 100.0, 'last': 250.0}}}
         self.assertEqual(150.0, provider.evaluate(context))
+
+    def test_evaluate_reduces_report_stats_block(self):
+        """evaluate() maps each aggregation onto a geopmsession report stats
+        block (count/first/last/min/max/mean/std), the shape produced by
+        ``geopmsession --report``.  This is the Phase 1 signal-sampling path:
+        delta is the rollover-corrected ``last - first``; mean/max/min read the
+        matching statistic directly.
+        """
+        stats = {'count': 4, 'first': 100.0, 'last': 260.0,
+                 'min': 90.0, 'max': 275.0, 'mean': 180.0, 'std': 12.0}
+        signals = {('CPU_ENERGY', 'board'): stats}
+        cases = {'delta': 160.0, 'mean': 180.0, 'max': 275.0, 'min': 90.0}
+        for aggregation, expected in cases.items():
+            provider = SignalProvider('CPU_ENERGY', 'board',
+                                      aggregation=aggregation,
+                                      behavior=BEHAVIOR_MONOTONE)
+            self.assertEqual(
+                expected, provider.evaluate({'signals': signals}),
+                msg=f'aggregation {aggregation!r} reduced the stats block '
+                    f'incorrectly')
+
+    def test_evaluate_missing_statistic_recoverable(self):
+        """A stats block missing the field an aggregation needs raises a
+        recoverable evaluation error rather than a hard failure."""
+        provider = SignalProvider('CPU_ENERGY', 'board', aggregation='mean',
+                                  behavior=BEHAVIOR_MONOTONE)
+        signals = {('CPU_ENERGY', 'board'): {'first': 1.0, 'last': 2.0}}
+        with self.assertRaises(MetricEvaluationError):
+            provider.evaluate({'signals': signals})
 
     def test_evaluate_missing_series_recoverable(self):
         provider = SignalProvider('CPU_ENERGY', 'board',
