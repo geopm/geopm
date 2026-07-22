@@ -889,7 +889,7 @@ class TestSessionStrategy(unittest.TestCase):
             evaluator = optimizer.ApplicationEvaluator(
                 ["app"], needs_session=False)
         self.assertFalse(evaluator.needs_session)
-        self.assertIsNone(evaluator._energy_signals)
+        self.assertEqual(evaluator._energy_signals, [])
 
     def test_signal_config_cpu(self):
         """CPU domain emits TIME plus the CPU energy signal."""
@@ -1656,9 +1656,50 @@ class TestBuildObjective(unittest.TestCase):
     def test_expr_objective_expands_to_expression(self):
         """A derived objective metric expands to its expression."""
         spec = optimizer.build_objective(
-            ["fom=regex:GFLOPS: ([0-9.]+)", "eff=expr:fom / power"],
+            ["fom=regex:GFLOPS: ([0-9.]+)",
+             "power=signal:CPU_POWER@board:mean",
+             "eff=expr:fom / power"],
             'eff', None, None)
         self.assertEqual(spec.objective_expr, 'fom / power')
+
+    def test_expr_reference_to_unmeasured_power_raises(self):
+        """A derived metric referencing unsampled power fails at parse time."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["fom=regex:GFLOPS: ([0-9.]+)", "eff=expr:fom / power"],
+                'eff', None, None)
+        message = str(context.exception)
+        self.assertIn('eff', message)
+        self.assertIn('power', message)
+
+    def test_objective_on_unmeasured_power_raises(self):
+        """Selecting unsampled power as the objective fails at parse time."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["fom=regex:GFLOPS: ([0-9.]+)"], 'power', None, None)
+        message = str(context.exception)
+        self.assertIn('objective', message)
+        self.assertIn('power', message)
+
+    def test_constraint_on_unmeasured_power_raises(self):
+        """A constraint on unsampled power fails at parse time."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["fom=regex:GFLOPS: ([0-9.]+)"], 'fom', None,
+                ['power <= 250'])
+        message = str(context.exception)
+        self.assertIn('constraint', message)
+        self.assertIn('power', message)
+
+    def test_fom_reference_without_regex_metric_raises(self):
+        """Referencing fom with no regex: metric fails at parse time."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["power=signal:CPU_POWER@board:mean", "eff=expr:fom / power"],
+                'eff', None, None)
+        message = str(context.exception)
+        self.assertIn('eff', message)
+        self.assertIn('fom', message)
 
     def test_both_directions_raises(self):
         """Specifying both --maximize and --minimize NAME is an error."""

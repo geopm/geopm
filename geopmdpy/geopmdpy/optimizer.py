@@ -213,14 +213,43 @@ def build_objective(metric_specs, maximize, minimize,
                 f"metric '{metric.name}' is defined more than once")
         metric_map[metric.name] = metric
 
-    # Names that may be referenced: user metrics plus reserved/immutable names.
-    known_names = (set(metric_map) | set(metrics.RESERVED_UNITS)
-                   | set(metrics.IMMUTABLE_METRICS))
+    needs_session = any(m.needs_session for m in metric_map.values())
+    requires_fom = any(isinstance(m.provider, metrics.RegexProvider)
+                       for m in metric_map.values())
 
-    # Validate derived-metric references now that all names are known.
+    # Names that will actually be populated in the per-trial evaluation
+    # context. Validating references against this set lets an unsatisfiable
+    # reference fail here, at parse time, instead of surfacing late as an
+    # "undefined metric" during evaluation. Every user metric is evaluated;
+    # wall-clock ``time`` is always measured; the legacy ``fom`` alias is
+    # populated only when a regex: metric supplies it. Reserved
+    # ``power``/``energy`` are not sampled on the general --metric interface,
+    # so they are referenceable only when the user defines them (in which case
+    # they already appear in ``metric_map``).
+    available_names = set(metric_map) | set(metrics.IMMUTABLE_METRICS)
+    if requires_fom:
+        available_names.add('fom')
+
+    def _unavailable(ref):
+        """Explain why a reserved name is not measurable here, or None."""
+        if ref == 'fom':
+            return "'fom' is populated only when a regex: metric is defined"
+        if ref in ('power', 'energy'):
+            return (f"'{ref}' is not sampled on the general --metric "
+                    f"interface; define it explicitly, e.g. "
+                    f"{ref}=signal:<SIGNAL>@board:mean, or use the legacy "
+                    f"--efficiency flag")
+        return None
+
+    # Validate derived-metric references against what will be measured.
     for metric in metric_map.values():
         for ref in metric.references():
-            if ref not in known_names:
+            if ref not in available_names:
+                reason = _unavailable(ref)
+                if reason is not None:
+                    raise ValueError(
+                        f"metric '{metric.name}' cannot be evaluated because "
+                        f"{reason}")
                 raise ValueError(
                     f"metric '{metric.name}' references undefined metric "
                     f"'{ref}'")
@@ -236,7 +265,10 @@ def build_objective(metric_specs, maximize, minimize,
     else:
         # No objective given: default to minimizing wall-clock runtime.
         objective_name, minimize_flag = 'time', True
-    if objective_name not in known_names:
+    if objective_name not in available_names:
+        reason = _unavailable(objective_name)
+        if reason is not None:
+            raise ValueError(f"objective {reason}")
         raise ValueError(
             f"objective metric '{objective_name}' is not defined")
 
@@ -246,8 +278,19 @@ def build_objective(metric_specs, maximize, minimize,
     for name, metric in metric_map.items():
         metric_units[name] = metric.unit
 
-    constraints = [metrics.parse_constraint_spec(text, metric_units)
-                   for text in constraint_specs]
+    # Parse each constraint, then verify its metric is actually measurable in
+    # this mode so an unsatisfiable constraint fails here rather than at
+    # evaluation time.
+    constraints = []
+    for text in constraint_specs:
+        constraint = metrics.parse_constraint_spec(text, metric_units)
+        if constraint.name not in available_names:
+            reason = _unavailable(constraint.name)
+            if reason is not None:
+                raise ValueError(f"constraint {reason}")
+            raise ValueError(
+                f"constraint references undefined metric '{constraint.name}'")
+        constraints.append(constraint)
 
     # The scalarized objective expression: a derived metric expands to its
     # expression, any other metric evaluates to its own name.
@@ -257,10 +300,6 @@ def build_objective(metric_specs, maximize, minimize,
         objective_expr = objective_metric.provider.expression
     else:
         objective_expr = objective_name
-
-    needs_session = any(m.needs_session for m in metric_map.values())
-    requires_fom = any(isinstance(m.provider, metrics.RegexProvider)
-                       for m in metric_map.values())
 
     return ObjectiveSpec(
         objective_expr=objective_expr,
