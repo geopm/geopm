@@ -55,3 +55,8 @@ fi
 fom=$(awk -v it="${iterations}" -v ns="${elapsed_ns}" \
     'BEGIN { printf "%.3f", it * 1.0e9 / ns }')
 echo "GEOPMOPT-FOM: ${fom}"
+
+# A second, constant marker line so a two-regex objective/constraint test can
+# scrape a distinct named metric (GEOPMOPT-AUX) alongside the throughput FoM.
+# Its value is fixed so a feasibility constraint on it is deterministic.
+echo "GEOPMOPT-AUX: 1.0"

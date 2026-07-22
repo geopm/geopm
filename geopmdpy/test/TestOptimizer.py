@@ -65,6 +65,26 @@ class TestApplicationEvaluator(unittest.TestCase):
         # Only the user metric is returned; the seeded base names are not.
         self.assertEqual(values, {'eff': 2.0})
 
+    def test_metric_map_scrapes_multiple_regex(self):
+        """Every regex: metric in the map is scraped from one stdout (P0-3).
+
+        Before the fix only a single regex figure of merit was honored; a
+        two-``regex:`` map must populate both named values from the same
+        application output, and an ``expr:`` over them must resolve.
+        """
+        metric_map = {
+            m.name: m for m in (
+                metrics.parse_metric_spec("tps=regex:GEOPMOPT-TPS:\\s+([0-9.]+)"),
+                metrics.parse_metric_spec("p99=regex:GEOPMOPT-P99:\\s+([0-9.]+)"),
+                metrics.parse_metric_spec("ratio=expr:tps / p99"),
+            )
+        }
+        evaluator = optimizer.ApplicationEvaluator(
+            ["app"], needs_session=False, metric_map=metric_map)
+        stdout = "GEOPMOPT-TPS: 100.0\nGEOPMOPT-P99: 2.0\n"
+        values = evaluator._evaluate_metric_map(stdout, {})
+        self.assertEqual(values, {'tps': 100.0, 'p99': 2.0, 'ratio': 50.0})
+
     def test_compile_regex(self):
         """Test regex compilation."""
         # Test direct regex
