@@ -45,7 +45,7 @@ if [ ! "$GEOPMPY_PKGDIR" ]; then
             echo 1>&2 "         Assuming GEOPMPY_PKGDIR=${GEOPMPY_PKGDIR}."
         fi
     else
-        if ! python -c 'import geopmdpy; import geopmpy' 2>/dev/null; then
+        if ! python3 -c 'import geopmdpy; import geopmpy' 2>/dev/null; then
             echo 1>&2 "Warning: Unable to find python site-packages in $GEOPM_LIB"
         fi
     fi

@@ -631,7 +631,7 @@ customize session behavior. This example shows a simple agent that monitors the
 
 .. code-block:: python
 
-   #!/usr/bin/env python
+   #!/usr/bin/env python3
    # File: cpu_power_agent.py
    from geopmdpy.session import main
    from geopmdpy.session import Agent

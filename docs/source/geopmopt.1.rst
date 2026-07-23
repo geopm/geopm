@@ -481,7 +481,7 @@ Optimize GPU parameters for machine learning workloads:
               --metric-regex "Training speed: ([0-9.]+) samples/sec" \
               --trials 60 \
               --application-timeout 600 \
-              -- python train_model.py
+              -- python3 train_model.py
 
 Complex multi-dimensional optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

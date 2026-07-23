@@ -6,32 +6,32 @@ Synopsis
 
 .. code-block:: bash
 
-    python -m geopmdpy.heatmap_agent [-t TIME] [-p PERIOD] [-o TRACE_OUT]
-                                     [-i CONFIG_PATH] [--heatmap-out PATH]
-                                     [--fom FOM_CSV] [--no-plot]
-                                     [--replot-csv TRACE_CSV]
+    python3 -m geopmdpy.heatmap_agent [-t TIME] [-p PERIOD] [-o TRACE_OUT]
+                                      [-i CONFIG_PATH] [--heatmap-out PATH]
+                                      [--fom FOM_CSV] [--no-plot]
+                                      [--replot-csv TRACE_CSV]
 
 Sample and render (default)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    python -m geopmdpy.heatmap_agent -t 30 --heatmap-out heatmap.png
+    python3 -m geopmdpy.heatmap_agent -t 30 --heatmap-out heatmap.png
 
 Correlate against a figure of merit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    python -m geopmdpy.heatmap_agent -t 60 --heatmap-out hm.png --fom fom.csv
+    python3 -m geopmdpy.heatmap_agent -t 60 --heatmap-out hm.png --fom fom.csv
 
 Re-render a saved trace without sampling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    python -m geopmdpy.heatmap_agent -t 60 -o trace.csv --no-plot
-    python -m geopmdpy.heatmap_agent --replot-csv trace.csv --heatmap-out hm.png
+    python3 -m geopmdpy.heatmap_agent -t 60 -o trace.csv --no-plot
+    python3 -m geopmdpy.heatmap_agent --replot-csv trace.csv --heatmap-out hm.png
 
 
 Description
