@@ -610,6 +610,21 @@ class TestBayesianOptimizer(unittest.TestCase):
         with self.assertRaises(metrics.MetricEvaluationError):
             opt._score_trial(trial)
 
+    def test_score_trial_zero_objective_still_penalizes(self):
+        """A zero-valued objective must not disable the constraint penalty."""
+        spec = optimizer.build_objective(
+            ['x=regex:X: ([0-9.]+)'], None, 'x', ['x >= 10'])
+        opt = self._opt_with_spec(spec)
+        # objective_raw == 0 leaves the running objective scale at zero; the
+        # fallback keeps the violation penalty non-zero so the infeasible point
+        # does not masquerade as feasible.
+        trial = optimizer.TrialResult(metric_values={'x': 0.0})
+        score, raw, feasible, violation = opt._score_trial(trial)
+        self.assertEqual(raw, 0.0)
+        self.assertFalse(feasible)
+        self.assertEqual(violation, 10.0)
+        self.assertGreater(score, 0.0)
+
     def test_select_best_entry_prefers_feasible(self):
         """The best feasible point wins even if an infeasible score is lower."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
