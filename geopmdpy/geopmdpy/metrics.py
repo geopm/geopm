@@ -304,7 +304,9 @@ def safe_eval(expression: str, values: Dict[str, float]) -> float:
     Raises:
         MetricSpecError: If the expression cannot be parsed or uses a
             disallowed construct.
-        MetricEvaluationError: If a referenced name is missing from ``values``.
+        MetricEvaluationError: If a referenced name is missing from ``values``
+            or the arithmetic fails at runtime (e.g. division by zero or
+            numeric overflow).
     """
     try:
         tree = ast.parse(expression, mode='eval')
@@ -327,7 +329,11 @@ def safe_eval(expression: str, values: Dict[str, float]) -> float:
         # ast.Constant number: guaranteed by _expr_names having passed.
         return float(n.value)
 
-    return float(evaluate(tree))
+    try:
+        return float(evaluate(tree))
+    except ArithmeticError as ex:
+        raise MetricEvaluationError(
+            f"cannot evaluate expression '{expression}': {ex}")
 
 
 # --- Providers --------------------------------------------------------------
