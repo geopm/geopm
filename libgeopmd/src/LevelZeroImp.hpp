@@ -7,6 +7,9 @@
 #define LEVELZEROIMP_HPP_INCLUDE
 
 #include <string>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 #include <level_zero/ze_api.h>
 #include <level_zero/zes_api.h>
@@ -199,6 +202,15 @@ namespace geopm
 
                 // required for L0 metric result tracking.  Chip indexed
                 mutable std::vector<std::map<std::string, std::vector<double>>> metric_data;
+                // Accumulator written by the background sampling thread; the
+                // controller snapshots (moves) this into metric_data once per
+                // read_batch() so metric_data holds all reports gathered over the
+                // controller period.  Chip indexed.
+                mutable std::vector<std::map<std::string, std::vector<double>>> metric_data_accum;
+                // Whether the background thread should drain this chip's
+                // streamer (set when the controller first reads the chip).
+                // Chip indexed.
+                std::vector<bool> metric_active;
                 mutable std::vector<bool> metrics_initialized;
             };
 
@@ -258,6 +270,18 @@ namespace geopm
             static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
             static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
             static constexpr uint32_t DEFAULT_MAX_REPORTS_PER_READ = 30;
+            // Fixed cadence at which the background thread drains the metric
+            // streamers, independent of the controller loop period.  Frequent
+            // draining keeps the Intel metric streamer delivering continuously
+            // (a slow drain interval stalls it into multi-second NOT_READY bursts).
+            static constexpr uint64_t METRIC_DRAIN_PERIOD_US = 20000; // 20 ms
+
+            // Background metric sampling thread and the state it shares with the
+            // controller thread (metric_data_accum, protected by m_metric_mutex).
+            std::thread m_metric_thread;
+            std::mutex m_metric_mutex;
+            std::atomic<bool> m_metric_thread_active;
+            bool m_metric_thread_started;
 
             void metric_group_init(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
@@ -267,6 +291,14 @@ namespace geopm
                                 unsigned int l0_domain_idx);
             void metric_destroy(unsigned int l0_device_idx,
                                 unsigned int l0_domain_idx);
+
+            // Background sampling thread: drains active streamers every
+            // METRIC_DRAIN_PERIOD_US and accumulates reports.
+            void metric_sample_thread(void);
+            // Read one chip's streamer and append the reports to the accumulator.
+            void metric_drain(unsigned int l0_device_idx, unsigned int l0_domain_idx);
+            void metric_thread_start(void);
+            void metric_thread_stop(void);
 
             double metric_data_convert(zet_typed_value_t data) const;
     };
