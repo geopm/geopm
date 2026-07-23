@@ -680,6 +680,21 @@ class TestBayesianOptimizer(unittest.TestCase):
         summary = opt.summarize(result, spec)
         self.assertIn('NOT satisfied', summary)
 
+    def test_summarize_constraint_without_fom_omits_parenthetical(self):
+        """Without a scraped FoM the summary omits the misleading parenthetical."""
+        spec = optimizer.build_objective(
+            ['x=regex:X: ([0-9.]+)'], None, 'x', ['x >= 10'])
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        result = {
+            'best_config': 'CONFIG', 'best_metric': 42.0,
+            'best_fom': None, 'constraints_satisfied': True,
+        }
+        summary = opt.summarize(result, spec)
+        self.assertIn('Constraints were satisfied', summary)
+        self.assertNotIn('figure of merit', summary)
+        self.assertNotIn('None', summary)
+        self.assertIn('42.0', summary)
+
     def test_summarize_unconstrained(self):
         """Unconstrained objectives summarize just the best configuration."""
         spec = optimizer.expand_objective(None, None, None, False)

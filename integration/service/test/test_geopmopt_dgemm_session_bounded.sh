@@ -35,4 +35,4 @@ geopmopt --verbosity=2 \
          -- ./check_geopmopt_dgemm_bench_run.sh | tee "${summary_log}"
 
 grep -q "CPU_FREQUENCY_MAX_CONTROL board 0" "${output_config}"
-grep -q "was satisfied" "${summary_log}"
+grep -q "Constraints were satisfied" "${summary_log}"
