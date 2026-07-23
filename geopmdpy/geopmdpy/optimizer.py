@@ -87,14 +87,14 @@ class ObjectiveSpec:
     Produced by :func:`expand_objective` from the command-line inputs and
     consumed by the evaluator and optimizer. The objective is expressed as an
     arithmetic expression over the base per-trial metric names ``fom``,
-    ``energy``, ``runtime``/``time``, and ``power``; it is evaluated in *raw*
+    ``energy``, ``time``, and ``power``; it is evaluated in *raw*
     (natural, unsigned) units and the optimization direction is applied
     separately via :attr:`minimize`.
 
     Attributes:
         objective_expr: Arithmetic expression over base metric names giving the
             quantity to optimize (e.g. ``'fom'``, ``'fom / power'``,
-            ``'energy'``, ``'runtime'``).
+            ``'energy'``, ``'time'``).
         minimize: Whether the objective is minimized (True) or maximized.
         label: Human-readable name of the objective for summaries.
         needs_session: Whether trials must run under geopmsession to sample
@@ -170,8 +170,9 @@ def expand_objective(metric_regex, efficiency_domain, metric_bound, minimize,
         return ObjectiveSpec(
             objective_expr='energy', minimize=True, label='energy',
             needs_session=True, efficiency_domain=efficiency_domain)
-    # Use the canonical reserved runtime metric name ('time') for the
-    # scalarized objective while keeping the human-facing label as 'runtime'.
+    # The scalarized objective references the reserved metric name 'time' (the
+    # only validated wall-clock name); 'runtime' is used solely as the
+    # human-facing summary label, not as a referenceable metric name.
     return ObjectiveSpec(objective_expr='time', minimize=True,
                          label='runtime')
 
@@ -643,7 +644,7 @@ class ApplicationEvaluator:
         # resolve; there are no session signals on the direct path. Seed the
         # reserved base metrics available here (fom/time) so derived expr:
         # metrics can reference them, consistent with objective scoring.
-        base_values = {'fom': fom, 'time': runtime, 'runtime': runtime}
+        base_values = {'fom': fom, 'time': runtime}
         metric_values = self._evaluate_metric_map(
             result.stdout, {}, base_values)
         return TrialResult(fom=fom, runtime=runtime,
@@ -842,8 +843,7 @@ class ApplicationEvaluator:
             # Seed reserved base metrics so derived expr: metrics can reference
             # fom/power/energy/time just as the objective and constraints do.
             base_values = {'fom': fom, 'power': average_power,
-                           'energy': energy, 'time': runtime,
-                           'runtime': runtime}
+                           'energy': energy, 'time': runtime}
             metric_values = self._evaluate_metric_map(
                 result.stdout, signals_context, base_values)
 
@@ -1077,7 +1077,7 @@ class BayesianOptimizer:
         """Map a trial's raw measurements to canonical base metric names.
 
         The returned mapping is the evaluation context for the objective
-        expression and constraints: ``fom``, ``energy``, ``runtime``/``time``,
+        expression and constraints: ``fom``, ``energy``, ``time``,
         and ``power`` are populated when the corresponding measurement is
         available.
 
@@ -1093,7 +1093,6 @@ class BayesianOptimizer:
         if trial.energy is not None:
             values['energy'] = trial.energy
         if trial.runtime is not None:
-            values['runtime'] = trial.runtime
             values['time'] = trial.runtime
         if trial.average_power is not None:
             values['power'] = trial.average_power
