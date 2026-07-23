@@ -868,6 +868,38 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn('best_coordinate', result)
 
+    @patch('geopmdpy.optimizer.gp_minimize')
+    def test_optimize_penalizes_recoverable_scoring_error(self, mock_gp_minimize):
+        """A divide-by-zero in the objective is penalized, not propagated."""
+        captured = {}
+
+        def capture(func, **kwargs):
+            captured['objective'] = func
+            result = MagicMock()
+            result.x = [0]
+            result.func_vals = [42.0]
+            return result
+
+        mock_gp_minimize.side_effect = capture
+
+        spec = optimizer.build_objective(
+            ["fom=regex:FOM: ([0-9.]+)", "denom=regex:DENOM: ([0-9.]+)",
+             "eff=expr:fom / denom"],
+            'eff', None, None)
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(
+            metric_values={'fom': 10.0, 'denom': 0.0})
+
+        opt.optimize(spec=spec, trials=1, n_initial_points=1, penalty=1e9)
+
+        # Invoking the objective must route the divide-by-zero through the
+        # failed-trial penalty path instead of raising out of gp_minimize.
+        score = captured['objective']([0])
+        self.assertEqual(score, 1e9)
+        self.assertTrue(opt.evaluation_history[-1].get('failed'))
+        self.assertIn('evaluation failed',
+                      opt.evaluation_history[-1]['failure_reason'])
+
 
 @unittest.skipIf(skip_test, skip_msg)
 class TestSessionStrategy(unittest.TestCase):
@@ -1363,7 +1395,7 @@ class TestOptimizerMain(unittest.TestCase):
         evaluator = args[1]
         self.assertIsNone(evaluator.metric_regex)
         _, optimize_kwargs = mock_optimizer.optimize.call_args
-        self.assertEqual(optimize_kwargs['spec'].objective_expr, 'runtime')
+        self.assertEqual(optimize_kwargs['spec'].objective_expr, 'time')
         self.assertEqual(optimize_kwargs['spec'].label, 'runtime')
 
 
@@ -1516,7 +1548,7 @@ class TestExpandObjective(unittest.TestCase):
     def test_runtime(self):
         """No regex and no efficiency selects the runtime objective."""
         spec = optimizer.expand_objective(None, None, None, False)
-        self.assertEqual(spec.objective_expr, 'runtime')
+        self.assertEqual(spec.objective_expr, 'time')
         self.assertEqual(spec.label, 'runtime')
         self.assertTrue(spec.minimize)
         self.assertFalse(spec.needs_session)
@@ -1562,7 +1594,7 @@ class TestExpandObjective(unittest.TestCase):
             self.assertEqual(
                 optimizer.expand_objective(
                     None, None, None, minimize).objective_expr,
-                'runtime')
+                'time')
 
     def test_metric_bound_without_regex_raises(self):
         """A metric bound requires a metric regex."""
@@ -1734,6 +1766,30 @@ class TestBuildObjective(unittest.TestCase):
         message = str(context.exception)
         self.assertIn('eff', message)
         self.assertIn('fom', message)
+
+    def test_nonfom_regex_metric_does_not_enable_fom(self):
+        """A regex metric not named 'fom' does not enable the reserved 'fom'."""
+        with self.assertRaises(ValueError) as context:
+            optimizer.build_objective(
+                ["tps=regex:TPS: ([0-9.]+)", "eff=expr:fom / tps"],
+                'eff', None, None)
+        message = str(context.exception)
+        self.assertIn('eff', message)
+        self.assertIn('fom', message)
+
+    def test_objective_fom_regex_uses_named_fom_metric(self):
+        """The scraped FoM pattern comes from the metric named 'fom'."""
+        spec = optimizer.build_objective(
+            ["tps=regex:TPS: ([0-9.]+)", "fom=regex:GFLOPS: ([0-9.]+)"],
+            'fom', None, None)
+        self.assertEqual(
+            optimizer._objective_fom_regex(spec), 'GFLOPS: ([0-9.]+)')
+
+    def test_objective_fom_regex_none_without_fom_metric(self):
+        """No scraped FoM when no regex metric named 'fom' is defined."""
+        spec = optimizer.build_objective(
+            ["tps=regex:TPS: ([0-9.]+)"], 'tps', None, None)
+        self.assertIsNone(optimizer._objective_fom_regex(spec))
 
     def test_energy_domain_enables_power_objective(self):
         """--energy-domain makes the reserved power/energy metrics measurable."""
