@@ -624,12 +624,12 @@ def _parse_constraint_value(text: str, unit: str) -> float:
     suffix is validated against the metric's unit category via
     ``grid.parse_quantity``.
     """
-    match = grid._QUANTITY_RE.match(text)
-    if match is None:
+    parts = grid.split_quantity(text)
+    if parts is None:
         raise MetricSpecError(f"invalid constraint value '{text}'")
-    suffix = match.group(2)
+    number, suffix = parts
     if not suffix:
-        return float(match.group(1))
+        return float(number)
     category = _UNIT_TO_CATEGORY.get(unit)
     if category is None:
         raise MetricSpecError(

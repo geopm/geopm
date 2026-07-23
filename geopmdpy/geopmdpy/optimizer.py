@@ -411,6 +411,11 @@ def list_metrics_str(metric_specs=None):
 
     Returns:
         str: A multi-line, fixed-width listing suitable for printing.
+
+    Raises:
+        metrics.MetricSpecError: If any ``--metric`` spec is malformed, so that
+            typos (e.g. a missing ``@DOMAIN``) are reported rather than silently
+            omitted from the listing.
     """
     lines = [f"{'METRIC':<12}{'UNIT':<6}{'AVAILABILITY'}"]
     for name, unit in metrics.RESERVED_UNITS.items():
@@ -419,10 +424,7 @@ def list_metrics_str(metric_specs=None):
 
     signal_metrics = []
     for spec_text in (metric_specs or []):
-        try:
-            metric = metrics.parse_metric_spec(spec_text)
-        except metrics.MetricSpecError:
-            continue
+        metric = metrics.parse_metric_spec(spec_text)
         if isinstance(metric.provider, metrics.SignalProvider):
             signal_metrics.append(metric)
 
@@ -1610,7 +1612,12 @@ def main():
         return 0
 
     if args.list_metrics:
-        print(list_metrics_str(args.metric))
+        try:
+            listing = list_metrics_str(args.metric)
+        except metrics.MetricSpecError as e:
+            logger.error(f"Error: {e}")
+            return 1
+        print(listing)
         return 0
 
     if not args.defer_write:

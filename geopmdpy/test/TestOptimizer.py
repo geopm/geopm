@@ -2038,6 +2038,23 @@ class TestListMetrics(unittest.TestCase):
         text = optimizer.list_metrics_str(['power=signal:CPU_POWER@board:mean'])
         self.assertRegex(text, r'CPU_POWER\b.*monotone.*mean')
 
+    def test_invalid_metric_spec_raises(self):
+        """An invalid --metric spec is surfaced, not silently omitted."""
+        with self.assertRaises(metrics.MetricSpecError):
+            optimizer.list_metrics_str(['power=signal:CPU_POWER'])
+
+    @patch('sys.argv',
+           ['optimizer.py', '--list-metrics', '--metric', 'power=signal:CPU_POWER'])
+    @patch('geopmdpy.optimizer.pio')
+    def test_main_list_metrics_invalid_spec_errors(self, mock_pio):
+        """--list-metrics returns nonzero when a --metric spec is invalid."""
+        mock_pio.save_control = MagicMock()
+        mock_pio.restore_control = MagicMock()
+        result = optimizer.main()
+        self.assertEqual(result, 1)
+        mock_pio.save_control.assert_not_called()
+        mock_pio.restore_control.assert_not_called()
+
     @patch('sys.argv', ['optimizer.py', '--list-metrics'])
     @patch('geopmdpy.optimizer.pio')
     def test_main_list_metrics_early_return(self, mock_pio):
