@@ -16,8 +16,7 @@ STICKER_FREQ=$(geopmread CPU_FREQUENCY_STICKER board 0)
 MAX_FREQ=$((STICKER_FREQ - 300000000))
 
 geopmopt --verbosity=2 \
-         --cpu-frequency=board \
-         --cpu-frequency-max=${MAX_FREQ} \
+         --sweep cpu-freq@board=:${MAX_FREQ} \
          --defer-write \
          --minimize \
          --output-file="${output_config}" \
