@@ -13,8 +13,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-geopmopt --cpu-frequency=board \
-         --cpu-uncore-frequency=board \
+geopmopt --sweep cpu-freq@board \
+         --sweep uncore-freq@board \
          --verbosity=2 \
          --defer-write \
          --minimize \
