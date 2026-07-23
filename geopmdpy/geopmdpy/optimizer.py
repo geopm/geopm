@@ -1137,6 +1137,11 @@ class BayesianOptimizer:
 
         violations = []
         total_violation = 0.0
+        # When no non-zero objective has been observed yet the running scale is
+        # zero; fall back to unit magnitude so a zero-valued objective does not
+        # silently disable the constraint penalty (which would make infeasible
+        # points look feasible).
+        objective_scale = self._objective_scale or 1.0
         for constraint in spec.constraints:
             measured = values[constraint.name]
             amount = constraint.violation(measured)
@@ -1147,7 +1152,7 @@ class BayesianOptimizer:
             # characteristic scale so a fully violated bound is order-one.
             violations.append(metrics.Violation(
                 amount=amount,
-                scale=self._objective_scale * constraint.scale,
+                scale=objective_scale * constraint.scale,
                 weight=spec.penalty_weight))
 
         score = metrics.score(objective, violations)
@@ -1549,7 +1554,10 @@ def get_parser():
         '--efficiency',
         default=None,
         dest='efficiency_domain',
-        help='Optimize for efficiency by dividing the metric by the average power consumed over the specified domain',
+        help='Measure energy on the specified domain (board/cpu/gpu). With '
+             '--metric-regex, optimize efficiency by dividing the figure of '
+             'merit by the average power consumed over the domain; without '
+             '--metric-regex, minimize total energy consumed over the domain',
     )
     parser.add_argument(
         '--metric-bound',
