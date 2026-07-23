@@ -534,12 +534,15 @@ class ApplicationEvaluator:
         if self.needs_session:
             if yaml is None:
                 raise OptimizationError(
-                    "The pyyaml module is required for energy objectives; "
-                    "install with: python3 -m pip install pyyaml")
+                    "The pyyaml module is required to read the geopmsession "
+                    "report for session-backed metrics (signal: metrics, "
+                    "--energy-domain, or --efficiency); install with: "
+                    "python3 -m pip install pyyaml")
             if shutil.which('geopmsession') is None:
                 raise OptimizationError(
                     "geopmsession was not found on PATH; it is required for "
-                    "energy-based objectives (--efficiency)")
+                    "session-backed metrics (signal: metrics, "
+                    "--energy-domain, or --efficiency)")
             # An efficiency objective samples domain energy; a session that is
             # needed only for user signal: metrics has no efficiency domain.
             if self.efficiency_domain is not None:
@@ -821,7 +824,8 @@ class ApplicationEvaluator:
             signals_context = {}
             report_metrics = report.get('metrics') or {}
             for signal, domain in self._signal_specs:
-                stats = report_metrics.get(signal)
+                report_key = _session_report_key(signal, domain)
+                stats = report_metrics.get(report_key)
                 if stats is None:
                     raise RecoverableEvaluationError(
                         f"session report is missing signal {signal}@{domain}")
@@ -887,6 +891,30 @@ class ApplicationEvaluator:
             raise RecoverableEvaluationError(
                 f"Could not convert extracted value to float: {metric_str}"
             )
+
+def _session_report_key(signal: str, domain: str, domain_idx: int = 0) -> str:
+    """Return the geopmsession report key for a sampled ``(signal, domain)``.
+
+    geopmsession names the ``board`` domain at index 0 by the bare signal name
+    and every other ``(domain, index)`` as ``{signal}-{domain}-{index}`` (see
+    ``StatsCollectorImp::register_requests`` in libgeopmd). Reading the report
+    with this key lets two metrics that sample the same signal on different
+    domains (e.g. ``CPU_POWER@board`` and ``CPU_POWER@cpu``) resolve to their
+    own report entries instead of colliding on the bare signal name.
+
+    Args:
+        signal: The GEOPM signal name.
+        domain: The sampling domain (``board``/``cpu``/``gpu``).
+        domain_idx: The domain index (always 0 for the ``--metric`` grammar).
+
+    Returns:
+        str: The key under which the signal's stats appear in the report's
+            ``metrics`` mapping.
+    """
+    if domain == 'board' and domain_idx == 0:
+        return signal
+    return f'{signal}-{domain}-{domain_idx}'
+
 
 def energy_signal_names(domain: str) -> List[str]:
     """Return the energy signal names used to measure the given domain.
@@ -1365,15 +1393,20 @@ def _penalty_arg(value):
         The literal ``'auto'`` / ``'none'`` or the parsed float value.
 
     Raises:
-        ArgumentTypeError: If the value is neither keyword nor a valid float.
+        ArgumentTypeError: If the value is neither keyword nor a finite,
+            non-negative number.
     """
     if value in ('auto', 'none'):
         return value
     try:
-        return float(value)
+        penalty = float(value)
     except ValueError:
         raise ArgumentTypeError(
             f"--penalty must be 'auto', 'none', or a number, not {value!r}")
+    if not math.isfinite(penalty) or penalty < 0.0:
+        raise ArgumentTypeError(
+            f"--penalty must be a finite, non-negative number, not {value!r}")
+    return penalty
 
 
 def get_parser():
