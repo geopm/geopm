@@ -8,7 +8,7 @@ regression integration test.
 
 Like the GPU activity agent helpers in ``_util.py``, these helpers are
 geopmdpy-native: they probe the platform through ``geopmdpy.pio`` /
-``geopmdpy.topo`` and drive ``geopmopt`` (``python -m geopmdpy.optimizer``)
+``geopmdpy.topo`` and drive ``geopmopt`` (``python3 -m geopmdpy.optimizer``)
 as a subprocess, so the test carries no dependency on the HPC-runtime test
 infrastructure under ``geopm/integration`` (``geopm_test_launcher``,
 ``geopmpy.io``, MPI).
@@ -172,7 +172,7 @@ def skip_unless_signal_readable(signal_name, domain_name='DOMAIN_BOARD'):
 
 
 def run_optimizer(*args, env=None):
-    """Run ``python -m geopmdpy.optimizer`` with ``args`` and return the
+    """Run ``python3 -m geopmdpy.optimizer`` with ``args`` and return the
     :class:`subprocess.CompletedProcess`.
 
     Unlike the :class:`_GeopmoptHarness` orchestration, this does not raise on a
@@ -221,7 +221,7 @@ def cpu_frequency_bounds():
 def geopmopt_command(output_file, metric_regex, freq_low, freq_high,
                      minimize=False, efficiency_domain=None, trials=6,
                      n_initial_points=3, application_timeout=120):
-    """Build the ``python -m geopmdpy.optimizer`` argv for a two-point CPU
+    """Build the ``python3 -m geopmdpy.optimizer`` argv for a two-point CPU
     frequency sweep that runs the probe workload.
 
     The step is set to ``freq_high - freq_low`` so the search grid holds
@@ -275,7 +275,7 @@ def geopmopt_general_command(output_file, freq_low, freq_high, *, metrics,
                              maximize=None, minimize=None, constraints=None,
                              energy_domain=None, trials=6, n_initial_points=3,
                              application_timeout=120):
-    """Build the ``python -m geopmdpy.optimizer`` argv for the general
+    """Build the ``python3 -m geopmdpy.optimizer`` argv for the general
     objective interface over the same two-point CPU frequency sweep as
     :func:`geopmopt_command`.
 

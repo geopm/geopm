@@ -12,7 +12,7 @@ closure is split into helper methods and ``ApplicationEvaluator.evaluate``
 now returns a ``TrialResult`` container instead of a bare float.  The mocked
 unit suite under ``geopmdpy/test`` verifies the refactor's internals but
 never launches the real CLI.  This live-hardware test closes that gap: it
-runs the real ``geopmopt`` (``python -m geopmdpy.optimizer``) end to end and
+runs the real ``geopmopt`` (``python3 -m geopmdpy.optimizer``) end to end and
 asserts that the two objectives that existed before Phase 0 still work --
 
 * a raw-metric maximize run selects the highest frequency in the grid for a
