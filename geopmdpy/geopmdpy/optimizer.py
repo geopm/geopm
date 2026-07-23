@@ -1382,9 +1382,13 @@ class BayesianOptimizer:
         if spec.constraints:
             status = ('satisfied' if result.get('constraints_satisfied')
                       else 'NOT satisfied')
-            lines.append(
-                f"Constraints were {status} "
-                f"(best figure of merit: {result.get('best_fom')})")
+            best_fom = result.get('best_fom')
+            if best_fom is not None:
+                lines.append(
+                    f"Constraints were {status} "
+                    f"(best figure of merit: {best_fom})")
+            else:
+                lines.append(f"Constraints were {status}")
             lines.append(
                 f"{spec.label} at best configuration: {result['best_metric']}")
         return '\n'.join(lines)
