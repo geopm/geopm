@@ -170,7 +170,9 @@ def expand_objective(metric_regex, efficiency_domain, metric_bound, minimize,
         return ObjectiveSpec(
             objective_expr='energy', minimize=True, label='energy',
             needs_session=True, efficiency_domain=efficiency_domain)
-    return ObjectiveSpec(objective_expr='runtime', minimize=True,
+    # Use the canonical reserved runtime metric name ('time') for the
+    # scalarized objective while keeping the human-facing label as 'runtime'.
+    return ObjectiveSpec(objective_expr='time', minimize=True,
                          label='runtime')
 
 
@@ -217,8 +219,13 @@ def build_objective(metric_specs, maximize, minimize,
         metric_map[metric.name] = metric
 
     needs_session = any(m.needs_session for m in metric_map.values())
-    requires_fom = any(isinstance(m.provider, metrics.RegexProvider)
-                       for m in metric_map.values())
+    # The scraped figure of merit is exposed as the reserved name ``fom`` only
+    # when the user explicitly defines a metric named ``fom`` backed by a
+    # regex: source. This avoids implicitly (and order-dependently) binding
+    # ``fom`` to whichever regex metric happens to be defined first.
+    requires_fom = isinstance(
+        getattr(metric_map.get('fom'), 'provider', None),
+        metrics.RegexProvider)
 
     # An explicit --energy-domain enables session energy sampling on the
     # general interface, which populates the reserved ``power`` and ``energy``
@@ -229,22 +236,20 @@ def build_objective(metric_specs, maximize, minimize,
     # Names that will actually be populated in the per-trial evaluation
     # context. Validating references against this set lets an unsatisfiable
     # reference fail here, at parse time, instead of surfacing late as an
-    # "undefined metric" during evaluation. Every user metric is evaluated;
-    # wall-clock ``time`` is always measured; the legacy ``fom`` alias is
-    # populated only when a regex: metric supplies it. Reserved
-    # ``power``/``energy`` are sampled only when --energy-domain is given;
-    # otherwise they are referenceable only when the user defines them (in
-    # which case they already appear in ``metric_map``).
+    # "undefined metric" during evaluation. Every user metric is evaluated (so
+    # an explicitly-defined ``fom`` is already included); wall-clock ``time``
+    # is always measured. Reserved ``power``/``energy`` are sampled only when
+    # --energy-domain is given; otherwise they are referenceable only when the
+    # user defines them (in which case they already appear in ``metric_map``).
     available_names = set(metric_map) | set(metrics.IMMUTABLE_METRICS)
-    if requires_fom:
-        available_names.add('fom')
     if energy_domain is not None:
         available_names.update(('power', 'energy'))
 
     def _unavailable(ref):
         """Explain why a reserved name is not measurable here, or None."""
         if ref == 'fom':
-            return "'fom' is populated only when a regex: metric is defined"
+            return ("'fom' is available only when a metric named 'fom' is "
+                    "defined, e.g. fom=regex:'PATTERN'")
         if ref in ('power', 'energy'):
             return (f"'{ref}' is not sampled here; pass "
                     f"--energy-domain <board|cpu|gpu> to measure it, or define "
@@ -328,18 +333,21 @@ def _objective_fom_regex(spec):
     """Return the regex pattern that supplies the scraped figure of merit.
 
     The current evaluator scrapes a single figure of merit from stdout. When
-    the general ``--metric`` flags define a regex-backed metric, its pattern
-    drives that scrape.
+    the general ``--metric`` flags define a metric named ``fom`` backed by a
+    regex: source, its pattern drives that scrape. Any other metric name (or a
+    ``fom`` backed by a non-regex source) leaves the legacy scrape disabled so
+    the result is deterministic and does not depend on metric ordering.
 
     Args:
         spec: The :class:`ObjectiveSpec` produced by :func:`build_objective`.
 
     Returns:
-        The regex pattern string, or None when no regex metric is defined.
+        The regex pattern string of the ``fom`` metric, or None when no
+        regex-backed metric named ``fom`` is defined.
     """
-    for metric in spec.metric_map.values():
-        if isinstance(metric.provider, metrics.RegexProvider):
-            return metric.provider.pattern
+    metric = spec.metric_map.get('fom')
+    if isinstance(getattr(metric, 'provider', None), metrics.RegexProvider):
+        return metric.provider.pattern
     return None
 
 
@@ -1237,7 +1245,18 @@ class BayesianOptimizer:
                 score = self._handle_failed_trial(trial)
                 self._record_history(coordinate, score, trial=trial)
                 return score
-            score, objective_raw, feasible, _ = self._score_trial(trial)
+            try:
+                score, objective_raw, feasible, _ = self._score_trial(trial)
+            except metrics.MetricEvaluationError as ex:
+                # A recoverable scoring failure (e.g. divide-by-zero in an
+                # expr: objective) is penalized like any other failed trial
+                # instead of aborting the whole optimization run.
+                trial.failed = True
+                trial.failure_reason = (
+                    f"objective/constraint evaluation failed: {ex}")
+                score = self._handle_failed_trial(trial)
+                self._record_history(coordinate, score, trial=trial)
+                return score
             self._record_history(coordinate, score, objective_raw=objective_raw,
                                  trial=trial, feasible=feasible)
             return score

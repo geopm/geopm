@@ -233,6 +233,17 @@ class TestSafeEval(TestCase):
         with self.assertRaises(MetricEvaluationError):
             safe_eval('energy / fom', {'energy': 1.0})
 
+    def test_division_by_zero_is_recoverable(self):
+        """A runtime divide-by-zero becomes a recoverable evaluation error."""
+        with self.assertRaises(MetricEvaluationError) as context:
+            safe_eval('energy / fom', {'energy': 1.0, 'fom': 0.0})
+        self.assertIn('energy / fom', str(context.exception))
+
+    def test_numeric_overflow_is_recoverable(self):
+        """A runtime numeric overflow becomes a recoverable evaluation error."""
+        with self.assertRaises(MetricEvaluationError):
+            safe_eval('x ** y', {'x': 10.0, 'y': 1000000.0})
+
     def test_rejects_call(self):
         for expr in ('foo()', '__import__("os")', 'abs(-1)'):
             with self.assertRaises(MetricSpecError):
