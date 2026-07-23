@@ -25,8 +25,7 @@ MAX_FREQ=$((STICKER_FREQ - 300000000))
 # A one-hour figure-of-merit bound is always satisfiable, so the optimizer
 # minimizes energy over the feasible region rather than reporting a violation.
 geopmopt --verbosity=2 \
-         --cpu-frequency=board \
-         --cpu-frequency-max=${MAX_FREQ} \
+         --sweep cpu-freq@board=:${MAX_FREQ} \
          --efficiency=cpu \
          --metric-regex='GEOPMOPT-FOM: ([0-9.]+)' \
          --metric-bound=3600 \
