@@ -13,8 +13,8 @@ a monitoring session with a default set of signals, and supports
 a --hi-res option to sample all signals at their native resolution.
 
 Example usage:
-    python -m geopmpy.monitor
-    python -m geopmpy.monitor --hi-res
+    python3 -m geopmpy.monitor
+    python3 -m geopmpy.monitor --hi-res
 """
 
 from geopmdpy import pio
@@ -34,7 +34,7 @@ class MonitorAgent(Agent):
       --hi-res   Measure signals at finest granularity (all domains/indices).
 
     Example:
-        python -m geopmpy.monitor --hi-res
+        python3 -m geopmpy.monitor --hi-res
 
     """
     def __init__(self):

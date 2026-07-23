@@ -34,10 +34,10 @@ components, so this shows per-component saturation over time rather than a
 data-flow diagram.
 
 Example usage:
-    python -m geopmdpy.heatmap_agent -t 30
-    python -m geopmdpy.heatmap_agent -t 60 --heatmap-out hm.png --fom fom.csv
-    python -m geopmdpy.heatmap_agent -t 30 -o trace.csv --no-plot
-    python -m geopmdpy.heatmap_agent --replot-csv trace.csv --heatmap-out hm.png
+    python3 -m geopmdpy.heatmap_agent -t 30
+    python3 -m geopmdpy.heatmap_agent -t 60 --heatmap-out hm.png --fom fom.csv
+    python3 -m geopmdpy.heatmap_agent -t 30 -o trace.csv --no-plot
+    python3 -m geopmdpy.heatmap_agent --replot-csv trace.csv --heatmap-out hm.png
 """
 
 import re
@@ -152,7 +152,7 @@ class HeatmapAgent(Agent):
                       session is run).
 
     Example:
-        python -m geopmdpy.heatmap_agent -t 30 --heatmap-out heatmap.png
+        python3 -m geopmdpy.heatmap_agent -t 30 --heatmap-out heatmap.png
     """
 
     def __init__(self):

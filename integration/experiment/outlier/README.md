@@ -4,7 +4,7 @@ been collected from a benchmark run, the outlier run is invoked with the
 individual trace files as arguments:
 
 ```
-$ python outlierdetection.py trace_dir/*.trace
+$ python3 outlierdetection.py trace_dir/*.trace
 ```
 
 This will (eventually) emit a table out outlier nodes:

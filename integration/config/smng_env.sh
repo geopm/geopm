@@ -14,9 +14,9 @@
 unset OMP_NUM_THREADS # Set to 1 by a default lmod module
 
 # One time setup:
-# python -m pip install --user -U pip
-# python -m pip install --user --ignore-installed -r geopm/scripts/requirements.txt
-# python -m pip install --user --ignore-installed -r geopm/service/requirements.txt
+# python3 -m pip install --user -U pip
+# python3 -m pip install --user --ignore-installed -r geopm/scripts/requirements.txt
+# python3 -m pip install --user --ignore-installed -r geopm/service/requirements.txt
 
 export CC=icc
 export CXX=icpc
