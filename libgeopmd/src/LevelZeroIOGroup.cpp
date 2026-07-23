@@ -1280,6 +1280,9 @@ namespace geopm
     {
         m_is_batch_read = true;
 
+        // Snapshot the metrics gathered by the background sampling thread for
+        // each pushed chip (draining happens continuously in that thread,
+        // independent of this controller loop).
         for (int domain_idx = 0; domain_idx <
              m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
             if (m_metric_signal_pushed.at(domain_idx)) {

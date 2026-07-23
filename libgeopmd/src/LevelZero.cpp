@@ -9,6 +9,10 @@
 #include <map>
 #include <cstdlib>
 #include <utility>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <chrono>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
@@ -41,6 +45,8 @@ namespace geopm
     LevelZeroImp::LevelZeroImp()
         : m_num_gpu(0)
         , m_num_gpu_subdevice(0)
+        , m_metric_thread_active(false)
+        , m_metric_thread_started(false)
     {
         if (getenv("ZE_AFFINITY_MASK") != nullptr) {
             throw Exception("LevelZero: Cannot be used directly when ZE_AFFINITY_MASK environment "
@@ -229,6 +235,8 @@ namespace geopm
     }
 
     LevelZeroImp::~LevelZeroImp() {
+        // Stop the background sampling thread before tearing down streamers.
+        metric_thread_stop();
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
             for (unsigned int subdevice_idx = 0;
              subdevice_idx < m_devices.at(gpu_idx).num_subdevice;
@@ -604,6 +612,8 @@ namespace geopm
             m_devices.at(device_idx).metric_sampling_period_ns = SAMPLING_PERIOD_NS;
 
             m_devices.at(device_idx).subdevice.metric_data.push_back({});
+            m_devices.at(device_idx).subdevice.metric_data_accum.push_back({});
+            m_devices.at(device_idx).subdevice.metric_active.push_back(false);
 
             for (unsigned int metric_group_idx = 0; metric_group_idx < num_metric_group;
                  metric_group_idx++) {
@@ -811,21 +821,20 @@ namespace geopm
         }
 
         // Use the cached name→index map to avoid calling zetMetricGet and
-        // zetMetricGetProperties on every sample iteration.
+        // zetMetricGetProperties on every sample iteration.  The report values
+        // are appended to the accumulator under lock; the controller snapshots
+        // (moves) the accumulator into metric_data once per read_batch().
         const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
+        std::lock_guard<std::mutex> lock(m_metric_mutex);
+        auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
         for (const auto &kv : name_idx) {
             const std::string &metric_name = kv.first;
             size_t metric_idx = kv.second;
 
-            // Clear cached values and update num_reports on first metric
-            m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name) = {};
-            m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"] = {};
-            m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"].push_back(num_reports);
-
+            std::vector<double> &values = accum[metric_name];
             for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++) {
                 zet_typed_value_t data = metric_values.at(report_idx * num_metric + metric_idx);
-                double data_double = metric_data_convert(data);
-                m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name).push_back(data_double);
+                values.push_back(metric_data_convert(data));
             }
         }
     }
@@ -857,60 +866,134 @@ namespace geopm
 
     void LevelZeroImp::metric_read(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
-        if (m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
-            if (!m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
-                metric_execute(l0_device_idx, l0_domain_idx);
-                m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = true;
+        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
+            return;
+        }
+
+        // Snapshot the reports accumulated by the background thread since the
+        // last read_batch() into metric_data, marking the chip active so the
+        // thread drains it.  metric_data therefore holds every report gathered
+        // over the controller period (averaged later by metric_sample).
+        const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
+        {
+            std::lock_guard<std::mutex> lock(m_metric_mutex);
+            m_devices.at(l0_device_idx).subdevice.metric_active.at(l0_domain_idx) = true;
+
+            auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
+            auto &current = m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx);
+            size_t num_reports = 0;
+            for (const auto &kv : name_idx) {
+                const std::string &metric_name = kv.first;
+                current[metric_name] = std::move(accum[metric_name]);
+                accum[metric_name].clear();
+                num_reports = current[metric_name].size();
             }
+            current["NUM_REPORTS"] = std::vector<double>{ static_cast<double>(num_reports) };
+        }
 
-            ze_result_t ze_result;
-            uint32_t report_count_req = 1;
-            zet_metric_streamer_handle_t metric_streamer = m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx);
+        // Launch the background sampling thread on first use.
+        metric_thread_start();
+    }
 
-            ///////////////////
-            // Read Raw Data //
-            ///////////////////
-            // Always read with full buffer to drain the FIFO completely
-            size_t read_size = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).size();
-            ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req,
-                                                  &read_size,
-                                                  m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
+    void LevelZeroImp::metric_thread_start(void)
+    {
+        // Called only from the controller thread (metric_read), so the started
+        // flag need not be atomic.
+        if (!m_metric_thread_started) {
+            m_metric_thread_started = true;
+            m_metric_thread_active.store(true);
+            m_metric_thread = std::thread(&LevelZeroImp::metric_sample_thread, this);
+        }
+    }
 
-            // Skip when no data is available
-            if (ze_result != ZE_RESULT_NOT_READY && read_size > 0) {
-                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Read Data failed",
-                                __LINE__);
+    void LevelZeroImp::metric_thread_stop(void)
+    {
+        if (m_metric_thread_active.exchange(false)) {
+            if (m_metric_thread.joinable()) {
+                m_metric_thread.join();
+            }
+        }
+    }
 
-                // Learn per-report byte size from first successful read
-                size_t &report_byte_size = m_devices.at(l0_device_idx).subdevice.report_byte_size.at(l0_domain_idx);
-                if (report_byte_size == 0) {
-                    uint32_t tmp_num_values = 0;
-                    zet_metric_group_calculation_type_t tmp_calc_type = ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES;
-                    zetMetricGroupCalculateMetricValues(
-                        m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx),
-                        tmp_calc_type, read_size,
-                        m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data(),
-                        &tmp_num_values, nullptr);
-                    uint32_t num_metric = m_devices.at(l0_device_idx).subdevice.num_metric.at(l0_domain_idx);
-                    size_t first_num_reports = (num_metric > 0) ? tmp_num_values / num_metric : 1;
-                    if (first_num_reports > 0) {
-                        report_byte_size = read_size / first_num_reports;
+    void LevelZeroImp::metric_sample_thread(void)
+    {
+        while (m_metric_thread_active.load()) {
+            for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_gpu; ++l0_device_idx) {
+                unsigned int num_subdevice = m_devices.at(l0_device_idx).num_subdevice;
+                for (unsigned int l0_domain_idx = 0; l0_domain_idx < num_subdevice; ++l0_domain_idx) {
+                    bool active;
+                    {
+                        std::lock_guard<std::mutex> lock(m_metric_mutex);
+                        active = m_devices.at(l0_device_idx).subdevice.metric_active.at(l0_domain_idx);
                     }
-                }
+                    if (!active ||
+                        !m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
+                        continue;
+                    }
 
-                // Only process the most recent DEFAULT_MAX_REPORTS_PER_READ reports
-                size_t process_size = read_size;
-                const uint8_t *process_data = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data();
-                if (report_byte_size > 0 && read_size > report_byte_size * DEFAULT_MAX_REPORTS_PER_READ) {
-                    process_size = report_byte_size * DEFAULT_MAX_REPORTS_PER_READ;
-                    process_data = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data()
-                                   + (read_size - process_size);
-                }
+                    // Open the streamer on first use (thread owns the streamers).
+                    if (!m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
+                        metric_execute(l0_device_idx, l0_domain_idx);
+                        m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = true;
+                    }
 
-                metric_calc(l0_device_idx, l0_domain_idx, process_size, process_data);
+                    metric_drain(l0_device_idx, l0_domain_idx);
+                }
             }
+            std::this_thread::sleep_for(std::chrono::microseconds(METRIC_DRAIN_PERIOD_US));
+        }
+    }
+
+    void LevelZeroImp::metric_drain(unsigned int l0_device_idx, unsigned int l0_domain_idx)
+    {
+        ze_result_t ze_result;
+        uint32_t report_count_req = 1;
+        zet_metric_streamer_handle_t metric_streamer =
+            m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx);
+
+        ///////////////////
+        // Read Raw Data //
+        ///////////////////
+        // Always read with full buffer to drain the FIFO completely
+        size_t read_size = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).size();
+        ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req,
+                                              &read_size,
+                                              m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
+
+        // Skip when no data is available
+        if (ze_result != ZE_RESULT_NOT_READY && read_size > 0) {
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": LevelZero Read Data failed",
+                            __LINE__);
+
+            // Learn per-report byte size from first successful read
+            size_t &report_byte_size = m_devices.at(l0_device_idx).subdevice.report_byte_size.at(l0_domain_idx);
+            if (report_byte_size == 0) {
+                uint32_t tmp_num_values = 0;
+                zet_metric_group_calculation_type_t tmp_calc_type = ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES;
+                zetMetricGroupCalculateMetricValues(
+                    m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx),
+                    tmp_calc_type, read_size,
+                    m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data(),
+                    &tmp_num_values, nullptr);
+                uint32_t num_metric = m_devices.at(l0_device_idx).subdevice.num_metric.at(l0_domain_idx);
+                size_t first_num_reports = (num_metric > 0) ? tmp_num_values / num_metric : 1;
+                if (first_num_reports > 0) {
+                    report_byte_size = read_size / first_num_reports;
+                }
+            }
+
+            // Only process the most recent DEFAULT_MAX_REPORTS_PER_READ reports
+            size_t process_size = read_size;
+            const uint8_t *process_data = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data();
+            if (report_byte_size > 0 && read_size > report_byte_size * DEFAULT_MAX_REPORTS_PER_READ) {
+                process_size = report_byte_size * DEFAULT_MAX_REPORTS_PER_READ;
+                process_data = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data()
+                               + (read_size - process_size);
+            }
+
+            metric_calc(l0_device_idx, l0_domain_idx, process_size, process_data);
         }
     }
 
