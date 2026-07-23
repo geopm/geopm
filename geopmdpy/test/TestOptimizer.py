@@ -625,6 +625,18 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertEqual(violation, 10.0)
         self.assertGreater(score, 0.0)
 
+    def test_trial_values_exposes_time_not_runtime(self):
+        """Wall-clock time is the reserved 'time' name, with no 'runtime' alias.
+
+        Only reserved names (fom/energy/power/time) may be referenced by
+        expr:/constraint parsing, so the evaluation context must not seed an
+        unvalidated 'runtime' name that build_objective would reject.
+        """
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        values = opt._trial_values(optimizer.TrialResult(runtime=12.5))
+        self.assertEqual(values['time'], 12.5)
+        self.assertNotIn('runtime', values)
+
     def test_select_best_entry_prefers_feasible(self):
         """The best feasible point wins even if an infeasible score is lower."""
         opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
