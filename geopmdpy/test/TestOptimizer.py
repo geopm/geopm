@@ -1155,6 +1155,74 @@ class TestSessionStrategy(unittest.TestCase):
         self.assertEqual(trial.fom, 42.0)
         self.assertEqual(trial.energy, 10.0)
 
+    def test_session_report_key_disambiguates_domain(self):
+        """board@0 keeps the bare signal name; other domains are suffixed."""
+        self.assertEqual(
+            optimizer._session_report_key('CPU_POWER', 'board'), 'CPU_POWER')
+        self.assertEqual(
+            optimizer._session_report_key('CPU_POWER', 'cpu'),
+            'CPU_POWER-cpu-0')
+        self.assertEqual(
+            optimizer._session_report_key('GPU_POWER', 'gpu'),
+            'GPU_POWER-gpu-0')
+
+    def _make_signal_evaluator(self, metric_map):
+        """Construct a session evaluator for user signal: metrics only."""
+        with patch('geopmdpy.optimizer.shutil.which',
+                   return_value='/usr/bin/geopmsession'), \
+             patch('geopmdpy.optimizer.pio') as mock_pio:
+            mock_pio.signal_names.return_value = ['CPU_POWER']
+            return optimizer.ApplicationEvaluator(
+                ["app"], needs_session=True, metric_map=metric_map)
+
+    def test_evaluate_session_same_signal_distinct_domains(self):
+        """Two metrics on one signal at different domains do not collide."""
+        metric_map = {m.name: m for m in (
+            metrics.parse_metric_spec("pb=signal:CPU_POWER@board:mean"),
+            metrics.parse_metric_spec("pc=signal:CPU_POWER@cpu:mean"),
+        )}
+        evaluator = self._make_signal_evaluator(metric_map)
+        # geopmsession keys board@0 by the bare name and cpu@0 as
+        # CPU_POWER-cpu-0; each metric must read its own report entry.
+        report = {'metrics': {
+            'TIME': {'first': 0.0, 'last': 5.0},
+            'CPU_POWER': {'mean': 100.0},
+            'CPU_POWER-cpu-0': {'mean': 40.0},
+        }}
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = ""
+        with patch('geopmdpy.optimizer.subprocess.run',
+                   return_value=mock_result), \
+             patch('geopmdpy.optimizer.tempfile.mkstemp',
+                   side_effect=tempfile.mkstemp), \
+             patch.object(evaluator, '_load_report', return_value=report):
+            trial = evaluator._evaluate_session()
+        self.assertEqual(trial.metric_values['pb'], 100.0)
+        self.assertEqual(trial.metric_values['pc'], 40.0)
+
+    def test_evaluate_session_missing_disambiguated_signal(self):
+        """A missing per-domain report entry is a recoverable failure."""
+        metric_map = {m.name: m for m in (
+            metrics.parse_metric_spec("pc=signal:CPU_POWER@cpu:mean"),
+        )}
+        evaluator = self._make_signal_evaluator(metric_map)
+        # Only the bare name is present; the cpu-domain key is absent.
+        report = {'metrics': {
+            'TIME': {'first': 0.0, 'last': 5.0},
+            'CPU_POWER': {'mean': 100.0},
+        }}
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = ""
+        with patch('geopmdpy.optimizer.subprocess.run',
+                   return_value=mock_result), \
+             patch('geopmdpy.optimizer.tempfile.mkstemp',
+                   side_effect=tempfile.mkstemp), \
+             patch.object(evaluator, '_load_report', return_value=report):
+            with self.assertRaises(optimizer.RecoverableEvaluationError):
+                evaluator._evaluate_session()
+
     def test_evaluate_wraps_recoverable_session_failure(self):
         """evaluate() turns a recoverable session failure into trial data."""
         evaluator = self._make_energy_evaluator(domain='cpu',
@@ -1511,8 +1579,15 @@ class TestGetParser(unittest.TestCase):
         self.assertEqual(optimizer._penalty_arg('auto'), 'auto')
         self.assertEqual(optimizer._penalty_arg('none'), 'none')
         self.assertEqual(optimizer._penalty_arg('3.5'), 3.5)
+        self.assertEqual(optimizer._penalty_arg('0'), 0.0)
         with self.assertRaises(ArgumentTypeError):
             optimizer._penalty_arg('bogus')
+
+    def test_penalty_arg_rejects_negative_and_non_finite(self):
+        """_penalty_arg rejects negative, NaN, and infinite penalties."""
+        for value in ('-1', '-0.5', 'nan', 'inf', '-inf'):
+            with self.assertRaises(ArgumentTypeError):
+                optimizer._penalty_arg(value)
 
     def test_parser_metric_regex_optional(self):
         """--metric-regex is optional and defaults to None."""
