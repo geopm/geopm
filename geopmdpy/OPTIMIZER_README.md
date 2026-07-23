@@ -82,7 +82,7 @@ geopmopt \
     --verbosity 2 \
     --print-stdout \
     --output-file geopmwrite.config \
-    -- python my_ml_training.py
+    -- python3 my_ml_training.py
 ```
 
 #### Minimize Energy Consumption with Full Debug Output

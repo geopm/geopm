@@ -581,7 +581,7 @@ Sweep GPU controls the same way as CPU controls; a longer
               --metric-regex 'Training speed: ([0-9.]+) samples/sec' \
               --trials 60 \
               --application-timeout 600 \
-              -- python train_model.py
+              -- python3 train_model.py
 
 Defer applying the configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

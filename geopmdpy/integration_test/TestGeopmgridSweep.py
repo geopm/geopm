@@ -10,7 +10,7 @@ Phase F of the grid-sweep CLI plan (#4046) replaces the 28 per-control grid
 flags with a single repeatable ``--sweep`` option plus ``--list-controls``.
 The mocked unit suite under ``geopmdpy/test`` verifies the parsing and wiring
 in isolation; this live-hardware test closes the end-to-end gap by driving the
-real ``geopmgrid`` (``python -m geopmdpy.grid``) as a subprocess and asserting:
+real ``geopmgrid`` (``python3 -m geopmdpy.grid``) as a subprocess and asserting:
 
 * ``--list-controls`` exits 0 and lists every control with the fixed-width
   header (a control whose range is unreadable on the current platform is shown
@@ -38,7 +38,7 @@ _CONTROL_ALIASES = ('cpu-freq', 'uncore-freq', 'cpu-power', 'gpu-freq',
 
 
 def _run_grid(*args):
-    """Run ``python -m geopmdpy.grid`` with ``args`` and return the result."""
+    """Run ``python3 -m geopmdpy.grid`` with ``args`` and return the result."""
     cmd = [sys.executable, '-m', 'geopmdpy.grid', *args]
     return subprocess.run(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
