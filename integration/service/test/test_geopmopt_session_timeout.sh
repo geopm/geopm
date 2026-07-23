@@ -20,7 +20,7 @@ cleanup() {
 trap cleanup EXIT
 
 geopmopt --verbosity=2 \
-         --cpu-frequency=board \
+         --sweep cpu-freq@board \
          --minimize \
          --metric-regex='GEOPMOPT-FOM: ([0-9.]+)' \
          --application-timeout=2 \
