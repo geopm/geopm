@@ -376,10 +376,10 @@ need not print a figure of merit:
               --trials 30 \
               -- geopmbench geopmbench.conf
    INFO: Starting Bayesian optimization with 30 evaluations...
-   INFO: Evaluation 1: coordinate=[22], metric=54.33
-   INFO: Evaluation 2: coordinate=[21], metric=49.52
+   INFO: Evaluation 1: coordinate=[22], score=54.33
+   INFO: Evaluation 2: coordinate=[21], score=49.52
    ...
-   INFO: Evaluation 30: coordinate=[18], metric=45.81
+   INFO: Evaluation 30: coordinate=[18], score=45.81
    INFO: Optimization completed!
    INFO: Best metric: 45.81
    INFO: Best coordinate: [18]
@@ -404,7 +404,7 @@ minimizing runtime, and the best configuration is written to a file for reuse:
               --output-file best_config.txt \
               -- geopmbench geopmbench.conf
    INFO: Starting Bayesian optimization with 30 evaluations...
-   INFO: Evaluation 1: coordinate=[22, 3, 120], metric=51.0
+   INFO: Evaluation 1: coordinate=[22, 3, 120], score=51.0
    ...
    INFO: Optimization completed!
    INFO: Best metric: 45.05
