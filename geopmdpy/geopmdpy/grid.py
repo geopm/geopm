@@ -128,26 +128,47 @@ _QUANTITY_RE = re.compile(
 )
 
 
+def split_quantity(text: str) -> Optional[Tuple[str, str]]:
+    """Split a numeric token into its number and optional unit suffix.
+
+    This is the public tokenizer shared by :func:`parse_quantity` and other
+    modules (such as constraint parsing) that need to inspect a value's unit
+    suffix without depending on the private matching regex.
+
+    Args:
+        text: A value token such as "2.8GHz", "250W", or "4".
+
+    Returns:
+        The ``(number, suffix)`` pair with a possibly empty suffix, or ``None``
+        if the token is not a well-formed numeric quantity.
+    """
+    match = _QUANTITY_RE.match(text)
+    if match is None:
+        return None
+    return match.group(1), match.group(2)
+
+
 def parse_quantity(text: str, category: str) -> float:
     """Parse a numeric grid value with an optional unit suffix.
 
     Args:
         text: The value token, for example "2.8GHz", "250W", or "4".
-        category: The control category ("frequency", "power", or "level")
-            that determines which unit suffixes are accepted.
+        category: The value category that determines which unit suffixes are
+            accepted: "frequency", "power", "energy", "time", or "level".
 
     Returns:
-        float: The value converted to the control's raw unit (Hz for
-        frequency, Watts for power, and an integer level for "level").
+        float: The value converted to its raw unit (Hz for frequency, Watts
+        for power, Joules for energy, seconds for time, and an integer level
+        for "level").
 
     Raises:
         ValueError: If the token is malformed, negative, or carries an
             unrecognized or disallowed unit suffix.
     """
-    match = _QUANTITY_RE.match(text)
-    if match is None:
+    parts = split_quantity(text)
+    if parts is None:
         raise ValueError(f"invalid numeric value '{text}'")
-    number, suffix = match.group(1), match.group(2)
+    number, suffix = parts
     value = float(number)
     if value < 0:
         raise ValueError(f"value '{text}' must not be negative")
