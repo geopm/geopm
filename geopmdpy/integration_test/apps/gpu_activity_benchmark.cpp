@@ -2,31 +2,46 @@
 //  Copyright (c) 2015 - 2026 Intel Corporation
 //  SPDX-License-Identifier: BSD-3-Clause
 //
+// GPU activity benchmark: a small SYCL workload generator used by the GPU
+// activity agent integration test.  It emits a single "FOM (<unit>): <n>"
+// line so the test can compare throughput across agent phi values.  Three
+// profiles exercise different GPU activity regimes:
+//   * steady  - back-to-back compute kernels that keep the GPU saturated
+//               (control case: the agent has no stalls to exploit).
+//   * serving - the same compute kernel but with an idle gap after each
+//               request to hit a target duty cycle (activity oscillates).
+//   * decode  - a memory-bandwidth-bound autoregressive proxy that looks
+//               busy but leaves the compute engine only partially active.
+//
+// The default sizes below are generic tuning knobs chosen to produce
+// measurable, steady activity on a data-center GPU; they are NOT tied to any
+// specific device's memory capacity or PVC in particular.  Every one of them
+// is overridable via CLI flags and the GEOPM_GPU_* environment variables, so
+// no source change is required to retarget different hardware.
 
 #include <sycl/sycl.hpp>
 
 #include <chrono>
-#include <cmath>
 #include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <thread>
-#include <vector>
 
 namespace
 {
+    // Workload configuration.  Defaults are generic starting points; override
+    // via CLI flags or GEOPM_GPU_* environment variables for other hardware.
     struct Args {
         std::string profile = "steady";
         double duration = 60.0;
-        double duty_cycle = 0.5;
-        int batch_size = 64;
-        std::size_t hidden = 8192;
-        std::size_t layers = 8;
-        std::size_t elements = 1 << 20;
-        int compute_intensity = 2048;
-        int decode_intensity = 1;
+        double duty_cycle = 0.5;     // serving profile active fraction
+        int batch_size = 64;         // FoM scaling factor for image profiles
+        std::size_t hidden = 8192;   // decode hidden dimension (per-layer width)
+        std::size_t layers = 8;      // decode layer count (working-set depth)
+        std::size_t elements = 1 << 20; // steady/serving vector length
+        int compute_intensity = 2048;   // FMAs per element per compute kernel
+        int decode_intensity = 1;       // memory passes per decode token
     };
 
     double now_sec(void)
@@ -177,6 +192,10 @@ namespace
 
     int run_compute_profile(sycl::queue &queue, const Args &args)
     {
+        // steady/serving: repeatedly launch a compute-bound kernel over a
+        // single device vector.  "serving" sleeps after each request to hold a
+        // target duty cycle, creating the idle gaps the agent exploits;
+        // "steady" runs back-to-back to keep the GPU saturated.
         float *data = sycl::malloc_device<float>(args.elements, queue);
         if (data == nullptr) {
             throw std::runtime_error("failed to allocate device buffer");
@@ -214,6 +233,11 @@ namespace
 
     int run_decode_profile(sycl::queue &queue, const Args &args)
     {
+        // decode: an autoregressive proxy.  Each token reads a large weight
+        // buffer (hidden x layers) and mutates a small recurrent state, so the
+        // kernel is memory-bandwidth bound and the compute engine is only
+        // partially active -- the regime where the agent lowers frequency with
+        // little throughput loss.
         std::size_t elements = args.hidden * args.layers;
         std::size_t state_elements = args.hidden;
         float *weights = sycl::malloc_device<float>(elements, queue);

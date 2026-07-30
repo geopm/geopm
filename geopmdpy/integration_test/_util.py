@@ -65,8 +65,8 @@ def skip_unless_workload():
 
     The default workload is a locally built SYCL/oneAPI benchmark.  It requires
     either an existing benchmark binary or a SYCL compiler on ``PATH`` (or in
-    ``GEOPM_GPU_BENCH_CXX``).  The optional Python/container drivers still use
-    the old ``GEOPM_GPU_WORKLOAD_NATIVE`` / container-engine checks.
+    ``GEOPM_GPU_BENCH_CXX``).  The optional Python/container drivers use the
+    ``GEOPM_GPU_WORKLOAD_NATIVE`` / container-engine checks below.
     """
     script = workload_wrapper()
     if not os.path.exists(script):

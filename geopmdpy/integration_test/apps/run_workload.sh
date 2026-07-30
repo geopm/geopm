@@ -5,7 +5,7 @@
 #
 # Run one of the GPU inference workload drivers in this directory.  The default
 # driver is a local SYCL/oneAPI benchmark that is built on demand and requires
-# no container or network access.  Python drivers are still supported for
+# no container or network access.  Python drivers are also available for
 # optional container/native experiments.  The first argument is the driver's
 # file name or binary name; all remaining arguments are forwarded to it.  Each
 # driver prints a single "FOM (<unit>): <n>" line to stdout, which the GEOPM
@@ -52,6 +52,9 @@ if [[ "${GEOPM_GPU_WORKLOAD_NATIVE:-0}" == "1" ]]; then
     exec python3 "${SCRIPT_DIR}/${DRIVER}" "$@"
 fi
 
+# Base container run arguments: expose the GPU render nodes (/dev/dri) to the
+# container so the workload can reach the GPU, and bind-mount this apps
+# directory read-only at /apps so the driver script is available inside.
 engine_args=(run --rm --device /dev/dri -v "${SCRIPT_DIR}:/apps:ro")
 
 render_gid="$(getent group render | cut -d: -f3 || true)"
@@ -59,9 +62,11 @@ if [[ -n "${render_gid}" ]]; then
     engine_args+=(--group-add "${render_gid}")
 fi
 
+# On SELinux hosts the read-only bind mount is relabeled by default, which can
+# deny access under rootless podman; disabling the label opt-in avoids that.
 if [[ -n "${GEOPM_GPU_SELINUX_DISABLE:-}" ]]; then
     engine_args+=(--security-opt label=disable)
 fi
 
 exec "${ENGINE}" "${engine_args[@]}" "${IMAGE}" \
-    python "/apps/${DRIVER}" "$@"
+    python3 "/apps/${DRIVER}" "$@"
