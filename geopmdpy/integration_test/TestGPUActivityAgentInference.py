@@ -33,11 +33,13 @@ GPU *stalls*).  Three workload profiles are therefore exercised:
 
 ``Decode`` (regime 2: frequency-insensitive but busy)
     A batch-1, memory-bandwidth-bound autoregressive decode proxy (the LLM
-    decode archetype).  The GPU looks busy but the compute engine is only
-    partially active, so the agent lowers the frequency with negligible
-    performance loss -- the scenario where it is most differentiated from
-    the GPU's own hardware DVFS.  Dynamic control and energy savings at
-    phi=0.5 are asserted.
+    decode archetype).  "Batch-1" means one inference request is processed at
+    a time (batch size of one, no request batching), which is the latency-bound
+    regime that under-fills the compute engine.  The GPU looks busy but the
+    compute engine is only partially active, so the agent lowers the frequency
+    with negligible performance loss -- the scenario where it is most
+    differentiated from the GPU's own hardware DVFS.  Dynamic control and energy
+    savings at phi=0.5 are asserted.
 
 This is NOT a unit test: it requires a live GEOPM service, a GPU, and the
 inference workload.  It lives in the independent ``integration_test`` directory
@@ -45,7 +47,7 @@ and is run explicitly.  See ``README.md`` in this directory.
 
 Environment overrides (all optional):
   GEOPM_GPU_WORKLOAD_SEC     Workload timed duration, seconds (default 30).
-    GEOPM_GPU_BATCH_SIZE       Image-profile FoM scaling factor (default 64).
+  GEOPM_GPU_BATCH_SIZE       Image-profile FoM scaling factor (default 64).
   GEOPM_GPU_DUTY_CYCLE       Serving-mode GPU-active fraction (default 0.5).
   GEOPM_GPU_PERIOD           Agent/monitor sample period, seconds (default 0.02).
   GEOPM_GPU_FOM_TOL          Allowed fractional FoM drop at phi=0 (default 0.05).
@@ -153,6 +155,9 @@ class _ScenarioHarness(unittest.TestCase):
                 phi, cls._workload_sec + _AGENT_MARGIN_SEC, cls._period,
                 agent_trace, agent_report)
             agent_err = open(agent_stderr_path, 'w')
+            # The agent's stdout is only a human-readable end-of-run summary;
+            # the test consumes the trace/report files instead, so discard it.
+            # stderr is captured to a file for diagnostics on failure.
             agent_proc = subprocess.Popen(
                 agent_cmd, stdout=subprocess.DEVNULL, stderr=agent_err,
                 start_new_session=True)

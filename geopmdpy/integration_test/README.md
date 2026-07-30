@@ -13,6 +13,19 @@ requires:
 
 It is **opt-in** and is *not* collected by `make check`.
 
+## Terminology
+
+The word "driver" appears in two unrelated senses in this directory:
+
+- **kernel driver** — the operating-system GPU driver (`i915` or `xe`) that
+  exposes the device; a host prerequisite.
+- **workload driver** — a program under `apps/` that generates GPU load and
+  prints a single `FOM (<unit>): <n>` line: the default SYCL benchmark
+  (`gpu_activity_benchmark`) or the optional PyTorch scripts
+  (`ipex_resnet50_infer.py`, `torch_decode_infer.py`).
+
+Unqualified uses of "driver" below refer to the workload driver.
+
 ## Why three workloads
 
 The agent sets GPU frequency proportional to compute activity:
@@ -80,9 +93,9 @@ If the compiler is not on `PATH`, set `GEOPM_GPU_BENCH_CXX` to the compiler
 path.  The resulting binary is cached under `integration_test/apps/build/` by
 default; set `GEOPM_GPU_BENCH_BUILD_DIR` to place it elsewhere.
 
-The older PyTorch/container drivers are still present for optional experiments,
-but they are not used by the integration tests by default and require a local
-image cache or native PyTorch/IPEX install.
+The PyTorch/container workload drivers are optional alternatives to the default
+SYCL benchmark.  The integration tests do not use them by default, and they
+require a local image cache or a native PyTorch/IPEX install.
 
 ## Running
 
