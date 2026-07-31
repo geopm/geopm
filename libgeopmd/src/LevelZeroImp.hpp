@@ -10,6 +10,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <chrono>
 
 #include <level_zero/ze_api.h>
 #include <level_zero/zes_api.h>
@@ -211,6 +212,11 @@ namespace geopm
                 // streamer (set when the controller first reads the chip).
                 // Chip indexed.
                 std::vector<bool> metric_active;
+                // Time the chip's streamer was last drained (by either the
+                // controller or the background thread).  Used so the thread only
+                // drains as a keep-alive when the controller isn't draining
+                // frequently enough on its own.  Chip indexed.
+                std::vector<std::chrono::steady_clock::time_point> metric_last_drain;
                 mutable std::vector<bool> metrics_initialized;
             };
 
