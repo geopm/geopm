@@ -121,6 +121,11 @@ class _ScenarioHarness(unittest.TestCase):
         cls._config_path = os.path.join(cls._tmpdir, 'gpu_monitor.config')
         _util.build_monitor_config(cls._config_path)
 
+        # Compile the local SYCL benchmark up front so run_workload.sh is a
+        # pure launcher; the container/native drivers need no build step.
+        if cls.DRIVER == _util.LOCAL_DRIVER:
+            _util.build_local_benchmark()
+
         cls._workload_cmd = _util.workload_command(
             cls.DRIVER, cls.workload_args())
 

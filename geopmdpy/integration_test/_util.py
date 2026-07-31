@@ -71,7 +71,7 @@ def skip_unless_workload():
     script = workload_wrapper()
     if not os.path.exists(script):
         return unittest.skip(f'workload wrapper not found: {script}')
-    build_script = os.path.join(apps_dir(), 'build_gpu_activity_benchmark.sh')
+    makefile = os.path.join(apps_dir(), 'Makefile')
     build_dir = os.environ.get(
         'GEOPM_GPU_BENCH_BUILD_DIR', os.path.join(apps_dir(), 'build'))
     benchmark = os.path.join(build_dir, LOCAL_DRIVER)
@@ -79,9 +79,9 @@ def skip_unless_workload():
     compiler_ok = bool(compiler and shutil.which(compiler)) or any(
         shutil.which(candidate) for candidate in ('icpx', 'dpcpp'))
     if os.environ.get('GEOPM_GPU_WORKLOAD_BACKEND', 'local') == 'local':
-        if not os.path.exists(build_script):
+        if not os.path.exists(makefile):
             return unittest.skip(
-                f'local benchmark build script not found: {build_script}')
+                f'local benchmark Makefile not found: {makefile}')
         if not os.path.exists(benchmark) and not compiler_ok:
             return unittest.skip(
                 'local SYCL benchmark requires an existing binary or a SYCL '
@@ -113,6 +113,20 @@ def workload_command(driver, extra_args):
     """Build the command that runs ``driver`` (a file name under ``apps/``)
     through the container/native wrapper, forwarding ``extra_args``."""
     return [workload_wrapper(), driver] + [str(a) for a in extra_args]
+
+
+def build_local_benchmark():
+    """Compile the local SYCL benchmark via ``apps/Makefile`` and return the
+    binary path.  ``make`` is a no-op when the binary is already up to date;
+    its output is routed to stderr so it never pollutes captured stdout.
+    """
+    import subprocess
+    build_dir = os.environ.get(
+        'GEOPM_GPU_BENCH_BUILD_DIR', os.path.join(apps_dir(), 'build'))
+    subprocess.run(
+        ['make', '-C', apps_dir(), f'GEOPM_GPU_BENCH_BUILD_DIR={build_dir}'],
+        check=True, stdout=sys.stderr, stderr=sys.stderr)
+    return os.path.join(build_dir, LOCAL_DRIVER)
 
 
 def build_monitor_config(path):

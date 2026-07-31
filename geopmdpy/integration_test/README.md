@@ -84,7 +84,7 @@ The default benchmark is built locally on first use:
 
 ```bash
 cd geopm/geopmdpy/integration_test/apps
-./build_gpu_activity_benchmark.sh
+make
 ./build/gpu_activity_benchmark --profile steady --duration 2
 # expect: FOM (images/sec): <n>
 ```
@@ -122,7 +122,7 @@ Workload / deployment:
 | Variable | Default | Meaning |
 |---|---|---|
 | `GEOPM_GPU_WORKLOAD_BACKEND` | `local` | `local` uses the self-built SYCL benchmark (default). Other values fall through to the optional Python/container path. |
-| `GEOPM_GPU_BENCH_CXX` | auto (`icpx`, `dpcpp`, `clang++`) | SYCL compiler used by `build_gpu_activity_benchmark.sh` |
+| `GEOPM_GPU_BENCH_CXX` | auto (`icpx`, `dpcpp`, `clang++`) | SYCL compiler used by the `apps/Makefile` |
 | `GEOPM_GPU_BENCH_BUILD_DIR` | `integration_test/apps/build` | Build/cache directory for the local benchmark binary |
 | `GEOPM_GPU_WORKLOAD_NATIVE` | `0` | Optional Python-driver path only: `1` runs Python drivers natively instead of in a container (host needs `torch` + `intel_extension_for_pytorch`) |
 | `GEOPM_GPU_CONTAINER_ENGINE` | `docker` | Optional Python-driver path only: container engine (`docker` or rootless `podman`) |
@@ -173,7 +173,7 @@ Measurement / tolerances:
 | `TestGPUActivityAgentInference.py` | Shared harness + the three scenario test classes |
 | `_util.py` | geopmdpy-native skip guards + trace/FoM parsing helpers |
 | `apps/gpu_activity_benchmark.cpp` | Local SYCL/oneAPI benchmark with `steady`, `serving`, and `decode` profiles |
-| `apps/build_gpu_activity_benchmark.sh` | Builds/caches the local benchmark binary |
+| `apps/Makefile` | Builds/caches the local benchmark binary |
 | `apps/ipex_resnet50_infer.py` | ResNet-50 FP16 benchmark: `steady` and `serving` modes |
 | `apps/torch_decode_infer.py` | Batch-1, memory-bound autoregressive decode benchmark |
 | `apps/run_workload.sh` | Container/native wrapper the harness invokes (driver = arg 1) |
