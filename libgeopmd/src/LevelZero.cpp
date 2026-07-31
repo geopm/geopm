@@ -614,6 +614,8 @@ namespace geopm
             m_devices.at(device_idx).subdevice.metric_data.push_back({});
             m_devices.at(device_idx).subdevice.metric_data_accum.push_back({});
             m_devices.at(device_idx).subdevice.metric_active.push_back(false);
+            m_devices.at(device_idx).subdevice.metric_last_drain.push_back(
+                std::chrono::steady_clock::time_point{});
 
             for (unsigned int metric_group_idx = 0; metric_group_idx < num_metric_group;
                  metric_group_idx++) {
@@ -822,10 +824,10 @@ namespace geopm
 
         // Use the cached name→index map to avoid calling zetMetricGet and
         // zetMetricGetProperties on every sample iteration.  The report values
-        // are appended to the accumulator under lock; the controller snapshots
-        // (moves) the accumulator into metric_data once per read_batch().
+        // are appended to the accumulator; the caller (metric_drain) holds
+        // m_metric_mutex, and the controller snapshots (moves) the accumulator
+        // into metric_data once per read_batch().
         const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
-        std::lock_guard<std::mutex> lock(m_metric_mutex);
         auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
         for (const auto &kv : name_idx) {
             const std::string &metric_name = kv.first;
@@ -870,15 +872,27 @@ namespace geopm
             return;
         }
 
-        // Snapshot the reports accumulated by the background thread since the
-        // last read_batch() into metric_data, marking the chip active so the
-        // thread drains it.  metric_data therefore holds every report gathered
-        // over the controller period (averaged later by metric_sample).
         const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
         {
             std::lock_guard<std::mutex> lock(m_metric_mutex);
+
+            // Open the streamer on first use.  Done from the controller thread in
+            // chip order so the streamer vectors grow safely, and serialized with
+            // the background thread by m_metric_mutex.
+            if (!m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
+                metric_execute(l0_device_idx, l0_domain_idx);
+                m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = true;
+            }
             m_devices.at(l0_device_idx).subdevice.metric_active.at(l0_domain_idx) = true;
 
+            // Drain now so this sample always has fresh data, regardless of how
+            // the controller period compares to the background drain cadence.
+            metric_drain(l0_device_idx, l0_domain_idx);
+
+            // Snapshot the accumulated reports (this drain plus any the
+            // background thread gathered since the last read_batch) into
+            // metric_data.  metric_data therefore holds every report gathered
+            // over the controller period (averaged later by metric_sample).
             auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
             auto &current = m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx);
             size_t num_reports = 0;
@@ -917,27 +931,27 @@ namespace geopm
 
     void LevelZeroImp::metric_sample_thread(void)
     {
+        // Keep-alive draining: the controller drains each chip itself in
+        // metric_read(), so this thread only needs to drain a chip when the
+        // controller hasn't drained it recently.  This keeps the metric streamer
+        // from stalling during long controller periods, while avoiding redundant
+        // draining (and lock contention) when the controller drains frequently.
         while (m_metric_thread_active.load()) {
+            auto now = std::chrono::steady_clock::now();
             for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_gpu; ++l0_device_idx) {
                 unsigned int num_subdevice = m_devices.at(l0_device_idx).num_subdevice;
                 for (unsigned int l0_domain_idx = 0; l0_domain_idx < num_subdevice; ++l0_domain_idx) {
-                    bool active;
-                    {
-                        std::lock_guard<std::mutex> lock(m_metric_mutex);
-                        active = m_devices.at(l0_device_idx).subdevice.metric_active.at(l0_domain_idx);
-                    }
-                    if (!active ||
-                        !m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
+                    std::lock_guard<std::mutex> lock(m_metric_mutex);
+                    auto &sub = m_devices.at(l0_device_idx).subdevice;
+                    if (!sub.metric_active.at(l0_domain_idx) ||
+                        !sub.metric_domain_cached.at(l0_domain_idx) ||
+                        !sub.metrics_initialized.at(l0_domain_idx)) {
                         continue;
                     }
-
-                    // Open the streamer on first use (thread owns the streamers).
-                    if (!m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
-                        metric_execute(l0_device_idx, l0_domain_idx);
-                        m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = true;
+                    auto elapsed = now - sub.metric_last_drain.at(l0_domain_idx);
+                    if (elapsed >= std::chrono::microseconds(METRIC_DRAIN_PERIOD_US)) {
+                        metric_drain(l0_device_idx, l0_domain_idx);
                     }
-
-                    metric_drain(l0_device_idx, l0_domain_idx);
                 }
             }
             std::this_thread::sleep_for(std::chrono::microseconds(METRIC_DRAIN_PERIOD_US));
@@ -946,10 +960,16 @@ namespace geopm
 
     void LevelZeroImp::metric_drain(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
+        // Caller must hold m_metric_mutex.
         ze_result_t ze_result;
         uint32_t report_count_req = 1;
         zet_metric_streamer_handle_t metric_streamer =
             m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx);
+
+        // Record the drain attempt so the keep-alive thread can tell whether the
+        // controller is draining this chip on its own.
+        m_devices.at(l0_device_idx).subdevice.metric_last_drain.at(l0_domain_idx) =
+            std::chrono::steady_clock::now();
 
         ///////////////////
         // Read Raw Data //
