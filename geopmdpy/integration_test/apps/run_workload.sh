@@ -41,7 +41,14 @@ if [[ "${DRIVER}" == "gpu_activity_benchmark" ]]; then
     if [[ -z "${SYCL_DEVICE_FILTER:-}" ]]; then
         export SYCL_DEVICE_FILTER="level_zero:gpu"
     fi
-    BENCHMARK="$(${SCRIPT_DIR}/build_gpu_activity_benchmark.sh)"
+    # The benchmark is compiled by the test harness (apps/Makefile); this
+    # script only launches the prebuilt binary.
+    BUILD_DIR="${GEOPM_GPU_BENCH_BUILD_DIR:-${SCRIPT_DIR}/build}"
+    BENCHMARK="${BUILD_DIR}/gpu_activity_benchmark"
+    if [[ ! -x "${BENCHMARK}" ]]; then
+        echo "benchmark not built: ${BENCHMARK} (run 'make -C ${SCRIPT_DIR}')" >&2
+        exit 1
+    fi
     exec "${BENCHMARK}" "$@"
 fi
 
