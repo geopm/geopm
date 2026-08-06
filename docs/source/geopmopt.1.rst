@@ -23,14 +23,14 @@ Synopsis
                     [-- LAUNCH ...]
 
 List available controls
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     geopmopt --list-controls
 
 List available metrics
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -38,7 +38,7 @@ List available metrics
              --metric power=signal:CPU_POWER@board:mean
 
 Minimize runtime
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -47,7 +47,7 @@ Minimize runtime
              -- ./workload.sh
 
 Maximize a figure of merit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -59,7 +59,7 @@ Maximize a figure of merit
              -- ./dgemm_bench.sh
 
 Optimize energy efficiency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -70,7 +70,7 @@ Optimize energy efficiency
              -- ./mixed_workload.sh
 
 Compose an objective with constraints
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -254,7 +254,7 @@ Optimization Configuration
     parsing errors) always abort the run regardless of this setting.
 
 General Objective Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These options provide a composable alternative to the legacy
 ``--metric-regex``/``--efficiency``/``--metric-bound`` flags: name any number of
@@ -362,7 +362,7 @@ multi-metric objective interface.  Each assumes ``scikit-optimize`` is installed
 and that a live GEOPM service grants write access to the swept controls.
 
 Minimize wall-clock runtime
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The simplest run sweeps a single control and, with no ``--metric-regex``,
 minimizes the launch command's wall-clock runtime directly -- the application
@@ -388,7 +388,7 @@ need not print a figure of merit:
    CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
 
 Tune several controls together
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pass ``--sweep`` more than once to optimize several controls jointly.  Here CPU
 frequency, uncore frequency, and the CPU power limit are tuned together, still
@@ -423,7 +423,7 @@ Apply the saved configuration to the current session at any time with:
    $ geopmwrite -f best_config.txt
 
 Maximize an application figure of merit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When the application prints a figure of merit, scrape it with
 ``--metric-regex``; the captured value is maximized by default:
@@ -437,7 +437,7 @@ When the application prints a figure of merit, scrape it with
               -- ./dgemm_bench.sh
 
 Minimize a value the application prints
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Add ``--minimize`` to minimize the scraped value instead, for a quantity such as
 an execution time the application reports itself:
@@ -451,7 +451,7 @@ an execution time the application reports itself:
               -- ./timed_benchmark
 
 Optimize for energy efficiency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Add ``--efficiency`` to fold measured power into the objective.  With a
 ``--metric-regex`` the objective becomes the figure of merit per watt
@@ -467,7 +467,7 @@ Add ``--efficiency`` to fold measured power into the objective.  With a
               -- ./throughput_app
 
 Minimize total energy
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 With ``--efficiency`` and no ``--metric-regex`` the objective is the total
 energy consumed over the domain, so ``geopmopt`` finds the lowest-energy
@@ -482,7 +482,7 @@ configuration:
               -- ./compute_kernel
 
 Compose an objective from named metrics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The general objective interface names any number of metrics, selects one to
 optimize, and adds feasibility constraints.  Here the scraped figure of merit is
@@ -505,7 +505,7 @@ reported best configuration is the feasible one with the largest ``fom``.  See
 `Objective and Constraint Grammar`_ for the full provider and constraint syntax.
 
 Optimize a derived metric
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An ``expr:`` metric combines previously defined metrics with restricted
 arithmetic, so a custom objective can be expressed directly instead of through
@@ -521,7 +521,7 @@ the ``--efficiency`` shorthand:
               -- ./app
 
 Optimize tokens per watt with an SLA
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Selecting a sampling domain with ``--energy-domain`` populates the reserved
 ``power`` metric, so no separate ``signal:`` definition is needed. Here
@@ -545,7 +545,7 @@ Because ``--energy-domain board`` is set, ``power`` is measured from the
 configurations whose ``p99`` exceeds the bound are treated as infeasible.
 
 Preview reserved and referenced metrics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``--list-metrics`` prints the reserved canonical metrics (each annotated with
 the mode in which it becomes available) and every ``signal:`` metric referenced
@@ -570,7 +570,7 @@ analogue of ``--list-controls``):
    CPU_ENERGY              board     monotone    delta
 
 Optimize GPU parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Sweep GPU controls the same way as CPU controls; a longer
 ``--application-timeout`` accommodates slower launches:
@@ -584,7 +584,7 @@ Sweep GPU controls the same way as CPU controls; a longer
               -- python3 train_model.py
 
 Defer applying the configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With ``--defer-write`` ``geopmopt`` does not apply candidate controls itself;
 instead it writes each candidate to ``--output-file`` before its trial so
@@ -601,7 +601,7 @@ another tool applies it.  This suits distributed runs and integration with
               -- ./app
 
 Troubleshoot metric extraction
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Raise the verbosity and echo application stdout to debug a regex that is not
 matching:
@@ -651,7 +651,7 @@ which are retained as documented aliases (see `Legacy flag aliases`_). The two
 interfaces may not be combined on a single invocation.
 
 Named metrics
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 Each ``--metric NAME=SOURCE`` defines one metric. ``NAME`` is an identifier
 matching ``[A-Za-z_][A-Za-z0-9_]*`` and is referenced verbatim by
@@ -691,7 +691,7 @@ providers:
    another.
 
 Reserved metric names
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 A small set of canonical names carry a known unit so a constraint spelling is
 unambiguous. They may be referenced by ``--constraint`` and selected as the
@@ -726,7 +726,7 @@ parse time with a message naming the metric and how to enable it (see
        a ``regex:`` metric (or legacy ``--metric-regex``) supplies it.
 
 Default aggregation from signal behavior
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a ``signal:`` metric omits ``:AGG``, the aggregation is derived from the
 signal's reported behavior rather than hard-coded per name. An explicit ``:AGG``
@@ -748,7 +748,7 @@ quantity and are rejected.
      - ``CPU_POWER``, ``CPU_FREQUENCY_STATUS``, temperature
 
 Selecting the objective
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 ``--maximize NAME`` and ``--minimize NAME`` select exactly one objective metric
 and its direction. Providing both, or naming an undefined metric, is an error.
@@ -768,7 +768,7 @@ penalty so heterogeneous units remain commensurable, and the reported best
 configuration is the feasible one that best optimizes the objective.
 
 Legacy flag aliases
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 The v1 objective flags remain supported and are expanded internally into the
 canonical grammar above; they are mutually exclusive with the general flags on
