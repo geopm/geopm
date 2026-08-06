@@ -120,8 +120,12 @@ interface (``--metric``, ``--maximize``/``--minimize NAME``, and
 ``--constraint``) composes an objective from several named metrics and adds
 feasibility constraints; see `Objective and Constraint Grammar`_.
 
-The tool requires the ``scikit-optimize`` package for Bayesian optimization
-functionality: ``python3 -m pip install scikit-optimize``
+The tool requires the optional ``optimize`` dependencies (``scikit-optimize``
+and ``pyyaml``), which are not installed by a base ``geopmdpy`` install or by
+the OS packages. Install ``geopmdpy`` with the ``optimize`` extra, ideally into
+a personal virtual environment (see :ref:`Installing client tools with pip
+<install:Installing client tools with pip>`): ``python3 -m pip install
+'geopmdpy[optimize]'``
 
 
 Options
