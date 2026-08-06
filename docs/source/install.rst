@@ -7,6 +7,17 @@ or a development snapshot. The stable release packages are created as part of
 the Git repository tag/release process. The development snapshot packages are
 built by GEOPM's GitHub CI process each time the ``dev`` branch is updated.
 
+These OS packages are the right choice for **system administrators** deploying
+the :doc:`GEOPM Access Service<service>` for all users of a system. The
+``geopmd`` daemon runs as ``root``, so it is installed from a stable, tagged
+release and deliberately omits the optional Python dependencies that only
+client-side tools require. **Clients** of an already-deployed Access Service who
+want to run tools such as :doc:`geopmopt<geopmopt.1>` -- particularly on a
+system where they do not have administrative privileges -- can instead install
+the ``geopmdpy`` Python package, which provides ``geopmopt`` and the other
+client command-line tools, into a personal virtual environment with ``pip``;
+see `Installing client tools with pip`_ below.
+
 GEOPM works with Intel GPUs when GEOPM is built with LevelZero support and
 NVIDIA GPUs when GEOPM is built with NVML support. Additional limited support
 for GPUs exists when the GPUs are visible in a Linux Direct Rendering Manager
@@ -917,6 +928,41 @@ Guides for Specialized Install
 There are other installation scenarios that are not covered on this page which
 may be preferred in certain circumstances. See links below to supporting
 documentation if these situations apply to you.
+
+Installing client tools with pip
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The OS packages above install the root-owned :doc:`GEOPM Access
+Service<service>` daemon, which does not require the optional Python
+dependencies used by client tools. A **client** of an already-deployed Access
+Service -- for example a user running :doc:`geopmopt<geopmopt.1>` -- can install
+the ``geopmdpy`` Python package into a personal virtual environment instead.
+The ``geopmdpy`` package provides ``geopmopt`` along with the ``geopmread``,
+``geopmwrite``, and ``geopmsession`` client tools. Installing it this way does
+not require administrative privileges, and it lets a client:
+
+- pull in optional dependencies, such as the ``optimize`` extra that enables
+  ``geopmopt`` (``scikit-optimize`` and ``pyyaml``); and
+- run a development snapshot of the client tools on top of a stable, tagged
+  Access Service release, so the root-owned daemon keeps executing vetted code
+  while the client experiments with newer features.
+
+.. code-block:: bash
+
+    # Create and activate a virtual environment
+    python3 -m venv geopm-venv
+    source geopm-venv/bin/activate
+
+    # Install the latest release of the client tools with the optimize extra
+    python3 -m pip install 'geopmdpy[optimize]'
+
+    # ...or install a development snapshot from the dev branch instead
+    python3 -m pip install \
+        'geopmdpy[optimize] @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy'
+
+Client tools installed this way communicate with whatever GEOPM Access Service
+is already running on the system; the virtual environment affects only the
+user-space client, not the ``root``-owned daemon.
 
 Install latest development snapshot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -232,7 +232,7 @@ feasibility constraints.
 
 .. code-block:: bash
 
-    # Requires scikit-optimize: python3 -m pip install scikit-optimize
+    # Requires the optimize extra: python3 -m pip install 'geopmdpy[optimize]'
     geopmopt --sweep cpu-freq@board \
              --trials 30 \
              --output-file best_config.txt \
@@ -246,6 +246,7 @@ feasibility constraints.
    For more information, see:
 
      - :doc:`geopmopt <geopmopt.1>`
+     - :ref:`Installing client tools with pip <install:Installing client tools with pip>` for setting up ``geopmopt`` in a virtual environment.
      - See the :ref:`Optimize Control Settings section of the Tutorial <tutorial:optimize-control-settings>` for a step-by-step walkthrough.
 
 ----

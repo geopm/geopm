@@ -1018,11 +1018,15 @@ the application's output or from measured hardware signals, and uses the result
 to choose the next configuration to try.  When the search finishes it prints the
 best configuration in ``geopmwrite`` format so you can apply or save it.
 
-``geopmopt`` builds on ``scikit-optimize``, so install it first:
+``geopmopt`` builds on the optional ``optimize`` dependencies
+(``scikit-optimize`` and ``pyyaml``), which are not pulled in by a base
+``geopmdpy`` install or by the OS packages. Install ``geopmdpy`` with the
+``optimize`` extra, ideally into a personal virtual environment as described in
+:ref:`install:Installing client tools with pip`:
 
 .. code-block:: bash
 
-    $ python3 -m pip install scikit-optimize
+    $ python3 -m pip install 'geopmdpy[optimize]'
 
 Inspecting the Search Space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
