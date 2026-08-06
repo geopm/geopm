@@ -1025,7 +1025,7 @@ best configuration in ``geopmwrite`` format so you can apply or save it.
     $ python3 -m pip install scikit-optimize
 
 Inspecting the Search Space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before optimizing, list the controls that can be swept and, for signal-based
 objectives, the metrics that can be measured:
@@ -1044,7 +1044,7 @@ frequency cap over the whole board and ``cpu-freq@board=1.2GHz:3GHz:100MHz``
 narrows the range explored.
 
 Minimizing Runtime
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 The simplest run sweeps a single control and optimizes wall-clock runtime.  With
 no ``--metric-regex`` the objective is the launch command's total runtime, so
@@ -1067,7 +1067,7 @@ Higher ``--trials`` counts explore more configurations at the cost of more
 application runs; start with 20-30 to validate the setup.
 
 Tuning Several Controls and Saving the Result
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pass ``--sweep`` more than once to tune several controls jointly, and use
 ``--output-file`` to save the winning configuration for reuse:
@@ -1088,7 +1088,7 @@ Because the configuration is plain ``geopmwrite`` text, it can also be applied
 through ``geopmlaunch --geopm-init-control`` for a whole job.
 
 Optimizing an Application Figure of Merit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When the application prints a figure of merit, scrape it with a capturing
 regular expression.  The scraped value is maximized by default; add
@@ -1110,7 +1110,7 @@ regular expression.  The scraped value is maximized by default; add
                -- ./timed_benchmark
 
 Optimizing for Energy and Efficiency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Add ``--efficiency DOMAIN`` to bring measured power into the objective from a
 ``geopmsession`` energy trace.  With a ``--metric-regex`` the objective becomes
@@ -1133,7 +1133,7 @@ domain:
                -- ./compute_kernel
 
 Composing Objectives with Constraints
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For finer control, the general objective interface names any number of metrics,
 selects one to optimize with ``--maximize``/``--minimize NAME``, and adds

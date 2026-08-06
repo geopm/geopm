@@ -15,7 +15,7 @@ Synopsis
                      [--write]
 
 List available controls
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
