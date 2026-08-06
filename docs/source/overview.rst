@@ -235,6 +235,7 @@ feasibility constraints.
     # Requires the optimize extra: python3 -m pip install 'geopmdpy[optimize]'
     geopmopt --sweep cpu-freq@board \
              --trials 30 \
+             --verbosity 2 \
              --output-file best_config.txt \
              -- ./my_workload.sh
 

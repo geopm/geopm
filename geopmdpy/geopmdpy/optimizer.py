@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#  Copyright (c) 2015 - 2025 Intel Corporation
+#  Copyright (c) 2015 - 2026 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -32,17 +32,15 @@ try:
 except ImportError:
     raise ImportError(
         "scikit-optimize is required for Bayesian optimization. "
-        "Install with: python3 -m pip install scikit-optimize"
+        "Install the optimize extra with: "
+        "python3 -m pip install 'geopmdpy[optimize]'"
     )
+
+import yaml
 
 from . import pio
 from . import metrics
 from .grid import ControlGrid, add_grid_cli_arguments
-
-try:
-    import yaml
-except ImportError:
-    yaml = None
 
 # Default geopmsession sampling period in seconds. It is small enough that the
 # RAPL energy counter is sampled several times before it can wrap, which is
@@ -535,12 +533,6 @@ class ApplicationEvaluator:
                     self._signal_specs.append(key)
         self._energy_signals = []
         if self.needs_session:
-            if yaml is None:
-                raise OptimizationError(
-                    "The pyyaml module is required to read the geopmsession "
-                    "report for session-backed metrics (signal: metrics, "
-                    "--energy-domain, or --efficiency); install with: "
-                    "python3 -m pip install pyyaml")
             if shutil.which('geopmsession') is None:
                 raise OptimizationError(
                     "geopmsession was not found on PATH; it is required for "

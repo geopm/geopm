@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#  Copyright (c) 2015 - 2025 Intel Corporation
+#  Copyright (c) 2015 - 2026 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 """
@@ -979,17 +979,6 @@ class TestSessionStrategy(unittest.TestCase):
                 optimizer.ApplicationEvaluator(
                     ["app"], needs_session=True, efficiency_domain='cpu')
             self.assertIn("geopmsession", str(ctx.exception))
-
-    def test_init_missing_yaml_raises(self):
-        """A missing pyyaml module is caught at construction time."""
-        with patch('geopmdpy.optimizer.yaml', None), \
-             patch('geopmdpy.optimizer.shutil.which',
-                   return_value='/usr/bin/geopmsession'), \
-             patch('geopmdpy.optimizer.pio'):
-            with self.assertRaises(optimizer.OptimizationError) as ctx:
-                optimizer.ApplicationEvaluator(
-                    ["app"], needs_session=True, efficiency_domain='cpu')
-            self.assertIn("pyyaml", str(ctx.exception))
 
     def test_init_no_session_skips_preflight(self):
         """A direct evaluator does not require geopmsession or pyyaml."""

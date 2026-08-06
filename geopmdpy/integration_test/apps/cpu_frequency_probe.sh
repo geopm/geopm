@@ -29,8 +29,10 @@ cooldown_s="${GEOPMOPT_PROBE_COOLDOWN_S:-0}"
 probe_cpu="${GEOPMOPT_PROBE_CPU:-}"
 
 if [[ -n "${probe_cpu}" ]] && command -v taskset >/dev/null 2>&1; then
-    # Restrict this shell (and thus the busy loop below) to one CPU.
-    taskset -cp "${probe_cpu}" $$ >/dev/null 2>&1 || true
+    # Restrict this shell (and thus the busy loop below) to one CPU.  Pinning is
+    # required for stable timings, so let a failure abort under 'set -e' rather
+    # than swallowing it; stdout is dropped but stderr surfaces the reason.
+    taskset -cp "${probe_cpu}" $$ >/dev/null
 fi
 
 if [[ "${cooldown_s}" != "0" ]]; then

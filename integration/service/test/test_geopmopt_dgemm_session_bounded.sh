@@ -1,5 +1,5 @@
 #!/bin/bash
-#  Copyright (c) 2015 - 2025 Intel Corporation
+#  Copyright (c) 2015 - 2026 Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
 # Exercise the #4043 bounded-energy objective: minimize energy subject to a
