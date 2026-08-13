@@ -980,6 +980,16 @@ namespace geopm
                                               &read_size,
                                               m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
 
+        // Dropped-data is a warning with still-valid reports (FIFO overran); not a fault.
+        if (ze_result == ZE_RESULT_WARNING_DROPPED_DATA) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> LevelZero::" << std::string(__func__)
+                      << ": metric streamer dropped data; processing remaining reports."
+                      << std::endl;
+#endif
+            ze_result = ZE_RESULT_SUCCESS;
+        }
+
         // Skip when no data is available
         if (ze_result != ZE_RESULT_NOT_READY && read_size > 0) {
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
