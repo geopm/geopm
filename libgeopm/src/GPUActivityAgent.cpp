@@ -530,6 +530,13 @@ namespace geopm
             double energy_start = m_gpu_active_energy_start.at(domain_idx);
             double region_stop = m_gpu_active_region_stop.at(domain_idx);
             double region_start =  m_gpu_active_region_start.at(domain_idx);
+            // A region that started but has not closed still has stop == 0
+            // (reset each active sample); use the latest sample as the effective
+            // stop so the reported active-region time/energy is not negative.
+            if (region_start != 0 && region_stop == 0) {
+                region_stop = m_time.value;
+                energy_stop = m_gpu_energy.at(domain_idx).value;
+            }
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Energy", std::to_string(energy_stop - energy_start)});
             result.push_back({"GPU " + std::to_string(domain_idx) +
