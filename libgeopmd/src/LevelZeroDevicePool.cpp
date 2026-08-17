@@ -849,6 +849,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
+        check_idx_range(GEOPM_DOMAIN_GPU, domain_idx);
         return m_levelzero.metric_update_rate(domain_idx);
     }
 }
