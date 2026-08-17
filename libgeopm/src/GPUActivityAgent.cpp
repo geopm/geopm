@@ -514,10 +514,10 @@ namespace geopm
 
         result.push_back({"Agent Domain", m_platform_topo.domain_type_to_name(m_agent_domain)});
         if(m_gpu_stall_activity.size() > 0) {
-            result.push_back({"Use LeveZero Stall Tracking", std::to_string(true)});
+            result.push_back({"Use Level Zero Stall Tracking", std::to_string(true)});
         }
         else {
-            result.push_back({"Use LeveZero Stall Tracking", std::to_string(false)});
+            result.push_back({"Use Level Zero Stall Tracking", std::to_string(false)});
         }
         result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
         result.push_back({"GPU Clipped Frequency Requests", std::to_string(m_gpu_frequency_clipped)});
