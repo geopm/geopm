@@ -38,6 +38,7 @@ class GPUActivityAgentTest : public :: testing :: Test
     protected:
         enum mock_pio_idx_e {
             GPU_CORE_ACTIVITY_IDX,
+            GPU_STALL_ACTIVITY_IDX,
             GPU_UTILIZATION_IDX,
             GPU_ENERGY_IDX,
             GPU_FREQUENCY_CONTROL_MIN_IDX,
@@ -56,6 +57,11 @@ class GPUActivityAgentTest : public :: testing :: Test
                                   double mock_active,
                                   double mock_util,
                                   double expected_freq);
+        void test_adjust_platform_stall(std::vector<double> &policy,
+                                        double mock_active,
+                                        double mock_stall,
+                                        double mock_util,
+                                        double expected_freq);
         static const int M_NUM_CPU;
         static const int M_NUM_BOARD;
         static const int M_NUM_GPU;
@@ -241,6 +247,93 @@ void GPUActivityAgentTest::test_adjust_platform(std::vector<double> &policy,
 
     //Check a frequency decision resulted in write batch being true
     EXPECT_TRUE(m_agent->do_write_batch());
+}
+
+// Builds a fresh agent with the Level Zero stall signal available so the
+// secondary stall-based activity reduction is exercised.
+void GPUActivityAgentTest::test_adjust_platform_stall(std::vector<double> &policy,
+                                                      double mock_active,
+                                                      double mock_stall,
+                                                      double mock_util,
+                                                      double expected_freq)
+{
+    std::set<std::string> signal_name_set = {
+        "CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY",
+        "LEVELZERO::METRIC:XVE_STALL"
+    };
+    ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
+    ON_CALL(*m_platform_io, push_signal("LEVELZERO::METRIC:XVE_STALL", _, _))
+        .WillByDefault(Return(GPU_STALL_ACTIVITY_IDX));
+    ON_CALL(*m_platform_io, signal_domain_type("LEVELZERO::METRIC:XVE_STALL"))
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU_CHIP));
+
+    auto agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo, m_waiter);
+    agent->init(0, {}, false);
+
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(agent->validate_policy(policy));
+
+    std::vector<double> tmp;
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
+                .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(GPU_STALL_ACTIVITY_IDX))
+                .WillRepeatedly(Return(mock_stall));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                .WillRepeatedly(Return(mock_util));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
+                .WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                .Times(1);
+    agent->sample_platform(tmp);
+
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+
+    agent->adjust_platform(policy);
+    EXPECT_TRUE(agent->do_write_batch());
+}
+
+// A valid stall sample reduces the compute activity, lowering the request.
+TEST_F(GPUActivityAgentTest, adjust_platform_stall_valid)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    double mock_active = 1.0;
+    double mock_stall = 0.5;
+    double mock_util = 1.0;
+    double effective_active = mock_active * (1 - mock_stall);
+    double expected_freq = M_FREQ_EFFICIENT +
+            (M_FREQ_MAX - M_FREQ_EFFICIENT) * effective_active;
+    test_adjust_platform_stall(policy, mock_active, mock_stall, mock_util, expected_freq);
+}
+
+// A NaN stall sample is ignored, leaving the request at the unreduced value.
+TEST_F(GPUActivityAgentTest, adjust_platform_stall_nan)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    double mock_active = 1.0;
+    double mock_stall = NAN;
+    double mock_util = 1.0;
+    test_adjust_platform_stall(policy, mock_active, mock_stall, mock_util, M_FREQ_MAX);
+}
+
+// An out-of-range high stall sample clamps to 1.0, zeroing the activity.
+TEST_F(GPUActivityAgentTest, adjust_platform_stall_out_of_bounds_high)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    double mock_active = 1.0;
+    double mock_stall = 987654321;
+    double mock_util = 1.0;
+    test_adjust_platform_stall(policy, mock_active, mock_stall, mock_util, M_FREQ_EFFICIENT);
+}
+
+// An out-of-range low stall sample clamps to 0.0, applying no reduction.
+TEST_F(GPUActivityAgentTest, adjust_platform_stall_out_of_bounds_low)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    double mock_active = 1.0;
+    double mock_stall = -12345;
+    double mock_util = 1.0;
+    test_adjust_platform_stall(policy, mock_active, mock_stall, mock_util, M_FREQ_MAX);
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_high)
