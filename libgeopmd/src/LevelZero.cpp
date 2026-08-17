@@ -701,12 +701,14 @@ namespace geopm
 
     void LevelZeroImp::metric_destroy(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
-        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) ||
-            m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx))
+        // No context was created if the domain was never enumerated.
+        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx))
             return;
 
         ze_result_t ze_result;
+        ze_context_handle_t context = m_devices.at(l0_device_idx).subdevice.context.at(l0_domain_idx);
 
+        // Close the streamer and deactivate the group only if sampling was started.
         if (m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
             m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = false;
 
@@ -717,17 +719,18 @@ namespace geopm
                             ": LevelZero Metric Streamer Close failed",
                             __LINE__);
 
-            // Deactivate the device context
-            ze_context_handle_t context = m_devices.at(l0_device_idx).subdevice.context.at(l0_domain_idx);
+            // Deactivate the metric group on the same subdevice used to activate it.
             ze_result = zetContextActivateMetricGroups(context,
-                                                       m_devices.at(l0_device_idx).device_handle,
+                                                       m_devices.at(l0_device_idx).subdevice_handle.at(l0_domain_idx),
                                                        0, nullptr);
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                             "LevelZero::" + std::string(__func__) +
                             ": LevelZero Metric Context Deactivation failed",
                             __LINE__);
-            zeContextDestroy(context);
         }
+
+        // The context is always created in metric_group_init, so always destroy it.
+        zeContextDestroy(context);
     }
 
 
