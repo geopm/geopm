@@ -27,9 +27,12 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::InvokeWithoutArgs;
 using ::testing::Sequence;
 using ::testing::Return;
 using ::testing::AtLeast;
+using ::testing::AnyNumber;
+using ::testing::SaveArg;
 using geopm::GPUActivityAgent;
 using geopm::PlatformTopo;
 
@@ -62,6 +65,7 @@ class GPUActivityAgentTest : public :: testing :: Test
                                         double mock_stall,
                                         double mock_util,
                                         double expected_freq);
+        std::unique_ptr<GPUActivityAgent> build_stall_agent();
         static const int M_NUM_CPU;
         static const int M_NUM_BOARD;
         static const int M_NUM_GPU;
@@ -250,12 +254,9 @@ void GPUActivityAgentTest::test_adjust_platform(std::vector<double> &policy,
 }
 
 // Builds a fresh agent with the Level Zero stall signal available so the
-// secondary stall-based activity reduction is exercised.
-void GPUActivityAgentTest::test_adjust_platform_stall(std::vector<double> &policy,
-                                                      double mock_active,
-                                                      double mock_stall,
-                                                      double mock_util,
-                                                      double expected_freq)
+// secondary stall-based activity reduction and stall-specific idle threshold
+// are exercised.
+std::unique_ptr<GPUActivityAgent> GPUActivityAgentTest::build_stall_agent()
 {
     std::set<std::string> signal_name_set = {
         "CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY",
@@ -269,6 +270,16 @@ void GPUActivityAgentTest::test_adjust_platform_stall(std::vector<double> &polic
 
     auto agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo, m_waiter);
     agent->init(0, {}, false);
+    return agent;
+}
+
+void GPUActivityAgentTest::test_adjust_platform_stall(std::vector<double> &policy,
+                                                      double mock_active,
+                                                      double mock_stall,
+                                                      double mock_util,
+                                                      double expected_freq)
+{
+    auto agent = build_stall_agent();
 
     set_up_val_policy_expectations();
     EXPECT_NO_THROW(agent->validate_policy(policy));
@@ -435,4 +446,178 @@ TEST_F(GPUActivityAgentTest, invalid_fe)
 
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "(): GPU efficient frequency out of range: ");
+}
+
+// Zero utilization must be observed for ten samples before the request is
+// forced to the minimum frequency; the ninth idle sample must not override.
+TEST_F(GPUActivityAgentTest, adjust_platform_idle_countdown)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX)).WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX)).WillRepeatedly(Return(0.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX)).WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX)).WillRepeatedly(Return(0.0));
+
+    double last_min = NAN;
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, _))
+                .WillRepeatedly(SaveArg<1>(&last_min));
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, _))
+                .WillRepeatedly(Return());
+
+    std::vector<double> tmp;
+    // Nine idle samples count down the timer but do not override.
+    for (int i = 0; i < 9; ++i) {
+        m_agent->sample_platform(tmp);
+        m_agent->adjust_platform(policy);
+        EXPECT_NE(M_FREQ_MIN, last_min);
+    }
+    // The tenth idle sample drives the request to the minimum frequency.
+    m_agent->sample_platform(tmp);
+    m_agent->adjust_platform(policy);
+    EXPECT_EQ(M_FREQ_MIN, last_min);
+}
+
+// A single active sample resets the idle countdown, so a fresh set of ten idle
+// samples is required before the minimum-frequency override reengages.
+TEST_F(GPUActivityAgentTest, adjust_platform_idle_reset)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    double mock_util = 0.0;
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX)).WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
+                .WillRepeatedly(InvokeWithoutArgs([&mock_util]() { return mock_util; }));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX)).WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX)).WillRepeatedly(Return(0.0));
+
+    double last_min = NAN;
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, _))
+                .WillRepeatedly(SaveArg<1>(&last_min));
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, _))
+                .WillRepeatedly(Return());
+
+    std::vector<double> tmp;
+    // Nine idle samples, then one active sample resets the countdown.
+    for (int i = 0; i < 9; ++i) {
+        m_agent->sample_platform(tmp);
+        m_agent->adjust_platform(policy);
+    }
+    mock_util = 1.0;
+    m_agent->sample_platform(tmp);
+    m_agent->adjust_platform(policy);
+    EXPECT_NE(M_FREQ_MIN, last_min);
+
+    // After the reset, nine more idle samples still must not override.
+    mock_util = 0.0;
+    for (int i = 0; i < 9; ++i) {
+        m_agent->sample_platform(tmp);
+        m_agent->adjust_platform(policy);
+        EXPECT_NE(M_FREQ_MIN, last_min);
+    }
+    // The tenth idle sample after the reset overrides.
+    m_agent->sample_platform(tmp);
+    m_agent->adjust_platform(policy);
+    EXPECT_EQ(M_FREQ_MIN, last_min);
+}
+
+// With the stall signal present, a low but non-zero utilization (< 0.02) also
+// engages the idle countdown.
+TEST_F(GPUActivityAgentTest, adjust_platform_idle_low_util_with_stall)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    auto agent = build_stall_agent();
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(agent->validate_policy(policy));
+
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX)).WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_STALL_ACTIVITY_IDX)).WillRepeatedly(Return(0.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX)).WillRepeatedly(Return(0.01));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX)).WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX)).WillRepeatedly(Return(0.0));
+
+    double last_min = NAN;
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, _))
+                .WillRepeatedly(SaveArg<1>(&last_min));
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, _))
+                .WillRepeatedly(Return());
+
+    std::vector<double> tmp;
+    for (int i = 0; i < 9; ++i) {
+        agent->sample_platform(tmp);
+        agent->adjust_platform(policy);
+        EXPECT_NE(M_FREQ_MIN, last_min);
+    }
+    agent->sample_platform(tmp);
+    agent->adjust_platform(policy);
+    EXPECT_EQ(M_FREQ_MIN, last_min);
+}
+
+// Without the stall signal, a low but non-zero utilization must not engage the
+// idle countdown, so the minimum-frequency override never fires.
+TEST_F(GPUActivityAgentTest, adjust_platform_idle_low_util_without_stall)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX)).WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX)).WillRepeatedly(Return(0.01));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX)).WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX)).WillRepeatedly(Return(0.0));
+
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, _)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, _)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_MIN)).Times(0);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_MIN)).Times(0);
+
+    std::vector<double> tmp;
+    for (int i = 0; i < 15; ++i) {
+        m_agent->sample_platform(tmp);
+        m_agent->adjust_platform(policy);
+    }
+}
+
+// A performance-biased policy (phi < 0.5) scales the efficient frequency up
+// toward the maximum before the activity-based selection is applied.
+TEST_F(GPUActivityAgentTest, adjust_platform_phi_perf_biased)
+{
+    std::vector<double> policy = {0.25};
+    double mock_active = 0.5;
+    double mock_util = 1.0;
+    double range = M_FREQ_MAX - M_FREQ_EFFICIENT;
+    // (0.5 - 0.25) / 0.5 == 0.5
+    double resolved_efficient = M_FREQ_EFFICIENT + range * (0.5 - 0.25) / 0.5;
+    double resolved_range = M_FREQ_MAX - resolved_efficient;
+    double expected_freq = resolved_efficient + resolved_range * mock_active;
+    test_adjust_platform(policy, mock_active, mock_util, expected_freq);
+}
+
+// The idle countdown is gated on phi >= 0.5, so a performance-biased policy
+// must never force the minimum frequency even when utilization is zero.
+TEST_F(GPUActivityAgentTest, adjust_platform_phi_perf_biased_no_idle)
+{
+    std::vector<double> policy = {0.25};
+    set_up_val_policy_expectations();
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX)).WillRepeatedly(Return(1.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX)).WillRepeatedly(Return(0.0));
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX)).WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX)).WillRepeatedly(Return(0.0));
+
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, _)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, _)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, M_FREQ_MIN)).Times(0);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, M_FREQ_MIN)).Times(0);
+
+    std::vector<double> tmp;
+    for (int i = 0; i < 15; ++i) {
+        m_agent->sample_platform(tmp);
+        m_agent->adjust_platform(policy);
+    }
 }
