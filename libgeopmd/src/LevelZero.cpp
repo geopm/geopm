@@ -230,7 +230,25 @@ namespace geopm
             engine_domain_cache(gpu_idx);
             temperature_domain_cache(gpu_idx);
             ras_domain_cache(gpu_idx);
-            metric_group_init(gpu_idx);
+            // Metrics are optional: ZET may be unsupported by the hardware or
+            // driver.  Do not let an enumeration failure abort the whole Level
+            // Zero backend.  Pad the per-chip tracking vectors the drain thread
+            // and metric guards index so uninitialized domains are left uncached
+            // and pruned like any other unsupported signal.
+            try {
+                metric_group_init(gpu_idx);
+            }
+            catch (const Exception &ex) {
+                auto &sub = m_devices.at(gpu_idx).subdevice;
+                unsigned int num_subdevice = m_devices.at(gpu_idx).num_subdevice;
+                sub.metric_domain_cached.resize(num_subdevice, false);
+                sub.metrics_initialized.resize(num_subdevice, false);
+                sub.metric_active.resize(num_subdevice, false);
+                sub.metric_last_drain.resize(num_subdevice,
+                                             std::chrono::steady_clock::time_point{});
+                std::cerr << "Warning: <geopm> LevelZero metrics unavailable for GPU "
+                          << gpu_idx << ": " << ex.what() << std::endl;
+            }
         }
     }
 
