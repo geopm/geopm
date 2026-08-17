@@ -866,7 +866,7 @@ namespace geopm
             data_double = data.value.fp64;
             break;
         case ZET_VALUE_TYPE_BOOL8:
-            data_double = data.value.ui32;
+            data_double = data.value.b8;
             break;
         default:
             break;
