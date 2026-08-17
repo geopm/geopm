@@ -11,6 +11,7 @@
 #include <mutex>
 #include <atomic>
 #include <chrono>
+#include <exception>
 
 #include <level_zero/ze_api.h>
 #include <level_zero/zes_api.h>
@@ -288,6 +289,10 @@ namespace geopm
             std::mutex m_metric_mutex;
             std::atomic<bool> m_metric_thread_active;
             bool m_metric_thread_started;
+            // Captures an exception thrown by metric_drain on the background
+            // thread so the controller path can rethrow it, rather than the
+            // thread terminating the process.  Protected by m_metric_mutex.
+            std::exception_ptr m_metric_thread_error;
 
             void metric_group_init(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
