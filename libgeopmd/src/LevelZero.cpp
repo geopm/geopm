@@ -876,7 +876,13 @@ namespace geopm
 
     void LevelZeroImp::metric_read(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
-        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
+        // A GPU that exposes no subdevices is still counted as one GPU_CHIP by
+        // topology, but metric_group_init sets up no per-subdevice metric state
+        // for it, so this vector is empty.  Disable metrics for that domain
+        // rather than support them here.  Revisit if such a GPU is ever expected
+        // to provide valid metrics (see metric_group_init).
+        if (l0_domain_idx >= m_devices.at(l0_device_idx).subdevice.metric_domain_cached.size() ||
+            !m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
             return;
         }
 
@@ -1040,7 +1046,11 @@ namespace geopm
                                                     std::string metric_name) const
     {
         std::vector<double> result = {};
-        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
+        // See metric_read: a subdeviceless GPU has no cached metric state, so
+        // report the domain as unsupported (a geopm::Exception the IOGroup prunes)
+        // instead of indexing an empty vector.
+        if (l0_domain_idx >= m_devices.at(l0_device_idx).subdevice.metric_domain_cached.size() ||
+            !m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
             throw Exception("LevelZero::" + std::string(__func__) +
                             ": Metric groups not cached" ,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
