@@ -898,6 +898,13 @@ namespace geopm
         {
             std::lock_guard<std::mutex> lock(m_metric_mutex);
 
+            // Surface any failure the background thread hit while draining.
+            if (m_metric_thread_error) {
+                std::exception_ptr err = m_metric_thread_error;
+                m_metric_thread_error = nullptr;
+                std::rethrow_exception(err);
+            }
+
             // Open the streamer on first use, serialized with the background
             // thread by m_metric_mutex.  metric_execute assigns the streamer by
             // chip index, so this is safe regardless of the order chips are read.
@@ -972,7 +979,18 @@ namespace geopm
                     }
                     auto elapsed = now - sub.metric_last_drain.at(l0_domain_idx);
                     if (elapsed >= std::chrono::microseconds(METRIC_DRAIN_PERIOD_US)) {
-                        metric_drain(l0_device_idx, l0_domain_idx);
+                        // An exception escaping this thread would std::terminate
+                        // the process.  Stop draining the affected chip and hand
+                        // the error to the controller path (metric_read).
+                        try {
+                            metric_drain(l0_device_idx, l0_domain_idx);
+                        }
+                        catch (...) {
+                            sub.metric_active.at(l0_domain_idx) = false;
+                            if (!m_metric_thread_error) {
+                                m_metric_thread_error = std::current_exception();
+                            }
+                        }
                     }
                 }
             }
