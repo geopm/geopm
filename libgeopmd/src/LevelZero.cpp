@@ -616,6 +616,13 @@ namespace geopm
             m_devices.at(device_idx).subdevice.metric_active.push_back(false);
             m_devices.at(device_idx).subdevice.metric_last_drain.push_back(
                 std::chrono::steady_clock::time_point{});
+            // Pre-size the streamer and read-buffer vectors so metric_execute can
+            // assign by chip index; push_signal permits chips to be read in any
+            // order, not just chip 0 first.
+            m_devices.at(device_idx).subdevice.metric_streamer.push_back(nullptr);
+            m_devices.at(device_idx).subdevice.zet_data_size.push_back(0);
+            m_devices.at(device_idx).subdevice.zet_data.push_back({});
+            m_devices.at(device_idx).subdevice.report_byte_size.push_back(0);
 
             for (unsigned int metric_group_idx = 0; metric_group_idx < num_metric_group;
                  metric_group_idx++) {
@@ -760,8 +767,9 @@ namespace geopm
                         ": LevelZero Metric Streamer Open failed",
                         __LINE__);
 
-        // TODO: nothing guarantees CHIP 0 was called first
-        m_devices.at(l0_device_idx).subdevice.metric_streamer.push_back(metric_streamer);
+        // Assign by chip index (pre-sized in metric_group_init); push_signal
+        // permits chips to be read in any order, not just chip 0 first.
+        m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx) = metric_streamer;
 
         // Allocate memory for future reads
         // Doing a read might not be the best way to set a buffer size, as the amount of data
@@ -776,9 +784,9 @@ namespace geopm
         //                 __LINE__);
 
         std::vector<uint8_t> data(data_size);
-        m_devices.at(l0_device_idx).subdevice.zet_data_size.push_back(data_size);
-        m_devices.at(l0_device_idx).subdevice.zet_data.push_back(data);
-        m_devices.at(l0_device_idx).subdevice.report_byte_size.push_back(0);
+        m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx) = data_size;
+        m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx) = std::move(data);
+        m_devices.at(l0_device_idx).subdevice.report_byte_size.at(l0_domain_idx) = 0;
     }
 
     // TODO don't pass metric_streamer
@@ -890,9 +898,9 @@ namespace geopm
         {
             std::lock_guard<std::mutex> lock(m_metric_mutex);
 
-            // Open the streamer on first use.  Done from the controller thread in
-            // chip order so the streamer vectors grow safely, and serialized with
-            // the background thread by m_metric_mutex.
+            // Open the streamer on first use, serialized with the background
+            // thread by m_metric_mutex.  metric_execute assigns the streamer by
+            // chip index, so this is safe regardless of the order chips are read.
             if (!m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
                 metric_execute(l0_device_idx, l0_domain_idx);
                 m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = true;
