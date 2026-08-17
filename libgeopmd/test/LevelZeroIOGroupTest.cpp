@@ -142,7 +142,7 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
     // EXPECT_CALLS for domain idx = 0
     EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
                 performance_factor(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE)).Times(4);
-    // Times(2) explanation:
+    // Times(4) explanation:
     // 1. check if perf factor is enabled
     // 2. signal pruning
     // 3. save_control
@@ -850,7 +850,7 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
     // EXPECT_CALLS for domain idx = 0
     EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
                 performance_factor(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE)).Times(4);
-    // Times(2) explanation:
+    // Times(4) explanation:
     // 1. check if perf factor is enabled
     // 2. signal pruning
     // 3. save_control
