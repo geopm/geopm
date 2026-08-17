@@ -741,6 +741,11 @@ namespace geopm
         ze_result = zetContextActivateMetricGroups(context, m_devices.at(l0_device_idx).subdevice_handle.at(l0_domain_idx),
                                                    1, &m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx));
 
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": LevelZero Metric Group Activation failed",
+                        __LINE__);
+
         zet_metric_streamer_desc_t metric_streamer_desc = {
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
