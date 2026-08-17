@@ -761,7 +761,7 @@ namespace geopm
         // point in time while sampling. Using a default buffer size for now...
         size_t data_size = DEFAULT_REPORT_BUFFER_SIZE;
         // ze_result = zetMetricStreamerReadData(m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx),
-        //                                       UINT32_MAX, &data_size, nullptr); //TODO: this value should match the report_count_req in metric_read
+        //                                       UINT32_MAX, &data_size, nullptr); //TODO: this value should match the report count requested in metric_drain
         // check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
         //                 "LevelZero::" + std::string(__func__) +
         //                 ": LevelZero Read Data get size failed",
@@ -962,7 +962,6 @@ namespace geopm
     {
         // Caller must hold m_metric_mutex.
         ze_result_t ze_result;
-        uint32_t report_count_req = 1;
         zet_metric_streamer_handle_t metric_streamer =
             m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx);
 
@@ -974,9 +973,10 @@ namespace geopm
         ///////////////////
         // Read Raw Data //
         ///////////////////
-        // Always read with full buffer to drain the FIFO completely
+        // Request all queued reports; the buffer size caps the bytes read and
+        // the last-N processing below bounds the calculation work.
         size_t read_size = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).size();
-        ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req,
+        ze_result = zetMetricStreamerReadData(metric_streamer, UINT32_MAX,
                                               &read_size,
                                               m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).data());
 
