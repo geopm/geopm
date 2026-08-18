@@ -141,23 +141,10 @@ namespace geopm
                             m_num_gpu_subdevice += 1;
                         }
 
-                        // We create a context to support the ZET commands
-                        // NOTE: a context is being created per subdevice, making this context
-                        // unnecessary. Commenting out for now.
-                        // TODO: Explore replacing per-subdevice contexts with a single context
-                        // (per-device or globally)
-                        // ze_context_desc_t context_desc = {
-                        //    ZE_STRUCTURE_TYPE_CONTEXT_DESC,
-                        //    nullptr,
-                        //    0
-                        // };
-                        // ze_context_handle_t context = nullptr;
-                        // ze_result_t ze_result = zeContextCreate(m_levelzero_driver.at(driver),
-                        //                             &context_desc, &context);
-                        // check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                        //                 "LevelZero::" + std::string(__func__) +
-                        //                 ": LevelZero context creation failed",
-                        //                 __LINE__);
+                        // A ZET context is created per subdevice in
+                        // metric_group_init, so no device-level context is needed here.
+                        // TODO: Explore replacing per-subdevice contexts with a single
+                        // context (per-device or globally).
 
                         m_devices.push_back({
                             m_levelzero_driver.at(driver),
@@ -794,12 +781,6 @@ namespace geopm
         // available at this point in time will likely not match the amount of data at any future
         // point in time while sampling. Using a default buffer size for now...
         size_t data_size = DEFAULT_REPORT_BUFFER_SIZE;
-        // ze_result = zetMetricStreamerReadData(m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx),
-        //                                       UINT32_MAX, &data_size, nullptr); //TODO: this value should match the report count requested in metric_drain
-        // check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-        //                 "LevelZero::" + std::string(__func__) +
-        //                 ": LevelZero Read Data get size failed",
-        //                 __LINE__);
 
         std::vector<uint8_t> data(data_size);
         m_devices.at(l0_device_idx).subdevice.zet_data_size.at(l0_domain_idx) = data_size;
@@ -807,11 +788,9 @@ namespace geopm
         m_devices.at(l0_device_idx).subdevice.report_byte_size.at(l0_domain_idx) = 0;
     }
 
-    // TODO don't pass metric_streamer
     void LevelZeroImp::metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
                                    size_t data_size, const uint8_t *data)
     {
-
         GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) == true,
                            "metric caching for GPU " + std::to_string(l0_device_idx) +
                            ", CHIP " + std::to_string(l0_domain_idx) +
@@ -823,9 +802,7 @@ namespace geopm
                            " not completed prior to metric_calc call.");
 
         ze_result_t ze_result;
-        /////////////////////////////////////
-        // Calculate & convert metric data //
-        /////////////////////////////////////
+        // Calculate and convert the metric data
         uint32_t num_metric_values = 0;
         zet_metric_group_calculation_type_t calculation_type = ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES;
         ze_result = zetMetricGroupCalculateMetricValues(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data, &num_metric_values, nullptr);
@@ -851,7 +828,7 @@ namespace geopm
             std::cerr << "LevelZero::" << std::string(__func__)  <<
                          ": ZET metric_calc call returned a number of metric values "
                          "that is not evenly divisible by the number of metrics.  This "
-                         "may indicate a ZET report erroor, skipping data processing." << std::endl;
+                         "may indicate a ZET report error, skipping data processing." << std::endl;
 #endif
             return;
         }
@@ -1028,9 +1005,6 @@ namespace geopm
         m_devices.at(l0_device_idx).subdevice.metric_last_drain.at(l0_domain_idx) =
             std::chrono::steady_clock::now();
 
-        ///////////////////
-        // Read Raw Data //
-        ///////////////////
         // Request all queued reports; the buffer size caps the bytes read and
         // the last-N processing below bounds the calculation work.
         size_t read_size = m_devices.at(l0_device_idx).subdevice.zet_data.at(l0_domain_idx).size();
