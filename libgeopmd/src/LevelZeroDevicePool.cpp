@@ -835,7 +835,6 @@ namespace geopm
         if (data.size() > 0) {
             //TODO: add min, max, avg etc handling.
             result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
-            //result = data.at(data.size()-1);
         }
         return result;
     }
