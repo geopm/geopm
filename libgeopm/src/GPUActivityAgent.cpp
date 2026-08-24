@@ -40,9 +40,6 @@ namespace geopm
         , M_GPU_ACTIVITY_CUTOFF(0.05)
         , M_NUM_GPU(m_platform_topo.num_domain(
                     GEOPM_DOMAIN_GPU))
-        , M_NUM_GPU_CHIP(m_platform_topo.num_domain(
-                         GEOPM_DOMAIN_GPU_CHIP))
-        , M_NUM_CHIP_PER_GPU(M_NUM_GPU == 0 ? 0 : M_NUM_GPU_CHIP / M_NUM_GPU)
         , m_do_write_batch(false)
         , m_do_send_policy(true)
         , m_has_freq_min_control(false)
@@ -266,7 +263,10 @@ namespace geopm
 
         // Per GPU freq
         std::vector<double> gpu_freq_request;
-        std::vector<double> gpu_scoped_core_activity;
+        // GPU-indexed; NaN marks a GPU with no valid first-unit sample this cycle.
+        std::vector<double> gpu_scoped_core_activity(M_NUM_GPU, NAN);
+        // Agent-domain units (GPU or GPU_CHIP) per GPU, used to pick one per GPU.
+        int agent_units_per_gpu = m_agent_domain_count / M_NUM_GPU;
 
         double f_gpu_range = m_freq_gpu_max - m_freq_gpu_efficient;
         double phi = in_policy[M_POLICY_GPU_PHI];
@@ -363,8 +363,8 @@ namespace geopm
                 // This is non-ideal, but is intended to be a temporary
                 // solution to the lack of GPU region support and may be
                 // removed when that support is added to GEOPM.
-                if (domain_idx % (M_NUM_CHIP_PER_GPU) == 0) {
-                    gpu_scoped_core_activity.push_back(gpu_core_activity);
+                if (domain_idx % agent_units_per_gpu == 0) {
+                    gpu_scoped_core_activity.at(domain_idx / agent_units_per_gpu) = gpu_core_activity;
                 }
             }
 
@@ -402,6 +402,10 @@ namespace geopm
         // may be removed when GPU regions are added to GEOPM.
         if (!gpu_scoped_core_activity.empty()) {
             for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+                if (std::isnan(gpu_scoped_core_activity.at(domain_idx))) {
+                    // No valid first-unit activity sample for this GPU this cycle.
+                    continue;
+                }
                 if (gpu_scoped_core_activity.at(domain_idx) >= M_GPU_ACTIVITY_CUTOFF) {
                     // ROI proxy tracking
                     m_gpu_active_region_stop.at(domain_idx) = 0;

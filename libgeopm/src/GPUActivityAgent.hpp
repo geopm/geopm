@@ -56,8 +56,6 @@ namespace geopm
             const double M_POLICY_PHI_DEFAULT;
             const double M_GPU_ACTIVITY_CUTOFF;
             const int M_NUM_GPU;
-            const int M_NUM_GPU_CHIP;
-            const int M_NUM_CHIP_PER_GPU;
             bool m_do_write_batch;
             bool m_do_send_policy;
             bool m_has_freq_min_control;
