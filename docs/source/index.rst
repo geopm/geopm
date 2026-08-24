@@ -79,6 +79,7 @@ Documentation
    :maxdepth: 1
 
    overview
+   concepts
    tutorial
    install
    admin
