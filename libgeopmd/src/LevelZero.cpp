@@ -631,7 +631,8 @@ namespace geopm
 
             for (unsigned int metric_group_idx = 0; metric_group_idx < num_metric_group;
                  metric_group_idx++) {
-                zet_metric_group_properties_t metric_group_properties;
+                zet_metric_group_properties_t metric_group_properties = {};
+                metric_group_properties.stype = ZET_STRUCTURE_TYPE_METRIC_GROUP_PROPERTIES;
                 ze_result = zetMetricGroupGetProperties(metric_group_handle.at(metric_group_idx),
                                             &metric_group_properties);
                 check_ze_result(ze_result,GEOPM_ERROR_RUNTIME,
@@ -674,7 +675,8 @@ namespace geopm
                    std::map<std::string, size_t> name_idx;
                    for (unsigned int metric_idx = 0; metric_idx < num_metric; ++metric_idx)
                    {
-                       zet_metric_properties_t metric_properties;
+                       zet_metric_properties_t metric_properties = {};
+                       metric_properties.stype = ZET_STRUCTURE_TYPE_METRIC_PROPERTIES;
                        ze_result = zetMetricGetProperties(metric_handle.at(metric_idx), &metric_properties);
 
                        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
