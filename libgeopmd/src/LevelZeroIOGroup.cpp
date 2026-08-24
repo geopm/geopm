@@ -913,8 +913,26 @@ namespace geopm
         catch (const geopm::Exception &ex) {
         }
 
+        // GEOPM signal availability is per name, so an unsupported chip disables
+        // a metric signal node-wide; note that decision under debug builds.
+        auto warn_metric_pruned = [](bool is_metric, const std::string &signal_name,
+                                     int domain_idx) {
+#ifdef GEOPM_DEBUG
+            if (is_metric && domain_idx != 0) {
+                std::cerr << "Warning: <geopm> LevelZeroIOGroup: disabling "
+                          << signal_name << " on all GPU chips because chip "
+                          << domain_idx << " does not support Level Zero metrics."
+                          << std::endl;
+            }
+#endif
+        };
+
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
+            // Level Zero metric (ZET) initialization is per GPU chip, so a metric
+            // signal must be probed on every chip; other signals are homogeneous
+            // and represented by chip 0.
+            bool is_metric = sv.first.find(":METRIC:") != std::string::npos;
             std::vector<std::shared_ptr<Signal> > result;
             for (int domain_idx = 0;
                  domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first));
@@ -926,10 +944,12 @@ namespace geopm
                     }
                     // Skip the RAS counters because they are very slow
                     // (0.5 seconds to read each).
-                    // Note: only check signals on GPU zero.
-                    if (domain_idx == 0 && sv.first.find("_RAS_") == std::string::npos) {
+                    // Non-metric signals are homogeneous, so only chip 0 is
+                    // probed; metric signals are probed on every chip.
+                    if ((domain_idx == 0 || is_metric) && sv.first.find("_RAS_") == std::string::npos) {
                         double init_setting = sv.second.m_devpool_func(domain_idx);
                         if (init_setting == -1) {
+                            warn_metric_pruned(is_metric, sv.first, domain_idx);
                             unsupported_signal_names.push_back(sv.first);
                             break;
                         }
@@ -945,6 +965,7 @@ namespace geopm
                         ex.err_value() != GEOPM_ERROR_INVALID) {
                         throw;
                     }
+                    warn_metric_pruned(is_metric, sv.first, domain_idx);
                     unsupported_signal_names.push_back(sv.first);
                     break;
                 }
