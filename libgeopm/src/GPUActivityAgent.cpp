@@ -426,8 +426,10 @@ namespace geopm
                     }
                 }
                 else {
-                    // ROI proxy tracking
-                    if (m_gpu_active_region_stop.at(domain_idx) == 0) {
+                    // Only close a region that actually started; otherwise stop
+                    // would subtract from a zero start and report absolute usage.
+                    if (m_gpu_active_region_start.at(domain_idx) != 0 &&
+                        m_gpu_active_region_stop.at(domain_idx) == 0) {
                         m_gpu_active_region_stop.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
                     }
