@@ -204,11 +204,16 @@ namespace geopm
 
                 // required for L0 metric result tracking.  Chip indexed
                 mutable std::vector<std::map<std::string, std::vector<double>>> metric_data;
-                // Accumulator written by the background sampling thread; the
-                // controller snapshots (moves) this into metric_data once per
-                // read_batch() so metric_data holds all reports gathered over the
-                // controller period.  Chip indexed.
-                mutable std::vector<std::map<std::string, std::vector<double>>> metric_data_accum;
+                // Online per-metric aggregate written by the background sampling
+                // thread: the running sum and report count over the controller
+                // period.  Bounded regardless of the consumer's read cadence; the
+                // controller reduces this to the mean in metric_data once per
+                // read_batch().  Chip indexed.
+                struct m_metric_aggregate {
+                    double sum = 0.0;
+                    uint64_t count = 0;
+                };
+                mutable std::vector<std::map<std::string, m_metric_aggregate>> metric_data_accum;
                 // Whether the background thread should drain this chip's
                 // streamer (set when the controller first reads the chip).
                 // Chip indexed.
