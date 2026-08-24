@@ -35,6 +35,7 @@ using testing::Throw;
 using testing::AtLeast;
 using testing::_;
 using testing::StrictMock;
+using testing::NiceMock;
 
 class LevelZeroIOGroupTest : public :: testing :: Test
 {
@@ -238,6 +239,11 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                                       0, 0)).Times(3);
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
                     performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
+
+        // Metric signals are now probed on every GPU chip, not just chip 0.
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_ACTIVE"));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_STALL"));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS"));
     }
 }
 
@@ -935,6 +941,11 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
 
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
                     performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
+
+        // Metric signals are now probed on every GPU chip, not just chip 0.
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_ACTIVE"));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "XVE_STALL"));
+        EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS"));
     }
 
     // The implementation of the pruning code only tests each control on a
@@ -955,6 +966,30 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
     EXPECT_FALSE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UNCORE_FREQUENCY_STATUS"));
     EXPECT_FALSE(levelzero_io.is_valid_control("LEVELZERO::GPU_CORE_FREQUENCY_MIN_CONTROL"));
     EXPECT_FALSE(levelzero_io.is_valid_control("LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL"));
+}
+
+TEST_F(LevelZeroIOGroupTest, metric_heterogeneous_support)
+{
+    // A GPU chip whose Level Zero metrics failed to initialize makes
+    // metric_sample() throw for that chip.  Because GEOPM signal availability is
+    // per name, the metric signals must be pruned for every chip rather than
+    // left registered and throwing later from read_batch().  Probe chip 1 as the
+    // unsupported chip; all other probes return a valid value.
+    auto pool = std::make_shared<NiceMock<MockLevelZeroDevicePool> >();
+    ON_CALL(*pool, num_gpu(GEOPM_DOMAIN_GPU)).WillByDefault(Return(m_num_gpu));
+    ON_CALL(*pool, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillByDefault(Return(m_num_gpu_subdevice));
+    ON_CALL(*pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, 1, _))
+        .WillByDefault(Throw(geopm::Exception("LevelZero::metric_sample: Metric groups not cached",
+                                              GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
+
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *pool, nullptr);
+
+    // One unsupported chip disables the metric signals node-wide.
+    EXPECT_FALSE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:XVE_ACTIVE"));
+    EXPECT_FALSE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:XVE_STALL"));
+    EXPECT_FALSE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:NUM_REPORTS"));
+    // Non-metric signals remain available.
+    EXPECT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION"));
 }
 
 TEST_F(LevelZeroIOGroupTest, save_restore_control)
