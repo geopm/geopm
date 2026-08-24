@@ -748,26 +748,24 @@ namespace geopm
 
     void LevelZeroImp::metric_destroy(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
-        // No context was created if the domain was never enumerated.
-        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx))
-            return;
+        auto &sub = m_devices.at(l0_device_idx).subdevice;
 
-        ze_result_t ze_result;
-        ze_context_handle_t context = m_devices.at(l0_device_idx).subdevice.context.at(l0_domain_idx);
-
-        // Close the streamer and deactivate the group only if sampling was started.
-        if (m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
-            m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = false;
+        // The streamer and metric-group activation exist only once sampling was
+        // started for this chip.
+        if (l0_domain_idx < sub.metrics_initialized.size() &&
+            sub.metrics_initialized.at(l0_domain_idx)) {
+            sub.metrics_initialized.at(l0_domain_idx) = false;
 
             // Close metric streamer
-            ze_result = zetMetricStreamerClose(m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx));
+            ze_result_t ze_result =
+                zetMetricStreamerClose(sub.metric_streamer.at(l0_domain_idx));
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                             "LevelZero::" + std::string(__func__) +
                             ": LevelZero Metric Streamer Close failed",
                             __LINE__);
 
             // Deactivate the metric group on the same subdevice used to activate it.
-            ze_result = zetContextActivateMetricGroups(context,
+            ze_result = zetContextActivateMetricGroups(sub.context.at(l0_domain_idx),
                                                        m_devices.at(l0_device_idx).subdevice_handle.at(l0_domain_idx),
                                                        0, nullptr);
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
@@ -776,8 +774,14 @@ namespace geopm
                             __LINE__);
         }
 
-        // The context is always created in metric_group_init, so always destroy it.
-        zeContextDestroy(context);
+        // metric_group_init creates the context before searching for the
+        // ComputeBasic group, so a context can exist even when the domain is
+        // left uncached.  Destroy it whenever one was created for this chip.
+        if (l0_domain_idx < sub.context.size() &&
+            sub.context.at(l0_domain_idx) != nullptr) {
+            zeContextDestroy(sub.context.at(l0_domain_idx));
+            sub.context.at(l0_domain_idx) = nullptr;
+        }
     }
 
 
