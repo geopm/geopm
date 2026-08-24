@@ -9,10 +9,6 @@
 #include <cstdint>
 #include <numeric>
 
-//DELETEME
-#include <iostream>
-//DELETEME
-
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
