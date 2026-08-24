@@ -1,0 +1,749 @@
+# Plan for GEOPM AI Assistants
+
+Working plan for two specialized AI assistants built on top of
+[AGENTS.md](AGENTS.md):
+
+1. **GEOPM Install Assistant** — gets a working, access-controlled GEOPM
+   installation on a system under test.
+2. **GEOPM Optimize Assistant** — guides a user who knows their workload but
+   not GEOPM through a productive `geopmopt` optimization campaign.
+
+Status legend: `[ ]` not started, `[~]` in progress, `[x]` done.
+
+---
+
+## 1. Motivation and target user
+
+The target user:
+
+- Owns a workload or benchmark they run regularly and can reconfigure.
+- Can interpret their workload's own figure of merit (GFLOPS, images/s,
+  tokens/s, wall time, ...).
+- Has **never used GEOPM**, does not know what a signal, control, or domain is,
+  and does not know whether GEOPM is installed.
+- Wants an answer to: *"what hardware settings make my workload fastest, or most
+  energy efficient, on this machine?"*
+
+The end-to-end journey the two assistants must cover:
+
+```
+"optimize my benchmark"
+   │
+   ├─ Install Assistant ────────────────────────────────────────────┐
+   │    probe system → choose install path → install → configure    │
+   │    access lists → verify writable controls                     │
+   │                                                                ▼
+   │                                            HANDOFF GATE: geopmread works,
+   │                                            geopmd running, target controls
+   │                                            writable by this user
+   │                                                                │
+   └─ Optimize Assistant ◄──────────────────────────────────────────┘
+        probe available sweep dims → capture workload launch command →
+        define metric extraction → choose objective + constraints →
+        smoke test (2 trials) → full campaign → interpret results →
+        emit geopmwrite config
+```
+
+Installation is factored into its own assistant because it is a prerequisite
+for every other GEOPM use case (telemetry collection, `geopmsession` tracing,
+Prometheus export), not just optimization.
+
+---
+
+## 2. Design decisions
+
+| Decision | Choice |
+|---|---|
+| Repository | `geopm/geopm`, branch `geopmopt-assistant`, intended for upstream contribution |
+| Primitive shape | Thin `.agent.md` personas in `.github/agents/` + detailed `SKILL.md` bundles in `.github/skills/` |
+| Rationale | Agents provide tool restriction and persona; skills carry the procedure and remain portable to Claude Code / Codex, which also read `.github/skills/` conventions |
+| Execution authority | Mixed with confirmation gates — auto-run read-only probes, venv creation, and dry runs; **always confirm before** `sudo`, before writing controls, and before launching a multi-trial campaign |
+| Target systems | Local host, remote host over SSH, and containerized targets |
+| Bundled scripts | Yes — verification and platform-probe shell scripts under each skill's `scripts/` |
+| Install paths in scope | Secure default (tagged-release system packages + `geopmdpy` venv from `dev`), client-only venv, access-list configuration, source build, rolling dev packages, container/Docker |
+| Campaign scope (v1) | **Single node.** Multi-node is deferred pending upstream work — see [2.2](#22-deferred-multi-node-campaigns) |
+| Access-list handling | The Install Assistant **generates** ready-to-review `geopmaccess` command blocks for an administrator; it does not merely describe them, and it does not execute them without confirmation |
+| Result persistence | Campaign results are written to a standard per-user location so a later session can compare or resume — see OPT-15 |
+| Out of scope (v1) | Spack, `libgeopm`/`geopmpy` runtime install, multi-node campaigns, aarch64 |
+
+### 2.1 The recommended secure install path
+
+This is the default the Install Assistant should recommend and must document
+first:
+
+1. **System-wide, from a tagged release.** The root-owned `geopmd` daemon runs
+   vetted, stable code and deliberately omits optional client-side Python
+   dependencies.
+   ```bash
+   # Example: Ubuntu
+   sudo add-apt-repository ppa:geopm/release
+   sudo apt update
+   sudo apt install geopmd libgeopmd-dev
+   ```
+2. **Client tools in a per-user virtual environment, from the `dev` branch.**
+   The user gets current `geopmopt` features and the `optimize` extra without
+   changing anything the daemon executes.
+   ```bash
+   python3 -m venv geopm-venv
+   source geopm-venv/bin/activate
+   python3 -m pip install \
+       'geopmdpy[optimize] @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy'
+   ```
+3. **Access lists configured by an administrator** with `geopmaccess`, granting
+   the target user or group exactly the signals and controls the campaign
+   needs.
+
+Reference: the "Installing client tools with pip" section of
+[install.rst](docs/source/install.rst).
+
+### 2.2 Deferred: multi-node campaigns
+
+v1 of the Optimize Assistant is explicitly **single node**. The assistant must
+say so rather than silently producing a command that only tunes the local host.
+
+Multi-node support is deferred because it depends on upstream work that has not
+landed yet. The intended direction:
+
+1. Replace `geopmsession --enable-mpi` with a `--hostfile` option that
+   coordinates hosts over REST (or a similar transport) instead of MPI.
+2. `geopmopt` already wraps `geopmsession` to gather energy and power for its
+   objectives; that wrapper then produces a report spanning all hosts in the
+   hostfile.
+3. The resulting best configuration is deployed across nodes through
+   `geopmsession --control-config`, which applies the settings for the duration
+   of a run and reverts them at session end.
+
+Until that exists, the assistant should state the single-node limitation, and
+— if the user's workload is distributed — explain that only the node running
+`geopmopt` is being tuned and measured.
+
+---
+
+## 3. Deliverables
+
+```
+.github/
+  agents/
+    geopm-install.agent.md          # Install Assistant persona
+    geopm-optimize.agent.md         # Optimize Assistant persona
+  skills/
+    geopm-install/
+      SKILL.md
+      references/
+        probe-and-decide.md         # Decision tree: which install path
+        distro-packages.md          # Per-distro tagged-release commands
+        client-venv.md              # geopmdpy venv, dev-branch snapshot
+        rolling-dev-packages.md     # install_rolling.rst CI packages
+        source-build.md             # autogen/configure/make, install_user.sh
+        container.md                # Docker/k8s targets, geopmd visibility
+        access-lists.md             # geopmaccess admin + user verification
+        troubleshooting.md          # Symptom → cause → fix table
+      scripts/
+        geopm-probe-system.sh       # distro, kernel, CPU, GPU, msr, geopmd
+        geopm-verify-install.sh     # version, service, signals, writability
+    geopm-optimize/
+      SKILL.md
+      references/
+        concepts.md                 # signal/control/domain in 1 page
+        sweep-dimensions.md         # --sweep grammar, dims, units, bounds
+        metrics-and-constraints.md  # --metric / --constraint grammar
+        objective-recipes.md        # Named recipes for common goals
+        campaign-design.md          # Trials budget, seeds, run-to-run noise
+        interpreting-results.md     # Output config, applying results
+        campaign-results.md         # Persisted artifact layout and schema
+        troubleshooting.md          # Symptom → cause → fix table
+      scripts/
+        geopm-probe-controls.sh     # geopmopt --list-controls + availability
+        geopm-check-workload.sh     # Validate launch cmd + metric regex
+docs/source/
+  (updates to geopmopt.1.rst / install.rst if gaps are found)
+plan-for-agents.md                  # this file
+```
+
+---
+
+## 4. Phase 0 — Foundations
+
+- [ ] **F-1. Confirm skill/agent discovery works in this repo.**
+  Create a stub `.github/skills/geopm-install/SKILL.md` with valid frontmatter
+  and confirm it appears as a `/geopm-install` slash command in VS Code chat.
+  *Done when:* the stub is discoverable and loads without a frontmatter warning.
+
+- [ ] **F-2. Establish the license and style conventions for these files.**
+  Decide whether `.agent.md` / `SKILL.md` files carry the BSD-3-Clause header
+  comment, and whether `scripts/*.sh` must carry it (they must — they are
+  source files). Record the decision in this plan.
+  *Done when:* a written convention exists and the F-1 stub complies.
+
+- [ ] **F-3. Decide packaging/installation of the customization files.**
+  Determine whether these files ship in any `.deb`/`.rpm` (likely not — they are
+  repo-only developer assets) and whether `.github/skills/**` needs entries in
+  `MANIFEST.in` or spec files.
+  *Done when:* the answer is documented and any needed packaging edits are
+  listed as tasks.
+
+- [ ] **F-4. Create the tracking issue set upstream.**
+  Per [CONTRIBUTING.rst](CONTRIBUTING.rst): one "Feature request" issue
+  ("As a user of the geopmopt command line tool I would like AI assistant
+  guidance..."), plus "Change - " issues for the install assistant and the
+  optimize assistant.
+  *Done when:* issue numbers are recorded here and the working branch is named
+  after the change issue.
+
+- [ ] **F-5. Write a shared vocabulary reference.**
+  A single page defining signal, control, domain, domain index, session,
+  save/restore, access list — written for someone who has never seen GEOPM.
+  Both skills link to it.
+  *Done when:* `concepts.md` exists, is under 150 lines, and explains every term
+  used by the two SKILL.md bodies.
+
+---
+
+## 5. Phase 1 — GEOPM Install Assistant
+
+### 5.1 Probing and decision logic
+
+- [ ] **INST-1. Write `scripts/geopm-probe-system.sh`.**
+  Read-only. Must report: distro ID and version (`/etc/os-release`), kernel
+  version, architecture, CPU vendor/model, presence of `msr` module and
+  `/dev/cpu/*/msr`, presence of Intel/NVIDIA GPUs and their drivers, whether
+  `geopmread` is on `PATH` and its version, whether `geopmd` is active
+  (`systemctl is-active geopm`), whether the user has `sudo`, whether the
+  environment is a container, and the active Python version.
+  *Done when:* the script runs non-destructively as an unprivileged user on at
+  least Ubuntu and RHEL/Rocky, exits 0 in all cases, and emits machine-parseable
+  `KEY=VALUE` output plus a human summary.
+
+- [ ] **INST-2. Write `references/probe-and-decide.md`.**
+  A decision tree that maps probe output to exactly one recommended install
+  path: secure default, client-only venv, rolling dev packages, source build, or
+  container. Must state the disqualifying condition for each path (e.g. no root
+  → client-only; unsupported distro → source build or container).
+  *Done when:* every leaf of the tree names a specific reference file and a
+  specific first command.
+
+### 5.2 Install path references
+
+- [ ] **INST-3. Write `references/distro-packages.md`.**
+  Tagged-release install commands for Ubuntu (PPA), Fedora, RHEL/Rocky/CentOS
+  (with the EPEL prerequisite), and openSUSE. Include the package split:
+  `geopmd`, `python3-geopmdpy`, `libgeopmd-dev`/`libgeopmd-devel`, `geopmd-doc`.
+  Note the "Intel GPU support" vs "Expanded Intel GPU support" repository
+  distinction.
+  *Done when:* commands are transcribed from [install.rst](docs/source/install.rst)
+  without paraphrase drift, and each block states which repo it enables.
+
+- [ ] **INST-4. Write `references/client-venv.md`.**
+  The venv path: `python3 -m venv`, activation, `pip install 'geopmdpy[optimize]'`
+  for the release and the `git+https://...#subdirectory=geopmdpy` form for the
+  `dev` snapshot. Explain why this is safe (the venv does not affect the
+  root-owned daemon) and explain the `optimize` extra's role in enabling
+  `geopmopt`. Cover the `LD_LIBRARY_PATH` case when `libgeopmd` is not
+  system-installed.
+  *Done when:* a user with an already-deployed `geopmd` can follow it start to
+  finish and end with a working `geopmopt --help`.
+
+- [ ] **INST-5. Write `references/rolling-dev-packages.md`.**
+  Summarize [install_rolling.rst](docs/source/install_rolling.rst) and state
+  clearly when a dev-snapshot *daemon* is appropriate (integration testing,
+  feature feedback) versus when the secure default is preferred.
+  *Done when:* the file states the trust tradeoff explicitly.
+
+- [ ] **INST-6. Write `references/source-build.md`.**
+  `libgeopmd` autotools flow (`./autogen.sh`, `./configure --prefix`, `make -j`,
+  `make install`), the notable configure options (`--enable-nvml`,
+  `--enable-dcgm`, `--enable-levelzero`, `--enable-debug`, `--disable-systemd`),
+  the `geopmdpy` pip install against a non-system `libgeopmd`
+  (`LIBRARY_PATH`/`C_INCLUDE_PATH`/`LD_LIBRARY_PATH`), and
+  [geopmdpy/install_user.sh](geopmdpy/install_user.sh) as the one-shot helper.
+  Must state that a source build without root does **not** give you the Access
+  Service, and therefore does not give you safe control writes.
+  *Done when:* both the manual and `install_user.sh` flows are documented and
+  the no-root limitation is called out.
+
+- [ ] **INST-7. Write `references/container.md`.**
+  How a containerized client reaches a host `geopmd`: the
+  [geopmdrs](geopmdrs) gRPC-over-UDS proxy, socket mounting, and what
+  [geopm_service.proto](geopm_service.proto) exposes. Include the k8s pod case
+  and its limitations.
+  *Done when:* a minimal working example exists (host daemon + container
+  client running `geopmread`), or the file explicitly documents that this path
+  is unvalidated and why.
+
+### 5.3 Access control
+
+- [ ] **INST-8. Write `references/access-lists.md`.**
+  The `geopmaccess` model: default (empty) allow lists, `geopmaccess --all` to
+  see everything the platform offers, writing signal and control allow lists for
+  a user or group, and the difference between the *default* access list and
+  *per-user/per-group* lists. Include the exact recommended control set for an
+  optimization campaign:
+  `CPU_FREQUENCY_MAX_CONTROL`, `CPU_UNCORE_FREQUENCY_MAX_CONTROL`,
+  `CPU_POWER_LIMIT_CONTROL`, `GPU_CORE_FREQUENCY_MAX_CONTROL`,
+  `GPU_POWER_LIMIT_CONTROL`, `BOARD_POWER_LIMIT_CONTROL`, plus the signals
+  `TIME`, `CPU_ENERGY`, `CPU_POWER`, `GPU_ENERGY`, `GPU_POWER`,
+  `BOARD_ENERGY`, `BOARD_POWER`.
+  The assistant must **generate** a concrete, copy-ready command block scoped to
+  the named user or group and to the controls this campaign actually needs — not
+  a prose description — so an administrator can review and run it verbatim. The
+  generated block must be filtered against what the platform really offers
+  (`geopmaccess --all`), must never request more than the campaign needs, and
+  must be accompanied by the matching command to revoke it afterwards.
+  *Done when:* an admin can copy a generated block that grants exactly this set
+  to a named group, a user can verify their own grants, and a revoke block is
+  produced alongside it.
+
+- [ ] **INST-9. Document the session save/restore guarantee.**
+  A short section in `SKILL.md` explaining that control writes are reverted when
+  the session ends, so a failed or interrupted campaign does not leave the
+  machine misconfigured — and the corollary that a *crashed* client is safe but
+  a *killed daemon* may not be. Link to [security.rst](docs/source/security.rst).
+  *Done when:* the guarantee and its boundary conditions are both stated.
+
+### 5.4 Verification and the handoff gate
+
+- [ ] **INST-10. Write `scripts/geopm-verify-install.sh`.**
+  The authoritative "is GEOPM ready?" check. Must verify, in order:
+  1. `geopmread --version` succeeds and print the version.
+  2. `geopmd` is active (or explain that only `--info` style reads will work).
+  3. `geopmread TIME board 0` succeeds (basic signal read).
+  4. `geopmread CPU_POWER board 0` succeeds (real telemetry).
+  5. For each candidate control, report readable/writable/denied.
+  6. `geopmopt --list-controls` succeeds (confirms the `optimize` extra).
+  Must **not** perform a real control write by default; add an opt-in
+  `--write-probe` flag that writes a control to its current value and reports
+  success or the permission error.
+  *Done when:* the script exits non-zero with an actionable message for each
+  distinct failure mode, and exits 0 only when the handoff gate below is met.
+
+- [ ] **INST-11. Define the handoff gate.**
+  Write the explicit criteria that the Install Assistant must confirm before
+  handing off to the Optimize Assistant:
+  - `geopmopt --list-controls` runs and lists at least one dimension with real
+    (non-`n/a`) min/max/step.
+  - `geopmread` returns a plausible power reading.
+  - At least one target control is writable by the invoking user.
+  *Done when:* the criteria appear in both `SKILL.md` files, worded identically.
+
+- [ ] **INST-12. Write `references/troubleshooting.md`.**
+  Symptom → cause → fix table covering at minimum: `geopmread: command not
+  found`; `geopmopt: command not found` (missing `optimize` extra);
+  `ImportError: skopt`; `libgeopmd.so.*: cannot open shared object file`;
+  permission denied on a control (missing access-list entry); `geopmd` inactive;
+  MSR module not loaded; signal unavailable on this platform; venv shadowing the
+  system `geopmdpy`; `n/a` bounds in `--list-controls`.
+  *Done when:* every symptom has a concrete diagnostic command and a concrete
+  fix.
+
+### 5.5 Assembly
+
+- [ ] **INST-13. Write `.github/skills/geopm-install/SKILL.md`.**
+  Frontmatter `name: geopm-install`; a keyword-rich `description` including
+  "install GEOPM", "geopmd not running", "geopmread command not found",
+  "geopmaccess permissions", "set up geopmopt". Body: when to use, the probe →
+  decide → install → configure → verify procedure, the confirmation gates
+  (never run `sudo` without asking), and links one level deep into
+  `references/` and `scripts/`.
+  *Done when:* under 500 lines, all links resolve, and the body never inlines
+  content that belongs in a reference file.
+
+- [ ] **INST-14. Write `.github/agents/geopm-install.agent.md`.**
+  Thin persona. `tools: [read, search, execute, edit]`. Constraints: never run
+  `sudo` without explicit confirmation; never modify access lists without
+  confirmation; never install into the system Python; prefer the secure default
+  path; always end by running `geopm-verify-install.sh` and reporting the
+  handoff gate status.
+  *Done when:* the agent appears in the agent picker and correctly delegates to
+  the `geopm-install` skill.
+
+- [ ] **INST-15. Add remote/SSH and container handling.**
+  Document how the assistant targets a non-local system: require the user to
+  name the host, run probes via `ssh <host> bash -s < script`, and never assume
+  the local machine is the system under test. State that campaign trials must
+  run on the target, not the control host.
+  *Done when:* `SKILL.md` has a "Choosing the target system" section that is
+  consulted before any probe.
+
+---
+
+## 6. Phase 2 — GEOPM Optimize Assistant
+
+### 6.1 Ground truth capture
+
+- [ ] **OPT-1. Write `references/sweep-dimensions.md` from source.**
+  Transcribe from [geopmdpy/geopmdpy/grid.py](geopmdpy/geopmdpy/grid.py):
+  - Grammar: `--sweep CONTROL[@DOMAIN][=MIN:MAX:STEP]`, repeatable.
+  - Dimension aliases: `cpu-freq`/`cpu-frequency`, `uncore-freq`/
+    `cpu-uncore-frequency`, `cpu-power`, `gpu-freq`/`gpu-frequency`,
+    `gpu-power`, `board-power`, `prefetch`/`prefetch-disable`.
+  - Unit suffixes: frequency `Hz|kHz|MHz|GHz`, power `W|kW`.
+  - Domain defaults to the control's native domain.
+  - Which signals supply auto-detected bounds for each dimension (e.g.
+    `cpu-freq` uses `CPU_FREQUENCY_MIN_AVAIL` / `CPU_FREQUENCY_MAX_AVAIL` /
+    `CPU_FREQUENCY_STEP`), and that unavailable bounds render as `n/a`.
+  - That `prefetch` sweeps a level 0..4 over the MSR prefetcher-disable bits.
+  *Done when:* every alias and unit in `grid.py` appears, and the page is
+  verified against `geopmopt --list-controls` output on a real machine.
+
+- [ ] **OPT-2. Write `references/metrics-and-constraints.md` from source.**
+  Transcribe from [geopmdpy/geopmdpy/metrics.py](geopmdpy/geopmdpy/metrics.py):
+  - `--metric NAME=SOURCE` where SOURCE is `regex:'PATTERN'`,
+    `signal:SIGNAL@DOMAIN[:AGG]`, or `expr:'EXPRESSION'`.
+  - Aggregations: `delta`, `mean`, `max`, `min`; default aggregation is derived
+    from the signal's behavior (constant/monotone/variable).
+  - Signal sampling domains: `board`, `gpu`, `cpu`.
+  - Reserved metric names and units: `time` (s, immutable/always present),
+    `energy` (J), `power` (W), `fom` (arb).
+  - `--constraint 'NAME OP VALUE'` with OP in `<=`, `<`, `>=`, `>`, `==`, and
+    unit-suffixed values (`'power <= 250W'`, `'energy <= 5000J'`).
+  - How violations are scored rather than hard-rejected.
+  *Done when:* the grammar matches `parse_metric_spec` / `parse_constraint_spec`
+  exactly, including the identifier regex `[A-Za-z_][A-Za-z0-9_]*`.
+
+- [ ] **OPT-3. Write the authoritative flag reference.**
+  A table of every `geopmopt` flag with its default, transcribed from
+  `get_parser()` in [geopmdpy/geopmdpy/optimizer.py](geopmdpy/geopmdpy/optimizer.py):
+  `--trials` (50), `--n-initial-points` (10), `--metric-regex` (None),
+  `--minimize [NAME]`, `--metric` (repeatable), `--maximize NAME`,
+  `--constraint` (repeatable), `--energy-domain`, `--list-metrics`,
+  `--random-seed` (42), `--application-timeout` (300), `--output-file` (`-`),
+  `--verbosity` (1, choices 0–3), `--print-stdout`, `--defer-write`,
+  `--efficiency DOMAIN`, `--metric-bound`, `--sample-period` (0.01),
+  `--penalty` (`auto`), and the trailing `-- LAUNCH ...`.
+  Must record the dependency rules: `--metric-bound` requires `--metric-regex`
+  **and** `--efficiency`; `--defer-write` requires `--output-file`;
+  `--maximize NAME` and `--minimize NAME` are mutually exclusive.
+  *Done when:* every `add_argument` call in `get_parser()` is represented with
+  its real default.
+
+### 6.2 Workload onboarding
+
+- [ ] **OPT-4. Write the workload interview procedure.**
+  The ordered questions the assistant asks a GEOPM-naive user:
+  1. What single command runs your workload end to end?
+  2. Roughly how long does one run take?
+  3. Does it print a figure of merit? Paste one run's output.
+  4. Is the figure of merit better when higher or lower?
+  5. Is run-to-run variation small, or does it fluctuate?
+  6. CPU-only, or does it use GPUs?
+  7. What is your goal — fastest, lowest energy, best performance-per-watt,
+     or lowest energy subject to a performance constraint, or fastest subject
+     to a power cap?
+  8. Is this a single machine, or a distributed run across several nodes?
+     (v1 tunes only the node running `geopmopt` — see [2.2](#22-deferred-multi-node-campaigns).)
+  *Done when:* each answer maps deterministically to a flag or a recipe in
+  `objective-recipes.md`.
+
+- [ ] **OPT-5. Write `scripts/geopm-check-workload.sh`.**
+  Given a launch command and a candidate regex, run the workload **once** at
+  default settings and report: exit code, wall time, whether the regex matched,
+  the captured value, and a recommended `--application-timeout` (measured time
+  with generous headroom). Must warn if wall time is under ~10 s (too short to
+  optimize meaningfully) or over ~30 min (campaign would be impractically long).
+  *Done when:* the script correctly reports a regex miss and suggests a fix
+  rather than failing silently.
+
+- [ ] **OPT-6. Write the metric-regex construction guidance.**
+  How to turn a line of workload output into a capturing regex, including: the
+  single capture group requirement, escaping, matching the *last* occurrence
+  when a workload prints per-iteration values, and validating with `python3 -c`
+  before spending trials.
+  *Done when:* at least four worked examples exist (GFLOPS, images/s, elapsed
+  seconds, and a value embedded in JSON-ish output).
+
+### 6.3 Objective design
+
+- [ ] **OPT-7. Write `references/objective-recipes.md`.**
+  Named, copy-pasteable recipes, each with the goal, the exact command, and what
+  the result means:
+  - **Fastest run** (no metric): default objective is wall-clock runtime.
+  - **Maximize a figure of merit**: `--metric-regex`.
+  - **Minimize energy**: `--efficiency <domain>` with no `--metric-regex`.
+  - **Best performance per watt**: `--metric-regex` + `--efficiency`.
+  - **Minimize energy subject to a performance floor**: `--metric-regex` +
+    `--efficiency` + `--metric-bound`.
+  - **General composed objective**: `--metric fom=regex:'...'`,
+    `--metric power=signal:CPU_POWER@board:mean`, `--maximize fom`,
+    `--constraint 'power <= 250W'`.
+  *Done when:* each recipe has been executed at least once and its output
+  captured in the reference.
+
+- [ ] **OPT-8. Write `references/campaign-design.md`.**
+  Guidance on: choosing `--trials` relative to the number of `--sweep`
+  dimensions and single-run duration; the `--n-initial-points` relationship
+  (random exploration before the Gaussian Process takes over); estimating total
+  campaign wall time as `trials × run_time` and presenting that estimate to the
+  user **before** starting; using `--random-seed` for reproducibility; using
+  `--sample-period` and its overhead tradeoff; and choosing `--penalty`
+  (`auto` vs `none` vs a fixed value) based on whether trial failures are
+  expected.
+  *Done when:* the page contains a concrete "estimate before you run" formula
+  and a recommended starting configuration for 1-, 2-, and 3-dimensional sweeps.
+
+- [ ] **OPT-9. Define the mandatory smoke-test gate.**
+  Before any full campaign, the assistant must run a reduced campaign
+  (`--trials 2 --n-initial-points 2`) and confirm: the workload launches, the
+  metric is extracted on both trials, controls are actually written, and a
+  result is produced. Only then present the full-campaign time estimate and ask
+  for confirmation. Once DOC-5 lands, prefer `geopmopt --dry-run` for the
+  configuration-validation half of this gate and keep the two-trial run only to
+  prove the workload and metric extraction work.
+  *Done when:* the gate is stated in `SKILL.md` as a hard requirement with the
+  exact reduced command, and the `--dry-run` fallback path is described.
+
+### 6.4 Results
+
+- [ ] **OPT-10. Write `references/interpreting-results.md`.**
+  What `--output-file` produces (a `geopmwrite` configuration file), how to
+  apply it (`geopmwrite` batch input, or `geopmsession --control-config` to hold
+  the settings for the duration of a run), what `--defer-write` changes, how to
+  read the trial history at `--verbosity 2`/`3`, and how to recognize a campaign
+  that did not converge (best result at a search-space boundary, best result
+  equal to the default, or all trials within run-to-run noise).
+  *Done when:* the page shows a real output file and the exact command to apply
+  it.
+
+- [ ] **OPT-11. Write `references/troubleshooting.md` for the optimizer.**
+  Symptom → cause → fix, covering at minimum: regex never matches; every trial
+  hits the timeout; `--list-controls` shows `n/a` bounds; permission denied
+  writing a swept control; `scikit-optimize` missing; results indistinguishable
+  from noise; workload has an internal timer that a frequency cap invalidates;
+  campaign appears to hang (long single-run time); constraint never satisfiable.
+  *Done when:* each entry names the flag or access-list change that resolves it.
+
+- [ ] **OPT-12. Write `scripts/geopm-probe-controls.sh`.**
+  Wrap `geopmopt --list-controls` and `geopmopt --list-metrics`, flag
+  dimensions with `n/a` bounds as unusable on this platform, and recommend a
+  starting `--sweep` set based on what is actually available and writable.
+  *Done when:* on a CPU-only machine it recommends CPU dimensions only and
+  explicitly excludes GPU dimensions with a stated reason.
+
+- [ ] **OPT-15. Persist campaign results in a standard location.**
+  Define where a campaign's artifacts are stored so a later chat session can
+  compare runs or resume work: a per-user directory (respect
+  `XDG_DATA_HOME`, defaulting to `~/.local/share/geopm/campaigns/`), one
+  timestamped subdirectory per campaign, containing the exact `geopmopt`
+  command line, the resolved sweep dimensions and their detected bounds, the
+  `--output-file` configuration, the trial history, the hostname and platform
+  identity, and the GEOPM version. Specify the file format (YAML, to match
+  `geopmsession --report-out`) and a stable schema.
+  The assistant must, at the start of a session, check this directory and offer
+  to compare against or extend a prior campaign on the same host and workload.
+  *Done when:* the layout and schema are documented, two campaigns on the same
+  host are distinguishable, and the assistant can summarize a prior campaign
+  from the stored artifacts alone. Track whether `geopmopt` should write these
+  artifacts itself — if so, raise it as an upstream change alongside DOC-5.
+
+### 6.5 Assembly
+
+- [ ] **OPT-13. Write `.github/skills/geopm-optimize/SKILL.md`.**
+  Frontmatter `name: geopm-optimize`; description with trigger keywords:
+  "geopmopt", "optimize benchmark power", "best CPU frequency for my workload",
+  "energy efficiency tuning", "performance per watt", "power cap sweep".
+  Body: prerequisites (the handoff gate), the interview → probe → smoke test →
+  campaign → interpret procedure, and links one level deep.
+  *Done when:* under 500 lines and a GEOPM-naive transcript can be completed
+  using only the skill and its references.
+
+- [ ] **OPT-14. Write `.github/agents/geopm-optimize.agent.md`.**
+  Thin persona. `tools: [read, search, execute, edit, todo]`. Constraints:
+  never launch a campaign without presenting a wall-time estimate and getting
+  confirmation; never skip the smoke test; never write controls outside a
+  `geopmopt`/`geopmsession` session; delegate to the install assistant when the
+  handoff gate fails; never invent signal, control, or flag names — verify with
+  `--list-controls` / `--list-metrics` / `geopmread --info-all`.
+  *Done when:* the agent correctly refuses to proceed on a machine without
+  GEOPM and routes to `geopm-install`.
+
+- [ ] **OPT-16. State the single-node scope and the multi-node path.**
+  `SKILL.md` must declare that v1 tunes and measures only the node running
+  `geopmopt`. When the workload interview reveals a distributed run, the
+  assistant explains the limitation, offers to tune a single representative
+  node, and points at the deferred design in
+  [2.2](#22-deferred-multi-node-campaigns) (`geopmsession --hostfile` over REST
+  replacing `--enable-mpi`, then `--control-config` to deploy the result across
+  nodes).
+  *Done when:* a distributed-workload transcript shows the limitation stated
+  before any campaign is proposed, and the skill contains no guidance that only
+  makes sense for multi-node runs.
+
+---
+
+## 7. Phase 3 — Integration
+
+- [ ] **INT-1. Wire the handoff in both directions.**
+  `geopm-install.agent.md` ends by naming `geopm-optimize` as the next step when
+  the gate passes; `geopm-optimize.agent.md` invokes or names `geopm-install`
+  when the gate fails.
+  *Done when:* a single prompt — "help me optimize my benchmark" — on a machine
+  without GEOPM results in the install flow, then the optimize flow, without
+  the user naming either assistant.
+
+- [ ] **INT-2. Update [AGENTS.md](AGENTS.md).**
+  Replace the speculative "Agent tooling roadmap" entries with the delivered
+  skills and their real paths and trigger phrases.
+  *Done when:* the roadmap section describes what exists, and remaining ideas
+  are clearly marked as planned.
+
+- [ ] **INT-3. Verify multi-tool portability.**
+  Confirm the `.github/skills/` bundles are usable by at least one non-VS Code
+  agent runtime that reads the same convention; note any VS Code-specific
+  frontmatter that other runtimes ignore.
+  *Done when:* portability findings are recorded here.
+
+---
+
+## 8. Phase 4 — Validation
+
+- [ ] **VAL-1. Dry-run transcript: fresh Ubuntu, root available.**
+  Full journey from "optimize my benchmark" to an applied `geopmwrite` config
+  using a trivial synthetic workload. Capture the transcript.
+  *Done when:* the transcript shows zero points where the assistant invented a
+  flag, signal, or package name.
+
+- [ ] **VAL-2. Dry-run transcript: no root, `geopmd` already deployed.**
+  Client-only venv path. Confirm the assistant never proposes `sudo` and
+  correctly identifies missing access-list entries as an admin action.
+  *Done when:* the transcript ends with a concrete request the user can send to
+  their administrator.
+
+- [ ] **VAL-3. Negative test: platform with no writable controls.**
+  Confirm the assistants fail loudly and usefully rather than producing a
+  command that will error mid-campaign.
+  *Done when:* the failure message names the exact missing access-list entries.
+
+- [ ] **VAL-4. Negative test: workload with no figure of merit.**
+  Confirm the assistant falls back to the default runtime objective and explains
+  that choice.
+  *Done when:* the transcript shows the fallback being explained, not silently
+  applied.
+
+- [ ] **VAL-5. Real-hardware campaign.**
+  Run one full multi-dimension campaign on a real Intel platform using a real
+  benchmark. Record the wall time, the trial count, and whether the recommended
+  configuration reproduced on a verification run.
+  *Done when:* results and the reproduction check are recorded here.
+
+- [ ] **VAL-6. Script portability check.**
+  Run both `scripts/*.sh` under `bash -n`, `shellcheck`, and on at least two
+  distros. Confirm they carry the license header and are `set -euo pipefail`
+  clean (mind the known `head -c` / SIGPIPE interaction).
+  *Done when:* `shellcheck` is clean and both scripts pass on both distros.
+
+---
+
+## 9. Phase 5 — Documentation and upstreaming
+
+- [ ] **DOC-1. Reconcile [geopmdpy/OPTIMIZER_README.md](geopmdpy/OPTIMIZER_README.md)
+  with the current CLI.**
+  It documents `--cpu-frequency DOMAIN`, `--cpu-power DOMAIN`, etc., but the
+  current parser exposes `--sweep DIM` with `DIM = CONTROL[@DOMAIN][=MIN:MAX:STEP]`.
+  It also omits `--metric`, `--maximize`, `--constraint`, `--energy-domain`,
+  `--metric-bound`, `--sample-period`, `--penalty`, `--defer-write`, and
+  `--list-metrics`. Decide whether to update it or fold it into
+  [geopmopt.1.rst](docs/source/geopmopt.1.rst) and delete it.
+  *Done when:* no reader can follow the README and produce an invalid command.
+
+- [ ] **DOC-2. Fill documentation gaps discovered while writing the skills.**
+  Track any behavior the skills had to learn from source because the man pages
+  did not state it (candidates so far: the `prefetch` sweep dimension, `n/a`
+  bound semantics, `--penalty` scoring, default-aggregation-by-signal-behavior).
+  Fix the man pages rather than only documenting it in the skill.
+  *Done when:* each gap is either fixed in `docs/source/` or recorded here with
+  a reason for deferring.
+
+- [ ] **DOC-3. Add a short "AI assistant" note to the docs.**
+  A brief section pointing users at the repository's agent tooling, likely in
+  [devel.rst](docs/source/devel.rst) or [contrib.rst](docs/source/contrib.rst).
+  *Done when:* the note builds cleanly with `make -C docs html` and passes the
+  `geopmlint` checks.
+
+- [ ] **DOC-4. Open the pull request.**
+  Follow [CONTRIBUTING.rst](CONTRIBUTING.rst): branch named for the change
+  issue, `Fixes #NNNN` in the PR body, `git commit -s`, requirements documented
+  in the issue rather than the PR. Note the generative-AI contribution policy
+  applies to any AI-generated content in these files.
+  *Done when:* CI is green and the PR is open.
+
+- [ ] **DOC-5. Propose and implement `geopmopt --dry-run` upstream.**
+  A flag that validates the full configuration without running the workload:
+  resolve every `--sweep` dimension against the platform, confirm the bounds are
+  real (not `n/a`), confirm every swept control is writable by the invoking
+  user, parse and validate all `--metric` and `--constraint` specifications,
+  check the flag dependency rules, and print the resolved search space and
+  objective — then exit without launching `-- LAUNCH`.
+  This makes the OPT-9 smoke-test gate nearly free and turns the most common
+  campaign failures (permission denied on a control, unsatisfiable constraint,
+  malformed metric spec) into instant errors instead of wasted trials.
+  File it as a separate "Feature request" plus "Change - " issue pair so it can
+  be reviewed independently of the assistant work.
+  *Done when:* the flag is implemented in
+  [geopmdpy/geopmdpy/optimizer.py](geopmdpy/geopmdpy/optimizer.py), documented
+  in [geopmopt.1.rst](docs/source/geopmopt.1.rst), covered by a unit test, and
+  OPT-9 is updated to use it.
+
+---
+
+## 10. Cross-cutting requirements
+
+### 10.1 Safety rules for both assistants
+
+- Never run `sudo` without explicit, immediately preceding confirmation.
+- Never modify `geopmaccess` allow lists without confirmation; treat them as
+  shared system configuration. Generating the command block for review is
+  encouraged; running it is not, until the user confirms.
+- Request the minimum access needed for the campaign, and always supply the
+  matching revoke command.
+- Never write a hardware control outside a GEOPM session — session save/restore
+  is the safety mechanism, and bypassing it can leave the machine misconfigured.
+- Always present an estimated wall time before starting a campaign.
+- Never claim a signal, control, sweep dimension, or flag exists without
+  verifying it with `--list-controls`, `--list-metrics`, or
+  `geopmread --info-all` on the actual target.
+- Never imply a campaign covers more than the node running `geopmopt`.
+- On a shared or production system, state that a campaign will repeatedly change
+  power and frequency limits, and confirm the user is authorized to do that.
+
+### 10.2 Anti-patterns to avoid
+
+- Restating the man pages instead of adding decision support — the value is in
+  *choosing* the right flags for this user's situation.
+- Monolithic `SKILL.md` files; keep bodies under 500 lines and push detail into
+  `references/`.
+- Vague `description` frontmatter; the description is the discovery surface and
+  must contain the phrases a naive user would actually type.
+- Hardcoding platform specifics (frequency ranges, package counts) that must be
+  probed at runtime.
+
+### 10.3 Resolved scope decisions
+
+- [x] **Multi-node campaigns?** No — v1 declares single-node scope. The
+      multi-node path depends on replacing `geopmsession --enable-mpi` with a
+      REST-based `--hostfile` option, after which `geopmopt`'s existing
+      `geopmsession` wrapper can produce a cross-node report and deploy the
+      result with `--control-config`. Captured in
+      [2.2](#22-deferred-multi-node-campaigns); enforced by OPT-16.
+- [x] **Persist campaign results?** Yes — a standard per-user location with a
+      stable schema, so later sessions can compare or resume. Specified by
+      OPT-15.
+- [x] **`geopmopt --dry-run` upstream?** Yes — worth doing, and it makes the
+      smoke-test gate substantially cheaper. Specified by DOC-5, consumed by
+      OPT-9.
+- [x] **Generate or describe `geopmaccess` commands?** Generate — the Install
+      Assistant emits a reviewable, least-privilege command block plus its
+      revoke counterpart, and never runs it without confirmation. Specified by
+      INST-8.
+
+---
+
+## 11. Progress summary
+
+| Phase | Tasks | Done |
+|---|---|---|
+| 0 — Foundations | 5 | 0 |
+| 1 — Install Assistant | 15 | 0 |
+| 2 — Optimize Assistant | 16 | 0 |
+| 3 — Integration | 3 | 0 |
+| 4 — Validation | 6 | 0 |
+| 5 — Docs and upstreaming | 5 | 0 |
+| **Total** | **50** | **0** |
