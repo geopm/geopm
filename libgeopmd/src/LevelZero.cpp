@@ -873,21 +873,23 @@ namespace geopm
         }
 
         // Use the cached name→index map to avoid calling zetMetricGet and
-        // zetMetricGetProperties on every sample iteration.  The report values
-        // are appended to the accumulator; the caller (metric_drain) holds
-        // m_metric_mutex, and the controller snapshots (moves) the accumulator
-        // into metric_data once per read_batch().
+        // zetMetricGetProperties on every sample iteration.  Only the mean and
+        // report count are exposed, so accumulate a running sum and count online
+        // rather than retaining every report; the caller (metric_drain) holds
+        // m_metric_mutex, and the controller reduces this to the mean in
+        // metric_data once per read_batch().
         const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
         auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
         for (const auto &kv : name_idx) {
             const std::string &metric_name = kv.first;
             size_t metric_idx = kv.second;
 
-            std::vector<double> &values = accum[metric_name];
+            auto &aggregate = accum[metric_name];
             for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++) {
                 zet_typed_value_t data = metric_values.at(report_idx * num_metric + metric_idx);
-                values.push_back(metric_data_convert(data));
+                aggregate.sum += metric_data_convert(data);
             }
+            aggregate.count += num_reports;
         }
     }
 
@@ -952,18 +954,24 @@ namespace geopm
             // the controller period compares to the background drain cadence.
             metric_drain(l0_device_idx, l0_domain_idx);
 
-            // Snapshot the accumulated reports (this drain plus any the
-            // background thread gathered since the last read_batch) into
-            // metric_data.  metric_data therefore holds every report gathered
-            // over the controller period (averaged later by metric_sample).
+            // Reduce the accumulated reports (this drain plus any the background
+            // thread gathered since the last read_batch) to their mean in
+            // metric_data, then reset the aggregate for the next period.
             auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
             auto &current = m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx);
             size_t num_reports = 0;
             for (const auto &kv : name_idx) {
                 const std::string &metric_name = kv.first;
-                current[metric_name] = std::move(accum[metric_name]);
-                accum[metric_name].clear();
-                num_reports = current[metric_name].size();
+                auto &aggregate = accum[metric_name];
+                if (aggregate.count > 0) {
+                    current[metric_name] = std::vector<double>{ aggregate.sum / aggregate.count };
+                }
+                else {
+                    current[metric_name].clear();
+                }
+                num_reports = aggregate.count;
+                aggregate.sum = 0.0;
+                aggregate.count = 0;
             }
             current["NUM_REPORTS"] = std::vector<double>{ static_cast<double>(num_reports) };
         }
