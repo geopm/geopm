@@ -1035,13 +1035,18 @@ namespace geopm
             ze_result = ZE_RESULT_SUCCESS;
         }
 
-        // Skip when no data is available
-        if (ze_result != ZE_RESULT_NOT_READY && read_size > 0) {
+        // NOT_READY just means no reports are queued yet; validate every other
+        // result (e.g. device loss) even when read_size == 0 so errors reach the
+        // background-thread error path instead of silently disabling telemetry.
+        if (ze_result != ZE_RESULT_NOT_READY) {
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                             "LevelZero::" + std::string(__func__) +
                             ": LevelZero Read Data failed",
                             __LINE__);
+        }
 
+        // Skip when no data is available
+        if (ze_result != ZE_RESULT_NOT_READY && read_size > 0) {
             // Learn per-report byte size from first successful read
             size_t &report_byte_size = m_devices.at(l0_device_idx).subdevice.report_byte_size.at(l0_domain_idx);
             if (report_byte_size == 0) {
