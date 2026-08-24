@@ -144,7 +144,6 @@ Until that exists, the assistant should state the single-node limitation, and
     geopm-optimize/
       SKILL.md
       references/
-        concepts.md                 # signal/control/domain in 1 page
         sweep-dimensions.md         # --sweep grammar, dims, units, bounds
         metrics-and-constraints.md  # --metric / --constraint grammar
         objective-recipes.md        # Named recipes for common goals
@@ -156,6 +155,7 @@ Until that exists, the assistant should state the single-node limitation, and
         geopm-probe-controls.sh     # geopmopt --list-controls + availability
         geopm-check-workload.sh     # Validate launch cmd + metric regex
 docs/source/
+  concepts.rst                      # Shared vocabulary, linked by both skills
   (updates to geopmopt.1.rst / install.rst if gaps are found)
 plan-for-agents.md                  # this file
 ```
@@ -164,40 +164,118 @@ plan-for-agents.md                  # this file
 
 ## 4. Phase 0 — Foundations
 
-- [ ] **F-1. Confirm skill/agent discovery works in this repo.**
+**Status: complete.** Outcomes are recorded in
+[4.1](#41-conventions-for-customization-files) and
+[4.2](#42-tracking-issues).
+
+- [x] **F-1. Confirm skill/agent discovery works in this repo.**
   Create a stub `.github/skills/geopm-install/SKILL.md` with valid frontmatter
   and confirm it appears as a `/geopm-install` slash command in VS Code chat.
   *Done when:* the stub is discoverable and loads without a frontmatter warning.
+  → Scaffold created at
+  [.github/skills/geopm-install/SKILL.md](.github/skills/geopm-install/SKILL.md)
+  with `name`, `description`, and `argument-hint` frontmatter. It carries the
+  readiness gate and safety rules so it is useful even before Phase 1 fills in
+  the references. Validated mechanically: frontmatter parses as YAML, `name`
+  matches the folder, the description is within the 1024-character limit, and
+  all four relative links resolve. Interactive confirmation that
+  `/geopm-install` appears in the chat picker may need a window reload.
 
-- [ ] **F-2. Establish the license and style conventions for these files.**
+- [x] **F-2. Establish the license and style conventions for these files.**
   Decide whether `.agent.md` / `SKILL.md` files carry the BSD-3-Clause header
   comment, and whether `scripts/*.sh` must carry it (they must — they are
   source files). Record the decision in this plan.
   *Done when:* a written convention exists and the F-1 stub complies.
+  → See [4.1](#41-conventions-for-customization-files).
 
-- [ ] **F-3. Decide packaging/installation of the customization files.**
+- [x] **F-3. Decide packaging/installation of the customization files.**
   Determine whether these files ship in any `.deb`/`.rpm` (likely not — they are
   repo-only developer assets) and whether `.github/skills/**` needs entries in
   `MANIFEST.in` or spec files.
   *Done when:* the answer is documented and any needed packaging edits are
   listed as tasks.
+  → **No packaging change is required.** `.github/` appears in no `EXTRA_DIST`
+  (checked `libgeopmd/Makefile.am` and `libgeopm/Makefile.am`), is absent from
+  `geopmdpy/MANIFEST.in`, and is not referenced by `setup.cfg`,
+  `pyproject.toml`, or any spec file under `release/`. Automake only distributes
+  explicitly listed files, so these assets stay repository-only, which is the
+  intent.
 
-- [ ] **F-4. Create the tracking issue set upstream.**
+- [x] **F-4. Create the tracking issue set upstream.**
   Per [CONTRIBUTING.rst](CONTRIBUTING.rst): one "Feature request" issue
   ("As a user of the geopmopt command line tool I would like AI assistant
   guidance..."), plus "Change - " issues for the install assistant and the
   optimize assistant.
   *Done when:* issue numbers are recorded here and the working branch is named
   after the change issue.
+  → See [4.2](#42-tracking-issues). Branch naming was deliberately left as
+  `geopmopt-assistant`; the issues are referenced from the PR body instead.
 
-- [ ] **F-5. Write a shared vocabulary reference.**
+- [x] **F-5. Write a shared vocabulary reference.**
   A single page defining signal, control, domain, domain index, session,
   save/restore, access list — written for someone who has never seen GEOPM.
   Both skills link to it.
   *Done when:* `concepts.md` exists, is under 150 lines, and explains every term
   used by the two SKILL.md bodies.
+  → Promoted from a skill-local reference to a first-class documentation page at
+  [docs/source/concepts.rst](docs/source/concepts.rst), registered in the
+  `index.rst` toctree between `overview` and `tutorial`. Both skills link to it
+  rather than duplicating it, and GEOPM users who never touch the assistants
+  benefit from it too. Verified with `make -C docs html` and `make -C docs man`;
+  both succeed and the page carries no Sphinx warnings.
+
+### 4.1 Conventions for customization files
+
+Determined by inspecting existing files rather than by preference:
+
+| File type | License header | Basis |
+|---|---|---|
+| `AGENTS.md`, `SKILL.md`, `*.agent.md`, `plan-for-agents.md` | **None** | No `.md` file in the repository carries one — checked `README.md`, `ChangeLog.md`, `CODE_OF_CONDUCT.md`, `geopmdpy/README.md`, `libgeopmd/README.md`, `docs/README.md` |
+| `docs/source/*.rst` | **None** | No `.rst` page under `docs/source/` carries one |
+| `scripts/*.sh` | **Required** | Every `.sh` in the repository carries one |
+
+The shell-script header, matching `.github/include_guards.sh` and
+`geopmdpy/install_user.sh` but with the current year:
+
+```bash
+#!/bin/bash
+#  Copyright (c) 2015 - 2026 Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+```
+
+The rest of the tree currently says `2015 - 2025`; new files use `2026` and the
+existing files will catch up at the next bulk year update.
+
+Additional findings that affect how these files must be written:
+
+- **There is no copyright-header check in CI.** The pre-build job runs only
+  codespell, and the separate `.github/include_guards.sh` step scans just
+  `libgeopm/src`, `libgeopmd/src`, `libgeopm/test`, and `libgeopmd/test` for
+  C/C++ include guards. Nothing under `.github/skills/` is scanned by it.
+- **codespell does cover `.github/skills/**`.** It is not in the `.codespellrc`
+  skip list. Keep these files spell-clean rather than adding a skip entry, since
+  a skip would also mask genuine typos in user-facing assistant text.
+- Wrap markdown prose at 80 columns to match the surrounding documentation, and
+  keep each `SKILL.md` body under 500 lines with detail pushed into
+  `references/`.
+
+### 4.2 Tracking issues
+
+Filed on `geopm/geopm`, with the two Change issues linked as sub-issues of the
+feature:
+
+| Issue | Type | Covers |
+|---|---|---|
+| [#4054](https://github.com/geopm/geopm/issues/4054) | Feature request | The overall assistant capability and its motivation |
+| [#4055](https://github.com/geopm/geopm/issues/4055) | Change | Install assistant skill and agent (tasks INST-1 … INST-15) |
+| [#4056](https://github.com/geopm/geopm/issues/4056) | Change | Optimize assistant skill and agent (tasks OPT-1 … OPT-16) |
+
+DOC-5 (`geopmopt --dry-run`) still needs its own Feature request plus Change
+pair; file those when that work starts so it can be reviewed independently.
 
 ---
+
 
 ## 5. Phase 1 — GEOPM Install Assistant
 
@@ -740,10 +818,10 @@ plan-for-agents.md                  # this file
 
 | Phase | Tasks | Done |
 |---|---|---|
-| 0 — Foundations | 5 | 0 |
+| 0 — Foundations | 5 | 5 |
 | 1 — Install Assistant | 15 | 0 |
 | 2 — Optimize Assistant | 16 | 0 |
 | 3 — Integration | 3 | 0 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **0** |
+| **Total** | **50** | **5** |

@@ -342,16 +342,20 @@ Adding a man page requires three edits: add the target to `rst_file` in
 - **Generative AI**: contributions produced with AI assistance are allowed under
   the policy in [CONTRIBUTING.rst](CONTRIBUTING.rst); review it before
   committing generated code.
-- **CI**: [.github/workflows/build.yml](.github/workflows/build.yml) (gcc/clang
-  matrix, debug/release, ASan, plus codespell, include-guard and copyright
-  checks), `codeql-analysis.yml`, `coverity.yml`, `launchpad.yml` (PPA
-  publishing), `website.yml` (docs deploy).
+- **CI**: [.github/workflows/build.yml](.github/workflows/build.yml) runs a
+  codespell pre-build check, then a gcc/clang matrix (debug/release, ASan) that
+  also runs the C/C++ include-guard check and builds and tests every component.
+  Other workflows: `codeql-analysis.yml`, `coverity.yml`, `launchpad.yml` (PPA
+  publishing), `website.yml` (docs deploy). Note there is no automated
+  copyright-header check — headers are enforced by review.
 
 ## Documentation index
 
 Start here when you need authoritative detail:
 
 - [overview.rst](docs/source/overview.rst) — getting started
+- [concepts.rst](docs/source/concepts.rst) — signal, control, domain, session,
+  and access list explained for a first-time user
 - [service.rst](docs/source/service.rst) — Access Service concepts
 - [client.rst](docs/source/client.rst) / [admin.rst](docs/source/admin.rst) — user and admin guides
 - [tutorial.rst](docs/source/tutorial.rst) — Bash, C, C++, Python, and Go examples
