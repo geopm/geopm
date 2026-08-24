@@ -240,13 +240,35 @@ namespace geopm
     }
 
     LevelZeroImp::~LevelZeroImp() {
-        // Stop the background sampling thread before tearing down streamers.
-        metric_thread_stop();
+        // The destructor is implicitly noexcept, so a cleanup failure that
+        // escaped would call std::terminate() during shutdown.  Contain errors
+        // and continue tearing down every chip.
+        try {
+            // Stop the background sampling thread before tearing down streamers.
+            metric_thread_stop();
+        }
+        catch (const std::exception &ex) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> LevelZero::~LevelZeroImp(): "
+                      << "failed to stop the metric thread: " << ex.what()
+                      << std::endl;
+#endif
+        }
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
             for (unsigned int subdevice_idx = 0;
              subdevice_idx < m_devices.at(gpu_idx).num_subdevice;
              ++subdevice_idx) {
-                metric_destroy(gpu_idx, subdevice_idx);
+                try {
+                    metric_destroy(gpu_idx, subdevice_idx);
+                }
+                catch (const std::exception &ex) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: <geopm> LevelZero::~LevelZeroImp(): "
+                              << "metric cleanup failed for GPU " << gpu_idx
+                              << " chip " << subdevice_idx << ": " << ex.what()
+                              << std::endl;
+#endif
+                }
             }
         }
     }
