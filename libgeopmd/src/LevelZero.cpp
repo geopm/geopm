@@ -629,6 +629,7 @@ namespace geopm
             m_devices.at(device_idx).subdevice.zet_data.push_back({});
             m_devices.at(device_idx).subdevice.report_byte_size.push_back(0);
 
+            bool found_group = false;
             for (unsigned int metric_group_idx = 0; metric_group_idx < num_metric_group;
                  metric_group_idx++) {
                 zet_metric_group_properties_t metric_group_properties = {};
@@ -705,11 +706,21 @@ namespace geopm
                        }
                    }
                    m_devices.at(device_idx).subdevice.metric_name_idx.push_back(std::move(name_idx));
+                   found_group = true;
                    // Break out of the metric group for loop once we've found the group of interest (ComputeBasic, time based sampling).
                    break;
                 }
             }
-            m_devices.at(device_idx).subdevice.metric_domain_cached.at(subdevice_idx) = true;
+            if (!found_group) {
+                // No time-based ComputeBasic group on this chip.  Push placeholder
+                // entries so the chip-indexed vectors stay aligned with the other
+                // per-chip state, and leave the domain uncached so its signals are
+                // pruned rather than indexing entries that were never populated.
+                m_devices.at(device_idx).subdevice.metric_group_handle.push_back(nullptr);
+                m_devices.at(device_idx).subdevice.num_metric.push_back(0);
+                m_devices.at(device_idx).subdevice.metric_name_idx.push_back({});
+            }
+            m_devices.at(device_idx).subdevice.metric_domain_cached.at(subdevice_idx) = found_group;
         }
     }
 
