@@ -924,28 +924,102 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* the transcript ends with a concrete request the user can send to
   their administrator.
 
-- [ ] **VAL-3. Negative test: platform with no writable controls.**
+- [x] **VAL-3. Negative test: platform with no writable controls.**
   Confirm the assistants fail loudly and usefully rather than producing a
   command that will error mid-campaign.
   *Done when:* the failure message names the exact missing access-list entries.
+  → Tested on a host serving only `TIME` with zero controls: the gate exits 1
+  and reports three specific issues. The first attempt **did not meet the done
+  criterion** — it said "none of the controls a campaign would sweep are in this
+  user's access list" without naming them — so the script was changed to list
+  every candidate control with its status and, more usefully, to separate
+  "supported here, NOT granted to you" from "not supported on this platform".
+  Those need different people to fix: the first is an administrator, the second
+  cannot be granted by anyone. The ungranted branch does not occur naturally on
+  either available host, so it was exercised with a stubbed `geopmaccess` on
+  `PATH`; it correctly names the two affected controls and points at the
+  generator.
 
-- [ ] **VAL-4. Negative test: workload with no figure of merit.**
+- [x] **VAL-4. Negative test: workload with no figure of merit.**
   Confirm the assistant falls back to the default runtime objective and explains
   that choice.
   *Done when:* the transcript shows the fallback being explained, not silently
   applied.
+  → Verified against a workload printing nothing at all. With no metric flags
+  `geopmopt` minimizes wall-clock runtime, and `--list-metrics` states plainly
+  that `fom` "needs a regex: metric", so the fallback is discoverable rather
+  than hidden.
+  The run also produced a useful contrast now documented in
+  `interpreting-results.md`: runtime scores are **positive seconds** and need no
+  mental negation, unlike a maximized figure of merit which appears negated.
+  The ordering was physically sensible (1.5 GHz took 4.19 s, 3.1 GHz took
+  2.20 s) and far cleaner than the earlier scraped-metric campaign, because
+  runtime is measured by `geopmopt` itself rather than computed by the
+  application. When a workload has no trustworthy figure of merit, optimizing
+  runtime is often the *better* choice rather than a consolation prize.
 
-- [ ] **VAL-5. Real-hardware campaign.**
+- [x] **VAL-5. Real-hardware campaign.**
   Run one full multi-dimension campaign on a real Intel platform using a real
   benchmark. Record the wall time, the trial count, and whether the recommended
   configuration reproduced on a verification run.
   *Done when:* results and the reproduction check are recorded here.
+  → Ran `stress-ng --cpu 40 --cpu-method matrixprod` in fixed-work mode on a
+  two-socket Xeon Gold 6148, sweeping `cpu-freq@board` and `uncore-freq@board`
+  over 20 trials. Wall time **441 s**, against an estimate of about 12 minutes,
+  so the 1.5 average slowdown factor was conservative. Controls were restored
+  afterwards.
 
-- [ ] **VAL-6. Script portability check.**
+  Baseline 17.05 s with a 4.7% run-to-run spread. The optimizer selected
+  3.4 GHz core and 1.3 GHz uncore, reporting 16.68 s — a 2.2% improvement,
+  already inside the noise floor.
+
+  **The recommendation did not reproduce. It was worse.** Four runs each:
+  baseline 17.24, 18.08, 16.90, 17.76 (mean 17.50 s); recommended 18.61, 18.38,
+  21.23, 19.67 (mean 19.47 s). The "optimized" configuration was **11% slower
+  than doing nothing**.
+
+  Nothing malfunctioned. The campaign found genuine structure — 1.2 GHz took
+  41.0 s — but near nominal the surface is flat and noise-dominated, and the
+  optimizer latched onto one lucky sample. This is now the worked example in
+  `interpreting-results.md`, and it validates the whole design of that page:
+  a campaign always names a winner, and only verification separates a result
+  from an artifact.
+
+  **One real bug found.** The winning configuration wrote three lines, not two:
+  sweeping `uncore-freq` *pins* the frequency by mirroring the MAX setting onto
+  `CPU_UNCORE_FREQUENCY_MIN_CONTROL`. My access-list generator and readiness
+  gate requested only the MAX, so a user following a least-privilege grant would
+  have passed every check and then failed partway through a campaign with a
+  permission error. Traced to `get_config()` in `grid.py`, which mirrors any
+  `*_MAX_*` control onto `*_MIN_*`, excluding only `CPU_FREQUENCY_MIN_CONTROL`.
+  Fixed in the generator, in the gate (which now warns when a MAX is granted
+  without its companion), and in `access-lists.md` and `sweep-dimensions.md`.
+  Both branches re-verified with a stubbed access list.
+
+  The pinning behavior is also a plausible cause of the regression: fixing the
+  uncore removes its dynamic scaling, which can lose to the default.
+
+- [x] **VAL-6. Script portability check.**
   Run both `scripts/*.sh` under `bash -n`, `shellcheck`, and on at least two
   distros. Confirm they carry the license header and are `set -euo pipefail`
   clean (mind the known `head -c` / SIGPIPE interaction).
   *Done when:* `shellcheck` is clean and both scripts pass on both distros.
+  → All five scripts checked. `shellcheck` clean, `bash -n` clean, all carry the
+  BSD-3-Clause header with the 2026 range, all executable. They use
+  `set -uo pipefail` rather than `-e`, deliberately: these scripts are expected
+  to run commands that fail (that is what they are measuring), and `-e` would
+  abort the report instead of recording the failure.
+  Coverage went beyond two distros: Ubuntu 24.04 on two hosts, plus Rocky 9.3
+  (bash 5.1) and Fedora 44 (bash 5.3) in containers, where GEOPM is absent
+  entirely. Every script behaved correctly with no GEOPM installed — the probe
+  exits 0 and reports `GEOPM_VERSION=absent`, the gate exits 1 with "geopmread
+  not found on PATH", and the controls probe exits 2 pointing at the virtual
+  environment reference.
+  **One real defect found.** Fedora's minimal image ships no `python3`, and
+  `geopm-check-workload.sh` reported "--regex must be valid and have exactly one
+  capturing group" — blaming the user's pattern for a missing interpreter. Fixed
+  with an explicit dependency check that names the actual problem and suggests
+  omitting `--regex` to time the workload only. Re-verified on both containers.
 
 ---
 
@@ -1061,9 +1135,9 @@ pair; file those when that work starts so it can be reviewed independently.
 | 1 — Install Assistant | 15 | 15 |
 | 2 — Optimize Assistant | 16 | 16 |
 | 3 — Integration | 3 | 3 |
-| 4 — Validation | 6 | 0 |
+| 4 — Validation | 6 | 4 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **39** |
+| **Total** | **50** | **43** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install

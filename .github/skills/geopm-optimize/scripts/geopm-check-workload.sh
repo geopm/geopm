@@ -64,14 +64,24 @@ if ! [[ $BASELINE_RUNS =~ ^[0-9]+$ ]] || (( BASELINE_RUNS < 1 )); then
     exit 2
 fi
 
-if [[ -n $REGEX ]] && ! python3 -c "
+if [[ -n $REGEX ]]; then
+    # Distinguish a missing interpreter from a bad pattern: reporting "invalid
+    # regex" for an absent python3 sends the user looking in the wrong place.
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "geopm-check-workload.sh: python3 is required to match --regex," >&2
+        echo "  because geopmopt uses Python regular expression syntax." >&2
+        echo "  Install python3, or omit --regex to time the workload only." >&2
+        exit 2
+    fi
+    if ! python3 -c "
 import re, sys
 p = re.compile(sys.argv[1])
 sys.exit(0 if p.groups == 1 else 1)
 " "$REGEX" 2>/dev/null; then
-    echo "geopm-check-workload.sh: --regex must be valid and have exactly one" >&2
-    echo "  capturing group.  Example: 'GFLOPS: ([0-9.]+)'" >&2
-    exit 2
+        echo "geopm-check-workload.sh: --regex must be valid and have exactly one" >&2
+        echo "  capturing group.  Example: 'GFLOPS: ([0-9.]+)'" >&2
+        exit 2
+    fi
 fi
 
 echo "Workload baseline check"
@@ -146,10 +156,13 @@ if [[ -s $values_file ]] && (( BASELINE_RUNS > 1 )); then
     echo "  Metric spread  : ${metric_spread}% of mean"
 fi
 
-# Give the optimizer generous headroom: lowering frequency or capping power
-# makes every trial slower than this baseline, and a timeout is scored as a
-# failed trial rather than a slow one.
-timeout_rec=$(awk -v t="$max_time" 'BEGIN{v=t*3; if(v<60) v=60; printf "%d", v+0.5}')
+# Give the optimizer generous headroom.  The worst-case trial runs at the bottom
+# of the swept range, so the slowdown approaches the ratio of the highest to the
+# lowest setting.  Measured on a 3.7 GHz part swept down to 1.0 GHz, a workload
+# went from 17.0s to 49.0s, a factor of 2.9, so a 3x margin leaves almost
+# nothing spare.  4x is the safer default; a timeout is scored as a failed
+# trial rather than a slow one.
+timeout_rec=$(awk -v t="$max_time" 'BEGIN{v=t*4; if(v<60) v=60; printf "%d", v+0.5}')
 echo "  Suggested      : --application-timeout ${timeout_rec}"
 
 echo

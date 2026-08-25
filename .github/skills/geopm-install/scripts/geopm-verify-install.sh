@@ -22,6 +22,14 @@ CANDIDATE_CONTROLS=(
     BOARD_POWER_LIMIT_CONTROL
 )
 
+# A frequency sweep pins rather than caps: geopmopt mirrors a *_MAX_* setting
+# onto the matching *_MIN_* control.  Granting only the MAX lets the gate pass
+# and then fails the campaign partway, so check the pairs too.
+declare -A COMPANION_CONTROLS=(
+    [CPU_UNCORE_FREQUENCY_MAX_CONTROL]=CPU_UNCORE_FREQUENCY_MIN_CONTROL
+    [GPU_CORE_FREQUENCY_MAX_CONTROL]=GPU_CORE_FREQUENCY_MIN_CONTROL
+)
+
 print_usage() {
     cat <<'USAGE'
 Usage: geopm-verify-install.sh [OPTION]...
@@ -182,11 +190,50 @@ if (( ${#writable[@]} )); then
     for control in "${writable[@]}"; do
         say "           - ${control}"
     done
+    # A granted MAX without its MIN passes this gate and then fails the
+    # campaign, so surface it here rather than an hour later.
+    for control in "${writable[@]}"; do
+        companion=${COMPANION_CONTROLS[$control]:-}
+        [[ -z $companion ]] && continue
+        if ! printf '%s\n' "$granted_controls" | grep -qx "$companion"; then
+            say "${WARN_MARK} ${control} is granted but ${companion} is not"
+            fail "Sweeping that dimension pins the frequency, writing both the MAX and
+       the MIN control, so the campaign will fail partway without
+       ${companion}.  Ask for it alongside the MAX."
+        fi
+    done
 elif (( access_ok )); then
     say "${FAIL_MARK} no sweepable control is granted to this user"
-    fail "None of the controls a campaign would sweep are in this user's access
-       list.  An administrator must grant at least one.  Run the generator in
-       references/access-lists.md to produce the exact geopmaccess commands."
+    # Name the controls, and separate a platform limitation from an access
+    # problem: "not supported here" and "not granted to you" need different
+    # people to fix them.
+    supported_controls=$(geopmaccess --all --controls 2>/dev/null \
+                         || /usr/bin/geopmaccess --all --controls 2>/dev/null)
+    ungranted=(); unsupported=()
+    for control in "${CANDIDATE_CONTROLS[@]}"; do
+        if printf '%s\n' "$supported_controls" | grep -qx "$control"; then
+            ungranted+=("$control")
+        else
+            unsupported+=("$control")
+        fi
+    done
+    for control in "${ungranted[@]}"; do
+        say "           - ${control}: supported here, NOT granted to you"
+    done
+    for control in "${unsupported[@]}"; do
+        say "           - ${control}: not supported on this platform"
+    done
+    if (( ${#ungranted[@]} )); then
+        fail "These controls exist on this system but are not in your access list:
+       $(printf '%s ' "${ungranted[@]}")
+       An administrator must grant at least one.  Generate the exact commands
+       with scripts/geopm-gen-access.sh, or see references/access-lists.md."
+    else
+        fail "None of the controls a campaign would sweep exist on this platform.
+       This is a hardware or build limitation, not an access-list problem, and
+       no administrator can grant them.  Typical of a virtual machine, a
+       container without hardware access, or WSL.  Use a bare-metal host."
+    fi
 fi
 
 ## 6. geopmopt available and usable

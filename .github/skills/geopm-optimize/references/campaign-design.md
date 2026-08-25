@@ -10,8 +10,14 @@ total wall time  ≈  trials × single-run time × slowdown factor
 ```
 
 The slowdown factor is above 1 because most trials run at reduced frequency or
-power. Assume **1.5** as a working figure; it can reach 2–3 when the sweep
-range extends well below nominal.
+power. Assume **1.5** as a working figure for the campaign average.
+
+The **worst case** is larger and matters for the timeout rather than the total.
+A trial at the bottom of the swept range approaches the ratio of the highest to
+the lowest setting. Measured on a 3.7 GHz part swept down to 1.0 GHz, a
+multi-core benchmark went from 17.0 s to 49.0 s — a factor of 2.9, close to but
+below the 3.7 frequency ratio, because not all of the runtime scales with core
+frequency.
 
 For a 60-second workload and 40 trials: `40 × 60 × 1.5 ≈ 60 minutes`.
 
@@ -117,9 +123,11 @@ anything that normally takes more than about two minutes: reduced frequency
 makes trials slower, and an overrun is scored as a failure rather than a slow
 success.
 
-Set it from a measured baseline with generous headroom — three times the
-observed maximum is a reasonable default, and that is what
-`geopm-check-workload.sh` recommends.
+Set it from a measured baseline with generous headroom. Four times the observed
+maximum is a reasonable default, and that is what `geopm-check-workload.sh`
+recommends. Three times is cutting it fine: the 17.0 s benchmark above took
+49.0 s at the bottom of the range, so a 3x margin would have left barely two
+seconds of slack.
 
 ## The mandatory smoke test
 
