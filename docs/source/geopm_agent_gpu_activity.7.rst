@@ -7,7 +7,8 @@ Description
 
 The goal of **GPUActivityAgent** is to save GPU energy by scaling GPU frequency
 based upon the compute activity of each GPU as provided by the
-``GPU_CORE_ACTIVITY`` signal and modified by the ``GPU_UTILIZATION`` signal.
+``GPU_CORE_ACTIVITY`` signal, modified by the ``GPU_UTILIZATION`` signal and,
+where available, discounted by the ``LEVELZERO::METRIC:XVE_STALL`` signal.
 
 The agent scales frequency in the range of ``Fe`` to ``Fmax``, where ``Fmax``
 is provided by the NVMLIOGroup or LevelZeroIOGroup and ``Fe`` is provided by the
@@ -18,9 +19,22 @@ of 0.0) run at the ``Fe`` frequency, high activity regions (compute activity of 
 run at the ``Fmax`` frequency, and regions in between the extremes run at a frequency (F)
 selected using the equation:
 
-``F = Fe + (Fmax - Fe) * GPU_CORE_ACTIVITY/GPU_UTILIZATION``
+``F = Fe + (Fmax - Fe) * A/GPU_UTILIZATION``
 
-``GPU_UTILIZATION`` is used to scale the ``GPU_CORE_ACTIVITY`` in order
+where ``A`` is the compute activity used for the frequency decision.  On systems
+that expose the Level Zero ``LEVELZERO::METRIC:XVE_STALL`` metric (a stall ratio
+in the range 0.0 to 1.0), the raw ``GPU_CORE_ACTIVITY`` is discounted by the
+stall ratio so that stalled cycles do not drive frequency up:
+
+``A = GPU_CORE_ACTIVITY * (1 - XVE_STALL)``
+
+When ``XVE_STALL`` is not available (for example on NVIDIA systems, or when the
+Level Zero metrics are not exposed) the agent falls back to the raw activity,
+``A = GPU_CORE_ACTIVITY``.  The stall adjustment only affects the frequency
+decision; the region and on-time tracking always use the raw
+``GPU_CORE_ACTIVITY``.
+
+``GPU_UTILIZATION`` is used to scale ``A`` in order
 to scale frequency selection with the percentage of time a kernel is running on
 the GPU.  This tends to help with workloads that contain short but highly
 scalable GPU phases.
