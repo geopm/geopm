@@ -170,6 +170,35 @@ otherwise, since it rarely helps compute-bound codes and costs trials.
 It is not documented in the `geopmopt` man page; the behavior above is read
 from `grid.py`.
 
+## The uncore dimension pins rather than caps
+
+Sweeping `uncore-freq` writes **both** the maximum and the minimum control to
+the same value, fixing the uncore at one frequency:
+
+```
+CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 1300000000.0
+CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1300000000.0
+```
+
+This follows from `get_config()` in `grid.py`, which mirrors any `*_MAX_*`
+control onto the matching `*_MIN_*` control when one exists.
+`CPU_FREQUENCY_MIN_CONTROL` is explicitly excluded, so `cpu-freq` caps normally
+and only `uncore-freq` and `gpu-freq` pin.
+
+Two consequences:
+
+- **The access list needs both controls.** Granting only
+  `CPU_UNCORE_FREQUENCY_MAX_CONTROL` lets the readiness gate pass and then fails
+  the campaign partway with a permission error. Request
+  `CPU_UNCORE_FREQUENCY_MIN_CONTROL` alongside it, and
+  `GPU_CORE_FREQUENCY_MIN_CONTROL` for `gpu-freq`.
+- **Pinning can be worse than the default.** Normally the uncore scales
+  dynamically with demand. Fixing it removes that adaptation, so a swept
+  configuration can lose to doing nothing even at a frequency that looked good
+  during the campaign. Verify the recommendation against the baseline; see
+  [interpreting-results.md](interpreting-results.md) for a measured case where
+  the "optimized" setting was 11% slower.
+
 ## Choosing dimensions
 
 Each added dimension multiplies the space the optimizer must explore, so the

@@ -17,11 +17,17 @@ EXTRA_SIGNALS=()
 EXTRA_CONTROLS=()
 
 # Controls a campaign may sweep, and the signals needed to measure the result.
+# A frequency sweep pins rather than caps: geopmopt mirrors any *_MAX_* control
+# onto the matching *_MIN_* control, so both must be granted or the campaign
+# fails partway with a permission error.  CPU_FREQUENCY_MIN_CONTROL is the one
+# exception, deliberately excluded by grid.py, so it is not requested here.
 DEFAULT_CONTROLS=(
     CPU_FREQUENCY_MAX_CONTROL
     CPU_UNCORE_FREQUENCY_MAX_CONTROL
+    CPU_UNCORE_FREQUENCY_MIN_CONTROL
     CPU_POWER_LIMIT_CONTROL
     GPU_CORE_FREQUENCY_MAX_CONTROL
+    GPU_CORE_FREQUENCY_MIN_CONTROL
     GPU_POWER_LIMIT_CONTROL
     BOARD_POWER_LIMIT_CONTROL
 )

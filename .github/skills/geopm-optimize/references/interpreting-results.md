@@ -33,6 +33,26 @@ hang.
 so `score=-6.605` means the workload reported 6.605. Lower score is always
 better; `-7.223` is the best row above.
 
+When the objective is runtime — which is the default if you give no metric
+flags — scores are positive seconds and need no mental negation:
+
+```
+INFO: Evaluation 1: coordinate=[22], score=2.3518488574773073
+INFO: Evaluation 2: coordinate=[5], score=4.192887487821281
+INFO: Evaluation 3: coordinate=[21], score=2.195830324664712
+INFO: Best coordinate: [21]
+Best configuration:
+CPU_FREQUENCY_MAX_CONTROL board 0 3100000000.0
+```
+
+That run is worth contrasting with the first one. The ordering is physically
+sensible — coordinate 5 is 1.5 GHz and took 4.19 s, coordinates 21 and 22 are
+3.1 and 3.2 GHz and took about 2.2 s — and the spread between settings is far
+larger than the spread between similar settings. Runtime is also measured by
+`geopmopt` itself rather than scraped from application output, which removes
+one source of noise. **When a workload has no trustworthy figure of merit,
+optimizing runtime is often the more reliable choice.**
+
 **`coordinate` is an index into the sweep grid, not a setting.** Convert it
 using the bounds from `--list-controls`:
 
@@ -152,12 +172,12 @@ A campaign result is a hypothesis. Test it directly, with enough repetitions to
 beat the noise floor:
 
 ```bash
-# Baseline, three runs
-for i in 1 2 3; do ./bench.sh; done
+# Baseline, four runs
+for i in 1 2 3 4; do ./bench.sh; done
 
-# Recommended configuration, three runs
+# Recommended configuration, four runs
 printf 'TIME board 0\n' > sig.conf
-for i in 1 2 3; do
+for i in 1 2 3 4; do
     geopmsession -i sig.conf --control-config best.conf -o /dev/null -- ./bench.sh
 done
 ```
@@ -165,6 +185,39 @@ done
 If the recommended configuration does not reproducibly beat the baseline by
 more than the noise floor, it is not a real improvement. Report that honestly
 rather than presenting the optimizer's choice as a finding.
+
+### This is not hypothetical
+
+A 20-trial, two-dimension campaign on a real Xeon reported:
+
+```
+INFO: Best metric: 16.6801037164405
+INFO: Best coordinate: [24, 3]
+Best configuration:
+CPU_FREQUENCY_MAX_CONTROL board 0 3400000000.0
+CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 1300000000.0
+CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 1300000000.0
+```
+
+Against a 17.05 s baseline that is a 2.2% improvement — already inside the 4.7%
+noise floor measured beforehand, so it should have been treated as
+inconclusive. The verification runs settled it:
+
+| | run 1 | run 2 | run 3 | run 4 | mean |
+|---|---|---|---|---|---|
+| Baseline | 17.24 | 18.08 | 16.90 | 17.76 | **17.50 s** |
+| "Optimized" | 18.61 | 18.38 | 21.23 | 19.67 | **19.47 s** |
+
+The recommended configuration was **11% slower than doing nothing**. The
+optimizer had latched onto one lucky sample in a region where the response is
+flat and the noise is larger than the differences.
+
+Nothing malfunctioned. The campaign did find real structure — 1.2 GHz took
+41.0 s against 17 s at the top of the range — but that structure lives at the
+bottom of the sweep, while near nominal the surface is flat and noise-dominated.
+A campaign will always name a winner from that flat region.
+
+**Verification is what separates a result from an artifact. Do not skip it.**
 
 ## Reporting
 
@@ -178,11 +231,14 @@ A useful summary states:
 
 Example of an honest negative result:
 
-> Swept `cpu-freq@board` over 1.0–3.7 GHz in 6 trials. Best was 3.5 GHz at
-> 7.22 GFLOPS versus 6.39 at the 3.7 GHz default. However, repeated runs at a
-> single setting varied by a factor of two, so this difference is within noise.
-> No reliable improvement was demonstrated. A longer workload and at least 20
-> trials would be needed to draw a conclusion.
+> Swept `cpu-freq@board` and `uncore-freq@board` over 20 trials against a 17.0 s
+> baseline whose run-to-run spread was 4.7%. The optimizer selected 3.4 GHz core
+> and 1.3 GHz uncore, reporting 16.68 s, a 2.2% improvement that is inside the
+> noise floor. Verification with four runs each measured 17.50 s at baseline and
+> 19.47 s with the recommended configuration, so the recommendation is in fact
+> 11% **slower**. No improvement was demonstrated, and the default settings
+> should be kept. Frequencies below about 2 GHz are clearly worse, so the
+> workload is frequency-sensitive; there is simply no gain available above that.
 
 ## Constraints need a separate check
 

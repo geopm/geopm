@@ -115,10 +115,18 @@ Controls, so `geopmopt` can sweep them:
 |---|---|
 | `CPU_FREQUENCY_MAX_CONTROL` | `cpu-freq` sweep dimension |
 | `CPU_UNCORE_FREQUENCY_MAX_CONTROL` | `uncore-freq` sweep dimension |
+| `CPU_UNCORE_FREQUENCY_MIN_CONTROL` | **required companion** to the above |
 | `CPU_POWER_LIMIT_CONTROL` | `cpu-power` sweep dimension |
 | `GPU_CORE_FREQUENCY_MAX_CONTROL` | `gpu-freq`, GPU platforms only |
+| `GPU_CORE_FREQUENCY_MIN_CONTROL` | **required companion** to the above |
 | `GPU_POWER_LIMIT_CONTROL` | `gpu-power`, GPU platforms only |
 | `BOARD_POWER_LIMIT_CONTROL` | `board-power`, where supported |
+
+The two companions are easy to miss and fail late. A frequency sweep *pins*
+rather than caps: `geopmopt` mirrors any `*_MAX_*` setting onto the matching
+`*_MIN_*` control. Granting only the MAX passes every readiness check and then
+fails the campaign partway with a permission error. `CPU_FREQUENCY_MIN_CONTROL`
+is the one exception, deliberately excluded by `geopmopt`, so it is not needed.
 
 Signals, so the result can be measured and the search space discovered:
 
