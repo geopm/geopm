@@ -336,13 +336,19 @@ pair; file those when that work starts so it can be reviewed independently.
   detects the proxy-in-`.bashrc` trap described in INST-15. RHEL/Rocky coverage
   is still outstanding.
 
-- [ ] **INST-2. Write `references/probe-and-decide.md`.**
+- [x] **INST-2. Write `references/probe-and-decide.md`.**
   A decision tree that maps probe output to exactly one recommended install
   path: secure default, client-only venv, rolling dev packages, source build, or
   container. Must state the disqualifying condition for each path (e.g. no root
   → client-only; unsupported distro → source build or container).
   *Done when:* every leaf of the tree names a specific reference file and a
   specific first command.
+  → Written as an ASCII tree keyed on the probe's `SIGNAL_READ`,
+  `GEOPMOPT_STATUS`, `PRIVILEGE`, and `OS_ID` outputs, with a table of
+  disqualifying conditions per path. Also lists the traps that make an agent
+  pick wrongly: treating `missing_optimize_extra` as a reason to touch the
+  system Python, installing a daemon to obtain `geopmopt`, and reading a
+  "not found" error as an access problem.
 
 ### 5.2 Install path references
 
@@ -402,7 +408,7 @@ pair; file those when that work starts so it can be reviewed independently.
   actual reason `install_user.sh` exists, and states up front that a user-only
   build yields no Access Service and therefore no safe control writes.
 
-- [ ] **INST-7. Write `references/container.md`.**
+- [x] **INST-7. Write `references/container.md`.**
   How a containerized client reaches a host `geopmd`: the
   [geopmdrs](geopmdrs) gRPC-over-UDS proxy, socket mounting, and what
   [geopm_service.proto](geopm_service.proto) exposes. Include the k8s pod case
@@ -410,10 +416,19 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* a minimal working example exists (host daemon + container
   client running `geopmread`), or the file explicitly documents that this path
   is unvalidated and why.
+  → Written under the second option, and labelled unvalidated at the top. The
+  architecture is documented accurately from the `geopmdrs` README and the
+  proto, but the test host runs `geopmd` in D-Bus mode with no gRPC socket —
+  `geopmd-proxy` exits with a transport error naming the missing file, and the
+  packages install no proxy systemd unit. Enabling it would mean reconfiguring a
+  shared daemon, so no end-to-end recipe is claimed. The page also argues
+  against containerizing the client at all when the host would do, and notes
+  that node-wide hardware changes make per-pod tuning misleading on a shared
+  node.
 
 ### 5.3 Access control
 
-- [ ] **INST-8. Write `references/access-lists.md`.**
+- [x] **INST-8. Write `references/access-lists.md`.**
   The `geopmaccess` model: default (empty) allow lists, `geopmaccess --all` to
   see everything the platform offers, writing signal and control allow lists for
   a user or group, and the difference between the *default* access list and
@@ -487,7 +502,7 @@ pair; file those when that work starts so it can be reviewed independently.
   dimension sweepable on hardcoded default bounds even when its native domain
   was `n/a`.
 
-- [ ] **INST-11. Define the handoff gate.**
+- [x] **INST-11. Define the handoff gate.**
   Write the explicit criteria that the Install Assistant must confirm before
   handing off to the Optimize Assistant:
   - `geopmopt --list-controls` runs and lists at least one dimension with real
@@ -495,6 +510,11 @@ pair; file those when that work starts so it can be reviewed independently.
   - `geopmread` returns a plausible power reading.
   - At least one target control is writable by the invoking user.
   *Done when:* the criteria appear in both `SKILL.md` files, worded identically.
+  → Defined in `geopm-install/SKILL.md` and enforced executably by
+  `geopm-verify-install.sh`, whose exit status *is* the gate. Strengthened with
+  the rule that a dimension counts only when its domain resolved, since bounds
+  alone are satisfied by hardcoded defaults. Still to do: repeat the identical
+  wording in `geopm-optimize/SKILL.md` when that file is written in OPT-13.
 
 - [x] **INST-12. Write `references/troubleshooting.md`.**
   Symptom → cause → fix table covering at minimum: `geopmread: command not
@@ -516,7 +536,7 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ### 5.5 Assembly
 
-- [ ] **INST-13. Write `.github/skills/geopm-install/SKILL.md`.**
+- [x] **INST-13. Write `.github/skills/geopm-install/SKILL.md`.**
   Frontmatter `name: geopm-install`; a keyword-rich `description` including
   "install GEOPM", "geopmd not running", "geopmread command not found",
   "geopmaccess permissions", "set up geopmopt". Body: when to use, the probe →
@@ -525,8 +545,11 @@ pair; file those when that work starts so it can be reviewed independently.
   `references/` and `scripts/`.
   *Done when:* under 500 lines, all links resolve, and the body never inlines
   content that belongs in a reference file.
+  → 192 lines, frontmatter validated, all links resolve. The three-step probe /
+  decide / verify workflow was executed against the test host exactly as
+  written, ending in a READY gate.
 
-- [ ] **INST-14. Write `.github/agents/geopm-install.agent.md`.**
+- [x] **INST-14. Write `.github/agents/geopm-install.agent.md`.**
   Thin persona. `tools: [read, search, execute, edit]`. Constraints: never run
   `sudo` without explicit confirmation; never modify access lists without
   confirmation; never install into the system Python; prefer the secure default
@@ -534,14 +557,23 @@ pair; file those when that work starts so it can be reviewed independently.
   handoff gate status.
   *Done when:* the agent appears in the agent picker and correctly delegates to
   the `geopm-install` skill.
+  → Written as a 60-line persona with `tools: [read, search, execute, edit,
+  todo]`, explicit prohibitions, and a required output format that separates
+  what the agent ran from what the user must still run. Picker behaviour is
+  still to be confirmed interactively.
 
-- [ ] **INST-15. Add remote/SSH and container handling.**
+- [x] **INST-15. Add remote/SSH and container handling.**
   Document how the assistant targets a non-local system: require the user to
   name the host, run probes via `ssh <host> bash -s < script`, and never assume
   the local machine is the system under test. State that campaign trials must
   run on the target, not the control host.
   *Done when:* `SKILL.md` has a "Choosing the target system" section that is
   consulted before any probe.
+  → It is step 1 of the procedure, before the probe. Documents the
+  `ssh HOST 'bash -s' < script` pattern used throughout this work, and the trap
+  that cost real time here: a non-interactive ssh does not read `~/.bashrc`, so
+  proxy settings defined there are absent and every network call hangs to a 124
+  timeout while working fine interactively.
 
 ---
 
@@ -920,12 +952,12 @@ pair; file those when that work starts so it can be reviewed independently.
 | Phase | Tasks | Done |
 |---|---|---|
 | 0 — Foundations | 5 | 5 |
-| 1 — Install Assistant | 15 | 9 |
+| 1 — Install Assistant | 15 | 15 |
 | 2 — Optimize Assistant | 16 | 0 |
 | 3 — Integration | 3 | 0 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **14** |
+| **Total** | **50** | **20** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
