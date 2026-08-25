@@ -33,6 +33,14 @@ geopmdpy.error
    :undoc-members:
    :show-inheritance:
 
+geopmdpy.grid
+-------------
+
+.. automodule:: geopmdpy.grid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 geopmdpy.hash
 ^^^^^^^^^^^^^
 .. automodule:: geopmdpy.hash
@@ -44,6 +52,22 @@ geopmdpy.loop
 -------------
 
 .. automodule:: geopmdpy.loop
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmdpy.metrics
+----------------
+
+.. automodule:: geopmdpy.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmdpy.optimizer
+------------------
+
+.. automodule:: geopmdpy.optimizer
    :members:
    :undoc-members:
    :show-inheritance:

@@ -83,6 +83,9 @@ extensions = [
 source_suffix = '.rst'
 
 napoleon_google_docstring = True
+# Render "Attributes:" as :ivar: fields so dataclass fields documented by both
+# napoleon and :undoc-members: do not emit duplicate object descriptions.
+napoleon_use_ivar = True
 
 autodoc_mock_imports = ['geopmdpy.gffi',
                         'geopmpy.gffi',
@@ -91,7 +94,9 @@ autodoc_mock_imports = ['geopmdpy.gffi',
                         'natsort',
                         'dasbus',
                         'psutil',
-                        'gi']
+                        'gi',
+                        'skopt',
+                        'yaml']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -100,6 +105,10 @@ autosectionlabel_prefix_document = True
 
 # Fail the documentation build for nitpicky things like broken cross-references.
 nitpicky = True
+
+# Sphinx splits a subscripted generic whose parameter is a cross-module class
+# (ObjectiveSpec.metric_map) at the comma, yielding this non-existent target.
+nitpick_ignore = [('py:obj', 'typing.Dict[str')]
 
 # A boolean that decides whether parentheses are appended to function and method role text
 # (e.g. the content of :func:`input`) to signify that the name is callable.

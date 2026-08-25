@@ -129,9 +129,13 @@ _UNIT_TO_CATEGORY: Dict[str, Optional[str]] = {
 }
 
 # geopm::IOGroup::m_signal_behavior_e enum values (see IOGroup.hpp).
+#: Signal value does not change over time.
 BEHAVIOR_CONSTANT = 0
+#: Signal value never decreases (a running total).
 BEHAVIOR_MONOTONE = 1
+#: Signal value varies arbitrarily over time.
 BEHAVIOR_VARIABLE = 2
+#: Signal value enumerates a label rather than a measurement.
 BEHAVIOR_LABEL = 3
 
 #: Matches a valid metric identifier.

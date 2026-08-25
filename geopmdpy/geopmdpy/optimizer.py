@@ -197,8 +197,8 @@ def build_objective(metric_specs, maximize, minimize,
         penalty_weight: Weight for the constraint-violation penalty.
 
     Returns:
-        ObjectiveSpec: The canonical objective, with :attr:`metric_map`
-        populated by the parsed metrics.
+        ObjectiveSpec: The canonical objective, with
+        :attr:`ObjectiveSpec.metric_map` populated by the parsed metrics.
 
     Raises:
         ValueError: If no objective, more than one objective, a duplicate
