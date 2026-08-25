@@ -346,7 +346,7 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ### 5.2 Install path references
 
-- [ ] **INST-3. Write `references/distro-packages.md`.**
+- [x] **INST-3. Write `references/distro-packages.md`.**
   Tagged-release install commands for Ubuntu (PPA), Fedora, RHEL/Rocky/CentOS
   (with the EPEL prerequisite), and openSUSE. Include the package split:
   `geopmd`, `python3-geopmdpy`, `libgeopmd-dev`/`libgeopmd-devel`, `geopmd-doc`.
@@ -354,6 +354,10 @@ pair; file those when that work starts so it can be reviewed independently.
   distinction.
   *Done when:* commands are transcribed from [install.rst](docs/source/install.rst)
   without paraphrase drift, and each block states which repo it enables.
+  → Written for Ubuntu, Fedora, Rocky/CentOS (with the EPEL prerequisite), and
+  openSUSE, plus the Intel GPU vs Expanded Intel GPU repository distinction. Ends
+  by pointing at the client virtual environment, since a release alone cannot
+  satisfy the readiness gate.
 
 - [x] **INST-4. Write `references/client-venv.md`.**
   The venv path: `python3 -m venv`, activation, `pip install 'geopmdpy[optimize]'`
@@ -372,13 +376,18 @@ pair; file those when that work starts so it can be reviewed independently.
   `geopmaccess`/`gi` limitation, the `--system-site-packages` trade-off, the
   proxy pitfall, and how to detect a too-old snapshot.
 
-- [ ] **INST-5. Write `references/rolling-dev-packages.md`.**
+- [x] **INST-5. Write `references/rolling-dev-packages.md`.**
   Summarize [install_rolling.rst](docs/source/install_rolling.rst) and state
   clearly when a dev-snapshot *daemon* is appropriate (integration testing,
   feature feedback) versus when the secure default is preferred.
   *Done when:* the file states the trust tradeoff explicitly.
+  → Written, including the repository naming difference (`ppa:geopm/dev` and
+  `home:/geopm/` rather than the `:release` variants) and version pinning. Makes
+  the key point that dev packages are still not a route to a working `geopmopt`,
+  because the packaged `geopmdpy` omits `scikit-optimize` — observed directly on
+  the test host, where `/usr/bin/geopmopt` exists and always fails.
 
-- [ ] **INST-6. Write `references/source-build.md`.**
+- [x] **INST-6. Write `references/source-build.md`.**
   `libgeopmd` autotools flow (`./autogen.sh`, `./configure --prefix`, `make -j`,
   `make install`), the notable configure options (`--enable-nvml`,
   `--enable-dcgm`, `--enable-levelzero`, `--enable-debug`, `--disable-systemd`),
@@ -389,6 +398,9 @@ pair; file those when that work starts so it can be reviewed independently.
   Service, and therefore does not give you safe control writes.
   *Done when:* both the manual and `install_user.sh` flows are documented and
   the no-root limitation is called out.
+  → Written. Leads with the `libgeopmd`/`geopmdpy` ABI constraint, which is the
+  actual reason `install_user.sh` exists, and states up front that a user-only
+  build yields no Access Service and therefore no safe control writes.
 
 - [ ] **INST-7. Write `references/container.md`.**
   How a containerized client reaches a host `geopmd`: the
@@ -484,7 +496,7 @@ pair; file those when that work starts so it can be reviewed independently.
   - At least one target control is writable by the invoking user.
   *Done when:* the criteria appear in both `SKILL.md` files, worded identically.
 
-- [ ] **INST-12. Write `references/troubleshooting.md`.**
+- [x] **INST-12. Write `references/troubleshooting.md`.**
   Symptom → cause → fix table covering at minimum: `geopmread: command not
   found`; `geopmopt: command not found` (missing `optimize` extra);
   `ImportError: skopt`; `libgeopmd.so.*: cannot open shared object file`;
@@ -493,6 +505,14 @@ pair; file those when that work starts so it can be reviewed independently.
   system `geopmdpy`; `n/a` bounds in `--list-controls`.
   *Done when:* every symptom has a concrete diagnostic command and a concrete
   fix.
+  → Written with error text quoted verbatim from reproductions on two hosts.
+  The most important finding leads the page: **there is no permission-denied
+  message**. A signal that is supported but not granted fails with exactly the
+  same `signal name "X" not found` text as a nonexistent name, confirmed by
+  reading `MSR::CPU_POWER` on a host where it is supported but ungranted. The
+  page gives a `geopmaccess --all` versus `geopmaccess` comparison to
+  disambiguate unsupported, ungranted, and misspelled. Also records that a few
+  sysfs-backed signals read successfully even when absent from the granted list.
 
 ### 5.5 Assembly
 
@@ -900,12 +920,12 @@ pair; file those when that work starts so it can be reviewed independently.
 | Phase | Tasks | Done |
 |---|---|---|
 | 0 — Foundations | 5 | 5 |
-| 1 — Install Assistant | 15 | 5 |
+| 1 — Install Assistant | 15 | 9 |
 | 2 — Optimize Assistant | 16 | 0 |
 | 3 — Integration | 3 | 0 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **10** |
+| **Total** | **50** | **14** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
