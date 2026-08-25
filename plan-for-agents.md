@@ -81,11 +81,11 @@ first:
    sudo apt install geopmd libgeopmd-dev
    ```
 2. **Client tools in a per-user virtual environment, from the `dev` branch.**
-   The user gets current `geopmopt` features and the `optimize` extra without
-   changing anything the daemon executes.
+   For `geopmopt` this step is **mandatory, not a preference** — see
+   [2.3](#23-geopmopt-is-not-in-any-tagged-release).
    ```bash
-   python3 -m venv geopm-venv
-   source geopm-venv/bin/activate
+   python3 -m venv ~/geopm-venv
+   source ~/geopm-venv/bin/activate
    python3 -m pip install \
        'geopmdpy[optimize] @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy'
    ```
@@ -116,6 +116,44 @@ landed yet. The intended direction:
 Until that exists, the assistant should state the single-node limitation, and
 — if the user's workload is distributed — explain that only the node running
 `geopmopt` is being tuned and measured.
+
+### 2.3 geopmopt is not in any tagged release
+
+Verified by downloading the published sdist: `geopmdpy 3.2.2` declares only six
+console scripts (`geopmd`, `geopmaccess`, `geopmexporter`, `geopmread`,
+`geopmsession`, `geopmwrite`). `geopmopt` and `geopmgrid` are absent, as are
+`optimizer.py`, `grid.py`, and `metrics.py`. The release declares no `optimize`
+extra either — only `stats` and `dbus_xml`.
+
+Consequences the assistants must encode:
+
+- `pip install 'geopmdpy[optimize]'` warns about an unknown extra and yields a
+  `geopmdpy` with **no optimizer at all**. The assistant must never suggest it
+  for a `geopmopt` workflow.
+- A `dev`-branch virtual environment is the only supported source of `geopmopt`
+  until v3.3.0 or v4.0.0.
+- The `geopmopt` command line is still changing. Older snapshots required
+  `--metric-regex` and used per-control flags such as `--cpu-frequency`; current
+  ones use `--sweep DIM` with `--metric`/`--maximize`/`--constraint`. The
+  assistant must verify the interface on the target rather than assume it.
+- Revisit this section, `references/client-venv.md`, and the readiness gate when
+  `geopmopt` is released.
+
+### 2.4 Virtual environment isolation trade-off
+
+`geopmaccess` cannot run inside a plain virtual environment: it reaches the
+daemon through `dasbus`, which imports PyGObject (`gi`), an OS package that pip
+cannot supply. Filed upstream as
+[#4057](https://github.com/geopm/geopm/issues/4057).
+
+`--system-site-packages` fixes it but measurably weakens the environment — on
+the test host it raised visible packages from 23 to 203, and caused the
+optimizer to import the system `numpy` 1.26.4 instead of the 2.5.2 pip had
+installed, because pip skips dependencies "already satisfied" system-wide.
+
+**Decision:** a plain virtual environment is the default, and access-list
+queries use the system `/usr/bin/geopmaccess`. That tool only queries the
+daemon, so it need not match the client tool version.
 
 ---
 
@@ -281,7 +319,7 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ### 5.1 Probing and decision logic
 
-- [ ] **INST-1. Write `scripts/geopm-probe-system.sh`.**
+- [x] **INST-1. Write `scripts/geopm-probe-system.sh`.**
   Read-only. Must report: distro ID and version (`/etc/os-release`), kernel
   version, architecture, CPU vendor/model, presence of `msr` module and
   `/dev/cpu/*/msr`, presence of Intel/NVIDIA GPUs and their drivers, whether
@@ -291,6 +329,11 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* the script runs non-destructively as an unprivileged user on at
   least Ubuntu and RHEL/Rocky, exits 0 in all cases, and emits machine-parseable
   `KEY=VALUE` output plus a human summary.
+  → Written and exercised on two hosts: a Skylake Xeon with a full install
+  (299 signals / 142 controls) and a WSL host serving only `TIME` with zero
+  controls. Both exit 0 and the summary distinguishes them correctly. Also
+  detects the proxy-in-`.bashrc` trap described in INST-15. RHEL/Rocky coverage
+  is still outstanding.
 
 - [ ] **INST-2. Write `references/probe-and-decide.md`.**
   A decision tree that maps probe output to exactly one recommended install
@@ -311,7 +354,7 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* commands are transcribed from [install.rst](docs/source/install.rst)
   without paraphrase drift, and each block states which repo it enables.
 
-- [ ] **INST-4. Write `references/client-venv.md`.**
+- [x] **INST-4. Write `references/client-venv.md`.**
   The venv path: `python3 -m venv`, activation, `pip install 'geopmdpy[optimize]'`
   for the release and the `git+https://...#subdirectory=geopmdpy` form for the
   `dev` snapshot. Explain why this is safe (the venv does not affect the
@@ -320,6 +363,13 @@ pair; file those when that work starts so it can be reviewed independently.
   system-installed.
   *Done when:* a user with an already-deployed `geopmd` can follow it start to
   finish and end with a working `geopmopt --help`.
+  → Written and validated end to end on the test host: a plain venv built from
+  `dev` yields a working `geopmopt --list-controls` against the system daemon.
+  The page had to be reframed because the release command does **not** provide
+  `geopmopt` at all (see [2.3](#23-geopmopt-is-not-in-any-tagged-release)); it
+  now documents the release command only as a trap to avoid. Also covers the
+  `geopmaccess`/`gi` limitation, the `--system-site-packages` trade-off, the
+  proxy pitfall, and how to detect a too-old snapshot.
 
 - [ ] **INST-5. Write `references/rolling-dev-packages.md`.**
   Summarize [install_rolling.rst](docs/source/install_rolling.rst) and state
@@ -380,7 +430,7 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ### 5.4 Verification and the handoff gate
 
-- [ ] **INST-10. Write `scripts/geopm-verify-install.sh`.**
+- [x] **INST-10. Write `scripts/geopm-verify-install.sh`.**
   The authoritative "is GEOPM ready?" check. Must verify, in order:
   1. `geopmread --version` succeeds and print the version.
   2. `geopmd` is active (or explain that only `--info` style reads will work).
@@ -393,6 +443,17 @@ pair; file those when that work starts so it can be reviewed independently.
   success or the permission error.
   *Done when:* the script exits non-zero with an actionable message for each
   distinct failure mode, and exits 0 only when the handoff gate below is met.
+  → Written, with a `--venv DIR` option since `geopmopt` normally lives in a
+  virtual environment rather than on the default `PATH`. Validated against four
+  real configurations: WSL with no controls (exit 1, three actionable issues),
+  the test host's system tools with a broken `geopmopt` (exit 1, one issue), a
+  plain dev venv (exit 0), and a `--system-site-packages` venv (exit 0).
+  `--write-probe` was exercised on real hardware: it rewrote
+  `CPU_FREQUENCY_MAX_CONTROL` to its existing 3.7 GHz and left no residue.
+  Two defects found and fixed during testing — a `pipefail` interaction that
+  misclassified the missing `scikit-optimize` error, and a check that called a
+  dimension sweepable on hardcoded default bounds even when its native domain
+  was `n/a`.
 
 - [ ] **INST-11. Define the handoff gate.**
   Write the explicit criteria that the Install Assistant must confirm before
@@ -819,9 +880,15 @@ pair; file those when that work starts so it can be reviewed independently.
 | Phase | Tasks | Done |
 |---|---|---|
 | 0 — Foundations | 5 | 5 |
-| 1 — Install Assistant | 15 | 0 |
+| 1 — Install Assistant | 15 | 3 |
 | 2 — Optimize Assistant | 16 | 0 |
 | 3 — Integration | 3 | 0 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **5** |
+| **Total** | **50** | **8** |
+
+Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
+(feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
+assistant), [#4056](https://github.com/geopm/geopm/issues/4056) (optimize
+assistant), [#4057](https://github.com/geopm/geopm/issues/4057) (geopmaccess
+fails in a virtual environment).
