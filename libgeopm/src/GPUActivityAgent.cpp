@@ -71,6 +71,7 @@ namespace geopm
         m_f_range = 0;
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+            m_gpu_region_active.push_back(false);
             m_gpu_active_region_start.push_back(0.0);
             m_gpu_active_region_stop.push_back(0.0);
             m_gpu_active_energy_start.push_back(0.0);
@@ -407,9 +408,11 @@ namespace geopm
                     continue;
                 }
                 if (gpu_scoped_core_activity.at(domain_idx) >= M_GPU_ACTIVITY_CUTOFF) {
-                    // ROI proxy tracking
-                    m_gpu_active_region_stop.at(domain_idx) = 0;
-                    if (m_gpu_active_region_start.at(domain_idx) == 0) {
+                    // ROI proxy tracking: open a new region on entry into
+                    // activity so the report reflects the current region rather
+                    // than spanning earlier regions and the idle gaps between.
+                    if (!m_gpu_region_active.at(domain_idx)) {
+                        m_gpu_region_active.at(domain_idx) = true;
                         m_gpu_active_region_start.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_start.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
                     }
@@ -426,12 +429,10 @@ namespace geopm
                     }
                 }
                 else {
-                    // Only close a region that actually started; otherwise stop
-                    // would subtract from a zero start and report absolute usage.
-                    // This is the first inactive sample, so close the region at
-                    // the previous sample, which was the last active one.
-                    if (m_gpu_active_region_start.at(domain_idx) != 0 &&
-                        m_gpu_active_region_stop.at(domain_idx) == 0) {
+                    // Close the region on the first inactive sample, at the
+                    // previous sample, which was the last active one.
+                    if (m_gpu_region_active.at(domain_idx)) {
+                        m_gpu_region_active.at(domain_idx) = false;
                         m_gpu_active_region_stop.at(domain_idx) = m_prev_time;
                         m_gpu_active_energy_stop.at(domain_idx) = m_prev_gpu_energy.at(domain_idx);
                     }
@@ -536,10 +537,9 @@ namespace geopm
             double energy_start = m_gpu_active_energy_start.at(domain_idx);
             double region_stop = m_gpu_active_region_stop.at(domain_idx);
             double region_start =  m_gpu_active_region_start.at(domain_idx);
-            // A region that started but has not closed still has stop == 0
-            // (reset each active sample); use the latest sample as the effective
-            // stop so the reported active-region time/energy is not negative.
-            if (region_start != 0 && region_stop == 0) {
+            // A region that is still open ends at the latest sample, so the
+            // reported active-region time/energy covers the in-progress region.
+            if (m_gpu_region_active.at(domain_idx)) {
                 region_stop = m_time.value;
                 energy_stop = m_gpu_energy.at(domain_idx).value;
             }
