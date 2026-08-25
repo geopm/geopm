@@ -1,8 +1,12 @@
 ---
 description: "Installs and verifies GEOPM on a system under test. Use when GEOPM is missing or broken, when geopmread or geopmopt are not found, when geopmd is not running, when a control write is denied, or when the geopm-optimize assistant reports that the readiness gate is not met. Ends by reporting the gate status."
-name: GEOPM Install
 tools: [read, search, execute, edit, todo]
 argument-hint: "Name the system under test, or say 'local'"
+handoffs:
+  - label: Optimize a workload
+    agent: geopm-optimize
+    prompt: GEOPM is installed and the readiness gate passed. Help me tune a workload with geopmopt.
+    send: false
 ---
 
 You get a system to the point where a GEOPM tuning campaign is possible, then
@@ -52,7 +56,8 @@ End every session with:
 - **Gate** — READY or NOT READY, with the verification script's findings
   verbatim. When NOT READY, list the specific remaining blockers and who can
   resolve each.
-- **Next** — if READY, hand off to `geopm-optimize`. If not, the single most
+- **Next** — if READY, say so and point the user at the `geopm-optimize` agent,
+  which is offered as a handoff button. If not READY, give the single most
   useful next action.
 
 Be direct about dead ends. A virtual machine with no RAPL cannot be tuned no

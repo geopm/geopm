@@ -840,25 +840,73 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ## 7. Phase 3 — Integration
 
-- [ ] **INT-1. Wire the handoff in both directions.**
+- [x] **INT-1. Wire the handoff in both directions.**
   `geopm-install.agent.md` ends by naming `geopm-optimize` as the next step when
   the gate passes; `geopm-optimize.agent.md` invokes or names `geopm-install`
   when the gate fails.
   *Done when:* a single prompt — "help me optimize my benchmark" — on a machine
   without GEOPM results in the install flow, then the optimize flow, without
   the user naming either assistant.
+  → Wired at two levels. Both agents declare a `handoffs` entry targeting the
+  other, with `send: false` so the user presses the button rather than the
+  workflow auto-advancing, which matches the confirmation-gate philosophy. Both
+  skills also name the other in prose, so the chain works when the default agent
+  loads a skill with no persona involved.
+  One schema detail worth recording: `handoffs.agent` takes an agent
+  *identifier*, and a `name:` field overrides the filename-derived one. The
+  `name:` fields were removed from both agents so the identifier is
+  unambiguously the filename stem (`geopm-install`, `geopm-optimize`). Both
+  handoff targets were verified to resolve to real files.
+  Interactive confirmation that a single naive prompt traverses both flows is
+  still outstanding — it needs a human in the chat UI, and is covered by VAL-1.
 
-- [ ] **INT-2. Update [AGENTS.md](AGENTS.md).**
+- [x] **INT-2. Update [AGENTS.md](AGENTS.md).**
   Replace the speculative "Agent tooling roadmap" entries with the delivered
   skills and their real paths and trigger phrases.
   *Done when:* the roadmap section describes what exists, and remaining ideas
   are clearly marked as planned.
+  → Replaced with an "Agent tooling" section listing both delivered skills and
+  agents with their trigger phrases, the readiness gate that chains them, and a
+  table of the five bundled scripts. Also states up front that `geopmopt` is
+  absent from tagged releases and gives the virtual-environment command, since
+  that is the first thing any reader of this repository needs to know before
+  using the optimize skill. The two unbuilt ideas are kept under "Still
+  planned".
 
-- [ ] **INT-3. Verify multi-tool portability.**
+- [x] **INT-3. Verify multi-tool portability.**
   Confirm the `.github/skills/` bundles are usable by at least one non-VS Code
   agent runtime that reads the same convention; note any VS Code-specific
   frontmatter that other runtimes ignore.
   *Done when:* portability findings are recorded here.
+  → Verified structurally, not by executing another runtime — no second agent
+  runtime is available in this environment, so this is a format-compatibility
+  review rather than an interoperability test.
+
+  **Portable.** Every `SKILL.md` is plain Markdown with a YAML block whose only
+  required keys are `name` and `description`, both of which are common to the
+  VS Code and Claude skill formats. The `references/` and `scripts/` layout and
+  the relative links between them carry no runtime dependency. All content is
+  readable as documentation even with no runtime at all.
+
+  **Not portable, and deliberately so.**
+  - **Skill discovery path.** VS Code reads `.github/skills/`, `.agents/skills/`,
+    and `.claude/skills/`; Claude Code reads only `.claude/skills/`. So these
+    bundles are discovered by VS Code but not by Claude Code without a symlink
+    or a copy. Adding `.claude/` directories to an upstream repository is a
+    packaging decision for the maintainers, so it was not done unilaterally.
+  - **Agent format.** `.github/agents/*.agent.md` is VS Code's. Claude uses
+    `.claude/agents/*.md` with a comma-separated `tools` string rather than a
+    YAML array, plus `disallowedTools`.
+  - **Frontmatter other runtimes ignore.** `argument-hint`, `handoffs`,
+    `user-invocable`, `disable-model-invocation`, `agents`, `model`, `target`,
+    and `hooks`. Ignoring them degrades gracefully: the skill body and
+    references still load, only the handoff buttons and tool restrictions are
+    lost.
+
+  **Consequence for authoring.** Keep anything essential in the body rather
+  than the frontmatter. The bidirectional handoff is therefore stated in prose
+  in both skills as well as declared in `handoffs`, so the chain survives on a
+  runtime that drops the frontmatter.
 
 ---
 
@@ -1012,10 +1060,10 @@ pair; file those when that work starts so it can be reviewed independently.
 | 0 — Foundations | 5 | 5 |
 | 1 — Install Assistant | 15 | 15 |
 | 2 — Optimize Assistant | 16 | 16 |
-| 3 — Integration | 3 | 0 |
+| 3 — Integration | 3 | 3 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **36** |
+| **Total** | **50** | **39** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
