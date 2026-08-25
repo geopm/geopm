@@ -96,6 +96,8 @@ namespace geopm
             double m_resolved_f_gpu_max;
             double m_resolved_f_gpu_efficient;
             double m_f_range;
+            // Whether each GPU is currently inside an active region (ROI proxy).
+            std::vector<bool> m_gpu_region_active;
             std::vector<double> m_gpu_active_region_start;
             std::vector<double> m_gpu_active_region_stop;
             std::vector<double> m_gpu_active_energy_start;
