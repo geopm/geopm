@@ -1078,7 +1078,7 @@ everything a `--dry-run` was meant to check.
 
 ## 9. Phase 5 — Documentation and upstreaming
 
-- [ ] **DOC-1. Reconcile [geopmdpy/OPTIMIZER_README.md](geopmdpy/OPTIMIZER_README.md)
+- [x] **DOC-1. Reconcile [geopmdpy/OPTIMIZER_README.md](geopmdpy/OPTIMIZER_README.md)
   with the current CLI.**
   It documents `--cpu-frequency DOMAIN`, `--cpu-power DOMAIN`, etc., but the
   current parser exposes `--sweep DIM` with `DIM = CONTROL[@DOMAIN][=MIN:MAX:STEP]`.
@@ -1087,6 +1087,61 @@ everything a `--dry-run` was meant to check.
   `--list-metrics`. Decide whether to update it or fold it into
   [geopmopt.1.rst](docs/source/geopmopt.1.rst) and delete it.
   *Done when:* no reader can follow the README and produce an invalid command.
+
+  **Outcome: deleted.** Its CLI half was stale in a way that actively misled —
+  a reader following it writes `--cpu-frequency` and gets an argparse error.
+  Everything usable is now covered better by the `Optimize Control Settings`
+  section of [overview.rst](docs/source/overview.rst), the
+  `optimize-control-settings` walkthrough in
+  [tutorial.rst](docs/source/tutorial.rst), and
+  [geopmopt.1.rst](docs/source/geopmopt.1.rst); troubleshooting and best
+  practices are covered more thoroughly by the `geopm-optimize` skill.
+
+  The only content unique to the README was its **Programming Interface**
+  section, and all three of its examples were verified non-functional against
+  the current code: `ApplicationEvaluator(maximize=True)` raises `TypeError`
+  (no such parameter), `ControlGrid(['--cpu-frequency','package'])` exits 2
+  (argparse rejects the flag), and `optimize(n_calls=50)` is wrong twice over —
+  the real signature is `optimize(spec, trials=50, ...)` and requires an
+  `ObjectiveSpec` positional. Rather than lose the public Python API, it is now
+  generated from the docstrings via `automodule` in
+  [geopmdpy.7.rst](docs/source/geopmdpy.7.rst) for `geopmdpy.grid`,
+  `geopmdpy.metrics`, and `geopmdpy.optimizer` — accurate by construction and
+  unable to drift. Nothing referenced the README except generated `egg-info`.
+
+  Documenting those three modules required four supporting fixes, all verified
+  against a pre-change warning baseline (`docs/Makefile` builds with `-W` and
+  `conf.py` sets `nitpicky = True`):
+  - `conf.py`: mock `skopt` and `yaml`. Both are *optional* extras, and
+    `optimizer.py` imports each unconditionally at module scope, so autodoc
+    cannot import it otherwise. Mocking matches the existing convention — the
+    *required* deps `dasbus` and `psutil` are already mocked — and avoids
+    pulling `scikit-learn`/`scipy` into every docs build.
+  - `conf.py`: `napoleon_use_ivar = True`. Napoleon's `Attributes:` blocks and
+    `:undoc-members:` were each emitting the same dataclass fields, producing 14
+    duplicate-object errors on `ObjectiveSpec` and `TrialResult`.
+  - `metrics.py`: the four `BEHAVIOR_*` constants are public (listed in
+    `__all__`) and referenced with `:data:`, but a plain `#` comment meant
+    autodoc never emitted them as targets. Converted to `#:` doc comments,
+    matching the file's existing idiom at `_NAME_RE`.
+  - `optimizer.py`: qualified `:attr:`metric_map`` as
+    `:attr:`ObjectiveSpec.metric_map``.
+
+  One warning is suppressed rather than fixed: `nitpick_ignore` for
+  `typing.Dict[str`. Sphinx 9.1.0 (already current) splits a subscripted generic
+  at the comma when its parameter is a cross-module class, so
+  `ObjectiveSpec.metric_map: Dict[str, metrics.Metric]` fails while the sibling
+  `Dict[str, str]` and `Dict[str, float]` annotations resolve. The clean fix is
+  the builtin generic `dict[str, ...]`, which `python_requires = >=3.6` rules
+  out. Final state: zero warnings attributable to the three new modules; the
+  HTML build returns to its exact pre-change baseline.
+
+  Also fixed a latent packaging bug found while checking the mock list:
+  `setup.cfg`'s `optimize` extra listed only `scikit-optimize`, while
+  `pyproject.toml`'s also lists `pyyaml`. Since `optimizer.py` imports `yaml`
+  unconditionally, `pip install 'geopmdpy[optimize]'` via the setup.cfg path
+  would leave `geopmopt` unimportable. Latent only because `pyproject.toml`
+  takes precedence with modern pip.
 
 - [ ] **DOC-2. Fill documentation gaps discovered while writing the skills.**
   Track any behavior the skills had to learn from source because the man pages
@@ -1229,8 +1284,8 @@ everything a `--dry-run` was meant to check.
 | 2 — Optimize Assistant | 17 | 17 |
 | 3 — Integration | 3 | 3 |
 | 4 — Validation | 6 | 4 |
-| 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **51** | **44** |
+| 5 — Docs and upstreaming | 5 | 1 |
+| **Total** | **51** | **45** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
