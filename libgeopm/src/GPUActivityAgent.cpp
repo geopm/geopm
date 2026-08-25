@@ -428,10 +428,12 @@ namespace geopm
                 else {
                     // Only close a region that actually started; otherwise stop
                     // would subtract from a zero start and report absolute usage.
+                    // This is the first inactive sample, so close the region at
+                    // the previous sample, which was the last active one.
                     if (m_gpu_active_region_start.at(domain_idx) != 0 &&
                         m_gpu_active_region_stop.at(domain_idx) == 0) {
-                        m_gpu_active_region_stop.at(domain_idx) = m_time.value;
-                        m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
+                        m_gpu_active_region_stop.at(domain_idx) = m_prev_time;
+                        m_gpu_active_energy_stop.at(domain_idx) = m_prev_gpu_energy.at(domain_idx);
                     }
                 }
             }
