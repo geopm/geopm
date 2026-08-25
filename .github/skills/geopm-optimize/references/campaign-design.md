@@ -52,7 +52,20 @@ Rules of thumb:
 ## Noise decides everything
 
 The optimizer cannot distinguish an improvement smaller than the run-to-run
-variation. Measure the noise floor first:
+variation. But the noise floor alone does not tell you whether a campaign is
+viable — what matters is the noise **relative to the change one grid step
+produces**. Measure both:
+
+```bash
+./scripts/geopm-sensitivity.sh --venv ~/geopm-venv \
+    --dimension cpu-freq --repeats 3 -- ./bench.sh
+```
+
+See [sensitivity.md](sensitivity.md). It is the single most valuable four
+minutes in this workflow: it decides whether the following hours are worth
+spending, and when the answer is no it ranks the remedies.
+
+For the noise floor on its own:
 
 ```bash
 ./scripts/geopm-check-workload.sh --regex 'GFLOPS: ([0-9.]+)' --runs 3 -- ./bench.sh
@@ -69,9 +82,10 @@ evaluated twice and produced scores of `-6.074` and `-3.157` — a factor of two
 at an identical setting. Every other difference in that run was smaller than
 that, so the reported "best configuration" carried no information.
 
-Reduce noise by lengthening the workload, pinning threads, quiescing the
-machine, and avoiding shared hosts. A workload under 30 seconds is usually
-dominated by startup cost.
+Reduce noise by pinning first — `numactl --cpunodebind=0 --membind=0` halved the
+noise floor on one test workload and turned an unoptimizable case into an
+optimizable one — then by lengthening the workload and quiescing the machine.
+A workload under 30 seconds is usually dominated by startup cost.
 
 ## Reproducibility
 

@@ -91,20 +91,54 @@ See [sweep-dimensions.md](references/sweep-dimensions.md).
 ```
 
 Establishes runtime, a recommended `--application-timeout`, whether the regex
-matches, and **the noise floor**. Do not skip this: a workload whose metric
-varies by more than about 5% between identical runs cannot support a fine
-conclusion, and knowing that beforehand prevents a wasted campaign.
+matches, and the noise floor.
 
 Regex help: [metric-regex.md](references/metric-regex.md).
 
-### 4. Compose the command
+### 4. Sensitivity check — mandatory
+
+**The single most important step. Do not skip it.**
+
+```bash
+./scripts/geopm-sensitivity.sh --venv ~/geopm-venv \
+    --dimension cpu-freq --repeats 3 -- ./bench.sh
+```
+
+A noise floor on its own is not enough. What decides whether optimization is
+possible is whether **one step of the control moves the metric further than the
+noise does**. If it does not, the optimizer cannot distinguish neighbouring grid
+points; it will fit noise and report a best setting that does not reproduce.
+More trials do not help — more samples of noise are still noise.
+
+The script exits 0 when the workload is optimizable as configured, and 1 with
+ranked remedies when it is not. Run it for each dimension you intend to sweep,
+and sweep only the ones that pass.
+
+Two effects dominate in practice, both documented with measurements in
+[sensitivity.md](references/sensitivity.md):
+
+- **Turbo.** Above `CPU_FREQUENCY_STICKER` a requested frequency is only an
+  upper bound. Under load, requesting 3.7 GHz and 3.3 GHz produced the *same*
+  achieved 2.72 GHz on a test machine, making a third of the sweep range one
+  operating point with many labels. Cap the sweep at the sticker.
+- **Pinning.** Scheduler migration is usually the largest removable source of
+  variation. On the same workload, `numactl --cpunodebind=0 --membind=0` cut the
+  noise floor from 3.43% to 1.82% and moved the verdict from MARGINAL to READY
+  with no other change. Try it first.
+
+When a remedy is needed, prefer them in the order the script prints: pin, then
+coarsen the step, then lengthen the run, then quieten the machine, and only then
+average repeated runs per grid point — that last one multiplies campaign cost by
+the repeat count.
+
+### 5. Compose the command
 
 Pick a recipe from
 [objective-recipes.md](references/objective-recipes.md); check flag semantics
 in [flags.md](references/flags.md) and metric or constraint grammar in
 [metrics-and-constraints.md](references/metrics-and-constraints.md).
 
-### 5. Smoke test — mandatory
+### 6. Smoke test — mandatory
 
 ```bash
 geopmopt --sweep cpu-freq@board \
@@ -124,7 +158,7 @@ was written.
 so syntax errors cost nothing. The smoke test proves the parts it cannot check:
 that the workload runs, the regex matches, and the controls are writable.
 
-### 6. Estimate, then confirm
+### 7. Estimate, then confirm
 
 ```
 total ≈ trials × single-run time × 1.5
@@ -135,7 +169,7 @@ campaign on a 90-second workload is about 90 minutes.
 
 See [campaign-design.md](references/campaign-design.md) for trial budgets.
 
-### 7. Run
+### 8. Run
 
 ```bash
 geopmopt --sweep cpu-freq@board --sweep uncore-freq@board \
@@ -149,14 +183,14 @@ geopmopt --sweep cpu-freq@board --sweep uncore-freq@board \
 Always `--verbosity 2`: at the default, nothing prints until completion and a
 campaign is indistinguishable from a hang.
 
-### 8. Interpret honestly
+### 9. Interpret honestly
 
 Compare the improvement against the **noise floor from step 3**. Then verify by
 running the recommended configuration against the baseline several times.
 
 See [interpreting-results.md](references/interpreting-results.md).
 
-### 9. Record
+### 10. Record
 
 Save the log, the configuration, the command line, and the noise floor to the
 campaign store so a later session can compare. See
@@ -194,7 +228,13 @@ omitting `-i` makes it consume the surrounding script as stdin.
 ## Safety
 
 - Present a wall-time estimate and get confirmation before any full campaign.
+- Never skip the sensitivity check. A campaign on a dimension whose single step
+  is below the noise floor cannot produce a real result, and running one wastes
+  the user's hours to manufacture an artifact.
 - Never skip the smoke test.
+- Never sweep a frequency range above `CPU_FREQUENCY_STICKER` without saying
+  that requests there are not guaranteed and may all resolve to the same
+  achieved frequency.
 - Never write controls outside a `geopmopt` or `geopmsession` session.
 - State plainly that a campaign repeatedly changes power and frequency limits
   for the whole node, and confirm the user is authorized to do that on this

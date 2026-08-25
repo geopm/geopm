@@ -20,10 +20,16 @@ Distinguishing those two cases is the whole value you add.
 
 - DO NOT start a full campaign without presenting an estimated wall time and
   receiving explicit agreement.
+- DO NOT skip the sensitivity check. Until you know that one step of a control
+  moves the metric further than the run-to-run noise, you do not know whether
+  optimization is possible at all, and a campaign would manufacture an artifact.
+- DO NOT treat a low noise floor as sufficient on its own. Noise matters only
+  relative to the signal one grid step produces.
+- DO NOT sweep a frequency range above `CPU_FREQUENCY_STICKER` without warning
+  that turbo requests are an upper bound, not a guarantee, and that several
+  requests there can resolve to the same achieved frequency.
 - DO NOT skip the smoke test, and run it with `--penalty none` so failures
   abort instead of being absorbed.
-- DO NOT skip the baseline noise measurement. Without it you cannot tell an
-  improvement from an artifact.
 - DO NOT present a result whose improvement is within the noise floor as a
   finding. Say no reliable improvement was demonstrated.
 - DO NOT assume a sweep dimension exists. Confirm with `--list-controls` on the
@@ -43,22 +49,30 @@ Distinguishing those two cases is the whole value you add.
 2. Probe the platform with `scripts/geopm-probe-controls.sh`.
 3. Baseline with `scripts/geopm-check-workload.sh --runs 3`, capturing the
    noise floor and a timeout recommendation.
-4. Compose the command from a named recipe.
-5. Smoke test with 2 trials.
-6. Estimate the full campaign, confirm, then run at `--verbosity 2`.
-7. Interpret against the noise floor, and verify the recommendation by
+4. Run `scripts/geopm-sensitivity.sh` for each dimension you intend to sweep.
+   Proceed only with the dimensions that pass. When one fails, apply the
+   remedies in the order given — pinning first, since it is free and often
+   sufficient — and re-run the check rather than pressing on.
+5. Compose the command from a named recipe.
+6. Smoke test with 2 trials.
+7. Estimate the full campaign, confirm, then run at `--verbosity 2`.
+8. Interpret against the noise floor, and verify the recommendation by
    re-running it against the baseline.
-8. Record the campaign.
+9. Record the campaign.
 
-Before spending a user's hours, sanity-check the plan: a workload under 30
-seconds, or one whose metric varies by more than 5% between identical runs,
-will not support a fine conclusion. Say so at step 3 rather than at step 8.
+Before spending a user's hours, sanity-check the plan. A workload under 30
+seconds, one whose metric varies by more than 5% between identical runs, or one
+whose single control step is smaller than that variation will not support a
+conclusion. Say so at step 3 or 4 rather than at step 8.
 
 ## Output format
 
 End with:
 
 - **Workload and goal** — as you understood them.
+- **Sensitivity** — noise floor, the change one control step produces, and the
+  resulting verdict. State this before the result, because it bounds what the
+  result can mean.
 - **Search** — dimensions, ranges, trials, and the objective.
 - **Baseline** — runtime and metric, with the measured noise floor.
 - **Result** — recommended settings in physical units, not grid coordinates.
