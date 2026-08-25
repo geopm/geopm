@@ -312,8 +312,10 @@ feature:
 | [#4055](https://github.com/geopm/geopm/issues/4055) | Change | Install assistant skill and agent (tasks INST-1 … INST-15) |
 | [#4056](https://github.com/geopm/geopm/issues/4056) | Change | Optimize assistant skill and agent (tasks OPT-1 … OPT-16) |
 
-DOC-5 (`geopmopt --dry-run`) still needs its own Feature request plus Change
-pair; file those when that work starts so it can be reviewed independently.
+DOC-5 still needs its own Feature request plus Change pair; file those when that
+work starts so it can be reviewed independently. Note it was **rescoped** after
+Phase 2 and Phase 4 testing showed `geopmopt` already validates almost
+everything a `--dry-run` was meant to check.
 
 ---
 
@@ -646,7 +648,8 @@ pair; file those when that work starts so it can be reviewed independently.
   sources, expression references, constraint names and operators, and flag
   dependencies — before launching the workload, so a malformed command costs no
   trials. All thirteen invalid cases tried exited 1 at parse time. This
-  substantially reduces what DOC-5's `--dry-run` would need to add. Two warts
+  substantially reduces what DOC-5's `--dry-run` would need to add — and, after
+  Phase 4 testing, eliminated most of it. Two warts
   recorded: `--list-metrics` returns before `--sweep` is parsed so it cannot
   validate sweeps, and `--defer-write` without `--output-file` surfaces a raw
   `ValueError` traceback rather than a clean error.
@@ -730,16 +733,19 @@ pair; file those when that work starts so it can be reviewed independently.
   (`--trials 2 --n-initial-points 2`) and confirm: the workload launches, the
   metric is extracted on both trials, controls are actually written, and a
   result is produced. Only then present the full-campaign time estimate and ask
-  for confirmation. Once DOC-5 lands, prefer `geopmopt --dry-run` for the
-  configuration-validation half of this gate and keep the two-trial run only to
-  prove the workload and metric extraction work.
+  for confirmation.
   *Done when:* the gate is stated in `SKILL.md` as a hard requirement with the
-  exact reduced command, and the `--dry-run` fallback path is described.
+  exact reduced command.
   → Stated in the skill and in `campaign-design.md`, and executed on real
   hardware to confirm it behaves as written: two trials, distinct coordinates,
   distinct scores, configuration written, settings restored afterwards. The
   gate specifies `--penalty none` so failures abort rather than being absorbed
   into a meaningless result.
+  The original text made this gate conditional on DOC-5's `--dry-run` landing.
+  That dependency was removed: `geopmopt` already validates the configuration
+  before launching, and the smoke test's real value is proving the things no
+  static check can — that the workload runs, the regex matches, and the controls
+  are writable. It stays mandatory regardless of what DOC-5 concludes.
 
 ### 6.4 Results
 
@@ -1056,22 +1062,57 @@ pair; file those when that work starts so it can be reviewed independently.
   applies to any AI-generated content in these files.
   *Done when:* CI is green and the PR is open.
 
-- [ ] **DOC-5. Propose and implement `geopmopt --dry-run` upstream.**
-  A flag that validates the full configuration without running the workload:
-  resolve every `--sweep` dimension against the platform, confirm the bounds are
-  real (not `n/a`), confirm every swept control is writable by the invoking
-  user, parse and validate all `--metric` and `--constraint` specifications,
-  check the flag dependency rules, and print the resolved search space and
-  objective — then exit without launching `-- LAUNCH`.
-  This makes the OPT-9 smoke-test gate nearly free and turns the most common
-  campaign failures (permission denied on a control, unsatisfiable constraint,
-  malformed metric spec) into instant errors instead of wasted trials.
-  File it as a separate "Feature request" plus "Change - " issue pair so it can
-  be reviewed independently of the assistant work.
-  *Done when:* the flag is implemented in
-  [geopmdpy/geopmdpy/optimizer.py](geopmdpy/geopmdpy/optimizer.py), documented
-  in [geopmopt.1.rst](docs/source/geopmopt.1.rst), covered by a unit test, and
-  OPT-9 is updated to use it.
+- [ ] **DOC-5. Propose a `geopmopt` pre-flight writability check upstream.**
+  **Rescoped after Phase 2 and Phase 4.** The original task assumed `geopmopt`
+  validated little before launching, and proposed a `--dry-run` that would
+  resolve dimensions, confirm bounds are real, check writability, validate
+  metric and constraint specifications, check flag dependencies, and print the
+  resolved search space. Testing showed most of that already happens.
+
+  **Already covered, verified on hardware:**
+
+  | Original justification | Actual behavior |
+  |---|---|
+  | Validate `--sweep` grammar, units, ranges | Parsed and rejected before launch. All 13 malformed cases exit 1 |
+  | Confirm bounds are real, not `n/a` | An unavailable dimension already aborts: `control name "GPU_CORE_FREQUENCY_MAX_CONTROL" not found`, exit 1, before any trial |
+  | Validate `--metric` and `--constraint` | Rejected at parse time, including undefined `expr:` references and bad operators |
+  | Check flag dependency rules | Enforced, e.g. `--metric-bound requires --metric-regex` |
+  | Print the resolved search space | Printed at `--verbosity 3`: `DEBUG: Dimension 0: CPU_FREQUENCY_MAX_CONTROL@board-0 with 3 settings` |
+
+  **The one real gap: control writability.** Everything above fails in the first
+  second; a permission problem does not surface until the first trial tries to
+  write. That is the expensive failure, and VAL-5 found a concrete instance of
+  it — sweeping `uncore-freq` also writes `CPU_UNCORE_FREQUENCY_MIN_CONTROL`, so
+  a least-privilege grant covering only the MAX passes every check and then
+  fails partway through a campaign.
+
+  **Revised proposal, much smaller:** before the first trial, write every
+  control the campaign will touch — including mirrored `*_MIN_*` companions — to
+  its current value, and abort with a clear message naming any that are denied.
+  This is the technique already used by
+  [geopm-verify-install.sh](.github/skills/geopm-install/scripts/geopm-verify-install.sh)
+  `--write-probe`, and it changes no hardware state. It could be unconditional
+  rather than a flag, since it costs milliseconds and the failure it prevents
+  costs hours.
+
+  Optionally alongside it: print the resolved search space at default verbosity
+  rather than only at `--verbosity 3`, and fix `--list-metrics` returning before
+  `--sweep` is parsed, so it cannot be used to check sweep syntax.
+
+  **Reconsider whether to build it at all.** With validation this thorough
+  already, the remaining value is one probe. Cheaper alternatives worth weighing
+  first: document the writability requirement (done, in `access-lists.md` and
+  the readiness gate), or fold the probe into `geopmopt` unconditionally with no
+  new interface. Discuss on the feature request before implementing.
+
+  *Done when:* the writability gap is raised upstream as a "Feature request"
+  plus "Change - " issue pair with the VAL-5 evidence, a decision is recorded on
+  whether to implement a probe, a flag, or neither, and if implemented it is
+  covered by a unit test and documented in
+  [geopmopt.1.rst](docs/source/geopmopt.1.rst).
+  *No longer required:* OPT-9's smoke test does not depend on this. The smoke
+  test also proves the workload runs and the regex matches, which no static
+  check can establish, so it stays mandatory either way.
 
 ---
 
@@ -1117,9 +1158,14 @@ pair; file those when that work starts so it can be reviewed independently.
 - [x] **Persist campaign results?** Yes — a standard per-user location with a
       stable schema, so later sessions can compare or resume. Specified by
       OPT-15.
-- [x] **`geopmopt --dry-run` upstream?** Yes — worth doing, and it makes the
-      smoke-test gate substantially cheaper. Specified by DOC-5, consumed by
-      OPT-9.
+- [x] **`geopmopt --dry-run` upstream?** Originally yes. **Rescoped** after
+      testing: `geopmopt` already validates dimensions, bounds, units, metric
+      sources, expression references, constraint names, and flag dependencies
+      before launching the workload, and already refuses to sweep an unavailable
+      dimension. The only gap left is control *writability*, which is what
+      VAL-5's uncore companion-control bug would have hit. DOC-5 now proposes a
+      pre-flight write probe rather than a `--dry-run` flag, and explicitly asks
+      whether it is worth building at all.
 - [x] **Generate or describe `geopmaccess` commands?** Generate — the Install
       Assistant emits a reviewable, least-privilege command block plus its
       revoke counterpart, and never runs it without confirmation. Specified by
