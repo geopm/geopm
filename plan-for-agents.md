@@ -179,6 +179,7 @@ daemon, so it need not match the client tool version.
       scripts/
         geopm-probe-system.sh       # distro, kernel, CPU, GPU, msr, geopmd
         geopm-verify-install.sh     # version, service, signals, writability
+        geopm-gen-access.sh         # generate reviewable geopmaccess commands
     geopm-optimize/
       SKILL.md
       references/
@@ -420,13 +421,32 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* an admin can copy a generated block that grants exactly this set
   to a named group, a user can verify their own grants, and a revoke block is
   produced alongside it.
+  → Written, and backed by a third script,
+  [geopm-gen-access.sh](.github/skills/geopm-install/scripts/geopm-gen-access.sh),
+  since "generate" needed to be executable rather than prose. It filters the
+  requested names against `geopmaccess --all`, validates the result, and prints
+  grant and revoke blocks without executing anything. Verified on the test host:
+  it dropped the three GPU/board controls and four GPU/board signals that the
+  platform does not support, kept 3 controls and 13 signals, and both generated
+  files independently re-validate.
+  Two findings shaped the page. `geopmaccess --write --dry-run` **validates
+  without privileges**, so a proposed list can be checked before an
+  administrator is involved. And `--write` replaces a list while `--delete`
+  removes an entire list — there is no way to drop individual names — so the
+  guidance is to grant a dedicated Unix group that started empty, which can be
+  revoked cleanly.
 
-- [ ] **INST-9. Document the session save/restore guarantee.**
+- [x] **INST-9. Document the session save/restore guarantee.**
   A short section in `SKILL.md` explaining that control writes are reverted when
   the session ends, so a failed or interrupted campaign does not leave the
   machine misconfigured — and the corollary that a *crashed* client is safe but
   a *killed daemon* may not be. Link to [security.rst](docs/source/security.rst).
   *Done when:* the guarantee and its boundary conditions are both stated.
+  → Covered in `references/access-lists.md` alongside the access model, since
+  the two together answer "is it safe to grant this?". States the guarantee, the
+  killed-daemon boundary, and the practical corollary that verifying a
+  recommended configuration requires holding a session open. `SKILL.md` links to
+  it rather than repeating it.
 
 ### 5.4 Verification and the handoff gate
 
@@ -880,12 +900,12 @@ pair; file those when that work starts so it can be reviewed independently.
 | Phase | Tasks | Done |
 |---|---|---|
 | 0 — Foundations | 5 | 5 |
-| 1 — Install Assistant | 15 | 3 |
+| 1 — Install Assistant | 15 | 5 |
 | 2 — Optimize Assistant | 16 | 0 |
 | 3 — Integration | 3 | 0 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **8** |
+| **Total** | **50** | **10** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
