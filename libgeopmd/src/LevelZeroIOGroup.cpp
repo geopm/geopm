@@ -1007,7 +1007,7 @@ namespace geopm
         register_signal_alias(M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR_CONTROL",
                               M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR");
 
-        // popluate tracking structure for L0 metrics
+        // populate tracking structure for L0 metrics
         for (int domain_idx = 0; domain_idx <
              m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
             m_metric_signal_pushed.push_back(false);
