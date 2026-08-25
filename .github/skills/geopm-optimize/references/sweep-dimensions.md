@@ -199,6 +199,41 @@ Two consequences:
   [interpreting-results.md](interpreting-results.md) for a measured case where
   the "optimized" setting was 11% slower.
 
+## Frequencies above the sticker are not guaranteed
+
+`CPU_FREQUENCY_MAX_AVAIL` reports the turbo maximum, but **above
+`CPU_FREQUENCY_STICKER` a requested frequency is only an upper bound**. What the
+hardware actually delivers is set by power, thermal, and core-count limits, so
+several distinct requests can produce the same operating point.
+
+Measured on a Xeon Gold 6148 (sticker 2.4 GHz, max avail 3.7 GHz) under a
+40-core load:
+
+| Requested | Achieved |
+|---|---|
+| 3.7 GHz | 2.72 GHz |
+| 3.3 GHz | 2.73 GHz |
+| 2.4 GHz | 2.46 GHz |
+| 2.0 GHz | 2.23 GHz |
+
+The top two requests are the same operating point. On the default 100 MHz grid
+that makes roughly ten of the twenty-eight `cpu-freq` points indistinguishable,
+and a search allowed into that region will report a "best" frequency from it
+that does not reproduce.
+
+Check the landmarks on your target, then cap the sweep:
+
+```bash
+geopmread CPU_FREQUENCY_STICKER package 0
+--sweep cpu-freq@board=1e+09:2400000000:1e+08
+```
+
+The headroom depends on load: the same machine running 20 cores on one socket
+had 15% turbo headroom where 40 cores across two sockets had 9%. Measure rather
+than assume, with
+[geopm-sensitivity.sh](../scripts/geopm-sensitivity.sh), which reports achieved
+versus requested frequency and warns when the dead zone is large.
+
 ## Choosing dimensions
 
 Each added dimension multiplies the space the optimizer must explore, so the

@@ -189,12 +189,14 @@ daemon, so it need not match the client tool version.
         metric-regex.md             # building a figure-of-merit pattern
         objective-recipes.md        # Named recipes for common goals
         campaign-design.md          # Trials budget, seeds, run-to-run noise
+        sensitivity.md              # Is one step bigger than the noise?
         interpreting-results.md     # Output config, applying results
         campaign-results.md         # Persisted artifact layout and schema
         troubleshooting.md          # Symptom → cause → fix table
       scripts/
         geopm-probe-controls.sh     # geopmopt --list-controls + availability
         geopm-check-workload.sh     # Validate launch cmd + metric regex
+        geopm-sensitivity.sh        # Noise floor vs one-step signal
 docs/source/
   concepts.rst                      # Shared vocabulary, linked by both skills
   (updates to geopmopt.1.rst / install.rst if gaps are found)
@@ -842,6 +844,51 @@ everything a `--dry-run` was meant to check.
   before any campaign is proposed, and the skill contains no guidance that only
   makes sense for multi-node runs.
 
+- [x] **OPT-17. Add a sensitivity check before any campaign.**
+  Added after VAL-5, on review feedback. Measuring the noise floor is not
+  enough: what decides whether optimization is possible is whether **one step of
+  a control moves the metric further than the noise does**. When it does not,
+  the optimizer fits noise and reports a best setting that does not reproduce,
+  which is exactly what VAL-5 produced.
+  Deliver [geopm-sensitivity.sh](.github/skills/geopm-optimize/scripts/geopm-sensitivity.sh)
+  and [sensitivity.md](.github/skills/geopm-optimize/references/sensitivity.md),
+  make the check a mandatory step in the skill, and add it to the agent's
+  constraints and output format.
+  *Done when:* the script reports the noise floor, the one-step change, the
+  full-range change, and a signal-to-noise verdict; ranks remedies; exits 0 only
+  when the workload is optimizable; and the skill refuses to start a campaign
+  without it.
+
+  → Delivered and validated on the VAL-5 benchmark, where it correctly
+  reproduces that campaign's failure in a quarter of the time.
+
+  **Two findings, both from review feedback rather than my own testing.**
+
+  *Turbo frequencies are not guaranteed.* Above `CPU_FREQUENCY_STICKER` a
+  requested frequency is only an upper bound; under load the achieved frequency
+  is set by power and thermal limits. Measured on the test host: requesting
+  3.7 GHz and 3.3 GHz both achieved ~2.72 GHz, so roughly ten of the twenty-eight
+  default `cpu-freq` grid points are one operating point with different labels.
+  My first version anchored its reference at the maximum and therefore measured
+  inside that dead zone, reporting a meaningless 0.38% one-step change. Anchored
+  at the sticker instead, the same workload and step size showed **6.29%** — a
+  sixteen-fold difference. The script now anchors at the sticker, reports
+  achieved versus requested frequency, and recommends capping the sweep.
+  This also fully explains VAL-5: that campaign's "best" of 3.4 GHz sat in the
+  dead zone.
+
+  *Pinning belongs first among the remedies.* Confirmed by measurement rather
+  than assumed: `numactl --cpunodebind=0 --membind=0` cut the noise floor from
+  3.43% to 1.82% and moved the verdict from MARGINAL to READY with no change to
+  step size, workload length, or trial budget. The remedy order is now pin,
+  coarsen the step, lengthen the run, quieten the machine, and only then average
+  repeated runs per grid point — that last one multiplies campaign cost by the
+  repeat count and is a poor first resort.
+
+  The script can also emit a repeat-and-average wrapper sized from the
+  measurement, since `geopmopt` evaluates a grid point with a single run and any
+  averaging must therefore happen inside the launch command.
+
 ---
 
 ## 7. Phase 3 — Integration
@@ -1179,11 +1226,11 @@ everything a `--dry-run` was meant to check.
 |---|---|---|
 | 0 — Foundations | 5 | 5 |
 | 1 — Install Assistant | 15 | 15 |
-| 2 — Optimize Assistant | 16 | 16 |
+| 2 — Optimize Assistant | 17 | 17 |
 | 3 — Integration | 3 | 3 |
 | 4 — Validation | 6 | 4 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **43** |
+| **Total** | **51** | **44** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
