@@ -135,6 +135,15 @@ A dimension counts only when its **domain** resolved. Bounds alone are not
 enough: unavailable power dimensions still print hardcoded defaults beside an
 `n/a` domain.
 
+### Handing off
+
+When the gate passes, say so and move to the `geopm-optimize` skill, which
+tunes a workload with `geopmopt`. It restates this gate identically and will
+send the user back here if it does not hold.
+
+If the user's original request was about optimizing a workload, continue
+straight into that flow rather than stopping at "installed".
+
 ## Safety
 
 - Never run `sudo` without explicit, immediately preceding confirmation.

@@ -367,22 +367,71 @@ Start here when you need authoritative detail:
 
 Published site: <https://geopm.github.io>
 
-## Agent tooling roadmap
+## Agent tooling
 
-This file is the shared foundation for a set of specialized agents and skills
-that will live under `.github/skills/` (one directory per skill, each with a
-`SKILL.md`). Planned:
+This repository ships agent skills under `.github/skills/` and matching agent
+personas under `.github/agents/`. Each skill is a `SKILL.md` plus `references/`
+and `scripts/`; the format is portable across agent runtimes that read the same
+convention.
 
-- **Installation assistant** — distro detection, package vs. source install,
-  GPU-optional builds, `geopmd` service enablement, `geopmaccess` setup,
-  troubleshooting `command not found` and permission errors.
-- **`geopmopt` assistant** — objective and constraint construction, sweep
-  dimension selection, metric extraction (`--metric-regex` / `--metric`),
-  trial budgeting, and interpreting optimizer output.
+### Available
+
+| Skill | Agent | Use it for |
+|---|---|---|
+| [geopm-install](.github/skills/geopm-install/SKILL.md) | [geopm-install](.github/agents/geopm-install.agent.md) | Installing, configuring, and verifying GEOPM on a system under test. Trigger phrases: "install GEOPM", "geopmread command not found", "geopmd not running", "permission denied writing a control", "signal name not found", "no controls granted" |
+| [geopm-optimize](.github/skills/geopm-optimize/SKILL.md) | [geopm-optimize](.github/agents/geopm-optimize.agent.md) | Tuning a workload with `geopmopt`. Trigger phrases: "optimize my benchmark", "best CPU frequency for my workload", "reduce energy consumption", "performance per watt", "power cap sweep" |
+
+The two are chained by a **readiness gate**, worded identically in both skills
+and enforced executably by
+[geopm-verify-install.sh](.github/skills/geopm-install/scripts/geopm-verify-install.sh),
+whose exit status *is* the gate:
+
+- `geopmopt --list-controls` lists at least one dimension with real (non-`n/a`)
+  min, max, and step values.
+- `geopmread` returns a plausible power reading.
+- At least one sweepable control is writable by the invoking user.
+
+`geopm-optimize` refuses to start when the gate fails and directs the user to
+`geopm-install`; `geopm-install` finishes by reporting the gate and offering
+`geopm-optimize`. Both directions are also wired as `handoffs` buttons in the
+agent frontmatter.
+
+### Bundled scripts
+
+All are read-only unless stated, and all are safe to run on a system that has
+no GEOPM at all.
+
+| Script | Purpose |
+|---|---|
+| [geopm-probe-system.sh](.github/skills/geopm-install/scripts/geopm-probe-system.sh) | Distro, hardware, privilege, and GEOPM state as `KEY=VALUE` plus a summary |
+| [geopm-verify-install.sh](.github/skills/geopm-install/scripts/geopm-verify-install.sh) | The readiness gate. Opt-in `--write-probe` proves writability |
+| [geopm-gen-access.sh](.github/skills/geopm-install/scripts/geopm-gen-access.sh) | Generates reviewable `geopmaccess` grant and revoke commands; executes nothing |
+| [geopm-probe-controls.sh](.github/skills/geopm-optimize/scripts/geopm-probe-controls.sh) | Which sweep dimensions this platform can actually use, and why the others cannot |
+| [geopm-check-workload.sh](.github/skills/geopm-optimize/scripts/geopm-check-workload.sh) | Baseline runtime, timeout recommendation, and run-to-run noise floor |
+
+### One thing to know before using them
+
+`geopmopt` is **not part of any tagged GEOPM release**. The published
+`geopmdpy` 3.2.2 declares six console scripts and `geopmopt` is not among them,
+nor is there an `optimize` extra to request. Until the next release it requires
+a virtual environment built from the `dev` branch:
+
+```bash
+python3 -m venv ~/geopm-venv
+source ~/geopm-venv/bin/activate
+python3 -m pip install \
+    'geopmdpy[optimize] @ git+https://github.com/geopm/geopm.git#subdirectory=geopmdpy'
+```
+
+Revisit the skills when `geopmopt` ships in a release.
+
+### Still planned
+
 - **Signal/control discovery assistant** — mapping a user's intent to the right
   signal, domain, and IOGroup.
 - **IOGroup development assistant** — adding hardware backends and `json_data`
   definitions, with the required doc and test updates.
 
-When creating those skills, keep deep procedural detail in the skill files and
-keep this document as the map of the repository.
+When adding a skill, keep deep procedural detail in the skill files and keep
+this document as the map of the repository. Working notes and remaining tasks
+live in [plan-for-agents.md](plan-for-agents.md).
