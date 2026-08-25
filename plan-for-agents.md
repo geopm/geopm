@@ -185,6 +185,8 @@ daemon, so it need not match the client tool version.
       references/
         sweep-dimensions.md         # --sweep grammar, dims, units, bounds
         metrics-and-constraints.md  # --metric / --constraint grammar
+        flags.md                    # every flag with its real default
+        metric-regex.md             # building a figure-of-merit pattern
         objective-recipes.md        # Named recipes for common goals
         campaign-design.md          # Trials budget, seeds, run-to-run noise
         interpreting-results.md     # Output config, applying results
@@ -581,7 +583,7 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ### 6.1 Ground truth capture
 
-- [ ] **OPT-1. Write `references/sweep-dimensions.md` from source.**
+- [x] **OPT-1. Write `references/sweep-dimensions.md` from source.**
   Transcribe from [geopmdpy/geopmdpy/grid.py](geopmdpy/geopmdpy/grid.py):
   - Grammar: `--sweep CONTROL[@DOMAIN][=MIN:MAX:STEP]`, repeatable.
   - Dimension aliases: `cpu-freq`/`cpu-frequency`, `uncore-freq`/
@@ -595,8 +597,15 @@ pair; file those when that work starts so it can be reviewed independently.
   - That `prefetch` sweeps a level 0..4 over the MSR prefetcher-disable bits.
   *Done when:* every alias and unit in `grid.py` appears, and the page is
   verified against `geopmopt --list-controls` output on a real machine.
+  → Written and verified. The rule that matters most is that a dimension is
+  usable only when its **domain** resolved: `board-power` prints a plausible
+  `200 … 6000 W` range on a host that cannot sweep it at all, because those are
+  hardcoded defaults printed beside an `n/a` domain. Bounds alone are a false
+  positive. Also records that `cpu-power`'s maximum is the default power limit
+  rather than a hardware ceiling, and that `uncore-freq`'s maximum is read from
+  the control's current value, so a previously lowered limit narrows the search.
 
-- [ ] **OPT-2. Write `references/metrics-and-constraints.md` from source.**
+- [x] **OPT-2. Write `references/metrics-and-constraints.md` from source.**
   Transcribe from [geopmdpy/geopmdpy/metrics.py](geopmdpy/geopmdpy/metrics.py):
   - `--metric NAME=SOURCE` where SOURCE is `regex:'PATTERN'`,
     `signal:SIGNAL@DOMAIN[:AGG]`, or `expr:'EXPRESSION'`.
@@ -610,8 +619,14 @@ pair; file those when that work starts so it can be reviewed independently.
   - How violations are scored rather than hard-rejected.
   *Done when:* the grammar matches `parse_metric_spec` / `parse_constraint_spec`
   exactly, including the identifier regex `[A-Za-z_][A-Za-z0-9_]*`.
+  → Written and each error path reproduced against the real binary. The
+  consequential finding is that **constraints are soft**: a violation adds a
+  penalty scaled by `1/|bound|` rather than discarding the trial, and when no
+  trial is feasible the least-infeasible one is returned. A campaign therefore
+  always reports a winner even for an impossible constraint, so the assistant
+  must verify satisfaction rather than assume it.
 
-- [ ] **OPT-3. Write the authoritative flag reference.**
+- [x] **OPT-3. Write the authoritative flag reference.**
   A table of every `geopmopt` flag with its default, transcribed from
   `get_parser()` in [geopmdpy/geopmdpy/optimizer.py](geopmdpy/geopmdpy/optimizer.py):
   `--trials` (50), `--n-initial-points` (10), `--metric-regex` (None),
@@ -626,10 +641,19 @@ pair; file those when that work starts so it can be reviewed independently.
   `--maximize NAME` and `--minimize NAME` are mutually exclusive.
   *Done when:* every `add_argument` call in `get_parser()` is represented with
   its real default.
+  → Written to `references/flags.md`. Testing established that `geopmopt`
+  validates the **entire** configuration — dimensions, bounds, units, metric
+  sources, expression references, constraint names and operators, and flag
+  dependencies — before launching the workload, so a malformed command costs no
+  trials. All thirteen invalid cases tried exited 1 at parse time. This
+  substantially reduces what DOC-5's `--dry-run` would need to add. Two warts
+  recorded: `--list-metrics` returns before `--sweep` is parsed so it cannot
+  validate sweeps, and `--defer-write` without `--output-file` surfaces a raw
+  `ValueError` traceback rather than a clean error.
 
 ### 6.2 Workload onboarding
 
-- [ ] **OPT-4. Write the workload interview procedure.**
+- [x] **OPT-4. Write the workload interview procedure.**
   The ordered questions the assistant asks a GEOPM-naive user:
   1. What single command runs your workload end to end?
   2. Roughly how long does one run take?
@@ -645,7 +669,7 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* each answer maps deterministically to a flag or a recipe in
   `objective-recipes.md`.
 
-- [ ] **OPT-5. Write `scripts/geopm-check-workload.sh`.**
+- [x] **OPT-5. Write `scripts/geopm-check-workload.sh`.**
   Given a launch command and a candidate regex, run the workload **once** at
   default settings and report: exit code, wall time, whether the regex matched,
   the captured value, and a recommended `--application-timeout` (measured time
@@ -653,18 +677,28 @@ pair; file those when that work starts so it can be reviewed independently.
   optimize meaningfully) or over ~30 min (campaign would be impractically long).
   *Done when:* the script correctly reports a regex miss and suggests a fix
   rather than failing silently.
+  → Written with `--runs N` so it also measures the **noise floor**, which
+  turned out to be the single most important number in a campaign. Validated on
+  four cases: matching regex over three runs, a non-matching regex, a failing
+  workload, and an invalid two-group regex, with distinct exit codes 0, 1, 1,
+  and 2. On the synthetic benchmark it correctly flagged both a too-short
+  runtime and a metric varying 7.7% between identical runs.
 
-- [ ] **OPT-6. Write the metric-regex construction guidance.**
+- [x] **OPT-6. Write the metric-regex construction guidance.**
   How to turn a line of workload output into a capturing regex, including: the
   single capture group requirement, escaping, matching the *last* occurrence
   when a workload prints per-iteration values, and validating with `python3 -c`
   before spending trials.
   *Done when:* at least four worked examples exist (GFLOPS, images/s, elapsed
   seconds, and a value embedded in JSON-ish output).
+  → Written to `references/metric-regex.md` with six worked examples, adding
+  scientific notation (where an incomplete character class silently truncates
+  the value rather than failing to match) and per-iteration output with a
+  summary line.
 
 ### 6.3 Objective design
 
-- [ ] **OPT-7. Write `references/objective-recipes.md`.**
+- [x] **OPT-7. Write `references/objective-recipes.md`.**
   Named, copy-pasteable recipes, each with the goal, the exact command, and what
   the result means:
   - **Fastest run** (no metric): default objective is wall-clock runtime.
@@ -679,7 +713,7 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* each recipe has been executed at least once and its output
   captured in the reference.
 
-- [ ] **OPT-8. Write `references/campaign-design.md`.**
+- [x] **OPT-8. Write `references/campaign-design.md`.**
   Guidance on: choosing `--trials` relative to the number of `--sweep`
   dimensions and single-run duration; the `--n-initial-points` relationship
   (random exploration before the Gaussian Process takes over); estimating total
@@ -691,7 +725,7 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* the page contains a concrete "estimate before you run" formula
   and a recommended starting configuration for 1-, 2-, and 3-dimensional sweeps.
 
-- [ ] **OPT-9. Define the mandatory smoke-test gate.**
+- [x] **OPT-9. Define the mandatory smoke-test gate.**
   Before any full campaign, the assistant must run a reduced campaign
   (`--trials 2 --n-initial-points 2`) and confirm: the workload launches, the
   metric is extracted on both trials, controls are actually written, and a
@@ -701,10 +735,15 @@ pair; file those when that work starts so it can be reviewed independently.
   prove the workload and metric extraction work.
   *Done when:* the gate is stated in `SKILL.md` as a hard requirement with the
   exact reduced command, and the `--dry-run` fallback path is described.
+  → Stated in the skill and in `campaign-design.md`, and executed on real
+  hardware to confirm it behaves as written: two trials, distinct coordinates,
+  distinct scores, configuration written, settings restored afterwards. The
+  gate specifies `--penalty none` so failures abort rather than being absorbed
+  into a meaningless result.
 
 ### 6.4 Results
 
-- [ ] **OPT-10. Write `references/interpreting-results.md`.**
+- [x] **OPT-10. Write `references/interpreting-results.md`.**
   What `--output-file` produces (a `geopmwrite` configuration file), how to
   apply it (`geopmwrite` batch input, or `geopmsession --control-config` to hold
   the settings for the duration of a run), what `--defer-write` changes, how to
@@ -713,8 +752,19 @@ pair; file those when that work starts so it can be reviewed independently.
   equal to the default, or all trials within run-to-run noise).
   *Done when:* the page shows a real output file and the exact command to apply
   it.
+  → Written around a real campaign run on the test host, which produced an
+  unusually instructive result: the same grid coordinate was evaluated twice and
+  scored `-6.074` and `-3.157`, a factor of two at an identical setting, while
+  3.7 GHz scored *worse* than 3.5 GHz for a CPU-bound workload. The campaign
+  reported a confident best configuration that in fact established nothing. The
+  page teaches recognizing exactly that. Also documents that `score` is negated
+  for maximized objectives, that `coordinate` is a grid index rather than a
+  setting, that applying a result needs `geopmsession -i sig.conf
+  --control-config` (omitting `-i` makes it consume the surrounding script as
+  stdin), and that hardware snaps the applied value — 3.5 GHz requested read
+  back as 3.515 GHz.
 
-- [ ] **OPT-11. Write `references/troubleshooting.md` for the optimizer.**
+- [x] **OPT-11. Write `references/troubleshooting.md` for the optimizer.**
   Symptom → cause → fix, covering at minimum: regex never matches; every trial
   hits the timeout; `--list-controls` shows `n/a` bounds; permission denied
   writing a swept control; `scikit-optimize` missing; results indistinguishable
@@ -722,14 +772,20 @@ pair; file those when that work starts so it can be reviewed independently.
   campaign appears to hang (long single-run time); constraint never satisfiable.
   *Done when:* each entry names the flag or access-list change that resolves it.
 
-- [ ] **OPT-12. Write `scripts/geopm-probe-controls.sh`.**
+- [x] **OPT-12. Write `scripts/geopm-probe-controls.sh`.**
   Wrap `geopmopt --list-controls` and `geopmopt --list-metrics`, flag
   dimensions with `n/a` bounds as unusable on this platform, and recommend a
   starting `--sweep` set based on what is actually available and writable.
   *Done when:* on a CPU-only machine it recommends CPU dimensions only and
   explicitly excludes GPU dimensions with a stated reason.
+  → Verified on the CPU-only test host: reports 4 usable dimensions, excludes
+  `gpu-freq`, `gpu-power`, and `board-power` with a per-dimension reason, and
+  suggests a workload-appropriate starting command with a trial budget. It also
+  cross-checks `geopmaccess` to separate "the platform does not implement this"
+  from "the service supports it but you were not granted it", which are
+  indistinguishable in `--list-controls` alone.
 
-- [ ] **OPT-15. Persist campaign results in a standard location.**
+- [x] **OPT-15. Persist campaign results in a standard location.**
   Define where a campaign's artifacts are stored so a later chat session can
   compare runs or resume work: a per-user directory (respect
   `XDG_DATA_HOME`, defaulting to `~/.local/share/geopm/campaigns/`), one
@@ -747,7 +803,7 @@ pair; file those when that work starts so it can be reviewed independently.
 
 ### 6.5 Assembly
 
-- [ ] **OPT-13. Write `.github/skills/geopm-optimize/SKILL.md`.**
+- [x] **OPT-13. Write `.github/skills/geopm-optimize/SKILL.md`.**
   Frontmatter `name: geopm-optimize`; description with trigger keywords:
   "geopmopt", "optimize benchmark power", "best CPU frequency for my workload",
   "energy efficiency tuning", "performance per watt", "power cap sweep".
@@ -755,8 +811,10 @@ pair; file those when that work starts so it can be reviewed independently.
   campaign → interpret procedure, and links one level deep.
   *Done when:* under 500 lines and a GEOPM-naive transcript can be completed
   using only the skill and its references.
+  → 211 lines, frontmatter validated, all links resolve. Carries the readiness
+  gate worded identically to the install skill, completing INST-11.
 
-- [ ] **OPT-14. Write `.github/agents/geopm-optimize.agent.md`.**
+- [x] **OPT-14. Write `.github/agents/geopm-optimize.agent.md`.**
   Thin persona. `tools: [read, search, execute, edit, todo]`. Constraints:
   never launch a campaign without presenting a wall-time estimate and getting
   confirmation; never skip the smoke test; never write controls outside a
@@ -766,7 +824,7 @@ pair; file those when that work starts so it can be reviewed independently.
   *Done when:* the agent correctly refuses to proceed on a machine without
   GEOPM and routes to `geopm-install`.
 
-- [ ] **OPT-16. State the single-node scope and the multi-node path.**
+- [x] **OPT-16. State the single-node scope and the multi-node path.**
   `SKILL.md` must declare that v1 tunes and measures only the node running
   `geopmopt`. When the workload interview reveals a distributed run, the
   assistant explains the limitation, offers to tune a single representative
@@ -953,11 +1011,11 @@ pair; file those when that work starts so it can be reviewed independently.
 |---|---|---|
 | 0 — Foundations | 5 | 5 |
 | 1 — Install Assistant | 15 | 15 |
-| 2 — Optimize Assistant | 16 | 0 |
+| 2 — Optimize Assistant | 16 | 16 |
 | 3 — Integration | 3 | 0 |
 | 4 — Validation | 6 | 0 |
 | 5 — Docs and upstreaming | 5 | 0 |
-| **Total** | **50** | **20** |
+| **Total** | **50** | **36** |
 
 Upstream issues filed so far: [#4054](https://github.com/geopm/geopm/issues/4054)
 (feature), [#4055](https://github.com/geopm/geopm/issues/4055) (install
