@@ -320,6 +320,10 @@ namespace geopm
                 gpu_core_activity = std::min(gpu_core_activity, 1.0);
                 gpu_core_activity = std::max(gpu_core_activity, 0.0);
 
+                // Stall only lowers the frequency decision, so preserve the raw
+                // bounded activity for ROI/on-time tracking.
+                double gpu_tracked_activity = gpu_core_activity;
+
                 // Stall based activity reduction
                 if (!std::isnan(gpu_stall_activity)) {
                     gpu_stall_activity = std::max(gpu_stall_activity, 0.0);
@@ -365,7 +369,7 @@ namespace geopm
                 // solution to the lack of GPU region support and may be
                 // removed when that support is added to GEOPM.
                 if (domain_idx % agent_units_per_gpu == 0) {
-                    gpu_scoped_core_activity.at(domain_idx / agent_units_per_gpu) = gpu_core_activity;
+                    gpu_scoped_core_activity.at(domain_idx / agent_units_per_gpu) = gpu_tracked_activity;
                 }
             }
 
