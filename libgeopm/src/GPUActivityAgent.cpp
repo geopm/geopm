@@ -181,8 +181,6 @@ namespace geopm
         m_freq_gpu_min = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         m_freq_gpu_max = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
-        //m_platform_io.write_control("GPU_CORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0, m_freq_gpu_min);
-
         // F efficient values
         const std::string FE_CONSTCONFIG = "CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY";
         const std::string FE_SIG_NAME = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
@@ -524,7 +522,7 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
 
         result.push_back({"Agent Domain", m_platform_topo.domain_type_to_name(m_agent_domain)});
-        if(m_gpu_stall_activity.size() > 0) {
+        if (m_gpu_stall_activity.size() > 0) {
             result.push_back({"Use Level Zero Stall Tracking", std::to_string(true)});
         }
         else {
