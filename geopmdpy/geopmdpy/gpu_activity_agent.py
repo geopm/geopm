@@ -49,6 +49,18 @@ _PERIOD_DEFAULT = 0.02
 _FE_CONSTCONFIG = 'CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY'
 _FE_SIG_NAME = 'LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT'
 
+# Level Zero stall signal.  When available it reduces the compute activity
+# used for the frequency decision (stall cycles are not frequency sensitive).
+_STALL_SIG_NAME = 'LEVELZERO::METRIC:XVE_STALL'
+
+# GPU compute activity at or above this fraction is treated as an active
+# region for the ROI on-time/on-energy tracking reported in the summary.
+_GPU_ACTIVITY_CUTOFF = 0.05
+
+# Number of consecutive idle samples (utilization at/near zero) before the
+# agent drops a GPU chip to the minimum frequency when energy biased.
+_GPU_IDLE_TIMER_RESET = 10
+
 
 class GPUActivityAgent(Agent):
     """Agent that sets GPU core frequency based on GPU activity.
@@ -85,6 +97,35 @@ class GPUActivityAgent(Agent):
         # last value written to each control, used for change detection
         self._freq_min_last = []
         self._freq_max_last = []
+
+        # Level Zero XVE_STALL activity: when the signal is available it
+        # reduces the compute activity used for the frequency decision (the
+        # raw activity is still used for ROI tracking).  Level-Zero only.
+        self._has_stall = False
+        self._stall_idx = []
+
+        # Per-agent-domain idle timer.  When energy biased (phi >= 0.5) and the
+        # utilization stays at/near zero for _GPU_IDLE_TIMER_RESET consecutive
+        # samples, the chip is dropped to the minimum frequency.  Level-Zero only.
+        self._gpu_idle_timer = []
+        self._gpu_idle_samples = []
+
+        # ROI proxy tracking (Level-Zero only).  Energy and time are sampled at
+        # the GPU domain and used to report per-GPU active-region and on
+        # time/energy; they do not affect the control algorithm.  A GPU's
+        # tracked activity is taken from the first agent-domain unit of that GPU.
+        self._num_gpu = 0
+        self._agent_units_per_gpu = 1
+        self._energy_idx = []
+        self._prev_time = math.nan
+        self._prev_gpu_energy = []
+        self._gpu_region_active = []
+        self._gpu_active_region_start = []
+        self._gpu_active_region_stop = []
+        self._gpu_active_energy_start = []
+        self._gpu_active_energy_stop = []
+        self._gpu_on_time = []
+        self._gpu_on_energy = []
 
         # Activity source: 'levelzero' samples GPU_CORE_ACTIVITY directly
         # (and GPU_UTILIZATION when available); 'drm_idle' derives a GPU busy
@@ -197,8 +238,12 @@ class GPUActivityAgent(Agent):
             lines.append('GPU_CORE_FREQUENCY_STATUS' + suffix)
         if 'GPU_CORE_ACTIVITY' in names:
             lines.append('GPU_CORE_ACTIVITY' + suffix)
+        if _STALL_SIG_NAME in names:
+            lines.append(_STALL_SIG_NAME + suffix)
         if 'GPU_UTILIZATION' in names:
             lines.append('GPU_UTILIZATION' + suffix)
+        if 'GPU_ENERGY' in names:
+            lines.append('GPU_ENERGY' + suffix)
         if 'DRM::IDLE_RESIDENCY' in names:
             lines.append('DRM::IDLE_RESIDENCY' + suffix)
         return '\n'.join(lines) + '\n'
@@ -239,6 +284,11 @@ class GPUActivityAgent(Agent):
         self._has_utilization = (self._activity_source == 'levelzero' and
                                  'GPU_UTILIZATION' in all_signals)
 
+        # The Level Zero XVE_STALL signal, when present, reduces the compute
+        # activity used for the frequency decision.  Level-Zero only.
+        self._has_stall = (self._activity_source == 'levelzero' and
+                           _STALL_SIG_NAME in all_signals)
+
         # Use the coarsest granularity supported by any of the controls
         # or signals used by the control algorithm.
         domains = [
@@ -252,6 +302,8 @@ class GPUActivityAgent(Agent):
             domains.append(pio.signal_domain_type('GPU_CORE_FREQUENCY_STATUS'))
         if self._activity_source == 'levelzero':
             domains.append(pio.signal_domain_type('GPU_CORE_ACTIVITY'))
+            if self._has_stall:
+                domains.append(pio.signal_domain_type(_STALL_SIG_NAME))
             if self._has_utilization:
                 domains.append(pio.signal_domain_type('GPU_UTILIZATION'))
         else:
@@ -268,13 +320,19 @@ class GPUActivityAgent(Agent):
 
         self._activity_idx = []
         self._utilization_idx = []
+        self._stall_idx = []
         self._idle_idx = []
         self._freq_min_idx = []
         self._freq_max_idx = []
+        self._gpu_idle_timer = []
+        self._gpu_idle_samples = []
         for domain_idx in range(self._agent_domain_count):
             if self._activity_source == 'levelzero':
                 self._activity_idx.append(
                     pio.push_signal('GPU_CORE_ACTIVITY', self._agent_domain, domain_idx))
+                if self._has_stall:
+                    self._stall_idx.append(
+                        pio.push_signal(_STALL_SIG_NAME, self._agent_domain, domain_idx))
                 if self._has_utilization:
                     self._utilization_idx.append(
                         pio.push_signal('GPU_UTILIZATION', self._agent_domain, domain_idx))
@@ -285,12 +343,35 @@ class GPUActivityAgent(Agent):
                 pio.push_control('GPU_CORE_FREQUENCY_MIN_CONTROL', self._agent_domain, domain_idx))
             self._freq_max_idx.append(
                 pio.push_control('GPU_CORE_FREQUENCY_MAX_CONTROL', self._agent_domain, domain_idx))
+            self._gpu_idle_timer.append(_GPU_IDLE_TIMER_RESET)
+            self._gpu_idle_samples.append(0)
         if self._activity_source == 'drm_idle':
             # TIME is shared across domains; used to convert the idle-residency
             # counter into a busy fraction over each sample interval.
             self._time_idx = pio.push_signal('TIME', topo.DOMAIN_BOARD, 0)
             self._idle_last = [math.nan] * self._agent_domain_count
             self._time_last = math.nan
+        if self._activity_source == 'levelzero':
+            # ROI proxy tracking.  Energy and time are sampled at the GPU
+            # domain for reporting only; a GPU's tracked activity is taken
+            # from the first agent-domain unit of that GPU.
+            self._num_gpu = num_gpu
+            self._agent_units_per_gpu = self._agent_domain_count // num_gpu
+            self._time_idx = pio.push_signal('TIME', topo.DOMAIN_BOARD, 0)
+            self._energy_idx = []
+            energy_domain = pio.signal_domain_type('GPU_ENERGY')
+            for gpu_idx in range(num_gpu):
+                self._energy_idx.append(
+                    pio.push_signal('GPU_ENERGY', energy_domain, gpu_idx))
+            self._prev_time = math.nan
+            self._prev_gpu_energy = [math.nan] * num_gpu
+            self._gpu_region_active = [False] * num_gpu
+            self._gpu_active_region_start = [0.0] * num_gpu
+            self._gpu_active_region_stop = [0.0] * num_gpu
+            self._gpu_active_energy_start = [0.0] * num_gpu
+            self._gpu_active_energy_stop = [0.0] * num_gpu
+            self._gpu_on_time = [0.0] * num_gpu
+            self._gpu_on_energy = [0.0] * num_gpu
         self._freq_min_last = [math.nan] * self._agent_domain_count
         self._freq_max_last = [math.nan] * self._agent_domain_count
 
@@ -346,15 +427,29 @@ class GPUActivityAgent(Agent):
         # For the DRM idle-residency path, compute the elapsed time once;
         # the busy fraction is derived per domain from the idle counter.
         time_delta = math.nan
+        time_now = math.nan
         if self._activity_source == 'drm_idle':
             time_now = pio.sample(self._time_idx)
             if not math.isnan(self._time_last):
                 time_delta = time_now - self._time_last
 
+        # ROI proxy tracking (Level-Zero only): sample time and per-GPU energy
+        # and capture each GPU's raw (pre-stall) activity from its first unit.
+        gpu_scoped_activity = []
+        gpu_energy = []
+        if self._activity_source == 'levelzero':
+            time_now = pio.sample(self._time_idx)
+            gpu_energy = [pio.sample(idx) for idx in self._energy_idx]
+            gpu_scoped_activity = [math.nan] * self._num_gpu
+
         do_write_batch = False
         for domain_idx in range(self._agent_domain_count):
             if self._activity_source == 'levelzero':
                 activity = pio.sample(self._activity_idx[domain_idx])
+                if self._has_stall:
+                    stall = pio.sample(self._stall_idx[domain_idx])
+                else:
+                    stall = math.nan
                 if self._has_utilization:
                     utilization = pio.sample(self._utilization_idx[domain_idx])
                 else:
@@ -376,6 +471,7 @@ class GPUActivityAgent(Agent):
                     # First sample (no interval yet): fall back to F_max.
                     activity = math.nan
                 self._idle_last[domain_idx] = idle_now
+                stall = math.nan
                 utilization = 1.0
 
             # Default to F_max.
@@ -383,6 +479,15 @@ class GPUActivityAgent(Agent):
 
             if not math.isnan(activity):
                 activity = min(activity, 1.0)
+                activity = max(activity, 0.0)
+
+                # Stall only lowers the frequency decision, so preserve the raw
+                # bounded activity for ROI/on-time tracking.
+                tracked_activity = activity
+                if not math.isnan(stall):
+                    stall = min(max(stall, 0.0), 1.0)
+                    activity = activity * (1.0 - stall)
+
                 # Scale the compute activity by GPU utilization to handle
                 # short, frequency-sensitive phases.  Inactive regions
                 # fall back to the efficient frequency.
@@ -394,12 +499,34 @@ class GPUActivityAgent(Agent):
                     f_request = self._resolved_f_gpu_efficient + \
                         self._f_range * activity
 
+                # Use the first agent-domain unit per GPU as a rough estimate
+                # of total GPU activity for ROI tracking below.
+                if (self._activity_source == 'levelzero' and
+                        domain_idx % self._agent_units_per_gpu == 0):
+                    gpu_scoped_activity[domain_idx // self._agent_units_per_gpu] = \
+                        tracked_activity
+
             # Frequency clamping.
             if (f_request > self._resolved_f_gpu_max or
                     f_request < self._resolved_f_gpu_efficient):
                 self._frequency_clipped += 1
             f_request = min(f_request, self._resolved_f_gpu_max)
             f_request = max(f_request, self._resolved_f_gpu_efficient)
+
+            # Energy biased: drop to the minimum frequency after a run of idle
+            # (near-zero utilization) samples.  Level-Zero only (drm_idle has
+            # no utilization signal, so utilization is 1.0 and never trips).
+            if phi >= 0.5:
+                if (not math.isnan(utilization) and
+                        (utilization == 0 or
+                         (utilization < 0.02 and self._has_stall))):
+                    if self._gpu_idle_timer[domain_idx] > 0:
+                        self._gpu_idle_timer[domain_idx] -= 1
+                else:
+                    self._gpu_idle_timer[domain_idx] = _GPU_IDLE_TIMER_RESET
+                if self._gpu_idle_timer[domain_idx] <= 0:
+                    f_request = self._freq_gpu_min
+                    self._gpu_idle_samples[domain_idx] += 1
 
             # Write the min/max frequency controls only on change.
             if (f_request != self._freq_min_last[domain_idx] or
@@ -411,11 +538,58 @@ class GPUActivityAgent(Agent):
                 self._frequency_requests += 1
                 do_write_batch = True
 
+        if self._activity_source == 'levelzero':
+            self._track_regions(gpu_scoped_activity, time_now, gpu_energy)
+            self._prev_time = time_now
+            self._prev_gpu_energy = gpu_energy
+
         if self._activity_source == 'drm_idle':
             self._time_last = time_now
 
         if do_write_batch:
             pio.write_batch()
+
+    def _track_regions(self, gpu_scoped_activity, time_now, gpu_energy):
+        """Update per-GPU active-region and on time/energy tracking.
+
+        This provides ROI proxy metrics for the summary only; it does not
+        affect the control algorithm and may be removed when GPU region
+        support is added to GEOPM.
+
+        Args:
+            gpu_scoped_activity (list): Per-GPU raw (pre-stall) compute
+                activity, NaN when no valid sample this cycle.
+            time_now (float): Current TIME sample.
+            gpu_energy (list): Per-GPU GPU_ENERGY sample.
+        """
+        for gpu_idx in range(self._num_gpu):
+            activity = gpu_scoped_activity[gpu_idx]
+            if math.isnan(activity):
+                # No valid first-unit activity sample for this GPU this cycle.
+                continue
+            if activity >= _GPU_ACTIVITY_CUTOFF:
+                # Open a new region on entry into activity so the report
+                # reflects the current region rather than spanning earlier
+                # regions and the idle gaps between.
+                if not self._gpu_region_active[gpu_idx]:
+                    self._gpu_region_active[gpu_idx] = True
+                    self._gpu_active_region_start[gpu_idx] = time_now
+                    self._gpu_active_energy_start[gpu_idx] = gpu_energy[gpu_idx]
+
+                energy_diff = gpu_energy[gpu_idx] - self._prev_gpu_energy[gpu_idx]
+                if not math.isnan(energy_diff):
+                    self._gpu_on_energy[gpu_idx] += energy_diff
+                time_diff = time_now - self._prev_time
+                if not math.isnan(time_diff):
+                    self._gpu_on_time[gpu_idx] += time_diff
+            else:
+                # Close the region on the first inactive sample, at the
+                # previous sample, which was the last active one.
+                if self._gpu_region_active[gpu_idx]:
+                    self._gpu_region_active[gpu_idx] = False
+                    self._gpu_active_region_stop[gpu_idx] = self._prev_time
+                    self._gpu_active_energy_stop[gpu_idx] = \
+                        self._prev_gpu_energy[gpu_idx]
 
     def run_end(self):
         """Print a summary of the agent's activity to stderr."""
@@ -424,11 +598,33 @@ class GPUActivityAgent(Agent):
         sys.stderr.write(
             'gpu_activity agent summary:\n'
             f'  Agent Domain: {topo.domain_name(self._agent_domain)}\n'
+            f'  Use Level Zero Stall Tracking: {self._has_stall}\n'
             f'  GPU Frequency Requests: {self._frequency_requests}\n'
             f'  GPU Clipped Frequency Requests: {self._frequency_clipped}\n'
             f'  Resolved Max Frequency: {self._resolved_f_gpu_max}\n'
             f'  Resolved Efficient Frequency: {self._resolved_f_gpu_efficient}\n'
             f'  Resolved Frequency Range: {self._f_range}\n')
+
+        for gpu_idx in range(self._num_gpu):
+            energy_start = self._gpu_active_energy_start[gpu_idx]
+            energy_stop = self._gpu_active_energy_stop[gpu_idx]
+            region_start = self._gpu_active_region_start[gpu_idx]
+            region_stop = self._gpu_active_region_stop[gpu_idx]
+            # A region still open ends at the latest sample, so the reported
+            # active-region time/energy covers the in-progress region.
+            if self._gpu_region_active[gpu_idx]:
+                region_stop = self._prev_time
+                energy_stop = self._prev_gpu_energy[gpu_idx]
+            sys.stderr.write(
+                f'  GPU {gpu_idx} Active Region Energy: {energy_stop - energy_start}\n'
+                f'  GPU {gpu_idx} Active Region Time: {region_stop - region_start}\n'
+                f'  GPU {gpu_idx} On Energy: {self._gpu_on_energy[gpu_idx]}\n'
+                f'  GPU {gpu_idx} On Time: {self._gpu_on_time[gpu_idx]}\n')
+
+        for domain_idx in range(len(self._gpu_idle_samples)):
+            sys.stderr.write(
+                f'  GPU Chip {domain_idx} Idle Agent Actions: '
+                f'{self._gpu_idle_samples[domain_idx]}\n')
 
 
 if __name__ == '__main__':
