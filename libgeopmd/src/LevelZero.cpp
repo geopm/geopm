@@ -870,8 +870,8 @@ namespace geopm
         // zetMetricGetProperties on every sample iteration.  Only the mean and
         // report count are exposed, so accumulate a running sum and count online
         // rather than retaining every report; the caller (metric_drain) holds
-        // m_metric_mutex, and the controller reduces this to the mean in
-        // metric_data once per read_batch().
+        // m_metric_mutex, and the read_batch() serving thread reduces this to the
+        // mean in metric_data once per read_batch().
         const auto &name_idx = m_devices.at(l0_device_idx).subdevice.metric_name_idx.at(l0_domain_idx);
         auto &accum = m_devices.at(l0_device_idx).subdevice.metric_data_accum.at(l0_domain_idx);
         for (const auto &kv : name_idx) {
@@ -945,7 +945,7 @@ namespace geopm
             m_devices.at(l0_device_idx).subdevice.metric_active.at(l0_domain_idx) = true;
 
             // Drain now so this sample always has fresh data, regardless of how
-            // the controller period compares to the background drain cadence.
+            // the read_batch() cadence compares to the background drain cadence.
             metric_drain(l0_device_idx, l0_domain_idx);
 
             // Reduce the accumulated reports (this drain plus any the background
@@ -976,8 +976,10 @@ namespace geopm
 
     void LevelZeroImp::metric_thread_start(void)
     {
-        // Called only from the controller thread (metric_read), so the started
-        // flag need not be atomic.
+        // Called only from the single thread that services read_batch() (the
+        // controller directly, or the geopmd batch server when LevelZero is
+        // accessed through the service), never the background sampling thread,
+        // so the started flag need not be atomic.
         if (!m_metric_thread_started) {
             m_metric_thread_started = true;
             m_metric_thread_active.store(true);
@@ -996,11 +998,13 @@ namespace geopm
 
     void LevelZeroImp::metric_sample_thread(void)
     {
-        // Keep-alive draining: the controller drains each chip itself in
-        // metric_read(), so this thread only needs to drain a chip when the
-        // controller hasn't drained it recently.  This keeps the metric streamer
-        // from stalling during long controller periods, while avoiding redundant
-        // draining (and lock contention) when the controller drains frequently.
+        // Keep-alive draining: the read_batch() serving thread (the controller,
+        // or the geopmd batch server when LevelZero is accessed through the
+        // service) drains each chip itself in metric_read(), so this thread only
+        // needs to drain a chip when that serving thread hasn't drained it
+        // recently.  This keeps the metric streamer from stalling when
+        // read_batch() is called infrequently, while avoiding redundant draining
+        // (and lock contention) when it is called frequently.
         while (m_metric_thread_active.load()) {
             auto now = std::chrono::steady_clock::now();
             for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_gpu; ++l0_device_idx) {
@@ -1017,7 +1021,7 @@ namespace geopm
                     if (elapsed >= std::chrono::microseconds(METRIC_DRAIN_PERIOD_US)) {
                         // An exception escaping this thread would std::terminate
                         // the process.  Stop draining the affected chip and hand
-                        // the error to the controller path (metric_read).
+                        // the error to the read_batch() path (metric_read).
                         try {
                             metric_drain(l0_device_idx, l0_domain_idx);
                         }
@@ -1042,7 +1046,7 @@ namespace geopm
             m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx);
 
         // Record the drain attempt so the keep-alive thread can tell whether the
-        // controller is draining this chip on its own.
+        // read_batch() serving thread is draining this chip on its own.
         m_devices.at(l0_device_idx).subdevice.metric_last_drain.at(l0_domain_idx) =
             std::chrono::steady_clock::now();
 

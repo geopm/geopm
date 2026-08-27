@@ -205,23 +205,23 @@ namespace geopm
                 // required for L0 metric result tracking.  Chip indexed
                 mutable std::vector<std::map<std::string, std::vector<double>>> metric_data;
                 // Online per-metric aggregate written by the background sampling
-                // thread: the running sum and report count over the controller
-                // period.  Bounded regardless of the consumer's read cadence; the
-                // controller reduces this to the mean in metric_data once per
-                // read_batch().  Chip indexed.
+                // thread: the running sum and report count between read_batch()
+                // calls.  Bounded regardless of the consumer's read cadence; the
+                // read_batch() serving thread reduces this to the mean in
+                // metric_data once per read_batch().  Chip indexed.
                 struct m_metric_aggregate {
                     double sum = 0.0;
                     uint64_t count = 0;
                 };
                 mutable std::vector<std::map<std::string, m_metric_aggregate>> metric_data_accum;
                 // Whether the background thread should drain this chip's
-                // streamer (set when the controller first reads the chip).
+                // streamer (set when the chip is first read via read_batch()).
                 // Chip indexed.
                 std::vector<bool> metric_active;
                 // Time the chip's streamer was last drained (by either the
-                // controller or the background thread).  Used so the thread only
-                // drains as a keep-alive when the controller isn't draining
-                // frequently enough on its own.  Chip indexed.
+                // read_batch() serving thread or the background thread).  Used so
+                // the thread only drains as a keep-alive when read_batch() isn't
+                // draining frequently enough on its own.  Chip indexed.
                 std::vector<std::chrono::steady_clock::time_point> metric_last_drain;
                 mutable std::vector<bool> metrics_initialized;
             };
@@ -281,19 +281,21 @@ namespace geopm
             static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
             static constexpr uint32_t DEFAULT_MAX_REPORTS_PER_READ = 30;
             // Fixed cadence at which the background thread drains the metric
-            // streamers, independent of the controller loop period.  Frequent
+            // streamers, independent of the read_batch() cadence.  Frequent
             // draining keeps the Intel metric streamer delivering continuously
             // (a slow drain interval stalls it into multi-second NOT_READY bursts).
             static constexpr uint64_t METRIC_DRAIN_PERIOD_US = 20000; // 20 ms
 
             // Background metric sampling thread and the state it shares with the
-            // controller thread (metric_data_accum, protected by m_metric_mutex).
+            // read_batch() serving thread -- the controller, or the geopmd batch
+            // server when LevelZero is accessed through the service
+            // (metric_data_accum, protected by m_metric_mutex).
             std::thread m_metric_thread;
             std::mutex m_metric_mutex;
             std::atomic<bool> m_metric_thread_active;
             bool m_metric_thread_started;
             // Captures an exception thrown by metric_drain on the background
-            // thread so the controller path can rethrow it, rather than the
+            // thread so the read_batch() path can rethrow it, rather than the
             // thread terminating the process.  Protected by m_metric_mutex.
             std::exception_ptr m_metric_thread_error;
 
