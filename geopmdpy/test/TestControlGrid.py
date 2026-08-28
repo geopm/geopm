@@ -26,7 +26,7 @@ class TestControlGrid(TestCase):
         # Set up pio.read_signal to return consistent values for min, max, step
         self.mock_pio.read_signal.side_effect = lambda signal, domain, idx: float({
             'CPU_FREQUENCY_MIN_AVAIL': 1000000,
-            'CPU_FREQUENCY_MAX_AVAIL': 2000000,
+            'CPU_FREQUENCY_STICKER': 2000000,
             'CPU_FREQUENCY_STEP': 100000,
             'CPU_POWER_MIN_AVAIL': 100,
             'CPU_POWER_LIMIT_DEFAULT': 200,
@@ -164,7 +164,7 @@ class TestControlGrid(TestCase):
         # Mock values that don't divide evenly
         self.mock_pio.read_signal.side_effect = lambda signal, domain, idx: float({
             'CPU_FREQUENCY_MIN_AVAIL': 1000000,
-            'CPU_FREQUENCY_MAX_AVAIL': 2050000,  # Doesn't divide evenly by 100000
+            'CPU_FREQUENCY_STICKER': 2050000,  # Doesn't divide evenly by 100000
             'CPU_FREQUENCY_STEP': 100000,
         }.get(signal, 1000.0))
 
@@ -177,7 +177,7 @@ class TestControlGrid(TestCase):
         # Mock values where max < min
         self.mock_pio.read_signal.side_effect = lambda signal, domain, idx: float({
             'CPU_FREQUENCY_MIN_AVAIL': 2000000,
-            'CPU_FREQUENCY_MAX_AVAIL': 1000000,  # Max < min
+            'CPU_FREQUENCY_STICKER': 1000000,  # Max < min
             'CPU_FREQUENCY_STEP': 100000,
         }.get(signal, 1000.0))
 
@@ -242,9 +242,11 @@ class TestControlGrid(TestCase):
     def test_get_config(self):
         """Test getting configuration for specific coordinate"""
         config = self.grid.get_config([0, 1])
-        self.assertEqual(len(config), 2)
+        # 2 dimensions plus the forced performance-governor entry
+        self.assertEqual(len(config), 3)
         # Each config item should be a tuple with (control, domain, domain_idx, value)
         self.assertEqual(len(config[0]), 4)
+        self.assertEqual(config[0], ('CPU_FREQUENCY_GOVERNOR_CONTROL', 'board', 0, 0))
 
     def test_get_config_no_grid(self):
         """Test error when getting config with no grid configured"""
@@ -268,9 +270,10 @@ class TestControlGrid(TestCase):
         """Test write_config method with proper pio mocking"""
         self.grid.write_config([0, 1])
 
-        # Verify pio methods were called correctly
-        self.assertEqual(self.mock_pio.push_control.call_count, 2)
-        self.assertEqual(self.mock_pio.adjust.call_count, 2)
+        # Verify pio methods were called correctly: 2 dimensions plus the
+        # forced performance-governor entry
+        self.assertEqual(self.mock_pio.push_control.call_count, 3)
+        self.assertEqual(self.mock_pio.adjust.call_count, 3)
         self.mock_pio.write_batch.assert_called_once()
 
     def test_cli_flag_to_control_mappings(self):
@@ -321,7 +324,7 @@ class TestControlGrid(TestCase):
                         mock_topo.DOMAIN_BOARD = 0
                         mock_pio.read_signal.side_effect = lambda signal, domain, idx: float({
                             'CPU_FREQUENCY_MIN_AVAIL': 1000000,
-                            'CPU_FREQUENCY_MAX_AVAIL': 2000000,
+                            'CPU_FREQUENCY_STICKER': 2000000,
                             'CPU_FREQUENCY_STEP': 100000,
                         }.get(signal, 1000.0))
                         mock_pio.control_domain_type.return_value = 'package'
@@ -410,7 +413,8 @@ class TestControlGrid(TestCase):
         self.grid.coordinate = [0, 1]
 
         config = self.grid.get_config()  # No coordinate argument
-        self.assertEqual(len(config), 2)
+        # 2 dimensions plus the forced performance-governor entry
+        self.assertEqual(len(config), 3)
 
     def test_native_domain_resolves_domain(self):
         """native_domain maps the control signal to its native domain name"""

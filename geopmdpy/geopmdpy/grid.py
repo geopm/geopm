@@ -27,11 +27,16 @@ _PREFETCHER_CONTROL_SEQUENCE = (
 # _MAX_PREFETCH_DISABLE_LEVEL represents the number of available prefetchers.
 #  Selecting the max value disables all prefetchers.
 _MAX_PREFETCH_DISABLE_LEVEL = len(_PREFETCHER_CONTROL_SEQUENCE)
+# CPU_FREQUENCY_MAX_CONTROL only caps the frequency; other governors (e.g.
+# powersave, schedutil) may still scale below the cap, so cpu_frequency
+# sweeps force the "performance" governor to make the requested value stick.
+_GOVERNOR_CONTROL = "CPU_FREQUENCY_GOVERNOR_CONTROL"
+_GOVERNOR_PERFORMANCE = 0
 _CLI_FLAG_TO_CONTROL = {
     "cpu_frequency": (
         "CPU_FREQUENCY_MAX_CONTROL",
         "CPU_FREQUENCY_MIN_AVAIL",
-        "CPU_FREQUENCY_MAX_AVAIL",
+        "CPU_FREQUENCY_STICKER", # Sticker (base) frequency, not the turbo max, is the default upper bound.
         "CPU_FREQUENCY_STEP",
     ),
     "cpu_uncore_frequency": (
@@ -703,6 +708,8 @@ class ControlGrid:
             min_control = dim["control"].replace("_MAX_", "_MIN_")
             if min_control != dim["control"] and min_control in pio.control_names() and min_control != "CPU_FREQUENCY_MIN_CONTROL":
                 result.append((min_control, dim["domain"], dim["domain_idx"], value))
+        if "cpu_frequency" in self.control_name:
+            result.insert(0, (_GOVERNOR_CONTROL, "board", 0, _GOVERNOR_PERFORMANCE))
         return result
 
     def get_config_str(self, coordinate: Optional[List[int]] = None):
