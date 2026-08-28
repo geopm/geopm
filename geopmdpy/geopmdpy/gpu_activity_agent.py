@@ -85,6 +85,7 @@ class GPUActivityAgent(Agent):
         """Initialize the GPUActivityAgent."""
         self._phi = _POLICY_PHI_DEFAULT
         self._hi_res = False
+        self._agent_report_out = None
 
         self._agent_domain = None
         self._agent_domain_count = 0
@@ -178,6 +179,9 @@ class GPUActivityAgent(Agent):
                                  'favor energy savings. Default %(default)s.')
         parser.add_argument('--hi-res', action='store_true',
                             help='Measure signals at finest granularity (all domains/indices)')
+        parser.add_argument('--agent-report-out', dest='agent_report_out', default=None,
+                            help='Path to write the agent activity summary as a YAML '
+                                 'mapping. When omitted no summary is written.')
         # Override the session's 100 ms default sampling period with the
         # 20 ms period used by the C++ gpu_activity agent.  An explicit
         # '-p/--period' on the command line still takes precedence.
@@ -214,6 +218,7 @@ class GPUActivityAgent(Agent):
                 'Acceptable values are in the range [0.0, 1.0].')
         self._phi = args.phi
         self._hi_res = getattr(args, 'hi_res', False)
+        self._agent_report_out = getattr(args, 'agent_report_out', None)
         return args
 
     def signal_config_override(self):
@@ -592,19 +597,27 @@ class GPUActivityAgent(Agent):
                         self._prev_gpu_energy[gpu_idx]
 
     def run_end(self):
-        """Print a summary of the agent's activity to stderr."""
-        if self._agent_domain is None:
-            return
-        sys.stderr.write(
-            'gpu_activity agent summary:\n'
-            f'  Agent Domain: {topo.domain_name(self._agent_domain)}\n'
-            f'  Use Level Zero Stall Tracking: {self._has_stall}\n'
-            f'  GPU Frequency Requests: {self._frequency_requests}\n'
-            f'  GPU Clipped Frequency Requests: {self._frequency_clipped}\n'
-            f'  Resolved Max Frequency: {self._resolved_f_gpu_max}\n'
-            f'  Resolved Efficient Frequency: {self._resolved_f_gpu_efficient}\n'
-            f'  Resolved Frequency Range: {self._f_range}\n')
+        """Write the agent activity summary as a YAML mapping.
 
+        The summary is written to the path given by ``--agent-report-out``;
+        when that option is omitted no summary is written.
+        """
+        if self._agent_domain is None or self._agent_report_out is None:
+            return
+
+        import yaml
+
+        summary = {
+            'Agent Domain': topo.domain_name(self._agent_domain),
+            'Use Level Zero Stall Tracking': self._has_stall,
+            'GPU Frequency Requests': self._frequency_requests,
+            'GPU Clipped Frequency Requests': self._frequency_clipped,
+            'Resolved Max Frequency': self._resolved_f_gpu_max,
+            'Resolved Efficient Frequency': self._resolved_f_gpu_efficient,
+            'Resolved Frequency Range': self._f_range,
+        }
+
+        gpus = {}
         for gpu_idx in range(self._num_gpu):
             energy_start = self._gpu_active_energy_start[gpu_idx]
             energy_stop = self._gpu_active_energy_stop[gpu_idx]
@@ -615,16 +628,25 @@ class GPUActivityAgent(Agent):
             if self._gpu_region_active[gpu_idx]:
                 region_stop = self._prev_time
                 energy_stop = self._prev_gpu_energy[gpu_idx]
-            sys.stderr.write(
-                f'  GPU {gpu_idx} Active Region Energy: {energy_stop - energy_start}\n'
-                f'  GPU {gpu_idx} Active Region Time: {region_stop - region_start}\n'
-                f'  GPU {gpu_idx} On Energy: {self._gpu_on_energy[gpu_idx]}\n'
-                f'  GPU {gpu_idx} On Time: {self._gpu_on_time[gpu_idx]}\n')
+            gpus[gpu_idx] = {
+                'Active Region Energy': energy_stop - energy_start,
+                'Active Region Time': region_stop - region_start,
+                'On Energy': self._gpu_on_energy[gpu_idx],
+                'On Time': self._gpu_on_time[gpu_idx],
+            }
+        if gpus:
+            summary['GPUs'] = gpus
 
+        chips = {}
         for domain_idx in range(len(self._gpu_idle_samples)):
-            sys.stderr.write(
-                f'  GPU Chip {domain_idx} Idle Agent Actions: '
-                f'{self._gpu_idle_samples[domain_idx]}\n')
+            chips[domain_idx] = {
+                'Idle Agent Actions': self._gpu_idle_samples[domain_idx],
+            }
+        if chips:
+            summary['GPU Chips'] = chips
+
+        with open(self._agent_report_out, 'w') as fid:
+            yaml.dump(summary, fid, sort_keys=False, default_flow_style=False)
 
 
 if __name__ == '__main__':
