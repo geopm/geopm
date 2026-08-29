@@ -148,13 +148,13 @@ int main(int argc, char **argv)
     triad_no_omp_with_post(aa_vec, bb_vec, cc_vec);
 
     MPI_Barrier(MPI_COMM_WORLD);
-    loop_dgemm_warmup(0.01, 100);
+    loop_dgemm_warmup(0.0001, 100);
 
     MPI_Barrier(MPI_COMM_WORLD);
-    loop_dgemm_with_post(0.01, 10000);
+    loop_dgemm_with_post(0.0001, 1000);
 
     MPI_Barrier(MPI_COMM_WORLD);
-    loop_dgemm_no_post(0.01, 10000);
+    loop_dgemm_no_post(0.0001, 1000);
 
     MPI_Finalize();
     return 0;

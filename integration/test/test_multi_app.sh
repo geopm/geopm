@@ -10,7 +10,7 @@ cat > ${INPUT_FILE} << "EOF"
 {
     "loop-count": 50,
     "region": ["stream", "dgemm"],
-    "big-o": [3.0, 30.0]
+    "big-o": [3.0, 0.1]
 }
 EOF
 

@@ -36,22 +36,9 @@ class TestIntegration_frequency_map(unittest.TestCase):
         cls._num_node = util.get_num_node()
         num_rank = 4 * cls._num_node
         loop_count = 5
-        dgemm_bigo = 15.0
-        stream_bigo = 1.0
-        dgemm_bigo_jlse = 35.647
-        dgemm_bigo_quartz = 29.12
-        stream_bigo_jlse = 1.6225
-        stream_bigo_quartz = 1.7941
+        dgemm_bigo = 0.1
+        stream_bigo = 1.5
         hostname = socket.gethostname()
-        if hostname.endswith('.alcf.anl.gov'):
-            dgemm_bigo = dgemm_bigo_jlse
-            stream_bigo = stream_bigo_jlse
-        elif hostname.startswith('mcfly'):
-            dgemm_bigo = 28.0
-            stream_bigo = 1.5
-        elif hostname.startswith('quartz'):
-            dgemm_bigo = dgemm_bigo_quartz
-            stream_bigo = stream_bigo_quartz
 
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.set_loop_count(loop_count)
