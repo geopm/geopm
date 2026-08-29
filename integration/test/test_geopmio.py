@@ -268,6 +268,27 @@ class TestIntegrationGeopmio(unittest.TestCase):
             # Restore the original frequency
             geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_MAX_CONTROL', domain, '0', str(old_freq))),
 
+    @util.skip_unless_platform_spr_or_newer()
+    @util.skip_unless_batch()
+    def test_geopmread_energy_scalar(self):
+        '''
+        Check that the energy scalar is set properly compared to HW.
+        '''
+        self.exec_name = "geopmread"
+        args = ['-i', 'MSR::PKG_ENERGY_STATUS:ENERGY']
+        pkg_signal_info = geopm_test_launcher.geopmread('{}'.format(' '.join(args)))
+
+        args = ['-i', 'MSR::DRAM_ENERGY_STATUS:ENERGY']
+        dram_signal_info = geopm_test_launcher.geopmread('{}'.format(' '.join(args)))
+
+        args = ['MSR::RAPL_POWER_UNIT:ENERGY', 'board', '0']
+        power_unit_energy = geopm_test_launcher.geopmread('{}'.format(' '.join(args)))
+
+        expected = 1
+        actual = power_unit_energy * (1 / pkg_signal_info['scalar'])
+        util.assertNear(self, expected, actual, msg='Incorrect PKG_ENERGY_STATUS scalar detected')
+        actual = power_unit_energy * (1 / dram_signal_info['scalar'])
+        util.assertNear(self, expected, actual, msg='Incorrect DRAM_ENERGY_STATUS scalar detected')
 
 if __name__ == '__main__':
     unittest.main()

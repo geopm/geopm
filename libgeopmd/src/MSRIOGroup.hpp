@@ -239,6 +239,7 @@ namespace geopm
                 std::string description;
                 int behavior;
                 std::function<std::string(double)> format_function;
+                double scalar;
             };
             std::map<std::string, signal_info> m_signal_available;
 

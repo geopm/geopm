@@ -132,6 +132,12 @@ def skip_unless_platform_bdx():
         return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
     return lambda func: func
 
+def skip_unless_platform_spr_or_newer():
+    fam, mod = geopm_test_launcher.get_platform()
+    if fam != 6 or mod < 143:
+        return unittest.skip("Performance test is tuned for SPR server, The family {}, model {} is not supported.".format(fam, mod))
+    return lambda func: func
+
 def get_config_log():
     path = os.path.join(os.environ['GEOPM_SOURCE'], 'libgeopm', 'config.log')
     return path
