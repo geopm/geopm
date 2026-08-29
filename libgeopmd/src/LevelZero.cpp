@@ -68,49 +68,77 @@ namespace geopm
             }
         }
         //Initialize
-        check_ze_result(zeInit(ZE_INIT_FLAG_GPU_ONLY),
+        check_ze_result(zesInit(0),
                         GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                         ": LevelZero Driver failed to initialize.", __LINE__);
 
         // Discover drivers
         uint32_t num_driver = 0;
-        check_ze_result(zeDriverGet(&num_driver, nullptr),
+        check_ze_result(zesDriverGet(&num_driver, nullptr),
                         GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                         ": LevelZero Driver enumeration failed.", __LINE__);
 
         m_levelzero_driver.resize(num_driver);
 
-        check_ze_result(zeDriverGet(&num_driver, m_levelzero_driver.data()),
+        check_ze_result(zesDriverGet(&num_driver, m_levelzero_driver.data()),
                         GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                         ": LevelZero Driver acquisition failed.", __LINE__);
 
         for (unsigned int driver = 0; driver < num_driver; driver++) {
             // Discover devices in a driver
             uint32_t num_device = 0;
-            check_ze_result(zeDeviceGet(m_levelzero_driver.at(driver), &num_device, nullptr),
+            check_ze_result(zesDeviceGet(m_levelzero_driver.at(driver), &num_device, nullptr),
                             GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                             ": LevelZero Device enumeration failed.", __LINE__);
             std::vector<zes_device_handle_t> device_handle(num_device);
-            check_ze_result(zeDeviceGet(m_levelzero_driver.at(driver), &num_device, device_handle.data()),
+            check_ze_result(zesDeviceGet(m_levelzero_driver.at(driver), &num_device, device_handle.data()),
                             GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                             ": LevelZero Device acquisition failed.", __LINE__);
 
             for (unsigned int device_idx = 0; device_idx < num_device; ++device_idx) {
-                ze_device_properties_t property = {};
-                check_ze_result(zeDeviceGetProperties(device_handle.at(device_idx), &property),
+                zes_device_properties_t property = {};
+                check_ze_result(zesDeviceGetProperties(device_handle.at(device_idx), &property),
                                 GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                                 ": failed to get device properties.", __LINE__);
 
-                uint32_t num_subdevice = 0;
-                check_ze_result(zeDeviceGetSubDevices(device_handle.at(device_idx), &num_subdevice, nullptr),
-                                GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Sub-Device enumeration failed.", __LINE__);
+                uint32_t num_subdevice = property.numSubdevices;
 
                 std::vector<zes_device_handle_t> subdevice_handle(num_subdevice);
-                check_ze_result(zeDeviceGetSubDevices(device_handle.at(device_idx),
-                                                      &num_subdevice, subdevice_handle.data()),
-                                GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Sub-Device acquisition failed.", __LINE__);
+                if (num_subdevice > 0) {
+                    // Allocate space for subdevice properties
+                    std::vector<zes_subdevice_exp_properties_t> subdevice_props(num_subdevice);
+
+                    // Get subdevice properties
+                    check_ze_result(zesDeviceGetSubDevicePropertiesExp(device_handle.at(device_idx),
+                                                                       &num_subdevice, subdevice_props.data()),
+                                    GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                                    ": LevelZero SubDevice properties acquisition failed.", __LINE__);
+
+                    // For each UUID, get the corresponding device handle
+                    for (uint32_t i = 0; i < num_subdevice; ++i) {
+                        zes_device_handle_t subdev_handle;
+                        ze_bool_t onSubdevice;
+                        uint32_t subdeviceId;
+
+                        check_ze_result(zesDriverGetDeviceByUuidExp(m_levelzero_driver.at(driver),
+                                                                    subdevice_props[i].uuid,
+                                                                    &subdev_handle,
+                                                                    &onSubdevice,
+                                                                    &subdeviceId),
+                                        GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                                        ": LevelZero failed to get subdevice handle by UUID.", __LINE__);
+
+                        // Verify that this is actually a subdevice
+                        if (onSubdevice != 1) {
+                            throw Exception("LevelZero::" + std::string(__func__) +
+                                            ": Device returned by UUID is not a subdevice.",
+                                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        }
+
+                        subdevice_handle[i] = subdev_handle;
+                    }
+                }
+
 #ifdef GEOPM_DEBUG
                 if (num_subdevice == 0) {
                     std::cerr << "LevelZero::" << std::string(__func__)
@@ -119,8 +147,8 @@ namespace geopm
                               << "setting.  Forcing device to act as sub-device" << std::endl;
                 }
 #endif
-                if (property.type == ZE_DEVICE_TYPE_GPU) {
-                    if ((property.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
+                if (property.core.type == ZE_DEVICE_TYPE_GPU) {
+                    if ((property.core.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
                         ++m_num_gpu;
                         m_num_gpu_subdevice += num_subdevice;
                         if (num_subdevice == 0) {
@@ -149,18 +177,18 @@ namespace geopm
 #endif
                 }
 #ifdef GEOPM_DEBUG
-                else if (property.type == ZE_DEVICE_TYPE_CPU) {
+                else if (property.core.type == ZE_DEVICE_TYPE_CPU) {
                     // All CPU functionality is handled by GEOPM & MSR Safe currently
                     std::cerr << "Warning: <geopm> LevelZero: CPU access "
                               << "via LevelZero is not currently supported by GEOPM.\n";
                 }
-                else if (property.type == ZE_DEVICE_TYPE_FPGA) {
+                else if (property.core.type == ZE_DEVICE_TYPE_FPGA) {
                     // FPGA functionality is not currently supported by GEOPM, but should not cause
                     // an error if the devices are present
                     std::cerr << "Warning: <geopm> LevelZero: Field Programmable "
                               << "Gate Arrays are not currently supported by GEOPM.\n";
                 }
-                else if (property.type == ZE_DEVICE_TYPE_MCA) {
+                else if (property.core.type == ZE_DEVICE_TYPE_MCA) {
                     // MCA functionality is not currently supported by GEOPM, but should not cause
                     // an error if the devices are present
                     std::cerr << "Warning: <geopm> LevelZero: Memory Copy GPUs "
