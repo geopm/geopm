@@ -324,7 +324,7 @@ if test "x$enable_cnl_iogroup" = "x1" ; then
   AC_DEFINE([GEOPM_CNL_IOGROUP], [ ], [Enables the CNL IOGroup])
 fi
 AC_SUBST([enable_cnl_iogroup])
-
+0
 AC_ARG_WITH([nvml], [AS_HELP_STRING([--with-nvml=PATH],
             [specify directory for installed nvml package.])])
 if test "x$with_nvml" != x; then
@@ -462,9 +462,14 @@ if test "x$enable_nvml" = "x1" ; then
     AC_CHECK_LIB([nvidia-ml], [nvmlSystemGetCudaDriverVersion], [], [
         echo "missing libnvidia-ml: NVML library is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
+    # Check for NVML get Clock support to enable readback
+    AC_CHECK_LIB([nvidia-ml], [nvmlDeviceGetCurrentClockFreqs], [have_nvml_get_clock=1], [have_nvml_get_clock=0])
     AC_CHECK_HEADER([nvml.h], [], [
         echo "missing nvml.h: NVML header is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
+    if test "x$have_nvml_get_clock" = "x1" ; then
+        AC_DEFINE([GEOPM_NVML_USE_GET_CLOCK], [ ], [Use NVML Applications Clock to read back GPU SM frequency control])
+    fi
 fi
 
 if test "x$enable_levelzero" = "x1" ; then

@@ -717,10 +717,33 @@ namespace geopm
             result = cpu_gpu_affinity(domain_idx, std::move(process_map));
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
-            result = m_frequency_max_control_request.at(domain_idx);
+            // If GEOPM_NVML_USE_GET_CLOCK is defined at build time,
+            // report the Applications Clock (graphics) as a proxy for the control state;
+            // otherwise, fall back to the cached last requested value.
+#ifdef GEOPM_NVML_USE_GET_CLOCK
+            unsigned int min_mhz = 0;
+            unsigned int max_mhz = 0;
+            if (m_nvml_device_pool.frequency_control_sm_settings(domain_idx, min_mhz, max_mhz)) {
+                result = (double)max_mhz * 1e6;
+            }
+            else
+#endif
+            {
+                result = m_frequency_max_control_request.at(domain_idx);
+            }
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_MIN_CONTROL") {
-            result = m_frequency_min_control_request.at(domain_idx);
+#ifdef GEOPM_NVML_USE_GET_CLOCK
+            unsigned int min_mhz = 0;
+            unsigned int max_mhz = 0;
+            if (m_nvml_device_pool.frequency_control_sm_settings(domain_idx, min_mhz, max_mhz)) {
+                result = (double)min_mhz * 1e6;
+            }
+            else
+#endif
+            {
+                result = m_frequency_min_control_request.at(domain_idx);
+            }
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
             ; // No-op.  Nothing to return.
