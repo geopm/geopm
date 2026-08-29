@@ -55,6 +55,7 @@ namespace geopm
     const std::string snb_msr_json(void);
     const std::string skx_msr_json(void);
     const std::string spr_msr_json(void);
+    const std::string rpl_msr_json(void);
 
     const std::string MSRIOGroup::M_DEFAULT_DESCRIPTION =
         "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's "
@@ -1221,10 +1222,18 @@ namespace geopm
                  cpu_id == MSRIOGroup::M_CPUID_GNRAP) {
             platform_msrs = spr_msr_json();
         }
-        else {
-            std::cerr << "Warning: <geopm> CPUID is not recognized, assuming Sapphire Rapids Architecture Model Specific Register definitions.  These definitions may not be aligned with the features of this platform.  Read signals may return 0.0 in all cases, DRAM energy calibration values may be off, and failures may occur when attempting to write to control registers that are not supported."
-                      << std::endl;
+        else if (cpu_id == MSRIOGroup::M_CPUID_RPL1 ||
+                 cpu_id == MSRIOGroup::M_CPUID_RPL2 ||
+                 cpu_id == MSRIOGroup::M_CPUID_RPL3) {
+            platform_msrs = rpl_msr_json();
+        }
+        else if (geopm::platform_topo().model(GEOPM_DOMAIN_CPU).find("Xeon") != std::string::npos) {
+            std::cerr << "Warning: <geopm> CPUID is not recognized, assuming Sapphire Rapids Architecture Model Specific Register definitions.  These definitions may not be aligned with the features of this platform.  Read signals may return 0.0 in all cases, DRAM energy calibration values may be off, and failures may occur when attempting to write to control registers that are not supported.\n";
             platform_msrs = spr_msr_json();
+        }
+        else {
+            std::cerr << "Warning: <geopm> CPUID is not recognized, assuming Raptor Lake Architecture Model Specific Register definitions.  These definitions may not be aligned with the features of this platform.  Read signals may return 0.0 in all cases, DRAM energy calibration values may be off, and failures may occur when attempting to write to control registers that are not supported.\n";
+            platform_msrs = rpl_msr_json();
         }
         return platform_msrs;
     }

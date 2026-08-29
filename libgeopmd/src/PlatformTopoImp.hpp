@@ -29,6 +29,7 @@ namespace geopm
                            int cpu_idx) const override;
             bool is_nested_domain(int inner_domain, int outer_domain) const override;
             std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const override;
+            std::string model(int domain_type);
             static void create_cache();
             static void create_cache(const std::string &cache_file_name);
             static void create_cache(const std::string &cache_file_name, const GPUTopo &gtopo);
@@ -58,6 +59,7 @@ namespace geopm
             std::vector<std::set<int> > m_numa_map;
             std::map<int, std::vector<std::set<int> > > m_gpu_info;
             std::shared_ptr<ServiceProxy> m_service_proxy;
+            std::string m_cpu_model;
     };
 }
 #endif
