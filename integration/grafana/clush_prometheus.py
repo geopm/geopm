@@ -108,7 +108,7 @@ def _signal_handler(signum, frame):
         os.unlink(_temp_hostfile_path)
     exit(0)
 
-def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jobid, hostfile_path, certfile, keyfile, insecure_http):
+def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jobid, hostfile_path, certfile, keyfile, insecure_http, cleanup):
     """Entry function with inputs derived from CLI
 
     """
@@ -149,6 +149,17 @@ def run(prom_dir, graf_dir, prom_port, graf_port, client_port, geopm_dir, pbs_jo
     elif hostfile_path is not None:
         with open(hostfile_path) as fid:
             hosts = [ll.strip() for ll in fid.readlines() if (len(ll.strip()) != 0 and ll.strip()[0] != '#')]
+
+    # Kill past geopmexporter instances
+    if cleanup:
+        clush_cmd_prolog_1 = ['clush', f'--hostfile={hostfile_path}', '--',
+                              'pkill', 'geopmexporter']
+        clush_cmd_prolog_2 = ['pkill', 'grafana']
+        clush_cmd_prolog_3 = ['pkill', 'prometheus']
+        subprocess.run(clush_cmd_prolog_1)
+        subprocess.run(clush_cmd_prolog_2)
+        subprocess.run(clush_cmd_prolog_3)
+
     # Launch geopmexporter on tracked hosts
     if len(hosts) != 0:
         clush_cmd = ['clush', f'--hostfile={hostfile_path}', '--',
@@ -240,6 +251,8 @@ def main():
                         help='Path to the key file for geopmexporter')
     parser.add_argument('--insecure-http', action='store_true',
                         help='Use insecure HTTP for geopmexporter')
+    parser.add_argument('--cleanup', action='store_true',
+                        help='Send signals for cleaning up past script calls')
     host_group = parser.add_mutually_exclusive_group()
     host_group.add_argument('--pbs-jobid', type=str, default=None,
                             help='PBS job ID to monitor')
@@ -249,7 +262,7 @@ def main():
 
     run(args.PROMETHEUS_DIR, args.GRAFANA_DIR, args.prom_port, args.graf_port,
         args.client_port, args.geopm_prefix, args.pbs_jobid, args.hostfile,
-        args.certfile, args.keyfile, args.insecure_http)
+        args.certfile, args.keyfile, args.insecure_http, args.cleanup)
     return 0
 
 if __name__ == '__main__':
