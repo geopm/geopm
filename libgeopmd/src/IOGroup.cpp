@@ -36,6 +36,7 @@
 #include "LevelZeroIOGroup.hpp"
 #endif
 #include "ConstConfigIOGroup.hpp"
+#include "PMTIOGroup.hpp"
 #ifdef GEOPM_DEBUG
 #include <iostream>
 #endif
@@ -173,6 +174,9 @@ namespace geopm
                         DrmSysfsDriver::make_plugin_drm);
         register_plugin(DrmSysfsDriver::plugin_name_accel(),
                         DrmSysfsDriver::make_plugin_accel);
+    // PMT telemetry IOGroup (signals only)
+    register_plugin(PMTIOGroup::plugin_name(),
+            PMTIOGroup::make_plugin);
     }
 
     IOGroupFactory &iogroup_factory(void)

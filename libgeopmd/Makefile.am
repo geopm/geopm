@@ -217,6 +217,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/POSIXSignal.hpp \
                        src/PowercapSysfsDriver.cpp \
                        src/PowercapSysfsDriver.hpp \
+                       src/PMTIOGroup.cpp \
+                       src/PMTIOGroup.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
                        src/RolloverGenerator.cpp \
