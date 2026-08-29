@@ -14,6 +14,7 @@ pkglibdir=$(libdir)/geopm
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopm.la \
+                  libgeopm_init.la \
                   # end
 
 bin_PROGRAMS = geopmadmin \
@@ -290,6 +291,13 @@ pkglib_LTLIBRARIES = libgeopmiogroup_profile.la
 libgeopmiogroup_profile_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 libgeopmiogroup_profile_la_LIBADD = libgeopm.la
 libgeopmiogroup_profile_la_SOURCES = src/ProfileIOGroupLib.cpp src/EpochIOGroupLib.cpp
+
+
+libgeopm_init_la_LDFLAGS = $(AM_LDFLAGS) $(MATH_CLDFLAGS) -version-info $(geopm_abi_version)
+libgeopm_init_la_CFLAGS = $(AM_CFLAGS)
+libgeopm_init_la_CXXFLAGS = $(AM_CXXFLAGS)
+
+libgeopm_init_la_SOURCES = src/geopm_control_load.cpp
 
 beta_source_files = src/Daemon.cpp \
                     src/DaemonImp.hpp \
