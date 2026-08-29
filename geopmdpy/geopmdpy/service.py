@@ -498,7 +498,9 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
-        if client_pid in self._active_sessions.get_clients():
+        all_clients = self._active_sessions.get_clients()
+        start_num_client = len(all_clients)
+        if client_pid in all_clients:
             GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
             batch_pid = self._active_sessions.get_batch_server(client_pid)
             if batch_pid is not None:
@@ -520,6 +522,8 @@ class PlatformService(object):
             with system_files.WriteLock(self._RUN_PATH, self._PROFILER_LOCK_NAME) as lock:
                 if lock.try_lock() == client_pid:
                     lock.unlock(client_pid)
+        if start_num_client != 0 and len(self._active_sessions.get_clients()) == 0:
+            self._pio.reset()
 
     def _close_session_write(self, lock, pid):
         save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
