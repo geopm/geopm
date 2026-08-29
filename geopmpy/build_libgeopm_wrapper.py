@@ -27,7 +27,7 @@ except Exception:
 else:
     have_endpoint = True
 
-includes = ['geopm_agent.h']
+includes = ['geopm_agent.h', 'geopm_prof.h', 'geopm_hint.h']
 if have_policystore:
     includes.append('geopm_policystore.h')
 if have_endpoint:
@@ -69,6 +69,40 @@ int geopm_agent_name(int agent_idx,
                      char *agent_name);
 
 int geopm_agent_enforce_policy(void);
+
+enum geopm_region_hint_e {
+    GEOPM_REGION_HINT_UNSET = 0ULL,
+    GEOPM_REGION_HINT_UNKNOWN,
+    GEOPM_REGION_HINT_COMPUTE,
+    GEOPM_REGION_HINT_MEMORY,
+    GEOPM_REGION_HINT_NETWORK,
+    GEOPM_REGION_HINT_IO,
+    GEOPM_REGION_HINT_SERIAL,
+    GEOPM_REGION_HINT_PARALLEL,
+    GEOPM_REGION_HINT_IGNORE,
+    GEOPM_REGION_HINT_INACTIVE,
+    GEOPM_REGION_HINT_SPIN,
+    GEOPM_NUM_REGION_HINT,
+};
+
+int geopm_prof_region(const char *region_name,
+                      uint64_t hint,
+                      uint64_t *region_id);
+
+int geopm_prof_enter(uint64_t region_id);
+
+int geopm_prof_exit(uint64_t region_id);
+
+int geopm_prof_epoch(void);
+
+int geopm_prof_shutdown(void);
+
+int geopm_tprof_init(uint32_t num_work_unit);
+
+int geopm_tprof_post(void);
+
+int geopm_prof_overhead(double overhead_sec);
+
 """)
 
 if have_policystore:
