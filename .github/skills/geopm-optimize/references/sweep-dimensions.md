@@ -16,7 +16,7 @@ Real output from a two-socket Skylake Xeon:
 
 ```
 CONTROL       DOMAIN    UNITS   MIN           MAX           STEP
-cpu-freq      cpu       Hz      1e+09         3.7e+09       1e+08
+cpu-freq      cpu       Hz      1e+09         2.4e+09       1e+08
 uncore-freq   package   Hz      1e+09         2.4e+09       1e+08
 cpu-power     package   W       73            150           1
 gpu-freq      n/a       Hz      n/a           n/a           n/a
@@ -30,6 +30,11 @@ not sufficient: `board-power` above shows a plausible-looking `200 … 6000` ran
 while being entirely unavailable, because those numbers are hardcoded defaults
 that are printed whether or not the control exists. On this host only
 `cpu-freq`, `uncore-freq`, `cpu-power`, and `prefetch` can actually be swept.
+
+The `cpu-freq` MAX above is `2.4e+09`, the **sticker (base) frequency**, not the
+`3.7e+09` turbo maximum this part can reach. Current `geopmopt` reports and
+sweeps to the sticker by default; see
+[Frequencies above the sticker](#frequencies-above-the-sticker-are-not-guaranteed).
 
 Never assume a dimension exists. Run `--list-controls` on the machine that will
 run the campaign.
@@ -111,15 +116,18 @@ dimension becomes unusable.
 
 | Dimension | Min | Max | Step |
 |---|---|---|---|
-| `cpu-freq` | `CPU_FREQUENCY_MIN_AVAIL` | `CPU_FREQUENCY_MAX_AVAIL` | `CPU_FREQUENCY_STEP` |
+| `cpu-freq` | `CPU_FREQUENCY_MIN_AVAIL` | `CPU_FREQUENCY_STICKER` | `CPU_FREQUENCY_STEP` |
 | `uncore-freq` | `CPU_FREQUENCY_MIN_AVAIL` | current `CPU_UNCORE_FREQUENCY_MAX_CONTROL` | `CPU_FREQUENCY_STEP` |
 | `cpu-power` | `CPU_POWER_MIN_AVAIL` | `CPU_POWER_LIMIT_DEFAULT` | 1 W |
 | `gpu-power` | `LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL` | `LEVELZERO::GPU_POWER_LIMIT_DEFAULT` | 1 W |
 | `board-power` | 200 W (hardcoded) | 6000 W (hardcoded) | 1 W |
 | `prefetch` | 0 | 4 | 1 |
 
-Two consequences worth knowing:
+Three consequences worth knowing:
 
+- `cpu-freq`'s maximum is the **sticker (base/nominal) frequency**, not the
+  turbo maximum. The sweep therefore stays in the range the hardware honours by
+  default; see [Frequencies above the sticker](#frequencies-above-the-sticker-are-not-guaranteed).
 - `cpu-power`'s maximum is the **default power limit**, not a hardware
   ceiling, so the sweep explores at or below nominal rather than above it.
 - `uncore-freq`'s maximum is read from the control's *current* value, so a
@@ -201,6 +209,12 @@ Two consequences:
 
 ## Frequencies above the sticker are not guaranteed
 
+Current `geopmopt` defaults the `cpu-freq` upper bound to
+`CPU_FREQUENCY_STICKER` and forces the performance governor while sweeping, so
+by default the sweep stays where requests are honoured and you do not cap it by
+hand. This section explains why that default exists and what changes if a user
+opts into the turbo range.
+
 `CPU_FREQUENCY_MAX_AVAIL` reports the turbo maximum, but **above
 `CPU_FREQUENCY_STICKER` a requested frequency is only an upper bound**. What the
 hardware actually delivers is set by power, thermal, and core-count limits, so
@@ -217,19 +231,26 @@ Measured on a Xeon Gold 6148 (sticker 2.4 GHz, max avail 3.7 GHz) under a
 | 2.0 GHz | 2.23 GHz |
 
 The top two requests are the same operating point. On the default 100 MHz grid
-that makes roughly ten of the twenty-eight `cpu-freq` points indistinguishable,
-and a search allowed into that region will report a "best" frequency from it
-that does not reproduce.
+that would make roughly ten of the twenty-eight turbo-range `cpu-freq` points
+indistinguishable, which is exactly why the default bound is the sticker.
 
-Check the landmarks on your target, then cap the sweep:
+To study the turbo range, the user must **explicitly** override the bound, and
+you should warn that the result may not reproduce:
 
 ```bash
-geopmread CPU_FREQUENCY_STICKER package 0
---sweep cpu-freq@board=1e+09:2400000000:1e+08
+geopmread CPU_FREQUENCY_STICKER package 0        # confirm the landmark
+--sweep cpu-freq@board=1e+09:3.7e+09:1e+08        # user opted into turbo
 ```
 
-The headroom depends on load: the same machine running 20 cores on one socket
-had 15% turbo headroom where 40 cores across two sockets had 9%. Measure rather
+Also note the performance governor. `CPU_FREQUENCY_MAX_CONTROL` is only a cap:
+under `powersave`, `schedutil`, or another scaling governor the core can still
+run below the request. `geopmopt` prepends
+`CPU_FREQUENCY_GOVERNOR_CONTROL=performance` whenever `cpu-freq` is swept so the
+requested frequency sticks; the sensitivity probe applies the same governor
+while it measures.
+
+The turbo headroom depends on load: the same machine running 20 cores on one
+socket had 15% headroom where 40 cores across two sockets had 9%. Measure rather
 than assume, with
 [geopm-sensitivity.sh](../scripts/geopm-sensitivity.sh), which reports achieved
 versus requested frequency and warns when the dead zone is large.

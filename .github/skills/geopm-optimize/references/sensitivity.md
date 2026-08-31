@@ -35,12 +35,30 @@ The verdict is the ratio of one-step change to noise:
 | < 1 | NOT READY | The search would fit noise |
 | Full range < noise | Insensitive | The knob does nothing here; use a different dimension |
 
-## Turbo makes the top of the range meaningless
+## Turbo and the governor: handled by default
 
-**Above `CPU_FREQUENCY_STICKER`, a requested frequency is an upper bound the
-hardware need not reach.** In the turbo range the achieved frequency is set by
-power, thermal, and core-count limits, so several different requests can
-produce the same operating point.
+`geopmopt` now defaults the `cpu-freq` sweep to sensible bounds and settings, so
+the manual work-arounds that earlier versions of this skill described are no
+longer yours to apply:
+
+- **The upper bound is the sticker, not the turbo maximum.** The default max for
+  a `cpu-freq` sweep auto-detects `CPU_FREQUENCY_STICKER` (base/nominal
+  frequency) rather than `CPU_FREQUENCY_MAX_AVAIL` (turbo max). You no longer
+  cap the sweep by hand.
+- **The performance governor is forced.** Whenever `cpu-freq` is a swept
+  dimension, `geopmopt` prepends `CPU_FREQUENCY_GOVERNOR_CONTROL=performance`.
+  `CPU_FREQUENCY_MAX_CONTROL` alone is only a *cap*: under `powersave`,
+  `schedutil`, or another scaling governor the core can still run below the
+  requested value, so the requested frequency would not stick. The forced
+  governor makes it stick.
+
+The sensitivity probe applies the same governor while it measures, so its
+numbers reflect what the campaign will see.
+
+**Why the sticker matters** (the reason the default exists). Above the sticker a
+requested frequency is only an upper bound the hardware need not reach. In the
+turbo range the achieved frequency is set by power, thermal, and core-count
+limits, so several different requests produce the same operating point.
 
 Measured on a Xeon Gold 6148 (sticker 2.4 GHz, max 3.7 GHz) under a 40-core
 load:
@@ -54,11 +72,8 @@ load:
 
 Requesting 3.7 GHz and 3.3 GHz gave the **same** achieved frequency. Every grid
 point from roughly 2.8 GHz to 3.7 GHz is one operating point with ten different
-labels. A search allowed into that region will happily report a best frequency
-from it, and the result will not reproduce.
-
-This is why the script anchors its reference at the **sticker** rather than the
-maximum. Measuring the same workload both ways:
+labels. Anchoring at the sticker keeps every grid point at a setting the
+hardware actually honours. Measuring the same workload both ways:
 
 | Reference | One-step change | Noise | Signal / noise | Verdict |
 |---|---|---|---|---|
@@ -69,77 +84,88 @@ Sixteen times more signal, from the same workload and the same step size. The
 turbo measurement was not telling you about the workload; it was telling you
 that the setting was being ignored.
 
-The script reports the turbo headroom under load and, when it is small, tells
-you to cap the sweep:
+**Opting into turbo.** Only sweep above the sticker if the user explicitly wants
+to study the turbo range, and then say plainly that requests there are an upper
+bound and may all resolve to the same achieved frequency:
 
 ```bash
---sweep cpu-freq@board=1e+09:2400000000:1e+08
+--sweep cpu-freq@board=1e+09:3.7e+09:1e+08   # user opted into turbo
 ```
 
-Capping at the sticker also stops the optimizer wasting trials in a region
-where every point is identical.
+## Remedies
 
-## Remedies, cheapest first
+Apply them in two groups. The first group the assistant can do directly and
+deterministically. The second group depends on how the workload is launched and
+how the machine may be configured — **the user is the source of truth for those,
+and the assistant must ask rather than guess.** The full menu of stabilization
+levers, with the questions to ask, is in [stabilization.md](stabilization.md).
 
-### 1. Pin the workload
-
-Scheduler migration between cores and sockets is the largest and most easily
-removed source of variation, and it costs nothing to try.
-
-```bash
-taskset -c 0-19 ./workload.sh
-numactl --cpunodebind=0 --membind=0 ./workload.sh    # one socket, local memory
-```
-
-Pin memory as well as CPUs when the workload touches a lot of it: a run that
-lands on remote memory is slower for reasons unrelated to frequency. Set the
-runtime's own affinity too, for example `OMP_PROC_BIND=close` with
-`OMP_PLACES=cores`.
-
-Measured effect on the same benchmark:
-
-| | Noise floor | Signal / noise | Verdict |
-|---|---|---|---|
-| Unpinned, 40 cores across 2 sockets | 3.43% | 1.83 | MARGINAL |
-| `numactl` pinned, 20 cores on 1 socket | **1.82%** | **2.23** | **READY** |
-
-Pinning alone moved this workload from unoptimizable to optimizable, with no
-change to the step size, the workload length, or the trial budget. Try it
-first, then re-run the check.
-
-### 2. Use a coarser step
+### 1. Use a coarser step (assistant can apply directly)
 
 If one step is too small to resolve, take bigger steps. The script computes how
 many are needed and prints the sweep specification:
 
 ```bash
---sweep cpu-freq@board=1e+09:3.7e+09:400000000
+--sweep cpu-freq@board=1e+09:2.4e+09:400000000
 ```
 
 A frequency grid of 7 to 15 points is ample for a Bayesian search. A 28-point
 grid whose neighbours are indistinguishable is worse than a 7-point grid whose
-neighbours are not.
+neighbours are not. Increasing the step is often the quickest way to turn a
+MARGINAL dimension into a resolvable one, and unlike pinning it needs nothing
+from the user.
 
 This assumes the response is locally linear, which holds well enough for
 frequency and power over a few steps.
 
-### 3. Make each run longer
+### 2. Make each run longer
 
 Noise is dominated by start-up and scheduling effects that do not grow with
 runtime, so relative spread shrinks as the run lengthens. Roughly, a 4x longer
 run halves the relative spread. Increase the iteration count or problem size
-rather than simply looping the same short run.
+rather than simply looping the same short run. This needs the user's help to
+change the workload, but it is a simple ask.
 
 Aim for at least 30 seconds. Below about 10 seconds, start-up cost usually
 swamps any frequency effect.
 
-### 4. Quieten the machine
+### 3. Pin the workload (ask the user — do not prescribe)
 
-Stop other work, and do not share the host during a campaign. A build running
-alongside the benchmark is indistinguishable from a frequency effect, and it
-will move between trials.
+Scheduler migration between cores and sockets is usually the largest single
+source of run-to-run variation, so pinning is the most effective lever. It is
+also the one the assistant must **not** guess: how a workload should be pinned
+depends on the workload and its runtime, and only the user knows it.
 
-### 5. Average several runs per grid point
+Two distinct kinds of pinning matter, and they are set in different places:
+
+- **Process affinity** restricts which CPUs the process (and its children) may
+  run on. It is set by the *launcher* — `taskset`, `numactl`, `cgroups`,
+  `srun --cpu-bind`, `mpirun --bind-to`, and so on. This bounds the process to a
+  CPU mask but still lets threads float *within* that mask.
+- **Thread affinity** pins each thread to a specific CPU inside the mask. It is
+  set by the *runtime* — for OpenMP, `OMP_PROC_BIND` and `OMP_PLACES` (or
+  `KMP_AFFINITY` for the Intel runtime, `GOMP_CPU_AFFINITY` for libgomp); other
+  runtimes have their own scheme. Process pinning without thread pinning can
+  still leave threads migrating within the mask, which is exactly the kind of
+  jitter that shows up as noise in an OpenMP STREAM run.
+
+Do not emit a `taskset`/`numactl`/`OMP_PLACES` line as if it were correct for
+this workload. Instead ask interview questions 9–10: is process affinity set, is
+thread affinity set, and if not can the user add them? Then let the user supply
+the launch wrapper and re-run this check. See
+[stabilization.md](stabilization.md) for the questions and the option menu.
+
+### 4. Quieten and tune the machine (ask the user)
+
+Stop other work, and do not share the host during a campaign — a build running
+alongside the benchmark is indistinguishable from a frequency effect. Beyond
+that, a number of OS, kernel-command-line, and BIOS settings reduce jitter
+(isolated cores, limited C-states, disabled SMT, fixed uncore, a performance
+BIOS profile). These change the whole machine, so the assistant proposes them
+and the user decides and applies them. The catalogue is in
+[stabilization.md](stabilization.md).
+
+### 5. Average several runs per grid point (last resort)
 
 Only after the above. `geopmopt` evaluates a grid point with a single run, so
 averaging has to happen inside the launch command. Repeating R times shrinks
@@ -185,10 +211,12 @@ search space the optimizer has to cover.
 
 ## Cost
 
-Three settings times `--repeats` runs, plus two short runs for the turbo check.
-With `--repeats 3` that is 11 runs, roughly 4 minutes for a 20 second workload.
-`--skip-range` removes 3 of them but then cannot distinguish "the knob does
-nothing" from "the step is too small".
+Three settings times `--repeats` runs, plus two short runs for the turbo check
+when the sweep reaches into the turbo range (with current `geopmopt`'s
+sticker-capped default it usually does not). With `--repeats 3` that is 9 to 11
+runs, roughly 4 minutes for a 20 second workload. `--skip-range` removes 3 of
+them but then cannot distinguish "the knob does nothing" from "the step is too
+small".
 
 That is a fraction of a campaign, and it is the difference between a result and
 an artifact. The campaign recorded in

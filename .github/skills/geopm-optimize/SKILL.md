@@ -59,6 +59,24 @@ Ask these in order. Each answer maps to a flag or a recipe.
 7. What is your goal — fastest, lowest energy, best performance per watt,
    lowest energy subject to a performance floor, or fastest under a power cap?
 8. Single machine, or a distributed run?
+9. How is the workload placed on the hardware today? Ask separately about
+   **process** affinity (is the launch already wrapped in `taskset`,
+   `numactl`, `srun --cpu-bind`, `mpirun --bind-to`, a cgroup, ...?) and
+   **thread** affinity (does the runtime pin threads — `OMP_PROC_BIND` /
+   `OMP_PLACES`, `KMP_AFFINITY`, `GOMP_CPU_AFFINITY`, a TBB/pthread scheme,
+   ...?). If neither is set, can the user add it, and do they know the right
+   incantation for this workload?
+10. Are any OS or platform settings in place to reduce run-to-run noise —
+    performance governor, Turbo disabled, isolated cores (`isolcpus` /
+    `nohz_full`), limited C-states, SMT disabled, fixed uncore, BIOS profile?
+    Which of these can the user change on this machine?
+
+Do not guess the answers to 9 and 10. The user is the sole source of truth for
+how their workload should be launched and how this machine may be configured.
+The assistant's job is to enumerate the levers in
+[stabilization.md](references/stabilization.md) and ask which are exercised —
+never to invent a `taskset`/`numactl` line or write a kernel/BIOS setting on the
+user's behalf.
 
 Mapping:
 
@@ -70,6 +88,8 @@ Mapping:
 | GPU workload | `gpu-freq`, `gpu-power` — confirm they are not `n/a` |
 | Goal | Selects a recipe from [objective-recipes.md](references/objective-recipes.md) |
 | Distributed | State the single-node limitation |
+| No/partial pinning | Offer the levers in [stabilization.md](references/stabilization.md); ask the user to supply the launch wrapper — do not guess it |
+| Noise settings unknown | Walk the [stabilization.md](references/stabilization.md) checklist and ask which the user can apply |
 
 ### 2. Probe the platform
 
@@ -114,22 +134,29 @@ The script exits 0 when the workload is optimizable as configured, and 1 with
 ranked remedies when it is not. Run it for each dimension you intend to sweep,
 and sweep only the ones that pass.
 
-Two effects dominate in practice, both documented with measurements in
+Two things to know about `cpu-freq`, both documented with measurements in
 [sensitivity.md](references/sensitivity.md):
 
-- **Turbo.** Above `CPU_FREQUENCY_STICKER` a requested frequency is only an
-  upper bound. Under load, requesting 3.7 GHz and 3.3 GHz produced the *same*
-  achieved 2.72 GHz on a test machine, making a third of the sweep range one
-  operating point with many labels. Cap the sweep at the sticker.
-- **Pinning.** Scheduler migration is usually the largest removable source of
-  variation. On the same workload, `numactl --cpunodebind=0 --membind=0` cut the
-  noise floor from 3.43% to 1.82% and moved the verdict from MARGINAL to READY
-  with no other change. Try it first.
+- **Turbo and the governor are handled by default now.** `geopmopt` caps the
+  `cpu-freq` sweep at `CPU_FREQUENCY_STICKER` (the base/nominal frequency) and
+  prepends `CPU_FREQUENCY_GOVERNOR_CONTROL=performance` whenever `cpu-freq` is
+  swept, so requested frequencies stick instead of being a soft cap under a
+  scaling governor. You no longer cap the sweep by hand. Only sweep above the
+  sticker if the user *explicitly* wants to study turbo, and then warn that
+  requests there are an upper bound the hardware need not reach — several
+  distinct requests can resolve to the same achieved frequency.
+- **Pinning is the largest removable source of variation, but it is the
+  user's call.** Do not prescribe `numactl`/`taskset` or invent an affinity
+  line. Ask how the workload is pinned (interview questions 9–10), present the
+  levers in [stabilization.md](references/stabilization.md), and let the user
+  supply the launch wrapper. Then re-run the check.
 
-When a remedy is needed, prefer them in the order the script prints: pin, then
-coarsen the step, then lengthen the run, then quieten the machine, and only then
-average repeated runs per grid point — that last one multiplies campaign cost by
-the repeat count.
+When a remedy is needed, apply the ones the agent can do safely and
+deterministically first — coarsen the step, lengthen the run — and treat pinning
+and machine/OS changes as things to *propose to the user*, not to guess. The
+script prints the remedies in that spirit; the last one, averaging repeated runs
+per grid point, multiplies campaign cost by the repeat count, so reach for it
+only after the others.
 
 ### 5. Compose the command
 
@@ -232,9 +259,15 @@ omitting `-i` makes it consume the surrounding script as stdin.
   is below the noise floor cannot produce a real result, and running one wastes
   the user's hours to manufacture an artifact.
 - Never skip the smoke test.
-- Never sweep a frequency range above `CPU_FREQUENCY_STICKER` without saying
-  that requests there are not guaranteed and may all resolve to the same
+- `geopmopt` defaults the `cpu-freq` upper bound to `CPU_FREQUENCY_STICKER` and
+  forces the performance governor while sweeping. Do not raise the sweep into
+  the turbo range unless the user explicitly asks; when they do, state that
+  requests above the sticker are not guaranteed and may all resolve to the same
   achieved frequency.
+- Never invent a pinning, affinity, or launch wrapper, and never write a kernel
+  command-line, BIOS, or OS tunable on the user's behalf. Enumerate the options
+  in [stabilization.md](references/stabilization.md) and ask; the user is the
+  source of truth for how the workload runs and how the machine may be changed.
 - Never write controls outside a `geopmopt` or `geopmsession` session.
 - State plainly that a campaign repeatedly changes power and frequency limits
   for the whole node, and confirm the user is authorized to do that on this

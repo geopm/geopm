@@ -127,6 +127,17 @@ case "$DIMENSION" in
        exit 2 ;;
 esac
 
+# geopmopt prepends CPU_FREQUENCY_GOVERNOR_CONTROL=performance whenever cpu-freq
+# is swept, because CPU_FREQUENCY_MAX_CONTROL is only a cap under a scaling
+# governor and the requested frequency would not stick.  Mirror that here so the
+# sensitivity measurement is taken under the same conditions as the campaign.
+GOVERNOR_LINE=""
+if [[ $DIMENSION == cpu-freq || $DIMENSION == cpu-frequency ]]; then
+    if geopmread CPU_FREQUENCY_GOVERNOR_CONTROL board 0 >/dev/null 2>&1; then
+        GOVERNOR_LINE="CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0"
+    fi
+fi
+
 REF=$ctl_max
 REF_LABEL="maximum"
 STICKER=""
@@ -170,7 +181,8 @@ measure_once() {
     local setting=$1 start end rc
     shift
     if [[ -n $setting ]]; then
-        printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting" > "$ctl_conf"
+        { [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
+          printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting"; } > "$ctl_conf"
         start=$(date +%s.%N)
         geopmsession -i "$sig_conf" --control-config "$ctl_conf" -o /dev/null \
             -- "$@" > "$tmp_out" 2>&1
@@ -222,7 +234,8 @@ achieved_freq() {
     local setting=$1; shift
     local report; report=$(mktemp) || return 1
     printf 'CPU_FREQUENCY_STATUS package 0\n' > "$ctl_conf.sig"
-    printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting" > "$ctl_conf"
+    { [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
+      printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting"; } > "$ctl_conf"
     geopmsession -i "$ctl_conf.sig" --control-config "$ctl_conf" \
         -r "$report" -f yaml -p 0.2 -o /dev/null -- "$@" > /dev/null 2>&1
     grep -A6 'CPU_FREQUENCY_STATUS' "$report" 2>/dev/null \
@@ -240,6 +253,7 @@ echo "  Dimension  : ${DIMENSION} (${CONTROL}) at ${DOMAIN}"
 echo "  Grid       : min=${ctl_min} max=${ctl_max} step=${ctl_step}"
 [[ -n $STICKER ]] && echo "  Sticker    : ${STICKER}"
 echo "  Reference  : ${REF} (${REF_LABEL})"
+[[ -n $GOVERNOR_LINE ]] && echo "  Governor   : performance (forced, mirrors geopmopt)"
 echo "  Metric     : ${metric_label}"
 echo "  Repeats    : ${REPEATS} per setting"
 echo
@@ -364,7 +378,11 @@ if (( turbo_dead )); then
   between the achieved ceiling and ${ctl_max} is therefore the same operating
   point wearing different labels.
 
-  Cap the sweep at the sticker so no trials are wasted there:
+  Current geopmopt already caps the cpu-freq sweep at the sticker by default, so
+  you normally get this for free.  Seeing this warning means the sweep range
+  reaches into the turbo region -- either an older geopmopt that still defaults
+  to the turbo max, or a user who explicitly opted in.  Keep the sweep at or
+  below the sticker unless the user asked for turbo:
 
        --sweep ${DIMENSION}@${DOMAIN}=${ctl_min}:${STICKER}:${ctl_step}
 
@@ -384,41 +402,48 @@ if (( ! range_is_flat )) && ! awk -v s="$snr" 'BEGIN{exit !(s >= 2)}'; then
 
     cat <<MSG
 
-  Remedies, cheapest first:
+  Remedies.  The first two the assistant can apply directly.  The rest depend on
+  how the workload is launched and how this machine may be configured -- the
+  USER is the source of truth for those, so ask; do not guess a pinning line or
+  change a machine setting on the user's behalf.  See references/stabilization.md
+  for the full menu and the questions to ask.
 
-  1. Pin the workload.  Scheduler migration between cores and sockets is the
-     largest and most easily removed source of run-to-run variation, and it
-     costs nothing to try:
-
-       taskset -c 0-N ./workload.sh                        # all cores
-       numactl --cpunodebind=0 --membind=0 ./workload.sh   # one socket
-
-     Pin memory as well as CPUs when the workload touches a lot of it: a run
-     that lands on remote memory is slower for reasons unrelated to frequency.
-     Set any affinity the runtime offers too, for example OMP_PROC_BIND=close
-     with OMP_PLACES=cores.  Then re-run this check.  A lower noise floor may
-     make the default step resolvable with no other change, which is why this
-     comes first.
-
-  2. Use a coarser step.  A change of ${steps} step(s) should clear the noise:
+  1. Use a coarser step (assistant can apply directly).  A change of ${steps}
+     step(s) should clear the noise:
 
        --sweep ${DIMENSION}@${DOMAIN}=${ctl_min}:${ctl_max}:${coarse}
 
-     That leaves about ${grid_points} grid points, which is ample for a search.
+     That leaves about ${grid_points} grid points, which is ample for a search,
+     and it needs nothing from the user.
 
-  3. Make each run longer.  Noise is dominated by start-up and scheduling
+  2. Make each run longer.  Noise is dominated by start-up and scheduling
      effects that do not grow with runtime, so a workload that runs 4x longer
-     typically has roughly half the relative spread.  Increase the iteration
-     count or problem size.
+     typically has roughly half the relative spread.  Ask the user to increase
+     the iteration count or problem size.
 
-  4. Quieten the machine.  Stop other work, and do not share the host during a
-     campaign.  A build running alongside the benchmark is indistinguishable
-     from a frequency effect.
+  3. Pin the workload (ask the user -- do not prescribe).  Scheduler migration
+     between cores and sockets is usually the largest single source of
+     run-to-run variation, so pinning is the most effective lever -- but how to
+     pin depends on the workload and its runtime, and only the user knows it.
+     There are two distinct kinds:
+       - Process affinity, set by the launcher (taskset, numactl, cgroups,
+         srun/mpirun binding).  It bounds the process to a CPU mask but lets
+         threads float within it.
+       - Thread affinity, set by the runtime (OpenMP OMP_PROC_BIND/OMP_PLACES,
+         KMP_AFFINITY, GOMP_CPU_AFFINITY, ...).  Without it, threads still
+         migrate within the mask -- a common cause of jitter in OpenMP codes.
+     Ask which are in use and whether the user can add them, then let the user
+     supply the launch wrapper and re-run this check.
 
-  5. Average several runs per grid point.  Repeating ${reps} times per trial
-     would shrink the noise of the mean by sqrt(${reps}) and make one step
-     resolvable, at ${reps}x the campaign cost.  Use this only after 1 to 4,
-     and note it multiplies an already long campaign.
+  4. Quieten and tune the machine (ask the user).  Stop other work and do not
+     share the host during a campaign.  Machine-wide settings (isolated cores,
+     limited C-states, disabled SMT, fixed uncore, a performance BIOS profile)
+     also reduce jitter but change the whole node -- propose them and let the
+     user apply them.  See references/stabilization.md.
+
+  5. Average several runs per grid point (last resort).  Repeating ${reps} times
+     per trial would shrink the noise of the mean by sqrt(${reps}) and make one
+     step resolvable, at ${reps}x the campaign cost.  Use this only after 1 to 4.
 MSG
 
     if [[ -n $EMIT_WRAPPER ]]; then
