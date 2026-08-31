@@ -82,10 +82,12 @@ evaluated twice and produced scores of `-6.074` and `-3.157` — a factor of two
 at an identical setting. Every other difference in that run was smaller than
 that, so the reported "best configuration" carried no information.
 
-Reduce noise by pinning first — `numactl --cpunodebind=0 --membind=0` halved the
-noise floor on one test workload and turned an unoptimizable case into an
-optimizable one — then by lengthening the workload and quiescing the machine.
-A workload under 30 seconds is usually dominated by startup cost.
+Reduce noise by pinning first — pinning halved the noise floor on one test
+workload and turned an unoptimizable case into an optimizable one — then by
+lengthening the workload and quiescing the machine. How to pin is the user's
+call, not a guess: ask what process and thread affinity are in place and offer
+the option menu in [stabilization.md](stabilization.md). A workload under 30
+seconds is usually dominated by startup cost.
 
 ## Reproducibility
 
