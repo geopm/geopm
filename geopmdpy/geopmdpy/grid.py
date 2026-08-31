@@ -325,7 +325,10 @@ def add_grid_cli_arguments(parser: ArgumentParser) -> None:
         help="Add a control dimension to sweep (repeatable). "
              "DIM = CONTROL[@DOMAIN][=MIN:MAX:STEP]. Domain defaults to the "
              "control's native domain and bounds default to auto-detected "
-             "values. See --list-controls for names, domains, and units.",
+             "values. For cpu-freq the default maximum is the sticker (base) "
+             "frequency, not the turbo max, and a performance-governor control "
+             "is added to the generated configuration. See --list-controls for "
+             "names, domains, and units.",
     )
     parser.add_argument(
         "--list-controls",
@@ -683,6 +686,12 @@ class ControlGrid:
         If coordinate is None, it uses the instance's coordinate.
         If the coordinate is not provided or does not match the grid dimensions,
         it raises a ValueError.
+
+        When the grid includes a ``cpu_frequency`` dimension, a
+        ``CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0`` tuple is prepended to the
+        result so that the requested frequency is honored under the
+        ``performance`` governor rather than treated only as a cap under another
+        governor.
         Args:
             coordinate (list[int], optional): List of indices for each control dimension.
         Returns:

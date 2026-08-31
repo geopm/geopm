@@ -162,6 +162,20 @@ Control Parameters
     ``prefetch`` control takes non-negative integer levels and rejects unit
     suffixes.
 
+    .. note::
+
+       For a ``cpu-freq`` sweep the auto-detected maximum is
+       ``CPU_FREQUENCY_STICKER`` (the base/nominal frequency), not the turbo
+       maximum. Above the sticker frequency ``CPU_FREQUENCY_MAX_CONTROL`` is
+       only an upper bound the hardware need not honor, so distinct candidates
+       can resolve to the same achieved frequency and waste trials. Pass an
+       explicit range (for example ``cpu-freq@board=:3.7GHz``) to search into
+       the turbo region. Whenever ``cpu-freq`` is optimized the configuration
+       applied for each trial, and the best configuration reported and saved,
+       forces ``CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0`` (the ``performance``
+       governor) so the requested frequency is honored rather than treated as a
+       cap under another governor.
+
 --list-controls  .. _list-controls option:
 
     Print a table of the available control names, their native domain, units,
@@ -322,6 +336,9 @@ Output and Logging
     Write the best configuration to a file in geopmwrite format. Use '-' for
     stdout (default). The configuration can be applied later with
     ``geopmwrite --config`` or through ``geopmlaunch --geopm-init-control``.
+    For a ``cpu-freq`` sweep the file begins with
+    ``CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0`` so that reapplying it restores
+    the ``performance`` governor and the recorded frequency takes effect.
 
 --verbosity {0,1,2,3}  .. _verbosity option:
 
@@ -389,6 +406,7 @@ need not print a figure of merit:
    INFO: Best coordinate: [18]
    INFO: Number of evaluations: 30
    Best configuration:
+   CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0
    CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
 
 Tune several controls together
@@ -415,10 +433,15 @@ minimizing runtime, and the best configuration is written to a file for reuse:
    INFO: Best coordinate: [27, 14, 154]
    INFO: Number of evaluations: 30
    Best configuration:
+   CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0
    CPU_FREQUENCY_MAX_CONTROL board 0 3700000000.0
    CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 2400000000.0
    CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 2400000000.0
    CPU_POWER_LIMIT_CONTROL board 0 300.0
+
+(The 3.7 GHz maximum above assumes the frequency dimension was swept into the
+turbo region with an explicit range such as ``cpu-freq@board=:3.7GHz``; with the
+default range the ceiling is the ``CPU_FREQUENCY_STICKER`` base frequency.)
 
 Apply the saved configuration to the current session at any time with:
 

@@ -118,6 +118,20 @@ Control Parameters
     ``prefetch`` control takes non-negative integer levels and rejects unit
     suffixes.
 
+    .. note::
+
+       For a ``cpu-freq`` sweep the auto-detected maximum is
+       ``CPU_FREQUENCY_STICKER`` (the base/nominal frequency), not the turbo
+       maximum. Above the sticker frequency ``CPU_FREQUENCY_MAX_CONTROL`` is
+       only an upper bound the hardware need not honor, so multiple requests
+       can resolve to the same achieved frequency. Override the range
+       explicitly (for example ``=:3.7GHz``) to search into the turbo region.
+       Whenever ``cpu-freq`` is swept the generated configuration also forces
+       ``CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0`` (the ``performance``
+       governor), because ``CPU_FREQUENCY_MAX_CONTROL`` is only a cap under
+       other governors. This governor line is emitted first in every generated
+       configuration and is applied by ``--write``.
+
 --list-controls  .. _list-controls option:
 
     Print a table of the available control names, their native domain, units,
@@ -185,11 +199,13 @@ Generate geopmwrite commands for a specific grid point:
 .. code-block:: shell-session
 
    $ geopmgrid --sweep cpu-freq@package --coordinate 10 15
+   CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0
    CPU_FREQUENCY_MAX_CONTROL package 0 2000000000.0
    CPU_FREQUENCY_MAX_CONTROL package 1 2500000000.0
 
 This generates a ``geopmwrite(1)`` configuration file that sets package 0 to 2 GHz
-and package 1 to 2.5 GHz.
+and package 1 to 2.5 GHz. The leading ``CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0``
+line forces the ``performance`` governor so the requested frequencies take effect.
 
 Multi-dimensional grid exploration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +218,7 @@ Define a 2D grid over CPU frequency and power limit:
    28 28 155 155
 
    $ geopmgrid --sweep cpu-freq@package --sweep cpu-power@package --coordinate 12 17 125 101
+   CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0
    CPU_FREQUENCY_MAX_CONTROL package 0 2200000000.0
    CPU_FREQUENCY_MAX_CONTROL package 1 2700000000.0
    CPU_POWER_LIMIT_CONTROL package 0 271.0
@@ -219,6 +236,7 @@ Store coordinates in a file for repeated use:
 
    $ echo 18 14 122 96 > my_config.coord
    $ geopmgrid --sweep cpu-freq@package --sweep cpu-power@package --coordinate-file my_config.coord
+   CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0
    CPU_FREQUENCY_MAX_CONTROL package 0 2800000000.0
    CPU_FREQUENCY_MAX_CONTROL package 1 2400000000.0
    CPU_POWER_LIMIT_CONTROL package 0 268.0
@@ -308,9 +326,17 @@ The tool automatically determines parameter ranges using the GEOPM PIO interface
 otherwise use safe default values.
 
 **Maximum Values:** Read from ``*_MAX_AVAIL`` signals or current limit controls.
+For ``cpu-freq`` the default maximum is ``CPU_FREQUENCY_STICKER`` (the base
+frequency) rather than the turbo maximum; pass an explicit ``=MIN:MAX:STEP``
+range to sweep into the turbo region.
 
 **Step Sizes:** Read from ``*_STEP`` signals or use appropriate defaults
 based on control type.
+
+**Performance governor:** When a ``cpu-freq`` dimension is present, the
+generated configuration prepends ``CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0`` so
+that the requested frequency is honored rather than treated as a cap under
+another governor.
 
 The grid covers the full available range with uniform step sizes, ensuring
 all generated coordinates correspond to valid hardware settings.

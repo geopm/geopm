@@ -1523,7 +1523,9 @@ def get_parser():
     parser.add_argument(
         '--output-file',
         default='-',
-        help='Output the best configuration to a geompwrite configuration file (default: stdout)'
+        help='Output the best configuration to a geopmwrite configuration file '
+             '(default: stdout). For a cpu-freq sweep this file also sets the '
+             'performance governor so the saved frequency takes effect.'
     )
 
     parser.add_argument(
