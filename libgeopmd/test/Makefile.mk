@@ -34,6 +34,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/CpufreqSysfsDriverTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/PowercapSysfsDriverTest.cpp \
+                          test/UncoreFreqSysfsDriverTest.cpp \
                           test/DCGMIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \

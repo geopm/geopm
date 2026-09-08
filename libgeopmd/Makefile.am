@@ -87,6 +87,7 @@ EXTRA_DIST = .gitignore \
              json_data/sysfs_attributes_drm.json \
              protoc-gen.sh \
              json_data/sysfs_attributes_powercap.json \
+             json_data/sysfs_attributes_uncore.json \
              src/json_data.cpp.in \
              # end
 
@@ -119,6 +120,7 @@ sysfs_cpp_files = \
                   gen-src/sysfs_attributes_cpufreq.cpp \
                   gen-src/sysfs_attributes_drm.cpp \
                   gen-src/sysfs_attributes_powercap.cpp \
+                  gen-src/sysfs_attributes_uncore.cpp \
                   #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
@@ -252,6 +254,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/TimeSignal.cpp \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \
+                       src/UncoreFreqSysfsDriver.cpp \
+                       src/UncoreFreqSysfsDriver.hpp \
                        src/UniqueFd.cpp \
                        src/UniqueFd.hpp \
                        src/geopm_hash.cpp \
