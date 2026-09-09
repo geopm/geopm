@@ -160,8 +160,10 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_SKX,
         MSRIOGroup::M_CPUID_ICX,
         MSRIOGroup::M_CPUID_SPR,
+        MSRIOGroup::M_CPUID_EMR,
         MSRIOGroup::M_CPUID_GNRSP,
         MSRIOGroup::M_CPUID_GNRAP,
+        MSRIOGroup::M_CPUID_SRF,
         MSRIOGroup::M_CPUID_CWF,
         MSRIOGroup::M_CPUID_DMR,
     };
@@ -188,9 +190,12 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
 
 TEST_F(MSRIOGroupTest, gnr_drops_uncore_msrs)
 {
-    // Granite Rapids (Xeon 6 P-core) moved uncore frequency control from the
-    // MSR interface (0x620/0x621) to TPMI, so those MSRs must not be exposed.
-    for (auto id : {MSRIOGroup::M_CPUID_GNRSP, MSRIOGroup::M_CPUID_GNRAP}) {
+    // Granite Rapids (Xeon 6 P-core) and Sierra Forest (Xeon E-core) moved
+    // uncore frequency control from the MSR interface (0x620/0x621) to TPMI
+    // while retaining RAPL on the MSR interface, so they share the Granite
+    // Rapids MSR set: the uncore MSRs must not be exposed.
+    for (auto id : {MSRIOGroup::M_CPUID_GNRSP, MSRIOGroup::M_CPUID_GNRAP,
+                    MSRIOGroup::M_CPUID_SRF}) {
         auto cpuid_ptr = std::make_shared<MockCpuid>();
         EXPECT_CALL(*cpuid_ptr, cpuid()).WillRepeatedly(Return(id));
         EXPECT_CALL(*cpuid_ptr, rdt_info())
@@ -205,6 +210,25 @@ TEST_F(MSRIOGroupTest, gnr_drops_uncore_msrs)
         EXPECT_TRUE(gnr_group.is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
         EXPECT_TRUE(gnr_group.is_valid_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"));
     }
+}
+
+TEST_F(MSRIOGroupTest, emr_retains_spr_msrs)
+{
+    // Emerald Rapids is a Sapphire Rapids-generation part that keeps both
+    // uncore frequency and RAPL on the MSR interface, so it shares the
+    // Sapphire Rapids MSR set and retains the uncore MSRs that Granite Rapids
+    // drops.
+    auto cpuid_ptr = std::make_shared<MockCpuid>();
+    EXPECT_CALL(*cpuid_ptr, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_EMR));
+    EXPECT_CALL(*cpuid_ptr, rdt_info())
+        .WillRepeatedly(Return(geopm::Cpuid::rdt_info_s{}));
+    EXPECT_CALL(*cpuid_ptr, pmc_bit_width()).WillRepeatedly(Return(48));
+    EXPECT_CALL(*cpuid_ptr, is_hwp_supported()).WillRepeatedly(Return(false));
+    MSRIOGroup emr_group(*m_topo, m_msrio, cpuid_ptr, nullptr);
+    EXPECT_TRUE(emr_group.is_valid_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_TRUE(emr_group.is_valid_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_TRUE(emr_group.is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
+    EXPECT_TRUE(emr_group.is_valid_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"));
 }
 
 TEST_F(MSRIOGroupTest, cwf_drops_tpmi_msrs)
