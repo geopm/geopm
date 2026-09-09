@@ -1220,11 +1220,16 @@ namespace geopm
                  cpu_id == MSRIOGroup::M_CPUID_ICX) {
             platform_msrs = skx_msr_json();
         }
-        else if (cpu_id == MSRIOGroup::M_CPUID_SPR) {
+        else if (cpu_id == MSRIOGroup::M_CPUID_SPR ||
+                 cpu_id == MSRIOGroup::M_CPUID_EMR) {
+            // Emerald Rapids shares the Sapphire Rapids MSR interface.
             platform_msrs = spr_msr_json();
         }
         else if (cpu_id == MSRIOGroup::M_CPUID_GNRSP ||
-                 cpu_id == MSRIOGroup::M_CPUID_GNRAP) {
+                 cpu_id == MSRIOGroup::M_CPUID_GNRAP ||
+                 cpu_id == MSRIOGroup::M_CPUID_SRF) {
+            // Sierra Forest matches Granite Rapids: RAPL on the MSR interface
+            // with uncore frequency moved to TPMI.
             platform_msrs = gnr_msr_json();
         }
         else if (cpu_id == MSRIOGroup::M_CPUID_CWF) {
