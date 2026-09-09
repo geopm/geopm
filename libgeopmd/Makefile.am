@@ -85,6 +85,7 @@ EXTRA_DIST = .gitignore \
              json_data/msr_data_spr.json \
              json_data/msr_data_gnr.json \
              json_data/msr_data_cwf.json \
+             json_data/msr_data_dmr.json \
              json_data/sysfs_attributes_cpufreq.json \
              json_data/sysfs_attributes_drm.json \
              protoc-gen.sh \
@@ -114,6 +115,7 @@ msr_cpp_files = \
                 gen-src/msr_data_spr.cpp \
                 gen-src/msr_data_gnr.cpp \
                 gen-src/msr_data_cwf.cpp \
+                gen-src/msr_data_dmr.cpp \
                 # end
 
 # Sysfs JSON definitions. From each JSON file, generate a same-prefixed cpp file,
