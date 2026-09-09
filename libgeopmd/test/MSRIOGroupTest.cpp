@@ -261,6 +261,30 @@ TEST_F(MSRIOGroupTest, dmr_drops_tpmi_msrs)
     EXPECT_TRUE(dmr_group.is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
 }
 
+TEST_F(MSRIOGroupTest, unknown_cpuid_uses_restrictive_fallback)
+{
+    // An unrecognized CPUID falls back to a restrictive MSR set that omits the
+    // platform-specific RAPL power/energy and uncore frequency registers, so
+    // writes to registers absent on the running silicon cannot fault. Core
+    // performance and turbo MSRs remain available.
+    auto cpuid_ptr = std::make_shared<MockCpuid>();
+    EXPECT_CALL(*cpuid_ptr, cpuid()).WillRepeatedly(Return(0x9999));
+    EXPECT_CALL(*cpuid_ptr, rdt_info())
+        .WillRepeatedly(Return(geopm::Cpuid::rdt_info_s{}));
+    EXPECT_CALL(*cpuid_ptr, pmc_bit_width()).WillRepeatedly(Return(48));
+    EXPECT_CALL(*cpuid_ptr, is_hwp_supported()).WillRepeatedly(Return(false));
+    MSRIOGroup fallback_group(*m_topo, m_msrio, cpuid_ptr, nullptr);
+    EXPECT_FALSE(fallback_group.is_valid_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_FALSE(fallback_group.is_valid_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_FALSE(fallback_group.is_valid_signal("MSR::UNCORE_PERF_STATUS:FREQ"));
+    EXPECT_FALSE(fallback_group.is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
+    EXPECT_FALSE(fallback_group.is_valid_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"));
+    EXPECT_FALSE(fallback_group.is_valid_signal("MSR::DRAM_ENERGY_STATUS:ENERGY"));
+    EXPECT_FALSE(fallback_group.is_valid_signal("MSR::RAPL_POWER_UNIT:ENERGY"));
+    EXPECT_TRUE(fallback_group.is_valid_signal("MSR::PERF_STATUS:FREQ"));
+    EXPECT_TRUE(fallback_group.is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
+}
+
 TEST_F(MSRIOGroupTest, valid_signal_names)
 {
     std::vector<std::string> signal_aliases;
