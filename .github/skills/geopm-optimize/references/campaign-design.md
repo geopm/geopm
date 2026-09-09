@@ -145,6 +145,16 @@ recommends. Three times is cutting it fine: the 17.0 s benchmark above took
 49.0 s at the bottom of the range, so a 3x margin would have left barely two
 seconds of slack.
 
+**A timed-out trial's launched process is not guaranteed to be killed.**
+Observed directly: after a trial reported `Application evaluation timed out
+after N seconds`, the launched workload binary was found still running and
+consuming CPU minutes later. Check for and kill orphaned processes
+(`ps aux | grep '<launch command>'`) after any timeout or `--penalty none`
+abort, before retrying — an orphan can keep a GEOPM session open, which is one
+way the *next* invocation fails with an unrelated-looking "already has write
+mode client" error. See
+[troubleshooting.md](troubleshooting.md#write-access-rejected-by-another-session).
+
 ## The mandatory smoke test
 
 **Never start a full campaign without one.** Run a reduced version first:

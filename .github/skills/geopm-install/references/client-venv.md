@@ -65,13 +65,25 @@ development snapshot on the client side does not change what executes as root.
 
 The install compiles a CFFI wrapper against `libgeopmd`, so the target needs:
 
-| Requirement | Debian/Ubuntu package | Check |
-|---|---|---|
-| `libgeopmd` runtime | `libgeopmd2` | `ldconfig -p \| grep libgeopmd` |
-| `libgeopmd` headers | `libgeopmd-dev` | `ls /usr/include/geopm_pio.h` |
-| C compiler | `build-essential` | `command -v gcc` |
-| venv module | `python3-venv` | `python3 -c 'import venv'` |
-| git | `git` | `command -v git` |
+| Requirement | Debian/Ubuntu package | Fedora/RHEL/Rocky/CentOS package | Check |
+|---|---|---|---|
+| `libgeopmd` runtime | `libgeopmd2` | `libgeopmd` | `ldconfig -p \| grep libgeopmd` |
+| `libgeopmd` headers | `libgeopmd-dev` | `libgeopmd-devel` | `ls /usr/include/geopm_pio.h` |
+| C compiler | `build-essential` | `gcc` | `command -v gcc` |
+| venv module | `python3-venv` | (bundled with `python3`) | `python3 -c 'import venv'` |
+| Python headers | `python3-dev` | `python3-devel` | `python3 -c 'import sysconfig,os; assert os.path.exists(sysconfig.get_paths()["include"]+"/pyconfig.h")'` |
+| git | `git` | `git` | `command -v git` |
+
+The Python headers entry is easy to miss because the failure surfaces deep
+inside the CFFI build rather than at `pip install` time:
+
+```
+fatal error: pyconfig.h: No such file or directory
+```
+
+This is a generic CPython/CFFI requirement, not specific to GEOPM — any
+minimal install (e.g. a fresh CentOS Stream or RHEL container) that has
+`python3` but not `python3-devel` will hit it.
 
 If `libgeopmd` is installed somewhere other than a system path, point the
 compiler at it:

@@ -165,6 +165,26 @@ Pick a recipe from
 in [flags.md](references/flags.md) and metric or constraint grammar in
 [metrics-and-constraints.md](references/metrics-and-constraints.md).
 
+**Ask whether to save the recommended configuration, and where.**
+`geopmopt` only writes a `geopmwrite`-format configuration file when
+`--output-file FILE` is given — the default is `-` (stdout), so without this
+flag the winning configuration appears once in the terminal output and is
+never saved anywhere. Before the full campaign (step 8), ask the user:
+
+- Do they want the winning configuration written to a file? This is required
+  to *apply* the result later (`geopmsession --control-config`, see
+  [interpreting-results.md](references/interpreting-results.md)) and to record
+  the campaign per [campaign-results.md](references/campaign-results.md).
+- If yes, what filename and location? Offer a sensible default — e.g.
+  `best.conf` inside the campaign's directory under
+  [campaign-results.md](references/campaign-results.md)'s layout — but let the
+  user override it. Never invent or silently choose a path they have not
+  agreed to.
+
+Use their answer as `--output-file` in every command from here on (the smoke
+test may still use a disposable path such as `/tmp/smoke.conf`, since it is
+only validating the plumbing, not producing the campaign's real result).
+
 ### 6. Smoke test — mandatory
 
 ```bash
@@ -206,6 +226,9 @@ geopmopt --sweep cpu-freq@board --sweep uncore-freq@board \
          --output-file best.conf \
          -- ./bench.sh 2>&1 | tee campaign.log
 ```
+
+`--output-file` here is whatever the user agreed to in step 5 — do not fall
+back to a hardcoded name like the `best.conf` shown above without asking.
 
 Always `--verbosity 2`: at the default, nothing prints until completion and a
 campaign is indistinguishable from a hang.

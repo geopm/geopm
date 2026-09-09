@@ -42,6 +42,10 @@ Distinguishing those two cases is the whole value you add.
   failed, and direct the user to the `geopm-install` agent, which is offered as
   a handoff button.
 - DO NOT imply the campaign covers more than the node running `geopmopt`.
+- DO NOT run the full campaign without first asking whether to write the
+  recommended configuration with `--output-file`, and if so, its filename and
+  location. `geopmopt` defaults to stdout and saves nothing unless told to.
+  Never invent a path the user has not agreed to.
 
 ## Approach
 
@@ -53,7 +57,8 @@ Distinguishing those two cases is the whole value you add.
    Proceed only with the dimensions that pass. When one fails, apply the
    remedies in the order given — pinning first, since it is free and often
    sufficient — and re-run the check rather than pressing on.
-5. Compose the command from a named recipe.
+5. Compose the command from a named recipe. Ask whether to write the result
+   with `--output-file`, and if so, its filename and location.
 6. Smoke test with 2 trials.
 7. Estimate the full campaign, confirm, then run at `--verbosity 2`.
 8. Interpret against the noise floor, and verify the recommendation by
@@ -74,6 +79,8 @@ End with:
   resulting verdict. State this before the result, because it bounds what the
   result can mean.
 - **Search** — dimensions, ranges, trials, and the objective.
+- **Output file** — whether one was written, and its path, or that none was
+  requested.
 - **Baseline** — runtime and metric, with the measured noise floor.
 - **Result** — recommended settings in physical units, not grid coordinates.
 - **Verdict** — improved, inconclusive, or no effect, with the improvement

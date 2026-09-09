@@ -114,19 +114,39 @@ Controls, so `geopmopt` can sweep them:
 | Control | Purpose |
 |---|---|
 | `CPU_FREQUENCY_MAX_CONTROL` | `cpu-freq` sweep dimension |
+| `CPU_FREQUENCY_GOVERNOR_CONTROL` | **required whenever `cpu-freq` is swept** — see below |
 | `CPU_UNCORE_FREQUENCY_MAX_CONTROL` | `uncore-freq` sweep dimension |
 | `CPU_UNCORE_FREQUENCY_MIN_CONTROL` | **required companion** to the above |
-| `CPU_POWER_LIMIT_CONTROL` | `cpu-power` sweep dimension |
+| `POWERCAP::CPU_POWER_LIMIT` | `cpu-power` sweep dimension |
 | `GPU_CORE_FREQUENCY_MAX_CONTROL` | `gpu-freq`, GPU platforms only |
 | `GPU_CORE_FREQUENCY_MIN_CONTROL` | **required companion** to the above |
 | `GPU_POWER_LIMIT_CONTROL` | `gpu-power`, GPU platforms only |
 | `BOARD_POWER_LIMIT_CONTROL` | `board-power`, where supported |
 
-The two companions are easy to miss and fail late. A frequency sweep *pins*
-rather than caps: `geopmopt` mirrors any `*_MAX_*` setting onto the matching
-`*_MIN_*` control. Granting only the MAX passes every readiness check and then
-fails the campaign partway with a permission error. `CPU_FREQUENCY_MIN_CONTROL`
-is the one exception, deliberately excluded by `geopmopt`, so it is not needed.
+The two frequency companions are easy to miss and fail late. A frequency sweep
+*pins* rather than caps: `geopmopt` mirrors any `*_MAX_*` setting onto the
+matching `*_MIN_*` control. Granting only the MAX passes every readiness check
+and then fails the campaign partway with a permission error.
+`CPU_FREQUENCY_MIN_CONTROL` is the one exception, deliberately excluded by
+`geopmopt`, so it is not needed.
+
+`CPU_FREQUENCY_GOVERNOR_CONTROL` is just as easy to miss and just as late to
+fail. `geopmopt` (and `geopm-sensitivity.sh`) unconditionally force it to
+`performance` whenever `cpu-freq` is swept, because `CPU_FREQUENCY_MAX_CONTROL`
+is only a cap under a scaling governor and the requested frequency would not
+otherwise stick. Without this grant, `geopmread
+CPU_FREQUENCY_GOVERNOR_CONTROL board 0` still succeeds (it is readable as a
+signal), so the omission looks harmless until the first `cpu-freq` sweep fails
+partway through with `Error: Control name unknown:
+CPU_FREQUENCY_GOVERNOR_CONTROL`.
+
+`POWERCAP::CPU_POWER_LIMIT` is not the same control as the similarly-named
+`CPU_POWER_LIMIT_CONTROL` alias — they share a description but come from
+different `iogroup`s (`POWERCAP` vs `MSRIOGroup`). `grid.py`'s `cpu-power`
+dimension writes `POWERCAP::CPU_POWER_LIMIT` specifically, so granting only
+`CPU_POWER_LIMIT_CONTROL` leaves `cpu-power`'s domain reported as `n/a` in
+`--list-controls`, even though a control of nearly the same name was just
+granted.
 
 Signals, so the result can be measured and the search space discovered:
 

@@ -115,10 +115,15 @@ if [[ $ctl_domain == n/a || $ctl_min == n/a || $ctl_max == n/a || $ctl_step == n
 fi
 
 # The dimension name maps to the GEOPM control that geopmwrite understands.
+# This must match grid.py exactly: cpu-power in particular is
+# POWERCAP::CPU_POWER_LIMIT (POWERCAP iogroup), not the similarly named
+#   L alias (MSRIOGroup) -- the two are different controls
+# despite sharing a description, and testing the wrong one here would measure
+# sensitivity to a control geopmopt never actually sweeps.
 case "$DIMENSION" in
     cpu-freq|cpu-frequency)                  CONTROL=CPU_FREQUENCY_MAX_CONTROL ;;
     uncore-freq|cpu-uncore-frequency)        CONTROL=CPU_UNCORE_FREQUENCY_MAX_CONTROL ;;
-    cpu-power)                               CONTROL=CPU_POWER_LIMIT_CONTROL ;;
+    cpu-power)                               CONTROL=POWERCAP::CPU_POWER_LIMIT ;;
     gpu-freq|gpu-frequency)                  CONTROL=GPU_CORE_FREQUENCY_MAX_CONTROL ;;
     gpu-power)                               CONTROL=GPU_POWER_LIMIT_CONTROL ;;
     board-power)                             CONTROL=BOARD_POWER_LIMIT_CONTROL ;;
@@ -396,9 +401,20 @@ if (( ! range_is_flat )) && ! awk -v s="$snr" 'BEGIN{exit !(s >= 2)}'; then
     # response is locally linear in the control setting.
     steps=$(awk -v d="$step_delta" -v n="$noise" 'BEGIN{v=(d>0 ? 2*n/d : 99); printf "%d", (v<1?1:int(v+0.999))}')
     coarse=$(awk -v s="$ctl_step" -v k="$steps" 'BEGIN{printf "%.0f", s*k}')
+    # The suggested step must evenly divide (max - min), or geopmopt rejects it
+    # at parse time with "Grid ... is not evenly divisible by step size".
+    # Rather than hunting for a coarser step that happens to divide the whole
+    # range, raise min by the remainder of (max - min) / coarse: that remainder
+    # is always smaller than one coarse step, so min moves by less than a
+    # step, and the shifted range divides evenly by construction.
+    read -r new_min shifted degenerate < <(awk -v mn="$ctl_min" -v mx="$ctl_max" -v c="$coarse" 'BEGIN{
+        r = (mx - mn) % c
+        nm = (r == 0) ? mn : mn + r
+        printf "%.0f %d %d", nm, (r == 0 ? 0 : 1), (nm >= mx ? 1 : 0)
+    }')
+    grid_points=$(awk -v mn="$new_min" -v mx="$ctl_max" -v c="$coarse" 'BEGIN{printf "%d", (mx-mn)/c + 1.5}')
     # Averaging R runs shrinks the noise of the mean by sqrt(R).
     reps=$(awk -v d="$step_delta" -v n="$noise" 'BEGIN{v=(d>0 ? (2*n/d)^2 : 999); printf "%d", (v<2?2:int(v+0.999))}')
-    grid_points=$(awk -v mn="$ctl_min" -v mx="$ctl_max" -v s="$coarse" 'BEGIN{printf "%d", (mx-mn)/s + 1}')
 
     cat <<MSG
 
@@ -408,13 +424,37 @@ if (( ! range_is_flat )) && ! awk -v s="$snr" 'BEGIN{exit !(s >= 2)}'; then
   change a machine setting on the user's behalf.  See references/stabilization.md
   for the full menu and the questions to ask.
 
+MSG
+    if (( degenerate )); then
+        cat <<MSG
+  1. Use a coarser step: NOT POSSIBLE on this platform.  A step of ${coarse}
+     is needed to clear the noise, but that is at least as large as the whole
+     range (${ctl_min} to ${ctl_max}), so no min adjustment leaves room for
+     even the endpoints.  Widen the range instead, or move to remedy 2 or 3
+     below.
+MSG
+    else
+        cat <<MSG
   1. Use a coarser step (assistant can apply directly).  A change of ${steps}
      step(s) should clear the noise:
 
-       --sweep ${DIMENSION}@${DOMAIN}=${ctl_min}:${ctl_max}:${coarse}
+       --sweep ${DIMENSION}@${DOMAIN}=${new_min}:${ctl_max}:${coarse}
+MSG
+        if (( shifted )); then
+            cat <<MSG
 
-     That leaves about ${grid_points} grid points, which is ample for a search,
-     and it needs nothing from the user.
+     min was raised from ${ctl_min} to ${new_min} -- a shift smaller than one
+     step -- so the range divides evenly by ${coarse}, as geopmopt requires.
+MSG
+        fi
+        cat <<MSG
+
+     That leaves ${grid_points} grid points, which is ample for a search, and
+     it needs nothing from the user.
+MSG
+    fi
+
+    cat <<MSG
 
   2. Make each run longer.  Noise is dominated by start-up and scheduling
      effects that do not grow with runtime, so a workload that runs 4x longer

@@ -34,6 +34,40 @@ success.
 
 Three times the observed maximum is a reasonable setting.
 
+**A timed-out trial's launched process is not guaranteed to be terminated.**
+Observed directly: after a trial was reported as `Application evaluation timed
+out after N seconds` (with `--penalty none`, which aborts the run), the
+launched workload binary was still running and consuming CPU minutes later.
+Check for and kill orphans before retrying:
+
+```bash
+ps aux | grep '<your launch command>'
+```
+
+An orphaned workload process can also keep its enclosing `geopmsession`
+context alive, which is one way a write-mode lock ends up looking stuck even
+though the trial that opened it already reported failure — see the next
+entry and [the install skill's troubleshooting page](../../geopm-install/references/troubleshooting.md#write-access-rejected-by-another-session-even-right-after-installing).
+
+## Write access rejected by another session
+
+```
+<geopm> Runtime error: SDBus: ... The PID <new> requested write access, but
+the geopm service already has write mode client with PID or SID of <old>
+```
+
+Not an access-list or control-name problem, even though a control name appears
+in the message just before it. GEOPM's write-mode lock is tied to the
+*session leader* of whichever process first opened it, and stays held for as
+long as that session leader is alive — including across a `geopmd` restart.
+Most often caused by running one campaign's commands from more than one
+terminal, or by a timed-out trial's orphaned process (previous entry) keeping
+a session open. Full diagnosis and fix:
+[geopm-install troubleshooting](../../geopm-install/references/troubleshooting.md#write-access-rejected-by-another-session-even-right-after-installing).
+Rule of thumb: issue every command for one campaign from the same
+terminal/session; never switch terminals or move to a background/async
+execution context mid-campaign.
+
 ## No dimension is sweepable
 
 ```

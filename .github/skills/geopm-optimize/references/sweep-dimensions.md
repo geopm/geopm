@@ -133,7 +133,16 @@ Three consequences worth knowing:
 - `uncore-freq`'s maximum is read from the control's *current* value, so a
   previously lowered uncore limit narrows the search space. Check with
   `geopmread CPU_UNCORE_FREQUENCY_MAX_CONTROL package 0` if the range looks
-  small.
+  small — and note the reading can be exactly `0` rather than merely small,
+  which makes `min > max` and the dimension completely unusable (`--list-controls`
+  prints it as `min=8e+08 max=0`). A hard zero is a plausible reading on
+  hardware that has never had its uncore limit explicitly set, not necessarily
+  a sign that a prior GEOPM user lowered it — flag it to a system administrator
+  as a possible firmware/BIOS default rather than assuming it is recoverable
+  client-side. Writing a sane value inside a session
+  (`geopmwrite`/`geopmsession --control-config`) gives that one investigation a
+  real range to test with, but does not persist past the session, so it does
+  not fix the machine for a later campaign.
 
 If a dimension shows `n/a` but the hardware exists, suspect the access list
 before the hardware: see the bounds-signals table in

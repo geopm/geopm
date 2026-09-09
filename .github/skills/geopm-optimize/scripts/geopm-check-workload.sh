@@ -4,13 +4,16 @@
 #
 #  Run a workload once at default settings to establish a baseline before a
 #  tuning campaign: how long it takes, whether it succeeds, and whether the
-#  proposed metric regex matches its output.  Changes no hardware settings.
+#  proposed metric regex matches its output.  Changes no hardware settings
+#  unless --dimension is given.
 
 set -uo pipefail
 
 REGEX=""
 BASELINE_RUNS=1
 KEEP_OUTPUT=""
+VENV=""
+DIMENSION=""
 
 print_usage() {
     cat <<'USAGE'
@@ -26,9 +29,23 @@ Options:
   --runs N          Repeat N times to gauge run-to-run variation (default 1).
                     Two or three runs are enough to spot a noisy workload.
   --save-output FILE  Keep the last run's stdout for regex development.
+  --dimension DIM   Measure under the same conditions a geopmopt campaign
+                    sweeping DIM would actually use, instead of the
+                    unconstrained default settings.  For cpu-freq/
+                    cpu-frequency this forces the performance governor and
+                    caps the frequency at the sticker, mirroring geopmopt and
+                    geopm-sensitivity.sh exactly, so this baseline is a valid
+                    reference point for judging that campaign's results
+                    instead of comparing against faster, unconstrained
+                    turbo-range numbers the campaign can never reach.
+                    Requires geopmopt/geopmsession/geopmread on PATH.  See
+                    --list-controls for available dimension names.
+  --venv DIR        Use GEOPM tools from DIR/bin (only meaningful with
+                    --dimension).
   -h, --help        Print this help message and exit.
 
-No hardware settings are changed and no GEOPM session is opened.
+No hardware settings are changed and no GEOPM session is opened, unless
+--dimension is given.
 
 Exit status:
   0  the workload ran and, if a regex was given, it matched
@@ -45,6 +62,10 @@ while (( $# )); do
                 BASELINE_RUNS="$2"; shift ;;
         --save-output) [[ $# -ge 2 ]] || { echo "--save-output requires an argument" >&2; exit 2; }
                        KEEP_OUTPUT="$2"; shift ;;
+        --dimension) [[ $# -ge 2 ]] || { echo "--dimension requires an argument" >&2; exit 2; }
+                     DIMENSION="$2"; shift ;;
+        --venv) [[ $# -ge 2 ]] || { echo "--venv requires an argument" >&2; exit 2; }
+                VENV="$2"; shift ;;
         --) shift; break ;;
         -h|--help) print_usage; exit 0 ;;
         *) echo "geopm-check-workload.sh: unknown option '$1'" >&2
@@ -84,22 +105,96 @@ sys.exit(0 if p.groups == 1 else 1)
     fi
 fi
 
+# --dimension mirrors geopm-sensitivity.sh's condition-matching so this
+# baseline is a valid reference point for the campaign it precedes, rather
+# than a faster, unconstrained number the campaign can never reach.
+CONTROL=""
+GOVERNOR_LINE=""
+sig_conf=""
+ctl_conf=""
+if [[ -n $DIMENSION ]]; then
+    if [[ -n $VENV ]]; then
+        [[ -x "$VENV/bin/geopmopt" ]] || { echo "geopm-check-workload.sh: no geopmopt in '$VENV/bin'" >&2; exit 2; }
+        PATH="$VENV/bin:$PATH"; export PATH
+    fi
+    for tool in geopmopt geopmsession geopmread; do
+        command -v "$tool" >/dev/null 2>&1 || {
+            echo "geopm-check-workload.sh: $tool not found on PATH.  --dimension requires GEOPM; see the geopm-install skill." >&2
+            exit 2
+        }
+    done
+
+    controls=$(geopmopt --list-controls 2>&1) || {
+        echo "geopm-check-workload.sh: could not list controls." >&2
+        exit 2
+    }
+    read -r ctl_domain ctl_max < <(
+        printf '%s\n' "$controls" | awk -v d="$DIMENSION" 'NR>1 && $1==d {print $2, $5}')
+    if [[ -z ${ctl_domain:-} || $ctl_domain == n/a || $ctl_max == n/a ]]; then
+        echo "geopm-check-workload.sh: '$DIMENSION' is not usable on this platform" >&2
+        echo "  (domain=${ctl_domain:-unknown} max=${ctl_max:-unknown}).  See --list-controls." >&2
+        exit 2
+    fi
+
+    # Must match grid.py exactly -- see geopm-gen-access.sh and
+    # geopm-sensitivity.sh for the same mapping and why it matters.
+    case "$DIMENSION" in
+        cpu-freq|cpu-frequency)           CONTROL=CPU_FREQUENCY_MAX_CONTROL ;;
+        uncore-freq|cpu-uncore-frequency) CONTROL=CPU_UNCORE_FREQUENCY_MAX_CONTROL ;;
+        cpu-power)                        CONTROL=POWERCAP::CPU_POWER_LIMIT ;;
+        gpu-freq|gpu-frequency)           CONTROL=GPU_CORE_FREQUENCY_MAX_CONTROL ;;
+        gpu-power)                        CONTROL=GPU_POWER_LIMIT_CONTROL ;;
+        board-power)                      CONTROL=BOARD_POWER_LIMIT_CONTROL ;;
+        *) echo "geopm-check-workload.sh: no control mapping for '$DIMENSION'." >&2
+           echo "  Supported: cpu-freq, uncore-freq, cpu-power, gpu-freq, gpu-power, board-power" >&2
+           exit 2 ;;
+    esac
+
+    ref=$ctl_max
+    if [[ $DIMENSION == cpu-freq || $DIMENSION == cpu-frequency ]]; then
+        sticker=$(geopmread CPU_FREQUENCY_STICKER package 0 2>/dev/null)
+        if [[ -n $sticker ]] && awk -v s="$sticker" -v m="$ctl_max" 'BEGIN{exit !(s > 0 && s < m)}'; then
+            ref=$sticker
+        fi
+        if geopmread CPU_FREQUENCY_GOVERNOR_CONTROL board 0 >/dev/null 2>&1; then
+            GOVERNOR_LINE="CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0"
+        fi
+    fi
+
+    sig_conf=$(mktemp) || exit 1
+    ctl_conf=$(mktemp) || exit 1
+    printf 'TIME board 0\n' > "$sig_conf"
+    { [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
+      printf '%s board 0 %s\n' "$CONTROL" "$ref"; } > "$ctl_conf"
+fi
+
 echo "Workload baseline check"
 echo "==============================================================="
 echo "  Command : $*"
 [[ -n $REGEX ]] && echo "  Regex   : $REGEX"
 echo "  Runs    : $BASELINE_RUNS"
+if [[ -n $DIMENSION ]]; then
+    echo "  Dimension : ${DIMENSION} (${CONTROL}) capped at ${ref}"
+    [[ -n $GOVERNOR_LINE ]] && echo "  Governor  : performance (forced, mirrors geopmopt)"
+    echo "  Note      : this baseline reflects campaign conditions, not"
+    echo "              unconstrained defaults -- see sweep-dimensions.md"
+fi
 echo
 
 stdout_file=$(mktemp) || exit 1
 times_file=$(mktemp) || exit 1
 values_file=$(mktemp) || exit 1
-trap 'rm -f "$stdout_file" "$times_file" "$values_file"' EXIT
+trap 'rm -f "$stdout_file" "$times_file" "$values_file" "$sig_conf" "$ctl_conf"' EXIT
 
 failures=0
 for (( run = 1; run <= BASELINE_RUNS; run++ )); do
     start=$(date +%s.%N)
-    "$@" > "$stdout_file" 2>&1
+    if [[ -n $DIMENSION ]]; then
+        geopmsession -i "$sig_conf" --control-config "$ctl_conf" -o /dev/null \
+            -- "$@" > "$stdout_file" 2>&1
+    else
+        "$@" > "$stdout_file" 2>&1
+    fi
     rc=$?
     end=$(date +%s.%N)
     elapsed=$(awk -v s="$start" -v e="$end" 'BEGIN{printf "%.3f", e - s}')
