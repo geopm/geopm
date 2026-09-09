@@ -101,6 +101,33 @@ you apply with :doc:`geopmwrite(1) <geopmwrite.1>` will not outlive the command
 unless you keep a session open, for example with
 ``geopmsession --control-config``.
 
+Privileged and unprivileged writes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The save/restore guarantee is a property of the Access Service, so it applies
+only to writes that pass **through** the service. Whether a given write does
+depends on the privilege of the writer:
+
+- An **unprivileged** user cannot reach the hardware directly. GEOPM routes
+  every read and write through ``geopmd``, opening a session on first contact,
+  records each control the session writes, and restores it when the session
+  ends. This is the safe, and usual, way to run an experiment.
+
+- A **privileged** writer (``root``, or any process holding ``CAP_SYS_ADMIN``)
+  is given the direct hardware interfaces instead, and the service-backed layer
+  that would open a session is not loaded at all. Writes go straight to the MSR
+  or sysfs attribute: they take effect immediately, outlive the command, and
+  are **not** restored. A ``root`` ``geopmwrite`` leaves the setting in place
+  until something changes it back.
+
+Two consequences follow. First, the ``SERVICE::`` name prefix, which selects
+the service-backed interface explicitly, is only available to an unprivileged
+process; under ``root`` those names do not resolve, because that layer was
+never loaded. Second, if you want a change reverted automatically, make it as
+an unprivileged user that has been granted the control rather than as ``root``.
+Write as ``root`` only when you intend a change to persist, and then save and
+restore the prior value yourself.
+
 Access list
 -----------
 
