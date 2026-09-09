@@ -162,6 +162,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_SPR,
         MSRIOGroup::M_CPUID_GNRSP,
         MSRIOGroup::M_CPUID_GNRAP,
+        MSRIOGroup::M_CPUID_CWF,
     };
     for (auto id : cpuids) {
         try {
@@ -203,6 +204,33 @@ TEST_F(MSRIOGroupTest, gnr_drops_uncore_msrs)
         EXPECT_TRUE(gnr_group.is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
         EXPECT_TRUE(gnr_group.is_valid_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"));
     }
+}
+
+TEST_F(MSRIOGroupTest, cwf_drops_tpmi_msrs)
+{
+    // Clearwater Forest (Xeon 6 E-core, Darkmont) moved both uncore frequency
+    // control (0x620/0x621) and RAPL power/energy (0x606/0x610/0x611/0x618/
+    // 0x619/0x61B/0x61C/0x614 and platform RAPL 0x64D/0x65C/0x666) from the MSR
+    // interface to TPMI, so those MSRs must not be exposed.
+    auto cpuid_ptr = std::make_shared<MockCpuid>();
+    EXPECT_CALL(*cpuid_ptr, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_CWF));
+    EXPECT_CALL(*cpuid_ptr, rdt_info())
+        .WillRepeatedly(Return(geopm::Cpuid::rdt_info_s{}));
+    EXPECT_CALL(*cpuid_ptr, pmc_bit_width()).WillRepeatedly(Return(48));
+    EXPECT_CALL(*cpuid_ptr, is_hwp_supported()).WillRepeatedly(Return(false));
+    MSRIOGroup cwf_group(*m_topo, m_msrio, cpuid_ptr, nullptr);
+    // Uncore frequency MSRs are TPMI on Clearwater Forest.
+    EXPECT_FALSE(cwf_group.is_valid_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_FALSE(cwf_group.is_valid_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_FALSE(cwf_group.is_valid_signal("MSR::UNCORE_PERF_STATUS:FREQ"));
+    // RAPL power/energy MSRs are TPMI on Clearwater Forest.
+    EXPECT_FALSE(cwf_group.is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
+    EXPECT_FALSE(cwf_group.is_valid_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"));
+    EXPECT_FALSE(cwf_group.is_valid_signal("MSR::DRAM_ENERGY_STATUS:ENERGY"));
+    EXPECT_FALSE(cwf_group.is_valid_signal("MSR::RAPL_POWER_UNIT:ENERGY"));
+    // Core performance and turbo MSRs remain on the MSR interface.
+    EXPECT_TRUE(cwf_group.is_valid_signal("MSR::PERF_STATUS:FREQ"));
+    EXPECT_TRUE(cwf_group.is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_names)

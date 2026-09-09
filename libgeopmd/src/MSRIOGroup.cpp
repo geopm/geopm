@@ -56,6 +56,7 @@ namespace geopm
     const std::string skx_msr_json(void);
     const std::string spr_msr_json(void);
     const std::string gnr_msr_json(void);
+    const std::string cwf_msr_json(void);
 
     const std::string MSRIOGroup::M_DEFAULT_DESCRIPTION =
         "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's "
@@ -1223,6 +1224,9 @@ namespace geopm
         else if (cpu_id == MSRIOGroup::M_CPUID_GNRSP ||
                  cpu_id == MSRIOGroup::M_CPUID_GNRAP) {
             platform_msrs = gnr_msr_json();
+        }
+        else if (cpu_id == MSRIOGroup::M_CPUID_CWF) {
+            platform_msrs = cwf_msr_json();
         }
         else {
             std::cerr << "Warning: <geopm> CPUID is not recognized, assuming Sapphire Rapids Architecture Model Specific Register definitions.  These definitions may not be aligned with the features of this platform.  Read signals may return 0.0 in all cases, DRAM energy calibration values may be off, and failures may occur when attempting to write to control registers that are not supported."
