@@ -163,6 +163,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_GNRSP,
         MSRIOGroup::M_CPUID_GNRAP,
         MSRIOGroup::M_CPUID_CWF,
+        MSRIOGroup::M_CPUID_DMR,
     };
     for (auto id : cpuids) {
         try {
@@ -231,6 +232,33 @@ TEST_F(MSRIOGroupTest, cwf_drops_tpmi_msrs)
     // Core performance and turbo MSRs remain on the MSR interface.
     EXPECT_TRUE(cwf_group.is_valid_signal("MSR::PERF_STATUS:FREQ"));
     EXPECT_TRUE(cwf_group.is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
+}
+
+TEST_F(MSRIOGroupTest, dmr_drops_tpmi_msrs)
+{
+    // Diamond Rapids (Panther Cove, family 19) uses TPMI for RAPL power/energy
+    // and uncore frequency just like Clearwater Forest, so it reuses the CWF
+    // MSR set: the TPMI-replaced MSRs must not be exposed, while the retained
+    // core performance, turbo and HWP MSRs remain available.
+    auto cpuid_ptr = std::make_shared<MockCpuid>();
+    EXPECT_CALL(*cpuid_ptr, cpuid()).WillRepeatedly(Return(MSRIOGroup::M_CPUID_DMR));
+    EXPECT_CALL(*cpuid_ptr, rdt_info())
+        .WillRepeatedly(Return(geopm::Cpuid::rdt_info_s{}));
+    EXPECT_CALL(*cpuid_ptr, pmc_bit_width()).WillRepeatedly(Return(48));
+    EXPECT_CALL(*cpuid_ptr, is_hwp_supported()).WillRepeatedly(Return(false));
+    MSRIOGroup dmr_group(*m_topo, m_msrio, cpuid_ptr, nullptr);
+    // Uncore frequency MSRs are TPMI on Diamond Rapids.
+    EXPECT_FALSE(dmr_group.is_valid_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_FALSE(dmr_group.is_valid_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO"));
+    EXPECT_FALSE(dmr_group.is_valid_signal("MSR::UNCORE_PERF_STATUS:FREQ"));
+    // RAPL power/energy MSRs are TPMI on Diamond Rapids.
+    EXPECT_FALSE(dmr_group.is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
+    EXPECT_FALSE(dmr_group.is_valid_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"));
+    EXPECT_FALSE(dmr_group.is_valid_signal("MSR::DRAM_ENERGY_STATUS:ENERGY"));
+    EXPECT_FALSE(dmr_group.is_valid_signal("MSR::RAPL_POWER_UNIT:ENERGY"));
+    // Core performance and turbo MSRs remain on the MSR interface.
+    EXPECT_TRUE(dmr_group.is_valid_signal("MSR::PERF_STATUS:FREQ"));
+    EXPECT_TRUE(dmr_group.is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_names)
