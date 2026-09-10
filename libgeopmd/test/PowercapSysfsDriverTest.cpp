@@ -48,6 +48,10 @@ class PowercapFakeDirManager
                 // Create "name" file
                 write_file(package_dir + "/name", "package-" + std::to_string(socket));
                 write_file(package_dir + "/max_energy_range_uj", "262143328850");
+                // Factory power ceilings for the long- and short-term constraints
+                // (flat attribute files, as exposed by the kernel powercap driver).
+                write_file(package_dir + "/constraint_0_max_power_uw", "400000000");
+                write_file(package_dir + "/constraint_1_max_power_uw", "540000000");
 
                 // Create constraint directory and files
                 std::string constraint_dir = package_dir + "/constraint_0";
@@ -192,4 +196,36 @@ TEST_F(PowercapSysfsDriverTest, properties_are_loaded_correctly)
         EXPECT_FALSE(property.second.attribute.empty()) << "Attribute should not be empty for property: " << property.first;
         EXPECT_GT(property.second.scaling_factor, 0.0) << "Scaling factor should be positive for property: " << property.first;
     }
+}
+
+TEST_F(PowercapSysfsDriverTest, max_power_signals_map_to_constraint_attributes)
+{
+    std::string pl1_path = m_driver->attribute_path("POWERCAP::CPU_CONSTRAINT_0_MAX_POWER", 0);
+    EXPECT_THAT(pl1_path, ::testing::EndsWith("/intel-rapl:0/constraint_0_max_power_uw"))
+        << "CPU_CONSTRAINT_0_MAX_POWER should map to the long-term max_power sysfs file";
+
+    std::string pl2_path = m_driver->attribute_path("POWERCAP::CPU_CONSTRAINT_1_MAX_POWER", 1);
+    EXPECT_THAT(pl2_path, ::testing::EndsWith("/intel-rapl:1/constraint_1_max_power_uw"))
+        << "CPU_CONSTRAINT_1_MAX_POWER should map to the short-term max_power sysfs file";
+
+    auto pl1_parse = m_driver->signal_parse("POWERCAP::CPU_CONSTRAINT_0_MAX_POWER");
+    EXPECT_DOUBLE_EQ(400.0, pl1_parse("400000000"))
+        << "Max-power signal should scale microwatts to watts";
+}
+
+TEST_F(PowercapSysfsDriverTest, constraint_0_max_power_aliases_cpu_power_max_avail)
+{
+    auto prop_it = m_driver_properties.find("POWERCAP::CPU_CONSTRAINT_0_MAX_POWER");
+    ASSERT_NE(m_driver_properties.end(), prop_it)
+        << "CPU_CONSTRAINT_0_MAX_POWER property should be loaded";
+    EXPECT_EQ("CPU_POWER_MAX_AVAIL", prop_it->second.alias)
+        << "Long-term max power should alias the high-level CPU_POWER_MAX_AVAIL signal";
+    EXPECT_FALSE(prop_it->second.is_writable)
+        << "Factory power ceiling is read-only";
+
+    auto pl2_it = m_driver_properties.find("POWERCAP::CPU_CONSTRAINT_1_MAX_POWER");
+    ASSERT_NE(m_driver_properties.end(), pl2_it)
+        << "CPU_CONSTRAINT_1_MAX_POWER property should be loaded";
+    EXPECT_EQ("", pl2_it->second.alias)
+        << "Short-term max power should not carry a high-level alias";
 }

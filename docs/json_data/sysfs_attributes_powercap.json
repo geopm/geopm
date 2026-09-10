@@ -76,6 +76,28 @@
             "units": "joules",
             "writeable": false,
             "alias": "CPU_MAX_ENERGY_RANGE"
+        },
+        "CPU_CONSTRAINT_0_MAX_POWER": {
+            "attribute": "constraint_0_max_power_uw",
+            "scalar": 1e-6,
+            "description": "Maximum available CPU power for the long-term (PL1) RAPL constraint in watts; the factory power ceiling for this package.",
+            "aggregation": "sum",
+            "behavior": "constant",
+            "format": "double",
+            "units": "watts",
+            "writeable": false,
+            "alias": "CPU_POWER_MAX_AVAIL"
+        },
+        "CPU_CONSTRAINT_1_MAX_POWER": {
+            "attribute": "constraint_1_max_power_uw",
+            "scalar": 1e-6,
+            "description": "Maximum available CPU power for the short-term (PL2) RAPL constraint in watts.",
+            "aggregation": "sum",
+            "behavior": "constant",
+            "format": "double",
+            "units": "watts",
+            "writeable": false,
+            "alias": ""
         }
     }
 }
