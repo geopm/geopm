@@ -55,6 +55,10 @@ namespace geopm
     const std::string snb_msr_json(void);
     const std::string skx_msr_json(void);
     const std::string spr_msr_json(void);
+    const std::string gnr_msr_json(void);
+    const std::string cwf_msr_json(void);
+    const std::string dmr_msr_json(void);
+    const std::string fallback_msr_json(void);
 
     const std::string MSRIOGroup::M_DEFAULT_DESCRIPTION =
         "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's "
@@ -1217,14 +1221,27 @@ namespace geopm
             platform_msrs = skx_msr_json();
         }
         else if (cpu_id == MSRIOGroup::M_CPUID_SPR ||
-                 cpu_id == MSRIOGroup::M_CPUID_GNRSP ||
-                 cpu_id == MSRIOGroup::M_CPUID_GNRAP) {
+                 cpu_id == MSRIOGroup::M_CPUID_EMR) {
+            // Emerald Rapids shares the Sapphire Rapids MSR interface.
             platform_msrs = spr_msr_json();
         }
+        else if (cpu_id == MSRIOGroup::M_CPUID_GNRSP ||
+                 cpu_id == MSRIOGroup::M_CPUID_GNRAP ||
+                 cpu_id == MSRIOGroup::M_CPUID_SRF) {
+            // Sierra Forest matches Granite Rapids: RAPL on the MSR interface
+            // with uncore frequency moved to TPMI.
+            platform_msrs = gnr_msr_json();
+        }
+        else if (cpu_id == MSRIOGroup::M_CPUID_CWF) {
+            platform_msrs = cwf_msr_json();
+        }
+        else if (cpu_id == MSRIOGroup::M_CPUID_DMR) {
+            platform_msrs = dmr_msr_json();
+        }
         else {
-            std::cerr << "Warning: <geopm> CPUID is not recognized, assuming Sapphire Rapids Architecture Model Specific Register definitions.  These definitions may not be aligned with the features of this platform.  Read signals may return 0.0 in all cases, DRAM energy calibration values may be off, and failures may occur when attempting to write to control registers that are not supported."
+            std::cerr << "Warning: <geopm> CPUID is not recognized; using a restrictive fallback set of Model Specific Register definitions that omits platform-specific RAPL power/energy and uncore frequency registers.  Some signals and controls may be unavailable on this platform, and adding a CPUID-specific definition is required for full support."
                       << std::endl;
-            platform_msrs = spr_msr_json();
+            platform_msrs = fallback_msr_json();
         }
         return platform_msrs;
     }

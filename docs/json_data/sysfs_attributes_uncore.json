@@ -1,0 +1,59 @@
+{
+    "attributes": {
+        "MAX_FREQ_KHZ": {
+            "attribute": "max_freq_khz",
+            "scalar": 1e3,
+            "description": "The maximum uncore frequency allowed by the intel_uncore_frequency driver.",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": true,
+            "alias": "CPU_UNCORE_FREQUENCY_MAX_CONTROL"
+        },
+        "MIN_FREQ_KHZ": {
+            "attribute": "min_freq_khz",
+            "scalar": 1e3,
+            "description": "The minimum uncore frequency allowed by the intel_uncore_frequency driver.",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": true,
+            "alias": "CPU_UNCORE_FREQUENCY_MIN_CONTROL"
+        },
+        "CURRENT_FREQ_KHZ": {
+            "attribute": "current_freq_khz",
+            "scalar": 1e3,
+            "description": "The current uncore frequency reported by the intel_uncore_frequency driver.",
+            "aggregation": "average",
+            "behavior": "variable",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": "CPU_UNCORE_FREQUENCY_STATUS"
+        },
+        "INITIAL_MAX_FREQ_KHZ": {
+            "attribute": "initial_max_freq_khz",
+            "scalar": 1e3,
+            "description": "The maximum uncore frequency the platform supports (reset ceiling reference).",
+            "aggregation": "average",
+            "behavior": "constant",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        },
+        "INITIAL_MIN_FREQ_KHZ": {
+            "attribute": "initial_min_freq_khz",
+            "scalar": 1e3,
+            "description": "The minimum uncore frequency the platform supports (reset floor reference).",
+            "aggregation": "average",
+            "behavior": "constant",
+            "format": "double",
+            "units": "hertz",
+            "writeable": false,
+            "alias": ""
+        }
+    }
+}

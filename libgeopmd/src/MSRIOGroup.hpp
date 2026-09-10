@@ -43,8 +43,12 @@ namespace geopm
                 M_CPUID_SKX = 0x655,
                 M_CPUID_ICX = 0x66A,
                 M_CPUID_SPR = 0x68F,
+                M_CPUID_EMR = 0x6CF,
                 M_CPUID_GNRSP = 0x6AD,
                 M_CPUID_GNRAP = 0x6AE,
+                M_CPUID_SRF = 0x6AF,
+                M_CPUID_CWF = 0x6DD,
+                M_CPUID_DMR = 0x1301,
             };
 
             MSRIOGroup() = delete;

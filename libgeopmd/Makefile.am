@@ -83,10 +83,15 @@ EXTRA_DIST = .gitignore \
              json_data/msr_data_skx.json \
              json_data/msr_data_snb.json \
              json_data/msr_data_spr.json \
+             json_data/msr_data_gnr.json \
+             json_data/msr_data_cwf.json \
+             json_data/msr_data_dmr.json \
+             json_data/msr_data_fallback.json \
              json_data/sysfs_attributes_cpufreq.json \
              json_data/sysfs_attributes_drm.json \
              protoc-gen.sh \
              json_data/sysfs_attributes_powercap.json \
+             json_data/sysfs_attributes_uncore.json \
              src/json_data.cpp.in \
              # end
 
@@ -109,6 +114,10 @@ msr_cpp_files = \
                 gen-src/msr_data_skx.cpp \
                 gen-src/msr_data_snb.cpp \
                 gen-src/msr_data_spr.cpp \
+                gen-src/msr_data_gnr.cpp \
+                gen-src/msr_data_cwf.cpp \
+                gen-src/msr_data_dmr.cpp \
+                gen-src/msr_data_fallback.cpp \
                 # end
 
 # Sysfs JSON definitions. From each JSON file, generate a same-prefixed cpp file,
@@ -119,6 +128,7 @@ sysfs_cpp_files = \
                   gen-src/sysfs_attributes_cpufreq.cpp \
                   gen-src/sysfs_attributes_drm.cpp \
                   gen-src/sysfs_attributes_powercap.cpp \
+                  gen-src/sysfs_attributes_uncore.cpp \
                   #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
@@ -252,6 +262,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/TimeSignal.cpp \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \
+                       src/UncoreFreqSysfsDriver.cpp \
+                       src/UncoreFreqSysfsDriver.hpp \
                        src/UniqueFd.cpp \
                        src/UniqueFd.hpp \
                        src/geopm_hash.cpp \
