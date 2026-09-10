@@ -49,11 +49,28 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /mnt/geopm-prometheus
 
-# Configure GEOPM
-RUN printf \
-"CPU_CORE_TEMPERATURE\nCPU_ENERGY\nCPU_FREQUENCY_STATUS\n"\
-"CPU_PACKAGE_TEMPERATURE\nCPU_POWER\nCPU_UNCORE_FREQUENCY_STATUS\n"\
-"DRAM_ENERGY\nDRAM_POWER\nGPU_CORE_FREQUENCY_STATUS\nGPU_ENERGY\n"\
-"GPU_POWER\nGPU_TEMPERATURE\n" | \
-    geopmaccess --direct --force --write --default && \
-    printf "" | geopmaccess --direct --force --write --default --controls
+# Configure GEOPM: seed a blanket access list from the shipped all_names.txt.
+# geopmaccess cannot enumerate or validate names when geopmd is launched with
+# --grpc, so instead of granting a curated list we bake the full signal/control
+# name list (docs/all_names.txt) into the default access files. geopmd reads
+# these directly at startup; names that are unavailable on a given node are
+# harmless extras. The final rm keeps a build-host topo cache out of the image
+# (see comment below).
+COPY --from=build /src/geopm/docs/all_names.txt /etc/geopm/all_names.txt
+RUN mkdir -p /etc/geopm/0.DEFAULT_ACCESS && \
+    grep -v '^[[:space:]]*#' /etc/geopm/all_names.txt | grep -v '^[[:space:]]*$' \
+        > /etc/geopm/0.DEFAULT_ACCESS/allowed_signals && \
+    cp /etc/geopm/0.DEFAULT_ACCESS/allowed_signals \
+        /etc/geopm/0.DEFAULT_ACCESS/allowed_controls && \
+    chmod 700 /etc/geopm /etc/geopm/0.DEFAULT_ACCESS && \
+    chmod 600 /etc/geopm/0.DEFAULT_ACCESS/allowed_signals \
+        /etc/geopm/0.DEFAULT_ACCESS/allowed_controls && \
+    rm -f /tmp/geopm-topo-cache-* /run/geopm/geopm-topo-cache
+
+# Any geopm tool that resolves the platform topology writes a topo cache
+# (/tmp/geopm-topo-cache-<uid>) reflecting the host that ran it. Shipping a
+# build-host cache bakes the wrong topology into the image: geopm's check_file()
+# reuses any 0600 cache newer than the node's last boot, so it is never
+# regenerated and the runtime sees the build host's socket/NUMA counts. The rm
+# above is defensive -- never keep a topo cache in the image; let each node
+# regenerate it from live hardware at runtime.
