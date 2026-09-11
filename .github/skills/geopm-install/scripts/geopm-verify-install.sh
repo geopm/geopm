@@ -13,10 +13,14 @@ WRITE_PROBE=0
 QUIET=0
 
 # Controls a tuning campaign may sweep, in the order the report lists them.
+# cpu-power is POWERCAP::CPU_POWER_LIMIT, not the similarly named
+# CPU_POWER_LIMIT_CONTROL alias: grid.py's cpu-power dimension writes the
+# POWERCAP-iogroup control specifically, and the two are different controls
+# (different iogroup) despite sharing a description.
 CANDIDATE_CONTROLS=(
     CPU_FREQUENCY_MAX_CONTROL
     CPU_UNCORE_FREQUENCY_MAX_CONTROL
-    CPU_POWER_LIMIT_CONTROL
+    POWERCAP::CPU_POWER_LIMIT
     GPU_CORE_FREQUENCY_MAX_CONTROL
     GPU_POWER_LIMIT_CONTROL
     BOARD_POWER_LIMIT_CONTROL
@@ -24,10 +28,14 @@ CANDIDATE_CONTROLS=(
 
 # A frequency sweep pins rather than caps: geopmopt mirrors a *_MAX_* setting
 # onto the matching *_MIN_* control.  Granting only the MAX lets the gate pass
-# and then fails the campaign partway, so check the pairs too.
+# and then fails the campaign partway, so check the pairs too.  cpu-freq's
+# companion is CPU_FREQUENCY_GOVERNOR_CONTROL rather than a MIN control:
+# geopmopt forces the governor to 'performance' whenever cpu-freq is swept,
+# so it is required just as much as a paired MIN control is.
 declare -A COMPANION_CONTROLS=(
     [CPU_UNCORE_FREQUENCY_MAX_CONTROL]=CPU_UNCORE_FREQUENCY_MIN_CONTROL
     [GPU_CORE_FREQUENCY_MAX_CONTROL]=GPU_CORE_FREQUENCY_MIN_CONTROL
+    [CPU_FREQUENCY_MAX_CONTROL]=CPU_FREQUENCY_GOVERNOR_CONTROL
 )
 
 print_usage() {
@@ -197,9 +205,9 @@ if (( ${#writable[@]} )); then
         [[ -z $companion ]] && continue
         if ! printf '%s\n' "$granted_controls" | grep -qx "$companion"; then
             say "${WARN_MARK} ${control} is granted but ${companion} is not"
-            fail "Sweeping that dimension pins the frequency, writing both the MAX and
-       the MIN control, so the campaign will fail partway without
-       ${companion}.  Ask for it alongside the MAX."
+            fail "Sweeping that dimension also requires ${companion} to be granted, so
+       the campaign will fail partway without it.  Ask for it alongside
+       ${control}."
         fi
     done
 elif (( access_ok )); then
@@ -262,9 +270,12 @@ else
     else
         say "${PASS_MARK} geopmopt: $(command -v geopmopt)"
         # A dimension is usable only when the platform resolved a native domain
-        # and reported real bounds.  Bounds alone are not enough: unavailable
-        # power dimensions still print hardcoded defaults next to an n/a domain.
-        usable=$(printf '%s\n' "$opt_out" | awk 'NR>1 && NF>=6 && $2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" {print $1}')
+        # and reported real, numerically sane bounds.  Bounds alone are not
+        # enough: unavailable power dimensions still print hardcoded defaults
+        # next to an n/a domain, and a never-tuned uncore control can
+        # auto-detect its max bound from the control's current value, which
+        # reads 0 on such a host.  See references/sweep-dimensions.md.
+        usable=$(printf '%s\n' "$opt_out" | awk 'NR>1 && NF>=6 && $2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" && ($5+0)>0 && ($4+0)<=($5+0) {print $1}')
         usable_count=$(printf '%s' "$usable" | grep -c . || true)
         if (( usable_count > 0 )); then
             say "${PASS_MARK} sweepable dimensions: ${usable_count}"

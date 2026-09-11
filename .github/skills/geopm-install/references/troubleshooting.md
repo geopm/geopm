@@ -190,6 +190,52 @@ geopmaccess --write --dry-run --controls < proposed-controls.txt
 Or let [geopm-gen-access.sh](../scripts/geopm-gen-access.sh) filter the list
 against platform support for you.
 
+## Write access rejected by another session, even right after installing
+
+```
+Error: geopm_pio_push_control() failed: <geopm> Invalid argument:
+PlatformIOImp::push_control(): unable to push control name "X" and domain
+type "3"
+The following errors were observed:
+<geopm> Runtime error: SDBus: Failed to call sd-bus function
+sd_bus_call_method(), error:-5 name: not.known.Error.RuntimeError: The PID
+<new> requested write access, but the geopm service already has write mode
+client with PID or SID of <old>: at src/SDBus.cpp:31
+```
+
+Easy to misdiagnose as an access-list or control-name problem, since a control
+name appears in the message right before the real cause. It is neither.
+
+**Cause:** the Access Service's single write-mode lock is tied to the
+*session leader* of the requesting client (`os.getsid()` in
+`geopmdpy/geopmdpy/service.py:_write_mode`), not to the individual client
+process, and it stays held for as long as that session leader is alive —
+independent of whether the client that opened it has exited. A session leader
+is typically an interactive shell in a terminal tab, so this most often
+appears as "a different terminal opened a write session earlier and never
+closed it."
+
+**Restarting `geopmd` does not clear it.** The check re-derives from
+`psutil.pid_exists(session_leader_pid)` on each request, so a freshly
+restarted daemon reports the identical conflict on its very first request if
+that session leader process is still running.
+
+**Fix:** find the session leader named in the error (`<old>` above). Running a
+command from within that session does **not** release the lock: the lock is
+owned by the session leader itself, not by the individual client process that
+opened it. Close the terminal/shell that is `<old>`'s session leader (or use
+an administrative session-close) so the session leader itself exits:
+
+```bash
+ps -o sid= -p <old>      # confirm <old> is itself a session leader
+ps -fp <old>              # see what it is (often just an idle shell)
+```
+
+Issue every command for one `geopmopt` campaign from the same
+terminal/session. Do not move an in-progress campaign to a new terminal, a
+new SSH connection, or a background/async execution context — that starts a
+second session which will contend with the first for the same lock.
+
 ## geopmopt runs but nothing is sweepable
 
 ```

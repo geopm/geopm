@@ -34,6 +34,24 @@ success.
 
 Three times the observed maximum is a reasonable setting.
 
+## Write access rejected by another session
+
+```
+<geopm> Runtime error: SDBus: ... The PID <new> requested write access, but
+the geopm service already has write mode client with PID or SID of <old>
+```
+
+Not an access-list or control-name problem, even though a control name appears
+in the message just before it. GEOPM's write-mode lock is tied to the
+*session leader* of whichever process first opened it, and stays held for as
+long as that session leader is alive — including across a `geopmd` restart.
+Most often caused by running one campaign's commands from more than one
+terminal. Full diagnosis and fix:
+[geopm-install troubleshooting](../../geopm-install/references/troubleshooting.md#write-access-rejected-by-another-session-even-right-after-installing).
+Rule of thumb: issue every command for one campaign from the same
+terminal/session; never switch terminals or move to a background/async
+execution context mid-campaign.
+
 ## No dimension is sweepable
 
 ```

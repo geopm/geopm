@@ -4,13 +4,16 @@
 #
 #  Run a workload once at default settings to establish a baseline before a
 #  tuning campaign: how long it takes, whether it succeeds, and whether the
-#  proposed metric regex matches its output.  Changes no hardware settings.
+#  proposed metric regex matches its output.  Changes no hardware settings
+#  unless --dimension is given.
 
 set -uo pipefail
 
 REGEX=""
 BASELINE_RUNS=1
 KEEP_OUTPUT=""
+VENV=""
+DIMENSION=""
 
 print_usage() {
     cat <<'USAGE'
@@ -26,9 +29,24 @@ Options:
   --runs N          Repeat N times to gauge run-to-run variation (default 1).
                     Two or three runs are enough to spot a noisy workload.
   --save-output FILE  Keep the last run's stdout for regex development.
+  --dimension DIM   Measure under the same conditions a geopmopt campaign
+                    sweeping DIM would actually use, instead of the
+                    unconstrained default settings.  For cpu-freq/
+                    cpu-frequency this forces the performance governor and
+                    caps the frequency at the sticker, mirroring geopmopt and
+                    geopm-sensitivity.sh exactly, so this baseline is a valid
+                    reference point for judging that campaign's results
+                    instead of comparing against faster, unconstrained
+                    turbo-range numbers the campaign can never reach.
+                    prefetch is not supported here (see below).
+                    Requires geopmopt/geopmsession/geopmread on PATH.  See
+                    --list-controls for available dimension names.
+  --venv DIR        Use GEOPM tools from DIR/bin (only meaningful with
+                    --dimension).
   -h, --help        Print this help message and exit.
 
-No hardware settings are changed and no GEOPM session is opened.
+No hardware settings are changed and no GEOPM session is opened, unless
+--dimension is given.
 
 Exit status:
   0  the workload ran and, if a regex was given, it matched
@@ -45,6 +63,10 @@ while (( $# )); do
                 BASELINE_RUNS="$2"; shift ;;
         --save-output) [[ $# -ge 2 ]] || { echo "--save-output requires an argument" >&2; exit 2; }
                        KEEP_OUTPUT="$2"; shift ;;
+        --dimension) [[ $# -ge 2 ]] || { echo "--dimension requires an argument" >&2; exit 2; }
+                     DIMENSION="$2"; shift ;;
+        --venv) [[ $# -ge 2 ]] || { echo "--venv requires an argument" >&2; exit 2; }
+                VENV="$2"; shift ;;
         --) shift; break ;;
         -h|--help) print_usage; exit 0 ;;
         *) echo "geopm-check-workload.sh: unknown option '$1'" >&2
@@ -84,22 +106,141 @@ sys.exit(0 if p.groups == 1 else 1)
     fi
 fi
 
+# --dimension mirrors geopm-sensitivity.sh's condition-matching so this
+# baseline is a valid reference point for the campaign it precedes, rather
+# than a faster, unconstrained number the campaign can never reach.
+CONTROL=""
+GOVERNOR_LINE=""
+sig_conf=""
+ctl_conf=""
+if [[ -n $DIMENSION ]]; then
+    # --list-controls always keys its table by the short alias (grid.py's
+    # _PREFERRED_ALIAS), even though --sweep also accepts these long dashed
+    # spellings (_CONTROL_ALIASES).  Normalize before the lookup below, or a
+    # long spelling never matches a row and is rejected as unusable.
+    case "$DIMENSION" in
+        cpu-frequency)        DIMENSION=cpu-freq ;;
+        cpu-uncore-frequency) DIMENSION=uncore-freq ;;
+        gpu-frequency)        DIMENSION=gpu-freq ;;
+    esac
+
+    # prefetch expands to four ordered MSR disable controls in grid.py
+    # (prefetch_settings()), not a single MAX/MIN pair; replicating that
+    # level-to-controls mapping here would duplicate policy this baseline
+    # helper shouldn't own, so it is rejected rather than silently wrong.
+    if [[ $DIMENSION == prefetch || $DIMENSION == prefetch-disable ]]; then
+        echo "geopm-check-workload.sh: '$DIMENSION' is not supported by --dimension." >&2
+        echo "  geopmopt expands it into four ordered MSR prefetcher-disable controls" >&2
+        echo "  (grid.py's prefetch_settings()); baseline it manually, or omit --dimension" >&2
+        echo "  and compare against a geopmopt run over this dimension directly." >&2
+        exit 2
+    fi
+
+    if [[ -n $VENV ]]; then
+        [[ -x "$VENV/bin/geopmopt" ]] || { echo "geopm-check-workload.sh: no geopmopt in '$VENV/bin'" >&2; exit 2; }
+        PATH="$VENV/bin:$PATH"; export PATH
+    fi
+    for tool in geopmopt geopmsession geopmread; do
+        command -v "$tool" >/dev/null 2>&1 || {
+            echo "geopm-check-workload.sh: $tool not found on PATH.  --dimension requires GEOPM; see the geopm-install skill." >&2
+            exit 2
+        }
+    done
+
+    controls=$(geopmopt --list-controls 2>&1) || {
+        echo "geopm-check-workload.sh: could not list controls." >&2
+        exit 2
+    }
+    read -r ctl_domain ctl_min ctl_max < <(
+        printf '%s\n' "$controls" | awk -v d="$DIMENSION" 'NR>1 && $1==d {print $2, $4, $5}')
+    if [[ -z ${ctl_domain:-} || $ctl_domain == n/a || $ctl_min == n/a || $ctl_max == n/a ]]; then
+        echo "geopm-check-workload.sh: '$DIMENSION' is not usable on this platform" >&2
+        echo "  (domain=${ctl_domain:-unknown} max=${ctl_max:-unknown}).  See --list-controls." >&2
+        exit 2
+    fi
+    # A never-tuned uncore control can auto-detect its max bound from the
+    # control's *current* value, which reads 0 on such a host; --list-controls
+    # reports a real domain and numeric bounds in that case, so the n/a check
+    # above does not catch it.  See references/sweep-dimensions.md.
+    if ! awk -v mx="$ctl_max" 'BEGIN{exit !(mx > 0)}' 2>/dev/null; then
+        echo "geopm-check-workload.sh: '$DIMENSION' reports a non-positive max bound" >&2
+        echo "  (max=${ctl_max}), so there is no valid reference value.  See" >&2
+        echo "  references/sweep-dimensions.md for the uncore-freq max=0 case." >&2
+        exit 2
+    fi
+    if awk -v mn="$ctl_min" -v mx="$ctl_max" 'BEGIN{exit !(mn > mx)}' 2>/dev/null; then
+        echo "geopm-check-workload.sh: '$DIMENSION' reports min (${ctl_min}) greater" >&2
+        echo "  than max (${ctl_max}), so its bounds are invalid.  See --list-controls." >&2
+        exit 2
+    fi
+
+    # Must match grid.py exactly -- see geopm-gen-access.sh and
+    # geopm-sensitivity.sh for the same mapping and why it matters.
+    case "$DIMENSION" in
+        cpu-freq)    CONTROL=CPU_FREQUENCY_MAX_CONTROL ;;
+        uncore-freq) CONTROL=CPU_UNCORE_FREQUENCY_MAX_CONTROL ;;
+        cpu-power)   CONTROL=POWERCAP::CPU_POWER_LIMIT ;;
+        gpu-freq)    CONTROL=GPU_CORE_FREQUENCY_MAX_CONTROL ;;
+        gpu-power)   CONTROL=GPU_POWER_LIMIT_CONTROL ;;
+        board-power) CONTROL=BOARD_POWER_LIMIT_CONTROL ;;
+        *) echo "geopm-check-workload.sh: no control mapping for '$DIMENSION'." >&2
+           echo "  Supported: cpu-freq, uncore-freq, cpu-power, gpu-freq, gpu-power, board-power" >&2
+           exit 2 ;;
+    esac
+
+    ref=$ctl_max
+    if [[ $DIMENSION == cpu-freq ]]; then
+        sticker=$(geopmread CPU_FREQUENCY_STICKER package 0 2>/dev/null)
+        if [[ -n $sticker ]] && awk -v s="$sticker" -v m="$ctl_max" 'BEGIN{exit !(s > 0 && s < m)}'; then
+            ref=$sticker
+        fi
+        if geopmread CPU_FREQUENCY_GOVERNOR_CONTROL board 0 >/dev/null 2>&1; then
+            GOVERNOR_LINE="CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0"
+        fi
+    fi
+
+    sig_conf=$(mktemp) || exit 1
+    ctl_conf=$(mktemp) || exit 1
+    printf 'TIME board 0\n' > "$sig_conf"
+    {
+        [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
+        printf '%s board 0 %s\n' "$CONTROL" "$ref"
+        if [[ $CONTROL == *_MAX_CONTROL ]]; then
+            min_control=${CONTROL/_MAX_/_MIN_}
+            if [[ $min_control != "$CONTROL" && $min_control != CPU_FREQUENCY_MIN_CONTROL ]]; then
+                printf '%s board 0 %s\n' "$min_control" "$ref"
+            fi
+        fi
+    } > "$ctl_conf"
+fi
+
 echo "Workload baseline check"
 echo "==============================================================="
 echo "  Command : $*"
 [[ -n $REGEX ]] && echo "  Regex   : $REGEX"
 echo "  Runs    : $BASELINE_RUNS"
+if [[ -n $DIMENSION ]]; then
+    echo "  Dimension : ${DIMENSION} (${CONTROL}) capped at ${ref}"
+    [[ -n $GOVERNOR_LINE ]] && echo "  Governor  : performance (forced, mirrors geopmopt)"
+    echo "  Note      : this baseline reflects campaign conditions, not"
+    echo "              unconstrained defaults -- see sweep-dimensions.md"
+fi
 echo
 
 stdout_file=$(mktemp) || exit 1
 times_file=$(mktemp) || exit 1
 values_file=$(mktemp) || exit 1
-trap 'rm -f "$stdout_file" "$times_file" "$values_file"' EXIT
+trap 'rm -f "$stdout_file" "$times_file" "$values_file" "$sig_conf" "$ctl_conf"' EXIT
 
 failures=0
 for (( run = 1; run <= BASELINE_RUNS; run++ )); do
     start=$(date +%s.%N)
-    "$@" > "$stdout_file" 2>&1
+    if [[ -n $DIMENSION ]]; then
+        geopmsession -i "$sig_conf" --control-config "$ctl_conf" -o /dev/null \
+            -- "$@" > "$stdout_file" 2>&1
+    else
+        "$@" > "$stdout_file" 2>&1
+    fi
     rc=$?
     end=$(date +%s.%N)
     elapsed=$(awk -v s="$start" -v e="$end" 'BEGIN{printf "%.3f", e - s}')

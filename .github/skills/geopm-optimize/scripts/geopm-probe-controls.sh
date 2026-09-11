@@ -79,13 +79,17 @@ echo "==============================================================="
 printf '%s\n' "$controls_out"
 echo
 
-# A dimension is usable only when its native domain resolved.  Unavailable
-# power dimensions still print hardcoded default bounds next to an n/a domain,
-# so bounds alone would give a false positive.
+# A dimension is usable only when its native domain resolved and its bounds
+# are numerically sane.  Unavailable power dimensions still print hardcoded
+# default bounds next to an n/a domain, so an n/a check alone would give a
+# false positive; a never-tuned uncore control can also auto-detect its max
+# bound from the control's current value, which reads 0 on such a host, so a
+# numeric max>0 and min<=max check is needed too.  See
+# references/sweep-dimensions.md for the uncore-freq max=0 case.
 usable=$(printf '%s\n' "$controls_out" \
-    | awk 'NR>1 && NF>=6 && $2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" {print $1}')
+    | awk 'NR>1 && NF>=6 && $2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" && ($5+0)>0 && ($4+0)<=($5+0) {print $1}')
 unusable=$(printf '%s\n' "$controls_out" \
-    | awk 'NR>1 && NF>=6 && ($2=="n/a" || $4=="n/a" || $5=="n/a" || $6=="n/a") {print $1}')
+    | awk 'NR>1 && NF>=6 && !($2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" && ($5+0)>0 && ($4+0)<=($5+0)) {print $1}')
 
 usable_count=$(printf '%s' "$usable" | grep -c . || true)
 
@@ -140,7 +144,7 @@ if [[ -n $unusable ]] && command -v geopmaccess >/dev/null 2>&1; then
     withheld=""
     for pair in "cpu-freq:CPU_FREQUENCY_MAX_CONTROL" \
                 "uncore-freq:CPU_UNCORE_FREQUENCY_MAX_CONTROL" \
-                "cpu-power:CPU_POWER_LIMIT_CONTROL" \
+                "cpu-power:POWERCAP::CPU_POWER_LIMIT" \
                 "gpu-freq:GPU_CORE_FREQUENCY_MAX_CONTROL" \
                 "gpu-power:GPU_POWER_LIMIT_CONTROL" \
                 "board-power:BOARD_POWER_LIMIT_CONTROL"; do

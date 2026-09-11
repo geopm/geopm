@@ -21,11 +21,23 @@ EXTRA_CONTROLS=()
 # onto the matching *_MIN_* control, so both must be granted or the campaign
 # fails partway with a permission error.  CPU_FREQUENCY_MIN_CONTROL is the one
 # exception, deliberately excluded by grid.py, so it is not requested here.
+#
+# CPU_FREQUENCY_GOVERNOR_CONTROL is requested unconditionally because geopmopt
+# forces it to 'performance' whenever cpu-freq is swept, regardless of whether
+# cpu-freq is in this particular request; omitting it fails
+# geopm-verify-install.sh's readiness gate, and only fails partway through a
+# campaign if that check is skipped.
+#
+# cpu-power is granted as POWERCAP::CPU_POWER_LIMIT, not the similarly named
+# CPU_POWER_LIMIT_CONTROL alias: grid.py's cpu-power dimension writes the
+# POWERCAP-iogroup control specifically, and the two names are different
+# controls (different iogroup) despite sharing a description.
 DEFAULT_CONTROLS=(
     CPU_FREQUENCY_MAX_CONTROL
+    CPU_FREQUENCY_GOVERNOR_CONTROL
     CPU_UNCORE_FREQUENCY_MAX_CONTROL
     CPU_UNCORE_FREQUENCY_MIN_CONTROL
-    CPU_POWER_LIMIT_CONTROL
+    POWERCAP::CPU_POWER_LIMIT
     GPU_CORE_FREQUENCY_MAX_CONTROL
     GPU_CORE_FREQUENCY_MIN_CONTROL
     GPU_POWER_LIMIT_CONTROL
