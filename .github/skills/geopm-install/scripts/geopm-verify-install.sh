@@ -270,9 +270,12 @@ else
     else
         say "${PASS_MARK} geopmopt: $(command -v geopmopt)"
         # A dimension is usable only when the platform resolved a native domain
-        # and reported real bounds.  Bounds alone are not enough: unavailable
-        # power dimensions still print hardcoded defaults next to an n/a domain.
-        usable=$(printf '%s\n' "$opt_out" | awk 'NR>1 && NF>=6 && $2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" {print $1}')
+        # and reported real, numerically sane bounds.  Bounds alone are not
+        # enough: unavailable power dimensions still print hardcoded defaults
+        # next to an n/a domain, and a never-tuned uncore control can
+        # auto-detect its max bound from the control's current value, which
+        # reads 0 on such a host.  See references/sweep-dimensions.md.
+        usable=$(printf '%s\n' "$opt_out" | awk 'NR>1 && NF>=6 && $2!="n/a" && $4!="n/a" && $5!="n/a" && $6!="n/a" && ($5+0)>0 && ($4+0)<=($5+0) {print $1}')
         usable_count=$(printf '%s' "$usable" | grep -c . || true)
         if (( usable_count > 0 )); then
             say "${PASS_MARK} sweepable dimensions: ${usable_count}"

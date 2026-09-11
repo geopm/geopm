@@ -125,8 +125,11 @@ Controls, so `geopmopt` can sweep them:
 
 The two frequency companions are easy to miss and fail late. A frequency sweep
 *pins* rather than caps: `geopmopt` mirrors any `*_MAX_*` setting onto the
-matching `*_MIN_*` control. Granting only the MAX passes every readiness check
-and then fails the campaign partway with a permission error.
+matching `*_MIN_*` control. Granting only the MAX passes a basic bounds/access
+check like `--list-controls` or `geopmaccess --write --dry-run --controls`.
+`scripts/geopm-verify-install.sh`'s full readiness gate checks for the
+companion and fails ahead of time; without running that verifier, the gap
+surfaces only when the campaign fails partway with a permission error.
 `CPU_FREQUENCY_MIN_CONTROL` is the one exception, deliberately excluded by
 `geopmopt`, so it is not needed.
 
