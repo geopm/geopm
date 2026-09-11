@@ -132,6 +132,16 @@ case "$DIMENSION" in
        exit 2 ;;
 esac
 
+# grid.py pins *_MAX_CONTROL sweeps by also writing the matching *_MIN_CONTROL
+# (except CPU_FREQUENCY_MIN_CONTROL, deliberately excluded there).  Mirror it
+# here so this measures the pinned setting geopmopt evaluates, not just a cap.
+MIN_CONTROL=""
+candidate_min=${CONTROL/_MAX_/_MIN_}
+if [[ $candidate_min != "$CONTROL" && $candidate_min != CPU_FREQUENCY_MIN_CONTROL ]] \
+   && geopmread "$candidate_min" "$DOMAIN" 0 >/dev/null 2>&1; then
+    MIN_CONTROL=$candidate_min
+fi
+
 # geopmopt prepends CPU_FREQUENCY_GOVERNOR_CONTROL=performance whenever cpu-freq
 # is swept, because CPU_FREQUENCY_MAX_CONTROL is only a cap under a scaling
 # governor and the requested frequency would not stick.  Mirror that here so the
@@ -187,7 +197,8 @@ measure_once() {
     shift
     if [[ -n $setting ]]; then
         { [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
-          printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting"; } > "$ctl_conf"
+          printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting"
+          [[ -n $MIN_CONTROL ]] && printf '%s %s 0 %s\n' "$MIN_CONTROL" "$DOMAIN" "$setting"; } > "$ctl_conf"
         start=$(date +%s.%N)
         geopmsession -i "$sig_conf" --control-config "$ctl_conf" -o /dev/null \
             -- "$@" > "$tmp_out" 2>&1
@@ -240,7 +251,8 @@ achieved_freq() {
     local report; report=$(mktemp) || return 1
     printf 'CPU_FREQUENCY_STATUS package 0\n' > "$ctl_conf.sig"
     { [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
-      printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting"; } > "$ctl_conf"
+      printf '%s %s 0 %s\n' "$CONTROL" "$DOMAIN" "$setting"
+      [[ -n $MIN_CONTROL ]] && printf '%s %s 0 %s\n' "$MIN_CONTROL" "$DOMAIN" "$setting"; } > "$ctl_conf"
     geopmsession -i "$ctl_conf.sig" --control-config "$ctl_conf" \
         -r "$report" -f yaml -p 0.2 -o /dev/null -- "$@" > /dev/null 2>&1
     grep -A6 'CPU_FREQUENCY_STATUS' "$report" 2>/dev/null \
@@ -259,6 +271,7 @@ echo "  Grid       : min=${ctl_min} max=${ctl_max} step=${ctl_step}"
 [[ -n $STICKER ]] && echo "  Sticker    : ${STICKER}"
 echo "  Reference  : ${REF} (${REF_LABEL})"
 [[ -n $GOVERNOR_LINE ]] && echo "  Governor   : performance (forced, mirrors geopmopt)"
+[[ -n $MIN_CONTROL ]] && echo "  Companion  : ${MIN_CONTROL} pinned alongside ${CONTROL} (mirrors geopmopt)"
 echo "  Metric     : ${metric_label}"
 echo "  Repeats    : ${REPEATS} per setting"
 echo

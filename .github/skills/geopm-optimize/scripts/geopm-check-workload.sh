@@ -38,6 +38,7 @@ Options:
                     reference point for judging that campaign's results
                     instead of comparing against faster, unconstrained
                     turbo-range numbers the campaign can never reach.
+                    prefetch is not supported here (see below).
                     Requires geopmopt/geopmsession/geopmread on PATH.  See
                     --list-controls for available dimension names.
   --venv DIR        Use GEOPM tools from DIR/bin (only meaningful with
@@ -122,6 +123,18 @@ if [[ -n $DIMENSION ]]; then
         cpu-uncore-frequency) DIMENSION=uncore-freq ;;
         gpu-frequency)        DIMENSION=gpu-freq ;;
     esac
+
+    # prefetch expands to four ordered MSR disable controls in grid.py
+    # (prefetch_settings()), not a single MAX/MIN pair; replicating that
+    # level-to-controls mapping here would duplicate policy this baseline
+    # helper shouldn't own, so it is rejected rather than silently wrong.
+    if [[ $DIMENSION == prefetch || $DIMENSION == prefetch-disable ]]; then
+        echo "geopm-check-workload.sh: '$DIMENSION' is not supported by --dimension." >&2
+        echo "  geopmopt expands it into four ordered MSR prefetcher-disable controls" >&2
+        echo "  (grid.py's prefetch_settings()); baseline it manually, or omit --dimension" >&2
+        echo "  and compare against a geopmopt run over this dimension directly." >&2
+        exit 2
+    fi
 
     if [[ -n $VENV ]]; then
         [[ -x "$VENV/bin/geopmopt" ]] || { echo "geopm-check-workload.sh: no geopmopt in '$VENV/bin'" >&2; exit 2; }

@@ -220,9 +220,11 @@ closed it."
 restarted daemon reports the identical conflict on its very first request if
 that session leader process is still running.
 
-**Fix:** find the session leader named in the error (`<old>` above) and either
-let a process in *that same session* run a GEOPM command to completion (which
-releases the lock), or close that terminal/shell so the session leader exits:
+**Fix:** find the session leader named in the error (`<old>` above). Running a
+command from within that session does **not** release the lock: the lock is
+owned by the session leader itself, not by the individual client process that
+opened it. Close the terminal/shell that is `<old>`'s session leader (or use
+an administrative session-close) so the session leader itself exits:
 
 ```bash
 ps -o sid= -p <old>      # confirm <old> is itself a session leader

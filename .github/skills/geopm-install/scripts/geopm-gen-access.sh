@@ -24,8 +24,9 @@ EXTRA_CONTROLS=()
 #
 # CPU_FREQUENCY_GOVERNOR_CONTROL is requested unconditionally because geopmopt
 # forces it to 'performance' whenever cpu-freq is swept, regardless of whether
-# cpu-freq is in this particular request; omitting it passes the readiness
-# gate and then fails every cpu-freq campaign partway through.
+# cpu-freq is in this particular request; omitting it fails
+# geopm-verify-install.sh's readiness gate, and only fails partway through a
+# campaign if that check is skipped.
 #
 # cpu-power is granted as POWERCAP::CPU_POWER_LIMIT, not the similarly named
 # CPU_POWER_LIMIT_CONTROL alias: grid.py's cpu-power dimension writes the
