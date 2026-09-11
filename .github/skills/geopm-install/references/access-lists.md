@@ -134,10 +134,10 @@ and then fails the campaign partway with a permission error.
 fail. `geopmopt` (and `geopm-sensitivity.sh`) unconditionally force it to
 `performance` whenever `cpu-freq` is swept, because `CPU_FREQUENCY_MAX_CONTROL`
 is only a cap under a scaling governor and the requested frequency would not
-otherwise stick. Without this grant, `geopmread
-CPU_FREQUENCY_GOVERNOR_CONTROL board 0` still succeeds (it is readable as a
-signal), so the omission looks harmless until the first `cpu-freq` sweep fails
-partway through with `Error: Control name unknown:
+otherwise stick. Without this grant, `geopmaccess --all --controls` still shows
+that the control exists and `geopmaccess --controls` may still show the MAX
+frequency control grant, so the omission looks harmless until the first
+`cpu-freq` sweep fails partway through with `Error: Control name unknown:
 CPU_FREQUENCY_GOVERNOR_CONTROL`.
 
 `POWERCAP::CPU_POWER_LIMIT` is not the same control as the similarly-named
