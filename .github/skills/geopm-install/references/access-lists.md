@@ -92,7 +92,7 @@ touching any file, and an ordinary user may run it. Use it to confirm a
 proposed list before asking an administrator to do anything:
 
 ```console
-$ echo CPU_POWER_LIMIT_CONTROL | geopmaccess --write --dry-run --controls
+$ echo POWERCAP::CPU_POWER_LIMIT | geopmaccess --write --dry-run --controls
 $ echo NOT_A_REAL_SIGNAL | geopmaccess --write --dry-run
 Error: Requested access to signals that are not available: NOT_A_REAL_SIGNAL
 $ echo $?

@@ -16,16 +16,19 @@ QUIET=0
 CANDIDATE_CONTROLS=(
     CPU_FREQUENCY_MAX_CONTROL
     CPU_UNCORE_FREQUENCY_MAX_CONTROL
-    CPU_POWER_LIMIT_CONTROL
+    POWERCAP::CPU_POWER_LIMIT
     GPU_CORE_FREQUENCY_MAX_CONTROL
     GPU_POWER_LIMIT_CONTROL
     BOARD_POWER_LIMIT_CONTROL
 )
 
 # A frequency sweep pins rather than caps: geopmopt mirrors a *_MAX_* setting
-# onto the matching *_MIN_* control.  Granting only the MAX lets the gate pass
-# and then fails the campaign partway, so check the pairs too.
-declare -A COMPANION_CONTROLS=(
+# onto the matching *_MIN_* control.  cpu-freq also forces the performance
+# governor so the requested cap sticks.  Granting only the sweep control lets
+# the gate pass and then fails the campaign partway, so check the dependencies
+# too.
+declare -A REQUIRED_CONTROLS=(
+    [CPU_FREQUENCY_MAX_CONTROL]=CPU_FREQUENCY_GOVERNOR_CONTROL
     [CPU_UNCORE_FREQUENCY_MAX_CONTROL]=CPU_UNCORE_FREQUENCY_MIN_CONTROL
     [GPU_CORE_FREQUENCY_MAX_CONTROL]=GPU_CORE_FREQUENCY_MIN_CONTROL
 )
@@ -191,15 +194,22 @@ if (( ${#writable[@]} )); then
         say "           - ${control}"
     done
     # A granted MAX without its MIN passes this gate and then fails the
-    # campaign, so surface it here rather than an hour later.
+    # campaign, and cpu-freq also needs the governor control, so surface these
+    # gaps here rather than an hour later.
     for control in "${writable[@]}"; do
-        companion=${COMPANION_CONTROLS[$control]:-}
+        companion=${REQUIRED_CONTROLS[$control]:-}
         [[ -z $companion ]] && continue
         if ! printf '%s\n' "$granted_controls" | grep -qx "$companion"; then
             say "${WARN_MARK} ${control} is granted but ${companion} is not"
-            fail "Sweeping that dimension pins the frequency, writing both the MAX and
+            if [[ $companion == CPU_FREQUENCY_GOVERNOR_CONTROL ]]; then
+                fail "Sweeping cpu-freq also writes ${companion}=performance, so the
+       campaign will fail partway without that grant.  Ask for it alongside
+       ${control}."
+            else
+                fail "Sweeping that dimension pins the frequency, writing both the MAX and
        the MIN control, so the campaign will fail partway without
        ${companion}.  Ask for it alongside the MAX."
+            fi
         fi
     done
 elif (( access_ok )); then
