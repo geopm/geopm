@@ -113,6 +113,16 @@ GOVERNOR_LINE=""
 sig_conf=""
 ctl_conf=""
 if [[ -n $DIMENSION ]]; then
+    # --list-controls always keys its table by the short alias (grid.py's
+    # _PREFERRED_ALIAS), even though --sweep also accepts these long dashed
+    # spellings (_CONTROL_ALIASES).  Normalize before the lookup below, or a
+    # long spelling never matches a row and is rejected as unusable.
+    case "$DIMENSION" in
+        cpu-frequency)        DIMENSION=cpu-freq ;;
+        cpu-uncore-frequency) DIMENSION=uncore-freq ;;
+        gpu-frequency)        DIMENSION=gpu-freq ;;
+    esac
+
     if [[ -n $VENV ]]; then
         [[ -x "$VENV/bin/geopmopt" ]] || { echo "geopm-check-workload.sh: no geopmopt in '$VENV/bin'" >&2; exit 2; }
         PATH="$VENV/bin:$PATH"; export PATH
@@ -154,19 +164,19 @@ if [[ -n $DIMENSION ]]; then
     # Must match grid.py exactly -- see geopm-gen-access.sh and
     # geopm-sensitivity.sh for the same mapping and why it matters.
     case "$DIMENSION" in
-        cpu-freq|cpu-frequency)           CONTROL=CPU_FREQUENCY_MAX_CONTROL ;;
-        uncore-freq|cpu-uncore-frequency) CONTROL=CPU_UNCORE_FREQUENCY_MAX_CONTROL ;;
-        cpu-power)                        CONTROL=POWERCAP::CPU_POWER_LIMIT ;;
-        gpu-freq|gpu-frequency)           CONTROL=GPU_CORE_FREQUENCY_MAX_CONTROL ;;
-        gpu-power)                        CONTROL=GPU_POWER_LIMIT_CONTROL ;;
-        board-power)                      CONTROL=BOARD_POWER_LIMIT_CONTROL ;;
+        cpu-freq)    CONTROL=CPU_FREQUENCY_MAX_CONTROL ;;
+        uncore-freq) CONTROL=CPU_UNCORE_FREQUENCY_MAX_CONTROL ;;
+        cpu-power)   CONTROL=POWERCAP::CPU_POWER_LIMIT ;;
+        gpu-freq)    CONTROL=GPU_CORE_FREQUENCY_MAX_CONTROL ;;
+        gpu-power)   CONTROL=GPU_POWER_LIMIT_CONTROL ;;
+        board-power) CONTROL=BOARD_POWER_LIMIT_CONTROL ;;
         *) echo "geopm-check-workload.sh: no control mapping for '$DIMENSION'." >&2
            echo "  Supported: cpu-freq, uncore-freq, cpu-power, gpu-freq, gpu-power, board-power" >&2
            exit 2 ;;
     esac
 
     ref=$ctl_max
-    if [[ $DIMENSION == cpu-freq || $DIMENSION == cpu-frequency ]]; then
+    if [[ $DIMENSION == cpu-freq ]]; then
         sticker=$(geopmread CPU_FREQUENCY_STICKER package 0 2>/dev/null)
         if [[ -n $sticker ]] && awk -v s="$sticker" -v m="$ctl_max" 'BEGIN{exit !(s > 0 && s < m)}'; then
             ref=$sticker
