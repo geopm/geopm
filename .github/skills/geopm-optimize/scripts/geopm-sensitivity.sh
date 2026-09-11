@@ -117,7 +117,7 @@ fi
 # The dimension name maps to the GEOPM control that geopmwrite understands.
 # This must match grid.py exactly: cpu-power in particular is
 # POWERCAP::CPU_POWER_LIMIT (POWERCAP iogroup), not the similarly named
-#   L alias (MSRIOGroup) -- the two are different controls
+# CPU_POWER_LIMIT_CONTROL alias (MSRIOGroup).  The two are different controls
 # despite sharing a description, and testing the wrong one here would measure
 # sensitivity to a control geopmopt never actually sweeps.
 case "$DIMENSION" in
