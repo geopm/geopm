@@ -164,8 +164,16 @@ if [[ -n $DIMENSION ]]; then
     sig_conf=$(mktemp) || exit 1
     ctl_conf=$(mktemp) || exit 1
     printf 'TIME board 0\n' > "$sig_conf"
-    { [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
-      printf '%s board 0 %s\n' "$CONTROL" "$ref"; } > "$ctl_conf"
+    {
+        [[ -n $GOVERNOR_LINE ]] && printf '%s\n' "$GOVERNOR_LINE"
+        printf '%s board 0 %s\n' "$CONTROL" "$ref"
+        if [[ $CONTROL == *_MAX_CONTROL ]]; then
+            min_control=${CONTROL/_MAX_/_MIN_}
+            if [[ $min_control != "$CONTROL" && $min_control != CPU_FREQUENCY_MIN_CONTROL ]]; then
+                printf '%s board 0 %s\n' "$min_control" "$ref"
+            fi
+        fi
+    } > "$ctl_conf"
 fi
 
 echo "Workload baseline check"
