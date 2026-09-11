@@ -140,7 +140,7 @@ if [[ -n $unusable ]] && command -v geopmaccess >/dev/null 2>&1; then
     withheld=""
     for pair in "cpu-freq:CPU_FREQUENCY_MAX_CONTROL" \
                 "uncore-freq:CPU_UNCORE_FREQUENCY_MAX_CONTROL" \
-                "cpu-power:CPU_POWER_LIMIT_CONTROL" \
+                "cpu-power:POWERCAP::CPU_POWER_LIMIT" \
                 "gpu-freq:GPU_CORE_FREQUENCY_MAX_CONTROL" \
                 "gpu-power:GPU_POWER_LIMIT_CONTROL" \
                 "board-power:BOARD_POWER_LIMIT_CONTROL"; do

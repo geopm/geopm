@@ -128,11 +128,26 @@ if [[ -n $DIMENSION ]]; then
         echo "geopm-check-workload.sh: could not list controls." >&2
         exit 2
     }
-    read -r ctl_domain ctl_max < <(
-        printf '%s\n' "$controls" | awk -v d="$DIMENSION" 'NR>1 && $1==d {print $2, $5}')
-    if [[ -z ${ctl_domain:-} || $ctl_domain == n/a || $ctl_max == n/a ]]; then
+    read -r ctl_domain ctl_min ctl_max < <(
+        printf '%s\n' "$controls" | awk -v d="$DIMENSION" 'NR>1 && $1==d {print $2, $4, $5}')
+    if [[ -z ${ctl_domain:-} || $ctl_domain == n/a || $ctl_min == n/a || $ctl_max == n/a ]]; then
         echo "geopm-check-workload.sh: '$DIMENSION' is not usable on this platform" >&2
         echo "  (domain=${ctl_domain:-unknown} max=${ctl_max:-unknown}).  See --list-controls." >&2
+        exit 2
+    fi
+    # A never-tuned uncore control can auto-detect its max bound from the
+    # control's *current* value, which reads 0 on such a host; --list-controls
+    # reports a real domain and numeric bounds in that case, so the n/a check
+    # above does not catch it.  See references/sweep-dimensions.md.
+    if ! awk -v mx="$ctl_max" 'BEGIN{exit !(mx > 0)}' 2>/dev/null; then
+        echo "geopm-check-workload.sh: '$DIMENSION' reports a non-positive max bound" >&2
+        echo "  (max=${ctl_max}), so there is no valid reference value.  See" >&2
+        echo "  references/sweep-dimensions.md for the uncore-freq max=0 case." >&2
+        exit 2
+    fi
+    if awk -v mn="$ctl_min" -v mx="$ctl_max" 'BEGIN{exit !(mn > mx)}' 2>/dev/null; then
+        echo "geopm-check-workload.sh: '$DIMENSION' reports min (${ctl_min}) greater" >&2
+        echo "  than max (${ctl_max}), so its bounds are invalid.  See --list-controls." >&2
         exit 2
     fi
 
