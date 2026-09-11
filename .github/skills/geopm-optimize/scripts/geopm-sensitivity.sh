@@ -115,10 +115,15 @@ if [[ $ctl_domain == n/a || $ctl_min == n/a || $ctl_max == n/a || $ctl_step == n
 fi
 
 # The dimension name maps to the GEOPM control that geopmwrite understands.
+# This must match grid.py exactly: cpu-power in particular is
+# POWERCAP::CPU_POWER_LIMIT (POWERCAP iogroup), not the similarly named
+# CPU_POWER_LIMIT_CONTROL alias (MSRIOGroup).  The two are different controls
+# despite sharing a description, and testing the wrong one here would measure
+# sensitivity to a control geopmopt never actually sweeps.
 case "$DIMENSION" in
     cpu-freq|cpu-frequency)                  CONTROL=CPU_FREQUENCY_MAX_CONTROL ;;
     uncore-freq|cpu-uncore-frequency)        CONTROL=CPU_UNCORE_FREQUENCY_MAX_CONTROL ;;
-    cpu-power)                               CONTROL=CPU_POWER_LIMIT_CONTROL ;;
+    cpu-power)                               CONTROL=POWERCAP::CPU_POWER_LIMIT ;;
     gpu-freq|gpu-frequency)                  CONTROL=GPU_CORE_FREQUENCY_MAX_CONTROL ;;
     gpu-power)                               CONTROL=GPU_POWER_LIMIT_CONTROL ;;
     board-power)                             CONTROL=BOARD_POWER_LIMIT_CONTROL ;;
