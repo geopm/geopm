@@ -22,10 +22,11 @@ EXTRA_CONTROLS=()
 # fails partway with a permission error.  CPU_FREQUENCY_MIN_CONTROL is the one
 # exception, deliberately excluded by grid.py, so it is not requested here.
 #
-# CPU_FREQUENCY_GOVERNOR_CONTROL is requested unconditionally because geopmopt
-# forces it to 'performance' whenever cpu-freq is swept, regardless of whether
-# cpu-freq is in this particular request; omitting it passes the readiness
-# gate and then fails every cpu-freq campaign partway through.
+# DEFAULT_CONTROLS always includes cpu-freq when the platform supports it, so
+# CPU_FREQUENCY_GOVERNOR_CONTROL is bundled with that default grant because
+# geopmopt forces it to 'performance' whenever cpu-freq is swept.  Omitting it
+# passes the readiness gate and then fails every cpu-freq campaign partway
+# through.
 #
 # cpu-power is granted as POWERCAP::CPU_POWER_LIMIT, not the similarly named
 # CPU_POWER_LIMIT_CONTROL alias: grid.py's cpu-power dimension writes the
