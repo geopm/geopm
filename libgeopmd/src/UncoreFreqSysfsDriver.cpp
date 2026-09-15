@@ -44,11 +44,14 @@ static bool try_read_int(const std::string &path, int &value)
     return true;
 }
 
-// Map package index -> package_*_die_* directory path.  These are the
-// world-readable fan-out directories used for max/min controls.  The
-// package index is parsed from the directory name, so no privileged
-// access is required.  If a package has multiple die directories the
-// first one encountered is used (Phase 1 is package-scoped).
+// Map package index -> package_*_die_* directory path.  On the TPMI
+// intel_uncore_frequency driver each package exposes a single
+// package_*_die_* node (die 0) whose max/min write the kernel fans out to
+// every fabric cluster in the package, so it is the correct package-scoped
+// control.  Partitioned or multi-die TPMI parts expose no package_*_die_*
+// node at all (only the finer-grained uncore* clusters); serving those is
+// deferred to the planned per-cluster uncore domain.  The package index is
+// parsed from the directory name, so no privileged access is required.
 static std::map<int, std::string> load_control_dirs(const std::string &uncore_directory)
 {
     std::map<int, std::string> result;

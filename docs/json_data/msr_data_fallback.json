@@ -680,7 +680,7 @@
                     "behavior":  "variable",
                     "aggregation": "sum",
                     "writeable": true,
-                    "description": "Log bit indicating if a HIGHEST_PEROFRMANCE change has occurred.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
+                    "description": "Log bit indicating if a HIGHEST_PERFORMANCE change has occurred.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
                 "PECI_OVERRIDE_ENTRY": {
                     "begin_bit": 4,

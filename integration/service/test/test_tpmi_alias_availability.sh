@@ -8,11 +8,12 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     High level alias availability across the MSR / TPMI interface change:
     -------------------------------------------------------------------
 
-    On recent Intel Xeon parts (Granite Rapids, Sierra Forest, Clearwater
-    Forest) the RAPL power/energy and uncore frequency knobs moved off the
-    Model Specific Register (MSR) interface and onto TPMI.  GEOPM drops the
-    now-unsupported MSRs from its per-platform definitions and instead serves
-    the high level aliases (CPU_POWER_LIMIT_CONTROL, CPU_ENERGY,
+    On Granite Rapids and Sierra Forest, uncore frequency moved off the
+    Model Specific Register (MSR) interface and onto TPMI while RAPL remains
+    MSR-backed.  Clearwater Forest moves both RAPL power/energy and uncore
+    frequency to TPMI.  GEOPM drops the corresponding unsupported MSRs
+    from its per-platform definitions and instead serves the high level
+    aliases (CPU_POWER_LIMIT_CONTROL, CPU_ENERGY,
     CPU_UNCORE_FREQUENCY_MAX_CONTROL, ...) from the powercap and uncore sysfs
     IOGroups, which the kernel backs with TPMI.
 

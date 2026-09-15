@@ -116,7 +116,8 @@ round_trip() {
     sleep 4
 
     local DURING
-    DURING=$(geopmread "${ALIAS}" "${DOMAIN}" 0)
+    DURING=$(geopmread "${ALIAS}" "${DOMAIN}" 0) ||
+        err "Failed to read ${ALIAS} during the write session"
 
     if ! wait "${SESSION_ID}"; then
         echo "SKIP: ${ALIAS} is present but the write was rejected on this platform"

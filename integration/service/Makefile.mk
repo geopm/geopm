@@ -37,6 +37,8 @@ EXTRA_DIST += service/README.md \
               service/test/serial_write_client_helper.sh \
               service/test/do_write.sh \
               service/test/test_batch_perf.sh \
+              service/test/test_tpmi_alias_availability.sh \
+              service/test/test_tpmi_alias_write.sh \
               service/test/plot_batch_perf.py \
               # end
 
