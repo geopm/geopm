@@ -55,6 +55,18 @@ in_list() {
     printf '%s\n' "$2" | grep -qx -- "$1"
 }
 
+has_powercap_zone_named() {
+    # $1 required powercap zone name (e.g. dram)
+    local want="$1" name_file
+    for name_file in /sys/class/powercap/intel-rapl*/name; do
+        [[ -r "${name_file}" ]] || continue
+        if [[ "$(cat "${name_file}")" == "${want}" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 SIGNALS=$(geopmread) || err "Failed to list signals with geopmread"
 CONTROLS=$(geopmwrite) || err "Failed to list controls with geopmwrite"
 
@@ -101,8 +113,9 @@ echo "OK: unknown register ${BOGUS} rejected by geopmread and geopmwrite"
 #    control list then a direct write to it must fail (no silent success), and
 #    the high level alias must instead be served by the matching sysfs provider.
 check_replaced() {
-    # $1 raw MSR control, $2 alias, $3 sysfs evidence glob
-    local RAW_MSR="$1" ALIAS="$2" SYSFS_GLOB="$3"
+    # $1 raw MSR control, $2 alias, $3 sysfs evidence glob, $4 optional
+    # powercap zone name that must exist before the alias is required
+    local RAW_MSR="$1" ALIAS="$2" SYSFS_GLOB="$3" ZONE_NAME="${4:-}"
     if in_list "${RAW_MSR}" "${CONTROLS}"; then
         echo "INFO: ${RAW_MSR} is MSR-backed on this platform"
         return 0
@@ -112,6 +125,10 @@ check_replaced() {
     fi
     echo "OK: absent MSR ${RAW_MSR} write correctly rejected"
     if ls ${SYSFS_GLOB} >/dev/null 2>&1; then
+        if [[ -n "${ZONE_NAME}" ]] && ! has_powercap_zone_named "${ZONE_NAME}"; then
+            echo "INFO: no powercap zone named '${ZONE_NAME}'; ${ALIAS} not required"
+            return 0
+        fi
         in_list "${ALIAS}" "${CONTROLS}" ||
             err "${RAW_MSR} is TPMI-replaced and ${SYSFS_GLOB} exists, but ${ALIAS} has no provider"
         echo "OK: ${ALIAS} served via sysfs while ${RAW_MSR} is TPMI-replaced"
@@ -123,7 +140,8 @@ check_replaced "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT" \
                "/sys/class/powercap/intel-rapl*"
 check_replaced "MSR::DRAM_POWER_LIMIT:PL1_POWER_LIMIT" \
                "DRAM_POWER_LIMIT_CONTROL" \
-               "/sys/class/powercap/intel-rapl*"
+               "/sys/class/powercap/intel-rapl*" \
+               "dram"
 check_replaced "MSR::UNCORE_RATIO_LIMIT:MAX_RATIO" \
                "CPU_UNCORE_FREQUENCY_MAX_CONTROL" \
                "/sys/devices/system/cpu/intel_uncore_frequency"
