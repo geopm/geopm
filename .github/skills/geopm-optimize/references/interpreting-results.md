@@ -108,8 +108,11 @@ For an interactive session, keep a `geopmsession` running in another terminal,
 or apply with `geopmwrite` and accept that it lasts only as long as that
 process.
 
-`--defer-write` suppresses the end-of-campaign application, which is what you
-want when the campaign is exploratory.
+`--defer-write` does not merely skip the end-of-campaign application: it stops
+`geopmopt` from writing controls for every trial as well, and only writes each
+candidate to `--output-file` for another tool to apply. Do not use it for an
+exploratory campaign; the settings revert when `geopmopt` exits anyway. See
+[flags.md](flags.md#output).
 
 ## Deciding whether the result is real
 

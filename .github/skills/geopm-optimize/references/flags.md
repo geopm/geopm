@@ -70,13 +70,18 @@ slower. Set the timeout from a measured baseline with generous headroom —
 | Flag | Default | Meaning |
 |---|---|---|
 | `--output-file FILE` | `-` (stdout) | Best configuration, as a `geopmwrite` configuration file |
-| `--defer-write` | off | Do not apply the configuration at the end. Requires `--output-file` |
+| `--defer-write` | off | Never write controls, not even for trials: each candidate is written to `--output-file` for another tool to apply. Requires `--output-file` |
 | `--verbosity 0..3` | `1` | 0 ERROR, 1 WARNING, 2 INFO, 3 DEBUG |
 | `--print-stdout` | off | Echo the workload's stdout into the log |
 
 Use `--verbosity 2` for any real campaign: level 1 shows no per-trial progress,
 so a long run looks like a hang. Add `--print-stdout` when a metric regex is
 not matching.
+
+Leave `--defer-write` off for an ordinary campaign. It is for launchers such as
+`geopmlaunch --geopm-init-control` that apply `--output-file` themselves before
+each trial. Without one, every trial runs at the current settings, scores
+differ only by noise, and the reported best configuration is meaningless.
 
 ## Dependency rules
 
