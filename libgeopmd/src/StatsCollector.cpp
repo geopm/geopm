@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cmath>
 #include <cstring>
+#include <iomanip>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
@@ -167,6 +168,8 @@ namespace geopm
     std::string StatsCollectorImp::report_yaml_curr(void) const
     {
         std::ostringstream result;
+        // The default precision of 6 digits truncates large counters
+        result << std::setprecision(16);
         report_s report = report_struct();
         result << "host: \"" << report.host << "\"\n";
         result << "sample-time-first: \"" << report.sample_time_first << "\"\n";
