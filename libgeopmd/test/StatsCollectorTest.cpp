@@ -119,7 +119,7 @@ TEST_F(StatsCollectorTest, time_report)
     EXPECT_NE(std::string::npos, report.find("min: 0\n"));
     EXPECT_NE(std::string::npos, report.find("max: 1\n"));
     EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
-    EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
+    EXPECT_NE(std::string::npos, report.find("std: 0.7071067811865476\n"));
     struct geopm_stats_collector_s *coll_ptr = reinterpret_cast<geopm_stats_collector_s *>(&coll);
     EXPECT_EQ(0, geopm_stats_collector_reset(coll_ptr));
     EXPECT_EQ(0, geopm_stats_collector_update(coll_ptr));
@@ -149,7 +149,7 @@ TEST_F(StatsCollectorTest, time_report)
     EXPECT_NE(std::string::npos, report.find("min: 0\n"));
     EXPECT_NE(std::string::npos, report.find("max: 1\n"));
     EXPECT_NE(std::string::npos, report.find("mean: 0.5\n"));
-    EXPECT_NE(std::string::npos, report.find("std: 0.707107\n"));
+    EXPECT_NE(std::string::npos, report.find("std: 0.7071067811865476\n"));
 
     EXPECT_EQ(2ULL, coll.update_count());
     size_t update_count = 0;
@@ -190,6 +190,34 @@ TEST_F(StatsCollectorTest, time_report)
         EXPECT_EQ(report_struct.metric_stats[0][stat_idx], report_struct_c.metric_stats[0].stats[stat_idx]);
     }
     free(report_struct_c.metric_stats);
+}
+
+/// @brief Large counter values keep full precision in the YAML report
+TEST_F(StatsCollectorTest, report_yaml_precision)
+{
+    int time_idx = 0;
+    int energy_idx = 1;
+    EXPECT_CALL(*m_pio_mock, push_signal("BOARD_ENERGY", 0, 0))
+        .WillOnce(Return(energy_idx));
+    EXPECT_CALL(*m_pio_mock, push_signal("TIME", 0, 0))
+        .WillOnce(Return(time_idx));
+    EXPECT_CALL(*m_pio_mock, read_signal("TIME", 0, 0))
+        .WillOnce(Return(0.0));
+    EXPECT_CALL(*m_pio_mock, sample(time_idx))
+        .WillOnce(Return(0.0))
+        .WillOnce(Return(20.0));
+    EXPECT_CALL(*m_pio_mock, sample(energy_idx))
+        .WillOnce(Return(1677598330.0))
+        .WillOnce(Return(1677616203.0));
+    std::vector<geopm_request_s> req {geopm_request_s{0, 0, "BOARD_ENERGY"}};
+    auto coll = StatsCollectorImp(req, *m_pio_mock);
+    coll.update();
+    coll.update();
+    std::string report = coll.report_yaml();
+    EXPECT_NE(std::string::npos, report.find("sample-time-total: 20\n"));
+    EXPECT_NE(std::string::npos, report.find("first: 1677598330\n"));
+    EXPECT_NE(std::string::npos, report.find("last: 1677616203\n"));
+    EXPECT_NE(std::string::npos, report.find("mean: 1677607266.5\n"));
 }
 
 TEST_F(StatsCollectorTest, c_strings)
