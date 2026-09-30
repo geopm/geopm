@@ -110,9 +110,11 @@ process.
 
 `--defer-write` does not merely skip the end-of-campaign application: it stops
 `geopmopt` from writing controls for every trial as well, and only writes each
-candidate to `--output-file` for another tool to apply. Do not use it for an
-exploratory campaign; the settings revert when `geopmopt` exits anyway. See
-[flags.md](flags.md#output).
+candidate to `--output-file` for another tool to apply. Use it only when the
+launch command applies that file before each trial, as
+`geopmlaunch --geopm-init-control` does in a distributed campaign. Otherwise
+every trial runs at the current settings; leave it off, since the settings
+revert when `geopmopt` exits anyway. See [flags.md](flags.md#output).
 
 ## Deciding whether the result is real
 
