@@ -17,6 +17,15 @@
 
 namespace geopm
 {
+    /// State for converting one raw Level Zero activity counter into a
+    /// continuous value.
+    struct ActivityCounterState
+    {
+        uint64_t last_raw = 0;
+        uint64_t offset = 0;
+        bool is_init = false;
+    };
+
     class LevelZeroDevicePoolImp : public LevelZeroDevicePool
     {
         public:
@@ -110,10 +119,8 @@ namespace geopm
             void check_idx_range(int domain, unsigned int domain_idx) const;
             void check_domain_exists(int size, const char *func, int line) const;
             std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
-            mutable std::map<int, std::vector<uint64_t> > m_active_time_last; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_time_rollover; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_last; // Map from l0_domain to vector over gpu chips
-            mutable std::map<int, std::vector<uint64_t> > m_active_timestamp_rollover; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector<ActivityCounterState> > m_active_time_state; // Map from l0_domain to vector over gpu chips
+            mutable std::map<int, std::vector<ActivityCounterState> > m_active_timestamp_state; // Map from l0_domain to vector over gpu chips
     };
 }
 #endif
