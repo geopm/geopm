@@ -108,6 +108,8 @@ namespace geopm
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 int m_behavior;
                 double m_nan_replace;
+                // Report m_nan_replace instead of a derivative while the time signal is stale.
+                bool m_replace_when_stale;
             };
 
             static const std::string M_PLUGIN_NAME;

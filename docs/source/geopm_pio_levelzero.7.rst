@@ -290,7 +290,7 @@ Signals
     *  **Unit**: none
 
 ``LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP``
-    The timestamp for the ``LEVELZERO::GPU_ACTIVE_TIME`` read in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    The timestamp for the ``LEVELZERO::GPU_ACTIVE_TIME`` read in unspecified units.  The value can repeat between reads when the device does not update it.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
@@ -306,7 +306,7 @@ Signals
     *  **Unit**: none
 
 ``LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP``
-    The timestamp for the ``LEVELZERO::GPU_CORE_ACTIVE_TIME`` signal read in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    The timestamp for the ``LEVELZERO::GPU_CORE_ACTIVE_TIME`` signal read in unspecified units.  The value can repeat between reads when the device does not update it.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
@@ -322,7 +322,7 @@ Signals
     *  **Unit**: none
 
 ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP``
-    The timestamp for the ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME`` signal read in unspecified units.  See the Intel oneAPI Level Zero Sysman documentation for more info.
+    The timestamp for the ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME`` signal read in unspecified units.  The value can repeat between reads when the device does not update it.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip
@@ -346,7 +346,7 @@ Signals
     *  **Unit**: watts
 
 ``LEVELZERO::GPU_UTILIZATION``
-    Utilization of all GPU engines.  Level Zero logical engines may map to the same hardware, resulting in a reduced signal range (i.e. less than 0 to 1) in some cases.  See the LevelZero Sysman Engine documentation for more info.
+    Utilization of all GPU engines.  Level Zero logical engines may map to the same hardware, resulting in a reduced signal range (i.e. less than 0 to 1) in some cases.  Reports 0 while the underlying timestamp is not updated by the device.  See the LevelZero Sysman Engine documentation for more info.
 
     *  **Aggregation**: average
     *  **Domain**: gpu
@@ -354,7 +354,7 @@ Signals
     *  **Unit**: none
 
 ``LEVELZERO::GPU_CORE_UTILIZATION``
-    Utilization of the GPU Compute Engines (EUs).  Level Zero logical engines may map to the same hardware, resulting in a reduced signal range (i.e. less than 0 to 1) in some cases.  See the LevelZero Sysman Engine documentation for more info.
+    Utilization of the GPU Compute Engines (EUs).  Level Zero logical engines may map to the same hardware, resulting in a reduced signal range (i.e. less than 0 to 1) in some cases.  Reports 0 while the underlying timestamp is not updated by the device.  See the LevelZero Sysman Engine documentation for more info.
 
     *  **Aggregation**: average
     *  **Domain**: gpu_chip
@@ -362,7 +362,7 @@ Signals
     *  **Unit**: none
 
 ``LEVELZERO::GPU_UNCORE_UTILIZATION``
-    Utilization of the GPU Copy Engines.  Level Zero logical engines may map to the same hardware, resulting in a reduced signal range (i.e. less than 0 to 1) in some cases.  See the LevelZero Sysman Engine documentation for more info.
+    Utilization of the GPU Copy Engines.  Level Zero logical engines may map to the same hardware, resulting in a reduced signal range (i.e. less than 0 to 1) in some cases.  Reports 0 while the underlying timestamp is not updated by the device.  See the LevelZero Sysman Engine documentation for more info.
 
     *  **Aggregation**: average
     *  **Domain**: gpu_chip
