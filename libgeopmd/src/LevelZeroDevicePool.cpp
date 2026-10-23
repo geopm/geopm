@@ -267,35 +267,20 @@ namespace geopm
                                             dev_subdev_idx_pair.second);
     }
 
-    static double convert_active_timestamp(uint64_t value, uint64_t &last_value, uint64_t &rollover_count, uint64_t &original_value)
+    // Level Zero has been observed to step these counters by 2^32 (the raw
+    // value then stays offset) or to reset them.  Absorb any backwards or
+    // implausibly large step into an offset so the converted value continues
+    // from the previous sample.
+    static double convert_counter(uint64_t raw, ActivityCounterState &state)
     {
-        static const double overflow_d = static_cast<double>(UINT64_MAX) + 1.0;
-
-        if (original_value > value) {
-            ++rollover_count;
+        static const uint64_t M_MAX_STEP = 1ULL << 48;
+        if (state.is_init &&
+            (raw < state.last_raw || raw - state.last_raw > M_MAX_STEP)) {
+            state.offset += state.last_raw - raw;
         }
-        if (value == original_value) {
-            // There are time and timestamp signals associated with all activity
-            // signals.  Time and timestamp do not change if there is no
-            // activity, however the sample() API requires that the timestamp
-            // signal value increase on each call for derivative signals.
-            value = last_value + 1;
-        }
-        else {
-            original_value = value;
-        }
-        last_value = value;
-        return rollover_count * overflow_d + value;
-    }
-
-    static double convert_active_time(uint64_t value, uint64_t &last_value, uint64_t &rollover_count)
-    {
-        static const double overflow_d = static_cast<double>(UINT64_MAX) + 1.0;
-        if (last_value > value) {
-            ++rollover_count;
-        }
-        last_value = value;
-        return rollover_count * overflow_d + value;
+        state.is_init = true;
+        state.last_raw = raw;
+        return static_cast<double>(raw + state.offset);
     }
 
     double LevelZeroDevicePoolImp::active_time_timestamp(int domain,
@@ -318,13 +303,9 @@ namespace geopm
         uint64_t active_timestamp =  m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
                                                                        dev_subdev_idx_pair.second);
         auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
-        auto &active_timestamp_last = m_active_timestamp_last.try_emplace(l0_domain, num_chip, 0ULL).first->second;
-        auto &active_timestamp_rollover = m_active_timestamp_rollover.try_emplace(l0_domain, num_chip, 0ULL).first->second;
-        auto &active_timestamp_original = m_active_timestamp_original.try_emplace(l0_domain, num_chip, 0ULL).first->second;
+        auto &active_timestamp_state = m_active_timestamp_state.try_emplace(l0_domain, num_chip).first->second;
 
-        return convert_active_timestamp(active_timestamp, active_timestamp_last[domain_idx],
-                                        active_timestamp_rollover[domain_idx],
-                                        active_timestamp_original[domain_idx]);
+        return convert_counter(active_timestamp, active_timestamp_state[domain_idx]);
     }
 
     double LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
@@ -346,11 +327,9 @@ namespace geopm
                                                        dev_subdev_idx_pair.second);
 
         auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
-        auto &active_time_last = m_active_time_last.try_emplace(l0_domain, num_chip, 0ULL).first->second;
-        auto &active_time_rollover = m_active_time_rollover.try_emplace(l0_domain, num_chip, 0ULL).first->second;
+        auto &active_time_state = m_active_time_state.try_emplace(l0_domain, num_chip).first->second;
 
-        return convert_active_time(active_time, active_time_last[domain_idx],
-                                   active_time_rollover[domain_idx]);
+        return convert_counter(active_time, active_time_state[domain_idx]);
     }
 
     int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,

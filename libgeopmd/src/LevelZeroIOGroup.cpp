@@ -31,6 +31,67 @@
 
 namespace geopm
 {
+    namespace
+    {
+        // Level Zero timestamps stay unchanged while the device reports no
+        // update.  Report nan_replace for those samples and keep them out of
+        // the derivative history.
+        class StaleGuardSignal : public Signal
+        {
+            public:
+                StaleGuardSignal(std::shared_ptr<Signal> time_sig,
+                                 std::shared_ptr<Signal> derivative_sig,
+                                 double nan_replace)
+                    : m_time_sig(std::move(time_sig))
+                    , m_derivative_sig(std::move(derivative_sig))
+                    , m_nan_replace(nan_replace)
+                    , m_is_new_batch(true)
+                    , m_has_last_time(false)
+                    , m_last_time(NAN)
+                    , m_last_result(NAN)
+                {
+                }
+
+                void setup_batch(void) override
+                {
+                    m_time_sig->setup_batch();
+                    m_derivative_sig->setup_batch();
+                }
+
+                double sample(void) override
+                {
+                    if (m_is_new_batch) {
+                        double time = m_time_sig->sample();
+                        bool is_stale = m_has_last_time && time == m_last_time;
+                        m_last_result = is_stale ? m_nan_replace : m_derivative_sig->sample();
+                        m_last_time = time;
+                        m_has_last_time = true;
+                        m_is_new_batch = false;
+                    }
+                    return m_last_result;
+                }
+
+                double read(void) const override
+                {
+                    return m_derivative_sig->read();
+                }
+
+                // Called once per read_batch() to start a new sample.
+                void set_sample(double) override
+                {
+                    m_is_new_batch = true;
+                }
+
+            private:
+                std::shared_ptr<Signal> m_time_sig;
+                std::shared_ptr<Signal> m_derivative_sig;
+                double m_nan_replace;
+                bool m_is_new_batch;
+                bool m_has_last_time;
+                double m_last_time;
+                double m_last_result;
+        };
+    }
 
     const std::string LevelZeroIOGroup::M_PLUGIN_NAME = "LEVELZERO";
     const std::string LevelZeroIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
@@ -385,6 +446,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_ACTIVE_TIME read."
+                                  "\nThe value can repeat between reads when the device does not update it."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   M_UNITS_SECONDS,
@@ -422,6 +484,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
+                                  "\nThe value can repeat between reads when the device does not update it."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   M_UNITS_SECONDS,
@@ -459,6 +522,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
                                   "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read."
                                   "\nBatch use only - value is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
+                                  "\nThe value can repeat between reads when the device does not update it."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   M_UNITS_SECONDS,
@@ -860,7 +924,8 @@ namespace geopm
                      M_UNITS_WATTS,
                      Agg::sum,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                     NAN}},
+                     NAN,
+                     false}},
             {M_NAME_PREFIX + "GPU_CORE_POWER",
                     {"Average GPU power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY",
@@ -868,37 +933,44 @@ namespace geopm
                     M_UNITS_WATTS,
                     Agg::sum,
                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                    NAN}},
+                    NAN,
+                    false}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                     "\nReports 0 while the underlying timestamp is not updated by the device."
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP",
                      M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                     0}},
+                     0,
+                     true}},
             {M_NAME_PREFIX + "GPU_CORE_UTILIZATION",
                     {"Utilization of the GPU Compute engines (EUs). Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                     "\nReports 0 while the underlying timestamp is not updated by the device."
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
                      M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                     0}},
+                     0,
+                     true}},
             {M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION",
                     {"Utilization of the GPU Copy engines. Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                     "\nReports 0 while the underlying timestamp is not updated by the device."
                      "\nSee the LevelZero Sysman Engine documentation for more info.",
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME",
                      M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
                      M_UNITS_NONE,
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                     0}},
+                     0,
+                     true}},
         })
         , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
         , m_perf_factor(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), 0.5)
@@ -1093,11 +1165,16 @@ namespace geopm
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                     auto read = readings[domain_idx];
                     auto time = time_sig[domain_idx];
-                    result[domain_idx] =
+                    std::shared_ptr<Signal> derivative =
                         std::make_shared<DerivativeSignal>(time, read,
                                                            derivative_window,
                                                            sleep_time,
                                                            ds.second.m_nan_replace);
+                    if (ds.second.m_replace_when_stale) {
+                        derivative = std::make_shared<StaleGuardSignal>(
+                            time, derivative, ds.second.m_nan_replace);
+                    }
+                    result[domain_idx] = derivative;
                 }
                 m_signal_available[ds.first] = {ds.second.m_description,
                                                 domain,
@@ -1317,6 +1394,9 @@ namespace geopm
             // The base signals are automatically pushed when a derivative signal is requested.
             if (m_derivative_signal_pushed_set.find(ii) == m_derivative_signal_pushed_set.end()) {
                 m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
+            }
+            else {
+                m_signal_pushed[ii]->set_sample(NAN);
             }
         }
     }

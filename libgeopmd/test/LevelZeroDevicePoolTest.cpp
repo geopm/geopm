@@ -224,6 +224,39 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     }
 }
 
+TEST_F(LevelZeroDevicePoolTest, active_counter_glitch)
+{
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_levelzero, engine_domain_count(0, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(1));
+
+    const uint64_t step = 1ULL << 32;
+    const uint64_t big = 5 * step;
+    // Active time: the raw value drops by 2^32 (wrapping below zero for the
+    // first one) and stays offset.  Timestamp: the raw value resets.
+    std::vector<uint64_t> raw_active = {500, 600, 700 - step, 800 - step, big, big + 100, big + 200 - step};
+    std::vector<uint64_t> raw_timestamp = {1000000, 2000000, 3000000, 400, 500, 600, 700};
+    // The glitched interval contributes no change.
+    std::vector<double> expected_active = {500, 600, 600, 700, 700, 800, 800};
+    std::vector<double> expected_timestamp = {1000000, 2000000, 3000000, 3000000, 3000100, 3000200, 3000300};
+
+    size_t sample = 0;
+    EXPECT_CALL(*m_levelzero, active_time(0, MockLevelZero::M_DOMAIN_COMPUTE, 0))
+        .WillRepeatedly(testing::Invoke([&](unsigned int, int, int) -> uint64_t { return raw_active.at(sample); }));
+    EXPECT_CALL(*m_levelzero, active_time_timestamp(0, MockLevelZero::M_DOMAIN_COMPUTE, 0))
+        .WillRepeatedly(testing::Invoke([&](unsigned int, int, int) -> uint64_t { return raw_timestamp.at(sample); }));
+
+    LevelZeroDevicePoolImp device_pool(*m_levelzero);
+    for (sample = 0; sample < raw_active.size(); ++sample) {
+        EXPECT_DOUBLE_EQ(expected_active.at(sample),
+                         device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE))
+            << "sample " << sample;
+        EXPECT_DOUBLE_EQ(expected_timestamp.at(sample),
+                         device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE))
+            << "sample " << sample;
+    }
+}
+
 TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_error)
 {
     const int num_gpu = 4;
