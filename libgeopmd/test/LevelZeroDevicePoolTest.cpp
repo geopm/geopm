@@ -233,11 +233,13 @@ TEST_F(LevelZeroDevicePoolTest, active_counter_glitch)
     const uint64_t step = 1ULL << 32;
     const uint64_t big = 5 * step;
     // Active time: the raw value drops by 2^32 (wrapping below zero for the
-    // first one) and stays offset.  Timestamp: the raw value resets.
+    // first one) and stays offset, with one unrelated jump to big in between.
+    // Timestamp: the raw value resets.
     std::vector<uint64_t> raw_active = {500, 600, 700 - step, 800 - step, big, big + 100, big + 200 - step};
     std::vector<uint64_t> raw_timestamp = {1000000, 2000000, 3000000, 400, 500, 600, 700};
-    // The glitched interval contributes no change.
-    std::vector<double> expected_active = {500, 600, 600, 700, 700, 800, 800};
+    // A 2^32 drop is restored exactly; any other glitched interval contributes
+    // no change.
+    std::vector<double> expected_active = {500, 600, 700, 800, 800, 900, 1000};
     std::vector<double> expected_timestamp = {1000000, 2000000, 3000000, 3000000, 3000100, 3000200, 3000300};
 
     size_t sample = 0;
