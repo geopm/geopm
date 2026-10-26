@@ -267,16 +267,24 @@ namespace geopm
                                             dev_subdev_idx_pair.second);
     }
 
-    // Level Zero has been observed to step these counters by 2^32 (the raw
-    // value then stays offset) or to reset them.  Absorb any backwards or
-    // implausibly large step into an offset so the converted value continues
-    // from the previous sample.
+    // Level Zero has been observed to step these counters by -2^32 (the raw
+    // value then stays offset) or to reset them.  A -2^32 step plus a normal
+    // increment is restored exactly.  Any other backwards or implausibly large
+    // step is absorbed into an offset so the converted value continues from
+    // the previous sample.
     static double convert_counter(uint64_t raw, ActivityCounterState &state)
     {
         static const uint64_t M_MAX_STEP = 1ULL << 48;
+        static const uint64_t M_GLITCH_STEP = 1ULL << 32;
+        static const uint64_t M_MAX_GLITCH_INCREMENT = 1ULL << 31;
         if (state.is_init &&
             (raw < state.last_raw || raw - state.last_raw > M_MAX_STEP)) {
-            state.offset += state.last_raw - raw;
+            if (raw + M_GLITCH_STEP - state.last_raw < M_MAX_GLITCH_INCREMENT) {
+                state.offset += M_GLITCH_STEP;
+            }
+            else {
+                state.offset += state.last_raw - raw;
+            }
         }
         state.is_init = true;
         state.last_raw = raw;
