@@ -32,6 +32,10 @@ namespace geopm
             virtual void set_sample(double) {};
             /// @brief True if the signal has been sampled during this batch
             virtual bool is_sampled(void) const {return false;};
+            /// @brief Discard any accumulated sampling history so that
+            ///        the next call to sample() starts a new window.
+            ///        Default is a no-op.
+            virtual void reset(void) {};
     };
 }
 

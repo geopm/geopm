@@ -129,4 +129,12 @@ namespace geopm
         return result;
     }
 
+    void DerivativeSignal::reset(void)
+    {
+        m_history.clear();
+        m_derivative_num_fit = 0;
+        m_last_time = NAN;
+        m_last_result = NAN;
+    }
+
 }

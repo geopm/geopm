@@ -35,19 +35,27 @@ namespace geopm
     {
         // Level Zero timestamps stay unchanged while the device reports no
         // update.  Report nan_replace for those samples and keep them out of
-        // the derivative history.
+        // the derivative history.  When the timestamp moves again it normally
+        // catches up with the time that passed, so the derivative continues
+        // across the gap.  If the activity across the gap is larger than the
+        // time across it, time was lost (e.g. a timestamp reset held by the
+        // device pool), so the derivative is restarted at this sample instead.
         class StaleGuardSignal : public Signal
         {
             public:
                 StaleGuardSignal(std::shared_ptr<Signal> time_sig,
+                                 std::shared_ptr<Signal> y_sig,
                                  std::shared_ptr<Signal> derivative_sig,
                                  double nan_replace)
                     : m_time_sig(std::move(time_sig))
+                    , m_y_sig(std::move(y_sig))
                     , m_derivative_sig(std::move(derivative_sig))
                     , m_nan_replace(nan_replace)
                     , m_is_new_batch(true)
                     , m_has_last_time(false)
+                    , m_was_stale(false)
                     , m_last_time(NAN)
+                    , m_last_signal(NAN)
                     , m_last_result(NAN)
                 {
                 }
@@ -55,6 +63,7 @@ namespace geopm
                 void setup_batch(void) override
                 {
                     m_time_sig->setup_batch();
+                    m_y_sig->setup_batch();
                     m_derivative_sig->setup_batch();
                 }
 
@@ -63,7 +72,24 @@ namespace geopm
                     if (m_is_new_batch) {
                         double time = m_time_sig->sample();
                         bool is_stale = m_has_last_time && time == m_last_time;
-                        m_last_result = is_stale ? m_nan_replace : m_derivative_sig->sample();
+                        if (is_stale) {
+                            m_last_result = m_nan_replace;
+                        }
+                        else {
+                            // m_last_time is still the last non-stale time.
+                            double signal = m_y_sig->sample();
+                            if (m_was_stale &&
+                                signal - m_last_signal > time - m_last_time) {
+                                m_derivative_sig->reset();
+                                m_derivative_sig->sample();
+                                m_last_result = m_nan_replace;
+                            }
+                            else {
+                                m_last_result = m_derivative_sig->sample();
+                            }
+                            m_last_signal = signal;
+                        }
+                        m_was_stale = is_stale;
                         m_last_time = time;
                         m_has_last_time = true;
                         m_is_new_batch = false;
@@ -84,11 +110,14 @@ namespace geopm
 
             private:
                 std::shared_ptr<Signal> m_time_sig;
+                std::shared_ptr<Signal> m_y_sig;
                 std::shared_ptr<Signal> m_derivative_sig;
                 double m_nan_replace;
                 bool m_is_new_batch;
                 bool m_has_last_time;
+                bool m_was_stale;
                 double m_last_time;
+                double m_last_signal;
                 double m_last_result;
         };
     }
@@ -1172,7 +1201,7 @@ namespace geopm
                                                            ds.second.m_nan_replace);
                     if (ds.second.m_replace_when_stale) {
                         derivative = std::make_shared<StaleGuardSignal>(
-                            time, derivative, ds.second.m_nan_replace);
+                            time, read, derivative, ds.second.m_nan_replace);
                     }
                     result[domain_idx] = derivative;
                 }
