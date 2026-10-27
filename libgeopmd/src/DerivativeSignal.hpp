@@ -29,6 +29,7 @@ namespace geopm
             void setup_batch(void) override;
             double sample(void) override;
             double read(void) const override;
+            void reset(void) override;
         private:
             struct m_sample_s {
                 double time;
