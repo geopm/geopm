@@ -33,6 +33,38 @@ namespace geopm
 {
     namespace
     {
+        // Returns the value last given to set_sample().
+        class ValueSignal : public Signal
+        {
+            public:
+                ValueSignal()
+                    : m_value(NAN)
+                {
+                }
+
+                void setup_batch(void) override
+                {
+                }
+
+                double sample(void) override
+                {
+                    return m_value;
+                }
+
+                double read(void) const override
+                {
+                    return m_value;
+                }
+
+                void set_sample(double value) override
+                {
+                    m_value = value;
+                }
+
+            private:
+                double m_value;
+        };
+
         // Level Zero timestamps stay unchanged while the device reports no
         // update.  Report nan_replace for those samples and keep them out of
         // the derivative history.  When the timestamp moves again it normally
@@ -40,16 +72,22 @@ namespace geopm
         // across the gap.  If the activity across the gap is larger than the
         // time across it, time was lost (e.g. a timestamp reset held by the
         // device pool), so the derivative is restarted at this sample instead.
+        // read() applies the same guard to a separate, temporary history of
+        // immediate reads.
         class StaleGuardSignal : public Signal
         {
             public:
                 StaleGuardSignal(std::shared_ptr<Signal> time_sig,
                                  std::shared_ptr<Signal> y_sig,
                                  std::shared_ptr<Signal> derivative_sig,
+                                 int num_sample_history,
+                                 double sleep_time,
                                  double nan_replace)
                     : m_time_sig(std::move(time_sig))
                     , m_y_sig(std::move(y_sig))
                     , m_derivative_sig(std::move(derivative_sig))
+                    , m_num_sample_history(num_sample_history)
+                    , m_sleep_time(sleep_time)
                     , m_nan_replace(nan_replace)
                     , m_is_new_batch(true)
                     , m_has_last_time(false)
@@ -99,7 +137,28 @@ namespace geopm
 
                 double read(void) const override
                 {
-                    return m_derivative_sig->read();
+                    auto time_sig = std::make_shared<ValueSignal>();
+                    auto y_sig = std::make_shared<ValueSignal>();
+                    auto derivative_sig = std::make_shared<DerivativeSignal>(
+                        time_sig, y_sig, m_num_sample_history, m_sleep_time,
+                        m_nan_replace);
+                    StaleGuardSignal guard(time_sig, y_sig, derivative_sig,
+                                           m_num_sample_history, m_sleep_time,
+                                           m_nan_replace);
+                    guard.setup_batch();
+                    double result = NAN;
+                    for (int ii = 0; ii < m_num_sample_history; ++ii) {
+                        // The active time read updates the timestamp, so read
+                        // the signal before the time.
+                        y_sig->set_sample(m_y_sig->read());
+                        time_sig->set_sample(m_time_sig->read());
+                        guard.set_sample(NAN);
+                        result = guard.sample();
+                        if (ii < m_num_sample_history - 1) {
+                            usleep(m_sleep_time * 1e6);
+                        }
+                    }
+                    return result;
                 }
 
                 // Called once per read_batch() to start a new sample.
@@ -112,6 +171,8 @@ namespace geopm
                 std::shared_ptr<Signal> m_time_sig;
                 std::shared_ptr<Signal> m_y_sig;
                 std::shared_ptr<Signal> m_derivative_sig;
+                int m_num_sample_history;
+                double m_sleep_time;
                 double m_nan_replace;
                 bool m_is_new_batch;
                 bool m_has_last_time;
@@ -1201,7 +1262,8 @@ namespace geopm
                                                            ds.second.m_nan_replace);
                     if (ds.second.m_replace_when_stale) {
                         derivative = std::make_shared<StaleGuardSignal>(
-                            time, read, derivative, ds.second.m_nan_replace);
+                            time, read, derivative, derivative_window,
+                            sleep_time, ds.second.m_nan_replace);
                     }
                     result[domain_idx] = derivative;
                 }
