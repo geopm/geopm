@@ -729,6 +729,43 @@ TEST_F(LevelZeroIOGroupTest, utilization_counter_reset_recovery)
     }
 }
 
+TEST_F(LevelZeroIOGroupTest, utilization_read_stale_timestamp)
+{
+    SetUpDefaultExpectCalls();
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    // Each read_signal() takes 8 readings while the activity keeps increasing
+    // and the timestamp repeats.
+    // 0: The timestamp is stale at the last reading, so the read reports 0.
+    //    Fitting all 8 readings would give 1.29.
+    // 1: The stale readings are left out of the fit, which continues across
+    //    the gap.  Fitting all 8 readings would give 0.46.
+    std::vector<std::vector<double> > active_time = {
+        {0, 500, 1000, 1500, 2500, 3500, 4500, 5500},
+        {0, 500, 1000, 1500, 2000, 2500, 3000, 3500}};
+    std::vector<std::vector<double> > timestamp = {
+        {1000, 2000, 3000, 4000, 4000, 4000, 4000, 4000},
+        {1000, 2000, 3000, 3000, 3000, 6000, 7000, 8000}};
+    std::vector<double> expected = {0, 0.5};
+    size_t read_case = 0;
+    size_t reading = 0;
+
+    // The timestamp is read after the active time, so it moves to the next
+    // reading.
+    EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return active_time.at(read_case).at(reading); }));
+    EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return timestamp.at(read_case).at(reading++); }));
+
+    for (read_case = 0; read_case < expected.size(); ++read_case) {
+        reading = 0;
+        EXPECT_DOUBLE_EQ(expected.at(read_case),
+                         levelzero_io.read_signal("LEVELZERO::GPU_UTILIZATION", GEOPM_DOMAIN_GPU_CHIP, 0))
+            << "case " << read_case;
+        EXPECT_EQ(timestamp.at(read_case).size(), reading) << "case " << read_case;
+    }
+}
+
 TEST_F(LevelZeroIOGroupTest, read_signal)
 {
     SetUpDefaultExpectCalls();
