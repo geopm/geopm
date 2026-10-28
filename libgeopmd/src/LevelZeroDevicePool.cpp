@@ -267,19 +267,24 @@ namespace geopm
                                             dev_subdev_idx_pair.second);
     }
 
-    // Level Zero has been observed to step these counters by -2^32 (the raw
-    // value then stays offset) or to reset them.  A -2^32 step plus a normal
-    // increment is restored exactly.  Any other backwards or implausibly large
-    // step is absorbed into an offset so the converted value continues from
-    // the previous sample.
-    static double convert_counter(uint64_t raw, ActivityCounterState &state)
+    // Level Zero has been observed to step the active time counter by -2^32
+    // (the raw value then stays offset) and to reset the timestamp.  When
+    // restore_glitch is set, a -2^32 step plus a normal increment is restored
+    // exactly.  Any other backwards or implausibly large step is absorbed into
+    // an offset so the converted value continues from the previous sample.
+    // The timestamp does not use the restore: a reset that steps back by
+    // between 2^31 and 2^32 would otherwise look like the -2^32 step and
+    // become a false forward jump.
+    static double convert_counter(uint64_t raw, ActivityCounterState &state,
+                                  bool restore_glitch)
     {
         static const uint64_t M_MAX_STEP = 1ULL << 48;
         static const uint64_t M_GLITCH_STEP = 1ULL << 32;
         static const uint64_t M_MAX_GLITCH_INCREMENT = 1ULL << 31;
         if (state.is_init &&
             (raw < state.last_raw || raw - state.last_raw > M_MAX_STEP)) {
-            if (raw + M_GLITCH_STEP - state.last_raw < M_MAX_GLITCH_INCREMENT) {
+            if (restore_glitch &&
+                raw + M_GLITCH_STEP - state.last_raw < M_MAX_GLITCH_INCREMENT) {
                 state.offset += M_GLITCH_STEP;
             }
             else {
@@ -313,7 +318,7 @@ namespace geopm
         auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
         auto &active_timestamp_state = m_active_timestamp_state.try_emplace(l0_domain, num_chip).first->second;
 
-        return convert_counter(active_timestamp, active_timestamp_state[domain_idx]);
+        return convert_counter(active_timestamp, active_timestamp_state[domain_idx], false);
     }
 
     double LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
@@ -337,7 +342,7 @@ namespace geopm
         auto num_chip = num_gpu(GEOPM_DOMAIN_GPU_CHIP);
         auto &active_time_state = m_active_time_state.try_emplace(l0_domain, num_chip).first->second;
 
-        return convert_counter(active_time, active_time_state[domain_idx]);
+        return convert_counter(active_time, active_time_state[domain_idx], true);
     }
 
     int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,

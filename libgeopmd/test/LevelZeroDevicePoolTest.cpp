@@ -259,6 +259,31 @@ TEST_F(LevelZeroDevicePoolTest, active_counter_glitch)
     }
 }
 
+TEST_F(LevelZeroDevicePoolTest, active_timestamp_reset)
+{
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_levelzero, engine_domain_count(0, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(1));
+
+    const uint64_t step = 1ULL << 32;
+    // A reset from a value between 2^31 and 2^32, then a -2^32 step (wrapping
+    // below zero).  Both match the active time glitch signature, but the
+    // timestamp is held at the previous value instead of restored.
+    std::vector<uint64_t> raw_timestamp = {3000000000, 3000001000, 400, 1400, 2400 - step, 3400 - step};
+    std::vector<double> expected_timestamp = {3000000000, 3000001000, 3000001000, 3000002000, 3000002000, 3000003000};
+
+    size_t sample = 0;
+    EXPECT_CALL(*m_levelzero, active_time_timestamp(0, MockLevelZero::M_DOMAIN_COMPUTE, 0))
+        .WillRepeatedly(testing::Invoke([&](unsigned int, int, int) -> uint64_t { return raw_timestamp.at(sample); }));
+
+    LevelZeroDevicePoolImp device_pool(*m_levelzero);
+    for (sample = 0; sample < raw_timestamp.size(); ++sample) {
+        EXPECT_DOUBLE_EQ(expected_timestamp.at(sample),
+                         device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE))
+            << "sample " << sample;
+    }
+}
+
 TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_error)
 {
     const int num_gpu = 4;
