@@ -72,6 +72,8 @@ namespace geopm
         // across the gap.  If the activity across the gap is larger than the
         // time across it, time was lost (e.g. a timestamp reset held by the
         // device pool), so the derivative is restarted at this sample instead.
+        // Each batch is processed when read_batch() calls set_sample(), so the
+        // guard sees every batch even if the caller does not sample it.
         // read() applies the same guard to a separate, temporary history of
         // immediate reads.
         class StaleGuardSignal : public Signal
@@ -89,7 +91,6 @@ namespace geopm
                     , m_num_sample_history(num_sample_history)
                     , m_sleep_time(sleep_time)
                     , m_nan_replace(nan_replace)
-                    , m_is_new_batch(true)
                     , m_has_last_time(false)
                     , m_was_stale(false)
                     , m_last_time(NAN)
@@ -107,31 +108,6 @@ namespace geopm
 
                 double sample(void) override
                 {
-                    if (m_is_new_batch) {
-                        double time = m_time_sig->sample();
-                        bool is_stale = m_has_last_time && time == m_last_time;
-                        if (is_stale) {
-                            m_last_result = m_nan_replace;
-                        }
-                        else {
-                            // m_last_time is still the last non-stale time.
-                            double signal = m_y_sig->sample();
-                            if (m_was_stale &&
-                                signal - m_last_signal > time - m_last_time) {
-                                m_derivative_sig->reset();
-                                m_derivative_sig->sample();
-                                m_last_result = m_nan_replace;
-                            }
-                            else {
-                                m_last_result = m_derivative_sig->sample();
-                            }
-                            m_last_signal = signal;
-                        }
-                        m_was_stale = is_stale;
-                        m_last_time = time;
-                        m_has_last_time = true;
-                        m_is_new_batch = false;
-                    }
                     return m_last_result;
                 }
 
@@ -161,10 +137,32 @@ namespace geopm
                     return result;
                 }
 
-                // Called once per read_batch() to start a new sample.
+                // Called once per read_batch(), after the base signals have
+                // their values for the batch.
                 void set_sample(double) override
                 {
-                    m_is_new_batch = true;
+                    double time = m_time_sig->sample();
+                    bool is_stale = m_has_last_time && time == m_last_time;
+                    if (is_stale) {
+                        m_last_result = m_nan_replace;
+                    }
+                    else {
+                        // m_last_time is still the last non-stale time.
+                        double signal = m_y_sig->sample();
+                        if (m_was_stale &&
+                            signal - m_last_signal > time - m_last_time) {
+                            m_derivative_sig->reset();
+                            m_derivative_sig->sample();
+                            m_last_result = m_nan_replace;
+                        }
+                        else {
+                            m_last_result = m_derivative_sig->sample();
+                        }
+                        m_last_signal = signal;
+                    }
+                    m_was_stale = is_stale;
+                    m_last_time = time;
+                    m_has_last_time = true;
                 }
 
             private:
@@ -174,7 +172,6 @@ namespace geopm
                 int m_num_sample_history;
                 double m_sleep_time;
                 double m_nan_replace;
-                bool m_is_new_batch;
                 bool m_has_last_time;
                 bool m_was_stale;
                 double m_last_time;
@@ -1479,16 +1476,17 @@ namespace geopm
             }
         }
 
+        // Derivative signals are comprised of base signals, and thus cannot be
+        // read directly.  The base signals are automatically pushed when a
+        // derivative signal is requested, after the derivative signal.  Update
+        // all base signals first so derivative signals see this batch.
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
-            // If the current signal index (ii) is in the derivative_signal_pushed_set do not read().
-            // Derivative signals are comprised of base signals, and thus cannot be read directly.
-            // The base signals are automatically pushed when a derivative signal is requested.
             if (m_derivative_signal_pushed_set.find(ii) == m_derivative_signal_pushed_set.end()) {
                 m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
             }
-            else {
-                m_signal_pushed[ii]->set_sample(NAN);
-            }
+        }
+        for (int ii : m_derivative_signal_pushed_set) {
+            m_signal_pushed[ii]->set_sample(NAN);
         }
     }
 

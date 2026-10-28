@@ -729,6 +729,43 @@ TEST_F(LevelZeroIOGroupTest, utilization_counter_reset_recovery)
     }
 }
 
+TEST_F(LevelZeroIOGroupTest, utilization_reset_recovery_unsampled)
+{
+    SetUpDefaultExpectCalls();
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    // Same counters as utilization_counter_reset_recovery, but utilization is
+    // not sampled in the batch where the reset timestamp is held.  The guard
+    // still sees that batch, so the following samples match.  If it only saw
+    // sampled batches they would both read 1.3.
+    std::vector<double> active_time = {0, 1000, 2000, 3000, 4000, 5000};
+    std::vector<double> timestamp = {1000, 2000, 3000, 3000, 4000, 5000};
+    std::vector<bool> is_sampled = {true, true, true, false, true, true};
+    std::vector<double> expected = {NAN, 1.0, 1.0, 0, 0, 1.0};
+    size_t batch = 0;
+
+    EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return active_time.at(batch); }));
+    EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return timestamp.at(batch); }));
+
+    int util_idx = levelzero_io.push_signal("LEVELZERO::GPU_UTILIZATION", GEOPM_DOMAIN_GPU_CHIP, 0);
+    for (batch = 0; batch < expected.size(); ++batch) {
+        levelzero_io.read_batch();
+        if (!is_sampled.at(batch)) {
+            continue;
+        }
+        double result = levelzero_io.sample(util_idx);
+        if (std::isnan(expected.at(batch))) {
+            EXPECT_TRUE(std::isnan(result)) << "batch " << batch;
+        }
+        else {
+            EXPECT_DOUBLE_EQ(expected.at(batch), result) << "batch " << batch;
+            EXPECT_LE(result, 1.0) << "batch " << batch;
+        }
+    }
+}
+
 TEST_F(LevelZeroIOGroupTest, utilization_read_stale_timestamp)
 {
     SetUpDefaultExpectCalls();
