@@ -659,6 +659,150 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
     }
 }
 
+TEST_F(LevelZeroIOGroupTest, utilization_stale_timestamp)
+{
+    SetUpDefaultExpectCalls();
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    // The timestamp repeats while the device reports no update.
+    std::vector<double> active_time = {0, 500, 500, 500, 1500};
+    std::vector<double> timestamp = {1000, 2000, 2000, 2000, 3000};
+    // Stale samples report 0 and are left out of the derivative history.  The
+    // activity across the gap (1000) is not larger than the time across it
+    // (1000), so the derivative continues across the gap.
+    std::vector<double> expected = {NAN, 0.5, 0, 0, 0.75};
+    size_t batch = 0;
+
+    EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return active_time.at(batch); }));
+    EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return timestamp.at(batch); }));
+
+    int util_idx = levelzero_io.push_signal("LEVELZERO::GPU_UTILIZATION", GEOPM_DOMAIN_GPU_CHIP, 0);
+    for (batch = 0; batch < expected.size(); ++batch) {
+        levelzero_io.read_batch();
+        double result = levelzero_io.sample(util_idx);
+        if (std::isnan(expected.at(batch))) {
+            EXPECT_TRUE(std::isnan(result)) << "batch " << batch;
+        }
+        else {
+            EXPECT_DOUBLE_EQ(expected.at(batch), result) << "batch " << batch;
+        }
+        // A second sample in the same batch must not advance the state.
+        double repeat = levelzero_io.sample(util_idx);
+        EXPECT_TRUE(repeat == result || (std::isnan(repeat) && std::isnan(result)));
+    }
+}
+
+TEST_F(LevelZeroIOGroupTest, utilization_counter_reset_recovery)
+{
+    SetUpDefaultExpectCalls();
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    // A counter reset freezes the timestamp (held at the previous value by the
+    // device pool) for one sample while the activity counter keeps climbing.
+    // The activity across the gap (2000) is larger than the time across it
+    // (1000), so the derivative restarts instead of continuing across the gap,
+    // which would report 1.3.  Every sample stays in [0, 1] and the correct
+    // rate resumes on the following sample.
+    std::vector<double> active_time = {0, 1000, 2000, 3000, 4000, 5000};
+    std::vector<double> timestamp = {1000, 2000, 3000, 3000, 4000, 5000};
+    std::vector<double> expected = {NAN, 1.0, 1.0, 0, 0, 1.0};
+    size_t batch = 0;
+
+    EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return active_time.at(batch); }));
+    EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return timestamp.at(batch); }));
+
+    int util_idx = levelzero_io.push_signal("LEVELZERO::GPU_UTILIZATION", GEOPM_DOMAIN_GPU_CHIP, 0);
+    for (batch = 0; batch < expected.size(); ++batch) {
+        levelzero_io.read_batch();
+        double result = levelzero_io.sample(util_idx);
+        if (std::isnan(expected.at(batch))) {
+            EXPECT_TRUE(std::isnan(result)) << "batch " << batch;
+        }
+        else {
+            EXPECT_DOUBLE_EQ(expected.at(batch), result) << "batch " << batch;
+            EXPECT_LE(result, 1.0) << "batch " << batch;
+        }
+    }
+}
+
+TEST_F(LevelZeroIOGroupTest, utilization_reset_recovery_unsampled)
+{
+    SetUpDefaultExpectCalls();
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    // Same counters as utilization_counter_reset_recovery, but utilization is
+    // not sampled in the batch where the reset timestamp is held.  The guard
+    // still sees that batch, so the following samples match.  If it only saw
+    // sampled batches they would both read 1.3.
+    std::vector<double> active_time = {0, 1000, 2000, 3000, 4000, 5000};
+    std::vector<double> timestamp = {1000, 2000, 3000, 3000, 4000, 5000};
+    std::vector<bool> is_sampled = {true, true, true, false, true, true};
+    std::vector<double> expected = {NAN, 1.0, 1.0, 0, 0, 1.0};
+    size_t batch = 0;
+
+    EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return active_time.at(batch); }));
+    EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return timestamp.at(batch); }));
+
+    int util_idx = levelzero_io.push_signal("LEVELZERO::GPU_UTILIZATION", GEOPM_DOMAIN_GPU_CHIP, 0);
+    for (batch = 0; batch < expected.size(); ++batch) {
+        levelzero_io.read_batch();
+        if (!is_sampled.at(batch)) {
+            continue;
+        }
+        double result = levelzero_io.sample(util_idx);
+        if (std::isnan(expected.at(batch))) {
+            EXPECT_TRUE(std::isnan(result)) << "batch " << batch;
+        }
+        else {
+            EXPECT_DOUBLE_EQ(expected.at(batch), result) << "batch " << batch;
+            EXPECT_LE(result, 1.0) << "batch " << batch;
+        }
+    }
+}
+
+TEST_F(LevelZeroIOGroupTest, utilization_read_stale_timestamp)
+{
+    SetUpDefaultExpectCalls();
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    // Each read_signal() takes 8 readings while the activity keeps increasing
+    // and the timestamp repeats.
+    // 0: The timestamp is stale at the last reading, so the read reports 0.
+    //    Fitting all 8 readings would give 1.29.
+    // 1: The stale readings are left out of the fit, which continues across
+    //    the gap.  Fitting all 8 readings would give 0.46.
+    std::vector<std::vector<double> > active_time = {
+        {0, 500, 1000, 1500, 2500, 3500, 4500, 5500},
+        {0, 500, 1000, 1500, 2000, 2500, 3000, 3500}};
+    std::vector<std::vector<double> > timestamp = {
+        {1000, 2000, 3000, 4000, 4000, 4000, 4000, 4000},
+        {1000, 2000, 3000, 3000, 3000, 6000, 7000, 8000}};
+    std::vector<double> expected = {0, 0.5};
+    size_t read_case = 0;
+    size_t reading = 0;
+
+    // The timestamp is read after the active time, so it moves to the next
+    // reading.
+    EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return active_time.at(read_case).at(reading); }));
+    EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_ALL))
+        .WillRepeatedly(testing::Invoke([&](int, unsigned int, int) { return timestamp.at(read_case).at(reading++); }));
+
+    for (read_case = 0; read_case < expected.size(); ++read_case) {
+        reading = 0;
+        EXPECT_DOUBLE_EQ(expected.at(read_case),
+                         levelzero_io.read_signal("LEVELZERO::GPU_UTILIZATION", GEOPM_DOMAIN_GPU_CHIP, 0))
+            << "case " << read_case;
+        EXPECT_EQ(timestamp.at(read_case).size(), reading) << "case " << read_case;
+    }
+}
+
 TEST_F(LevelZeroIOGroupTest, read_signal)
 {
     SetUpDefaultExpectCalls();
