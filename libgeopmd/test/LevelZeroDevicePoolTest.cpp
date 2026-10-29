@@ -259,6 +259,31 @@ TEST_F(LevelZeroDevicePoolTest, active_counter_glitch)
     }
 }
 
+TEST_F(LevelZeroDevicePoolTest, active_counter_wrap_after_glitch)
+{
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_levelzero, engine_domain_count(0, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(1));
+
+    const uint64_t step = 1ULL << 32;
+    // The raw value drops by 2^32 while below 2^32, wrapping below zero.  As
+    // activity accumulates it wraps back through zero, which is a normal
+    // increment and must not be absorbed as a reset.
+    std::vector<uint64_t> raw_active = {step - 200, step - 100, step - 50 - step, 50, 150};
+    std::vector<double> expected_active = {step - 200.0, step - 100.0, step - 50.0, step + 50.0, step + 150.0};
+
+    size_t sample = 0;
+    EXPECT_CALL(*m_levelzero, active_time(0, MockLevelZero::M_DOMAIN_COMPUTE, 0))
+        .WillRepeatedly(testing::Invoke([&](unsigned int, int, int) -> uint64_t { return raw_active.at(sample); }));
+
+    LevelZeroDevicePoolImp device_pool(*m_levelzero);
+    for (sample = 0; sample < raw_active.size(); ++sample) {
+        EXPECT_DOUBLE_EQ(expected_active.at(sample),
+                         device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, 0, MockLevelZero::M_DOMAIN_COMPUTE))
+            << "sample " << sample;
+    }
+}
+
 TEST_F(LevelZeroDevicePoolTest, active_timestamp_reset)
 {
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(1));

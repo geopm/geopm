@@ -274,17 +274,22 @@ namespace geopm
     // an offset so the converted value continues from the previous sample.
     // The timestamp does not use the restore: a reset that steps back by
     // between 2^31 and 2^32 would otherwise look like the -2^32 step and
-    // become a false forward jump.
+    // become a false forward jump.  A -2^32 step while the value is below
+    // 2^32 leaves the raw value just under 2^64, so it later wraps through
+    // zero as activity accumulates.  A wrap that moves forward by less than
+    // 2^31 is a normal increment, not a reset.
     static double convert_counter(uint64_t raw, ActivityCounterState &state,
                                   bool restore_glitch)
     {
         static const uint64_t M_MAX_STEP = 1ULL << 48;
         static const uint64_t M_GLITCH_STEP = 1ULL << 32;
-        static const uint64_t M_MAX_GLITCH_INCREMENT = 1ULL << 31;
-        if (state.is_init &&
-            (raw < state.last_raw || raw - state.last_raw > M_MAX_STEP)) {
+        static const uint64_t M_MAX_INCREMENT = 1ULL << 31;
+        uint64_t step = raw - state.last_raw;
+        bool is_wrap = raw < state.last_raw && step < M_MAX_INCREMENT;
+        if (state.is_init && !is_wrap &&
+            (raw < state.last_raw || step > M_MAX_STEP)) {
             if (restore_glitch &&
-                raw + M_GLITCH_STEP - state.last_raw < M_MAX_GLITCH_INCREMENT) {
+                raw + M_GLITCH_STEP - state.last_raw < M_MAX_INCREMENT) {
                 state.offset += M_GLITCH_STEP;
             }
             else {
