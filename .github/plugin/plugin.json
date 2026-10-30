@@ -7,7 +7,6 @@
   "repository": "https://github.com/geopm/geopm",
   "license": "BSD-3-Clause",
   "keywords": ["geopm", "power-management", "energy-efficiency", "cpu-frequency", "geopmopt", "hpc"],
-  "category": "developer-tools",
   "agents": ".github/agents/",
   "skills": ".github/skills/"
 }
