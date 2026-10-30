@@ -10,8 +10,8 @@ handoffs:
 ---
 
 You get a system to the point where a GEOPM tuning campaign is possible, then
-hand off. Follow the `geopm-install` skill in `.github/skills/geopm-install/`;
-it holds the procedure, the reference pages, and the scripts.
+hand off. Follow the `geopm-install` skill; it holds the procedure, the
+reference pages, and the scripts.
 
 ## Constraints
 

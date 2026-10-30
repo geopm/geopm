@@ -1,0 +1,13 @@
+{
+  "name": "geopm",
+  "description": "GEOPM agents and skills: install and verify GEOPM on a Linux system under test (geopm-install), then tune CPU/uncore/GPU frequency and power caps for a workload with geopmopt, with sensitivity checks against run-to-run noise (geopm-optimize).",
+  "version": "0.1.0",
+  "author": { "name": "GEOPM Developers", "url": "https://github.com/geopm/geopm" },
+  "homepage": "https://geopm.github.io",
+  "repository": "https://github.com/geopm/geopm",
+  "license": "BSD-3-Clause",
+  "keywords": ["geopm", "power-management", "energy-efficiency", "cpu-frequency", "geopmopt", "hpc"],
+  "category": "developer-tools",
+  "agents": ".github/agents/",
+  "skills": ".github/skills/"
+}
