@@ -166,6 +166,33 @@ point, you must modify your environment to specify the installed location.
     export PATH=$INSTALL_PREFIX/bin:$PATH
 ```
 
+## Use as an Agent Plugin
+
+This repository ships two AI coding-assistant agents and their skills in
+[.github/agents](.github/agents) and [.github/skills](.github/skills):
+
+* `geopm-install` installs and verifies GEOPM on a Linux system under test.
+* `geopm-optimize` tunes CPU, uncore, and GPU frequency and power caps for a
+  workload with `geopmopt`.
+
+[.github/plugin/plugin.json](.github/plugin/plugin.json) lets VS Code and
+Copilot CLI install them as the `geopm` agent plugin, directly from this
+repository:
+
+```bash
+copilot plugin install geopm/geopm
+```
+
+In VS Code, run *Chat: Install Plugin from Source* and enter
+`https://github.com/geopm/geopm`. The plugin is also listed in the Intel agent
+plugin marketplace as `geopm@plugins-marketplace`. Working inside a clone of
+this repository is unchanged: the agents and skills load from the open
+workspace.
+
+The plugin `version` in `plugin.json` must be bumped whenever files under
+`.github/agents` or `.github/skills` change, because clients only offer an
+update when the version changes.
+
 ## Major GEOPM Versions
 At a high level, major GEOPM releases are summarized as follows:
 
