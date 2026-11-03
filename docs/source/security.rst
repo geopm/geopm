@@ -264,6 +264,22 @@ power and performance. For more information, see the `cpufreq documentation
 <https://docs.kernel.org/admin-guide/pm/cpufreq.html>`_.
 
 
+Uncore Frequency Device Driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The GEOPM Access Service can also act as a gateway to the Linux
+``intel_uncore_frequency`` device driver, which exposes the TPMI (Topology
+Aware Register and PM Capsule Interface) uncore frequency interface through
+sysfs files in the ``/sys/devices/system/cpu/intel_uncore_frequency``
+directory. This driver provides controls for setting minimum and maximum uncore
+frequency limits as well as a signal for reporting the current uncore
+frequency. Available on Granite Rapids and later Xeon processors.  Writes to
+the driver require root privileges so access to these signals and controls is
+managed through the GEOPM Access Service. For more information, see the
+`intel_uncore_frequency_scaling documentation
+<https://docs.kernel.org/admin-guide/pm/intel_uncore_frequency_scaling.html>`_.
+
+
 Powercap Device Driver
 ^^^^^^^^^^^^^^^^^^^^^^
 
