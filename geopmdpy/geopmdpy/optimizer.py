@@ -40,6 +40,7 @@ import yaml
 
 from . import pio
 from . import metrics
+from . import __version__
 from .grid import ControlGrid, add_grid_cli_arguments
 
 # Default geopmsession sampling period in seconds. It is small enough that the
@@ -1414,6 +1415,7 @@ def _penalty_arg(value):
 def get_parser():
     """Create argument parser for the optimizer."""
     parser = ArgumentParser(description="Bayesian optimization for control parameter tuning")
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {__version__}')
 
     # Control grid options (similar to grid.py)
     add_grid_cli_arguments(parser)

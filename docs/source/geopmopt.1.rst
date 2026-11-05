@@ -6,7 +6,7 @@ Synopsis
 
 .. code-block:: bash
 
-    usage: geopmopt [-h]
+    usage: geopmopt [-h] [-v]
                     [--sweep DIM]
                     [--list-controls]
                     [--trials TRIALS] [--n-initial-points N_INITIAL_POINTS]
@@ -81,13 +81,14 @@ Compose an objective with constraints
              --constraint 'power <= 250W' \
              -- ./app
 
-Get Help
-~~~~~~~~
+Get Help Or Version
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     geopmopt -h
     geopmopt --help
+    geopmopt --version
 
 
 Description
@@ -373,6 +374,10 @@ LAUNCH ...  .. _launch option:
 -h, --help  .. _help option:
 
     Print help message and exit.
+
+-v, --version  .. _version option:
+
+    Print version of :doc:`geopm(7) <geopm.7>` to standard output, then exit.
 
 
 Examples

@@ -8,6 +8,7 @@ Unit tests for the Bayesian optimizer.
 
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
+import io
 import subprocess
 import tempfile
 import os
@@ -1604,6 +1605,29 @@ class TestGetParser(unittest.TestCase):
                 '--sweep', 'cpu-freq@package', '--metric-regex', 'test',
                 '--penalty', 'bogus', 'echo', 'hello'
             ])
+
+    def test_parser_version(self):
+        """-v/--version prints the program name and version, then exits 0."""
+        from geopmdpy import __version__
+        parser = optimizer.get_parser()
+        parser.prog = 'geopmopt'
+        for flag in ('-v', '--version'):
+            with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
+                with self.assertRaises(SystemExit) as cm:
+                    parser.parse_args([flag])
+            self.assertEqual(cm.exception.code, 0)
+            self.assertEqual(mock_stdout.getvalue().strip(),
+                             f'geopmopt {__version__}')
+
+    def test_parser_version_in_launch_command(self):
+        """A -v belonging to the launch command is not taken as --version."""
+        parser = optimizer.get_parser()
+        args = parser.parse_args([
+            '--sweep', 'cpu-freq@package', '--', 'app', '-v'
+        ])
+        self.assertEqual(args.launch, ['--', 'app', '-v'])
+        args = parser.parse_args(['--sweep', 'cpu-freq@package', 'app', '-v'])
+        self.assertEqual(args.launch, ['app', '-v'])
 
     def test_penalty_arg_helper(self):
         """_penalty_arg normalizes policies and numbers, rejecting garbage."""
