@@ -827,10 +827,10 @@ class ActiveSessions(object):
             os.unlink(write_fifo_path)
 
     def start_profile(self, client_pid, profile_name):
-        profile_name = str(profile_name)
         self.check_client_active(client_pid, 'start_profile')
         if 'profile_name' in self._sessions[client_pid]:
-            raise RuntimeError(f'Client pid {client_pid} has requested profiling twice')
+            return
+        profile_name = str(profile_name)
         uid, gid, _ = self._pid_info(client_pid)
         if len(self._profiles) == 0:
             size = 64 * os.cpu_count()
@@ -848,7 +848,7 @@ class ActiveSessions(object):
         try:
             profile_name = self._sessions[client_pid].pop('profile_name')
         except KeyError:
-            raise RuntimeError(f'Client PID {client_pid} requested to stop profiling, but it had not been started.')
+            sys.stderr.write(f'Warning: Client PID {client_pid} requested to stop profiling, but it had not been started.\n')
         # TODO: store region names in file in /run/geopm to enable clean restart
         if profile_name in self._region_names:
             self._region_names[profile_name].update(region_names)

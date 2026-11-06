@@ -94,6 +94,7 @@ namespace geopm
 
     void ProfileImp::connect(void)
     {
+        std::scoped_lock lock(m_register_lock);
         if (m_pid_registered == (int)getpid()) {
             return;
         }
