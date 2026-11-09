@@ -57,9 +57,7 @@ namespace geopm
         }
 #endif
 #ifdef GEOPM_ENABLE_LEVELZERO
-        if (getenv("ZES_ENABLE_SYSMAN") != nullptr &&
-            std::string(getenv("ZES_ENABLE_SYSMAN")) == "1" &&
-            getenv("ZE_FLAT_DEVICE_HIERARCHY") != nullptr &&
+        if (getenv("ZE_FLAT_DEVICE_HIERARCHY") != nullptr &&
             std::string(getenv("ZE_FLAT_DEVICE_HIERARCHY")) == "COMPOSITE") {
             try {
                 LevelZeroTopo = std::make_unique<LevelZeroGPUTopo>();
