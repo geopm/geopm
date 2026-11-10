@@ -107,6 +107,26 @@ namespace geopm
                         GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                         ": LevelZero Sysman Driver acquisition failed.", __LINE__);
 
+        // Core handles cannot be cast to Sysman handles with zesInit, so match them by UUID
+        std::vector<std::pair<ze_device_uuid_t, zes_device_handle_t> > sysman_device;
+        for (auto sysman_drv : sysman_driver) {
+            uint32_t num_sysman_device = 0;
+            check_ze_result(zesDeviceGet(sysman_drv, &num_sysman_device, nullptr),
+                            GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                            ": LevelZero Sysman Device enumeration failed.", __LINE__);
+            std::vector<zes_device_handle_t> sysman_device_handle(num_sysman_device);
+            check_ze_result(zesDeviceGet(sysman_drv, &num_sysman_device, sysman_device_handle.data()),
+                            GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                            ": LevelZero Sysman Device acquisition failed.", __LINE__);
+            for (auto handle : sysman_device_handle) {
+                zes_device_properties_t property = {};
+                check_ze_result(zesDeviceGetProperties(handle, &property),
+                                GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                                ": failed to get Sysman device properties.", __LINE__);
+                sysman_device.emplace_back(property.core.uuid, handle);
+            }
+        }
+
         for (unsigned int driver = 0; driver < num_driver; driver++) {
             // Discover devices in a driver
             uint32_t num_device = 0;
@@ -145,21 +165,12 @@ namespace geopm
 #endif
                 if (property.type == ZE_DEVICE_TYPE_GPU) {
                     if ((property.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
-                        // Core handles cannot be cast to Sysman handles with zesInit, so map by UUID
-                        zes_uuid_t uuid = {};
-                        std::copy(std::begin(property.uuid.id), std::end(property.uuid.id), uuid.id);
-                        zes_device_handle_t sysman_device = nullptr;
-                        for (const auto &sysman_drv : sysman_driver) {
-                            ze_bool_t on_subdevice = false;
-                            uint32_t subdevice_id = 0;
-                            if (zesDriverGetDeviceByUuidExp(sysman_drv, uuid, &sysman_device,
-                                                            &on_subdevice, &subdevice_id) == ZE_RESULT_SUCCESS &&
-                                sysman_device != nullptr) {
-                                break;
-                            }
-                            sysman_device = nullptr;
-                        }
-                        if (sysman_device == nullptr) {
+                        auto sysman_it = std::find_if(sysman_device.begin(), sysman_device.end(),
+                            [&property](const std::pair<ze_device_uuid_t, zes_device_handle_t> &dev) {
+                                return std::equal(std::begin(dev.first.id), std::end(dev.first.id),
+                                                  std::begin(property.uuid.id));
+                            });
+                        if (sysman_it == sysman_device.end()) {
                             throw Exception("LevelZero::" + std::string(__func__) +
                                             ": LevelZero failed to find the Sysman device matching a GPU UUID.",
                                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -180,7 +191,7 @@ namespace geopm
 
                         m_devices.push_back({
                             m_levelzero_driver.at(driver),
-                            sysman_device,
+                            sysman_it->second,
                             property,
                             num_subdevice, //if there are no subdevices leave this as 0
                             std::move(subdevice_handle),
