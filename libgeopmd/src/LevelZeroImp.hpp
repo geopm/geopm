@@ -140,6 +140,7 @@ namespace geopm
 
             void metric_read(unsigned int l0_device_idx,
                              unsigned int l0_domain_idx) override;
+            void metric_init(void) override;
 
         private:
             enum m_error_type {
@@ -276,6 +277,7 @@ namespace geopm
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
+            bool m_is_metric_init;
 
             static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
             static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
@@ -300,6 +302,7 @@ namespace geopm
             std::exception_ptr m_metric_thread_error;
 
             void metric_group_init(unsigned int l0_device_idx);
+            void metric_disable(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
                              size_t data_size, const uint8_t *data);
 

@@ -19,6 +19,11 @@ Note on RAS Signals
 
 The Monitoring of RAS counters have a high overhead (0.5 seconds each to read). And so, reporting of any errors while monitoring these signals (for e.g., due to unsupported firmware) will be delayed until the user attempts to actually read any of these signals.
 
+Note on Metric Signals
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``LEVELZERO::METRIC`` signals require the LevelZero core driver (zeInit()), which keeps the GPU device files open until the process exits.  The GEOPM service (geopmd) and its batch servers defer that initialization until a metric signal is pushed for batch reads, so the long-running service does not stay attached to the GPUs.  Other processes initialize metrics when the LevelZeroIOGroup is created, so only the metric signals that work on every GPU chip are listed.
+
 
 Signals
 -------

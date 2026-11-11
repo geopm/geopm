@@ -318,6 +318,8 @@ namespace geopm
                                          std::string metric) const = 0;
             virtual uint32_t metric_update_rate(int domain, unsigned int domain_idx) const = 0;
             virtual void metric_read(int domain, unsigned int domain_idx) const = 0;
+            /// @brief Initialize Level Zero metric support if not already done.
+            virtual void metric_init(void) const = 0;
         private:
     };
 

@@ -394,6 +394,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
+    EXPECT_CALL(*m_device_pool, metric_init()).Times(AtLeast(1));
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         // On live systems we do not support read_signal of ZET signals.
         EXPECT_CALL(*m_device_pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, sub_idx, "NUM_REPORTS")).WillOnce(Return(mock_zet_num_reports.at(sub_idx)));
@@ -1134,6 +1135,27 @@ TEST_F(LevelZeroIOGroupTest, metric_heterogeneous_support)
     EXPECT_FALSE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:NUM_REPORTS"));
     // Non-metric signals remain available.
     EXPECT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION"));
+}
+
+TEST_F(LevelZeroIOGroupTest, metric_deferred_init)
+{
+    // Before a deferred metric_init(), metric_sample() reports no data (NaN),
+    // which must leave the metric signals registered.
+    auto pool = std::make_shared<NiceMock<MockLevelZeroDevicePool> >();
+    ON_CALL(*pool, num_gpu(GEOPM_DOMAIN_GPU)).WillByDefault(Return(m_num_gpu));
+    ON_CALL(*pool, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillByDefault(Return(m_num_gpu_subdevice));
+    ON_CALL(*pool, metric_sample(GEOPM_DOMAIN_GPU_CHIP, _, _)).WillByDefault(Return(NAN));
+
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *pool, nullptr);
+
+    EXPECT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:XVE_ACTIVE"));
+    EXPECT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:XVE_STALL"));
+    EXPECT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::METRIC:NUM_REPORTS"));
+
+    // Only the metric push initializes Level Zero metric support.
+    EXPECT_CALL(*pool, metric_init()).Times(1);
+    levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, 0);
+    levelzero_io.push_signal("LEVELZERO::METRIC:XVE_ACTIVE", GEOPM_DOMAIN_GPU_CHIP, 0);
 }
 
 TEST_F(LevelZeroIOGroupTest, save_restore_control)
