@@ -253,6 +253,9 @@ that the workload runs, the regex matches, and the controls are writable.
 total ≈ trials × single-run time × 1.5
 ```
 
+When the grid has no more points than `--trials`, use the number of grid points
+instead of `trials`: geopmopt evaluates each point once and stops.
+
 **Present the estimate and get explicit agreement before starting.** A 40-trial
 campaign on a 90-second workload is about 90 minutes.
 
