@@ -189,12 +189,17 @@ Optimization Configuration
 --trials TRIALS  .. _trials option:
 
     Number of optimization iterations to perform. More trials generally lead to
-    better results but take longer. Default: 50.
+    better results but take longer. When the grid has no more points than
+    ``TRIALS`` (the product of the number of settings in each dimension),
+    Bayesian optimization is skipped and each grid point is evaluated exactly
+    once instead, so the run takes as many trials as the grid has points. A
+    warning reports the switch. Default: 50.
 
 --n-initial-points N_INITIAL_POINTS  .. _n-initial-points option:
 
     Number of random initial evaluations before starting Bayesian optimization.
-    These provide initial data for the Gaussian Process model. Default: 10.
+    These provide initial data for the Gaussian Process model. Ignored when each
+    grid point is evaluated (see ``--trials``). Default: 10.
 
 --metric-regex METRIC_REGEX  .. _metric-regex option:
 
@@ -217,7 +222,9 @@ Optimization Configuration
 
 --random-seed RANDOM_SEED  .. _random-seed option:
 
-    Random seed for reproducible optimization results. Default: 42.
+    Random seed for reproducible optimization results. It also fixes the order
+    in which grid points are evaluated when each point is evaluated once (see
+    ``--trials``). Default: 42.
 
 --application-timeout APPLICATION_TIMEOUT  .. _application-timeout option:
 
@@ -845,6 +852,12 @@ configurations to evaluate next.
 
 This approach is much more efficient than grid search or random search,
 especially for expensive function evaluations.
+
+**Small grids:** When the grid has no more points than ``--trials``, no search
+can do better than evaluating every point, so the tool skips Bayesian
+optimization and evaluates each grid point exactly once, in a random order fixed
+by ``--random-seed``. The run then takes as many trials as the grid has points,
+which can be fewer than ``--trials``.
 
 
 Error Handling

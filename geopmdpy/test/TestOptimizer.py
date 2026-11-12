@@ -943,6 +943,109 @@ class TestBayesianOptimizer(unittest.TestCase):
         self.assertIn('evaluation failed',
                       opt.evaluation_history[-1]['failure_reason'])
 
+    def _evaluated_coordinates(self):
+        return [c[0][1] for c in self.mock_evaluator.evaluate.call_args_list]
+
+    @patch('geopmdpy.optimizer.gp_minimize')
+    def test_optimize_exhaustive_when_grid_fits_trials(self, mock_gp_minimize):
+        """A grid no larger than --trials evaluates each point exactly once."""
+        fom = [1.0, 5.0, 3.0, 2.0, 4.0]
+        self.mock_evaluator.evaluate.side_effect = (
+            lambda grid, coordinate, config_file:
+            optimizer.TrialResult(fom=fom[coordinate[0]]))
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING') as logs:
+            result = opt.optimize(spec=spec, trials=12, n_initial_points=10)
+
+        mock_gp_minimize.assert_not_called()
+        self.assertEqual(sorted(self._evaluated_coordinates()),
+                         [[0], [1], [2], [3], [4]])
+        self.assertEqual(result['best_coordinate'], [1])
+        self.assertEqual(result['best_metric'], 5.0)
+        self.assertEqual(result['n_evaluations'], 5)
+        self.assertIsNone(result['optimization_result'])
+        self.assertIn('Grid has 5 points, no more than --trials 12: skipping '
+                      'Bayesian optimization and evaluating each point once '
+                      '(5 trials)', logs.output[0])
+
+    def test_optimize_exhaustive_order_is_seeded(self):
+        """At trials equal to the grid size each point runs once, in an order
+        shuffled reproducibly by the random seed."""
+        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=1.0)
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+
+        def evaluated_order(seed):
+            self.mock_evaluator.evaluate.reset_mock()
+            opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+            with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
+                opt.optimize(spec=spec, trials=5, random_state=seed)
+            return self._evaluated_coordinates()
+
+        order = evaluated_order(42)
+        self.assertEqual(sorted(order), [[0], [1], [2], [3], [4]])
+        self.assertNotEqual(order, sorted(order))
+        self.assertEqual(evaluated_order(42), order)
+
+    def test_optimize_exhaustive_multi_dimension(self):
+        """Every coordinate of a multi-dimension grid is evaluated once."""
+        self.mock_grid.control_name = ['cpu_frequency', 'cpu_uncore_frequency']
+        self.mock_grid.get_grid_data.return_value = [
+            {"control": "CPU_FREQUENCY_MAX_CONTROL", "domain": "board",
+             "domain_idx": 0, "settings": [1.0e9, 2.0e9]},
+            {"control": "CPU_UNCORE_FREQUENCY_MAX_CONTROL", "domain": "board",
+             "domain_idx": 0, "settings": [1.0e9, 1.5e9, 2.0e9]},
+        ]
+        self.mock_evaluator.evaluate.return_value = optimizer.TrialResult(fom=1.0)
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING') as logs:
+            result = opt.optimize(spec=spec, trials=12)
+
+        self.assertEqual(sorted(self._evaluated_coordinates()),
+                         [[i, j] for i in range(2) for j in range(3)])
+        self.assertEqual(result['n_evaluations'], 6)
+        self.assertIn('Grid has 6 points (2 x 3), no more than --trials 12',
+                      logs.output[0])
+
+    def test_optimize_exhaustive_failed_trial(self):
+        """Exhaustive trials follow the same failure policy as Bayesian ones."""
+        def evaluate(grid, coordinate, config_file):
+            if coordinate[0] == 4:
+                return optimizer.TrialResult(failed=True, failure_reason='timeout')
+            return optimizer.TrialResult(fom=float(coordinate[0]))
+        self.mock_evaluator.evaluate.side_effect = evaluate
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
+            result = opt.optimize(spec=spec, trials=5)
+        self.assertEqual(result['best_coordinate'], [3])
+
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+        with self.assertLogs('geopmdpy.optimizer', level='WARNING'):
+            with self.assertRaises(optimizer.OptimizationError):
+                opt.optimize(spec=spec, trials=5, penalty='none')
+
+    def test_optimize_bayesian_when_grid_exceeds_trials(self):
+        """A grid with more points than --trials runs scikit-optimize."""
+        self.mock_evaluator.evaluate.side_effect = (
+            lambda grid, coordinate, config_file:
+            optimizer.TrialResult(fom=float(coordinate[0])))
+        spec = optimizer.expand_objective('FOM: ([0-9.]+)', None, None, False)
+        opt = optimizer.BayesianOptimizer(self.mock_grid, self.mock_evaluator)
+
+        with self.assertLogs('geopmdpy.optimizer', level='INFO') as logs:
+            result = opt.optimize(spec=spec, trials=4, n_initial_points=2)
+
+        self.assertEqual(self.mock_evaluator.evaluate.call_count, 4)
+        self.assertEqual(result['n_evaluations'], 4)
+        self.assertIsNotNone(result['optimization_result'])
+        self.assertIn('Starting Bayesian optimization', logs.output[0])
+        self.assertNotIn('WARNING', [r.levelname for r in logs.records])
+
 
 @unittest.skipIf(skip_test, skip_msg)
 class TestSessionStrategy(unittest.TestCase):
