@@ -12,6 +12,9 @@ total wall time  ≈  trials × single-run time × slowdown factor
 The slowdown factor is above 1 because most trials run at reduced frequency or
 power. Assume **1.5** as a working figure for the campaign average.
 
+When the grid has no more points than `--trials`, use the number of grid points
+instead of `trials`; see [Trial budget](#trial-budget).
+
 The **worst case** is larger and matters for the timeout rather than the total.
 A trial at the bottom of the swept range approaches the ratio of the highest to
 the lowest setting. Measured on a 3.7 GHz part swept down to 1.0 GHz, a
@@ -30,6 +33,12 @@ the machine's settings, which revert.
 Bayesian optimization spends `--n-initial-points` trials sampling randomly, then
 uses a Gaussian Process to choose the rest. Too few trials and it never gets
 past the random phase.
+
+Count the grid points first: the product of the number of settings in each
+dimension. If that count is no more than `--trials`, geopmopt skips Bayesian
+optimization and evaluates each grid point once, so the campaign takes that many
+trials and `--n-initial-points` does not apply. A one-dimension sweep often fits
+within the 20 trials below.
 
 | Dimensions | `--trials` | `--n-initial-points` |
 |---|---|---|
