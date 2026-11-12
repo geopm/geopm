@@ -31,6 +31,7 @@ Environment overrides (optional):
 """
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -87,6 +88,7 @@ class _GeopmoptHarness(unittest.TestCase):
                 f'command: {" ".join(cls._command)}\n'
                 f'stdout:\n{proc.stdout}\n'
                 f'stderr:\n{proc.stderr}')
+        cls._stderr = proc.stderr
         with open(cls._config_path) as fid:
             cls._config_text = fid.read()
 
@@ -127,6 +129,13 @@ class TestGeopmoptRawMetric(_GeopmoptHarness):
             self._best_frequency(), float(self._freq_high),
             msg=('maximizing throughput did not select the maximum allowed '
                  f'grid frequency {self._freq_high}'))
+
+    def test_evaluates_each_grid_point_once(self):
+        """The two-point grid fits within ``--trials``, so geopmopt skips
+        Bayesian optimization and evaluates each endpoint exactly once."""
+        coordinates = re.findall(r'Evaluation \d+: coordinate=\[(\d+)\]',
+                                 self._stderr)
+        self.assertEqual(sorted(coordinates), ['0', '1'], msg=self._stderr)
 
 
 @gu.skip_unless_skopt()

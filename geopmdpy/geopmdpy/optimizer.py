@@ -21,6 +21,10 @@ import math
 import shutil
 import tempfile
 import logging
+import functools
+import itertools
+import operator
+import random
 from argparse import ArgumentParser, ArgumentTypeError, REMAINDER
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
@@ -982,6 +986,9 @@ class BayesianOptimizer:
         self.control_grid = control_grid
         self.evaluator = evaluator
         self.space = self._create_search_space()
+        self.grid_shape = [len(dim["settings"])
+                           for dim in self.control_grid.get_grid_data()]
+        self.grid_size = functools.reduce(operator.mul, self.grid_shape, 1)
         self.best_result = None
         self.evaluation_history = []
         self.config_file = config_file
@@ -1245,10 +1252,15 @@ class BayesianOptimizer:
                  penalty='auto') -> dict:
         """Run Bayesian optimization for the given objective spec.
 
+        When the grid has no more points than ``trials``, Bayesian
+        optimization is skipped and each grid point is evaluated exactly once,
+        in an order shuffled by ``random_state``.
+
         Args:
             spec: The canonical objective produced by :func:`expand_objective`.
             trials: Number of optimization iterations.
-            n_initial_points: Number of random initial evaluations.
+            n_initial_points: Number of random initial evaluations; unused when
+                every grid point is evaluated.
             random_state: Random seed for reproducibility.
             penalty: Recoverable-failure policy: ``'auto'`` derives a finite
                 penalty worse than every success, ``'none'`` re-raises on any
@@ -1288,16 +1300,33 @@ class BayesianOptimizer:
                                  trial=trial, feasible=feasible)
             return score
 
-        logger.info(f"Starting Bayesian optimization with {trials} evaluations...")
-
-        result = gp_minimize(
-            func=objective,
-            dimensions=self.space,
-            n_calls=trials,
-            n_initial_points=n_initial_points,
-            random_state=random_state,
-            acq_func='EI'  # Expected Improvement
-        )
+        if self.grid_size <= trials:
+            shape = ''
+            if len(self.grid_shape) > 1:
+                shape = f" ({' x '.join(str(n) for n in self.grid_shape)})"
+            logger.warning(
+                f"Grid has {self.grid_size} points{shape}, no more than "
+                f"--trials {trials}: skipping Bayesian optimization and "
+                f"evaluating each point once ({self.grid_size} trials)")
+            schedule = [list(point) for point in itertools.product(
+                *(range(n) for n in self.grid_shape))]
+            # Shuffle so that drift over the run does not track the settings.
+            random.Random(random_state).shuffle(schedule)
+            for coordinate in schedule:
+                objective(coordinate)
+            result = None
+            n_evaluations = len(schedule)
+        else:
+            logger.info(f"Starting Bayesian optimization with {trials} evaluations...")
+            result = gp_minimize(
+                func=objective,
+                dimensions=self.space,
+                n_calls=trials,
+                n_initial_points=n_initial_points,
+                random_state=random_state,
+                acq_func='EI'  # Expected Improvement
+            )
+            n_evaluations = len(result.func_vals)
 
         self.best_result = result
 
@@ -1316,7 +1345,7 @@ class BayesianOptimizer:
             'best_coordinate': best_coordinate,
             'best_metric': objective_raw,
             'best_config': best_config,
-            'n_evaluations': len(result.func_vals),
+            'n_evaluations': n_evaluations,
             'optimization_result': result,
             'label': spec.label,
         }
@@ -1335,7 +1364,8 @@ class BayesianOptimizer:
         is synthesized from the scikit-optimize result.
 
         Args:
-            result: The scikit-optimize result from ``gp_minimize``.
+            result: The scikit-optimize result from ``gp_minimize``, or None
+                when every grid point was evaluated instead.
 
         Returns:
             dict: The selected history entry.
@@ -1425,7 +1455,9 @@ def get_parser():
         '--trials',
         type=int,
         default=50,
-        help='Number of optimization iterations (default: %(default)s)'
+        help='Number of optimization iterations. When the grid has no more '
+             'points than this, each point is evaluated once instead '
+             '(default: %(default)s)'
     )
 
     parser.add_argument(
