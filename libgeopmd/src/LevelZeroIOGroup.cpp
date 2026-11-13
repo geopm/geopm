@@ -1367,6 +1367,7 @@ namespace geopm
             //m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
             domain_type == GEOPM_DOMAIN_GPU_CHIP) {
 
+            m_levelzero_device_pool.metric_init();
             m_metric_signal_pushed.at(domain_idx) = true;
         }
 

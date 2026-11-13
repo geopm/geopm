@@ -807,6 +807,11 @@ namespace geopm
         m_levelzero.metric_read(dev_subdev_idx_pair.first, dev_subdev_idx_pair.second);
     }
 
+    void LevelZeroDevicePoolImp::metric_init(void) const
+    {
+        m_levelzero.metric_init();
+    }
+
     double LevelZeroDevicePoolImp::metric_sample(int domain, unsigned int domain_idx,
                                                  std::string metric_name) const
     {

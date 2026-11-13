@@ -56,6 +56,11 @@ GEOPM_SERVICE_CONFIG_PATH_PERM = 0o700
 
 """
 
+LEVELZERO_DEFER_METRIC_INIT = 'GEOPM_LEVELZERO_DEFER_METRIC_INIT'
+"""Internal environment variable that defers Level Zero metric init
+
+"""
+
 class InvalidClientError(Exception):
     def __init__(self, message):
         super().__init__(message)
@@ -1014,6 +1019,8 @@ def _get_names():
         return signals, controls
     else:
         os.close(pipe_r)
+        # Probe Level Zero metrics so the access lists only name working signals
+        os.environ.pop(LEVELZERO_DEFER_METRIC_INIT, None)
         signal_buffer = '\n'.join(pio.signal_names())
         control_buffer = '\n'.join(pio.control_names())
         buffer = f'{signal_buffer}{marker}{control_buffer}'

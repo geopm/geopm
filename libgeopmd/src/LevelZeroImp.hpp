@@ -140,6 +140,7 @@ namespace geopm
 
             void metric_read(unsigned int l0_device_idx,
                              unsigned int l0_domain_idx) override;
+            void metric_init(void) override;
 
         private:
             enum m_error_type {
@@ -231,7 +232,7 @@ namespace geopm
                 zes_device_handle_t device_handle;
                 ze_device_properties_t property;
                 uint32_t num_subdevice;
-                std::vector<zes_device_handle_t> subdevice_handle;
+                std::vector<ze_device_handle_t> subdevice_handle;
 
                 // Sub-Device domain tracking.  Because levelzero returns ALL handles for a
                 // 'class' (freq, power, etc) regardless of subdevice it is easier to track
@@ -255,6 +256,8 @@ namespace geopm
             void perf_domain_cache(unsigned int l0_device_idx);
             void engine_domain_cache(unsigned int l0_device_idx);
             void temperature_domain_cache(unsigned int l0_device_idx);
+            // A device without subdevices is treated as one chip
+            uint32_t num_chip(unsigned int l0_device_idx) const;
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
 
@@ -276,6 +279,7 @@ namespace geopm
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
+            bool m_is_metric_init;
 
             static constexpr uint32_t SAMPLING_PERIOD_NS = 500000; // 0.5 ms
             static constexpr size_t DEFAULT_REPORT_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MB
@@ -300,6 +304,7 @@ namespace geopm
             std::exception_ptr m_metric_thread_error;
 
             void metric_group_init(unsigned int l0_device_idx);
+            void metric_disable(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
                              size_t data_size, const uint8_t *data);
 
