@@ -87,7 +87,7 @@ Signals
     *  **Unit**: hertz
 
 ``LEVELZERO::GPU_ENERGY``
-    GPU energy in joules.
+    GPU energy in joules.  On GPUs that report more than one device level power domain, this is the card power domain.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu
@@ -95,7 +95,7 @@ Signals
     *  **Unit**: joules
 
 ``LEVELZERO::GPU_CORE_ENERGY``
-    GPU Compute Hardware chip energy in joules.
+    GPU Compute Hardware chip energy in joules.  On GPUs without sub-devices that report more than one device level power domain, this is the package power domain.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip for multi-chip systems or gpu for single chip per gpu systems

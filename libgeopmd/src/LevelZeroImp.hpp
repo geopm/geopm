@@ -256,6 +256,8 @@ namespace geopm
             void perf_domain_cache(unsigned int l0_device_idx);
             void engine_domain_cache(unsigned int l0_device_idx);
             void temperature_domain_cache(unsigned int l0_device_idx);
+            // A device without subdevices is treated as one chip
+            uint32_t num_chip(unsigned int l0_device_idx) const;
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
 

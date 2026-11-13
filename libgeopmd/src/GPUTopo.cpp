@@ -63,7 +63,10 @@ namespace geopm
                 LevelZeroTopo = std::make_unique<LevelZeroGPUTopo>();
             }
             catch (const Exception &ex) {
-                // LevelZeroTopo cannot be created, already set to GPUTopoNull
+                if (verbosity_level() >= 1) {
+                    std::cerr << "Warning: <geopm> Unable to get LevelZero topology. Reason: "
+                              << ex.what() << std::endl;
+                }
             }
         }
 #endif

@@ -233,7 +233,7 @@ namespace geopm
         }
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
             for (unsigned int subdevice_idx = 0;
-             subdevice_idx < m_devices.at(gpu_idx).num_subdevice;
+             subdevice_idx < num_chip(gpu_idx);
              ++subdevice_idx) {
                 try {
                     metric_destroy(gpu_idx, subdevice_idx);
@@ -324,7 +324,7 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                             ": Sysman failed to get domain handle(s).", __LINE__);
 
-            uint32_t num_device_power_domain = 0;
+            std::vector<zes_pwr_handle_t> device_power_domain;
             uint32_t num_subdevice_power_domain = 0;
             for (auto handle : power_domain) {
                 zes_power_properties_t property = {};
@@ -334,14 +334,7 @@ namespace geopm
 
                 //Finding non-subdevice domain.
                 if (property.onSubdevice == 0) {
-                    m_devices.at(device_idx).power_domain = handle;
-                    ++num_device_power_domain;
-                    if (num_device_power_domain != 1) {
-                        throw Exception("LevelZero::" + std::string(__func__) +
-                                        ": Multiple device level power domains "
-                                        "detected.  This may lead to incorrect power readings",
-                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                    }
+                    device_power_domain.push_back(handle);
                 }
                 else {
                     ++num_subdevice_power_domain;
@@ -349,24 +342,51 @@ namespace geopm
                 }
             }
 
-            if (num_device_power_domain != 1) {
+            if (device_power_domain.size() == 0) {
                 throw Exception("LevelZero::" + std::string(__func__) +
-                                ": GEOPM requires one and only one device "+
-                                "level power domain (detected: " +
-                                std::to_string(num_device_power_domain) +  ").",
+                                ": GEOPM requires a device level power domain (detected: 0).",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+            else if (device_power_domain.size() == 1) {
+                m_devices.at(device_idx).power_domain = device_power_domain.at(0);
+            }
+            else {
+                // Some devices (e.g. BMG, CRI) report CARD, PACKAGE and other device level domains
+                check_ze_result(zesDeviceGetCardPowerDomain(m_devices.at(device_idx).device_handle,
+                                                            &m_devices.at(device_idx).power_domain),
+                                GEOPM_ERROR_INVALID, "LevelZero::" + std::string(__func__) +
+                                ": Multiple device level power domains detected and "
+                                "Sysman failed to get the card power domain.", __LINE__);
+                if (m_devices.at(device_idx).num_subdevice == 0) {
+                    for (auto handle : device_power_domain) {
+                        zes_power_ext_properties_t ext_property = {};
+                        ext_property.stype = ZES_STRUCTURE_TYPE_POWER_EXT_PROPERTIES;
+                        zes_power_properties_t property = {};
+                        property.stype = ZES_STRUCTURE_TYPE_POWER_PROPERTIES;
+                        property.pNext = &ext_property;
+                        check_ze_result(zesPowerGetProperties(handle, &property),
+                                        GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
+                                        ": Sysman failed to get domain power properties", __LINE__);
+                        // The package domain provides the chip energy
+                        if (ext_property.domain == ZES_POWER_DOMAIN_PACKAGE) {
+                            ++num_subdevice_power_domain;
+                            m_devices.at(device_idx).subdevice.power_domain.push_back(handle);
+                            break;
+                        }
+                    }
+                }
+            }
 
-            if (num_subdevice_power_domain > m_devices.at(device_idx).num_subdevice) {
+            if (num_subdevice_power_domain > num_chip(device_idx)) {
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": Number of subdevice power domains (" +
-                                std::to_string(num_device_power_domain) +
+                                std::to_string(num_subdevice_power_domain) +
                                 ") exceeds the number of subdevices (" +
                                 std::to_string(m_devices.at(device_idx).num_subdevice) + ").",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
-            m_devices.at(device_idx).num_device_power_domain = num_device_power_domain;
+            m_devices.at(device_idx).num_device_power_domain = 1;
             m_devices.at(device_idx).subdevice.num_subdevice_power_domain = num_subdevice_power_domain;
             m_devices.at(device_idx).subdevice.
                 cached_energy_timestamp.resize(m_devices.at(device_idx).subdevice.power_domain.size());
@@ -400,7 +420,7 @@ namespace geopm
                                 ": Sysman failed to get domain performance factor properties", __LINE__);
 
                 //Finding subdevice domain.
-                if (property.onSubdevice != 0) {
+                if (property.onSubdevice != 0 || m_devices.at(device_idx).num_subdevice == 0) {
                     if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
                         m_devices.at(device_idx).subdevice.perf_domain.at(
                             geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
@@ -537,7 +557,7 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                                 ": Sysman failed to get temperature domain properties.", __LINE__);
 
-                if (property.onSubdevice == 0) {
+                if (property.onSubdevice == 0 && m_devices.at(device_idx).num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                               << "temperature domain was found but is not currently supported.\n";
@@ -621,6 +641,9 @@ namespace geopm
                                     ": LevelZero Sub-Device acquisition failed.", __LINE__);
                     if (num_subdevice == device_it->num_subdevice) {
                         device_it->driver = driver;
+                        if (num_subdevice == 0) {
+                            subdevice_handle.push_back(handle);
+                        }
                         device_it->subdevice_handle = std::move(subdevice_handle);
                     }
                 }
@@ -660,11 +683,11 @@ namespace geopm
     {
         // Pad the per-chip vectors that the drain thread and metric guards index
         auto &sub = m_devices.at(l0_device_idx).subdevice;
-        unsigned int num_subdevice = m_devices.at(l0_device_idx).num_subdevice;
-        sub.metric_domain_cached.resize(num_subdevice, false);
-        sub.metrics_initialized.resize(num_subdevice, false);
-        sub.metric_active.resize(num_subdevice, false);
-        sub.metric_last_drain.resize(num_subdevice,
+        unsigned int chip_count = num_chip(l0_device_idx);
+        sub.metric_domain_cached.resize(chip_count, false);
+        sub.metrics_initialized.resize(chip_count, false);
+        sub.metric_active.resize(chip_count, false);
+        sub.metric_last_drain.resize(chip_count,
                                      std::chrono::steady_clock::time_point{});
     }
 
@@ -676,7 +699,7 @@ namespace geopm
     //      - data storage for the ComputeBasics metric group
     void LevelZeroImp::metric_group_init(unsigned int device_idx) {
         for (unsigned int subdevice_idx = 0;
-             subdevice_idx < m_devices.at(device_idx).num_subdevice;
+             subdevice_idx < num_chip(device_idx);
              ++subdevice_idx) {
             // Setup tracking of the caching and initialization steps
             m_devices.at(device_idx).subdevice.metric_domain_cached.push_back(false);
@@ -1004,11 +1027,7 @@ namespace geopm
 
     void LevelZeroImp::metric_read(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
-        // A GPU that exposes no subdevices is still counted as one GPU_CHIP by
-        // topology, but metric_group_init sets up no per-subdevice metric state
-        // for it, so this vector is empty.  Disable metrics for that domain
-        // rather than support them here.  Revisit if such a GPU is ever expected
-        // to provide valid metrics (see metric_group_init).
+        // Metric state is empty until metric_init() runs
         if (l0_domain_idx >= m_devices.at(l0_device_idx).subdevice.metric_domain_cached.size() ||
             !m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
             return;
@@ -1098,8 +1117,7 @@ namespace geopm
         while (m_metric_thread_active.load()) {
             auto now = std::chrono::steady_clock::now();
             for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_gpu; ++l0_device_idx) {
-                unsigned int num_subdevice = m_devices.at(l0_device_idx).num_subdevice;
-                for (unsigned int l0_domain_idx = 0; l0_domain_idx < num_subdevice; ++l0_domain_idx) {
+                for (unsigned int l0_domain_idx = 0; l0_domain_idx < num_chip(l0_device_idx); ++l0_domain_idx) {
                     std::lock_guard<std::mutex> lock(m_metric_mutex);
                     auto &sub = m_devices.at(l0_device_idx).subdevice;
                     if (!sub.metric_active.at(l0_domain_idx) ||
@@ -1208,9 +1226,7 @@ namespace geopm
         if (!m_is_metric_init) {
             return result;
         }
-        // See metric_read: a subdeviceless GPU has no cached metric state, so
-        // report the domain as unsupported (a geopm::Exception the IOGroup prunes)
-        // instead of indexing an empty vector.
+        // A chip without cached metric state is unsupported, so the IOGroup prunes it
         if (l0_domain_idx >= m_devices.at(l0_device_idx).subdevice.metric_domain_cached.size() ||
             !m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
             throw Exception("LevelZero::" + std::string(__func__) +
@@ -1231,6 +1247,7 @@ namespace geopm
     {
         uint32_t ras_handle_count = 0;
         uint32_t num_subdevice = m_devices.at(device_idx).num_subdevice;
+        uint32_t chip_count = num_chip(device_idx);
         // Find number of RAS error sets for the GPU
         uint32_t num_errset = 0;
         ze_result_t ze_result = zesDeviceEnumRasErrorSets(m_devices.at(device_idx).device_handle,
@@ -1257,7 +1274,7 @@ namespace geopm
             //       m_num_subdevice = number of subdevices on specific GPU device
             //       M_NUM_ERROR_TYPE = number of RAS error types
 
-            m_devices.at(device_idx).subdevice.ras_domain.resize(num_subdevice * M_NUM_ERROR_TYPE);
+            m_devices.at(device_idx).subdevice.ras_domain.resize(chip_count * M_NUM_ERROR_TYPE);
 
             // Iterate over errorset handles
             for (auto handle : error_set) {
@@ -1268,16 +1285,17 @@ namespace geopm
                                 "LevelZero::" + std::string(__func__) +
                                 ": Sysman failed to get RAS properties",
                                 __LINE__);
+                uint32_t chip_idx = property.onSubdevice != 0 ? property.subdeviceId : 0;
 
 		// Check if the RAS errorset handle maps to a subdevice
-                if (property.onSubdevice == 0) {
+                if (property.onSubdevice == 0 && num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                               << "RAS domain was found but is not currently supported.\n";
 #endif
                 }
 		// Check if the RAS errorset handle maps to a known subdevice
-		else if (property.subdeviceId >= num_subdevice) {
+		else if (chip_idx >= chip_count) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A RAS domain handle "
                               << "was found to map to an unaccounted subdevice #"
@@ -1288,18 +1306,24 @@ namespace geopm
 		// Cache the RAS errorset handle into index - [subdevice Id][error type]
                 else if (property.type == ZES_RAS_ERROR_TYPE_CORRECTABLE ||
                          property.type == ZES_RAS_ERROR_TYPE_UNCORRECTABLE) {
-                   int ras_idx = property.subdeviceId * M_NUM_ERROR_TYPE +
+                   int ras_idx = chip_idx * M_NUM_ERROR_TYPE +
                                  (property.type == ZES_RAS_ERROR_TYPE_CORRECTABLE ?
                                   M_ERROR_TYPE_CORRECTABLE : M_ERROR_TYPE_UNCORRECTABLE);
                    m_devices.at(device_idx).subdevice.ras_domain.at(ras_idx) = handle;
                    ++ras_handle_count;
                 }
             }
+            if (ras_handle_count != chip_count * M_NUM_ERROR_TYPE) {
+                throw Exception("LevelZero: Number of RAS error handles is incorrect",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
-        if (ras_handle_count != num_subdevice * M_NUM_ERROR_TYPE) {
-            throw Exception("LevelZero: Number of RAS error handles is incorrect",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+    }
+
+    uint32_t LevelZeroImp::num_chip(unsigned int l0_device_idx) const
+    {
+        uint32_t num_subdevice = m_devices.at(l0_device_idx).num_subdevice;
+        return num_subdevice == 0 ? 1 : num_subdevice;
     }
 
     int LevelZeroImp::num_gpu() const
