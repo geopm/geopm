@@ -169,11 +169,20 @@ When the result contradicts the physics, suspect the measurement.
 | Best value sits at a search-space boundary | The optimum may lie outside the range. Widen it with `=MIN:MAX:STEP` |
 | Best equals the platform default | Either the default is genuinely optimal, or the controls had no effect. Confirm they were writable |
 | All scores within the noise floor | No usable signal. Longer runs, more trials, or a quieter machine |
-| `UserWarning: The objective has been evaluated at point ... before` | The optimizer is re-sampling. With few trials this is normal; if frequent, the grid is small relative to the budget |
+| `UserWarning: The objective has been evaluated at point ... before` | The optimizer is re-sampling. With few trials this is normal; if frequent, the grid is small relative to the budget. It only appears when the grid has more points than `--trials` |
 
 That warning appeared in the example above and is emitted by `scikit-optimize`,
 not GEOPM. It means the model wanted a point it had already tried and a random
-one was substituted.
+one was substituted. When the grid has no more points than `--trials`, geopmopt
+instead skips Bayesian optimization, evaluates each grid point once, and logs a
+warning such as:
+
+```
+WARNING: Grid has 6 points (2 x 3), no more than --trials 13: skipping Bayesian optimization and evaluating each point once (6 trials)
+```
+
+The parenthesized shape lists the number of settings in each dimension and is
+omitted for a single-dimension sweep.
 
 ## Verifying the recommendation
 

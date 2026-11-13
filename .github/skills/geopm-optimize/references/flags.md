@@ -36,8 +36,8 @@ With no objective flags at all, the objective is wall-clock runtime.
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--trials N` | `50` | Total evaluations, including the initial random ones |
-| `--n-initial-points N` | `10` | Random evaluations before the Gaussian Process takes over |
+| `--trials N` | `50` | Total evaluations, including the initial random ones. If the grid has no more points than N, each point is evaluated once instead |
+| `--n-initial-points N` | `10` | Random evaluations before the Gaussian Process takes over. Ignored when each grid point is evaluated once |
 | `--random-seed SEED` | `42` | Fixed by default, so repeat runs explore identically |
 | `--sample-period SECONDS` | `0.01` | `geopmsession` sampling period for energy objectives |
 | `--penalty auto\|none\|NUMBER` | `auto` | How a recoverable trial failure is scored |
