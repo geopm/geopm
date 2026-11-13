@@ -174,8 +174,15 @@ When the result contradicts the physics, suspect the measurement.
 That warning appeared in the example above and is emitted by `scikit-optimize`,
 not GEOPM. It means the model wanted a point it had already tried and a random
 one was substituted. When the grid has no more points than `--trials`, geopmopt
-instead logs a `Grid has N points, no more than --trials T` warning, skips
-Bayesian optimization, and evaluates each grid point once.
+instead skips Bayesian optimization, evaluates each grid point once, and logs a
+warning such as:
+
+```
+WARNING: Grid has 6 points (2 x 3), no more than --trials 13: skipping Bayesian optimization and evaluating each point once (6 trials)
+```
+
+The parenthesized shape lists the number of settings in each dimension and is
+omitted for a single-dimension sweep.
 
 ## Verifying the recommendation
 
