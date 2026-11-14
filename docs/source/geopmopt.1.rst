@@ -409,10 +409,9 @@ need not print a figure of merit:
               --trials 30 \
               -- geopmbench geopmbench.conf
    WARNING: Grid has 23 points, no more than --trials 30: skipping Bayesian optimization and evaluating each point once (23 trials)
-   INFO: Evaluation 1: coordinate=[22], score=54.33
-   INFO: Evaluation 2: coordinate=[21], score=49.52
    ...
-   INFO: Evaluation 23: coordinate=[18], score=45.81
+   INFO: Evaluation 18: coordinate=[18], score=45.81
+   ...
    INFO: Optimization completed!
    INFO: Best metric: 45.81
    INFO: Best coordinate: [18]
