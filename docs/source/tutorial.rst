@@ -1068,7 +1068,9 @@ the application does not need to print anything:
     CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
 
 Higher ``--trials`` counts explore more configurations at the cost of more
-application runs; start with 20-30 to validate the setup.
+application runs; start with 20-30 to validate the setup. Once ``--trials``
+reaches the number of grid points, geopmopt evaluates each point once instead
+of running Bayesian optimization, so a higher count adds no runs.
 
 Tuning Several Controls and Saving the Result
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

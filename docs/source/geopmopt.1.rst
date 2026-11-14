@@ -408,18 +408,22 @@ need not print a figure of merit:
               --sweep cpu-freq@board \
               --trials 30 \
               -- geopmbench geopmbench.conf
-   INFO: Starting Bayesian optimization with 30 evaluations...
+   WARNING: Grid has 23 points, no more than --trials 30: skipping Bayesian optimization and evaluating each point once (23 trials)
    INFO: Evaluation 1: coordinate=[22], score=54.33
    INFO: Evaluation 2: coordinate=[21], score=49.52
    ...
-   INFO: Evaluation 30: coordinate=[18], score=45.81
+   INFO: Evaluation 23: coordinate=[18], score=45.81
    INFO: Optimization completed!
    INFO: Best metric: 45.81
    INFO: Best coordinate: [18]
-   INFO: Number of evaluations: 30
+   INFO: Number of evaluations: 23
    Best configuration:
    CPU_FREQUENCY_GOVERNOR_CONTROL board 0 0
    CPU_FREQUENCY_MAX_CONTROL board 0 2800000000.0
+
+Here the frequency grid has 23 points, no more than ``--trials``, so the tool
+evaluates each point once instead of running Bayesian optimization (see
+``--trials``).
 
 Tune several controls together
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
