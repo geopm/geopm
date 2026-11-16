@@ -4,7 +4,10 @@ CGO_CFLAGS := -I$(LIBGEOPMD_PATH)/include -pipe -fno-plt -O2
 CGO_CXXFLAGS := -pipe -fno-plt -O2
 CGO_LDFLAGS := -L$(LIBGEOPMD_PATH)/.libs -fstack-protector-strong -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now,-z,noexecstack,-z,defs
 LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):$(LIBGEOPMD_PATH)/.libs
-CGOFLAGS := -trimpath -gcflags="all=-spectre=all -N -l" -asmflags="all=-spectre=all" -buildmode=pie -ldflags="all=-linkmode=external -s -w"
+# Note: no -asmflags="all=-spectre=all": Go 1.26 (Ubuntu 26.04) fails to
+# assemble its runtime gc scanner with retpoline-rewritten indirect calls.
+# Source-level hardening via -gcflags="all=-spectre=all" is retained.
+CGOFLAGS := -trimpath -gcflags="all=-spectre=all -N -l" -buildmode=pie -ldflags="all=-linkmode=external -s -w"
 
 export CGO_CPPFLAGS CGO_CFLAGS CGO_CXXFLAGS CGO_LDFLAGS LD_LIBRARY_PATH
 
