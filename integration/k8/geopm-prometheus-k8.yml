@@ -20,8 +20,6 @@ spec:
         env:
         - name: NVIDIA_VISIBLE_DEVICES
           value: "all"
-        - name: ZES_ENABLE_SYSMAN
-          value: "1"
         - name: ZE_FLAT_DEVICE_HIERARCHY
           value: "COMPOSITE"
         securityContext:

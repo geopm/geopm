@@ -112,6 +112,7 @@ class MockLevelZero : public geopm::LevelZero
         MOCK_METHOD(uint32_t, metric_update_rate, (unsigned int), (const, override));
         MOCK_METHOD(void, metric_update_rate_control, (unsigned int, uint32_t), (override));
         MOCK_METHOD(void, metric_read, (unsigned int, unsigned int), (override));
+        MOCK_METHOD(void, metric_init, (), (override));
 };
 
 #endif

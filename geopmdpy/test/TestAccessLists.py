@@ -52,6 +52,15 @@ class TestAccessLists(unittest.TestCase):
     def test_get_names(self):
         self.assertEqual((pio.signal_names(), pio.control_names()), _get_names())
 
+    def test_get_names_levelzero_metric_init(self):
+        env_name = 'GEOPM_LEVELZERO_DEFER_METRIC_INIT'
+        with mock.patch.dict(os.environ, {env_name: '1'}), \
+             mock.patch('geopmdpy.pio.signal_names',
+                        side_effect=lambda: [os.environ.get(env_name, 'unset')]), \
+             mock.patch('geopmdpy.pio.control_names', return_value=['control']):
+            self.assertEqual((['unset'], ['control']), _get_names())
+            self.assertEqual('1', os.environ[env_name])
+
     def test_config_parser(self):
         '''
         Tests that the parsing of the config files is resilient to

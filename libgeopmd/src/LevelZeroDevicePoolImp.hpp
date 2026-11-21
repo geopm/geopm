@@ -112,6 +112,7 @@ namespace geopm
             uint32_t metric_update_rate(int domain, unsigned int domain_idx) const override;
 
             void metric_read(int domain, unsigned int domain_idx) const override;
+            void metric_init(void) const override;
 
         private:
             LevelZero &m_levelzero;

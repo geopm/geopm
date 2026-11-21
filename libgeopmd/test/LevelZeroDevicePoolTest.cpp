@@ -405,6 +405,13 @@ TEST_F(LevelZeroDevicePoolTest, device_range_check)
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy(GEOPM_DOMAIN_GPU, num_gpu, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " idx " + std::to_string(num_gpu) + " is out of range");
 }
 
+TEST_F(LevelZeroDevicePoolTest, metric_init)
+{
+    EXPECT_CALL(*m_levelzero, metric_init());
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
+    m_device_pool.metric_init();
+}
+
 TEST_F(LevelZeroDevicePoolTest, device_function_check)
 {
     const int num_gpu = 4;

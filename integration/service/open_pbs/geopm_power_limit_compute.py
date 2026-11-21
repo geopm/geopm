@@ -29,7 +29,6 @@ for p in path_config['aux_lib_paths']:
 from geopmdpy import pio
 from geopmdpy import system_files
 
-os.environ["ZES_ENABLE_SYSMAN"] = "1"
 os.environ["ZE_FLAT_DEVICE_HIERARCHY"] = "COMPOSITE"
 
 _RESOURCE_FILE_SEARCH_PATH = "/var/tmp"

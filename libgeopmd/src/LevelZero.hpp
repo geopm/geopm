@@ -362,6 +362,9 @@ namespace geopm
 
             virtual void metric_read(unsigned int l0_device_idx,
                                      unsigned int l0_domain_idx) = 0;
+            /// @brief Initialize Level Zero core and metric (ZET) support if
+            ///        not already done.  The GPUs stay open until process exit.
+            virtual void metric_init(void) = 0;
     };
 
     LevelZero &levelzero();

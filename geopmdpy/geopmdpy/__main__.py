@@ -78,6 +78,8 @@ def main():
         return 0
     system_files.secure_make_dirs(system_files.GEOPM_SERVICE_RUN_PATH,
                                   perm_mode=system_files.GEOPM_SERVICE_RUN_PATH_PERM)
+    # Level Zero core init holds the GPUs open, so geopmd and its batch servers defer it
+    os.environ[system_files.LEVELZERO_DEFER_METRIC_INIT] = '1'
     if len(sys.argv) > 1 and sys.argv[1] == '--grpc':
         main_grpc()
     else:

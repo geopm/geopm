@@ -10,7 +10,7 @@ interface to provide hardware signals and controls for Intel GPUs.
 Requirements
 ^^^^^^^^^^^^
 
-To use the GEOPM LevelZero signals and controls GEOPM must be compiled against the oneAPI LevelZero libraries and must be run on a system with discrete GPUs supported by LevelZero.  To compile against the oneAPI LevelZero libraries geopm must be configured using the --enable-levelzero flag.  The optional --with-levelzero flag may be used to indicate the path of the required libraries.  In addition the user must export ZES_ENABLE_SYSMAN=1 as specified by the Intel oneAPI Level Zero Sysman documentation.  See the Sysman specification for more info on related environment variables and their usage.
+To use the GEOPM LevelZero signals and controls GEOPM must be compiled against the oneAPI LevelZero libraries and must be run on a system with discrete GPUs supported by LevelZero.  To compile against the oneAPI LevelZero libraries geopm must be configured using the --enable-levelzero flag.  The optional --with-levelzero flag may be used to indicate the path of the required libraries.  GEOPM initializes Sysman with zesInit(), so ZES_ENABLE_SYSMAN must not be set to 1: that legacy Sysman initialization mode is not supported together with zesInit() as described in the `Level Zero Sysman Initialization <https://github.com/intel/compute-runtime/blob/master/programmers-guide/SYSMAN.md>`_ guide.  See the Sysman specification for more info on related environment variables and their usage.
 
 Since signals and controls are exposed via the Sysman API they will be impacted by Sysman environment variables.  Please review `oneAPI LevelZero Sysman Environment Variables <https://oneapi-src.github.io/level-zero-spec/level-zero/latest/sysman/PROG.html#environment-variables>`_ and `oneAPI LevelZero Core Programming Guide Environment Variables <https://oneapi-src.github.io/level-zero-spec/level-zero//latest/core/PROG.html#environment-variables>`_.
 
@@ -18,6 +18,11 @@ Note on RAS Signals
 ^^^^^^^^^^^^^^^^^^^
 
 The Monitoring of RAS counters have a high overhead (0.5 seconds each to read). And so, reporting of any errors while monitoring these signals (for e.g., due to unsupported firmware) will be delayed until the user attempts to actually read any of these signals.
+
+Note on Metric Signals
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``LEVELZERO::METRIC`` signals require the LevelZero core driver (zeInit()), which keeps the GPU device files open until the process exits.  The GEOPM service (geopmd) and its batch servers defer that initialization until a metric signal is pushed for batch reads, so the long-running service does not stay attached to the GPUs.  Other processes initialize metrics when the LevelZeroIOGroup is created, so only the metric signals that work on every GPU chip are listed.
 
 
 Signals
@@ -82,7 +87,7 @@ Signals
     *  **Unit**: hertz
 
 ``LEVELZERO::GPU_ENERGY``
-    GPU energy in joules.
+    GPU energy in joules.  On GPUs that report more than one device level power domain, this is the card power domain.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu
@@ -90,7 +95,7 @@ Signals
     *  **Unit**: joules
 
 ``LEVELZERO::GPU_CORE_ENERGY``
-    GPU Compute Hardware chip energy in joules.
+    GPU Compute Hardware chip energy in joules.  On GPUs without sub-devices that report more than one device level power domain, this is the package power domain.
 
     *  **Aggregation**: sum
     *  **Domain**: gpu_chip for multi-chip systems or gpu for single chip per gpu systems
